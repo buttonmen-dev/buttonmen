@@ -1,2 +1,3 @@
 web1:
   document_root: php/
+  apache_log_level: debug
