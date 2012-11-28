@@ -1,0 +1,233 @@
+
+# Skill hook functions
+
+
+skillHooks = { "poison", { "scoreValue", poisonScoreFunc 
+		   	   			   "captured", poisonIsCapturedFunc },
+		       "value", { "roll", valueRollFunc,
+			   			  "capture", valueCaptureFunc,
+						  "describe", valueDescFunc } }
+
+# Poison
+
+func poisonScoreFunc(die, args):
+	 die.scoremult *= -1
+
+func poisonIsCapturedFunc(die, args):
+	 die.scoreDiv = 2
+
+# Value
+
+func valueRollFunc(die, args):
+	 die.scoreVal = die.value
+
+func valueCaptureFunc(die, args):
+	 (attackType, attackers, victims) = args[]
+
+	 foreach d in victims[]
+	 		 d.addSkill("value")
+
+func valueDescribeFunc(die, args):
+	 (desc) = args[]
+
+	 if (die.captured)
+	 	desc += " showing {die.value}"
+
+# Etc, etc
+
+
+class BMDie
+
+# Data:
+
+	hookLists = {}
+	min = 1
+	max = 1
+	value = 1
+	initVal = 1 
+	scoreMult = 1
+	scoreVal = 1
+	scoreDiv = 2
+	skillList = []
+	parentButton
+	doesReroll = true
+	attackList = [ "power", "skill" ]
+	attackValueList = []
+	defenseBonus = 0
+	captured = false
+
+
+# Not hooked:
+
+	addSkill(skill):
+		push(skillList, skill)
+		
+		foreach (x,f) in skillHooks{skill}
+				hookList{x}{skill} = f
+
+
+	removeSkill(skill):
+		if (!contains(skillList, skill))
+		   #log error
+		   return
+
+		delete(skillList, skill)
+
+		foreach (x) in keys(skillHooks{skill})
+				delete(hookList{x}{skill}
+
+
+	hasSkill:
+		return contains(skillList, skill)
+
+	runHooks(func, args):
+		hooks = hookList{func};
+
+		foreach x in sort(keys(hooks{})) #deterministic skill execution order
+				x(self, args)
+
+	init(sides):
+		min = 1
+		max = sides
+		scoreVal = max
+
+#Hooked:
+
+	open(parent):
+# Initialization for when die is actually in use
+  		self.parentbutton = parent
+		self.roll(false)
+
+		# attacks are registered here. constant turns off rerolls
+		runHooks("open")
+
+	roll(successfulAttack):
+		if (self.doesReroll)
+				value = random(min, max)
+		runHooks("roll", [ successfulAttack ])
+
+
+	attackValues(type):
+		attackValueList = []
+		runHooks("attackValues", type, attackValueList)
+
+		if (attackValueList)
+		   return attackValueList
+
+		return [ self.value ]
+
+# Armor dice make this necessary
+	defenseValue:
+		runHooks("defenseValue")
+		return self.value + self.defenseBonus
+		
+
+# returns ten times the "real" scoring value
+#
+# Maybe it's the C programmer in me, and it's not actually a problem
+#  in the languages we may be using, but I see a risk of 10.5 not
+#  equalling 10.5 due to floating-point math, so I want to use
+#  fixed-point instead.
+
+	scoreValue:
+		runHooks("scoreValue")
+		return 10 * scoreVal * scoreMult / scoreDiv
+
+
+# I don't yet have a good model for focus/chance. Maybe their
+#  initvalue hook function registers them as having initiative powers
+#  with the button?
+#
+# Also haven't actually defined what initVal becomes if the button
+#  doesn't count for initiative. 0 would be reasonable, as would
+#  -BIGNUM, or a null/undefined value
+#
+# If the initiativeValue comparisons result in a draw, can try again
+#  by checking die.value directly. (Means Rage Focus dice never get to
+#  turn down. Shrug.)
+	initiativeValue:
+		initVal = self.value
+		runHooks("initiativeValue")
+		return initVal
+
+# checks for special-case situations where an otherwise-valid attack
+# is not legal. Single-die skill attacks with stealth dice are the only
+# situation I can come up with off the top of my head
+	validAttack(type, attackers, defenders):
+		valid = true
+		runHooks("validAttack", [type, attackers, defenders, valid])
+		return valid
+
+	validTarget(type, attackers, defenders):
+		valid = true
+		runHooks("validTarget", [type, attackers, defenders, valid])
+		return valid
+
+
+# Does not move dice from the opponent's play area to your score
+#  pile. That's done in the attack code
+	capture(attackType, attackers, victims):
+		runHooks("capture", [attackType, attackers, victims])
+
+	isCaptured(attackType, attackers, victims):
+		self.scoreMult = 1
+		self.scoreDiv = 1
+		runHooks("isCaptured")
+
+	describe:
+		desc = ""
+		if (skillList)
+		   desc += join(" ", skillList)
+
+		desc += "{self.max}-sided die"
+
+		if (!self.captured)
+		   desc += " showing {self.value}"
+
+		runHooks("describe", [ desc ])
+
+		return desc
+
+
+# Twin dice (Well, N-die clusters)
+Class BMTwinDie(BMDie):
+	init(dice):
+		self.min = self.max = 0
+		foreach die in dice[]
+# doesn't handle swing dice yet
+			newDie = BMDie.init(die)
+			push(self.dieList, newDie)
+			self.min += newDie.min
+			self.max += newDie.max
+
+		scoreVal = max
+
+
+	roll(successfulAttack):
+		self.value = 0
+		if (self.doesReroll)
+			foreach die in self.dieList[]
+				die.roll(successfulAttack)
+				self.value += die.value
+
+		runHooks("roll", [ successfulAttack ])
+
+
+	describe:
+		desc = ""
+		if (skillList)
+			desc += join(" ", skillList)
+
+		desc += " ("
+# Doesn't handle swing dice, adds an extra ", "
+		foreach die in self.dieList[]
+			desc += die.max + ", "
+
+		desc += ") Twin die"
+
+		if (!self.captured)
+		   desc += " showing {self.value}"
+
+		runHooks("describe", [ desc ])
+
+		return desc

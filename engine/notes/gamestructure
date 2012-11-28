@@ -1,0 +1,197 @@
+The lifecycle of a BM game
+
+The details of how a game is spawned and players are added is not a
+topic for this document. We begin at the point where two players have
+decided to beat each other up, buttons are selected, etc.
+
+(Although, as a side note, I think we may want to separate the basic
+information on a game, which sticks around forever, and the much
+larger and more complex game-state block that never gets interacted
+with once the game is finished.)
+
+I am assuming the various ideas I've posted are being used. They don't
+have to be done my way, but however they're done, I can't see how
+we're not going to end up with a structure that resembles this one.
+
+So anyway:
+
+The game is created. The buttons' die containers are copied into the
+game state block.
+
+Checkpoint (Checkpoints are where the game state is written back to
+the DB. Any interaction with the game between checkpoints can and will
+be discarded if the user moves on before the next checkpoint.)
+
+Pre-game:
+
+Apply handicaps: if the game is handicapped, give wins to the
+appropriate side.
+
+
+Activate each button's game-start die container. At the moment, this
+can only contain auxiliary dice.
+
+When you activate the container, it activates the auxiliary die
+within. The logic on aux dice is going to be a bit awkward. I think
+the best way to do it may be to check whether the opposing button has
+an aux die in its game-start container. If not, copy itself to the
+opponent's container, then force a jump back to (Pre-game)
+
+(The reason for this is the ordering problem when one player doesn't.)
+
+If the opponent does have an aux die, an aux die will mark the game as
+needing attention from its owner.
+
+(How the game communicates with the front-end is not in the scope of
+this document.)
+
+(As a side note, I figure it's best if each player record in the db
+has a flag that's set if the player has any games needing
+attention. That way, we can avoid doing the expensive "look up all
+games this player has a turn on" operations until necessary. This will
+be set upon checkpointing.)
+
+Checkpoint.
+
+If aux dice, the players will make aux dice decisions. If necessary,
+copy the aux dice to the players' gift-dice containers.
+
+Flag each player as needing activation, for the reason of round-start.
+
+Checkpoint.
+
+Pre-round:
+
+For each player who needs activation:
+
+Clear their active dice list.
+
+Activate main-dice container. When that's done, activate gift-dice
+container. (I'm not actually convinced there needs to be two separate
+containers.)
+
+Activating a cointainer causes it to activate all its contents, which
+can be dice or other containers. (more detail elsewhere)
+
+If a container is activated, it may need to wait on the player to make
+a decision. Once any decision is made, it keeps recursively activating
+its contents. (This does not cause a checkpoint.)
+
+If a die is activated, it is copied to the player's active dice
+list. It pushes which attacks it can make into a list.  If it is an
+option or swing die, it pushes its information into a list. (Once
+again, no checkpoint.)
+
+Once all activations are done, if the option/swing list contains
+anything, the user gets to pick option and swing dice.
+
+At every decision point, the user is presented with the option to back
+out and start their choices over.
+
+Checkpoint.
+
+
+Initiative:
+
+each die in each player's active list gets rolled, then asked for its
+initiative value.
+
+Initiative values can be [value] (normal) [0] (slow) [ min, min+1, ...,
+value] (focus), or ['?", value] (chance)
+
+Figure out who's going first. If the other player has usable focus or
+chance, flag the game as needing attention from them.
+
+Checkpoint.
+
+Repeat as needed.
+
+Checkpoint.
+
+If the initiative situation is a draw, get each die's value. Compare
+that list. If it's still a draw, flip a coin.
+
+Flag the game as being the first player's turn.
+
+Checkpoint.
+
+Main game loop:
+
+Start-of-turn hooks for both players' dice. Armor dice will require
+this. Gamer dice also need to go at the start of each turn, and must
+force a checkpoint if used. (Armor Gamer dice will be... interesting.)
+
+Flag the game as being the other player's turn. (We want to do it
+before the attack is made, so that time and space dice can just change
+the flag. We're not going to checkpoint again until the attack is made.)
+
+For each attack that has usable dice, check to see if there is
+currently a legal attack for that attack type. 
+
+There are two options here: determine if there is at least one, and
+determine all possible. I think we need to determine all possible, but
+that's the sort of computationally expensive thing I'd like to push
+out to the client if it's feasible. (I think Warrior dice force us to
+do it server-side. See more later.)
+
+We don't need to do a full enumeration to prevent invalid attacks,
+since we have to recheck anyway.
+
+(Side note: Socrates will have a special ability that adds a hook to
+all his dice that has them return a different skill attack than normal
+dice do.)
+
+"Pass" is a special attack. It becomes available if there are no
+attacks at all, or if all the available attacks involve a die that has
+an ability that makes use optional. (Currently just warrior dice.)
+
+(A possible alternate implementation is to have Warrior dice also
+hooked to return a special skill attack. Pass can then check whether
+that skill attack has a valid attack and no other attack does.)
+
+(This trick might also work with Fire dice, although they have to fuck
+with all your dice.)
+
+Anyway, once the attack is committed, we recheck that it's
+legal. (Trust No One.) If it's not, discard state and return to (Main
+game loop). If we're checking on the front end, we also want to log
+an error here, as either there's a bug in the check logic, or
+somebody's cheating.
+
+Turbo Swing dice will need to prompt the user for their new size here.
+
+Reroll all involved dice. T&S may change whose turn it is here.
+
+End-of-turn hooks for all players' dice. (I can't immediately think of
+any time your dice may want to act at the end of an opponent's
+turn. Dice will, of course, know whose turn it is.)
+
+Log turn. (How many previous turns should be available in the game log
+is an interesting question. I want more than one, but all of them is
+probably excessive. We can also log other stuff, like swing die choices.)
+
+Checkpoint.
+
+Check if the round's over. If it is, figure out who won. Increment
+win/lose/draw counters. Loser gets flagged for reactivation for the
+reason of losing.
+
+In addition to the main counter for draws, there's a second one. If
+it's reached 3, reset it to 0, and flag both players for reactivation
+due to draws. (Should any three draws cause a reset, or three in a row?)
+
+Checkpoint.
+
+Check if the game's over. If not, go back to (pre-round)
+
+(The logic's a bit wonky here. As currently written, a game end could
+cause a player to be told they have a game needing attention.)
+
+Checkpoint.
+
+Game-end:
+
+Increment wins/losses for players, buttons, and specific player/player
+and button/button matchups. Adjust player and button ratings. Notify
+players of win/loss. Notify tournament of game end. Probably three
+other things I forgot.
