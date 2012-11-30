@@ -1,10 +1,26 @@
-rmor
+Armor
 
 Abbrevation: AR
 
 Armor dice add their value to the rest of your non-armour dice whenever any of those dice are under attack. (This goes into effect before your opponent declares their attack.) Armor dice can also power and skill attack as normal dice.
 
 Used in sets: Nodwick 
+
+
+Implementation: Acts at start of turn (all turns). Gives all non-Armor
+dice the skill "armored"
+
+-----------
+
+Armored
+
+Invisible skill -- does not show up in displayed skill list.
+
+Implementation: Hooks into get defensive value method. Search all your
+dice for Armor dice, return own value plust total of all armor dice.
+
+-----------
+
 Auxiliary
 
 Abbrevation: AU
@@ -14,6 +30,11 @@ Auxiliary Dice represent special abilities or assistants of the Buttonlord (Butt
 Important: If you fight against a player who has no Auxiliary, and you wish to use your own, chivalry dictates that you offer your opponent the option to use an Auxiliary equivalent to your own. "Equivalent" means a die of the same size and type. In the case of Auxiliary X, each player's X's can vary independently.
 
 Used in sets: Buttonlords 
+
+Implementation: Discussed in notes on game flow.
+
+-----------
+
 Berserker
 
 Abbrevation: BE
@@ -21,6 +42,12 @@ Abbrevation: BE
 Berserk dice cannot be used in a Skill Attack, but may make Power Attacks normally. They also have a third attack, called a Berserk Attack, which is the equivalent of a Speed Attack. In a Speed Attack, one die can capture any number of dice which add up exactly to its value. After making a Berserk Attack, the Berserk die is replaced by a non-Berserk die half its size (round fractions up) before rerolling.
 
 Used in sets: Bruno! 
+
+Implementation: Hooks into attack list function. Remove skill, add
+Berserk. Hook capture method: remove skill, halve sides.
+
+-----------
+
 Chance
 
 Abbrevation: CH
@@ -32,6 +59,27 @@ If you do not currently have the initiative (i.e. you are not going first) you m
 Re-rolling Chance Dice is not just a way to gain initiative, it can also be useful in protecting your larger dice, or just improving your starting roll.
 
 Used in sets: Yoyodyne 
+
+Implementation: Hook initiative values method.
+
+-----------
+
+Chaotic
+
+Button gains a skill from the following list on each roll, losing
+previous chaotic skill.
+
+poison
+poison shadow
+?????
+
+Implementation: Requires persistant storage. Hook roll. Hook
+description. Hook remove skill. (Need to handle the scenario where a
+button has poison, and chaotic adds it. Button should not then lose
+poison when chaotic changes.)
+
+-----------
+
 Constant
 
 Abbrevation: CO
@@ -39,6 +87,12 @@ Abbrevation: CO
 After the first roll of the round, you don't reroll them until the first roll of the next round. Constant dice keep their value (after all, they are constant). They only attack as part of a Skill Attack; they can not make Power Attacks. When making a Skill Attack you can either add OR subtract the Constant die from the Skill Attack total. The total value of a Skill Attack with a Constant Die can not be less than 1.
 
 Used in sets: Button Brains 
+
+Implementation: Hook activate (to turn off rerolls). Hook attack values.
+
+-----------
+
+
 Deception
 
 Abbrevation: DE
@@ -46,6 +100,23 @@ Abbrevation: DE
 Deception Dice are labeled with a "D", and have a scoring value of 4.
 
 Used in sets: Gaming Guardians 
+
+Implementation: Hook initialize to set scorevalue. Becoming Value will
+override this skill. (We can prevent dice starting with both, but
+Value spreads.)
+
+-----------
+
+Doppelganger
+
+When die captures another die in a 1-to-1 attack, it becomes an exact
+copy of that die.
+
+Implementation: Hook capture
+
+-----------
+
+
 Evil
 
 Abbrevation: EV
@@ -53,6 +124,16 @@ Abbrevation: EV
 Evil Dice are labeled with an "E". Evil Dice can make simultaneous Power Attacks, but can never make Skill attacks.
 
 Used in sets: Gaming Guardians 
+
+Implementation: Hook attack types. I'm not sure what this means. Can a
+single evil die make more than one power attack at once, a sort of
+uber-speed? I think what's intended is that if you have multiple evil
+dice, they may make parallel power attacks. This will require
+replacing the normal power attack class with a special one.
+
+-----------
+
+
 Fire
 
 Abbrevation: FI
@@ -64,6 +145,22 @@ Before making a Skill or Power Attack, you may increase the value showing on any
 Dice can never be increased or decreased outside their normal range, i.e., a 10-side die can never show a number lower than 1 or higher than 10. Also, Fire Dice cannot assist other dice in making attacks other than normal Skill and Power Attacks.
 
 Used in sets: Origins 2004, Polycon 
+
+Implementation: Not sure on this one, but has to hook attack types
+regardless. Could work by replacing the normal skill and power attacks
+for other dice with special fire-aware once. Could also see
+registering a "helper" or "fire" attack, which the normal skill and
+power attack functions look for.
+
+The whole "replace a normal attack type with a special modified one"
+goes pear-shaped very fast when a die wants to replace the same
+attack type for two different skills. (Hooks within the attack
+functions may be able to solve it, and flags certainly could, but
+ugh. Needs using sparingly.)
+
+-----------
+
+
 Focus
 
 Abbrevation: FO
@@ -81,6 +178,13 @@ The Legend of the Five Rings expansion also contained the following multiplayer 
 Players sit in a circle. The player with the lowest roll goes first. Players with Focus Dice have the chance to use them, starting with the player who is closest to going first, and working up. When a player is attacked, that player takes the next turn. If a player passes, the turn moves to the left. The game continues until every player passes.
 
 Used in sets: Bar Mitzvah, GenCon 2001, Legend of the Five Rings, Origins 2004, Samurai 
+
+Implementation: Hook initiative values. Hook activate and start of
+turn. (So it can check if it was used, and shut down if necessary.)
+
+-----------
+
+
 Game
 
 Abbrevation: GA
@@ -88,6 +192,13 @@ Abbrevation: GA
 Once per game, you may reroll your game dice at any time.
 
 Used in sets: Origins 2004 
+
+
+Implementation: Hook start of every turn. Offer option to use. If
+used, lose the skill.
+
+-----------
+
 Insult
 
 Abbrevation: IN
@@ -95,6 +206,23 @@ Abbrevation: IN
 Insult Dice are labeled with an "I". These dice cannot be captured by Skill attacks.
 
 Used in sets: Gaming Guardians 
+
+
+Implementation: Hook valid target.
+
+-----------
+
+Jolt
+
+When a Jolt die captures in a 1--to-1 attack, or is captured in one,
+the player doing the capturing takes another turn, and Jolt is lost.
+
+(I think.)
+
+Implementation: hook capture, is captured
+
+-----------
+
 Loaded
 
 Abbrevation: LO
@@ -102,6 +230,15 @@ Abbrevation: LO
 Loaded dice are labeled with an "L", and always have the maximum value.
 
 Used in sets: Gaming Guardians 
+
+(Was on the old site as Maximum.)
+
+Implementation: Depends. Work like constant, or hook roll. From the
+name, should hook roll. That way is abusive with T&S, but the skill's
+just generally abusive anyway.
+
+-----------
+
 Mighty
 
 Abbrevation: MI
@@ -109,6 +246,13 @@ Abbrevation: MI
 UNOFFICIAL: They are represented by a "H" before a die. Mighty Dice are normal in all respects, except that when a Mighty Die rerolls, it becomes larger. a 1 sided die grows to a 2 sided die, then up to a 4, 6, 8, 10, 12, 16, 20, and finally a 30. This happens every time a Mighty Die is rerolled, like from a Trip attack.
 
 Used in sets: Bar Mitzvah, Origins 2004, Space Girlz 
+
+Implementation: Hook roll. Needs to be able to differentiate between
+initial roll and all future rolls.
+
+-----------
+
+
 Mood Swing
 
 Abbrevation: MS
@@ -116,6 +260,14 @@ Abbrevation: MS
 The Mood Swing, like the Turbo Swing, changes its value each time it is used--however, the Mood Swing does so randomly. When a player uses a Mood Swing to make a capture (whether in a Skill or Power Attack), she then rolls another die (preferably one not currently in play, so as to avoid confusion) to determine what die size to use next for the Mood Swing. The old Mood Swing is taken out of play, the new one is brought in in its place, rolled to determine its new value, and play continues. For a Mood "V" Swing, use a d4 to determine the new die type: 1=d6, 2=d8, 3=d10, 4=d12; for a Mood "X" Swing, roll a d6, with 1=d4, 2=d6, 3=d8, 4=d10, 5=d12, 6=d20. In tournament play, the winner of a round "resets" her Mood Swing to the die size she'd selected at the start of the round she just won, prior to beginning the next round. (The loser of a round can, of course, select whatever new size she desires going into the next round.)
 
 Used in sets: Button Brains, Dork Victory, Origins 2004, Renaissance 
+
+
+Implementation: Hook roll. Needs to check it was actually in an
+attack. (Not necessarily a sucessful one -- trip should, I think,
+trigger mood swing.)
+
+-----------
+
 Morphing
 
 Abbrevation: MO
@@ -129,6 +281,12 @@ It is then re-rolled. Morphing dice change size every time they capture another 
 If a Morphing die is captured, its scoring value is based on its size at the time of capture. If a Morphing die is kept in play until the end of the game, it is worth half the value of its current size.
 
 Used in sets: Metamorphers 
+
+Implementation: Hook capture. (How does a morphing trip die behave?)
+
+-----------
+
+
 Null
 
 Abbrevation: NU
@@ -140,6 +298,14 @@ attack with or without non-Null dice), the captured die is removed from the
 game and not scored.
 
 Used in sets: Gaming Guardians, Origins 2000 
+
+
+Implementation: Hook initialize (to set scoring multiplier), capture
+(to give captured dice null.)
+
+-----------
+
+
 Option
 
 Abbrevation: OP
@@ -149,6 +315,22 @@ Dice represented as "A/B" are Option Dice. You may use a die of either size for 
 In casual play, you can always change your Option Dice between rounds. In a tournament game, each player chooses his starting Option Dice in secret, and only the loser of each round may change dice.
 
 Used in sets: Balticon 34, Bar Mitzvah, Bridge and Tunnel, Button Brains, Chicagoland Gamers Conclave, Demicon the 13th, Fairies, Fantasy, GenCon 2000, Origins 2004, Renaissance, SFR, Sluggy 
+
+
+Implementation: Is a subclass of the normal die type. You will not be
+able to have an option die with swing as a possibility. (Makes no
+sense, and requires extra convolutions in the pick swings and options
+screen.) Since twin dice can be swing, and you should be able to have
+an option that lets you pick between a twin and another, we'll just
+have to forbid swing twins in an option.
+
+There is no reason that an option must be limited to only two choices,
+and it doesn't make implementation much harder.
+
+The subclass will need to override activate, describe.
+
+-----------
+
 Ornery
 
 Abbrevation: OR
@@ -156,6 +338,13 @@ Abbrevation: OR
 Ornery dice reroll after every turn, whether they took part in an attack or not.
 
 Used in sets: Bar Mitzvah, Renaissance, Space Girlz 
+
+
+Implementation: 
+
+-----------
+
+
 Plasma
 
 Abbrevation: PL
@@ -163,6 +352,12 @@ Abbrevation: PL
 Plasma Dice are represented by a "P" and "{}" before a die. Plasma dice is a meta-skill that contains other skills. During the start of a round, and every round lost (and when there are more than 3 ties), the player can select which set of skills are active in the set of the Plasma meta-skill.
 
 Used in sets: Space Girlz 
+
+
+Implementation: 
+
+-----------
+
 Poison
 
 Abbrevation: PO
@@ -170,6 +365,12 @@ Abbrevation: PO
 Poison Dice are like normal dice in all respects, except that they are worth negative points. If you keep a Poison Die of your own, subtract its full value from your score. If you capture a Poison Die from someone else, subtract half its value from your score.
 
 Used in sets: Bridge and Tunnel, Brom, Cthulhu, Diceland, Everything to Gain, Fairies, Freaks, GenCon 2001, Orc!, Origins 2002, Origins 2004, Renaissance, ShoreCon 2000, Space Girlz, Studio Foglio 
+
+
+Implementation: 
+
+-----------
+
 Queer
 
 Abbrevation: QU
@@ -177,6 +378,19 @@ Abbrevation: QU
 Queer Dice behave like normal dice when they show an even number, and like Shadow Dice when they show an odd number.
 
 Used in sets: Fairies, Freaks 
+
+Implementation: 
+
+-----------
+
+Radioactive
+
+
+
+Implementation: 
+
+-----------
+
 Rage
 
 Abbrevation: RA
@@ -187,6 +401,12 @@ Rage Dice are like normal dice in all respects except for the following:
 3: Rage Dice do not count for going first.
 
 Used in sets: SydCon 10 
+
+
+Implementation: 
+
+-----------
+
 Rebound
 
 Abbrevation: RB
@@ -194,6 +414,12 @@ Abbrevation: RB
 If a Rebound Die is captured, the Rebound Die is re-rolled. If the die rolls higher than its original value (before the Attack) it captures the largest attacking die.
 
 Used in sets: Bridge and Tunnel 
+
+
+Implementation: 
+
+-----------
+
 Reserve
 
 Abbrevation: RE
@@ -205,6 +431,12 @@ If you lose a round to your friend, you may move any one of your button's Reserv
 Transforming a Reserve Die into a Starting Die is not a requirement if you lose - it's always optional. Characters who just won the last round cannot transform their Reserve Dice.
 
 Used in sets: Sailor Moon, Sailor Moon 2 
+
+Implementation: 
+
+-----------
+
+
 Shadow
 
 Abbrevation: SH
@@ -214,6 +446,20 @@ Shadow Dice are normal in all respects, except that they cannot make Power Attac
 Shadow Attack: Use one of your shadow dice to capture one of your opponent's dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10. Take the captured die out of play, then re-roll the capturing die.
 
 Used in sets: Bridge and Tunnel, Brom, Buttonlords, Cthulhu, Demicon the 13th, Everything to Gain, Freaks, Nodwick, Origins 2004, Save The Ogres, Vampires 
+
+Implementation: 
+
+-----------
+
+Sideboard
+
+
+
+
+Implementation: 
+
+-----------
+
 Sleep
 
 Abbrevation: SE
@@ -222,6 +468,13 @@ UNOFFICIAL: Sleep dice are not used when determining initiative.
 They can be used to perform normal attacks or be used to perform sleep attacks. To perform a sleep attack the value on the sleep die must be lower than the value of the die you're attacking. If that is the case you re-roll BOTH the sleep die and the attacked die. The attacked die can not be used by the opponent on his next turn - it's asleep!
 
 Used in sets: Origins 2004 
+
+
+Implementation: 
+
+-----------
+
+
 Slow
 
 Abbrevation: SL
@@ -229,6 +482,13 @@ Abbrevation: SL
 UNOFFICIAL: Slow dice are not counted for the purposes of initative, like Trip dice. They have no other ability. This skill is a weakness and has no compensating strength.
 
 Used in sets: Origins 2004 
+
+
+Implementation: 
+
+-----------
+
+
 Speciality
 
 Abbrevation: SC
@@ -236,6 +496,12 @@ Abbrevation: SC
 Specialty Dice are labeled with an "*". Can be one type of dice from the following: Insult, Loaded, Poison, Shadow, Speed or Trip.
 
 Used in sets: Gaming Guardians 
+
+
+Implementation: 
+
+-----------
+
 Speed
 
 Abbrevation: SP
@@ -243,6 +509,13 @@ Abbrevation: SP
 Speed Dice are normal in all respects. They also have a third attack, called a Speed Attack, which is the equivalent of an inverted Skill Attack. In a Speed Attack, one Speed Die can capture any number of dice which add up exactly to its value.
 
 Used in sets: Bar Mitzvah, Brawl, Dork Victory, Everything to Gain, Freaks, Origins 2001, Origins 2004, Renaissance, The Japanese Beetle! 
+
+
+
+Implementation: 
+
+-----------
+
 Stealth
 
 Abbrevation: ST
@@ -250,6 +523,13 @@ Abbrevation: ST
 Stealth Dice are restricted in two ways: First, a Stealth Die can never make an attack on its own; Stealth Dice can only participate in multi-die Skill Attacks. Second, Stealth Dice are significantly harder to capture than normal dice. They can only be captured by multi-die Skill Attacks, not by Power Attacks or by any other sort of special attack.
 
 Used in sets: Howling Wolf 
+
+
+Implementation: 
+
+-----------
+
+
 Stinger
 
 Abbrevation: SI
@@ -261,6 +541,12 @@ Stinger Dice do not count for going first. This means you ignore the numbers on 
 When participating in a Skill Attack, Stinger Dice can be used as any number between 1 and the value they show. Thus, a normal die showing 4 and a Stinger Die showing 6 can make a Skill Attack on any die showing 5 through 10. Two Stinger Dice showing 10 can Skill Attack any die between 2 and 20.
 
 Used in sets: Diceland, Origins 2002 
+
+
+Implementation: 
+
+-----------
+
 Teleport
 
 Abbrevation: TE
@@ -268,6 +554,13 @@ Abbrevation: TE
 Teleport Dice are labeled with a "T". On your turn, instead of making an attack, swap your Teleport Die with any live dice of your opponent's. You must reroll the new Teleport die.
 
 Used in sets: Gaming Guardians 
+
+
+Implementation: 
+
+-----------
+
+
 Thief
 
 Abbrevation: TH
@@ -275,6 +568,13 @@ Abbrevation: TH
 The Thief Die cannot make a Power Attack, but can make Skill Attacks as normal. The Thief Die can perfom a Thief Attack. To make a Thief Attack, pick an opponent’s die with a value less than or equal to the value of the Thief Die. Place the Thief Die in your Score Pile (it is worth half its size in points) and move the opponent’s die to your side of the table. You will use it as your own for the remainder of the round. Re-roll the stolen die.
 
 Used in sets: Everything to Gain 
+
+
+Implementation: 
+
+-----------
+
+
 Time and Space
 
 Abbrevation: TS
@@ -282,6 +582,13 @@ Abbrevation: TS
 After your starting roll, every time one of the Time And Space Dice rolls an odd number, you get to take another turn. If both Time And Space Dice come up odd you still only get to take one extra turn.
 
 Used in sets: Wunderland 
+
+
+
+Implementation: 
+
+-----------
+
 Trip
 
 Abbrevation: TR
@@ -295,6 +602,13 @@ The Trip Attack counts as your one attack for the turn, and can be used instead 
 Clarification: A Trip Attack is illegal if it has no chance of capturing. This is posible in the case of a Trip-1 attacking a Twin Die.
 
 Used in sets: Lunch Money 
+
+
+Implementation: 
+
+-----------
+
+
 Turbo Swing
 
 Abbrevation: TU
@@ -304,6 +618,13 @@ After your starting roll, you may change the size of a Turbo swing every time yo
 Note: In a tournament, you're not allowed to change your swing die if you won the last round. If you're using a Turbo in this case, you must start the round with the same size die as you started with last time.
 
 Used in sets: Cheapass Games, Freaks, Wunderland 
+
+
+
+Implementation: 
+
+-----------
+
 Twin
 
 Abbrevation: TW
@@ -311,6 +632,12 @@ Abbrevation: TW
 Twin Dice appear as two numbers in an oblong frame, and are played as two small dice that add together. For example, a twin 8 is represented as (8,8) and treated as a single 16-sided die. The two 8's are rolled as one, captured as one, and scored as one 16-point die.
 
 Used in sets: Button Brains, Cthulhu, Dork Victory, Freaks, Gaming Guardians, Save The Ogres, Space Girlz, Studio Foglio 
+
+
+Implementation: 
+
+-----------
+
 Value
 
 Abbrevation: VA
@@ -318,6 +645,18 @@ Abbrevation: VA
 UNOFFICIAL: Value dice are not scored like normal dice, instead a Value die is scored as if the number of sides that it has is equal to the number that it is currently showing. If a Value die is ever part of an attack, all dice that are captured become Value dice (i.e. They are scored by the current number they are showing when they are captured.)
 
 Used in sets: Origins 2004 
+
+Implementation: 
+
+-----------
+
+Warrior
+
+
+Implementation: 
+
+-----------
+
 Weak
 
 Abbrevation: WE
@@ -325,3 +664,14 @@ Abbrevation: WE
 UNOFFICIAL: Weak Dice are normal in all respects, except that when a Weak Die rerolls, it becomes smaller. a 21+ sided die shrinks to a 20 sided die, then down to a 16, 12, 10, 8, 6, 4, 2, then a 1 sided die. This happens every time a Weak Die is rerolled, like from a Trip attack.
 
 Used in sets: Space Girlz 
+
+
+Implementation:  Hook roll. Needs to be able to differentiate between
+initial roll and all future rolls.
+
+-----------
+
+Wildcard
+
+Implementation: 
+
