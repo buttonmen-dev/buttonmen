@@ -196,6 +196,17 @@ class BMDie
 
 		return desc
 
+# split the die in half. Needed for Berzerk and Radioactive
+	split:
+		newdie = self.clone
+		# we want to work only with integers here
+		if (self.max > 1)
+			remainder = self.max % 2
+			self.max -= remainder
+			self.max = self.max / 2
+			newdie.max = mewdie.max - self.max
+			return [ self, newdie ] # Berzerk can throw one away
+
 
 # Twin dice (Well, N-die clusters)
 Class BMTwinDie(BMDie):
@@ -219,6 +230,15 @@ Class BMTwinDie(BMDie):
 				self.value += die.value
 
 		runHooks("roll", [ successfulAttack ])
+
+	split:
+		newdie = self.clone
+		i = 0
+		foreach die in self.dielist[]
+			tmp = die.split
+			self.dielist[i] = tmp[0]
+			newdie.dielist[i] = tmp[1]
+		return [ self, newdie ]			
 
 
 	describe:
