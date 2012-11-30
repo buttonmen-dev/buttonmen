@@ -90,6 +90,10 @@ Used in sets: Button Brains
 
 Implementation: Hook activate (to turn off rerolls). Hook attack values.
 
+Note: interaction with stinger is ambiguous and potentially
+order-dependant. Could rationally return either [ -val, min, ... val ]
+or [ -val, ..., -min, min, ..., val ]
+
 -----------
 
 
@@ -340,7 +344,8 @@ Ornery dice reroll after every turn, whether they took part in an attack or not.
 Used in sets: Bar Mitzvah, Renaissance, Space Girlz 
 
 
-Implementation: 
+Implementation: Hook end-of-turn. Dice that have attacked will be
+flagged so that they don't reroll twice.
 
 -----------
 
@@ -354,7 +359,9 @@ Plasma Dice are represented by a "P" and "{}" before a die. Plasma dice is a met
 Used in sets: Space Girlz 
 
 
-Implementation: 
+Implementation: Container-based. Anybody who suggests mood or turbo
+plasma will be shot. :-p (It is actually possible, but requires a
+die-based model instead of the container-based one.
 
 -----------
 
@@ -367,7 +374,8 @@ Poison Dice are like normal dice in all respects, except that they are worth neg
 Used in sets: Bridge and Tunnel, Brom, Cthulhu, Diceland, Everything to Gain, Fairies, Freaks, GenCon 2001, Orc!, Origins 2002, Origins 2004, Renaissance, ShoreCon 2000, Space Girlz, Studio Foglio 
 
 
-Implementation: 
+Implementation: Hook initialize (to set scoring multiplier and
+divisor) and is captured (likewise)
 
 -----------
 
@@ -379,15 +387,25 @@ Queer Dice behave like normal dice when they show an even number, and like Shado
 
 Used in sets: Fairies, Freaks 
 
-Implementation: 
+Implementation: Hook attack list
 
 -----------
 
 Radioactive
 
+When the die captures or is captured in a 1-to-1 attack, the attacking
+die splits in half, and loses certain skills. (Jolt, T&S,
+Radioactive.)
 
+The original-site implementation also had it lose turbo and mood, but
+I believe I can make them work "properly": swing/option dice record
+their current divisor when they split, and apply it as approriate when
+they need to change. A Z (4-30) turbo swing would offer choices of
+2-15. (1-7 or 8 if it's split twice) This would also work to make
+wildcard dice behave.
 
-Implementation: 
+Implementation: Hook capture, is captured. Make use of the split
+method, so that weird die types can split properly.
 
 -----------
 
@@ -403,7 +421,7 @@ Rage Dice are like normal dice in all respects except for the following:
 Used in sets: SydCon 10 
 
 
-Implementation: 
+Implementation: Hook initiative, is captured, captures.
 
 -----------
 
@@ -416,7 +434,10 @@ If a Rebound Die is captured, the Rebound Die is re-rolled. If the die rolls hig
 Used in sets: Bridge and Tunnel 
 
 
-Implementation: 
+Implementation: Hook is captured. (Note: rebound-capturing a rebound
+die could potentially create problems, but if the implementation I was
+thinking of (move from one list to another) is used, probably
+won't. We can check where the capturing die is just to be sure.)
 
 -----------
 
@@ -432,7 +453,19 @@ Transforming a Reserve Die into a Starting Die is not a requirement if you lose 
 
 Used in sets: Sailor Moon, Sailor Moon 2 
 
-Implementation: 
+Implementation: Both a container and a skill. A reserve container only
+activates non-reserve things within it. If you've lost, it lets you
+choose one reserve thing within it, removes reserve from it, and
+activates it. The reserve skill exists only to be removed.
+
+Note: Plasma dice within a reserve container are possible, but must be
+nested slightly. r[ r4 r4 P{rs|rp}[12] ] wouldn't actually work (as I
+conceptualize them, plasma containers don't have the skills as such); you'd
+need to have a container with the reserve skill wrapping the plasma:
+r[ r4 r4 {r}[ P{s|p}[12] ] ]
+
+Note: putting reserve containers within other reserve containers would
+behave weirdly, but it ought to work.
 
 -----------
 
@@ -447,16 +480,20 @@ Shadow Attack: Use one of your shadow dice to capture one of your opponent's dic
 
 Used in sets: Bridge and Tunnel, Brom, Buttonlords, Cthulhu, Demicon the 13th, Everything to Gain, Freaks, Nodwick, Origins 2004, Save The Ogres, Vampires 
 
-Implementation: 
+Implementation: Hook attack list
 
 -----------
 
 Sideboard
 
+After you lose a round you can swap one of your regular dice for the
+sideboard die (and swap it back in for another of your dice after you
+lose another round).
 
 
 
-Implementation: 
+Implementation: Another container-based skill. Will require a separate
+container, which is opened last, after normal dice and gifted dice.
 
 -----------
 
@@ -470,7 +507,8 @@ They can be used to perform normal attacks or be used to perform sleep attacks. 
 Used in sets: Origins 2004 
 
 
-Implementation: 
+Implementation: hook initiative, hook attack list. (Note that sleep
+attacks are not die-range limited, like trip is.)
 
 -----------
 
@@ -484,7 +522,7 @@ UNOFFICIAL: Slow dice are not counted for the purposes of initative, like Trip d
 Used in sets: Origins 2004 
 
 
-Implementation: 
+Implementation: hook initiative
 
 -----------
 
@@ -498,7 +536,9 @@ Specialty Dice are labeled with an "*". Can be one type of dice from the followi
 Used in sets: Gaming Guardians 
 
 
-Implementation: 
+Implementation: This is entirely a special-case of plasma, as far as I
+can tell. (Like many of the Gaming Guardians skills, the rules are not
+fully clear.)
 
 -----------
 
@@ -512,7 +552,7 @@ Used in sets: Bar Mitzvah, Brawl, Dork Victory, Everything to Gain, Freaks, Orig
 
 
 
-Implementation: 
+Implementation: hook attack list
 
 -----------
 
@@ -525,7 +565,7 @@ Stealth Dice are restricted in two ways: First, a Stealth Die can never make an 
 Used in sets: Howling Wolf 
 
 
-Implementation: 
+Implementation: hook attack list, valid attack, valid target
 
 -----------
 
@@ -543,7 +583,14 @@ When participating in a Skill Attack, Stinger Dice can be used as any number bet
 Used in sets: Diceland, Origins 2002 
 
 
-Implementation: 
+Implementation: hook initiative, attack values
+
+Note: interaction with constant is ambiguous and potentially
+order-dependant. Could rationally return either [ -val, min, ... val ]
+or [ -val, ..., -min, min, ..., val ]
+
+Note: computing all possible skill attacks with stinger dice in the
+mix is potentially slow.
 
 -----------
 
@@ -556,7 +603,16 @@ Teleport Dice are labeled with a "T". On your turn, instead of making an attack,
 Used in sets: Gaming Guardians 
 
 
-Implementation: 
+Implementation: Hook attack list.
+
+Not clear how these are supposed to work. Is Teleport lost after use?
+Does the opponent get the teleoprt die, skill and all? Does Teleport
+detach itself from the old die and attach to the new?
+
+The "opponent gets the teleport die" method is the most problematic,
+as it creates a deadlock situation where both players would rather
+swap a poison die back and forth than capture it. Possible solution:
+once telwported, a die cannot be telwported again.
 
 -----------
 
@@ -570,7 +626,7 @@ The Thief Die cannot make a Power Attack, but can make Skill Attacks as normal. 
 Used in sets: Everything to Gain 
 
 
-Implementation: 
+Implementation: Hook attack list.
 
 -----------
 
@@ -585,7 +641,9 @@ Used in sets: Wunderland
 
 
 
-Implementation: 
+Implementation: Hook roll, checking for successful attack. (This means
+that trip attacks cannot trigger a new turn. Could check for attacking
+in general, when it would.)
 
 -----------
 
@@ -604,7 +662,12 @@ Clarification: A Trip Attack is illegal if it has no chance of capturing. This i
 Used in sets: Lunch Money 
 
 
-Implementation: 
+Implementation: Hook attack list, initiative. Range checking is done
+by the Trip attack code, not by the die.
+
+There's a case to be made for some sort of auto-trip mode to handle
+the tedious trip die vs twin die that cannot capture situation, but
+it's potentially quite complex.
 
 -----------
 
@@ -621,7 +684,9 @@ Used in sets: Cheapass Games, Freaks, Wunderland
 
 
 
-Implementation: 
+Implementation: hook roll. Needs to check it was actually in an
+attack. (Not necessarily a sucessful one -- trip should, I think,
+trigger turbo swing.)
 
 -----------
 
@@ -634,7 +699,23 @@ Twin Dice appear as two numbers in an oblong frame, and are played as two small 
 Used in sets: Button Brains, Cthulhu, Dork Victory, Freaks, Gaming Guardians, Save The Ogres, Space Girlz, Studio Foglio 
 
 
-Implementation: 
+Implementation: subclass of normal die, contains two (or more) normal
+dice. The twin die itself is the one that has skills. Those normal
+dice can be swing dice.
+
+Note: there is no reason that a twin die can't be lospided. (2,10), or
+(3,X), or even (Y,Y,Z) (Presumably for the Rush buttons.)
+
+-----------
+
+Unique
+
+Implementation: checked for in the swing-setting code. The
+swing-setting code should check the assigned values of the swing
+letters against each other, and only the ones that have a unique.
+
+(IIRC, There was a problem if somebody with a unique X swing picked up
+an X aux die.)
 
 -----------
 
@@ -646,14 +727,20 @@ UNOFFICIAL: Value dice are not scored like normal dice, instead a Value die is s
 
 Used in sets: Origins 2004 
 
-Implementation: 
+Implementation: Hook roll (to reset scoring value), capture
+
 
 -----------
 
 Warrior
 
+Warrior dice are not in the game. You may bring one in in a multi-die skill
+attack at its maximum value, after which it loses Warrior and rerolls
+normally. You never have to, allowing you to pass with a valid attack
+on the table.
 
-Implementation: 
+Implementation: Hook attack list to replace normal skill attacks with
+a special one.
 
 -----------
 
@@ -673,5 +760,166 @@ initial roll and all future rolls.
 
 Wildcard
 
-Implementation: 
+Wildcard dice draw randomly from a deck of cards to determine their
+current value: 2-10 (number cards), 11-13 (faces), 16 (ace), or 20
+(joker). Their scoring value is 16. There are two jokers in the deck,
+and four of everything else.
 
+(I am not sure on the scoring value or the value of an ace.)
+
+Should card appearances be repeatable before the deck runs out? It's a
+pain to implement, but doable. (Can store as bitfields for space
+efficiency, though PHP's bit operators have some potential traps due
+to precedence.) It's a lot of work for not much effect, though. (If
+it's done, do multiple wildcard dice share the same deck? (I think
+so.) Should both players share the same deck?)
+
+Implementation: Subclass die. If there's a shared deck, store it in
+the game data.
+
+------------
+
+KublaCon Promo buttons
+
+Chase’s Giant Sized Die (Cg)
+
+Chase's Giant Sized Die: Once per game add 3 to the value of the die
+at beginning or end of the turn
+
+Implementation: Hook all start-of-turns
+
+------------
+
+Kubla Treasure Die (Kt)
+
+Kubla Treasure: Cannot be attacked if there are other options. Worth
+full points if kept.
+
+Implementation: Hook init and captured to set scoring multiplier. Hook
+valid target for protection, and it's a tricky one unless we're
+enumerating all possible attacks, which I'd really rather avoid.
+
+------------
+
+Hoskins Die (H)
+
+Hoskins: Capture two dice that add up to the Hoskins' value, opponent
+gets Hoskins Die.
+
+Implementation: Hook attack list
+
+Note: Is this get as in "capture", or as in "take control of"?
+
+
+-------------
+
+Winslow
+
+It is not rational to implement this, but I still want to.
+
+Need to dig up the rule sheet. It's a 30-sider that always shows 1,
+and is never captured, but instead moves to the capturing player's
+in-play area.
+
+IIRC, you can choose to use it to replace a swing die, (need to find
+the rule sheet to check) but that doesn't work for buttons without
+swing dice. Instead, it will allow them to replace any die. (If you
+have a swing die, it'll force you to replace one of them. Probably
+will require an is_swing method)
+
+Implementation: Hook roll. Hook captured. Hook split. (You cannot
+divide the Winslow). Hook gain skill
+
+Requires support outside the game code. Who has the Winslow needs to
+be stored in the DB, probably in the player record. Player with it can
+use it in only one game at a time. If a game with it goes stale, the
+player who is not responsible gets the Winslow and the game is
+terminated. (Normal stale games aren't auto-killed, but this one is.)
+If a player with the Winslow has left it idle for N days (probably 7),
+they lose it and somebody else, chosen at random from the active
+players, gets it. (If it's passed on due to stale game, and the player
+in question has been idle for the appropriate period, it should move
+on immediately.)
+
+Whoever has the winslow gets the flag *Guardian of the Winslow*. Those
+who used to have it get the flag *Former Guardian* (or something)
+
+-------
+
+Button-specific powers:
+
+Exactly how these work is something I'm not fully sure of, but they
+probably do so with more hooks.
+
+
+Echo:
+
+Echo's basic recipe matches that of her enemy.
+
+(Does not copy button powers. Echo vs Echo should be a random button.)
+
+-------
+
+Giant:
+
+Giant never goes first.
+
+(Should this be done as slow dice, or a special power?)
+
+-------
+
+Bruno:
+
+Bruno gets an additional X Swing when fighting Pappy
+
+-------
+
+Pappy:
+
+Pappy gets an additional X(BE) Swing when fighting Bruno.
+
+-------
+
+Nightmare:
+
+When Nightmare loses a round, he may alter his opponent's variable
+dice instead of his own.
+
+(This is doable.)
+
+-------
+
+Socrates:
+
+Socrates may use one of his opponent's dice as part of any 2-die Skill Attack.
+
+(Replace the normal skill attack with a special one.)
+
+-------
+
+Cheese Weasel:
+
+Once per round, before taking his turn, the Cheese Weasel may re-roll one of his own dice that shows a value matching one of his opponent's dice, OR he may re-roll one of his opponent's dice that shows a value matching one of his own.
+
+(Hook into start-of-turn, just like Gamer dice)
+
+-------
+
+Sailor Moon, Geeks
+
+Should we implement these? If so, the criterion for using should
+probably be either "facing an opponent with a similar power" or
+"facing an opponent with reserve dice"
+
+-------
+
+The Flying Squirrel
+
+The Flying Squirrel cannot make skill attacks.
+
+
+-------
+
+The Japanese Beetle
+
+Skill attacks do not work on the Japanese Beetle
