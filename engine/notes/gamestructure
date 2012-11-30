@@ -62,6 +62,20 @@ Checkpoint.
 
 Pre-round:
 
+Clear all players' in-game die lists. Each player has three copies of
+their dice: 
+
+The list of all containers, which, upon a loss, is used to rebuild:
+
+The active die list
+
+And the in-game die lists (live and captured)
+
+All three lists can get modified during gameplay. (The container by
+reserve and aux dice, which is why we can't just use the master data
+structures in the button itself)
+
+
 For each player who needs activation:
 
 Clear their active dice list.
@@ -93,8 +107,8 @@ Checkpoint.
 
 Initiative:
 
-each die in each player's active list gets rolled, then asked for its
-initiative value.
+each die in each player's active list gets copied to the in-game
+list. The copy is then rolled and asked for its initiative value.
 
 Initiative values can be [value] (normal) [0] (slow) [ min, min+1, ...,
 value] (focus), or ['?", value] (chance)
@@ -126,7 +140,8 @@ before the attack is made, so that time and space dice can just change
 the flag. We're not going to checkpoint again until the attack is made.)
 
 For each attack that has usable dice, check to see if there is
-currently a legal attack for that attack type. 
+currently a legal attack for that attack type. Ignore dice with the
+inactive flag.
 
 There are two options here: determine if there is at least one, and
 determine all possible. I think we need to determine all possible, but
@@ -160,7 +175,11 @@ somebody's cheating.
 
 Turbo Swing dice will need to prompt the user for their new size here.
 
-Reroll all involved dice. T&S may change whose turn it is here.
+Mark all involved dice as having attacked. (Needed to avoid ornery
+dice rerolling twice.) Reroll all involved dice. T&S may change whose
+turn it is here.
+
+Clear the inactive flag from all of the current player's dice.
 
 End-of-turn hooks for all players' dice. (I can't immediately think of
 any time your dice may want to act at the end of an opponent's
@@ -195,3 +214,6 @@ Increment wins/losses for players, buttons, and specific player/player
 and button/button matchups. Adjust player and button ratings. Notify
 players of win/loss. Notify tournament of game end. Probably three
 other things I forgot.
+
+(If we have handicapped games, they should probably not affect ratings
+or win-loss records.)
