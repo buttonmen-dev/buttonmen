@@ -1,6 +1,11 @@
 
 # Skill hook functions
 
+#Skills should be a class of their own, allowing clean encapsulation
+# and attaching things such as a textual description of what the skill
+# does.
+
+
 
 skillHooks = { "poison", { "scoreValue", poisonScoreFunc 
 		   	   			   "captured", poisonIsCapturedFunc },
@@ -55,7 +60,10 @@ class BMDie
 	attackValueList = []
 	defenseBonus = 0
 	captured = false
-
+# This is set when the button may not attack (sleep or focus, for instance)
+# It is set to a string, so the cause may be described. It is cleared at
+# the end of each of your turns.
+	inactive = ""
 
 # Not hooked:
 
