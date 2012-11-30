@@ -136,6 +136,10 @@ class BMDie
 #  in the languages we may be using, but I see a risk of 10.5 not
 #  equalling 10.5 due to floating-point math, so I want to use
 #  fixed-point instead.
+#
+# That is a problem, at least in PHP. (I assume it was in Python as
+#  well, but I didn't get far enough into the language docs to see a
+#  warning.)
 
 	scoreValue:
 		runHooks("scoreValue")
@@ -161,6 +165,8 @@ class BMDie
 # checks for special-case situations where an otherwise-valid attack
 # is not legal. Single-die skill attacks with stealth dice are the only
 # situation I can come up with off the top of my head
+#
+# These methods cannot act, they may only check: they're called a lot
 	validAttack(type, attackers, defenders):
 		valid = true
 		runHooks("validAttack", [type, attackers, defenders, valid])
