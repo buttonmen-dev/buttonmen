@@ -1,0 +1,848 @@
+Armor
+
+Armor dice add their value to the rest of your non-armour dice whenever any of those dice are under attack. (This goes into effect before your opponent declares their attack.) Armor dice can also power and skill attack as normal dice.
+
+Used in sets: Nodwick 
+
+
+Implementation: Acts at start of turn (all turns). Gives all non-Armor
+dice the skill "armored"
+
+-----------
+
+Armored
+
+Invisible skill -- does not show up in displayed skill list.
+
+Implementation: Hooks into get defensive value method. Search all your
+dice for Armor dice, return own value plust total of all armor dice.
+
+-----------
+
+Auxiliary
+
+Auxiliary Dice represent special abilities or assistants of the Buttonlord (Buttonman), and are optional. Before each game, both players decide whether or not to play with their Auxiliary Dice. Usually, either both players use them, or both players don't.
+
+Important: If you fight against a player who has no Auxiliary, and you wish to use your own, chivalry dictates that you offer your opponent the option to use an Auxiliary equivalent to your own. "Equivalent" means a die of the same size and type. In the case of Auxiliary X, each player's X's can vary independently.
+
+Used in sets: Buttonlords 
+
+Implementation: Discussed in notes on game flow.
+
+-----------
+
+Berserker
+
+Berserk dice cannot be used in a Skill Attack, but may make Power Attacks normally. They also have a third attack, called a Berserk Attack, which is the equivalent of a Speed Attack. In a Speed Attack, one die can capture any number of dice which add up exactly to its value. After making a Berserk Attack, the Berserk die is replaced by a non-Berserk die half its size (round fractions up) before rerolling.
+
+Used in sets: Bruno! 
+
+Implementation: Hooks into attack list function. Remove skill, add
+Berserk. Hook capture method: remove skill, halve sides.
+
+-----------
+
+Chance
+
+You can re-roll your Chance Dice before the game begins, as follows: 
+
+If you do not currently have the initiative (i.e. you are not going first) you may re-roll one of your Chance Dice. If this results in your gaining the initiative, your opponent may re-roll one of his Chance Dice. Though unlikely, this can continue with each player re-rolling Chance Dice, even re-rolling the same dice, until one person fails to gain initiative or lets his opponent go first. 
+
+Re-rolling Chance Dice is not just a way to gain initiative, it can also be useful in protecting your larger dice, or just improving your starting roll.
+
+Used in sets: Yoyodyne 
+
+Implementation: Hook initiative values method.
+
+-----------
+
+Chaotic
+
+Button gains a skill from the following list on each roll, losing
+previous chaotic skill.
+
+poison
+poison shadow
+?????
+
+Implementation: Requires persistant storage. Hook roll. Hook
+description. Hook remove skill. (Need to handle the scenario where a
+button has poison, and chaotic adds it. Button should not then lose
+poison when chaotic changes.)
+
+-----------
+
+Constant
+
+After the first roll of the round, you don't reroll them until the first roll of the next round. Constant dice keep their value (after all, they are constant). They only attack as part of a Skill Attack; they can not make Power Attacks. When making a Skill Attack you can either add OR subtract the Constant die from the Skill Attack total. The total value of a Skill Attack with a Constant Die can not be less than 1.
+
+Used in sets: Button Brains 
+
+Implementation: Hook activate (to turn off rerolls). Hook attack values.
+
+Note: interaction with stinger is ambiguous and potentially
+order-dependant. Could rationally return either [ -val, min, ... val ]
+or [ -val, ..., -min, min, ..., val ]
+
+-----------
+
+
+Deception
+
+Deception Dice are labeled with a "D", and have a scoring value of 4.
+
+Used in sets: Gaming Guardians 
+
+Implementation: Hook initialize to set scorevalue. Becoming Value will
+override this skill. (We can prevent dice starting with both, but
+Value spreads.)
+
+-----------
+
+Doppelganger
+
+When die captures another die in a 1-to-1 attack, it becomes an exact
+copy of that die.
+
+Implementation: Hook capture
+
+-----------
+
+
+Evil
+
+Evil Dice are labeled with an "E". Evil Dice can make simultaneous Power Attacks, but can never make Skill attacks.
+
+Used in sets: Gaming Guardians 
+
+Implementation: Hook attack types. I'm not sure what this means. Can a
+single evil die make more than one power attack at once, a sort of
+uber-speed? I think what's intended is that if you have multiple evil
+dice, they may make parallel power attacks. This will require
+replacing the normal power attack class with a special one.
+
+-----------
+
+
+Fire
+
+Fire dice are normal in all respects, except as follows: Fire Dice cannot make Power Attacks. Instead, they can assist other Dice in making Skill and Power Attacks. 
+
+Before making a Skill or Power Attack, you may increase the value showing on any of the attacking dice, and decrease the values showing on one or more of your Fire Dice by the same amount. For example, if you wish to increase the value of an attacking die by 5 points, you can take 5 points away from one or more of your Fire Dice. Turn the Fire Dice to show the adjusted values, and then make the attack as normal. 
+
+Dice can never be increased or decreased outside their normal range, i.e., a 10-side die can never show a number lower than 1 or higher than 10. Also, Fire Dice cannot assist other dice in making attacks other than normal Skill and Power Attacks.
+
+Used in sets: Origins 2004, Polycon 
+
+Implementation: Not sure on this one, but has to hook attack types
+regardless. Could work by replacing the normal skill and power attacks
+for other dice with special fire-aware once. Could also see
+registering a "helper" or "fire" attack, which the normal skill and
+power attack functions look for.
+
+The whole "replace a normal attack type with a special modified one"
+goes pear-shaped very fast when a die wants to replace the same
+attack type for two different skills. (Hooks within the attack
+functions may be able to solve it, and flags certainly could, but
+ugh. Needs using sparingly.)
+
+-----------
+
+
+Focus
+
+Focus Dice: If a player has Focus Dice, he can change his starting roll as follows: 
+
+If you do not have the initiative, i.e., you are not going first, you may reduce the values showing on any number of your Focus Dice. You may change as many dice as you wish, but you may only do this if it results in your gaining the initiative. 
+
+If your opponent has Focus Dice, he may now do the same, and each player may respond by turning down one or more Focus Dice until no further moves are legal, or until one player allows the other to take the first turn. 
+
+Important restriction: If you go first, you may not use any Focus Dice you have reduced as part of your first attack. (The second player has no such restriction.) 
+
+The Legend of the Five Rings expansion also contained the following multiplayer rules: 
+
+Players sit in a circle. The player with the lowest roll goes first. Players with Focus Dice have the chance to use them, starting with the player who is closest to going first, and working up. When a player is attacked, that player takes the next turn. If a player passes, the turn moves to the left. The game continues until every player passes.
+
+Used in sets: Bar Mitzvah, GenCon 2001, Legend of the Five Rings, Origins 2004, Samurai 
+
+Implementation: Hook initiative values. Hook activate and start of
+turn. (So it can check if it was used, and shut down if necessary.)
+
+-----------
+
+
+Game
+
+Once per game, you may reroll your game dice at any time.
+
+Used in sets: Origins 2004 
+
+
+Implementation: Hook start of every turn. Offer option to use. If
+used, lose the skill.
+
+-----------
+
+Insult
+
+Insult Dice are labeled with an "I". These dice cannot be captured by Skill attacks.
+
+Used in sets: Gaming Guardians 
+
+
+Implementation: Hook valid target.
+
+-----------
+
+Jolt
+
+When a Jolt die captures in a 1--to-1 attack, or is captured in one,
+the player doing the capturing takes another turn, and Jolt is lost.
+
+(I think.)
+
+Implementation: hook capture, is captured
+
+-----------
+
+Loaded
+
+Loaded dice are labeled with an "L", and always have the maximum value.
+
+Used in sets: Gaming Guardians 
+
+(Was on the old site as Maximum.)
+
+Implementation: Depends. Work like constant, or hook roll. From the
+name, should hook roll. That way is abusive with T&S, but the skill's
+just generally abusive anyway.
+
+-----------
+
+Mighty
+
+UNOFFICIAL: They are represented by a "H" before a die. Mighty Dice are normal in all respects, except that when a Mighty Die rerolls, it becomes larger. a 1 sided die grows to a 2 sided die, then up to a 4, 6, 8, 10, 12, 16, 20, and finally a 30. This happens every time a Mighty Die is rerolled, like from a Trip attack.
+
+Used in sets: Bar Mitzvah, Origins 2004, Space Girlz 
+
+Implementation: Hook roll. Needs to be able to differentiate between
+initial roll and all future rolls.
+
+-----------
+
+
+Mood Swing
+
+The Mood Swing, like the Turbo Swing, changes its value each time it is used--however, the Mood Swing does so randomly. When a player uses a Mood Swing to make a capture (whether in a Skill or Power Attack), she then rolls another die (preferably one not currently in play, so as to avoid confusion) to determine what die size to use next for the Mood Swing. The old Mood Swing is taken out of play, the new one is brought in in its place, rolled to determine its new value, and play continues. For a Mood "V" Swing, use a d4 to determine the new die type: 1=d6, 2=d8, 3=d10, 4=d12; for a Mood "X" Swing, roll a d6, with 1=d4, 2=d6, 3=d8, 4=d10, 5=d12, 6=d20. In tournament play, the winner of a round "resets" her Mood Swing to the die size she'd selected at the start of the round she just won, prior to beginning the next round. (The loser of a round can, of course, select whatever new size she desires going into the next round.)
+
+Used in sets: Button Brains, Dork Victory, Origins 2004, Renaissance 
+
+
+Implementation: Hook roll. Needs to check it was actually in an
+attack. (Not necessarily a sucessful one -- trip should, I think,
+trigger mood swing.)
+
+-----------
+
+Morphing
+
+Morph Attack
+
+Whenever a Morphing dice is used in an attack, it changes size, becoming the same size as the die that was captured.
+
+It is then re-rolled. Morphing dice change size every time they capture another die. If a fighter has two Morphing dice and both are used in a Skill Attack, then both will assume the size of the captured die.
+
+If a Morphing die is captured, its scoring value is based on its size at the time of capture. If a Morphing die is kept in play until the end of the game, it is worth half the value of its current size.
+
+Used in sets: Metamorphers 
+
+Implementation: Hook capture. (How does a morphing trip die behave?)
+
+-----------
+
+
+Null
+
+Null dice are worth no points and any dice they capture are worth no points.
+
+If a Null die (or both Null dice) are used in any attack (including a skill
+attack with or without non-Null dice), the captured die is removed from the
+game and not scored.
+
+Used in sets: Gaming Guardians, Origins 2000 
+
+
+Implementation: Hook initialize (to set scoring multiplier), capture
+(to give captured dice null.)
+
+-----------
+
+
+Option
+
+Dice represented as "A/B" are Option Dice. You may use a die of either size for an Option Dice. For example, if your character has a "4/6" you may use either a 4-sided die or a 6-sided die in that slot.
+
+In casual play, you can always change your Option Dice between rounds. In a tournament game, each player chooses his starting Option Dice in secret, and only the loser of each round may change dice.
+
+Used in sets: Balticon 34, Bar Mitzvah, Bridge and Tunnel, Button Brains, Chicagoland Gamers Conclave, Demicon the 13th, Fairies, Fantasy, GenCon 2000, Origins 2004, Renaissance, SFR, Sluggy 
+
+
+Implementation: Is a subclass of the normal die type. You will not be
+able to have an option die with swing as a possibility. (Makes no
+sense, and requires extra convolutions in the pick swings and options
+screen.) Since twin dice can be swing, and you should be able to have
+an option that lets you pick between a twin and another, we'll just
+have to forbid swing twins in an option.
+
+There is no reason that an option must be limited to only two choices,
+and it doesn't make implementation much harder.
+
+The subclass will need to override activate, describe.
+
+-----------
+
+Ornery
+
+Ornery dice reroll after every turn, whether they took part in an attack or not.
+
+Used in sets: Bar Mitzvah, Renaissance, Space Girlz 
+
+
+Implementation: Hook end-of-turn. Dice that have attacked will be
+flagged so that they don't reroll twice.
+
+-----------
+
+
+Plasma
+
+Plasma Dice are represented by a "P" and "{}" before a die. Plasma dice is a meta-skill that contains other skills. During the start of a round, and every round lost (and when there are more than 3 ties), the player can select which set of skills are active in the set of the Plasma meta-skill.
+
+Used in sets: Space Girlz 
+
+
+Implementation: Container-based. Anybody who suggests mood or turbo
+plasma will be shot. :-p (It is actually possible, but requires a
+die-based model instead of the container-based one.
+
+-----------
+
+Poison
+
+Poison Dice are like normal dice in all respects, except that they are worth negative points. If you keep a Poison Die of your own, subtract its full value from your score. If you capture a Poison Die from someone else, subtract half its value from your score.
+
+Used in sets: Bridge and Tunnel, Brom, Cthulhu, Diceland, Everything to Gain, Fairies, Freaks, GenCon 2001, Orc!, Origins 2002, Origins 2004, Renaissance, ShoreCon 2000, Space Girlz, Studio Foglio 
+
+
+Implementation: Hook initialize (to set scoring multiplier and
+divisor) and is captured (likewise)
+
+-----------
+
+Queer
+
+Queer Dice behave like normal dice when they show an even number, and like Shadow Dice when they show an odd number.
+
+Used in sets: Fairies, Freaks 
+
+Implementation: Hook attack list
+
+-----------
+
+Radioactive
+
+When the die captures or is captured in a 1-to-1 attack, the attacking
+die splits in half, and loses certain skills. (Jolt, T&S,
+Radioactive.)
+
+The original-site implementation also had it lose turbo and mood, but
+I believe I can make them work "properly": swing/option dice record
+their current divisor when they split, and apply it as approriate when
+they need to change. A Z (4-30) turbo swing would offer choices of
+2-15. (1-7 or 8 if it's split twice) This would also work to make
+wildcard dice behave.
+
+Implementation: Hook capture, is captured. Make use of the split
+method, so that weird die types can split properly.
+
+-----------
+
+Rage
+
+Rage Dice are like normal dice in all respects except for the following:
+1: If a Rage Die is captured before it participates in an Attack, its owner adds a new die to his active dice. The new die is a normal die and is the same size as the Rage Die. Roll this new die when you add it. 
+2: If a Rage Die participates in an Attack, it loses its Rage ability and becomes a normal die of the same size. 
+3: Rage Dice do not count for going first.
+
+Used in sets: SydCon 10 
+
+
+Implementation: Hook initiative, is captured, captures.
+
+-----------
+
+Rebound
+
+If a Rebound Die is captured, the Rebound Die is re-rolled. If the die rolls higher than its original value (before the Attack) it captures the largest attacking die.
+
+Used in sets: Bridge and Tunnel 
+
+
+Implementation: Hook is captured. (Note: rebound-capturing a rebound
+die could potentially create problems, but if the implementation I was
+thinking of (move from one list to another) is used, probably
+won't. We can check where the capturing die is just to be sure.)
+
+-----------
+
+Reserve
+
+Starting Dice are on the right and the Reserve Dice are on the left of your Button Man. You will always play the game with the Starting Dice, and will only use some of the Reserve Dice if you lose a game round.
+
+If you lose a round to your friend, you may move any one of your button's Reserve Dice into your Starting Dice group for the next round. When the next round begins, you will now have one extra die to use during play. This ability applies to any round, and once a Reserve Die is converted to a Starting Die, it remains in play until the match is over.
+
+Transforming a Reserve Die into a Starting Die is not a requirement if you lose - it's always optional. Characters who just won the last round cannot transform their Reserve Dice.
+
+Used in sets: Sailor Moon, Sailor Moon 2 
+
+Implementation: Both a container and a skill. A reserve container only
+activates non-reserve things within it. If you've lost, it lets you
+choose one reserve thing within it, removes reserve from it, and
+activates it. The reserve skill exists only to be removed.
+
+Note: Plasma dice within a reserve container are possible, but must be
+nested slightly. r[ r4 r4 P{rs|rp}[12] ] wouldn't actually work (as I
+conceptualize them, plasma containers don't have the skills as such); you'd
+need to have a container with the reserve skill wrapping the plasma:
+r[ r4 r4 {r}[ P{s|p}[12] ] ]
+
+Note: putting reserve containers within other reserve containers would
+behave weirdly, but it ought to work.
+
+-----------
+
+
+Shadow
+
+Shadow Dice are normal in all respects, except that they cannot make Power Attacks. instead, they make inverted Power Attacks, called Shadow Attacks. 
+
+Shadow Attack: Use one of your shadow dice to capture one of your opponent's dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10. Take the captured die out of play, then re-roll the capturing die.
+
+Used in sets: Bridge and Tunnel, Brom, Buttonlords, Cthulhu, Demicon the 13th, Everything to Gain, Freaks, Nodwick, Origins 2004, Save The Ogres, Vampires 
+
+Implementation: Hook attack list
+
+-----------
+
+Sideboard
+
+After you lose a round you can swap one of your regular dice for the
+sideboard die (and swap it back in for another of your dice after you
+lose another round).
+
+
+
+Implementation: Another container-based skill. Will require a separate
+container, which is opened last, after normal dice and gifted dice.
+
+-----------
+
+Sleep
+
+UNOFFICIAL: Sleep dice are not used when determining initiative.
+They can be used to perform normal attacks or be used to perform sleep attacks. To perform a sleep attack the value on the sleep die must be lower than the value of the die you're attacking. If that is the case you re-roll BOTH the sleep die and the attacked die. The attacked die can not be used by the opponent on his next turn - it's asleep!
+
+Used in sets: Origins 2004 
+
+
+Implementation: hook initiative, hook attack list. (Note that sleep
+attacks are not die-range limited, like trip is.)
+
+-----------
+
+
+Slow
+
+UNOFFICIAL: Slow dice are not counted for the purposes of initative, like Trip dice. They have no other ability. This skill is a weakness and has no compensating strength.
+
+Used in sets: Origins 2004 
+
+
+Implementation: hook initiative
+
+-----------
+
+
+Speciality
+
+Specialty Dice are labeled with an "*". Can be one type of dice from the following: Insult, Loaded, Poison, Shadow, Speed or Trip.
+
+Used in sets: Gaming Guardians 
+
+
+Implementation: This is entirely a special-case of plasma, as far as I
+can tell. (Like many of the Gaming Guardians skills, the rules are not
+fully clear.)
+
+-----------
+
+Speed
+
+Speed Dice are normal in all respects. They also have a third attack, called a Speed Attack, which is the equivalent of an inverted Skill Attack. In a Speed Attack, one Speed Die can capture any number of dice which add up exactly to its value.
+
+Used in sets: Bar Mitzvah, Brawl, Dork Victory, Everything to Gain, Freaks, Origins 2001, Origins 2004, Renaissance, The Japanese Beetle! 
+
+
+
+Implementation: hook attack list
+
+-----------
+
+Stealth
+
+Stealth Dice are restricted in two ways: First, a Stealth Die can never make an attack on its own; Stealth Dice can only participate in multi-die Skill Attacks. Second, Stealth Dice are significantly harder to capture than normal dice. They can only be captured by multi-die Skill Attacks, not by Power Attacks or by any other sort of special attack.
+
+Used in sets: Howling Wolf 
+
+
+Implementation: hook attack list, valid attack, valid target
+
+-----------
+
+
+Stinger
+
+They are like normal dice in all respects except the following:
+
+Stinger Dice do not count for going first. This means you ignore the numbers on all your Stinger Dice when you are determining who goes first. Golo never goes first against anyone from this set.
+
+When participating in a Skill Attack, Stinger Dice can be used as any number between 1 and the value they show. Thus, a normal die showing 4 and a Stinger Die showing 6 can make a Skill Attack on any die showing 5 through 10. Two Stinger Dice showing 10 can Skill Attack any die between 2 and 20.
+
+Used in sets: Diceland, Origins 2002 
+
+
+Implementation: hook initiative, attack values
+
+Note: interaction with constant is ambiguous and potentially
+order-dependant. Could rationally return either [ -val, min, ... val ]
+or [ -val, ..., -min, min, ..., val ]
+
+Note: computing all possible skill attacks with stinger dice in the
+mix is potentially slow.
+
+-----------
+
+Teleport
+
+Teleport Dice are labeled with a "T". On your turn, instead of making an attack, swap your Teleport Die with any live dice of your opponent's. You must reroll the new Teleport die.
+
+Used in sets: Gaming Guardians 
+
+
+Implementation: Hook attack list.
+
+Not clear how these are supposed to work. Is Teleport lost after use?
+Does the opponent get the teleoprt die, skill and all? Does Teleport
+detach itself from the old die and attach to the new?
+
+The "opponent gets the teleport die" method is the most problematic,
+as it creates a deadlock situation where both players would rather
+swap a poison die back and forth than capture it. Possible solution:
+once telwported, a die cannot be telwported again.
+
+-----------
+
+
+Thief
+
+The Thief Die cannot make a Power Attack, but can make Skill Attacks as normal. The Thief Die can perfom a Thief Attack. To make a Thief Attack, pick an opponent’s die with a value less than or equal to the value of the Thief Die. Place the Thief Die in your Score Pile (it is worth half its size in points) and move the opponent’s die to your side of the table. You will use it as your own for the remainder of the round. Re-roll the stolen die.
+
+Used in sets: Everything to Gain 
+
+
+Implementation: Hook attack list.
+
+-----------
+
+
+Time and Space
+
+After your starting roll, every time one of the Time And Space Dice rolls an odd number, you get to take another turn. If both Time And Space Dice come up odd you still only get to take one extra turn.
+
+Used in sets: Wunderland 
+
+
+
+Implementation: Hook roll, checking for successful attack. (This means
+that trip attacks cannot trigger a new turn. Could check for attacking
+in general, when it would.)
+
+-----------
+
+Trip
+
+Trip Dice can make a special attack, called a "Trip," and they do not count for determining who goes first. In all other respects, they behave like normal dice. 
+
+Trip Attack: Choose any one opposing die as the Target. Roll both the Trip Die and the Target, then compare the numbers they show. If the Trip Die now shows an equal or greater number than the Target, the Target is captured. Otherwise, the attack merely has the effect of re-rolling both dice. 
+
+The Trip Attack counts as your one attack for the turn, and can be used instead of either basic attack.
+
+Clarification: A Trip Attack is illegal if it has no chance of capturing. This is posible in the case of a Trip-1 attacking a Twin Die.
+
+Used in sets: Lunch Money 
+
+
+Implementation: Hook attack list, initiative. Range checking is done
+by the Trip attack code, not by the die.
+
+There's a case to be made for some sort of auto-trip mode to handle
+the tedious trip die vs twin die that cannot capture situation, but
+it's potentially quite complex.
+
+-----------
+
+
+Turbo Swing
+
+After your starting roll, you may change the size of a Turbo swing every time you roll it. Decide on a size first, then roll the new die as usual. 
+
+Note: In a tournament, you're not allowed to change your swing die if you won the last round. If you're using a Turbo in this case, you must start the round with the same size die as you started with last time.
+
+Used in sets: Cheapass Games, Freaks, Wunderland 
+
+
+
+Implementation: hook roll. Needs to check it was actually in an
+attack. (Not necessarily a sucessful one -- trip should, I think,
+trigger turbo swing.)
+
+-----------
+
+Twin
+
+Twin Dice appear as two numbers in an oblong frame, and are played as two small dice that add together. For example, a twin 8 is represented as (8,8) and treated as a single 16-sided die. The two 8's are rolled as one, captured as one, and scored as one 16-point die.
+
+Used in sets: Button Brains, Cthulhu, Dork Victory, Freaks, Gaming Guardians, Save The Ogres, Space Girlz, Studio Foglio 
+
+
+Implementation: subclass of normal die, contains two (or more) normal
+dice. The twin die itself is the one that has skills. Those normal
+dice can be swing dice.
+
+Note: there is no reason that a twin die can't be lospided. (2,10), or
+(3,X), or even (Y,Y,Z) (Presumably for the Rush buttons.)
+
+-----------
+
+Unique
+
+Implementation: checked for in the swing-setting code. The
+swing-setting code should check the assigned values of the swing
+letters against each other, and only the ones that have a unique.
+
+(IIRC, There was a problem if somebody with a unique X swing picked up
+an X aux die.)
+
+-----------
+
+Value
+
+UNOFFICIAL: Value dice are not scored like normal dice, instead a Value die is scored as if the number of sides that it has is equal to the number that it is currently showing. If a Value die is ever part of an attack, all dice that are captured become Value dice (i.e. They are scored by the current number they are showing when they are captured.)
+
+Used in sets: Origins 2004 
+
+Implementation: Hook roll (to reset scoring value), capture
+
+
+-----------
+
+Warrior
+
+Warrior dice are not in the game. You may bring one in in a multi-die skill
+attack at its maximum value, after which it loses Warrior and rerolls
+normally. You never have to, allowing you to pass with a valid attack
+on the table.
+
+Implementation: Hook attack list to replace normal skill attacks with
+a special one.
+
+-----------
+
+Weak
+
+UNOFFICIAL: Weak Dice are normal in all respects, except that when a Weak Die rerolls, it becomes smaller. a 21+ sided die shrinks to a 20 sided die, then down to a 16, 12, 10, 8, 6, 4, 2, then a 1 sided die. This happens every time a Weak Die is rerolled, like from a Trip attack.
+
+Used in sets: Space Girlz 
+
+
+Implementation:  Hook roll. Needs to be able to differentiate between
+initial roll and all future rolls.
+
+-----------
+
+Wildcard
+
+Wildcard dice draw randomly from a deck of cards to determine their
+current value: 2-10 (number cards), 11-13 (faces), 16 (ace), or 20
+(joker). Their scoring value is 16. There are two jokers in the deck,
+and four of everything else.
+
+(I am not sure on the scoring value or the value of an ace.)
+
+Should card appearances be repeatable before the deck runs out? It's a
+pain to implement, but doable. (Can store as bitfields for space
+efficiency, though PHP's bit operators have some potential traps due
+to precedence.) It's a lot of work for not much effect, though. (If
+it's done, do multiple wildcard dice share the same deck? (I think
+so.) Should both players share the same deck?)
+
+Implementation: Subclass die. If there's a shared deck, store it in
+the game data.
+
+------------
+
+KublaCon Promo buttons
+
+Chase’s Giant Sized Die (Cg)
+
+Chase's Giant Sized Die: Once per game add 3 to the value of the die
+at beginning or end of the turn
+
+Implementation: Hook all start-of-turns
+
+------------
+
+Kubla Treasure Die (Kt)
+
+Kubla Treasure: Cannot be attacked if there are other options. Worth
+full points if kept.
+
+Implementation: Hook init and captured to set scoring multiplier. Hook
+valid target for protection, and it's a tricky one unless we're
+enumerating all possible attacks, which I'd really rather avoid.
+
+------------
+
+Hoskins Die (H)
+
+Hoskins: Capture two dice that add up to the Hoskins' value, opponent
+gets Hoskins Die.
+
+Implementation: Hook attack list
+
+Note: Is this get as in "capture", or as in "take control of"?
+
+
+-------------
+
+Winslow
+
+It is not rational to implement this, but I still want to.
+
+Need to dig up the rule sheet. It's a 30-sider that always shows 1,
+and is never captured, but instead moves to the capturing player's
+in-play area.
+
+IIRC, you can choose to use it to replace a swing die, (need to find
+the rule sheet to check) but that doesn't work for buttons without
+swing dice. Instead, it will allow them to replace any die. (If you
+have a swing die, it'll force you to replace one of them. Probably
+will require an is_swing method)
+
+Implementation: Hook roll. Hook captured. Hook split. (You cannot
+divide the Winslow). Hook gain skill
+
+Requires support outside the game code. Who has the Winslow needs to
+be stored in the DB, probably in the player record. Player with it can
+use it in only one game at a time. If a game with it goes stale, the
+player who is not responsible gets the Winslow and the game is
+terminated. (Normal stale games aren't auto-killed, but this one is.)
+If a player with the Winslow has left it idle for N days (probably 7),
+they lose it and somebody else, chosen at random from the active
+players, gets it. (If it's passed on due to stale game, and the player
+in question has been idle for the appropriate period, it should move
+on immediately.)
+
+Whoever has the winslow gets the flag *Guardian of the Winslow*. Those
+who used to have it get the flag *Former Guardian* (or something)
+
+-------
+
+Button-specific powers:
+
+Exactly how these work is something I'm not fully sure of, but they
+probably do so with more hooks.
+
+
+Echo:
+
+Echo's basic recipe matches that of her enemy.
+
+(Does not copy button powers. Echo vs Echo should be a random button.)
+
+-------
+
+Giant:
+
+Giant never goes first.
+
+(Should this be done as slow dice, or a special power?)
+
+-------
+
+Bruno:
+
+Bruno gets an additional X Swing when fighting Pappy
+
+-------
+
+Pappy:
+
+Pappy gets an additional X(BE) Swing when fighting Bruno.
+
+-------
+
+Nightmare:
+
+When Nightmare loses a round, he may alter his opponent's variable
+dice instead of his own.
+
+(IMO, this should allow altering swing, option, plasma, sideboard, and
+select. Coincidentally, this is how it's easiest to implement.)
+
+-------
+
+Socrates:
+
+Socrates may use one of his opponent's dice as part of any 2-die Skill Attack.
+
+(Replace the normal skill attack with a special one.)
+
+-------
+
+Cheese Weasel:
+
+Once per round, before taking his turn, the Cheese Weasel may re-roll one of his own dice that shows a value matching one of his opponent's dice, OR he may re-roll one of his opponent's dice that shows a value matching one of his own.
+
+(Hook into start-of-turn, just like Gamer dice)
+
+-------
+
+Sailor Moon, Geeks
+
+Should we implement these? If so, the criterion for using should
+probably be either "facing an opponent with a similar power" or
+"facing an opponent with reserve dice"
+
+-------
+
+The Flying Squirrel
+
+The Flying Squirrel cannot make skill attacks.
+
+
+-------
+
+The Japanese Beetle
+
+Skill attacks do not work on the Japanese Beetle
