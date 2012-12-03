@@ -52,12 +52,12 @@ class BMDie
         print($this->mRecipe);
     }
 
-    private function isValidRecipe($recipe)
+    public function isValidRecipe($recipe)
     {
         return true;
     }
 
-    private function getSidesFromRecipe($recipe)
+    public function getSidesFromRecipe($recipe)
     {
         return 0;
     }
