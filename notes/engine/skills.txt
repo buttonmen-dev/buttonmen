@@ -833,7 +833,13 @@ Socrates:
 
 Socrates may use one of his opponent's dice as part of any 2-die Skill Attack.
 
-(Replace the normal skill attack with a special one.)
+(Supplement the normal skill attack with a special one.)
+
+An interesting question is whether a die's skills should apply to this
+attack. I think they should -- the only tricky ones I can think of off
+the top of my head are Jolt and T&S. To allow me to get an extra turn
+by attacking you with your own dice is kind of rude. (If funny, and
+it's not like Socrates can't use the help.)
 
 -------
 
