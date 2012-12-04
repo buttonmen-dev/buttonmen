@@ -36,10 +36,16 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test__set() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->mSides = 1;
+        $this->assertEquals(1, $this->object->mSides);
+
+        try {
+            $this->object->mSides = 0;
+            $this->fail('Number of sides must be positive.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
     }
 
     public function test__toString() {
@@ -47,17 +53,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
         );
-    }
-
-    public function testIsValidRecipe() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
-
-    public function testGetSidesFromRecipe() {
-        $this->assertEquals(0, $this->object->getSidesFromRecipe(''));
     }
 
 }
