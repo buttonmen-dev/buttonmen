@@ -13,11 +13,9 @@ class BMDie
             switch ($property) {
                 case '$mRecipe':
                     return ($this->mSkills).($this->mSides);
-                    break;
 
                 default:
                     return $this->$property;
-                    break;
             }
         }
     }
@@ -42,7 +40,6 @@ class BMDie
 
             default:
                 $this->$property = $value;
-                break;
         }
     }
 
