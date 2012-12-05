@@ -2,7 +2,7 @@ web1:
   document_root: src/
   apache_log_level: debug
   after_build:
-  - "cp -r test/src src/UNITTEST"
+  - "mkdir src/UNITTEST"
   - "cp deploy/pagodabox/phpunit.php src/UNITTEST/phpunit.php"
   - "mkdir deploy-includes"
   - "wget --no-verbose -O deploy-includes/phpunit.phar http://pear.phpunit.de/get/phpunit.phar"
