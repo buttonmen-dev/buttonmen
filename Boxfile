@@ -3,6 +3,6 @@ web1:
   apache_log_level: debug
   after_build:
   - "cp -r test/src src/UNITTEST"
-  - "cp test/phpunit.php src/UNITTEST/phpunit.php"
+  - "cp deploy/pagodabox/phpunit.php src/UNITTEST/phpunit.php"
   - "wget --no-verbose -O /var/www/src/phpunit.phar http://pear.phpunit.de/get/phpunit.phar"
   - "chmod a+x /var/www/src/phpunit.phar"
