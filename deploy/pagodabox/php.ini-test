@@ -1,4 +1,0 @@
-; php.ini file to live in unit test subdirectories on pagoda
-
-; Prepend /var/www/src to the path
-include_path = ".:/var/www/src:/usr/lib/php-5.3.8/php"
