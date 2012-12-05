@@ -4,6 +4,7 @@ web1:
   after_build:
   - "cp -r test/src src/UNITTEST"
   - "cp deploy/pagodabox/phpunit.php src/UNITTEST/phpunit.php"
-  - "wget --no-verbose -O /var/www/phpunit.phar http://pear.phpunit.de/get/phpunit.phar"
-  - "chmod a+x /var/www/phpunit.phar"
+  - "mkdir deploy-includes"
+  - "wget --no-verbose -O deploy-includes/phpunit.phar http://pear.phpunit.de/get/phpunit.phar"
+  - "chmod a+x deploy-includes/phpunit.phar"
   - "chmod a+x deploy/pagodabox/phpunit.php"
