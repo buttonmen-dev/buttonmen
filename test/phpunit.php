@@ -7,7 +7,7 @@
 set_include_path( "./../../src:" . ini_get( "include_path" ) );
 
 // Tell PHPUnit to run tests relative to the current directory
-var_dump($_SERVER);
+$_SERVER['argv'] = array('phpunit.php', '.');
 
 include "phpunit.phar";
 
