@@ -1,1 +1,5 @@
 # Apache .htaccess file for use on Pagoda Box.
+
+# Temporarily add /var/www to PHP path for debugging
+# FIXME: use autoloading to set paths and do this in a cleaner way
+php_value include_path ".:/var/www:/usr/lib/php-5.3.8/php"
