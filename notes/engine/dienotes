@@ -169,11 +169,20 @@ class BMDie
 # These methods cannot act, they may only check: they're called a lot
 	validAttack(type, attackers, defenders):
 		valid = true
+
+# handle focus, sleep, or not actually in play yet
+		if (self.inactive || self.unavailable)
+			valid = false
+
 		runHooks("validAttack", [type, attackers, defenders, valid])
 		return valid
 
 	validTarget(type, attackers, defenders):
 		valid = true
+
+# handle not actually in play yet
+		if (self.unavailable)
+			valid = false
 		runHooks("validTarget", [type, attackers, defenders, valid])
 		return valid
 
