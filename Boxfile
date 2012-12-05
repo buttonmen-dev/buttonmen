@@ -3,4 +3,4 @@ web1:
   apache_log_level: debug
   after_build:
     - "cp -r test/src src/UNITTEST"
-    - "cp deploy/pagodabox/htaccess src/.htaccess"
+    - "cp deploy/pagodabox/php.ini-test src/UNITTEST/engine/"
