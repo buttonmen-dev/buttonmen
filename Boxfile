@@ -1,3 +1,7 @@
 web1:
   document_root: src/
   apache_log_level: debug
+  after_build:
+  - "wget http://pear.phpunit.de/get/phpunit.phar"
+  - "chmod a+x phpunit.phar"
+  - "pwd"
