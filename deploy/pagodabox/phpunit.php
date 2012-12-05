@@ -9,6 +9,6 @@
 set_include_path( "/var/www/deploy-includes:/var/www/src:" . ini_get( "include_path" ) );
 
 // Tell PHPUnit to run tests relative to the current directory
-$_SERVER['argv'] = array('phpunit.php', '.');
+$_SERVER['argv'] = array('phpunit.php', '/var/www/test');
 
 include "phpunit.phar";
