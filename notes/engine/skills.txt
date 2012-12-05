@@ -122,6 +122,20 @@ uber-speed? I think what's intended is that if you have multiple evil
 dice, they may make parallel power attacks. This will require
 replacing the normal power attack class with a special one.
 
+Here's how evil works:
+
+evil_power replaces power attacks for evil dice. After the power
+attack is selected, it is validated, the involved dice are removed
+from the list of dice being presented to the user. If there is a legal
+power attack remaining, they can either make another power attack or
+pass. Rinse, lather, repeat. When the attack is commited, the front
+end sends back [ a1, a2, a3 ...] and [ v1, v2, v3 ...]. a1 is
+capturing v1, and so on. The individual attacks are validated, and if
+it's all good, the captures are made.
+
+(Since the attacks are simultaneous, we don't have to worry about
+recalculating armor in between.)
+
 -----------
 
 

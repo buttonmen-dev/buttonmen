@@ -61,6 +61,10 @@ error at the user (possibly logging the error if the front end's
 supposed to be checking legality) and kick them back to attack
 selection.
 
+This is the validation step. We do not yet capture. (They are
+separated due to evil dice.) The UI will either ask for another attack
+validation, or will ask for a commit on an attack.
+
 So, the attack class probably looks something like this:
 
 Class attack
@@ -93,8 +97,8 @@ Hoskins
 
 And my best guess at the list of special variations:
 
-evil_power (maybe)
-stealth_skill (don't think this is necessary)
+evil_power
+stealth_skill (don't think this is necessary, and it causes problems)
 warrior_skill
 socrates_skill
 
@@ -114,3 +118,5 @@ Fire dice:
 I'm still not sure how to make fire dice work. Treating them a lot
 like stinger with hooks in validAttack and capture may be the
 best solution. 
+
+Another approach may be to have them register as helpers for an attack type.
