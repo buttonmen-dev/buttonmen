@@ -7,4 +7,5 @@ web1:
   - "mkdir deploy-includes"
   - "wget --no-verbose -O deploy-includes/phpunit.phar http://pear.phpunit.de/get/phpunit.phar"
   - "chmod a+x deploy-includes/phpunit.phar"
-  - "chmod a+x deploy/pagodabox/phpunit.php"
+  before_deploy:
+  - "php deploy/pagodabox/phpunit.php"
