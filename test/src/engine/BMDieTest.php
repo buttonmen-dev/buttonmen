@@ -1,6 +1,5 @@
 <?php
 
-set_include_path( "../../../src:" . ini_get( "include_path" ) );
 require_once "engine/BMDie.php";
 
 /**
