@@ -28,10 +28,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
-    /**
-     * @covers BMDie::__get
-     * @todo   Implement test__get().
-     */
     public function test__get() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -39,44 +35,20 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         );
     }
 
-    /**
-     * @covers BMDie::__set
-     * @todo   Implement test__set().
-     */
     public function test__set() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->mSides = 1;
+        $this->assertEquals(1, $this->object->mSides);
+
+        try {
+            $this->object->mSides = 0;
+            $this->fail('Number of sides must be positive.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
     }
 
-    /**
-     * @covers BMDie::__toString
-     * @todo   Implement test__toString().
-     */
     public function test__toString() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers BMDie::Roll
-     * @todo   Implement testRoll().
-     */
-    public function testRoll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @covers BMDie::Display
-     * @todo   Implement testDisplay().
-     */
-    public function testDisplay() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
