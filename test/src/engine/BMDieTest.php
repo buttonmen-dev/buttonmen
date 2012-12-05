@@ -1,6 +1,7 @@
 <?php
 
 set_include_path( "/var/www/src:" . ini_get( "include_path" ) );
+require_once "PHPUnit/Autoload.php";
 require_once "engine/BMDie.php";
 
 /**
