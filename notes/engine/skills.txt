@@ -82,7 +82,8 @@ Implementation: Hook activate (to turn off rerolls). Hook attack values.
 
 Note: interaction with stinger is ambiguous and potentially
 order-dependant. Could rationally return either [ -val, min, ... val ]
-or [ -val, ..., -min, min, ..., val ]
+or [ -val, ..., -min, min, ..., val ]. The former is
+order-independant, and so probably better.
 
 -----------
 
@@ -120,6 +121,20 @@ single evil die make more than one power attack at once, a sort of
 uber-speed? I think what's intended is that if you have multiple evil
 dice, they may make parallel power attacks. This will require
 replacing the normal power attack class with a special one.
+
+Here's how evil works:
+
+evil_power replaces power attacks for evil dice. After the power
+attack is selected, it is validated, the involved dice are removed
+from the list of dice being presented to the user. If there is a legal
+power attack remaining, they can either make another power attack or
+pass. Rinse, lather, repeat. When the attack is commited, the front
+end sends back [ a1, a2, a3 ...] and [ v1, v2, v3 ...]. a1 is
+capturing v1, and so on. The individual attacks are validated, and if
+it's all good, the captures are made.
+
+(Since the attacks are simultaneous, we don't have to worry about
+recalculating armor in between.)
 
 -----------
 
@@ -291,8 +306,10 @@ Implementation: Is a subclass of the normal die type. You will not be
 able to have an option die with swing as a possibility. (Makes no
 sense, and requires extra convolutions in the pick swings and options
 screen.) Since twin dice can be swing, and you should be able to have
-an option that lets you pick between a twin and another, we'll just
-have to forbid swing twins in an option.
+an option that lets you pick between a twin and another, we may have
+to forbid swing twins in an option. (Not necessarily, though. If we're
+doing everything by method calls as opposed to direct modification of
+variables, the twin die can intermediate for its sub-dice.)
 
 There is no reason that an option must be limited to only two choices,
 and it doesn't make implementation much harder.
@@ -445,6 +462,10 @@ lose another round).
 Implementation: Another container-based skill. Will require a separate
 container, which is opened last, after normal dice and gifted dice.
 
+Presumably a sideboard container containing two dice will allow you to
+swap two dice out. (Need to be careful that the player can't swap the
+same die out twice.)
+
 -----------
 
 Sleep
@@ -525,7 +546,7 @@ Implementation: hook initiative, attack values
 
 Note: interaction with constant is ambiguous and potentially
 order-dependant. Could rationally return either [ -val, min, ... val ]
-or [ -val, ..., -min, min, ..., val ]
+or [ -val, ..., -min, min, ..., val ]. The former is order-independant.
 
 Note: computing all possible skill attacks with stinger dice in the
 mix is potentially slow.
@@ -643,6 +664,13 @@ letters against each other, and only the ones that have a unique.
 (IIRC, There was a problem if somebody with a unique X swing picked up
 an X aux die.)
 
+Clarifying further: we're setting the current global values of the
+swing letters, not of individual dice. During initialization, the dice
+tell the game "I'm an X, and I'm unique." Once all dice are
+registered, it asks the user to set the values, checks the ones that
+have an assigned unique differ, and then tells the dice what the swing
+values are. (It's also handling option dice at the same time.)
+
 -----------
 
 Value
@@ -720,6 +748,9 @@ full points if kept.
 Implementation: Hook init and captured to set scoring multiplier. Hook
 valid target for protection, and it's a tricky one unless we're
 enumerating all possible attacks, which I'd really rather avoid.
+
+It's best done by getting the attack management code to exclude the
+die in question, and see if there's a valid attack.
 
 ------------
 
@@ -816,7 +847,13 @@ Socrates:
 
 Socrates may use one of his opponent's dice as part of any 2-die Skill Attack.
 
-(Replace the normal skill attack with a special one.)
+(Supplement the normal skill attack with a special one.)
+
+An interesting question is whether a die's skills should apply to this
+attack. I think they should -- the only tricky ones I can think of off
+the top of my head are Jolt and T&S. To allow me to get an extra turn
+by attacking you with your own dice is kind of rude. (If funny, and
+it's not like Socrates can't use the help.)
 
 -------
 

@@ -1,0 +1,122 @@
+Attacks are relatively straightforward compared to dice.
+
+Early in each turn, each die on a player's side is asked to list its
+attacks. These are saved within the game structure (but not to the DB
+-- it's cheap to rebuild this as needed).
+
+Most of these are simple, and you'll end up with something like:
+
+[ "power", (power attack object ref), [ d1ref, d2ref, d4ref ] ],
+[ "skill", (skill attack ref), [ d1ref, d2ref, d3ref, d4ref ] ],
+[ "speed", (speed attack ref), [ d3ref] ],
+...
+
+Attacks that have no dice registered for them won't be in the list at
+all.
+
+Then there are things that do an X attack, but do it differently
+(Socrates, Warrior dice, Evil dice.)
+
+These will return a different attack type, possibly in addition to the
+normal. So, Socrates' dice will all return [ "power", "skill",
+"socrates_skill" ], and the attacks array will look like:
+
+[ "power", (power attack), [...] ],
+[ "skill", (skill attack), [...] ],
+[ "skill", (socrates attack), [...] ]
+
+Meanwhile, warrior dice are returning "warrior_skill", but not
+"skill".
+
+(Since I just thought of the question; no, Socrates may not use his
+opponent's Warrior dice. They're not in the game yet.)
+
+So we have multiple different attacks that are called "skill" when
+describing them to the player, but they aren't actually the same under
+the hood. Between that and the validAttack and validTarget methods, I
+think we can handle all the weird convolutions of attack types.
+
+(Except maybe evil dice. My best guess of how they work means they
+break the "one attack per turn" paradigm, and that will probably need
+some special-casing. (Which we might as well genericize as much as
+possible. We're already marking dice as having attacked. Have any die
+that's so marked return false from validAttack, and after capturing
+but before reroll, we can curtail the available attack types as
+appropriate, add pass as a valid attack, and loop back to the choose
+attackers stage. I'm no longer sure we even need a special attack type
+for evil dice, just stuff in their method for when they attack to set
+this in motion.))
+
+Anyway, once the list of available attacks is built, each attack
+object is asked to look for a valid attack. Once it finds one, it
+stops. If it fails, it's removed from the list.
+
+The list of available attack types is passed out to the UI, which
+returns a single attack type (or possibly a name), a list of attacking
+dice, and a list of targeted dice.
+
+This attack is fed back into the appropriate attack object(s), in
+order if there are multiple matches. If they all fail to validate, we
+error at the user (possibly logging the error if the front end's
+supposed to be checking legality) and kick them back to attack
+selection.
+
+This is the validation step. We do not yet capture. (They are
+separated due to evil dice.) The UI will either ask for another attack
+validation, or will ask for a commit on an attack.
+
+So, the attack class probably looks something like this:
+
+Class attack
+	FindAttack(game)
+		# search through the game to find a legal attack
+
+	ValidateAttack(attackers[], targets[])
+
+	MakeAttack(attackers[], targets[])
+
+	Name
+
+That may actually be it.
+
+The list of main attack types:
+
+Power
+Skill
+Pass
+Berserk (aside from name, this is a straight subclass of speed. The die will cut itself in half.)
+Rebound (maybe?? I don't think rebound is actually an attack at all, though it has to cal the victim's isCaptured method)
+Shadow
+Sleep
+Speed
+Teleport
+Thief
+Trip
+Hoskins
+
+
+And my best guess at the list of special variations:
+
+evil_power
+stealth_skill (don't think this is necessary, and it causes problems)
+warrior_skill
+socrates_skill
+
+
+
+Problems with this model:
+
+In general, if an attack involving two weird specialties of skill
+would be legal, this method probably can't find it. I'm not sure how
+big a problem this is if stealth doesn't use a special attack type,
+since at the moment there's just Socrates and Warrior.
+
+
+
+Fire dice:
+
+I'm still not sure how to make fire dice work. Treating them a lot
+like stinger with hooks in validAttack and capture may be the
+best solution. 
+
+Another approach may be to have them register as helpers for an attack type.
