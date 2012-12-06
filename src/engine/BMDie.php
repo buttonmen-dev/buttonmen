@@ -1,20 +1,6 @@
 <?php
 require_once 'BMSkill.php';
 
-class BMSKill
-{
-	
-}
-
-class BMSkillTest extends BMSkill
-{
-	public static function test($args)
-	{
-		echo "foo?";
-	}
-}
-
-
 class BMDie
 {
     // properties
