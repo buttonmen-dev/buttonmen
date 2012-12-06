@@ -1,12 +1,61 @@
 <?php
+require_once 'BMSkill.php';
+
+class BMSKill
+{
+	
+}
+
+class BMSkillTest extends BMSkill
+{
+	public static function test($args)
+	{
+		echo "foo?";
+	}
+}
+
+
 class BMDie
 {
     // properties
+
+# an array keyed by function name. Value is an array of the skills
+#  that are modifying that function
+	private $hookLists;
+
+# Names of the skills that the die has.
+	private $skillList;
+
     private $mRecipe;
     private $mSides;
     private $mSkills;
 
     // methods
+
+# Run the skill hooks for a given function. $args is an array of the
+#  function arguments. The array itself is passed by value. The
+#  contents of that array will often be references.
+
+	private function run_hooks($func, $args)
+	{
+		# get the hooks for the calling function
+
+		foreach ($this->hookLists[$func] as $skill)
+		{
+
+			$skillClass = "BMSkill$skill";
+
+			$skillClass::$func($args);
+		}
+	}
+
+	public function add_skill($skill)
+	{
+
+	}
+
+
+
     public function __get($property)
     {
         if (property_exists($this, $property)) {
@@ -48,4 +97,6 @@ class BMDie
         print($this->mRecipe);
     }
 }
+
+
 ?>
