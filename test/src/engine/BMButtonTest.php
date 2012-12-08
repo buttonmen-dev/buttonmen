@@ -119,6 +119,15 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         }
         catch (InvalidArgumentException $expected) {
         }
+
+        // test that a value cannot be set when the sides are not yet determined
+        $this->object->loadFromRecipe('(4) (8) (12) (X)');
+        try {
+            $this->object->loadValues('[1, 1, 1, 1]');
+            $this->fail('Cannot set value when sides are not yet determined.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
     /**

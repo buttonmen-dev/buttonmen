@@ -27,7 +27,9 @@ class BMButton {
         // set die sides and skills, one die at a time
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
             $tempBMDie = new BMDie;
-            $tempBMDie->mSides = $dieSides[$dieIdx];
+            if (is_numeric($dieSides[$dieIdx])) {
+                $tempBMDie->mSides = $dieSides[$dieIdx];
+            }
             if (!empty($dieSkills[$dieIdx])) {
                 $tempBMDie->mSkills = $dieSkills[$dieIdx];
             }
