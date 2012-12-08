@@ -156,6 +156,9 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
         $sides = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
         $this->assertEquals([4, 10, 30, 8], $sides);
+
+        $sides = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
+        $this->assertEquals([8, 10, 12, 20, 'X'], $sides);
     }
 
     /**
@@ -172,5 +175,9 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $skills = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
         $this->assertEquals(4, count($skills));
         $this->assertEquals(['p', 's', 'ps', ''], $skills);
+
+        $skills = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
+        $this->assertEquals(5, count($skills));
+        $this->assertEquals(['', '', '', '', ''], $skills);
     }
 }

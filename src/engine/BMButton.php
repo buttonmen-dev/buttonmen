@@ -57,17 +57,23 @@ class BMButton {
         for ($dieIdx = 0; $dieIdx < count($dieArray); $dieIdx++) {
             // ideally, we want to shift this functionality to the
             // and then we just validate each die individually
-            $dieContainsDigit = preg_match('/[[:digit:]]/', $dieArray[$dieIdx]);
-            print($dieContainsDigit);
-            if (1 !== $dieContainsDigit) {
+            $dieContainsSides = preg_match('/\(.+\)/', $dieArray[$dieIdx]);
+            if (1 !== $dieContainsSides) {
                 throw new InvalidArgumentException('Invalid button recipe.');
             }
         }
     }
 
     private function parseRecipeForSides($recipe) {
-        $dieSizeArray = preg_split('/[^[:digit:]]+/', $recipe,
-                                   NULL, PREG_SPLIT_NO_EMPTY);
+        $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
+
+        for ($dieIdx = 0; $dieIdx < count($dieSizeArray); $dieIdx++) {
+            $dieSizeArray[$dieIdx] = preg_replace('/^.*\(/', '',
+                                                  $dieSizeArray[$dieIdx]);
+            $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '',
+                                                  $dieSizeArray[$dieIdx]);
+        }
+
         return $dieSizeArray;
     }
 
@@ -75,11 +81,8 @@ class BMButton {
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
 
         for ($dieIdx = 0; $dieIdx < count($dieSkillArray); $dieIdx++) {
-            printf('xxx %s xxx', $dieSkillArray[$dieIdx]);
-
             $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '',
                                                   $dieSkillArray[$dieIdx]);
-            printf('yyy %s yyy', $dieSkillArray[$dieIdx]);
         }
 
         return $dieSkillArray;
