@@ -36,9 +36,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test__set() {
+        // test valid sets
         $this->object->mSides = 1;
         $this->assertEquals(1, $this->object->mSides);
 
+        $this->object->mSides = 100;
+        $this->assertEquals(100, $this->object->mSides);
+
+        // test invalid sets
         try {
             $this->object->mSides = 0;
             $this->fail('Number of sides must be positive.');
@@ -46,6 +51,12 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         catch (InvalidArgumentException $expected) {
         }
 
+        try {
+            $this->object->mSides = -1;
+            $this->fail('Number of sides must be positive.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
     public function test__toString() {
