@@ -12,7 +12,7 @@
  */
 class BMButton {
     // properties
-    public $recipe;
+    private $recipe;
     public $dieArray;
     // three lists of dice
 
@@ -22,7 +22,7 @@ class BMButton {
         $this->recipe = $recipe;
         $dieSides = $this->parseRecipeForSides($recipe);
         $dieSkills = $this->parseRecipeForSkills($recipe);
-        unset($this->dieArray);
+        $this->dieArray = array();
 
         // set die sides and skills, one die at a time
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
@@ -42,7 +42,8 @@ class BMButton {
     }
 
     public function loadValues($valueArray) {
-        if (count($this->dieArray) != count($valueArray)) {
+        if ((!isset($this->dieArray)) |
+            (count($this->dieArray) != count($valueArray))) {
             throw new InvalidArgumentException('Invalid number of values.');
         }
 
@@ -93,6 +94,31 @@ class BMButton {
     // create dice
 
     // load die values
+
+    // utility methods
+
+    public function __get($property)
+    {
+        if (property_exists($this, $property)) {
+            return $this->$property;
+//            switch ($property) {
+//                default:
+//                    return $this->$property;
+//            }
+        }
+    }
+
+    public function __set($property, $value)
+    {
+        switch ($property) {
+            case 'recipe':
+                $this->loadFromRecipe($value);
+                break;
+
+            default:
+                $this->$property = $value;
+        }
+    }
 }
 
 ?>
