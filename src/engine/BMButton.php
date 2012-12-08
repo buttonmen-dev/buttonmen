@@ -14,7 +14,6 @@ class BMButton {
     // properties
     private $recipe;
     public $dieArray;
-    // three lists of dice
 
     // methods
     public function loadFromRecipe($recipe) {
@@ -38,6 +37,9 @@ class BMButton {
     }
 
     public function loadFromName($name) {
+        // The implementation here is currently a stub that always returns the
+        // recipe of Bauer. This will eventually be replaced by a database call
+        // to retrieve the recipe, and then a recipe set for the current button.
         $this->recipe = '(8) (10) (12) (20) (X)';
     }
 
