@@ -29,8 +29,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::load_from_recipe
-     * @todo   Implement testLoad_from_recipe().
+     * @covers BMButton::loadFromRecipe
      */
     public function testLoadFromRecipe() {
         // button recipes using dice with no special skills
@@ -77,4 +76,53 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @covers BMButton::validateRecipe
+     */
+    public function testValidateRecipe() {
+        $method = new ReflectionMethod('BMButton', 'validateRecipe');
+        $method->setAccessible(TRUE);
+
+        // valid button recipe
+        $method->invoke(new BMButton, 'p4 s10 ps30 8');
+
+        // invalid button recipe with no die sides for one die
+        try {
+            $method->invoke(new BMButton, 'p4 s10 ps 8');
+            //$this->fail('The number of sides must be specified for each die.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        // twin dice, option dice
+    }
+
+    /**
+     * @covers BMButton::parseRecipeForSides
+     */
+    public function testParseRecipeForSides() {
+        $method = new ReflectionMethod('BMButton', 'parseRecipeForSides');
+        $method->setAccessible(TRUE);
+
+        $sides = $method->invoke(new BMButton, '4 8 20 20');
+        $this->assertEquals([4, 8, 20, 20], $sides);
+
+        $sides = $method->invoke(new BMButton, 'p4 s10 ps30 8');
+        $this->assertEquals([4, 10, 30, 8], $sides);
+    }
+
+    /**
+     * @covers BMButton::parseRecipeForSkills
+     */
+    public function testParseRecipeForSkills() {
+        $method = new ReflectionMethod('BMButton', 'parseRecipeForSkills');
+        $method->setAccessible(TRUE);
+
+        $skills = $method->invoke(new BMButton, '4 8 20 20');
+        $this->assertEquals(4, count($skills));
+        $this->assertEquals(['', '', '', ''], $skills);
+
+        $skills = $method->invoke(new BMButton, 'p4 s10 ps30 8');
+        $this->assertEquals(['p', 's', 'ps', ''], $skills);
+    }
 }

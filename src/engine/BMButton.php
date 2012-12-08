@@ -54,7 +54,12 @@ class BMButton {
     }
 
     private function parseRecipeForSkills($recipe) {
-        $dieSkillArray = preg_split('/[[:digit:][:space:]]+/', $recipe);
+        $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
+        for ($dieIdx = 0; $dieIdx < count($dieSkillArray); $dieIdx++) {
+            $dieSkillArray[$dieIdx] = preg_replace('/[[:digit:]]/', '',
+                                                  $dieSkillArray[$dieIdx]);
+        }
+
         return $dieSkillArray;
     }
 
