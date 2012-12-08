@@ -32,8 +32,9 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      * @covers BMButton::load_from_recipe
      * @todo   Implement testLoad_from_recipe().
      */
-    public function testLoad_from_recipe() {
-        $this->object->load_from_recipe('4 8 20 20');
+    public function testLoadFromRecipe() {
+        // button recipes using dice with no special skills
+        $this->object->loadFromRecipe('4 8 20 20');
         $this->assertEquals(4, count($this->object->dieArray));
         $dieSides = [4, 8, 20, 20];
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
@@ -42,7 +43,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
                               $this->object->dieArray[$dieIdx]->mSides);
         }
 
-        $this->object->load_from_recipe('6 10 12');
+        $this->object->loadFromRecipe('6 10 12');
         $this->assertEquals(3, count($this->object->dieArray));
         $dieSides = [6, 10, 12];
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
@@ -50,6 +51,30 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
           $this->assertEquals($dieSides[$dieIdx],
                               $this->object->dieArray[$dieIdx]->mSides);
         }
+
+        // button recipe with dice with skills
+        $this->object->loadFromRecipe('p4 s10 ps30 8');
+        $this->assertEquals(4, count($this->object->dieArray));
+        $dieSides = [4, 10, 30, 8];
+        $dieSkills = ['p', 's', 'ps', ''];
+        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+          $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
+          $this->assertEquals($dieSides[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSides);
+          $this->assertEquals($dieSkills[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSkills);
+        }
+
+        // invalid button recipe with no die sides for one die
+        try {
+            $this->object->loadFromRecipe('p4 s10 ps 8');
+            $this->fail('The number of sides must be specified for each die.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        // twin dice, option dice
+
     }
 
 }
