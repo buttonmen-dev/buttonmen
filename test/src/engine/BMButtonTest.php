@@ -86,9 +86,13 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMButton::loadFromName
+     * @covers BMButton::__set
      */
     public function testLoadFromName() {
         $this->object->loadFromName('Bauer');
+        $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
+
+        $this->object->name = 'Bauer';
         $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
     }
 

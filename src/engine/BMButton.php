@@ -1,17 +1,13 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
- * Description of BMButton
+ * BMButton: instantiated button as existing at the beginning of a round
  *
  * @author james
  */
 class BMButton {
     // properties
+    private $name;
     private $recipe;
     public $dieArray;
 
@@ -93,10 +89,6 @@ class BMButton {
         return $dieSkillArray;
     }
 
-    // create dice
-
-    // load die values
-
     // utility methods
 
     public function __get($property)
@@ -113,6 +105,10 @@ class BMButton {
     public function __set($property, $value)
     {
         switch ($property) {
+            case 'name':
+                $this->loadFromName($value);
+                break;
+
             case 'recipe':
                 $this->loadFromRecipe($value);
                 break;
