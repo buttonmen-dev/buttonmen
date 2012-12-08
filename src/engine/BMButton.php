@@ -34,15 +34,28 @@ class BMButton {
         }
     }
 
+    public function loadValues($valueArray) {
+        if (count($this->dieArray) != count($valueArray)) {
+            throw new InvalidArgumentException('Invalid number of values.');
+        }
+
+        for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
+            $this->dieArray[$dieIdx]->scoreValue = $valueArray[$dieIdx];
+        }
+
+    }
+
     private function validateRecipe($recipe) {
         $dieArray = preg_split('/[[:space:]]+/', $recipe,
                                NULL, PREG_SPLIT_NO_EMPTY);
 
         for ($dieIdx = 0; $dieIdx < count($dieArray); $dieIdx++) {
+            // ideally, we want to shift this functionality to the
+            // and then we just validate each die individually
             $dieContainsDigit = preg_match('/[[:digit:]]/', $dieArray[$dieIdx]);
             print($dieContainsDigit);
             if (1 !== $dieContainsDigit) {
-                throw new InvalidArgumentException("Invalid button recipe.");
+                throw new InvalidArgumentException('Invalid button recipe.');
             }
         }
     }
