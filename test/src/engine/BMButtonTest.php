@@ -30,6 +30,8 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMButton::loadFromRecipe
+     * @covers BMButton::__get
+     * @covers BMButton::__set
      */
     public function testLoadFromRecipe() {
         // button recipes using dice with no special skills
@@ -45,7 +47,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         }
 
         $recipe = '(6) (10) (12)';
-        $this->object->loadFromRecipe($recipe);
+        $this->object->recipe = $recipe;
         $this->assertEquals(3, count($this->object->dieArray));
         $this->assertEquals($recipe, $this->object->recipe);
         $dieSides = [6, 10, 12];
@@ -188,5 +190,21 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $skills = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
         $this->assertEquals(5, count($skills));
         $this->assertEquals(['', '', '', '', ''], $skills);
+    }
+
+    /**
+     * @covers BMButton::__get
+     */
+    public function test__get() {
+        $this->assertEquals(NULL, $this->object->fubar);
+    }
+
+    /**
+     * @covers BMButton::__set
+     */
+    public function test__set() {
+        $testString = 'testString xxx';
+        $this->object->fubar = $testString;
+        $this->assertEquals($testString, $this->object->fubar);
     }
 }
