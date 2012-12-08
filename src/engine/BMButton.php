@@ -19,6 +19,7 @@ class BMButton {
     // methods
     public function loadFromRecipe($recipe) {
         $this->validateRecipe($recipe);
+        $this->recipe = $recipe;
         $dieSides = $this->parseRecipeForSides($recipe);
         $dieSkills = $this->parseRecipeForSkills($recipe);
         unset($this->dieArray);
@@ -32,6 +33,10 @@ class BMButton {
             }
             $this->dieArray[] = $tempBMDie;
         }
+    }
+
+    public function loadFromName($name) {
+        $this->recipe = '(8) (10) (12) (20) (X)';
     }
 
     public function loadValues($valueArray) {
@@ -68,9 +73,13 @@ class BMButton {
 
     private function parseRecipeForSkills($recipe) {
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
+
         for ($dieIdx = 0; $dieIdx < count($dieSkillArray); $dieIdx++) {
-            $dieSkillArray[$dieIdx] = preg_replace('/[[:digit:]]/', '',
+            printf('xxx %s xxx', $dieSkillArray[$dieIdx]);
+
+            $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '',
                                                   $dieSkillArray[$dieIdx]);
+            printf('yyy %s yyy', $dieSkillArray[$dieIdx]);
         }
 
         return $dieSkillArray;
