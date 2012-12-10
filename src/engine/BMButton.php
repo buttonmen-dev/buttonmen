@@ -46,6 +46,13 @@ class BMButton {
         }
 
         for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
+            if (($valueArray[$dieIdx] < 1) |
+                ($valueArray[$dieIdx] > $this->dieArray[$dieIdx]->mSides)) {
+                throw new InvalidArgumentException('Invalid values.');
+            }
+        }
+
+        for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
             $this->dieArray[$dieIdx]->scoreValue = $valueArray[$dieIdx];
         }
 

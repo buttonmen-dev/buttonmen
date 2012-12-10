@@ -39,7 +39,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->object->loadFromRecipe($recipe);
         $this->assertEquals($recipe, $this->object->recipe);
         $this->assertEquals(4, count($this->object->dieArray));
-        $dieSides = [4, 8, 20, 20];
+        $dieSides = array(4, 8, 20, 20);
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
@@ -50,7 +50,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->object->recipe = $recipe;
         $this->assertEquals(3, count($this->object->dieArray));
         $this->assertEquals($recipe, $this->object->recipe);
-        $dieSides = [6, 10, 12];
+        $dieSides = array(6, 10, 12);
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
@@ -62,8 +62,8 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->object->loadFromRecipe($recipe);
         $this->assertEquals(4, count($this->object->dieArray));
         $this->assertEquals($recipe, $this->object->recipe);
-        $dieSides = [4, 10, 30, 8];
-        $dieSkills = ['p', 's', 'ps', ''];
+        $dieSides = array(4, 10, 30, 8);
+        $dieSkills = array('p', 's', 'ps', '');
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
@@ -101,7 +101,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      */
     public function testLoadValues() {
         $this->object->loadFromRecipe('(4) (8) (12) (20)');
-        $dieValues = [1, 2, 4, 9];
+        $dieValues = array(1, 2, 4, 9);
         $this->object->loadValues($dieValues);
         for ($dieIdx = 0; $dieIdx < count($dieValues); $dieIdx++) {
             $this->assertEquals($dieValues[$dieIdx],
@@ -111,7 +111,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         // test for same number of values as dice
         $this->object->loadFromRecipe('(4) (8) (12) (20)');
         try {
-            $this->object->loadValues('[1, 2, 3]');
+            $this->object->loadValues(array(1, 2, 3));
             $this->fail('The number of values must match the number of dice.');
         }
         catch (InvalidArgumentException $expected) {
@@ -120,7 +120,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         // test that value is within limits
         $this->object->loadFromRecipe('(4) (8) (12) (20)');
         try {
-            $this->object->loadValues('[5, 12, 20, 30]');
+            $this->object->loadValues(array(5, 12, 20, 30));
             $this->fail('Invalid values.');
         }
         catch (InvalidArgumentException $expected) {
@@ -129,7 +129,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         // test that a value cannot be set when the sides are not yet determined
         $this->object->loadFromRecipe('(4) (8) (12) (X)');
         try {
-            $this->object->loadValues('[1, 1, 1, 1]');
+            $this->object->loadValues(array(1, 1, 1, 1));
             $this->fail('Cannot set value when sides are not yet determined.');
         }
         catch (InvalidArgumentException $expected) {
@@ -167,13 +167,13 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $method->setAccessible(TRUE);
 
         $sides = $method->invoke(new BMButton, '(4) (8) (20) (20)');
-        $this->assertEquals([4, 8, 20, 20], $sides);
+        $this->assertEquals(array(4, 8, 20, 20), $sides);
 
         $sides = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
-        $this->assertEquals([4, 10, 30, 8], $sides);
+        $this->assertEquals(array(4, 10, 30, 8), $sides);
 
         $sides = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
-        $this->assertEquals([8, 10, 12, 20, 'X'], $sides);
+        $this->assertEquals(array(8, 10, 12, 20, 'X'), $sides);
     }
 
     /**
@@ -185,15 +185,15 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
         $skills = $method->invoke(new BMButton, '(4) (8) (20) (20)');
         $this->assertEquals(4, count($skills));
-        $this->assertEquals(['', '', '', ''], $skills);
+        $this->assertEquals(array('', '', '', ''), $skills);
 
         $skills = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
         $this->assertEquals(4, count($skills));
-        $this->assertEquals(['p', 's', 'ps', ''], $skills);
+        $this->assertEquals(array('p', 's', 'ps', ''), $skills);
 
         $skills = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
         $this->assertEquals(5, count($skills));
-        $this->assertEquals(['', '', '', '', ''], $skills);
+        $this->assertEquals(array('', '', '', '', ''), $skills);
     }
 
     /**
