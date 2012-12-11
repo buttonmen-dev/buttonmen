@@ -42,7 +42,7 @@ class BMGame {
                 break;
 
             case BMGameState::determineInitiative:
-                if (!is_null($this->playerWithInitiative)) {
+                if (isset($this->playerWithInitiative)) {
                     $this->gameState = BMGameState::startRound;
                 }
                 break;
@@ -69,18 +69,7 @@ class BMGame {
             case BMGameState::endRound:
                 // score dice
                 // update game score
-
-                unset($this->activePlayer);
-                unset($this->playerWithInitiative);
-                unset($this->activeDieArrayArray);
-                $tempPassStatusArray = array();
-                $tempCapturedDiceArray = array();
-                for ($playerIdx = 0; $playerIdx < count($this->playerArray); $playerIdx++) {
-                    $tempPassStatusArray[] = FALSE;
-                    $tempCapturedDiceArray[] = array();
-                }
-                $this->passStatusArray = $tempPassStatusArray;
-                $this->capturedDieArrayArray = $tempCapturedDiceArray;
+                $this->resetPlayState();
 
                 $this->gameState = BMGameState::loadDice;
                 for ($playerIdx = 0; $playerIdx < count($this->gameScoreArray) ; $playerIdx++) {
@@ -98,6 +87,21 @@ class BMGame {
                 throw new LogicException ('An undefined game state cannot be updated.');
                 break;
         }
+    }
+
+    private function resetPlayState() {
+        unset($this->activePlayer);
+        unset($this->playerWithInitiative);
+        unset($this->activeDieArrayArray);
+        $tempPassStatusArray = array();
+        $tempCapturedDiceArray = array();
+        for ($playerIdx = 0; $playerIdx < count($this->playerArray); $playerIdx++) {
+            $tempPassStatusArray[] = FALSE;
+            $tempCapturedDiceArray[] = array();
+        }
+        $this->passStatusArray = $tempPassStatusArray;
+        $this->capturedDieArrayArray = $tempCapturedDiceArray;
+        unset($this->roundScoreArray);
     }
 
     // utility methods

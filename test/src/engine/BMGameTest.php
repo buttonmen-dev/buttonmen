@@ -148,6 +148,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::resetPlayState
+     */
+    public function testResetGameState() {
+        $method = new ReflectionMethod('BMGame', 'resetPlayState');
+        $method->setAccessible(TRUE);
+
+        $this->object->playerArray = array('Harry', 'Sally');
+        $this->object->activePlayer = 'Sally';
+        $this->object->playerWithInitiative = 'Harry';
+
+        $BMDie1 = new BMDie;
+        $BMDie2 = new BMDie;
+        $BMDie3 = new BMDie;
+        $BMDie4 = new BMDie;
+
+        $this->object->activeDieArrayArray = array(array($BMDie1), array($BMDie2));
+        $this->object->passStatusArray = array(TRUE, TRUE);
+        $this->object->capturedDieArrayArray = array(array($BMDie3), array($BMDie4));
+        $this->object->roundScoreArray = array(40, -25);
+
+        $method->invoke($this->object);
+        $this->assertFalse(isset($this->object->activePlayer));
+        $this->assertFalse(isset($this->object->playerWithInitiative));
+        $this->assertFalse(isset($this->object->activeDieArrayArray));
+        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
+        $this->assertFalse(isset($this->object->roundScoreArray));
+    }
+
+    /**
      * @covers BMGame::__get
      * @todo   Implement test__get().
      */
