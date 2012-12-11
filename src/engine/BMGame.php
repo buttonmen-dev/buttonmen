@@ -42,7 +42,9 @@ class BMGame {
                 break;
 
             case BMGameState::determineInitiative:
-                $this->gameState = BMGameState::startGame;
+                if (!is_null($this->playerWithInitiative)) {
+                    $this->gameState = BMGameState::startRound;
+                }
                 break;
 
             case BMGameState::startRound:
@@ -65,6 +67,21 @@ class BMGame {
                 break;
 
             case BMGameState::endRound:
+                // score dice
+                // update game score
+
+                unset($this->activePlayer);
+                unset($this->playerWithInitiative);
+                unset($this->activeDieArrayArray);
+                $tempPassStatusArray = array();
+                $tempCapturedDiceArray = array();
+                for ($playerIdx = 0; $playerIdx < count($this->playerArray); $playerIdx++) {
+                    $tempPassStatusArray[] = FALSE;
+                    $tempCapturedDiceArray[] = array();
+                }
+                $this->passStatusArray = $tempPassStatusArray;
+                $this->capturedDieArrayArray = $tempCapturedDiceArray;
+
                 $this->gameState = BMGameState::loadDice;
                 for ($playerIdx = 0; $playerIdx < count($this->gameScoreArray) ; $playerIdx++) {
                     if ($this->gameScoreArray[$playerIdx]['W'] >= $this->maxWins) {
@@ -78,6 +95,7 @@ class BMGame {
                 break;
 
             default:
+                throw new LogicException ('An undefined game state cannot be updated.');
                 break;
         }
     }

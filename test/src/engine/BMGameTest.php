@@ -35,6 +35,22 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::updateGameState
      */
+    public function testUpdateGameStateDetermineInitiative() {
+        $this->object->gameState = BMGameState::determineInitiative;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::determineInitiative, $this->object->gameState);
+
+        $this->object->gameState = BMGameState::determineInitiative;
+        // note that the player below will probably be replaced by a BMPlayer
+        // or a player ID
+        $this->object->playerWithInitiative = 'Harry';
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::startRound, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::updateGameState
+     */
     public function testUpdateGameStateEndOfTurn() {
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
@@ -46,6 +62,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::endTurn;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
+        $this->assertFalse(isset($this->object->activePlayer));
+        $this->assertFalse(isset($this->object->playerWithInitiative));
+        $this->assertFalse(isset($this->object->activeDieArrayArray));
+
+        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(0, count($this->object->capturedDiceArray));
 
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
@@ -105,6 +127,27 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::updateGameState
+     */
+    public function testUpdateGameStateEndOfGame() {
+        $this->object->gameState = BMGameState::endGame;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::endGame, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::updateGameState
+     */
+    public function testUpdateGameStateWhenStateIsNotSet() {
+        try {
+            $this->object->updateGameState();
+            $this->fail('An undefined game state cannot be updated.');
+        }
+        catch (LogicException $expected) {
+        }
+    }
+
+    /**
      * @covers BMGame::__get
      * @todo   Implement test__get().
      */
@@ -130,6 +173,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->gameScoreArray = array(array(2,1,1), array(1,2));
             $this->fail('W/L/D must be three numbers.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->gameScoreArray = array(array(2,1,1));
+            $this->fail('There must be the same number of players and game scores.');
         }
         catch (InvalidArgumentException $expected) {
         }
