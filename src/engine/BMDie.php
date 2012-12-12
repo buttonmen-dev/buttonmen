@@ -1,6 +1,12 @@
 <?php
 require_once 'BMSkill.php';
 
+/*
+ * BMDie: the fundamental unit of game mechanics
+ *
+ * @author: Julian Lighton
+ */
+
 class BMDie
 {
     // properties
@@ -10,7 +16,7 @@ class BMDie
     private $hookLists;
 
 // keyed by the Names of the skills that the die has, with values of
-// the the skill class's name
+// the skill class's name
     private $skillList;
 
 // Basic facts about the die
@@ -50,7 +56,7 @@ class BMDie
 
         foreach ($this->hookLists[$func] as $skill)
         {
-            $skillClass = "BMSkill$skill";
+            $skillClass = $this->skillList[$skill];
 
             $skillClass::$func($args);
         }
@@ -58,7 +64,16 @@ class BMDie
 
     public function add_skill($skill)
     {
+        $skillClass = "BMSkill$skill";
 
+        // Don't add skills that are already added
+        if (!$this->skillList[$skill]) {
+            $this->skillList[$skill] = $skillClass;
+
+            foreach ($skillClass::hooked_methods as $func) {
+                $hookLists[$func][] = $skillClass;
+            }
+        }
     }
 
 // This one may need to be hookable. So might add_skill, depending on
@@ -112,14 +127,15 @@ class BMDie
             elseif ($recipe === (int)$recipe) {
                 return BMDie::create_die($recipe, $skills);
             }
-            elseif (count($recipe) == 1 and 
-                    $ord("R") <= $ord($recipe) and
-                    $ord($recipe) <= $ord("Z")) {
+            // Single character that's not a number is a swing die
+            elseif (count($recipe) == 1) {
                 return BMSwingDie::create_die($recipe, $skills);
             }
-            catch (UnexpectedValueException $e) {
-                return NULL;
-            }
+            // oops
+            throw new UnexpectedValueException("Invalid recipe: $recipe");
+        }
+        catch (UnexpectedValueException $e) {
+            return NULL;
         }
         
     }
@@ -292,7 +308,9 @@ class BMDie
 }
 
 class BMSwingDie extends BMDie {
-
+# validation logic:
+#                    $ord("R") <= $ord($recipe) and
+#                    $ord($recipe) <= $ord("Z")
 }
 
 class BMWildcardDie extends BMDie {
