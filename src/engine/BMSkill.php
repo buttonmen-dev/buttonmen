@@ -23,15 +23,22 @@ class BMSkillShadow extends BMSkill
 	{
 		$list = $args[0];
 
+        $redundant = FALSE;
+
 		foreach ($list as $i => $att)
 		{
 			if ($att == "Power")
 			{
 				unset($list[$i]);
 			}
+            if ($att == "Shadow") {
+                $redundant = TRUE;
+            }
 		}
 
-		$list[] = "Shadow";
+        if (!$redundant) {
+            $list[] = "Shadow";
+        }
 	}
 }
 
