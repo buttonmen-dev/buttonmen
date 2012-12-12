@@ -19,9 +19,9 @@ class BMSkillShadow extends BMSkill
 
     public static $hooked_methods = array("attack_list");
 
-	public static function attack_list(&$args)
+	public static function attack_list($args)
 	{
-		$list = $args[0];
+		$list = &$args[0];
 
         $redundant = FALSE;
 
