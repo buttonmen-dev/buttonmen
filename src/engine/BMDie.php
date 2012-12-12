@@ -89,6 +89,41 @@ class BMDie
         }
     }
 
+    // given a string describing a die and a list of skills, return a
+    // new BMDie or appropriate subclass thereof
+    
+    public static function create_die_from_string($recipe, $skills) {
+        $opt_list = explode("|", $recipe);
+
+        // Option dice divide on a |, can contain any die type
+        if (count($opt_list) > 1) {
+            return BMOptionDie::create_die_from_list($opt_list, $skills);
+        }
+        // Twin dice divide on a comma, can contain any type but option
+        elseif (count($twin_list = explode(",", $recipe)) > 1) {
+            return BMTwinDie::create_die_from_list($twin_list, $skills);
+        }
+        elseif ($recipe == "C") {
+            return BMWildcardDie::create_die($recipe, $skills);
+        }
+        elseif (count($recipe) == 1 and 
+                $ord("R") <= $ord($recipe) and
+                $ord($recipe) <= $ord("Z")) {
+            return BMSwingDie::create_die($recipe, $skills);
+        }
+        elseif ($recipe === (int)$recipe and $recipe > 0) {
+            return BMDie::create_die($recipe, $skills);
+        }
+    }
+
+    public static function create_die($size, $skills) {
+        $die = new BMDie;
+
+        $die->init($size, $skills);
+
+        return $die;
+    } 
+
 
     // hooked methods
 
@@ -243,6 +278,8 @@ class BMDie
         print($this->mRecipe);
     }
 }
+
+
 
 
 ?>
