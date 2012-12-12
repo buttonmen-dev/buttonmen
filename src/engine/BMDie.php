@@ -48,6 +48,15 @@ class BMDie
 //
 // By using a static method call, the skill hook methods can use $this
 //  to refer to the die that called them.
+//
+// Important note on PHP references, since they make no bloody sense:
+//
+// To put a reference into the args array and have it still be such
+// when you take it out again, you must:
+//
+// Put it into the args array as a reference: $args = array(&$foo)
+// --AND--
+// Take it out as a reference: $thing = &$args[0]
 
     private function run_hooks($func, $args)
     {
