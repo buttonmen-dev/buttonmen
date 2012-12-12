@@ -44,8 +44,7 @@ class BMDie
     // unhooked methods
 
 // Run the skill hooks for a given function. $args is an array of
-//  argumentsfor the function. The array itself is passed by value. The
-//  contents of that array will often be references.
+//  argumentsfor the function. 
 //
 // By using a static method call, the skill hook methods can use $this
 //  to refer to the die that called them.
@@ -58,7 +57,7 @@ class BMDie
         {
             $skillClass = $this->skillList[$skill];
 
-            $skillClass::$func($args);
+            $skillClass::$func(&$args);
         }
     }
 
