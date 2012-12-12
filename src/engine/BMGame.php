@@ -23,10 +23,30 @@ class BMGame {
     public function updateGameState () {
         switch ($this->gameState) {
             case BMGameState::startGame:
-                $this->gameState = BMGameState::chooseAuxiliaryDice;
+                if (isset($this->playerArray) &&
+                    isset($this->buttonArray) &&
+                    isset($this->maxWins)) {
+                    $this->gameState = BMGameState::applyHandicaps;
+                    $this->passStatusArray = array(FALSE, FALSE);
+                    $this->gameScoreArray = array(array(0, 0, 0), array(0, 0, 0));
+                }
                 break;
 
             case BMGameState::applyHandicaps:
+                assert(isset($this->maxWins));
+                if (isset($this->gameScoreArray)) {
+                    $nWins = 0;
+                    foreach($this->gameScoreArray as $gameScore) {
+                        if ($nWins < $gameScore['W']) {
+                            $nWins = $gameScore['W'];
+                        }
+                    }
+                    if ($nWins >= $this->maxWins) {
+                        $this->gameState = BMGameState::endGame;
+                    } else {
+                        $this->gameState = BMGameState::chooseAuxiliaryDice;
+                    }
+                }
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
@@ -61,8 +81,10 @@ class BMGame {
                 if ((0 === min($nDice)) ||
                     !in_array(FALSE, $this->passStatusArray, TRUE)) {
                     $this->gameState = BMGameState::endRound;
+                    unset($this->activeDieArrayArray);
                 } else {
                     $this->gameState = BMGameState::startTurn;
+                    $this->changeActivePlayer();
                 }
                 break;
 
@@ -104,6 +126,15 @@ class BMGame {
         unset($this->roundScoreArray);
     }
 
+    private function changeActivePlayer() {
+        $activePlayerIdx = array_search($this->activePlayer, $this->playerArray);
+        assert(FALSE !== $activePlayerIdx);
+
+        // move to the next player
+        $activePlayerIdx = ($activePlayerIdx + 1) % count($this->playerArray);
+        $this->activePlayer = $this->playerArray[$activePlayerIdx];
+    }
+
     // utility methods
 
     public function __get($property)
@@ -138,6 +169,19 @@ class BMGame {
                 break;
             default:
                 $this->$property = $value;
+        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
+    public function __unset($property) {
+        if (isset($this->$property)) {
+            unset($this->$property);
+            return TRUE;
+        } else {
+            return FALSE;
         }
     }
 }

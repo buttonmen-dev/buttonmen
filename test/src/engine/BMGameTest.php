@@ -18,10 +18,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp() {
         $this->object = new BMGame;
-        // Currently, I am only ensuring that there are two players.
-        // Note that eventually, the array elements will be replaced by BMPlayer
-        // objects or player IDs.
-        $this->object->playerArray = array('Harry', 'Sally');
     }
 
     /**
@@ -35,13 +31,78 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::updateGameState
      */
+    public function testUpdateGameStateStartGame() {
+        $this->object->gameState = BMGameState::startGame;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::startGame, $this->object->gameState);
+
+        // missing the playerArray
+        $this->object->gameState = BMGameState::startGame;
+        // james: this needs to be updated to contain BMPlayers or player ids
+        if (isset($this->object->playerArray)) {
+            unset($this->object->playerArray);
+        }
+        $Button1 = new BMButton;
+        $Button2 = new BMButton;
+        $this->object->buttonArray = array($Button1, $Button2);
+        $this->object->maxWins = 3;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::startGame, $this->object->gameState);
+
+        $this->object->gameState = BMGameState::startGame;
+        // james: this needs to be updated to contain BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        $Button1 = new BMButton;
+        $Button2 = new BMButton;
+        $this->object->buttonArray = array($Button1, $Button2);
+        $this->object->maxWins = 3;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::applyHandicaps, $this->object->gameState);
+        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
+                            $this->object->gameScoreArray);
+    }
+
+    /**
+     * @covers BMGame::updateGameState
+     */
+    public function testUpdateGameStateApplyHandicaps() {
+        // james: this needs to be updated to contain BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        $this->object->gameState = BMGameState::applyHandicaps;
+        $this->object->maxWins = 3;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::applyHandicaps,
+                            $this->object->gameState);
+
+        // james: this needs to be updated to contain BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        $this->object->gameState = BMGameState::applyHandicaps;
+        $this->object->gameScoreArray = array(array(0, 0, 0),array(0, 0, 0));
+        $this->object->maxWins = 3;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::chooseAuxiliaryDice,
+                            $this->object->gameState);
+
+        // james: this needs to be updated to contain BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        $this->object->gameState = BMGameState::applyHandicaps;
+        $this->object->gameScoreArray = array(array(3, 0, 0),array(0, 3, 0));
+        $this->object->maxWins = 3;
+        $this->object->updateGameState();
+        $this->assertEquals(BMGameState::endGame, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::updateGameState
+     */
     public function testUpdateGameStateDetermineInitiative() {
         $this->object->gameState = BMGameState::determineInitiative;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::determineInitiative, $this->object->gameState);
 
         $this->object->gameState = BMGameState::determineInitiative;
-        // note that the player below will probably be replaced by a BMPlayer
+        // james: the player below will probably be replaced by a BMPlayer
         // or a player ID
         $this->object->playerWithInitiative = 'Harry';
         $this->object->updateGameState();
@@ -51,38 +112,58 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::updateGameState
      */
-    public function testUpdateGameStateEndOfTurn() {
+    public function testUpdateGameStateEndTurn() {
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
 
         // both players still have dice and both have not passed
+
+        // james: the playerArray will be replaced by BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        // james: the activePlayer will be replaced by a BMPlayer or player id
+        $this->object->activePlayer = 'Harry';
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(FALSE, FALSE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertFalse(isset($this->object->activePlayer));
-        $this->assertFalse(isset($this->object->playerWithInitiative));
-        $this->assertFalse(isset($this->object->activeDieArrayArray));
-
+        $this->assertTrue(isset($this->object->activePlayer));
+        $this->assertEquals('Sally', $this->object->activePlayer);
+        $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
-        $this->assertEquals(0, count($this->object->capturedDiceArray));
 
+        // james: the playerArray will be replaced by BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        // james: the activePlayer will be replaced by a BMPlayer or player id
+        $this->object->activePlayer = 'Sally';
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(TRUE, FALSE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
+        $this->assertTrue(isset($this->object->activePlayer));
+        $this->assertEquals('Harry', $this->object->activePlayer);
+        $this->assertTrue(isset($this->object->activeDieArrayArray));
+        $this->assertEquals(array(TRUE, FALSE), $this->object->passStatusArray);
 
+        // james: the playerArray will be replaced by BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        // james: the activePlayer will be replaced by a BMPlayer or player id
+        $this->object->activePlayer = 'Harry';
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(FALSE, TRUE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
+        $this->assertTrue(isset($this->object->activePlayer));
+        $this->assertEquals('Sally', $this->object->activePlayer);
+        $this->assertTrue(isset($this->object->activeDieArrayArray));
+        $this->assertEquals(array(FALSE, TRUE), $this->object->passStatusArray);
 
+        // both players have passed
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(TRUE, TRUE);
@@ -110,13 +191,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::updateGameState
      */
-    public function testUpdateGameStateEndOfRound() {
+    public function testUpdateGameStateEndRound() {
+        // james: this needs to be updated to contain BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
+        // james: the activePlayer will be replaced by a BMPlayer or player id
+        $this->object->activePlayer = 'Harry';
+        $BMDie1 = new BMDie;
+        $BMDie2 = new BMDie;
+        $this->object->activeDieArrayArray = array(array($BMDie1), array($BMDie2));
+        $this->object->passStatusArray = array(TRUE, TRUE);
         $this->object->maxWins = 3;
         $this->object->gameScoreArray = array(array(1,2,1),
                                               array(2,1,1));
         $this->object->gameState = BMGameState::endRound;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::loadDice, $this->object->gameState);
+        $this->assertFalse(isset($this->object->activePlayer));
+        $this->assertFalse(isset($this->object->activeDieArrayArray));
+        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
 
         $this->object->maxWins = 5;
         $this->object->gameScoreArray = array(array(5,2,1),
@@ -129,7 +221,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::updateGameState
      */
-    public function testUpdateGameStateEndOfGame() {
+    public function testUpdateGameStateEndGame() {
         $this->object->gameState = BMGameState::endGame;
         $this->object->updateGameState();
         $this->assertEquals(BMGameState::endGame, $this->object->gameState);
@@ -179,19 +271,23 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::__get
-     * @todo   Implement test__get().
      */
     public function test__get() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // check that a nonexistent property can be gotten gracefully
+        $this->assertEquals(NULL, $this->object->nonsenseVariable);
+
+        $BMDie1 = new BMDie;
+        $BMDie2 = new BMDie;
+        $this->object->buttonArray = array($BMDie1, $BMDie2);
+        $this->assertEquals(array($BMDie1, $BMDie2), $this->object->buttonArray);
     }
 
     /**
      * @covers BMGame::__set
      */
     public function test__set() {
+        // james: this needs to be updated to contain BMPlayers or player ids
+        $this->object->playerArray = array('Harry', 'Sally');
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
         $this->object->dieArrayArray = array(array($BMDie1), array($BMDie2));
@@ -215,4 +311,29 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /**
+     * @covers BMGame::__isset
+     */
+    public function test__isset() {
+        $this->assertFalse(isset($this->object->buttonArray));
+
+        $BMDie1 = new BMDie;
+        $BMDie2 = new BMDie;
+        $this->object->buttonArray = array($BMDie1, $BMDie2);
+        $this->assertTrue(isset($this->object->buttonArray));
+    }
+
+    /**
+     * @covers BMGame::__unset
+     */
+    public function test__unset() {
+        // check that a nonexistent property can be unset gracefully
+        unset($this->object->buttonArray);
+
+        $BMDie1 = new BMDie;
+        $BMDie2 = new BMDie;
+        $this->object->buttonArray = array($BMDie1, $BMDie2);
+        unset($this->object->buttonArray);
+        $this->assertFalse(isset($this->object->buttonArray));
+    }
 }

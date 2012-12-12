@@ -20,7 +20,8 @@ class BMButton {
         $this->dieArray = array();
 
         // set die sides and skills, one die at a time
-        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+        for ($dieIdx = 0, $count = count($dieSides);
+             $dieIdx <= $count - 1; $dieIdx++) {
             $tempBMDie = new BMDie;
             if (is_numeric($dieSides[$dieIdx])) {
                 $tempBMDie->mSides = $dieSides[$dieIdx];
@@ -45,14 +46,16 @@ class BMButton {
             throw new InvalidArgumentException('Invalid number of values.');
         }
 
-        for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
+        for ($dieIdx = 0, $count = count($valueArray);
+             $dieIdx <= $count - 1; $dieIdx++) {
             if (($valueArray[$dieIdx] < 1) |
                 ($valueArray[$dieIdx] > $this->dieArray[$dieIdx]->mSides)) {
                 throw new InvalidArgumentException('Invalid values.');
             }
         }
 
-        for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
+        for ($dieIdx = 0, $count = count($valueArray);
+             $dieIdx <= $count - 1; $dieIdx++) {
             $this->dieArray[$dieIdx]->scoreValue = $valueArray[$dieIdx];
         }
 
@@ -62,10 +65,10 @@ class BMButton {
         $dieArray = preg_split('/[[:space:]]+/', $recipe,
                                NULL, PREG_SPLIT_NO_EMPTY);
 
-        for ($dieIdx = 0; $dieIdx < count($dieArray); $dieIdx++) {
+        foreach ($dieArray as $die) {
             // ideally, we want to shift this functionality to the
             // and then we just validate each die individually
-            $dieContainsSides = preg_match('/\(.+\)/', $dieArray[$dieIdx]);
+            $dieContainsSides = preg_match('/\(.+\)/', $die);
             if (1 !== $dieContainsSides) {
                 throw new InvalidArgumentException('Invalid button recipe.');
             }
@@ -73,11 +76,14 @@ class BMButton {
     }
 
     private function parseRecipeForSides($recipe) {
+        // split by spaces
         $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
 
         for ($dieIdx = 0; $dieIdx < count($dieSizeArray); $dieIdx++) {
+            // remove everything before the opening parenthesis
             $dieSizeArray[$dieIdx] = preg_replace('/^.*\(/', '',
                                                   $dieSizeArray[$dieIdx]);
+            // remove everything after the closing parenthesis
             $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '',
                                                   $dieSizeArray[$dieIdx]);
         }
@@ -86,8 +92,10 @@ class BMButton {
     }
 
     private function parseRecipeForSkills($recipe) {
+        // split by spaces
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
 
+        // remove everything within parentheses
         for ($dieIdx = 0; $dieIdx < count($dieSkillArray); $dieIdx++) {
             $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '',
                                                   $dieSkillArray[$dieIdx]);
