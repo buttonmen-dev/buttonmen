@@ -240,6 +240,27 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::changeActivePlayer
+     */
+    public function testChangeActivePlayer() {
+        $method = new ReflectionMethod('BMGame', 'changeActivePlayer');
+        $method->setAccessible(TRUE);
+
+        $this->object->playerArray = array('Homer', 'Marge', 'Bart', 'Lisa', 'Maggie');
+        $this->object->activePlayer = 'Homer';
+        $method->invoke($this->object);
+        $this->assertEquals('Marge', $this->object->activePlayer);
+        $method->invoke($this->object);
+        $this->assertEquals('Bart', $this->object->activePlayer);
+        $method->invoke($this->object);
+        $this->assertEquals('Lisa', $this->object->activePlayer);
+        $method->invoke($this->object);
+        $this->assertEquals('Maggie', $this->object->activePlayer);
+        $method->invoke($this->object);
+        $this->assertEquals('Homer', $this->object->activePlayer);
+    }
+
+    /**
      * @covers BMGame::resetPlayState
      */
     public function testResetGameState() {

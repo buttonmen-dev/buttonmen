@@ -127,12 +127,12 @@ class BMGame {
     }
 
     private function changeActivePlayer() {
-        $activePlayerIdx = array_search($this->activePlayer, $this->playerArray);
-        assert(FALSE !== $activePlayerIdx);
+        $oldActivePlayerIdx = array_search($this->activePlayer, $this->playerArray);
+        assert(FALSE !== $oldActivePlayerIdx);
 
         // move to the next player
-        $activePlayerIdx = ($activePlayerIdx + 1) % count($this->playerArray);
-        $this->activePlayer = $this->playerArray[$activePlayerIdx];
+        $newActivePlayerIdx = ($oldActivePlayerIdx + 1) % count($this->playerArray);
+        $this->activePlayer = $this->playerArray[$newActivePlayerIdx];
     }
 
     // utility methods
