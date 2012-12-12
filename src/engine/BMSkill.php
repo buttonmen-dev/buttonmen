@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * BMSkill: Used to modify the operation of BMDie
+ *
+ * @author: Julian Lighton
+ */
+
 class BMSKill
 {
 	
@@ -7,7 +13,11 @@ class BMSKill
 
 class BMSkillShadow extends BMSkill
 {
-	public $name = "Shadow";
+	public static $name = "Shadow";
+
+    public static $abbrev = "s";
+
+    public static $hooked_methods = array("attack_list");
 
 	public static function attack_list($args)
 	{
