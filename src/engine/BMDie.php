@@ -114,30 +114,33 @@ class BMDie
 
     // given a string describing a die and a list of skills, return a
     // new BMDie or appropriate subclass thereof
+
+    // Depending on implementation details, this may end up being
+    // replaced with something that doesn't need to do string parsing
     
-    public static function create_die_from_string($recipe, $skills) {
+    public static function create_from_string($recipe, $skills) {
 
         try {
             $opt_list = explode("|", $recipe);
 
             // Option dice divide on a |, can contain any die type
             if (count($opt_list) > 1) {
-                return BMOptionDie::create_die_from_list($opt_list, $skills);
+                return BMOptionDie::create_from_list($opt_list, $skills);
             }
             // Twin dice divide on a comma, can contain any type but option
             elseif (count($twin_list = explode(",", $recipe)) > 1) {
-                return BMTwinDie::create_die_from_list($twin_list, $skills);
+                return BMTwinDie::create_from_list($twin_list, $skills);
             }
             elseif ($recipe == "C") {
-                return BMWildcardDie::create_die($recipe, $skills);
+                return BMWildcardDie::create($recipe, $skills);
             }
             // Integers are normal dice
             elseif ($recipe === (int)$recipe) {
-                return BMDie::create_die($recipe, $skills);
+                return BMDie::create($recipe, $skills);
             }
             // Single character that's not a number is a swing die
             elseif (count($recipe) == 1) {
-                return BMSwingDie::create_die($recipe, $skills);
+                return BMSwingDie::create($recipe, $skills);
             }
             // oops
             throw new UnexpectedValueException("Invalid recipe: $recipe");
@@ -148,8 +151,8 @@ class BMDie
         
     }
 
-    public static function create_die($size, $skills) {
-        if ($size < 1 or $size >99) {
+    public static function create($size, $skills) {
+        if ($size < 1 or $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
         }
 
@@ -217,13 +220,13 @@ class BMDie
     }
 
 
-    public function validAttack($type, $attackers, $defenders)
+    public function valid_attack($type, $attackers, $defenders)
     {
         $this->run_hooks(__METHOD__, array());
     }
 
 
-    public function validTarget($type, $attackers, $defenders)
+    public function valid_target($type, $attackers, $defenders)
     {
         $this->run_hooks(__METHOD__, array());
     }
@@ -234,7 +237,7 @@ class BMDie
     }
 
 
-    public function beCaptured($type, $attackers, $victims)
+    public function be_captured($type, $attackers, $victims)
     {
         $this->run_hooks(__METHOD__, array());
     }
