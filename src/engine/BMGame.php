@@ -13,6 +13,7 @@ class BMGame {
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
+    private $attack;                // array(attacking_die_idx, target_die_idx, attack type)
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
@@ -78,8 +79,10 @@ class BMGame {
                 break;
 
             case BMGameState::startTurn:
-                // valid attack needs to be chosen, or a pass
-                $this->gameState = BMGameState::endTurn;
+                if ($this->is_valid_attack()) {
+                    $this->gameState = BMGameState::endTurn;
+                    $this->perform_attack();
+                }
                 break;
 
             case BMGameState::endTurn:
@@ -101,8 +104,8 @@ class BMGame {
                 $this->reset_play_state();
 
                 $this->gameState = BMGameState::loadDice;
-                for ($playerIdx = 0; $playerIdx < count($this->gameScoreArray) ; $playerIdx++) {
-                    if ($this->gameScoreArray[$playerIdx]['W'] >= $this->maxWins) {
+                foreach ($this->gameScoreArray as $gameScore) {
+                    if ($gameScore['W'] >= $this->maxWins) {
                         $this->gameState = BMGameState::endGame;
                         break;
                     }
@@ -118,13 +121,25 @@ class BMGame {
         }
     }
 
+    private function is_valid_attack() {
+        if (isset($this->attack)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    private function perform_attack() {
+        // currently just a placeholder
+    }
+
     private function reset_play_state() {
         unset($this->activePlayerIdx);
         unset($this->playerWithInitiativeIdx);
         unset($this->activeDieArrayArray);
         $tempPassStatusArray = array();
         $tempCapturedDiceArray = array();
-        for ($playerIdx = 0; $playerIdx < count($this->playerIdxArray); $playerIdx++) {
+        foreach ($this->playerIdxArray as $playerIdx) {
             $tempPassStatusArray[] = FALSE;
             $tempCapturedDiceArray[] = array();
         }
@@ -158,20 +173,33 @@ class BMGame {
         switch ($property) {
             case 'gameScoreArray':
                 if (count($this->playerIdxArray) != count($value)) {
-                    throw new InvalidArgumentException('Invalid number of W/L/T results provided.');
+                    throw new InvalidArgumentException(
+                        'Invalid number of W/L/T results provided.');
                 }
                 $tempArray = array();
                 for ($playerIdx = 0; $playerIdx < count($value); $playerIdx++) {
                     // check whether there are three inputs and they are all positive
                     if ((3 !== count($value[$playerIdx])) ||
                         min(array_map('min', $value)) < 0) {
-                        throw new InvalidArgumentException('Invalid W/L/T array provided.');
+                        throw new InvalidArgumentException(
+                            'Invalid W/L/T array provided.');
                     }
                     $tempArray[$playerIdx] = array('W' => $value[$playerIdx][0],
                                                    'L' => $value[$playerIdx][1],
                                                    'D' => $value[$playerIdx][2]);
                 }
                 $this->gameScoreArray = $tempArray;
+                break;
+            case 'attack':
+                if (!is_array($value) || (3 !== count($value))) {
+                    throw new InvalidArgumentException(
+                        'There must be exactly three elements in attack.');
+                }
+                if (!is_array($value[0]) || !is_array($value[1])) {
+                    throw new InvalidArgumentException(
+                        'The first two elements in attack must be arrays.');
+                }
+                $this->attack = $value;
                 break;
             default:
                 $this->$property = $value;

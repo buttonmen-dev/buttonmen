@@ -105,6 +105,21 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::update_game_state
      */
+    public function test_update_game_state_start_turn() {
+        $this->object->gameState = BMGameState::startTurn;
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
+
+        $this->object->gameState = BMGameState::startTurn;
+        $this->object->attack = array(array(), array(), '');
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::endTurn, $this->object->gameState);
+        //james: need to check that the attack has been carried out
+    }
+
+    /**
+     * @covers BMGame::update_game_state
+     */
     public function test_update_game_state_end_turn() {
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
@@ -214,7 +229,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::update_game_state
      */
-    public function test_update_game_state_when_state_is_not_set() {
+    public function test_update_game_state_not_set() {
         try {
             $this->object->update_game_state();
             $this->fail('An undefined game state cannot be updated.');
@@ -224,24 +239,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::change_active_player
+     * @covers BMGame::is_valid_attack
      */
-    public function test_change_active_player() {
-        $method = new ReflectionMethod('BMGame', 'change_active_player');
+    public function test_is_valid_attack() {
+        $method = new ReflectionMethod('BMGame', 'is_valid_attack');
         $method->setAccessible(TRUE);
 
-        $this->object->playerIdxArray = array(1, 12, 21, 3, 15);
-        $this->object->activePlayerIdx = 0;
-        $method->invoke($this->object);
-        $this->assertEquals(1, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(2, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(3, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(4, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(0, $this->object->activePlayerIdx);
+        // check when there is no attack set
+        $this->assertFalse($method->invoke($this->object));
+
+        // check with a pass attack
+        $this->object->attack = array(array(), array(), '');
+        $this->assertTrue($method->invoke($this->object));
+
+        // james: need to add test cases for invalid attacks
     }
 
     /**
@@ -275,6 +286,27 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::change_active_player
+     */
+    public function test_change_active_player() {
+        $method = new ReflectionMethod('BMGame', 'change_active_player');
+        $method->setAccessible(TRUE);
+
+        $this->object->playerIdxArray = array(1, 12, 21, 3, 15);
+        $this->object->activePlayerIdx = 0;
+        $method->invoke($this->object);
+        $this->assertEquals(1, $this->object->activePlayerIdx);
+        $method->invoke($this->object);
+        $this->assertEquals(2, $this->object->activePlayerIdx);
+        $method->invoke($this->object);
+        $this->assertEquals(3, $this->object->activePlayerIdx);
+        $method->invoke($this->object);
+        $this->assertEquals(4, $this->object->activePlayerIdx);
+        $method->invoke($this->object);
+        $this->assertEquals(0, $this->object->activePlayerIdx);
+    }
+
+    /**
      * @covers BMGame::__get
      */
     public function test__get() {
@@ -290,7 +322,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__set
      */
-    public function test__set() {
+    public function test__set_game_score_array() {
         $this->object->playerIdxArray = array(12345, 54321);
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
@@ -313,6 +345,40 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
         catch (InvalidArgumentException $expected) {
         }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_attack() {
+        try {
+            $this->object->attack = array(array(1), array(2));
+            $this->fail('There must be exactly three elements in attack.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(1, array(2), '');
+            $this->fail('The first element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(array(1), 2, '');
+            $this->fail('The second element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        // james: add test about third element of attack
+
+        // check that a pass attack is valid
+        $this->object->attack = array(array(), array(), '');
+
+        // check that a skill attack is valid
+        $this->object->attack = array(array(0, 5), array(2), 'skill');
     }
 
     /**
