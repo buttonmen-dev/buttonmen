@@ -54,11 +54,13 @@ class BMGame {
             case BMGameState::chooseAuxiliaryDice:
                 $this->gameState = BMGameState::loadDice;
                 // how do I know that the auxiliary dice decisions have been made?
+                // because the BMButton recipes have no more auxiliary dice in them
                 break;
 
             case BMGameState::loadDice:
-                $this->gameState = BMGameState::specifyDice;
-                // how do I know that the dice have been loaded?
+                if (isset($this->activeDieArrayArray)) {
+                    $this->gameState = BMGameState::specifyDice;
+                }
                 break;
 
             case BMGameState::specifyDice:

@@ -91,6 +91,22 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::update_game_state
      */
+    public function test_update_game_state_load_dice() {
+        $this->object->gameState = BMGameState::loadDice;
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::loadDice, $this->object->gameState);
+
+        $this->object->gameState = BMGameState::loadDice;
+        $BMDie1 = new BMDie;
+        $BMDie2 = new BMDie;
+        $this->object->activeDieArrayArray = array(array($BMDie1), array($BMDie2));
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::specifyDice, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::update_game_state
+     */
     public function test_update_game_state_determine_initiative() {
         $this->object->gameState = BMGameState::determineInitiative;
         $this->object->update_game_state();
