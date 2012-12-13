@@ -8,9 +8,9 @@
 class BMGame {
     // properties
     private $gameId;                // game ID number in the database
-    private $playerArray;           // array of player IDs
-    private $activePlayerIdx;       // index of the active player in playerArray
-    private $playerWithInitiative;  // player who won initiative for this round
+    private $playerIdxArray;        // array of player IDs
+    private $activePlayerIdx;       // index of the active player in playerIdxArray
+    private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
     private $passStatusArray;       // boolean array whether each player passed
@@ -24,7 +24,7 @@ class BMGame {
     public function update_game_state () {
         switch ($this->gameState) {
             case BMGameState::startGame:
-                if (isset($this->playerArray) &&
+                if (isset($this->playerIdxArray) &&
                     isset($this->buttonArray) &&
                     isset($this->maxWins)) {
                     $this->gameState = BMGameState::applyHandicaps;
@@ -66,7 +66,7 @@ class BMGame {
                 break;
 
             case BMGameState::determineInitiative:
-                if (isset($this->playerWithInitiative)) {
+                if (isset($this->playerWithInitiativeIdx)) {
                     $this->gameState = BMGameState::startRound;
                 }
                 break;
@@ -120,11 +120,11 @@ class BMGame {
 
     private function reset_play_state() {
         unset($this->activePlayerIdx);
-        unset($this->playerWithInitiative);
+        unset($this->playerWithInitiativeIdx);
         unset($this->activeDieArrayArray);
         $tempPassStatusArray = array();
         $tempCapturedDiceArray = array();
-        for ($playerIdx = 0; $playerIdx < count($this->playerArray); $playerIdx++) {
+        for ($playerIdx = 0; $playerIdx < count($this->playerIdxArray); $playerIdx++) {
             $tempPassStatusArray[] = FALSE;
             $tempCapturedDiceArray[] = array();
         }
@@ -138,7 +138,7 @@ class BMGame {
 
         // move to the next player
         $this->activePlayerIdx = ($this->activePlayerIdx + 1) %
-                                 count($this->playerArray);
+                                 count($this->playerIdxArray);
     }
 
     // utility methods
@@ -157,7 +157,7 @@ class BMGame {
     {
         switch ($property) {
             case 'gameScoreArray':
-                if (count($this->playerArray) != count($value)) {
+                if (count($this->playerIdxArray) != count($value)) {
                     throw new InvalidArgumentException('Invalid number of W/L/T results provided.');
                 }
                 $tempArray = array();
