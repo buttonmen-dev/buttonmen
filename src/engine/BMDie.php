@@ -32,6 +32,8 @@ class BMDie
     private $doesReroll = true;
     public $captured = false;
 
+    public $hasAttacked = false;
+
 // This is set when the button may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
 // the end of each of your turns.
@@ -220,15 +222,34 @@ class BMDie
     }
 
 
+// check for special-case situations where an otherwise-valid attack
+// is not legal. Single-die skill attacks with stealth dice are the only
+// situation I can come up with off the top of my head
+//
+// These methods cannot act, they may only check: they're called a lot
     public function valid_attack($type, $attackers, $defenders)
     {
-        $this->run_hooks(__METHOD__, array());
+        $valid = TRUE;
+
+        if ($this->inactive or $this->unavailable or $this->hasAttacked) {
+            $valid = FALSE;
+        }
+        $this->run_hooks(__METHOD__, array($type, $attackers, $defenders, &$valid));
+
+        return $valid;
     }
 
 
     public function valid_target($type, $attackers, $defenders)
     {
-        $this->run_hooks(__METHOD__, array());
+        $valid = TRUE;
+
+        if ($this->unavailable) {
+            $valid = FALSE;
+        }
+        $this->run_hooks(__METHOD__, array($type, $attackers, $defenders, &$valid));
+
+        return $valid;
     }
 
     public function capture($type, $attackers, $victims)
