@@ -50,8 +50,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     public function testAdd_skill() {
         // Check that the skill list is indeed empty
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
+        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
 
         $this->assertEmpty($sl, "Skill list not initially empty.");
+        $this->assertFalse(array_key_exists("test", $hl), "Hook list not initially empty.");
 
         $this->object->add_skill("Testing");
 
@@ -60,6 +62,12 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(count($sl), 1, "Skill list contains more than it should.");
         $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
         $this->assertEquals($sl["Testing"], "BMSkillTesting", "Incorrect stored classname for 'Testing'");
+
+        // Proper maintenance of the hook lists
+        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
+
+        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
+
         // Another skill
 
         $this->object->add_skill("Testing2");
@@ -81,11 +89,27 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
         $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
 
+        // Proper maintenance of the hook lists
+        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
+
 
     }
 
     /**
      * @depends testAdd_skill
+     */
+    public function testHas_skill() {
+        $this->object->add_skill("Testing");
+        $this->object->add_skill("Testing2");
+        $this->assertTrue($this->object->has_skill("Testing"));
+        $this->assertTrue($this->object->has_skill("Testing2"));
+        $this->assertFalse($this->object->has_skill("Testing3"));
+    }
+
+    /**
+     * @depends testAdd_skill
+     * @depends testHas_skill
+     * @depends testRemove_skill
      */
     public function testRun_hooks() {
         $this->expectOutputString('testing');
@@ -97,18 +121,37 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
 
+    /**
+     * @depends testAdd_skill
+     * @depends testHas_skill
+     */
     public function testRemove_skill() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
 
-    public function testHas_skill() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // simple
+        $this->object->add_skill("Testing");
+        $this->assertTrue($this->object->remove_skill("Testing"));
+        $this->assertFalse($this->object->has_skill("Testing"));
+
+        // multiple skills
+        $this->object->add_skill("Testing");
+        $this->object->add_skill("Testing2");
+        $this->assertTrue($this->object->remove_skill("Testing"));
+        $this->assertFalse($this->object->has_skill("Testing"));
+        $this->assertTrue($this->object->has_skill("Testing2"));
+
+        // fail to remove non-existent skills
+        $this->object->add_skill("Testing");
+        $this->assertFalse($this->object->remove_skill("Testing3"));
+        $this->assertTrue($this->object->has_skill("Testing"));
+        $this->assertTrue($this->object->has_skill("Testing2"));
+        
+        // examine the hook list for proper editing
+        $this->assertTrue($this->object->remove_skill("Testing2"));
+        $this->assertTrue($this->object->has_skill("Testing"));
+        $this->assertFalse($this->object->has_skill("Testing2"));
+
+
+        
     }
 
     public function testInit() {
@@ -118,6 +161,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @depends testCreate
+     */
     public function testCreate_from_string() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
@@ -125,6 +171,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @depends testInit
+     */
     public function testCreate() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(

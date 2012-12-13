@@ -13,7 +13,7 @@ class BMDie
 
 // an array keyed by function name. Value is an array of the skills
 //  that are modifying that function
-    private $hookLists = array();
+    private $hookList = array();
 
 // keyed by the Names of the skills that the die has, with values of
 // the skill class's name
@@ -64,7 +64,7 @@ class BMDie
     {
         // get the hooks for the calling function
 
-        foreach ($this->hookLists[$func] as $skill)
+        foreach ($this->hookList[$func] as $skill)
         {
             $skillClass = $this->skillList[$skill];
 
@@ -81,7 +81,7 @@ class BMDie
             $this->skillList[$skill] = $skillClass;
 
             foreach ($skillClass::$hooked_methods as $func) {
-                $hookLists[$func][] = $skillClass;
+                $this->hookList[$func][] = $skillClass;
             }
         }
     }
@@ -90,12 +90,28 @@ class BMDie
 //  how Chaotic shakes out.
     public function remove_skill($skill)
     {
+        if (!$this->has_skill($skill)) {
+            return FALSE;
+        }
 
+        $skillClass = $this->skillList[$skill];
+
+        unset($this->skillList[$skill]);
+
+        foreach ($skillClass::$hooked_methods as $func) {
+            $key = array_search($skillClass, $this->hookList[$func], TRUE);
+            if ($key === FALSE) {
+                // should never happen, and we should error hard if it does
+            }
+            unset($this->hookList[$func][$key]);
+        }
+
+        return TRUE;
     }
 
     public function has_skill($skill)
     {
-
+        return array_key_exists($skill, $this->skillList);
     }
 
 // This needs to be fixed to work properly within PHP's magic method semantics
@@ -176,8 +192,7 @@ class BMDie
         $this->run_hooks(__METHOD__, array());
     }
 
-// Roll the die into a game. Clone self, (possibly into the playDie
-// subclass), roll, return the clone.
+// Roll the die into a game. Clone self, roll, return the clone.
     public function first_roll()
     {
         $this->run_hooks(__METHOD__, array());
