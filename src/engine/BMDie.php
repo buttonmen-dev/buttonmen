@@ -13,11 +13,11 @@ class BMDie
 
 // an array keyed by function name. Value is an array of the skills
 //  that are modifying that function
-    private $hookLists;
+    private $hookLists = array();
 
 // keyed by the Names of the skills that the die has, with values of
 // the skill class's name
-    private $skillList;
+    private $skillList = array();
 
 // Basic facts about the die
     public $min;
@@ -75,10 +75,10 @@ class BMDie
         $skillClass = "BMSkill$skill";
 
         // Don't add skills that are already added
-        if (!$this->skillList[$skill]) {
+        if (!array_key_exists($skill, $this->skillList)) {
             $this->skillList[$skill] = $skillClass;
 
-            foreach ($skillClass::hooked_methods as $func) {
+            foreach ($skillClass::$hooked_methods as $func) {
                 $hookLists[$func][] = $skillClass;
             }
         }
