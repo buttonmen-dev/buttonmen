@@ -20,7 +20,7 @@ class BMGame {
     private $gameState;             // current game state as a BMGameState enum
 
     // methods
-    public function updateGameState () {
+    public function update_game_state () {
         switch ($this->gameState) {
             case BMGameState::startGame:
                 if (isset($this->playerArray) &&
@@ -51,14 +51,17 @@ class BMGame {
 
             case BMGameState::chooseAuxiliaryDice:
                 $this->gameState = BMGameState::loadDice;
+                // how do I know that the auxiliary dice decisions have been made?
                 break;
 
             case BMGameState::loadDice:
                 $this->gameState = BMGameState::specifyDice;
+                // how do I know that the dice have been loaded?
                 break;
 
             case BMGameState::specifyDice:
                 $this->gameState = BMGameState::determineInitiative;
+                // how do I know that my dice are completely specified?
                 break;
 
             case BMGameState::determineInitiative:
@@ -68,10 +71,13 @@ class BMGame {
                 break;
 
             case BMGameState::startRound:
+                // activeDieArrayArray must be loaded
+                // activePlayer must be loaded
                 $this->gameState = BMGameState::startTurn;
                 break;
 
             case BMGameState::startTurn:
+                // valid attack needs to be chosen, or a pass
                 $this->gameState = BMGameState::endTurn;
                 break;
 
@@ -84,14 +90,14 @@ class BMGame {
                     unset($this->activeDieArrayArray);
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->changeActivePlayer();
+                    $this->change_active_player();
                 }
                 break;
 
             case BMGameState::endRound:
                 // score dice
                 // update game score
-                $this->resetPlayState();
+                $this->reset_play_state();
 
                 $this->gameState = BMGameState::loadDice;
                 for ($playerIdx = 0; $playerIdx < count($this->gameScoreArray) ; $playerIdx++) {
@@ -111,7 +117,7 @@ class BMGame {
         }
     }
 
-    private function resetPlayState() {
+    private function reset_play_state() {
         unset($this->activePlayer);
         unset($this->playerWithInitiative);
         unset($this->activeDieArrayArray);
@@ -126,7 +132,7 @@ class BMGame {
         unset($this->roundScoreArray);
     }
 
-    private function changeActivePlayer() {
+    private function change_active_player() {
         $oldActivePlayerIdx = array_search($this->activePlayer, $this->playerArray);
         assert(FALSE !== $oldActivePlayerIdx);
 

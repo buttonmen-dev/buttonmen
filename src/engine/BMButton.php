@@ -12,11 +12,11 @@ class BMButton {
     public $dieArray;
 
     // methods
-    public function loadFromRecipe($recipe) {
-        $this->validateRecipe($recipe);
+    public function load_from_recipe($recipe) {
+        $this->validate_recipe($recipe);
         $this->recipe = $recipe;
-        $dieSides = $this->parseRecipeForSides($recipe);
-        $dieSkills = $this->parseRecipeForSkills($recipe);
+        $dieSides = $this->parse_recipe_for_sides($recipe);
+        $dieSkills = $this->parse_recipe_for_skills($recipe);
         $this->dieArray = array();
 
         // set die sides and skills, one die at a time
@@ -33,14 +33,14 @@ class BMButton {
         }
     }
 
-    public function loadFromName($name) {
+    public function load_from_name($name) {
         // The implementation here is currently a stub that always returns the
         // recipe of Bauer. This will eventually be replaced by a database call
         // to retrieve the recipe, and then a recipe set for the current button.
         $this->recipe = '(8) (10) (12) (20) (X)';
     }
 
-    public function loadValues($valueArray) {
+    public function load_values($valueArray) {
         if ((!isset($this->dieArray)) |
             (count($this->dieArray) != count($valueArray))) {
             throw new InvalidArgumentException('Invalid number of values.');
@@ -61,7 +61,7 @@ class BMButton {
 
     }
 
-    private function validateRecipe($recipe) {
+    private function validate_recipe($recipe) {
         $dieArray = preg_split('/[[:space:]]+/', $recipe,
                                NULL, PREG_SPLIT_NO_EMPTY);
 
@@ -75,7 +75,7 @@ class BMButton {
         }
     }
 
-    private function parseRecipeForSides($recipe) {
+    private function parse_recipe_for_sides($recipe) {
         // split by spaces
         $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
 
@@ -91,7 +91,7 @@ class BMButton {
         return $dieSizeArray;
     }
 
-    private function parseRecipeForSkills($recipe) {
+    private function parse_recipe_for_skills($recipe) {
         // split by spaces
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
 
@@ -121,11 +121,11 @@ class BMButton {
     {
         switch ($property) {
             case 'name':
-                $this->loadFromName($value);
+                $this->load_from_name($value);
                 break;
 
             case 'recipe':
-                $this->loadFromRecipe($value);
+                $this->load_from_recipe($value);
                 break;
 
             default:
