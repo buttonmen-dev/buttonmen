@@ -66,6 +66,7 @@ class BMGame {
             case BMGameState::specifyDice:
                 $this->gameState = BMGameState::determineInitiative;
                 // how do I know that my dice are completely specified?
+                // because there are no more swing/option dice in the activeDieArrayArray
                 break;
 
             case BMGameState::determineInitiative:
@@ -75,8 +76,8 @@ class BMGame {
                 break;
 
             case BMGameState::startRound:
-                // activeDieArrayArray must be loaded
-                // activePlayerIdx must be loaded
+                assert(isset($this->activeDieArrayArray));
+                assert(isset($this->activePlayerIdx));
                 $this->gameState = BMGameState::startTurn;
                 break;
 
