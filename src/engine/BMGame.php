@@ -7,8 +7,9 @@
  */
 class BMGame {
     // properties
-    private $playerArray;           // players
-    private $activePlayer;          // active player
+    private $gameId;                // game ID number in the database
+    private $playerArray;           // array of player IDs
+    private $activePlayerIdx;       // index of the active player in playerArray
     private $playerWithInitiative;  // player who won initiative for this round
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
@@ -72,7 +73,7 @@ class BMGame {
 
             case BMGameState::startRound:
                 // activeDieArrayArray must be loaded
-                // activePlayer must be loaded
+                // activePlayerIdx must be loaded
                 $this->gameState = BMGameState::startTurn;
                 break;
 
@@ -118,7 +119,7 @@ class BMGame {
     }
 
     private function reset_play_state() {
-        unset($this->activePlayer);
+        unset($this->activePlayerIdx);
         unset($this->playerWithInitiative);
         unset($this->activeDieArrayArray);
         $tempPassStatusArray = array();
@@ -133,12 +134,11 @@ class BMGame {
     }
 
     private function change_active_player() {
-        $oldActivePlayerIdx = array_search($this->activePlayer, $this->playerArray);
-        assert(FALSE !== $oldActivePlayerIdx);
+        assert(isset($this->activePlayerIdx));
 
         // move to the next player
-        $newActivePlayerIdx = ($oldActivePlayerIdx + 1) % count($this->playerArray);
-        $this->activePlayer = $this->playerArray[$newActivePlayerIdx];
+        $this->activePlayerIdx = ($this->activePlayerIdx + 1) %
+                                 count($this->playerArray);
     }
 
     // utility methods

@@ -120,46 +120,43 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // james: the playerArray will be replaced by BMPlayers or player ids
         $this->object->playerArray = array('Harry', 'Sally');
-        // james: the activePlayer will be replaced by a BMPlayer or player id
-        $this->object->activePlayer = 'Harry';
+        $this->object->activePlayerIdx = 0;
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(FALSE, FALSE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activePlayer));
-        $this->assertEquals('Sally', $this->object->activePlayer);
+        $this->assertTrue(isset($this->object->activePlayerIdx));
+        $this->assertEquals(1, $this->object->activePlayerIdx);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
 
         // james: the playerArray will be replaced by BMPlayers or player ids
         $this->object->playerArray = array('Harry', 'Sally');
-        // james: the activePlayer will be replaced by a BMPlayer or player id
-        $this->object->activePlayer = 'Sally';
+        $this->object->activePlayerIdx = 1;
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(TRUE, FALSE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activePlayer));
-        $this->assertEquals('Harry', $this->object->activePlayer);
+        $this->assertTrue(isset($this->object->activePlayerIdx));
+        $this->assertEquals(0, $this->object->activePlayerIdx);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(TRUE, FALSE), $this->object->passStatusArray);
 
         // james: the playerArray will be replaced by BMPlayers or player ids
         $this->object->playerArray = array('Harry', 'Sally');
-        // james: the activePlayer will be replaced by a BMPlayer or player id
-        $this->object->activePlayer = 'Harry';
+        $this->object->activePlayerIdx = 0;
         $this->object->activeDieArrayArray = array(array($BMDie1),
                                                    array($BMDie2));
         $this->object->passStatusArray = array(FALSE, TRUE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activePlayer));
-        $this->assertEquals('Sally', $this->object->activePlayer);
+        $this->assertTrue(isset($this->object->activePlayerIdx));
+        $this->assertEquals(1, $this->object->activePlayerIdx);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, TRUE), $this->object->passStatusArray);
 
@@ -194,8 +191,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_update_game_state_end_round() {
         // james: this needs to be updated to contain BMPlayers or player ids
         $this->object->playerArray = array('Harry', 'Sally');
-        // james: the activePlayer will be replaced by a BMPlayer or player id
-        $this->object->activePlayer = 'Harry';
+        $this->object->activePlayerIdx = 0;
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
         $this->object->activeDieArrayArray = array(array($BMDie1), array($BMDie2));
@@ -206,7 +202,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::endRound;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::loadDice, $this->object->gameState);
-        $this->assertFalse(isset($this->object->activePlayer));
+        $this->assertFalse(isset($this->object->activePlayerIdx));
         $this->assertFalse(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
 
@@ -247,17 +243,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $method->setAccessible(TRUE);
 
         $this->object->playerArray = array('Homer', 'Marge', 'Bart', 'Lisa', 'Maggie');
-        $this->object->activePlayer = 'Homer';
+        $this->object->activePlayerIdx = 0;
         $method->invoke($this->object);
-        $this->assertEquals('Marge', $this->object->activePlayer);
+        $this->assertEquals(1, $this->object->activePlayerIdx);
         $method->invoke($this->object);
-        $this->assertEquals('Bart', $this->object->activePlayer);
+        $this->assertEquals(2, $this->object->activePlayerIdx);
         $method->invoke($this->object);
-        $this->assertEquals('Lisa', $this->object->activePlayer);
+        $this->assertEquals(3, $this->object->activePlayerIdx);
         $method->invoke($this->object);
-        $this->assertEquals('Maggie', $this->object->activePlayer);
+        $this->assertEquals(4, $this->object->activePlayerIdx);
         $method->invoke($this->object);
-        $this->assertEquals('Homer', $this->object->activePlayer);
+        $this->assertEquals(0, $this->object->activePlayerIdx);
     }
 
     /**
@@ -268,8 +264,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $method->setAccessible(TRUE);
 
         $this->object->playerArray = array('Harry', 'Sally');
-        $this->object->activePlayer = 'Sally';
-        $this->object->playerWithInitiative = 'Harry';
+        $this->object->activePlayerIdx = 1;
+        $this->object->playerWithInitiative = 0;
 
         $BMDie1 = new BMDie;
         $BMDie2 = new BMDie;
@@ -282,7 +278,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->roundScoreArray = array(40, -25);
 
         $method->invoke($this->object);
-        $this->assertFalse(isset($this->object->activePlayer));
+        $this->assertFalse(isset($this->object->activePlayerIdx));
         $this->assertFalse(isset($this->object->playerWithInitiative));
         $this->assertFalse(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
