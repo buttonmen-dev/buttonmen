@@ -65,8 +65,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         // Proper maintenance of the hook lists
         $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-
         $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
+
+        $this->assertContains("BMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
+
+        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
+        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
+
+
 
         // Another skill
 
@@ -91,6 +97,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         // Proper maintenance of the hook lists
         $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
+        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
+
+        $this->assertContains("BMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
+        $this->assertContains("BMSkillTesting2", $hl["test"], "Hook list missing 'Testing2' hook.");
+
+        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
+        $this->assertEquals(2, count($hl["test"]), "Hook list for function 'test' contains something extra.");
+
 
 
     }
@@ -149,6 +163,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->remove_skill("Testing2"));
         $this->assertTrue($this->object->has_skill("Testing"));
         $this->assertFalse($this->object->has_skill("Testing2"));
+
+        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
+        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
+
+        $this->assertContains("BMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
+        $this->assertNotContains("BMSkillTesting2", $hl["test"], "Hook list _not_ missing 'Testing2' hook.");
+
+        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
+        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
 
 
         
