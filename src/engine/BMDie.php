@@ -68,7 +68,7 @@ class BMDie
         {
             $skillClass = $this->skillList[$skill];
 
-            $skillClass::$func(&$args);
+            $skillClass::$func($args);
         }
     }
 

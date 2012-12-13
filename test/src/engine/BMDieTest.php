@@ -4,7 +4,7 @@ require_once "engine/BMDie.php";
 
 
 // well defined skill classes with which to test
-class BMSkillTest extends BMSkill {
+class BMSkillTesting extends BMSkill {
     public static $hooked_methods = array("test");
 
     public static function test($args) {
@@ -12,7 +12,7 @@ class BMSkillTest extends BMSkill {
     }
 }
 
-class BMSkillTest2 extends BMSkill {
+class BMSkillTesting2 extends BMSkill {
     public static $hooked_methods = array("test");
 
     public static function test($args) {
@@ -53,33 +53,33 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEmpty($sl, "Skill list not initially empty.");
 
-        $this->object->add_skill("Test");
+        $this->object->add_skill("Testing");
 
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
         $this->assertNotEmpty($sl, "Skill list should not be empty.");
         $this->assertEquals(count($sl), 1, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Test', $sl, "Skill list doesn't contain 'Test'");
-        $this->assertEquals($sl["Test"], "BMSkillTest", "Incorrect stored classname for 'Test'");
+        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
+        $this->assertEquals($sl["Testing"], "BMSkillTesting", "Incorrect stored classname for 'Testing'");
         // Another skill
 
-        $this->object->add_skill("Test2");
+        $this->object->add_skill("Testing2");
 
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
         $this->assertNotEmpty($sl, "Skill list should not be empty.");
         $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Test', $sl, "Skill list doesn't contain 'Test'");
-        $this->assertArrayHasKey('Test2', $sl, "Skill list doesn't contain 'Test2'");
-        $this->assertEquals($sl["Test2"], "BMSkillTest2", "Incorrect stored classname for 'Test2'");
+        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
+        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
+        $this->assertEquals($sl["Testing2"], "BMSkillTesting2", "Incorrect stored classname for 'Testing2'");
         
 
         // Redundancy
 
-        $this->object->add_skill("Test");
+        $this->object->add_skill("Testing");
 
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
         $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Test', $sl, "Skill list doesn't contain 'Test'");
-        $this->assertArrayHasKey('Test2', $sl, "Skill list doesn't contain 'Test2'");
+        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
+        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
 
 
     }
