@@ -152,11 +152,11 @@ class BMDie
                 return BMWildcardDie::create($recipe, $skills);
             }
             // Integers are normal dice
-            elseif ($recipe === (int)$recipe) {
+            elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
                 return BMDie::create($recipe, $skills);
             }
             // Single character that's not a number is a swing die
-            elseif (count($recipe) == 1) {
+            elseif (strlen($recipe) == 1) {
                 return BMSwingDie::create($recipe, $skills);
             }
             // oops

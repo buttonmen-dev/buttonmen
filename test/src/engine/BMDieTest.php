@@ -230,23 +230,47 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @depends testCreate
+     * @depends testInit
+     * @expectedException UnexpectedValueException
      */
-    public function testCreate_from_string() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+    public function testCreate() {
+        $die = BMDie::create(6, array());
+
+        $this->assertInstanceOf('BMDie', $die);
+        $this->assertEquals(6, $die->max);
+
+        $die = BMDie::create(-15, array());
+
+        $this->assertEquals(6, $die->max);
+        
     }
 
     /**
-     * @depends testInit
+     * @depends testCreate
      */
-    public function testCreate() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+    public function testCreate_from_string() {
+        // We only test creation of standard die types here.
+        // (and errors)
+        //
+        // The complex types can work this function out in their own
+        // test suites
+
+        $die = BMDie::create_from_string("72", array());
+        $this->assertInstanceOf('BMDie', $die);
+        $this->assertEquals(72, $die->max);
+
+        $die = BMDie::create_from_string("himom!", array());
+        $this->assertNull($die);
+
+        $die = BMDie::create_from_string("75.3", array());
+        $this->assertNull($die);
+
+        $die = BMDie::create_from_string("trombones76", array());
+        $this->assertNull($die);
+
+        $die = BMDie::create_from_string("76trombones", array());
+        $this->assertNull($die);
+
     }
 
     public function testActivate() {
