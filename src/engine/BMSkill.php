@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * BMSkill: Used to modify the operation of BMDie
+ *
+ * @author: Julian Lighton
+ */
+
 class BMSKill
 {
 	
@@ -7,11 +13,17 @@ class BMSKill
 
 class BMSkillShadow extends BMSkill
 {
-	public $name = "Shadow";
+	public static $name = "Shadow";
+
+    public static $abbrev = "s";
+
+    public static $hooked_methods = array("attack_list");
 
 	public static function attack_list($args)
 	{
-		$list = $args[0];
+		$list = &$args[0];
+
+        $redundant = FALSE;
 
 		foreach ($list as $i => $att)
 		{
@@ -19,9 +31,15 @@ class BMSkillShadow extends BMSkill
 			{
 				unset($list[$i]);
 			}
+            if ($att == "Shadow") {
+                $redundant = TRUE;
+            }
 		}
 
-		$list[] = "Shadow";
+        if (!$redundant) {
+            $list[] = "Shadow";
+        }
+
 	}
 }
 
