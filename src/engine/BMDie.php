@@ -22,6 +22,7 @@ class BMDie
 // Basic facts about the die
     public $min;
     public $max;
+    public $value;
 
     protected $scoreValue;
 
@@ -215,9 +216,11 @@ class BMDie
 
     public function attack_values($type)
     {
-        $attackValueList = array($this->value);
+        $list = array($this->value);
 
-        $this->run_hooks(__FUNCTION__, array($type, &$attackValueList));
+        $this->run_hooks(__FUNCTION__, array($type, &$list));
+
+        return $list;
     }
 
     public function defense_value($type)

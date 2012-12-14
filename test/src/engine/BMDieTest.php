@@ -295,17 +295,38 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testAttack_list() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->assertNotEmpty($this->object->attack_list());
+        $this->assertContains("Skill", $this->object->attack_list());
+        $this->assertContains("Power", $this->object->attack_list());
+        $this->assertNotEmpty($this->object->attack_list());
+        $this->assertEquals(2, count($this->object->attack_list()));
     }
 
+    /**
+     * @depends testInit
+     * @depends testAttack_list
+     */
     public function testAttack_values() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->value = 7;
+
+        foreach ($this->object->attack_list() as $att) {
+            $this->assertNotEmpty($this->object->attack_values($att));
+            $this->assertContains(7, $this->object->attack_values($att));
+            $this->assertEquals(1, count($this->object->attack_values($att)));
+        }
+
+        $this->assertNotEmpty($this->object->attack_values("Bob"));
+        $this->assertContains(7, $this->object->attack_values("Bob"));
+        $this->assertEquals(1, count($this->object->attack_values("Bob")));
+
+        $this->object->value = 4;
+        foreach ($this->object->attack_list() as $att) {
+            $this->assertNotEmpty($this->object->attack_values($att));
+            $this->assertContains(4, $this->object->attack_values($att));
+            $this->assertEquals(1, count($this->object->attack_values($att)));
+        }
+
+
     }
 
     public function testDefense_value() {
