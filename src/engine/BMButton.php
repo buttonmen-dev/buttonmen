@@ -56,7 +56,7 @@ class BMButton {
 
         for ($dieIdx = 0, $count = count($valueArray);
              $dieIdx <= $count - 1; $dieIdx++) {
-            $this->dieArray[$dieIdx]->scoreValue = $valueArray[$dieIdx];
+            $this->dieArray[$dieIdx]->value = $valueArray[$dieIdx];
         }
 
     }

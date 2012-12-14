@@ -105,7 +105,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->object->load_values($dieValues);
         for ($dieIdx = 0; $dieIdx < count($dieValues); $dieIdx++) {
             $this->assertEquals($dieValues[$dieIdx],
-                                $this->object->dieArray[$dieIdx]->scoreValue);
+                                $this->object->dieArray[$dieIdx]->value);
         }
 
         // test for same number of values as dice
