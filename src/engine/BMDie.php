@@ -1,205 +1,336 @@
 <?php
 require_once 'BMSkill.php';
 
+/*
+ * BMDie: the fundamental unit of game mechanics
+ *
+ * @author: Julian Lighton
+ */
+
 class BMDie
 {
     // properties
 
-# an array keyed by function name. Value is an array of the skills
-#  that are modifying that function
-	private $hookLists;
+// an array keyed by function name. Value is an array of the skills
+//  that are modifying that function
+    protected $hookList = array();
 
-# Names of the skills that the die has.
-	private $skillList;
+// keyed by the Names of the skills that the die has, with values of
+// the skill class's name
+    protected $skillList = array();
 
-# Basic facts about the die
-	public $min;
-	public $max;
+// Basic facts about the die
+    public $min;
+    public $max;
+    public $value;
 
-	private $scoreValue;
+    protected $scoreValue;
 
-    private $mRecipe;
-    private $mSides;
-    private $mSkills;
+    protected $mRecipe;
+    protected $mSides;
+    protected $mSkills;
 
-	private $doesReroll = true;
-	public $captured = false;
+    protected $doesReroll = true;
+    public $captured = false;
 
-# This is set when the button may not attack (sleep or focus, for instance)
-# It is set to a string, so the cause may be described. It is cleared at
-# the end of each of your turns.
-	private $inactive = "";
+    public $hasAttacked = false;
 
-# Set when the button isn't in the game for whatever reason, but could
-#  suddenly join (Warrior Dice)
-	private $unavailable = false;
+// This is set when the button may not attack (sleep or focus, for instance)
+// It is set to a string, so the cause may be described. It is cleared at
+// the end of each of your turns.
+    public $inactive = "";
+
+// Set when the button isn't in the game for whatever reason, but
+//  could suddenly join (Warrior Dice). Prevents from being attacked,
+//  but not attacking
+    public $unavailable = false;
 
     // unhooked methods
 
-# Run the skill hooks for a given function. $args is an array of
-#  argumentsfor the function. The array itself is passed by value. The
-#  contents of that array will often be references.
-#
-# By using a static method call, the skill hook methods can use $this
-#  to refer to the die that called them.
+// Run the skill hooks for a given function. $args is an array of
+//  argumentsfor the function. 
+//
+// Important note on PHP references, since they make no bloody sense:
+//
+// To put a reference into the args array and have it still be such
+// when you take it out again, you must:
+//
+// Put it into the args array as a reference: $args = array(&$foo)
+// --AND--
+// Take it out as a reference: $thing = &$args[0]
 
-	private function run_hooks($func, $args)
-	{
-		# get the hooks for the calling function
+    protected function run_hooks($func, $args)
+    {
+        // get the hooks for the calling function
 
-		foreach ($this->hookLists[$func] as $skill)
-		{
-			$skillClass = "BMSkill$skill";
+        if (!array_key_exists($func, $this->hookList)) {
+            return;
+        }
 
-			$skillClass::$func($args);
-		}
-	}
+        foreach ($this->hookList[$func] as $skillClass)
+        {
+            $skillClass::$func($args);
+        }
+    }
 
-	public function add_skill($skill)
-	{
+    public function add_skill($skill)
+    {
+        $skillClass = "BMSkill$skill";
 
-	}
+        // Don't add skills that are already added
+        if (!array_key_exists($skill, $this->skillList)) {
+            $this->skillList[$skill] = $skillClass;
 
-# This one may need to be hookable. So might add_skill, depending on
-#  how Chaotic shakes out.
-	public function remove_skill($skill)
-	{
+            foreach ($skillClass::$hooked_methods as $func) {
+                $this->hookList[$func][] = $skillClass;
+            }
+        }
+    }
 
-	}
+// This one may need to be hookable. So might add_skill, depending on
+//  how Chaotic shakes out.
+    public function remove_skill($skill)
+    {
+        if (!$this->has_skill($skill)) {
+            return FALSE;
+        }
 
-	public function has_skill($skill)
-	{
+        $skillClass = $this->skillList[$skill];
 
-	}
+        unset($this->skillList[$skill]);
 
-# This needs to be fixed to work properly within PHP's magic method semantics
-#
-# will need an init_from_db method, too (eventually)
-	public function init($sides, $skills)
-	{
-		$this->min = 1;
-		$this->max = $sides;
+        foreach ($skillClass::$hooked_methods as $func) {
+            $key = array_search($skillClass, $this->hookList[$func], TRUE);
+            if ($key === FALSE) {
+                // should never happen, and we should error hard if it does
+            }
+            unset($this->hookList[$func][$key]);
+        }
 
-		$this->scoreValue = $sides;
+        return TRUE;
+    }
 
-		foreach ($skills as $s)
-		{
-			$this->add_skill($s);
-		}
-	}
+    public function has_skill($skill)
+    {
+        return array_key_exists($skill, $this->skillList);
+    }
 
+// This needs to be fixed to work properly within PHP's magic method semantics
+//
+// will need an init_from_db method, too (eventually)
+    public function init($sides, $skills)
+    {
+        $this->min = 1;
+        $this->max = $sides;
 
-	// hooked methods
+        $this->scoreValue = $sides;
 
-# When a die is "woken up" from its container to be used in a
-#  game. Does not roll the die
+        foreach ($skills as $s)
+        {
+            $this->add_skill($s);
+        }
+    }
 
-	public function activate()
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
+    // given a string describing a die and a list of skills, return a
+    // new BMDie or appropriate subclass thereof
 
-# Roll the die into a game. Clone self, (possibly into the playDie
-# subclass), roll, return the clone.
-	public function first_roll()
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
+    // Depending on implementation details, this may end up being
+    // replaced with something that doesn't need to do string parsing
+    
+    public static function create_from_string($recipe, $skills) {
 
+        try {
+            $opt_list = explode("|", $recipe);
 
-	public function roll($successfulAttack)
-	{
-		$this->run_hooks(__METHOD__, array($successfulAttack));
-	}
+            // Option dice divide on a |, can contain any die type
+            if (count($opt_list) > 1) {
+                return BMOptionDie::create_from_list($opt_list, $skills);
+            }
+            // Twin dice divide on a comma, can contain any type but option
+            elseif (count($twin_list = explode(",", $recipe)) > 1) {
+                return BMTwinDie::create_from_list($twin_list, $skills);
+            }
+            elseif ($recipe == "C") {
+                return BMWildcardDie::create($recipe, $skills);
+            }
+            // Integers are normal dice
+            elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
+                return BMDie::create($recipe, $skills);
+            }
+            // Single character that's not a number is a swing die
+            elseif (strlen($recipe) == 1) {
+                return BMSwingDie::create($recipe, $skills);
+            }
+            // oops
+            throw new UnexpectedValueException("Invalid recipe: $recipe");
+        }
+        catch (UnexpectedValueException $e) {
+            return NULL;
+        }
+        
+    }
 
-	public function attack_list()
-	{
-		$list = array("Power", "Skill");
+    public static function create($size, $skills) {
+        if ($size < 1 || $size > 99) {
+            throw new UnexpectedValueException("Illegal die size: $size");
+        }
 
-		$this->run_hooks(__METHOD__, array(&$list));
+        $die = new BMDie;
 
-		return $list;
-	}
+        $die->init($size, $skills);
 
-
-	public function attack_values($type)
-	{
-		$attackValueList = array($this->value);
-
-		$this->run_hooks(__METHOD__, array($type, &$attackValueList));
-	}
-
-	public function defense_value($type)
-	{
-		$this->run_hooks(__METHOD__, array($type));
-	}
-
-	public function get_scoreValue()
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function initiative_value()
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-
-	public function validAttack($type, $attackers, $defenders)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-
-	public function validTarget($type, $attackers, $defenders)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function capture($type, $attackers, $victims)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-
-	public function beCaptured($type, $attackers, $victims)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-# Print long description
-	public function describe()
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function split()
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function start_turn($player)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function end_turn($player)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function start_round($player)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
-
-	public function end_round($player)
-	{
-		$this->run_hooks(__METHOD__, array());
-	}
+        return $die;
+    } 
 
 
-	// utility methods
+    // hooked methods
+
+// When a die is "woken up" from its container to be used in a
+//  game. Does not roll the die
+
+    public function activate()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+// Roll the die into a game. Clone self, roll, return the clone.
+    public function first_roll()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+
+    public function roll($successfulAttack)
+    {
+        $this->run_hooks(__FUNCTION__, array($successfulAttack));
+    }
+
+    public function attack_list()
+    {
+        $list = array("Power", "Skill");
+
+        $this->run_hooks(__FUNCTION__, array(&$list));
+
+        return $list;
+    }
+
+
+    public function attack_values($type)
+    {
+        $list = array($this->value);
+
+        $this->run_hooks(__FUNCTION__, array($type, &$list));
+
+        return $list;
+    }
+
+    public function defense_value($type)
+    {
+        $this->run_hooks(__FUNCTION__, array($type));
+    }
+
+// returns ten times the "real" scoring value
+//
+// We do not want to use floating-point math -- there's a real risk of
+// having 10.5 not equal 10.5.
+//
+// We use a multiplier and divisor so various skills can manipulate them
+// without stepping on each others' toes
+    public function get_scoreValue()
+    {
+        $mult = 1;
+        if ($this->captured) {
+            $div = 1;
+        }
+        else {
+            $div = 2;
+        }
+        
+        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, $mult, $div, $this->captured));
+
+        return (10 * $this->scoreValue * $mult) / $div;
+    }
+
+    public function initiative_value()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+
+// check for special-case situations where an otherwise-valid attack
+// is not legal. Single-die skill attacks with stealth dice are the only
+// situation I can come up with off the top of my head
+//
+// These methods cannot act, they may only check: they're called a lot
+    public function valid_attack($type, $attackers, $defenders)
+    {
+        $valid = TRUE;
+
+        if ($this->inactive || $this->hasAttacked) {
+            $valid = FALSE;
+        }
+        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
+
+        return $valid;
+    }
+
+
+    public function valid_target($type, $attackers, $defenders)
+    {
+        $valid = TRUE;
+
+        if ($this->unavailable) {
+            $valid = FALSE;
+        }
+        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
+
+        return $valid;
+    }
+
+    public function capture($type, $attackers, $victims)
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+
+    public function be_captured($type, $attackers, $victims)
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+// Print long description
+    public function describe()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function split()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function start_turn($player)
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function end_turn($player)
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function start_round($player)
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function end_round($player)
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+
+    // utility methods
 
     public function __get($property)
     {
@@ -242,6 +373,25 @@ class BMDie
         print($this->mRecipe);
     }
 }
+
+class BMSwingDie extends BMDie {
+# validation logic:
+#                    $ord("R") <= $ord($recipe) &&
+#                    $ord($recipe) <= $ord("Z")
+}
+
+class BMWildcardDie extends BMDie {
+
+}
+
+class BMTwinDie extends BMDie {
+
+}
+
+class BMOptionDie extends BMDie {
+
+}
+
 
 
 ?>
