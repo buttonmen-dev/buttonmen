@@ -31,7 +31,6 @@ class BMSkillShadowTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers BMSkillShadow::attack_list
-     * @todo   Implement testAttack_list().
      */
     public function testAttack_list()
     {
