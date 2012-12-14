@@ -37,6 +37,7 @@ class BMButton {
         // The implementation here is currently a stub that always returns the
         // recipe of Bauer. This will eventually be replaced by a database call
         // to retrieve the recipe, and then a recipe set for the current button.
+        $this->name = $name;
         $this->recipe = '(8) (10) (12) (20) (X)';
     }
 
@@ -130,6 +131,19 @@ class BMButton {
 
             default:
                 $this->$property = $value;
+        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
+    public function __unset($property) {
+        if (isset($this->$property)) {
+            unset($this->$property);
+            return TRUE;
+        } else {
+            return FALSE;
         }
     }
 }

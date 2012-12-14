@@ -52,9 +52,16 @@ class BMGame {
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
-                $this->gameState = BMGameState::loadDice;
-                // how do I know that the auxiliary dice decisions have been made?
-                // because the BMButton recipes have no more auxiliary dice in them
+                $containsAuxiliaryDice = FALSE;
+                foreach ($this->buttonArray as $tempButton) {
+                    if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
+                        $containsAuxiliaryDice = TRUE;
+                        break;
+                    }
+                }
+                if (!$containsAuxiliaryDice) {
+                    $this->gameState = BMGameState::loadDice;
+                }
                 break;
 
             case BMGameState::loadDice:
@@ -121,6 +128,14 @@ class BMGame {
             default:
                 throw new LogicException ('An undefined game state cannot be updated.');
                 break;
+        }
+    }
+
+    public static function does_recipe_have_auxiliary_dice($recipe) {
+        if (FALSE === strpos($recipe, '+')) {
+            return FALSE;
+        } else {
+            return TRUE;
         }
     }
 

@@ -80,6 +80,21 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         catch (InvalidArgumentException $expected) {
         }
 
+        // auxiliary dice
+        $recipe = '(4) (10) (30) +(20)';
+        $this->object->load_from_recipe($recipe);
+        $this->assertEquals(4, count($this->object->dieArray));
+        $this->assertEquals($recipe, $this->object->recipe);
+        $dieSides = array(4, 10, 30, 20);
+        $dieSkills = array('', '', '', '+');
+        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+          $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
+          $this->assertEquals($dieSides[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSides);
+          $this->assertEquals($dieSkills[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSkills);
+        }
+
         // twin dice, option dice
 
     }
@@ -90,9 +105,11 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      */
     public function test_load_from_name() {
         $this->object->load_from_name('Bauer');
+        $this->assertEquals('Bauer', $this->object->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
 
         $this->object->name = 'Bauer';
+        $this->assertEquals('Bauer', $this->object->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
     }
 
@@ -210,5 +227,27 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $testString = 'testString xxx';
         $this->object->fubar = $testString;
         $this->assertEquals($testString, $this->object->fubar);
+    }
+
+    /**
+     * @covers BMButton::__isset
+     */
+    public function test__isset() {
+        $this->assertFalse(isset($this->object->name));
+
+        $this->object->name = 'TestName';
+        $this->assertTrue(isset($this->object->name));
+    }
+
+    /**
+     * @covers BMButton::__unset
+     */
+    public function test__unset() {
+        // check that a nonexistent property can be unset gracefully
+        unset($this->object->rubbishVariable);
+
+        $this->object->name = 'TestName';
+        unset($this->object->name);
+        $this->assertFalse(isset($this->object->name));
     }
 }
