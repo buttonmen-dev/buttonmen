@@ -40,8 +40,9 @@ class BMDie
 // the end of each of your turns.
     public $inactive = "";
 
-// Set when the button isn't in the game for whatever reason, but could
-//  suddenly join (Warrior Dice)
+// Set when the button isn't in the game for whatever reason, but
+//  could suddenly join (Warrior Dice). Prevents from being attacked,
+//  but not attacking
     public $unavailable = false;
 
     // unhooked methods
@@ -265,7 +266,7 @@ class BMDie
     {
         $valid = TRUE;
 
-        if ($this->inactive || $this->unavailable || $this->hasAttacked) {
+        if ($this->inactive || $this->hasAttacked) {
             $valid = FALSE;
         }
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
