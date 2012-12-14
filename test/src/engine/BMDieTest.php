@@ -196,12 +196,37 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
 
-
+    /**
+     * @depends testAdd_skill
+     * @depends testHas_skill
+     * @depends testRemove_skill
+     */
     public function testInit() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array("Testing"));
+
+        $this->assertEquals($this->object->min, 1);
+        $this->assertEquals($this->object->max, 6);
+
+        // scoreValue is protected, and its test requires init to function
+        $sv = PHPUnit_Framework_Assert::readAttribute($this->object, "scoreValue");
+        $this->assertEquals($sv, 6);
+
+        $this->assertTrue($this->object->has_skill("Testing"));
+
+        $this->object->init(14, array("Testing2"));
+
+        $this->assertEquals($this->object->min, 1);
+        $this->assertEquals($this->object->max, 14);
+
+
+        $sv = PHPUnit_Framework_Assert::readAttribute($this->object, "scoreValue");
+        $this->assertEquals($sv, 14);
+
+        $this->assertTrue($this->object->has_skill("Testing2"));
+
+        // init does not remove old skills, or otherwise reset variables
+        // at the moment. It's for working on brand-new dice
+        $this->assertTrue($this->object->has_skill("Testing"));
     }
 
     /**
@@ -266,11 +291,18 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @depends testInit
+     */
     public function testGet_scoreValue() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(7, array());
+
+        $this->assertEquals(35, $this->object->get_scoreValue());
+
+        $this->object->captured = TRUE;
+
+        $this->assertEquals(70, $this->object->get_scoreValue());
+
     }
 
     public function testInitiative_value() {

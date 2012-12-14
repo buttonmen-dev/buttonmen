@@ -225,9 +225,26 @@ class BMDie
         $this->run_hooks(__FUNCTION__, array($type));
     }
 
+// returns ten times the "real" scoring value
+//
+// We do not want to use floating-point math -- there's a real risk of
+// having 10.5 not equal 10.5.
+//
+// We use a multiplier and divisor so various skills can manipulate them
+// without stepping on each others' toes
     public function get_scoreValue()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $mult = 1;
+        if ($this->captured) {
+            $div = 1;
+        }
+        else {
+            $div = 2;
+        }
+        
+        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, $mult, $div, $this->captured));
+
+        return (10 * $this->scoreValue * $mult) / $div;
     }
 
     public function initiative_value()
