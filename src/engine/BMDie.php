@@ -13,23 +13,23 @@ class BMDie
 
 // an array keyed by function name. Value is an array of the skills
 //  that are modifying that function
-    private $hookList = array();
+    protected $hookList = array();
 
 // keyed by the Names of the skills that the die has, with values of
 // the skill class's name
-    private $skillList = array();
+    protected $skillList = array();
 
 // Basic facts about the die
     public $min;
     public $max;
 
-    private $scoreValue;
+    protected $scoreValue;
 
-    private $mRecipe;
-    private $mSides;
-    private $mSkills;
+    protected $mRecipe;
+    protected $mSides;
+    protected $mSkills;
 
-    private $doesReroll = true;
+    protected $doesReroll = true;
     public $captured = false;
 
     public $hasAttacked = false;
@@ -37,19 +37,16 @@ class BMDie
 // This is set when the button may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
 // the end of each of your turns.
-    private $inactive = "";
+    public $inactive = "";
 
 // Set when the button isn't in the game for whatever reason, but could
 //  suddenly join (Warrior Dice)
-    private $unavailable = false;
+    public $unavailable = false;
 
     // unhooked methods
 
 // Run the skill hooks for a given function. $args is an array of
 //  argumentsfor the function. 
-//
-// By using a static method call, the skill hook methods can use $this
-//  to refer to the die that called them.
 //
 // Important note on PHP references, since they make no bloody sense:
 //
@@ -60,14 +57,16 @@ class BMDie
 // --AND--
 // Take it out as a reference: $thing = &$args[0]
 
-    private function run_hooks($func, $args)
+    protected function run_hooks($func, $args)
     {
         // get the hooks for the calling function
 
-        foreach ($this->hookList[$func] as $skill)
-        {
-            $skillClass = $this->skillList[$skill];
+        if (!array_key_exists($func, $this->hookList)) {
+            return;
+        }
 
+        foreach ($this->hookList[$func] as $skillClass)
+        {
             $skillClass::$func($args);
         }
     }
@@ -170,7 +169,7 @@ class BMDie
     }
 
     public static function create($size, $skills) {
-        if ($size < 1 or $size > 99) {
+        if ($size < 1 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
         }
 
@@ -189,26 +188,26 @@ class BMDie
 
     public function activate()
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
     public function first_roll()
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
 
     public function roll($successfulAttack)
     {
-        $this->run_hooks(__METHOD__, array($successfulAttack));
+        $this->run_hooks(__FUNCTION__, array($successfulAttack));
     }
 
     public function attack_list()
     {
         $list = array("Power", "Skill");
 
-        $this->run_hooks(__METHOD__, array(&$list));
+        $this->run_hooks(__FUNCTION__, array(&$list));
 
         return $list;
     }
@@ -218,22 +217,22 @@ class BMDie
     {
         $attackValueList = array($this->value);
 
-        $this->run_hooks(__METHOD__, array($type, &$attackValueList));
+        $this->run_hooks(__FUNCTION__, array($type, &$attackValueList));
     }
 
     public function defense_value($type)
     {
-        $this->run_hooks(__METHOD__, array($type));
+        $this->run_hooks(__FUNCTION__, array($type));
     }
 
     public function get_scoreValue()
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
     public function initiative_value()
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
 
@@ -246,10 +245,10 @@ class BMDie
     {
         $valid = TRUE;
 
-        if ($this->inactive or $this->unavailable or $this->hasAttacked) {
+        if ($this->inactive || $this->unavailable || $this->hasAttacked) {
             $valid = FALSE;
         }
-        $this->run_hooks(__METHOD__, array($type, $attackers, $defenders, &$valid));
+        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
     }
@@ -262,51 +261,51 @@ class BMDie
         if ($this->unavailable) {
             $valid = FALSE;
         }
-        $this->run_hooks(__METHOD__, array($type, $attackers, $defenders, &$valid));
+        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
     }
 
     public function capture($type, $attackers, $victims)
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
 
     public function be_captured($type, $attackers, $victims)
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
 // Print long description
     public function describe()
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
     public function split()
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
     public function start_turn($player)
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
     public function end_turn($player)
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
     public function start_round($player)
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
     public function end_round($player)
     {
-        $this->run_hooks(__METHOD__, array());
+        $this->run_hooks(__FUNCTION__, array());
     }
 
 
@@ -356,7 +355,7 @@ class BMDie
 
 class BMSwingDie extends BMDie {
 # validation logic:
-#                    $ord("R") <= $ord($recipe) and
+#                    $ord("R") <= $ord($recipe) &&
 #                    $ord($recipe) <= $ord("Z")
 }
 
