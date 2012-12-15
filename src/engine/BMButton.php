@@ -23,9 +23,7 @@ class BMButton {
         for ($dieIdx = 0, $count = count($dieSides);
              $dieIdx <= $count - 1; $dieIdx++) {
             $tempBMDie = new BMDie;
-            if (is_numeric($dieSides[$dieIdx])) {
-                $tempBMDie->mSides = $dieSides[$dieIdx];
-            }
+            $tempBMDie->mSides = $dieSides[$dieIdx];
             if (!empty($dieSkills[$dieIdx])) {
                 $tempBMDie->mSkills = $dieSkills[$dieIdx];
             }

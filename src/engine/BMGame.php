@@ -60,20 +60,44 @@ class BMGame {
                     }
                 }
                 if (!$containsAuxiliaryDice) {
-                    $this->gameState = BMGameState::loadDice;
+                    $this->gameState = BMGameState::loadDiceIntoButtons;
                 }
                 break;
 
-            case BMGameState::loadDice:
-                if (isset($this->activeDieArrayArray)) {
+            case BMGameState::loadDiceIntoButtons:
+                assert(isset($this->buttonArray));
+                $buttonsLoadedWithDice = TRUE;
+                foreach ($this->buttonArray as $tempButton) {
+                    if (!isset($tempButton->dieArray)) {
+                        $buttonsLoadedWithDice = FALSE;
+                        break;
+                    }
+                }
+                if ($buttonsLoadedWithDice) {
                     $this->gameState = BMGameState::specifyDice;
                 }
                 break;
 
             case BMGameState::specifyDice:
-                $this->gameState = BMGameState::determineInitiative;
-                // how do I know that my dice are completely specified?
-                // because there are no more swing/option dice in the activeDieArrayArray
+                $areAllDiceSpecified = TRUE;
+                foreach ($this->buttonArray as $tempButton) {
+                    foreach ($tempButton->dieArray as $tempDie) {
+                        printf('xx %s xx', $tempDie->mSides);
+                        if (!$this->is_die_specified($tempDie)) {
+                            $areAllDiceSpecified = FALSE;
+                            break 2;
+                        }
+                    }
+                }
+                if ($areAllDiceSpecified) {
+                    $this->gameState = BMGameState::addAvailableDiceToGame;
+                }
+                break;
+
+            case BMGameState::addAvailableDiceToGame;
+                if (isset($this->activeDieArrayArray)) {
+                    $this->gameState = BMGameState::determineInitiative;
+                }
                 break;
 
             case BMGameState::determineInitiative:
@@ -83,9 +107,9 @@ class BMGame {
                 break;
 
             case BMGameState::startRound:
-                assert(isset($this->activeDieArrayArray));
-                assert(isset($this->activePlayerIdx));
-                $this->gameState = BMGameState::startTurn;
+                if (isset($this->activePlayerIdx)) {
+                    $this->gameState = BMGameState::startTurn;
+                }
                 break;
 
             case BMGameState::startTurn:
@@ -113,7 +137,7 @@ class BMGame {
                 // update game score
                 $this->reset_play_state();
 
-                $this->gameState = BMGameState::loadDice;
+                $this->gameState = BMGameState::loadDiceIntoButtons;
                 foreach ($this->gameScoreArray as $gameScore) {
                     if ($gameScore['W'] >= $this->maxWins) {
                         $this->gameState = BMGameState::endGame;
@@ -137,6 +161,25 @@ class BMGame {
         } else {
             return TRUE;
         }
+    }
+
+    // james: parts of this function needs to be moved to the BMDie class
+    public static function is_die_specified($die) {
+        // A die can be unspecified if it is swing, option, or plasma.
+
+        // If swing or option, then it is unspecified if the sides are unclear.
+        // check for swing letter or option '/' inside the brackets
+        // remove everything before the opening parenthesis
+        $sides = $die->mSides;
+
+        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
+            return FALSE;
+        }
+
+        // If plasma, then it is unspecified if the skills are unclear.
+        // james: not written yet
+
+        return TRUE;
     }
 
     private function is_valid_attack() {
@@ -245,9 +288,10 @@ class BMGameState {
     const chooseAuxiliaryDice = 12;
 
     // pre-round
-    const loadDice = 20;
+    const loadDiceIntoButtons = 20;
     const specifyDice = 21;
-    const determineInitiative = 22;
+    const addAvailableDiceToGame = 22;
+    const determineInitiative = 29;
 
     // start round
     const startRound = 30;
