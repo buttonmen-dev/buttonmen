@@ -48,7 +48,7 @@ class BMDie
     // unhooked methods
 
 // Run the skill hooks for a given function. $args is an array of
-//  argumentsfor the function. 
+//  argumentsfor the function.
 //
 // Important note on PHP references, since they make no bloody sense:
 //
@@ -136,7 +136,7 @@ class BMDie
 
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
-    
+
     public static function create_from_string($recipe, $skills) {
 
         try {
@@ -167,7 +167,7 @@ class BMDie
         catch (UnexpectedValueException $e) {
             return NULL;
         }
-        
+
     }
 
     public static function create($size, $skills) {
@@ -180,7 +180,7 @@ class BMDie
         $die->init($size, $skills);
 
         return $die;
-    } 
+    }
 
 
     // hooked methods
@@ -245,7 +245,7 @@ class BMDie
         else {
             $div = 2;
         }
-        
+
         $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, $mult, $div, $this->captured));
 
         return (10 * $this->scoreValue * $mult) / $div;
@@ -349,11 +349,22 @@ class BMDie
     {
         switch ($property) {
             case 'mSides':
-                // require a positive integer number of sides
+                // require a positive integer number of sides if an integer is provided
                 if (filter_var($value,
                                FILTER_VALIDATE_INT,
                                array("options"=>array("min_range"=>1)))) {
                     $this->mSides = $value;
+                // check for a swing die
+                } elseif (filter_var($value,
+                               FILTER_VALIDATE_REGEXP,
+                               array("options"=>array("regexp"=>"/[[:alpha:]]/")))) {
+                    $this->mSides = $value;
+                // check for an option die
+                } elseif (filter_var($value,
+                               FILTER_VALIDATE_REGEXP,
+                               array("options"=>array("regexp"=>"#.+/.+#")))) {
+                    $this->mSides = $value;
+                // this is an invalid number of sides
                 } else {
                     throw new InvalidArgumentException("Invalid number of sides.");
                 }
