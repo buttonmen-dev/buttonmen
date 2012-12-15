@@ -29,14 +29,14 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::loadFromRecipe
+     * @covers BMButton::load_from_recipe
      * @covers BMButton::__get
      * @covers BMButton::__set
      */
-    public function testLoadFromRecipe() {
+    public function test_load_from_recipe() {
         // button recipes using dice with no special skills
         $recipe = '(4) (8) (20) (20)';
-        $this->object->loadFromRecipe($recipe);
+        $this->object->load_from_recipe($recipe);
         $this->assertEquals($recipe, $this->object->recipe);
         $this->assertEquals(4, count($this->object->dieArray));
         $dieSides = array(4, 8, 20, 20);
@@ -59,7 +59,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
         // button recipe with dice with skills
         $recipe = 'p(4) s(10) ps(30) (8)';
-        $this->object->loadFromRecipe($recipe);
+        $this->object->load_from_recipe($recipe);
         $this->assertEquals(4, count($this->object->dieArray));
         $this->assertEquals($recipe, $this->object->recipe);
         $dieSides = array(4, 10, 30, 8);
@@ -74,10 +74,25 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
         // invalid button recipe with no die sides for one die
         try {
-            $this->object->loadFromRecipe('p(4) s(10) ps (8)');
+            $this->object->load_from_recipe('p(4) s(10) ps (8)');
             $this->fail('The number of sides must be specified for each die.');
         }
         catch (InvalidArgumentException $expected) {
+        }
+
+        // auxiliary dice
+        $recipe = '(4) (10) (30) +(20)';
+        $this->object->load_from_recipe($recipe);
+        $this->assertEquals(4, count($this->object->dieArray));
+        $this->assertEquals($recipe, $this->object->recipe);
+        $dieSides = array(4, 10, 30, 20);
+        $dieSkills = array('', '', '', '+');
+        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+          $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
+          $this->assertEquals($dieSides[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSides);
+          $this->assertEquals($dieSkills[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSkills);
         }
 
         // twin dice, option dice
@@ -85,51 +100,53 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::loadFromName
+     * @covers BMButton::load_from_name
      * @covers BMButton::__set
      */
-    public function testLoadFromName() {
-        $this->object->loadFromName('Bauer');
+    public function test_load_from_name() {
+        $this->object->load_from_name('Bauer');
+        $this->assertEquals('Bauer', $this->object->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
 
         $this->object->name = 'Bauer';
+        $this->assertEquals('Bauer', $this->object->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
     }
 
     /**
-     * @covers BMButton::loadValues
+     * @covers BMButton::load_values
      */
-    public function testLoadValues() {
-        $this->object->loadFromRecipe('(4) (8) (12) (20)');
+    public function test_load_values() {
+        $this->object->load_from_recipe('(4) (8) (12) (20)');
         $dieValues = array(1, 2, 4, 9);
-        $this->object->loadValues($dieValues);
+        $this->object->load_values($dieValues);
         for ($dieIdx = 0; $dieIdx < count($dieValues); $dieIdx++) {
             $this->assertEquals($dieValues[$dieIdx],
-                                $this->object->dieArray[$dieIdx]->scoreValue);
+                                $this->object->dieArray[$dieIdx]->value);
         }
 
         // test for same number of values as dice
-        $this->object->loadFromRecipe('(4) (8) (12) (20)');
+        $this->object->load_from_recipe('(4) (8) (12) (20)');
         try {
-            $this->object->loadValues(array(1, 2, 3));
+            $this->object->load_values(array(1, 2, 3));
             $this->fail('The number of values must match the number of dice.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         // test that value is within limits
-        $this->object->loadFromRecipe('(4) (8) (12) (20)');
+        $this->object->load_from_recipe('(4) (8) (12) (20)');
         try {
-            $this->object->loadValues(array(5, 12, 20, 30));
+            $this->object->load_values(array(5, 12, 20, 30));
             $this->fail('Invalid values.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         // test that a value cannot be set when the sides are not yet determined
-        $this->object->loadFromRecipe('(4) (8) (12) (X)');
+        $this->object->load_from_recipe('(4) (8) (12) (X)');
         try {
-            $this->object->loadValues(array(1, 1, 1, 1));
+            $this->object->load_values(array(1, 1, 1, 1));
             $this->fail('Cannot set value when sides are not yet determined.');
         }
         catch (InvalidArgumentException $expected) {
@@ -137,10 +154,10 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::validateRecipe
+     * @covers BMButton::validate_recipe
      */
-    public function testValidateRecipe() {
-        $method = new ReflectionMethod('BMButton', 'validateRecipe');
+    public function test_validate_recipe() {
+        $method = new ReflectionMethod('BMButton', 'validate_recipe');
         $method->setAccessible(TRUE);
 
         // valid button recipe
@@ -160,10 +177,10 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::parseRecipeForSides
+     * @covers BMButton::parse_recipe_for_sides
      */
-    public function testParseRecipeForSides() {
-        $method = new ReflectionMethod('BMButton', 'parseRecipeForSides');
+    public function test_parse_recipe_for_sides() {
+        $method = new ReflectionMethod('BMButton', 'parse_recipe_for_sides');
         $method->setAccessible(TRUE);
 
         $sides = $method->invoke(new BMButton, '(4) (8) (20) (20)');
@@ -177,10 +194,10 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::parseRecipeForSkills
+     * @covers BMButton::parse_recipe_for_skills
      */
-    public function testParseRecipeForSkills() {
-        $method = new ReflectionMethod('BMButton', 'parseRecipeForSkills');
+    public function test_parse_recipe_for_skills() {
+        $method = new ReflectionMethod('BMButton', 'parse_recipe_for_skills');
         $method->setAccessible(TRUE);
 
         $skills = $method->invoke(new BMButton, '(4) (8) (20) (20)');
@@ -210,5 +227,27 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $testString = 'testString xxx';
         $this->object->fubar = $testString;
         $this->assertEquals($testString, $this->object->fubar);
+    }
+
+    /**
+     * @covers BMButton::__isset
+     */
+    public function test__isset() {
+        $this->assertFalse(isset($this->object->name));
+
+        $this->object->name = 'TestName';
+        $this->assertTrue(isset($this->object->name));
+    }
+
+    /**
+     * @covers BMButton::__unset
+     */
+    public function test__unset() {
+        // check that a nonexistent property can be unset gracefully
+        unset($this->object->rubbishVariable);
+
+        $this->object->name = 'TestName';
+        unset($this->object->name);
+        $this->assertFalse(isset($this->object->name));
     }
 }
