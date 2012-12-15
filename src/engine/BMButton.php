@@ -12,19 +12,18 @@ class BMButton {
     public $dieArray;
 
     // methods
-    public function loadFromRecipe($recipe) {
-        $this->validateRecipe($recipe);
+    public function load_from_recipe($recipe) {
+        $this->validate_recipe($recipe);
         $this->recipe = $recipe;
-        $dieSides = $this->parseRecipeForSides($recipe);
-        $dieSkills = $this->parseRecipeForSkills($recipe);
+        $dieSides = $this->parse_recipe_for_sides($recipe);
+        $dieSkills = $this->parse_recipe_for_skills($recipe);
         $this->dieArray = array();
 
         // set die sides and skills, one die at a time
-        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+        for ($dieIdx = 0, $count = count($dieSides);
+             $dieIdx <= $count - 1; $dieIdx++) {
             $tempBMDie = new BMDie;
-            if (is_numeric($dieSides[$dieIdx])) {
-                $tempBMDie->mSides = $dieSides[$dieIdx];
-            }
+            $tempBMDie->mSides = $dieSides[$dieIdx];
             if (!empty($dieSkills[$dieIdx])) {
                 $tempBMDie->mSkills = $dieSkills[$dieIdx];
             }
@@ -32,52 +31,58 @@ class BMButton {
         }
     }
 
-    public function loadFromName($name) {
+    public function load_from_name($name) {
         // The implementation here is currently a stub that always returns the
         // recipe of Bauer. This will eventually be replaced by a database call
         // to retrieve the recipe, and then a recipe set for the current button.
+        $this->name = $name;
         $this->recipe = '(8) (10) (12) (20) (X)';
     }
 
-    public function loadValues($valueArray) {
+    public function load_values($valueArray) {
         if ((!isset($this->dieArray)) |
             (count($this->dieArray) != count($valueArray))) {
             throw new InvalidArgumentException('Invalid number of values.');
         }
 
-        for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
+        for ($dieIdx = 0, $count = count($valueArray);
+             $dieIdx <= $count - 1; $dieIdx++) {
             if (($valueArray[$dieIdx] < 1) |
                 ($valueArray[$dieIdx] > $this->dieArray[$dieIdx]->mSides)) {
                 throw new InvalidArgumentException('Invalid values.');
             }
         }
 
-        for ($dieIdx = 0; $dieIdx <= (count($valueArray) - 1); $dieIdx++) {
-            $this->dieArray[$dieIdx]->scoreValue = $valueArray[$dieIdx];
+        for ($dieIdx = 0, $count = count($valueArray);
+             $dieIdx <= $count - 1; $dieIdx++) {
+            $this->dieArray[$dieIdx]->value = $valueArray[$dieIdx];
         }
 
     }
 
-    private function validateRecipe($recipe) {
+    private function validate_recipe($recipe) {
         $dieArray = preg_split('/[[:space:]]+/', $recipe,
                                NULL, PREG_SPLIT_NO_EMPTY);
 
-        for ($dieIdx = 0; $dieIdx < count($dieArray); $dieIdx++) {
+        foreach ($dieArray as $die) {
             // ideally, we want to shift this functionality to the
             // and then we just validate each die individually
-            $dieContainsSides = preg_match('/\(.+\)/', $dieArray[$dieIdx]);
+            $dieContainsSides = preg_match('/\(.+\)/', $die);
             if (1 !== $dieContainsSides) {
                 throw new InvalidArgumentException('Invalid button recipe.');
             }
         }
     }
 
-    private function parseRecipeForSides($recipe) {
+    private function parse_recipe_for_sides($recipe) {
+        // split by spaces
         $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
 
         for ($dieIdx = 0; $dieIdx < count($dieSizeArray); $dieIdx++) {
+            // remove everything before the opening parenthesis
             $dieSizeArray[$dieIdx] = preg_replace('/^.*\(/', '',
                                                   $dieSizeArray[$dieIdx]);
+            // remove everything after the closing parenthesis
             $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '',
                                                   $dieSizeArray[$dieIdx]);
         }
@@ -85,9 +90,11 @@ class BMButton {
         return $dieSizeArray;
     }
 
-    private function parseRecipeForSkills($recipe) {
+    private function parse_recipe_for_skills($recipe) {
+        // split by spaces
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
 
+        // remove everything within parentheses
         for ($dieIdx = 0; $dieIdx < count($dieSkillArray); $dieIdx++) {
             $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '',
                                                   $dieSkillArray[$dieIdx]);
@@ -113,15 +120,28 @@ class BMButton {
     {
         switch ($property) {
             case 'name':
-                $this->loadFromName($value);
+                $this->load_from_name($value);
                 break;
 
             case 'recipe':
-                $this->loadFromRecipe($value);
+                $this->load_from_recipe($value);
                 break;
 
             default:
                 $this->$property = $value;
+        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
+    public function __unset($property) {
+        if (isset($this->$property)) {
+            unset($this->$property);
+            return TRUE;
+        } else {
+            return FALSE;
         }
     }
 }
