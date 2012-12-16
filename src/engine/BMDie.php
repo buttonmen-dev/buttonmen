@@ -24,6 +24,8 @@ class BMDie
     public $max;
     public $value;
 
+    public $game;
+
     protected $scoreValue;
 
     protected $mRecipe;
@@ -187,21 +189,40 @@ class BMDie
 
 // When a die is "woken up" from its container to be used in a
 //  game. Does not roll the die
+//
+// Clones the die and returns the clone
 
-    public function activate()
+    public function activate($game)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $newDie = clone $this;
+
+        $newDie->game = $game;
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        return $newDie;
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
     public function first_roll()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $newDie = clone $this;
+
+        $newDie->roll(FALSE);
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        return $newDie;
     }
 
 
     public function roll($successfulAttack)
     {
+
+        if ($this->doesReroll) {
+            $this->value = mt_rand($this->min, $this->max);
+        }
+
         $this->run_hooks(__FUNCTION__, array($successfulAttack));
     }
 
@@ -226,7 +247,11 @@ class BMDie
 
     public function defense_value($type)
     {
-        $this->run_hooks(__FUNCTION__, array($type));
+        $val = $this->value;
+
+        $this->run_hooks(__FUNCTION__, array($type, &$val));
+
+        return $val;
     }
 
 // returns ten times the "real" scoring value
@@ -382,6 +407,11 @@ class BMDie
     public function __toString()
     {
         print($this->mRecipe);
+    }
+
+    public function __clone() {
+        // Doesn't do anything for the base class, but subclasses will
+        // need to clone their subdice.
     }
 }
 

@@ -274,24 +274,93 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testActivate() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $newDie = $this->object->activate("test");
+
+        $this->assertInstanceOf('BMDie', $newDie);
+
+        $this->assertEquals("test", $newDie->game);
+
+        // Make the dice equal in value
+
+        $this->object->game = "test";
+
+        // Is there no way in phpunit to directly test whether two
+        // objects are the same object?
+
+        $this->assertFalse(($this->object === $newDie), "activate returned the same object.");
     }
 
-    public function testFirst_roll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
-
+    /**
+     * @depends testInit
+     */
     public function testRoll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array());
+        
+        for($i = 1; $i <= 6; $i++) {
+            $rolls[$i] = 0;
+        }
+
+        for ($i = 0; $i < 300; $i++) {
+            $this->object->roll(FALSE);
+            if ($this->object->value < 1 || $this->object->value > 6) {
+                $this->assertFalse(TRUE, "Die rolled out of bounds during FALSE.");
+            }
+            
+            $rolls[$this->object->value]++;
+        }
+
+        for ($i = 0; $i < 300; $i++) {
+            $this->object->roll(TRUE);
+            if ($this->object->value < 1 || $this->object->value > 6) {
+                $this->assertFalse(TRUE, "Die rolled out of bounds during TRUE.");
+            }
+            
+            $rolls[$this->object->value]++;
+        }
+
+        // How's our randomness?
+        //
+        // We're only testing for "terrible" here.
+        for($i = 1; $i <= 6; $i++) {
+            $this->assertGreaterThan(25, $rolls[$i], "randomness dubious for $i");
+            $this->assertLessThan(175, $rolls[$i], "randomness dubious for $i");
+        }
+
+        // test locked-out rerolls
+
+        $val = $this->object->value;
+
+        $this->object->doesReroll = FALSE;
+
+        for ($i = 0; $i<20; $i++) {
+            // Test both on successful attack and not
+            $this->object->roll($i % 2);
+            $this->assertEquals($val, $this->object->value, "Die value changed.");
+        }
+    }
+
+    /**
+     * @depends testRoll
+     * @depends testInit
+     */
+    public function testFirst_roll() {
+        $this->object->init(6, array());
+
+        $newDie = $this->object->first_roll();
+
+        $this->assertInstanceOf('BMDie', $newDie);
+
+        $this->assertGreaterThanOrEqual(1, $newDie->value);
+        $this->assertLessThanOrEqual(6, $newDie->value);
+
+        // Make the dice equal in value
+
+        $this->object->value = $newDie->value;
+
+        // Is there no way in phpunit to directly test whether two
+        // objects are the same object?
+
+        $this->assertFalse(($this->object === $newDie), "first_roll returned the same object.");
     }
 
     public function testAttack_list() {
@@ -329,11 +398,21 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @depends testInit
+     * @depends testRoll
+     * @depends testAttack_list
+     */
     public function testDefense_value() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array());
+
+        foreach ($this->object->attack_list() as $att) {
+            for ($i = 0; $i<10; $i++) {
+                $this->object->roll(FALSE);
+                $this->assertEquals($this->object->value, $this->object->defense_value($att), "Defense value fails to equal value for $att.");
+            }
+        }
+
     }
 
     /**
