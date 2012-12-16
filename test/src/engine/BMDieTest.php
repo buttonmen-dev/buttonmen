@@ -429,11 +429,22 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+
+    /**
+     * @depends testInit
+     * @depends testRoll
+     */
     public function testInitiative_value() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array());
+        $this->object->roll(FALSE);
+
+        $vals = $this->object->initiative_value();
+
+        $this->assertNotEmpty($vals);
+        $this->assertEquals(1, count($vals));
+
+        $this->assertEquals($vals[0], $this->object->value);
+                            
     }
 
     public function testValid_attack() {

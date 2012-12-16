@@ -276,9 +276,17 @@ class BMDie
         return (10 * $this->scoreValue * $mult) / $div;
     }
 
+    // Return an array of the die's possible initiative values. 0
+    // means it doesn't count for initiative. "?" means it's a chance
+    // die.
+
     public function initiative_value()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $vals = array($this->value);
+
+        $this->run_hooks(__FUNCTION__, array(&$vals));
+
+        return $vals;
     }
 
 
