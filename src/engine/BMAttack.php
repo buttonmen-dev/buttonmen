@@ -114,11 +114,17 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        $a = $attackers[0];
-        $d = $defenders[0];
+        $at = $attackers[0];
+        $df = $defenders[0];
 
-        $a->has_attacked = TRUE;
-        $a->roll();
+        $at->capture($this->name, $attackers, $defenders);
+        
+        $at->has_attacked = TRUE;
+        $at->roll();
+
+        $df->captured = TRUE;
+        // tell the game to move the defender
+        $df->be_captured($this->name, $attackers, $defenders);
 
         return TRUE;
     }
