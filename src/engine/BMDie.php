@@ -24,6 +24,10 @@ class BMDie
     public $max;
     public $value;
 
+// references back to the game we're part of
+    public $game;
+    public $owner;
+
     protected $scoreValue;
 
     protected $mRecipe;
@@ -187,21 +191,41 @@ class BMDie
 
 // When a die is "woken up" from its container to be used in a
 //  game. Does not roll the die
+//
+// Clones the die and returns the clone
 
-    public function activate()
+    public function activate($game, $owner)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $newDie = clone $this;
+
+        $newDie->game = $game;
+        $newDie->owner = $owner;
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        return $newDie;
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
     public function first_roll()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $newDie = clone $this;
+
+        $newDie->roll(FALSE);
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        return $newDie;
     }
 
 
     public function roll($successfulAttack)
     {
+
+        if ($this->doesReroll) {
+            $this->value = mt_rand($this->min, $this->max);
+        }
+
         $this->run_hooks(__FUNCTION__, array($successfulAttack));
     }
 
@@ -226,7 +250,11 @@ class BMDie
 
     public function defense_value($type)
     {
-        $this->run_hooks(__FUNCTION__, array($type));
+        $val = $this->value;
+
+        $this->run_hooks(__FUNCTION__, array($type, &$val));
+
+        return $val;
     }
 
 // returns ten times the "real" scoring value
@@ -251,9 +279,17 @@ class BMDie
         return (10 * $this->scoreValue * $mult) / $div;
     }
 
+    // Return an array of the die's possible initiative values. 0
+    // means it doesn't count for initiative. "?" means it's a chance
+    // die.
+
     public function initiative_value()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $vals = array($this->value);
+
+        $this->run_hooks(__FUNCTION__, array(&$vals));
+
+        return $vals;
     }
 
 
@@ -269,6 +305,22 @@ class BMDie
         if ($this->inactive || $this->hasAttacked) {
             $valid = FALSE;
         }
+
+
+        // Are we actually among the attackers?
+        $found = FALSE;
+
+        foreach ($attackers as $die) {
+            if ($die === $this) {
+                $found = TRUE;
+                break;
+            }
+        }
+        if (!$found) {
+            $valid = FALSE;
+        }
+
+
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
@@ -282,6 +334,21 @@ class BMDie
         if ($this->unavailable) {
             $valid = FALSE;
         }
+
+        // Are we actually among the defenders?
+        $found = FALSE;
+
+        foreach ($defenders as $die) {
+            if ($die === $this) {
+                $found = TRUE;
+                break;
+            }
+        }
+        if (!$found) {
+            $valid = FALSE;
+        }
+
+
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
@@ -295,6 +362,8 @@ class BMDie
 
     public function be_captured($type, $attackers, $victims)
     {
+        $this->captured = TRUE;
+
         $this->run_hooks(__FUNCTION__, array());
     }
 
@@ -304,27 +373,60 @@ class BMDie
         $this->run_hooks(__FUNCTION__, array());
     }
 
+// split a die in twain. If something needs to cut a die's size in
+// half, it should use this and throw one part away. (Or toss both;
+// all references to the original die will pick up the split.)
+//
+// In the case of an odd number of sides, the remainder stays with the
+// original die
+//
+// At the moment, only attacking dice can split, so the dice will
+// automatically pick up the need to reroll. (It is possible there is
+// some undesireable behavior there, but I cannot think
+// what. Radioactive removes T&S.)
+//
+// constant needs to hook this method to fix the die's value. Very
+// little else will.
     public function split()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $newdie = clone $this;
+
+        if ($newdie->max > 1) {
+            $remainder = $newdie->max % 2;
+            $newdie->max -= $remainder;
+            $newdie->max = $newdie->max / 2;
+            $this->max -= $newdie->max;
+        }
+
+        $dice = array($this, $newdie);
+
+        $this->run_hooks(__FUNCTION__, array(&$dice));
+
+        return $dice;
     }
 
     public function start_turn($player)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $this->run_hooks(__FUNCTION__, array($player));
     }
 
     public function end_turn($player)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        if ($player === $this->owner) {
+            $this->inactive = "";
+        }
+
+        $this->run_hooks(__FUNCTION__, array($player));
+
+        $this->hasAttacked = FALSE;
     }
 
-    public function start_round($player)
+    public function start_round()
     {
         $this->run_hooks(__FUNCTION__, array());
     }
 
-    public function end_round($player)
+    public function end_round()
     {
         $this->run_hooks(__FUNCTION__, array());
     }
@@ -382,6 +484,11 @@ class BMDie
     public function __toString()
     {
         print($this->mRecipe);
+    }
+
+    public function __clone() {
+        // Doesn't do anything for the base class, but subclasses will
+        // need to clone their subdice.
     }
 }
 
