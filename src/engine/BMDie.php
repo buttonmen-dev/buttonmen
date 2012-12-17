@@ -302,6 +302,22 @@ class BMDie
         if ($this->inactive || $this->hasAttacked) {
             $valid = FALSE;
         }
+
+
+        // Are we actually among the attackers?
+        $found = FALSE;
+
+        foreach ($attackers as $die) {
+            if ($die === $this) {
+                $found = TRUE;
+                break;
+            }
+        }
+        if (!$found) {
+            $valid = FALSE;
+        }
+
+
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
@@ -315,6 +331,21 @@ class BMDie
         if ($this->unavailable) {
             $valid = FALSE;
         }
+
+        // Are we actually among the defenders?
+        $found = FALSE;
+
+        foreach ($defenders as $die) {
+            if ($die === $this) {
+                $found = TRUE;
+                break;
+            }
+        }
+        if (!$found) {
+            $valid = FALSE;
+        }
+
+
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
