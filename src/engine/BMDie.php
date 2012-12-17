@@ -373,27 +373,60 @@ class BMDie
         $this->run_hooks(__FUNCTION__, array());
     }
 
+// split a die in twain. If something needs to cut a die's size in
+// half, it should use this and throw one part away. (Or toss both;
+// all references to the original die will pick up the split.)
+//
+// In the case of an odd number of sides, the remainder stays with the
+// original die
+//
+// At the moment, only attacking dice can split, so the dice will
+// automatically pick up the need to reroll. (It is possible there is
+// some undesireable behavior there, but I cannot think
+// what. Radioactive removes T&S.)
+//
+// constant needs to hook this method to fix the die's value. Very
+// little else will.
     public function split()
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $newdie = clone $this;
+
+        if ($newdie->max > 1) {
+            $remainder = $newdie->max % 2;
+            $newdie->max -= $remainder;
+            $newdie->max = $newdie->max / 2;
+            $this->max -= $newdie->max;
+        }
+
+        $dice = array($this, $newdie);
+
+        $this->run_hooks(__FUNCTION__, array(&$dice));
+
+        return $dice;
     }
 
     public function start_turn($player)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $this->run_hooks(__FUNCTION__, array($player));
     }
 
     public function end_turn($player)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        if ($player === $this->owner) {
+            $this->inactive = "";
+        }
+
+        $this->run_hooks(__FUNCTION__, array($player));
+
+        $this->hasAttacked = FALSE;
     }
 
-    public function start_round($player)
+    public function start_round()
     {
         $this->run_hooks(__FUNCTION__, array());
     }
 
-    public function end_round($player)
+    public function end_round()
     {
         $this->run_hooks(__FUNCTION__, array());
     }

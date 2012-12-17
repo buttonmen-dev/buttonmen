@@ -180,8 +180,9 @@ Players sit in a circle. The player with the lowest roll goes first. Players wit
 
 Used in sets: Bar Mitzvah, GenCon 2001, Legend of the Five Rings, Origins 2004, Samurai 
 
-Implementation: Hook initiative values. Hook activate and start of
-turn. (So it can check if it was used, and shut down if necessary.)
+Implementation: Hook initiative values. Hook start-of-game, to clear
+inactive flag if you aren't going first. (The initiative code will be
+expected to set inactive for used focus dice.)
 
 -----------
 

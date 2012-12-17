@@ -553,40 +553,102 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @depends testInit
+     * @depends testRoll
+     */
     public function testSplit() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // 1-siders split into two 1-siders
+        $this->object->init(1, array());
+        $this->object->roll(FALSE);
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($dice[0] === $dice[1]);
+        $this->assertTrue($this->object === $dice[0]);
+        $this->assertEquals($dice[0]->max, $dice[1]->max);
+        $this->assertEquals(1, $dice[0]->max);
+
+        // even-sided split
+        $this->object->init(12, array());
+        $this->object->roll(FALSE);
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($dice[0] === $dice[1]);
+        $this->assertTrue($this->object === $dice[0]);
+        $this->assertEquals($dice[0]->max, $dice[1]->max);
+        $this->assertEquals(6, $dice[0]->max);
+
+        // odd-sided split
+        $this->object->init(7, array());
+        $this->object->roll(FALSE);
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($dice[0] === $dice[1]);
+        $this->assertTrue($this->object === $dice[0]);
+        $this->assertNotEquals($dice[0]->max, $dice[1]->max);
+        var_dump($dice[0]->max);
+        // The order of arguments for assertGreaterThan is screwy.
+        $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
+        $this->assertEquals(4, $dice[0]->max);
+        $this->assertEquals(3, $dice[1]->max);
+
     }
 
     public function testStart_turn() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // Doesn't currently do anything save exist as a platform for hooks
+        $this->object->start_turn("player");
     }
 
     public function testEnd_turn() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->owner = "player1";
+
+        $this->assertEquals("", $this->object->inactive);
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->object->end_turn("player1");
+
+        $this->assertEquals("", $this->object->inactive);
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->hasAttacked = TRUE;
+        $this->object->end_turn("player1");
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->hasAttacked = TRUE;
+        $this->object->end_turn("player2");
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->object->inactive = "Yes";
+        $this->object->end_turn("player2");
+        $this->assertNotEquals("", $this->object->inactive);
+        $this->object->end_turn("player1");
+        $this->assertEquals("", $this->object->inactive);
+
+        $this->hasAttacked = TRUE;
+        $this->object->inactive = "Yes";
+        $this->object->end_turn("player2");
+        $this->assertFalse($this->object->hasAttacked);
+        $this->assertNotEquals("", $this->object->inactive);
+
+        $this->hasAttacked = TRUE;
+        $this->object->inactive = "Yes";
+        $this->object->end_turn("player1");
+        $this->assertFalse($this->object->hasAttacked);
+        $this->assertEquals("", $this->object->inactive);
     }
 
     public function testStart_round() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // Doesn't currently do anything save exist as a platform for hooks
+        $this->object->start_round();
     }
 
 
     public function testEnd_round() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // Doesn't currently do anything save exist as a platform for hooks
+        $this->object->end_round();
     }
 
 
@@ -626,6 +688,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
         );
+    }
+
+    public function test__clone() {
+        // Doesn't do anything at the moment.
+        $this->assertTrue(TRUE);
     }
 
 }
