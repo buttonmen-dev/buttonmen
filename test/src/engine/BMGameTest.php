@@ -29,6 +29,22 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_start_game() {
+        //$this->object->gameState = BMGameState::startGame;
+        //$this->object->do_next_step();
+        
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_load_dice_into_buttons() {
+        //$this->object->buttonArray
+    }
+
+    /**
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_start_game() {
@@ -36,11 +52,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startGame, $this->object->gameState);
 
-        // missing the playerIdxArray
+        // default unspecified playerIdxArray
         $this->object->gameState = BMGameState::startGame;
-        if (isset($this->object->playerIdxArray)) {
-            unset($this->object->playerIdxArray);
-        }
         $Button1 = new BMButton;
         $Button2 = new BMButton;
         $this->object->buttonArray = array($Button1, $Button2);
@@ -461,6 +474,41 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::__construct
+     */
+    public function test__construct() {
+        // construct default empty game
+        $game = new BMGame;
+        $this->assertEquals(0, $game->gameId);
+        $this->assertEquals(array(0, 0), $game->playerIdxArray);
+        $this->assertEquals('', $game->buttonArray[0]->recipe);
+        $this->assertEquals('', $game->buttonArray[1]->recipe);
+        $this->assertEquals(3, $game->maxWins);
+
+        // construct valid game
+        $gameId = 2745;
+        $playerIdxArray = array(123, 456);
+        $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
+        $maxWins = 5;
+        $game = new BMGame($gameId, $playerIdxArray, $buttonRecipeArray, $maxWins);
+        $this->assertEquals($playerIdxArray, $game->playerIdxArray);
+        $this->assertEquals($buttonRecipeArray[0], $game->buttonArray[0]->recipe);
+        $this->assertEquals($buttonRecipeArray[1], $game->buttonArray[1]->recipe);
+        $this->assertEquals($maxWins, $game->maxWins);
+
+        // construct invalid game
+        $gameId = 2745;
+        $playerIdxArray = array(123, 456, 789);
+        $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
+        $maxWins = 5;
+        try {
+            $game = new BMGame($playerIdxArray, $buttonRecipeArray, $maxWins);
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
      * @covers BMGame::__get
      */
     public function test__get() {
@@ -539,8 +587,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__isset
      */
     public function test__isset() {
-        $this->assertFalse(isset($this->object->buttonArray));
-
         $button1 = new BMButton;
         $button2 = new BMButton;
         $this->object->buttonArray = array($button1, $button2);

@@ -22,12 +22,68 @@ class BMGame {
     private $gameState;             // current game state as a BMGameState enum
 
     // methods
-    public function update_game_state () {
+    public function do_next_step() {
         switch ($this->gameState) {
             case BMGameState::startGame:
-                if (isset($this->playerIdxArray) &&
-                    isset($this->buttonArray) &&
-                    isset($this->maxWins)) {
+
+                break;
+
+            case BMGameState::applyHandicaps:
+
+                break;
+
+            case BMGameState::chooseAuxiliaryDice:
+
+                break;
+
+            case BMGameState::loadDiceIntoButtons:
+
+                break;
+
+            case BMGameState::specifyDice:
+
+                break;
+
+            case BMGameState::addAvailableDiceToGame;
+
+                break;
+
+            case BMGameState::determineInitiative:
+
+                break;
+
+            case BMGameState::startRound:
+
+                break;
+
+            case BMGameState::startTurn:
+
+                break;
+
+            case BMGameState::endTurn:
+
+                break;
+
+            case BMGameState::endRound:
+                // score dice
+                // update game score
+
+                break;
+
+            case BMGameState::endGame:
+                break;
+
+            default:
+                throw new LogicException ('An undefined game state cannot be updated.');
+                break;
+        }
+    }
+
+    public function update_game_state() {
+        switch ($this->gameState) {
+            case BMGameState::startGame:
+                if (!in_array(0, $this->playerIdxArray) &&
+                    isset($this->buttonArray)) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->passStatusArray = array(FALSE, FALSE);
                     $this->gameScoreArray = array(array(0, 0, 0), array(0, 0, 0));
@@ -218,6 +274,23 @@ class BMGame {
     }
 
     // utility methods
+    public function __construct($gameID = 0,
+                                $playerIdxArray = array(0, 0),
+                                $buttonRecipeArray = array('', ''),
+                                $maxWins = 3) {
+        if (count($playerIdxArray) !== count($buttonRecipeArray)) {
+            throw new InvalidArgumentException(
+                'Number of buttons must equal the number of players.');
+        }
+        $this->gameId = $gameID;
+        $this->playerIdxArray = $playerIdxArray;
+        foreach ($buttonRecipeArray as $recipe) {
+            $tempButton = new BMButton;
+            $tempButton->load_from_recipe($recipe);
+            $this->buttonArray[] = $tempButton;
+        }
+        $this->maxWins = $maxWins;
+    }
 
     public function __get($property)
     {
@@ -231,7 +304,29 @@ class BMGame {
 
     public function __set($property, $value)
     {
+// james: need to validate properties
+
         switch ($property) {
+//    private $gameId;                // game ID number in the database
+//    private $playerIdxArray;        // array of player IDs
+//    private $activePlayerIdx;       // index of the active player in playerIdxArray
+//    private $playerWithInitiativeIdx; // index of the player who won initiative
+//    private $buttonArray;           // buttons for all players
+//    private $activeDieArrayArray;   // active dice for all players
+            case 'attack':
+                if (!is_array($value) || (3 !== count($value))) {
+                    throw new InvalidArgumentException(
+                        'There must be exactly three elements in attack.');
+                }
+                if (!is_array($value[0]) || !is_array($value[1])) {
+                    throw new InvalidArgumentException(
+                        'The first two elements in attack must be arrays.');
+                }
+                $this->attack = $value;
+                break;
+//    private $passStatusArray;       // boolean array whether each player passed
+//    private $capturedDieArrayArray; // captured dice for all players
+//    private $roundScoreArray;       // current points score in this round
             case 'gameScoreArray':
                 if (count($this->playerIdxArray) != count($value)) {
                     throw new InvalidArgumentException(
@@ -251,17 +346,8 @@ class BMGame {
                 }
                 $this->gameScoreArray = $tempArray;
                 break;
-            case 'attack':
-                if (!is_array($value) || (3 !== count($value))) {
-                    throw new InvalidArgumentException(
-                        'There must be exactly three elements in attack.');
-                }
-                if (!is_array($value[0]) || !is_array($value[1])) {
-                    throw new InvalidArgumentException(
-                        'The first two elements in attack must be arrays.');
-                }
-                $this->attack = $value;
-                break;
+//    private $maxWins;               // the game ends when a player has this many wins
+//    private $gameState;             // current game state as a BMGameState enum
             default:
                 $this->$property = $value;
         }

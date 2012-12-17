@@ -15,6 +15,11 @@ class BMButton {
     public function load_from_recipe($recipe) {
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;
+
+        if (empty($recipe)) {
+            return;
+        }
+
         $dieSides = $this->parse_recipe_for_sides($recipe);
         $dieSkills = $this->parse_recipe_for_skills($recipe);
         $this->dieArray = array();
@@ -64,6 +69,10 @@ class BMButton {
         $dieArray = preg_split('/[[:space:]]+/', $recipe,
                                NULL, PREG_SPLIT_NO_EMPTY);
 
+        if (empty($recipe)) {
+            return;
+        }
+
         foreach ($dieArray as $die) {
             // ideally, we want to shift this functionality to the
             // and then we just validate each die individually
@@ -104,7 +113,6 @@ class BMButton {
     }
 
     // utility methods
-
     public function __get($property)
     {
         if (property_exists($this, $property)) {
