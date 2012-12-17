@@ -82,7 +82,6 @@ class BMGame {
                 $areAllDiceSpecified = TRUE;
                 foreach ($this->buttonArray as $tempButton) {
                     foreach ($tempButton->dieArray as $tempDie) {
-                        printf('xx %s xx', $tempDie->mSides);
                         if (!$this->is_die_specified($tempDie)) {
                             $areAllDiceSpecified = FALSE;
                             break 2;
@@ -115,7 +114,8 @@ class BMGame {
             case BMGameState::startTurn:
                 if ($this->is_valid_attack()) {
                     $this->gameState = BMGameState::endTurn;
-                    $this->perform_attack();
+                    // james: this needs to be moved into the stage running code
+                    //$this->perform_attack();
                 }
                 break;
 
