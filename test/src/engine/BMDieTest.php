@@ -274,24 +274,89 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testActivate() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $newDie = $this->object->activate("game", "owner");
+
+        $this->assertInstanceOf('BMDie', $newDie);
+
+        $this->assertEquals("game", $newDie->game);
+        $this->assertEquals("owner", $newDie->owner);
+
+        // Make the dice equal in value
+
+        $this->object->game = "game";
+        $this->object->owner = "owner";
+
+        $this->assertFalse(($this->object === $newDie), "activate returned the same object.");
     }
 
-    public function testFirst_roll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-    }
-
+    /**
+     * @depends testInit
+     */
     public function testRoll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array());
+        
+        for($i = 1; $i <= 6; $i++) {
+            $rolls[$i] = 0;
+        }
+
+        for ($i = 0; $i < 300; $i++) {
+            $this->object->roll(FALSE);
+            if ($this->object->value < 1 || $this->object->value > 6) {
+                $this->assertFalse(TRUE, "Die rolled out of bounds during FALSE.");
+            }
+            
+            $rolls[$this->object->value]++;
+        }
+
+        for ($i = 0; $i < 300; $i++) {
+            $this->object->roll(TRUE);
+            if ($this->object->value < 1 || $this->object->value > 6) {
+                $this->assertFalse(TRUE, "Die rolled out of bounds during TRUE.");
+            }
+            
+            $rolls[$this->object->value]++;
+        }
+
+        // How's our randomness?
+        //
+        // We're only testing for "terrible" here.
+        for($i = 1; $i <= 6; $i++) {
+            $this->assertGreaterThan(25, $rolls[$i], "randomness dubious for $i");
+            $this->assertLessThan(175, $rolls[$i], "randomness dubious for $i");
+        }
+
+        // test locked-out rerolls
+
+        $val = $this->object->value;
+
+        $this->object->doesReroll = FALSE;
+
+        for ($i = 0; $i<20; $i++) {
+            // Test both on successful attack and not
+            $this->object->roll($i % 2);
+            $this->assertEquals($val, $this->object->value, "Die value changed.");
+        }
+    }
+
+    /**
+     * @depends testRoll
+     * @depends testInit
+     */
+    public function testFirst_roll() {
+        $this->object->init(6, array());
+
+        $newDie = $this->object->first_roll();
+
+        $this->assertInstanceOf('BMDie', $newDie);
+
+        $this->assertGreaterThanOrEqual(1, $newDie->value);
+        $this->assertLessThanOrEqual(6, $newDie->value);
+
+        // Make the dice equal in value
+
+        $this->object->value = $newDie->value;
+
+        $this->assertFalse(($this->object === $newDie), "first_roll returned the same object.");
     }
 
     public function testAttack_list() {
@@ -329,11 +394,21 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @depends testInit
+     * @depends testRoll
+     * @depends testAttack_list
+     */
     public function testDefense_value() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array());
+
+        foreach ($this->object->attack_list() as $att) {
+            for ($i = 0; $i<10; $i++) {
+                $this->object->roll(FALSE);
+                $this->assertEquals($this->object->value, $this->object->defense_value($att), "Defense value fails to equal value for $att.");
+            }
+        }
+
     }
 
     /**
@@ -350,39 +425,125 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+
+    /**
+     * @depends testInit
+     * @depends testRoll
+     */
     public function testInitiative_value() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init(6, array());
+        $this->object->roll(FALSE);
+
+        $vals = $this->object->initiative_value();
+
+        $this->assertNotEmpty($vals);
+        $this->assertEquals(1, count($vals));
+
+        $this->assertEquals($vals[0], $this->object->value);
+                            
     }
 
+    /**
+     * @depends testAttack_list
+     */
     public function testValid_attack() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $attDie = new BMDie;
+        $defDie = new BMDie;
+
+        foreach ($this->object->attack_list() as $att) {
+
+            $this->assertFalse($this->object->valid_attack($att,
+                                                           array($attDie), 
+                                                           array($defDie)));
+            $this->assertTrue($this->object->valid_attack($att, 
+                                                          array($this->object), 
+                                                          array($defDie)));
+            $this->assertFalse($this->object->valid_attack($att, 
+                                                           array($attDie), 
+                                                           array($this->object)));
+            $this->assertTrue($this->object->valid_attack($att, 
+                                                          array($this->object, $attDie), 
+                                                          array($defDie)));
+        }
+
+        // Inactive is a string also used to descrbe why the die cannot attack
+        $this->object->inactive = "Yes";
+        $this->assertFalse($this->object->valid_attack($att, 
+                                                       array($this->object), 
+                                                       array($defDie)));
+
+        $this->object->inactive = "";
+        $this->object->hasAttacked = TRUE;
+        $this->assertFalse($this->object->valid_attack($att, 
+                                                       array($this->object), 
+                                                       array($defDie)));
+
+
+        $this->object->inactive = "Yes";
+        $this->object->hasAttacked = TRUE;
+        $this->assertFalse($this->object->valid_attack($att, 
+                                                       array($this->object), 
+                                                       array($defDie)));
+
     }
 
+    /**
+     * @depends testAttack_list
+     */
     public function testValid_target() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $attDie = new BMDie;
+        $defDie = new BMDie;
+
+        foreach ($this->object->attack_list() as $att) {
+
+            $this->assertFalse($this->object->valid_target($att,
+                                                           array($attDie), 
+                                                           array($defDie)));
+            $this->assertFalse($this->object->valid_target($att, 
+                                                          array($this->object), 
+                                                          array($defDie)));
+            $this->assertTrue($this->object->valid_target($att, 
+                                                           array($attDie), 
+                                                           array($this->object)));
+            $this->assertTrue($this->object->valid_target($att, 
+                                                          array($attDie), 
+                                                          array($this->object, $defDie)));
+        }
+
+        $this->object->unavailable = TRUE;
+        $this->assertFalse($this->object->valid_target($att, 
+                                                       array($attDie),
+                                                       array($this->object)));
+
     }
 
+    /**
+     * @depends testAttack_list
+     */
     public function testCapture() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // How does one test a function that doesn't do anything, but
+        // exists solely to be modified?
+        $defDie = new BMDie;
+
+        foreach ($this->object->attack_list() as $att) {
+            $this->object->capture($att, array($this->object), array($defDie));
+        }
     }
 
+    /**
+     * @depends testAttack_list
+     */
     public function testBe_captured() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $attDie = new BMDie;
+
+        $this->assertFalse($this->object->captured);
+
+        foreach ($this->object->attack_list() as $att) {
+            $this->object->be_captured($att, array($attDie), array($this->object));
+            $this->assertTrue($this->object->captured);
+
+            $this->object->captured = FALSE;
+        }
     }
 
     public function testDescribe() {
@@ -392,40 +553,102 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @depends testInit
+     * @depends testRoll
+     */
     public function testSplit() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // 1-siders split into two 1-siders
+        $this->object->init(1, array());
+        $this->object->roll(FALSE);
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($dice[0] === $dice[1]);
+        $this->assertTrue($this->object === $dice[0]);
+        $this->assertEquals($dice[0]->max, $dice[1]->max);
+        $this->assertEquals(1, $dice[0]->max);
+
+        // even-sided split
+        $this->object->init(12, array());
+        $this->object->roll(FALSE);
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($dice[0] === $dice[1]);
+        $this->assertTrue($this->object === $dice[0]);
+        $this->assertEquals($dice[0]->max, $dice[1]->max);
+        $this->assertEquals(6, $dice[0]->max);
+
+        // odd-sided split
+        $this->object->init(7, array());
+        $this->object->roll(FALSE);
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($dice[0] === $dice[1]);
+        $this->assertTrue($this->object === $dice[0]);
+        $this->assertNotEquals($dice[0]->max, $dice[1]->max);
+        var_dump($dice[0]->max);
+        // The order of arguments for assertGreaterThan is screwy.
+        $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
+        $this->assertEquals(4, $dice[0]->max);
+        $this->assertEquals(3, $dice[1]->max);
+
     }
 
     public function testStart_turn() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // Doesn't currently do anything save exist as a platform for hooks
+        $this->object->start_turn("player");
     }
 
     public function testEnd_turn() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->owner = "player1";
+
+        $this->assertEquals("", $this->object->inactive);
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->object->end_turn("player1");
+
+        $this->assertEquals("", $this->object->inactive);
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->hasAttacked = TRUE;
+        $this->object->end_turn("player1");
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->hasAttacked = TRUE;
+        $this->object->end_turn("player2");
+        $this->assertFalse($this->object->hasAttacked);
+
+        $this->object->inactive = "Yes";
+        $this->object->end_turn("player2");
+        $this->assertNotEquals("", $this->object->inactive);
+        $this->object->end_turn("player1");
+        $this->assertEquals("", $this->object->inactive);
+
+        $this->hasAttacked = TRUE;
+        $this->object->inactive = "Yes";
+        $this->object->end_turn("player2");
+        $this->assertFalse($this->object->hasAttacked);
+        $this->assertNotEquals("", $this->object->inactive);
+
+        $this->hasAttacked = TRUE;
+        $this->object->inactive = "Yes";
+        $this->object->end_turn("player1");
+        $this->assertFalse($this->object->hasAttacked);
+        $this->assertEquals("", $this->object->inactive);
     }
 
     public function testStart_round() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // Doesn't currently do anything save exist as a platform for hooks
+        $this->object->start_round();
     }
 
 
     public function testEnd_round() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // Doesn't currently do anything save exist as a platform for hooks
+        $this->object->end_round();
     }
 
 
@@ -465,6 +688,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
         );
+    }
+
+    public function test__clone() {
+        // Doesn't do anything at the moment.
+        $this->assertTrue(TRUE);
     }
 
 }
