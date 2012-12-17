@@ -21,7 +21,14 @@ class BMAttack {
     }
 
     // Dice that have this attack
-    protected validDice = array();
+    protected $validDice = array();
+
+    public function add_die($die) {
+        if (!array_contains($die, $validDice)) {
+            $validDice[] = $die;
+        }
+    }
+
 
     // gather contributions from assisting dice to make the attack work
     // returns FALSE if it failed to do so (user cancel or error)
@@ -52,15 +59,68 @@ class BMAttackPower extends BMAttack {
     public $name = "Power";
 
     public function find_attack($game) {
-        
+        // This is wrong; need to look at BMGame code, find whose turn
+        // it isn't, get their die list
+        $targets = $game->targets;
+
+        $found = FALSE;
+
+        foreach ($validDice as $attacker) {
+            foreach ($targets as $defender) {
+                if ($this->validate_attack($game, array($attacker), array($defender))) {
+                    $found = TRUE;
+                    break 2;
+                }
+            }
+        }
+
+        return $found;
     }
 
     public function validate_attack($game, $attackers, $defenders) {
+        $helpers = array();
+        // This is wrong; need to look at BMGame code, find whose turn
+        // it is, get their die list
+        foreach ($game->potentialAttackers as $die) {
+            if ($die === $attackers[0]) { next; }
+
+            $helpVals = $die->assist_attack($this->name, $attackers, $defenders);
+            if ($helpVals[0] != 0 || count($helpVals) > 1) {
+                $helpers[] = $die;
+            }
+        }
+
+        if (count($attackers) != 1 || count($defenders) != 1) {
+            return FALSE;
+        }
+
+        if ($defenders[0]->defense_value() > $attackers[0]->$value) {
+            // Check for helper dice here
+            foreach ($helpers as $die) {
+
+            }
+
+            return FALSE;
+        }
+
+        return ($attackers[0]->valid_attack($this->name, $attackers, $defenders) &&
+                $defenders[0]->valid_target($this->name, $attackers, $defenders));
 
     }
 
     public function commit_attack($game, $attackers, $defenders) {
+        // Paranoia
+        if (!$this->validate_attack($game, $attackers, $defenders)) {
+            return FALSE;
+        }
 
+        $a = $attackers[0];
+        $d = $defenders[0];
+
+        $a->has_attacked = TRUE;
+        $a->roll();
+
+        return TRUE;
     }
 
 }
@@ -82,21 +142,13 @@ class BMAttackSkill extends BMAttack {
 
 }
 
-class BMAttackShadow extends BMAttack {
+
+class BMAttackShadow extends BMAttackPower {
     public $name = "Shadow";
-
-    public function find_attack($game) {
-
-    }
 
     public function validate_attack($game, $attackers, $defenders) {
 
     }
-
-    public function commit_attack($game, $attackers, $defenders) {
-
-    }
-
 }
 
 class BMAttackPass extends BMAttack {
