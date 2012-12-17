@@ -446,6 +446,44 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends testAttack_list
      */
+    public function testAssist_attack() {
+        $attDie = new BMDie;
+        $defDie = new BMDie;
+
+        foreach ($this->object->attack_list() as $att) {
+            $assistVals = $this->object->assist_attack($att,
+                                                       array($attDie),
+                                                       array($defDie));
+            $this->assertNotEmpty($assistVals);
+            $this->assertEquals(1, count($assistVals));
+            $this->assertEquals(0, $assistVals[0]);
+        }
+    }
+
+    /**
+     * @depends testAttack_list
+     * @depends testAssist_attack
+     */
+    public function testAttack_contribute() {
+        $attDie = new BMDie;
+        $defDie = new BMDie;
+
+        foreach ($this->object->attack_list() as $att) {
+            $this->assertFalse($this->object->attack_contribute($att,
+                                                                array($attDie),
+                                                                array($defDie),
+                                                                1));
+            $this->assertFalse($this->object->attack_contribute($att,
+                                                                array($attDie),
+                                                                array($defDie),
+                                                                0));
+        }
+    }
+
+
+    /**
+     * @depends testAttack_list
+     */
     public function testValid_attack() {
         $attDie = new BMDie;
         $defDie = new BMDie;

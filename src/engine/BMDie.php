@@ -293,6 +293,49 @@ class BMDie
     }
 
 
+    // Returns what values the die can contribute to an attack that
+    // it's not actually participating in.
+    //
+    // Fire is currently the only skill that requires this
+    public function assist_attack($type, $attackers, $defenders) {
+        $vals = array(0);
+
+        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$vals));
+
+        return $vals;
+    }
+
+    // Actually contribute to an attack. Returns true if the attack
+    // was contributed to, false otherwise.
+    //
+    // Returning false in normal usage indicates an error somewhere or
+    // an attempt to cheat.
+    //
+    // once again, this is just for Fire
+    public function attack_contribute($type, $attackers, $defenders, $amount) {
+        if ($amount == 0) {
+            return FALSE;
+        }
+
+        $possibleVals = $this->assist_attack($type, $attackers, $defenders);
+
+        $valid = FALSE;
+
+        foreach ($possibleVals as $val) {
+            if ($val == $amount) {
+                $valid = TRUE;
+                break;
+            }
+        }
+
+        // Hooks are where the die gets adjusted if need be.
+        if ($valid) {
+            $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, $amount));
+        }
+        return $valid;
+
+    }
+
 // check for special-case situations where an otherwise-valid attack
 // is not legal. Single-die skill attacks with stealth dice are the only
 // situation I can come up with off the top of my head
