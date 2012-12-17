@@ -24,7 +24,9 @@ class BMDie
     public $max;
     public $value;
 
+// references back to the game we're part of
     public $game;
+    public $owner;
 
     protected $scoreValue;
 
@@ -192,11 +194,12 @@ class BMDie
 //
 // Clones the die and returns the clone
 
-    public function activate($game)
+    public function activate($game, $owner)
     {
         $newDie = clone $this;
 
         $newDie->game = $game;
+        $newDie->owner = $owner;
 
         $this->run_hooks(__FUNCTION__, array($newDie));
 
@@ -359,6 +362,8 @@ class BMDie
 
     public function be_captured($type, $attackers, $victims)
     {
+        $this->captured = TRUE;
+
         $this->run_hooks(__FUNCTION__, array());
     }
 

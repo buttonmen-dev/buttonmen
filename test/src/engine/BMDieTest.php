@@ -274,18 +274,17 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testActivate() {
-        $newDie = $this->object->activate("test");
+        $newDie = $this->object->activate("game", "owner");
 
         $this->assertInstanceOf('BMDie', $newDie);
 
-        $this->assertEquals("test", $newDie->game);
+        $this->assertEquals("game", $newDie->game);
+        $this->assertEquals("owner", $newDie->owner);
 
         // Make the dice equal in value
 
-        $this->object->game = "test";
-
-        // Is there no way in phpunit to directly test whether two
-        // objects are the same object?
+        $this->object->game = "game";
+        $this->object->owner = "owner";
 
         $this->assertFalse(($this->object === $newDie), "activate returned the same object.");
     }
@@ -356,9 +355,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         // Make the dice equal in value
 
         $this->object->value = $newDie->value;
-
-        // Is there no way in phpunit to directly test whether two
-        // objects are the same object?
 
         $this->assertFalse(($this->object === $newDie), "first_roll returned the same object.");
     }
@@ -521,18 +517,33 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @depends testAttack_list
+     */
     public function testCapture() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // How does one test a function that doesn't do anything, but
+        // exists solely to be modified?
+        $defDie = new BMDie;
+
+        foreach ($this->object->attack_list() as $att) {
+            $this->object->capture($att, array($this->object), array($defDie));
+        }
     }
 
+    /**
+     * @depends testAttack_list
+     */
     public function testBe_captured() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $attDie = new BMDie;
+
+        $this->assertFalse($this->object->captured);
+
+        foreach ($this->object->attack_list() as $att) {
+            $this->object->be_captured($att, array($attDie), array($this->object));
+            $this->assertTrue($this->object->captured);
+
+            $this->object->captured = FALSE;
+        }
     }
 
     public function testDescribe() {
