@@ -25,6 +25,18 @@ class BMGame {
     public function do_next_step() {
         switch ($this->gameState) {
             case BMGameState::startGame:
+                // first player must always be specified
+                if (0 === $this->playerIdxArray[0]) {
+                    throw new UnexpectedValueException(
+                        'First player must be specified before game can be advanced.');
+                }
+
+                // if other players are unspecified, resolve this first
+                if (in_array(0, array_slice($this->playerIdxArray, 1))) {
+                    $this->activate_GUI('Prompt for player ID', $this->playerIdxArray);
+                    return;
+                }
+
 
                 break;
 
@@ -82,6 +94,7 @@ class BMGame {
     public function update_game_state() {
         switch ($this->gameState) {
             case BMGameState::startGame:
+                // require both players and buttons to be specified
                 if (!in_array(0, $this->playerIdxArray) &&
                     isset($this->buttonArray)) {
                     $this->gameState = BMGameState::applyHandicaps;
@@ -236,6 +249,10 @@ class BMGame {
         // james: not written yet
 
         return TRUE;
+    }
+
+    private function activate_GUI($activation_type, $input_parameters) {
+        // currently acts as a placeholder
     }
 
     private function is_valid_attack() {
