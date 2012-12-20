@@ -38,6 +38,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $recipe = '';
         $this->object->load_from_recipe($recipe);
         $this->assertEquals($recipe, $this->object->recipe);
+        $this->assertTrue(is_array($this->object->dieArray));
 
         // button recipes using dice with no special skills
         $recipe = '(4) (8) (20) (20)';

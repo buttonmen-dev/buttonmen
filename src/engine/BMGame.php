@@ -33,8 +33,13 @@ class BMGame {
 
                 // if other players are unspecified, resolve this first
                 if (in_array(0, array_slice($this->playerIdxArray, 1))) {
-                    $this->activate_GUI('Prompt for player ID', $this->playerIdxArray);
+                    $this->activate_GUI('Prompt for player ID');
                     return;
+                }
+
+                // if buttons are unspecified, allow players to choose buttons
+                foreach ($this->buttonArray as $tempButton) {
+                    $this->activate_GUI('Prompt for button ID');
                 }
 
 
@@ -251,7 +256,7 @@ class BMGame {
         return TRUE;
     }
 
-    private function activate_GUI($activation_type, $input_parameters) {
+    private function activate_GUI($activation_type, $input_parameters = NULL) {
         // currently acts as a placeholder
     }
 
@@ -309,27 +314,88 @@ class BMGame {
         $this->maxWins = $maxWins;
     }
 
+    // to allow array elements to be set directly, change the __get to &__get
+    // to return the result by reference
     public function __get($property)
     {
         if (property_exists($this, $property)) {
-            switch ($property) {
-                default:
-                    return $this->$property;
-            }
+            return $this->$property;
         }
     }
 
-    public function __set($property, $value)
-    {
-// james: need to validate properties
-
+    public function __set($property, $value) {
         switch ($property) {
-//    private $gameId;                // game ID number in the database
-//    private $playerIdxArray;        // array of player IDs
-//    private $activePlayerIdx;       // index of the active player in playerIdxArray
-//    private $playerWithInitiativeIdx; // index of the player who won initiative
-//    private $buttonArray;           // buttons for all players
-//    private $activeDieArrayArray;   // active dice for all players
+            case 'gameId':
+                if (FALSE === filter_var($value,
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0)))) {
+                    throw new InvalidArgumentException(
+                        'Invalid game ID.');
+                }
+                $this->gameId = $value;
+                break;
+            case 'playerIdxArray':
+                if (!is_array($value) ||
+                    count($value) !== count($this->playerIdxArray)) {
+                    throw new InvalidArgumentException(
+                        'The number of players cannot be changed during a game.');
+                }
+                $this->playerIdxArray = $value;
+                break;
+            case 'activePlayerIdx':
+                // require a valid index
+                if (FALSE ===
+                    filter_var($value,
+                               FILTER_VALIDATE_INT,
+                               array("options"=>
+                                     array("min_range"=>0,
+                                           "max_range"=>count($this->playerIdxArray))))) {
+                    throw new InvalidArgumentException(
+                        'Invalid player index.');
+                }
+                $this->activePlayerIdx = $value;
+                break;
+            case 'playerWithInitiativeIdx':
+                // require a valid index
+                if (FALSE ===
+                    filter_var($value,
+                               FILTER_VALIDATE_INT,
+                               array("options"=>
+                                     array("min_range"=>0,
+                                           "max_range"=>count($this->playerIdxArray))))) {
+                    throw new InvalidArgumentException(
+                        'Invalid player index.');
+                }
+                $this->playerWithInitiativeIdx = $value;
+                break;
+            case 'buttonArray':
+                if (!is_array($value) ||
+                    count($value) !== count($this->playerIdxArray)) {
+                    throw new InvalidArgumentException(
+                        'Number of buttons must equal the number of players.');
+                }
+                $this->buttonArray = $value;
+                break;
+            case 'activeDieArrayArray':
+                if (!is_array($value)) {
+                    throw new InvalidArgumentException(
+                        'Active die array array must be an array.');
+                }
+                foreach ($value as $valueElement) {
+                    if (!is_array($valueElement)) {
+                        throw new InvalidArgumentException(
+                            'Individual active die arrays must be arrays.');
+                    }
+                    foreach ($valueElement as $die) {
+                        if (!is_a($die, 'BMDie')) {
+                            throw new InvalidArgumentException(
+                                'Elements of active die arrays must be BMDice.');
+                        }
+                    }
+                }
+                $this->activeDieArrayArray = $value;
+                break;
             case 'attack':
                 if (!is_array($value) || (3 !== count($value))) {
                     throw new InvalidArgumentException(
@@ -341,13 +407,53 @@ class BMGame {
                 }
                 $this->attack = $value;
                 break;
-//    private $passStatusArray;       // boolean array whether each player passed
-//    private $capturedDieArrayArray; // captured dice for all players
-//    private $roundScoreArray;       // current points score in this round
-            case 'gameScoreArray':
-                if (count($this->playerIdxArray) != count($value)) {
+            case 'passStatusArray':
+                if ((!is_array($value)) ||
+                    (count($this->playerIdxArray) !== count($value))) {
                     throw new InvalidArgumentException(
-                        'Invalid number of W/L/T results provided.');
+                        'The number of elements in passStatusArray must be the number of players.');
+                }
+                // require boolean pass statuses
+                foreach ($value as $valueElement) {
+                    if (!is_bool($valueElement)) {
+                        throw new InvalidArgumentException(
+                            'Pass statuses must be booleans.');
+                    }
+                }
+                $this->passStatusArray = $value;
+                break;
+            case 'capturedDieArrayArray':
+                if (!is_array($value)) {
+                    throw new InvalidArgumentException(
+                        'Captured die array array must be an array.');
+                }
+                foreach ($value as $valueElement) {
+                    if (!is_array($valueElement)) {
+                        throw new InvalidArgumentException(
+                            'Individual captured die arrays must be arrays.');
+                    }
+                    foreach ($valueElement as $die) {
+                        if (!is_a($die, 'BMDie')) {
+                            throw new InvalidArgumentException(
+                                'Elements of captured die arrays must be BMDice.');
+                        }
+                    }
+                }
+                $this->capturedDieArrayArray = $value;
+                break;
+            case 'roundScoreArray':
+                if (!is_array($value) ||
+                    (count($this->playerIdxArray) !== count($value))) {
+                    throw new InvalidArgumentException(
+                        'There must be one round score for each player.');
+                }
+                $this->roundScoreArray = $value;
+                break;
+            case 'gameScoreArray':
+                if (!is_array($value) ||
+                    count($this->playerIdxArray) !== count($value)) {
+                    throw new InvalidArgumentException(
+                        'There must be one game score for each player.');
                 }
                 $tempArray = array();
                 for ($playerIdx = 0; $playerIdx < count($value); $playerIdx++) {
@@ -363,8 +469,18 @@ class BMGame {
                 }
                 $this->gameScoreArray = $tempArray;
                 break;
-//    private $maxWins;               // the game ends when a player has this many wins
-//    private $gameState;             // current game state as a BMGameState enum
+            case 'maxWins':
+                if (FALSE === filter_var($value,
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>1)))) {
+                    throw new InvalidArgumentException(
+                        'maxWins must be a positive integer.');
+                }
+                $this->maxWins = $value;
+                break;
+//            case 'gameState':
+//                break;
             default:
                 $this->$property = $value;
         }

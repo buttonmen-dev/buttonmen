@@ -32,9 +32,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_start_game() {
-        //$this->object->gameState = BMGameState::startGame;
-        //$this->object->do_next_step();
-        
+        // the first player always has to be set before advancing the game
+        $this->object->gameState = BMGameState::startGame;
+        try {
+            $this->object->do_next_step();
+        }
+        catch (UnexpectedValueException $expected) {
+        }
+
+        // players other than the first can be unspecified
+        $this->object->gameState = BMGameState::startGame;
+        $this->object->playerIdxArray = array(123, 0);
+        $this->object->do_next_step();
+
+        // buttons can be unspecified
+        $this->object->gameState = BMGameState::startGame;
+        $this->object->playerIdxArray = array(123, 456);
+        $this->object->do_next_step();
+
     }
 
     /**
@@ -459,18 +474,21 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $method = new ReflectionMethod('BMGame', 'change_active_player');
         $method->setAccessible(TRUE);
 
-        $this->object->playerIdxArray = array(1, 12, 21, 3, 15);
-        $this->object->activePlayerIdx = 0;
-        $method->invoke($this->object);
-        $this->assertEquals(1, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(2, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(3, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(4, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(0, $this->object->activePlayerIdx);
+        $game = new BMGame(1234,
+                           array(1, 12, 21, 3, 15),
+                           array('', '', '', '', ''),
+                           3);
+        $game->activePlayerIdx = 0;
+        $method->invoke($game);
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(2, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(3, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(4, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(0, $game->activePlayerIdx);
     }
 
     /**
@@ -503,6 +521,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $maxWins = 5;
         try {
             $game = new BMGame($playerIdxArray, $buttonRecipeArray, $maxWins);
+            $this->fail('The number of buttons must equal the number of players.');
         }
         catch (InvalidArgumentException $expected) {
         }
@@ -519,6 +538,95 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die2 = new BMDie;
         $this->object->buttonArray = array($die1, $die2);
         $this->assertEquals(array($die1, $die2), $this->object->buttonArray);
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_game_id() {
+        // valid set
+        $this->object->gameId = 235;
+
+        // invalid set
+        try {
+            $this->object->gameId = 'abc';
+            $this->fail('The game ID must be a non-negative integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_player_idx_array() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->playerIdxArray = array(345, 567);
+
+        // invalid set
+        try {
+            $game->playerIdxArray = array(123, 345, 567);
+            $this->fail('The number of players cannot change during a game.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_active_player_idx() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->activePlayerIdx = 0;
+
+        // invalid set
+        try {
+            $game->activePlayerIdx = 6;
+            $this->fail('The active player index must be a valid index.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_player_with_initiative_idx() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->playerWithInitiativeIdx = 0;
+
+        // invalid set
+        try {
+            $game->playerWithInitiativeIdx = 6;
+            $this->fail('The index of the player with initiative must be valid.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_button_array() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->buttonArray = array('p(23)', 's(58)');
+
+        // invalid set
+        try {
+            $game->buttonArray = array('', '', '');
+            $this->fail('The number of buttons must match the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
     /**
@@ -544,6 +652,40 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->gameScoreArray = array(array(2,1,1));
             $this->fail('There must be the same number of players and game scores.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_active_die_array_array() {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+
+        // valid set
+        $this->object->activeDieArrayArray = array(array(), array());
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+
+        // invalid set
+        try {
+            $this->object->activeDieArrayArray = 'abc';
+            $this->fail('Active die array array must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->activeDieArrayArray = array(1, 2);
+            $this->fail('Active die arrays must be arrays.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->activeDieArrayArray = array(array(1), array(2));
+            $this->fail('Active die arrays must be arrays of BM dice.');
         }
         catch (InvalidArgumentException $expected) {
         }
@@ -581,6 +723,132 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // check that a skill attack is valid
         $this->object->attack = array(array(0, 5), array(2), 'skill');
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_pass_status_array() {
+        // valid set
+        $this->object->passStatusArray = array(TRUE, FALSE);
+
+        // invalid set
+        try {
+            $this->object->passStatusArray = TRUE;
+            $this->fail('Pass status array must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->passStatusArray = array(TRUE, TRUE, TRUE);
+            $this->fail('Pass status array must have the same number of elements '.
+                        'as the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->passStatusArray = array(1, 2);
+            $this->fail('Pass statuses must be booleans.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_captured_die_array_array() {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+
+        // valid set
+        $this->object->capturedDieArrayArray = array(array(), array());
+        $this->object->capturedDieArrayArray = array(array($die1), array($die2));
+
+        // invalid set
+        try {
+            $this->object->capturedDieArrayArray = 'abc';
+            $this->fail('Active die array array must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->capturedDieArrayArray = array(1, 2);
+            $this->fail('Active die arrays must be arrays.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->capturedDieArrayArray = array(array(1), array(2));
+            $this->fail('Active die arrays must be arrays of BM dice.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_round_score_array() {
+        // valid set
+        $this->object->roundScoreArray = array(22, 35);
+
+        // invalid set
+        try {
+            $this->object->roundScoreArray = 42;
+            $this->fail('The round score must have one score for each player.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->roundScoreArray = array(22, 35, 59);
+            $this->fail('The round score must have one score for each player.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->roundScoreArray = array(22);
+            $this->fail('The round score must have one score for each player.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_max_wins() {
+        // valid set
+        $this->object->maxWins = 5;
+
+        // invalid set
+        try {
+            $this->object->maxWins = 0;
+            $this->fail('maxWins must be a positive integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->maxWins = 2.5;
+            $this->fail('maxWins must be a positive integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_game_state() {
+        // valid set
+//        $this->object->gameState = BMGameState::startRound;
     }
 
     /**

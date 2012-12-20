@@ -15,6 +15,7 @@ class BMButton {
     public function load_from_recipe($recipe) {
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;
+        $this->dieArray = array();
 
         if (empty($recipe)) {
             return;
@@ -22,7 +23,6 @@ class BMButton {
 
         $dieSides = $this->parse_recipe_for_sides($recipe);
         $dieSkills = $this->parse_recipe_for_skills($recipe);
-        $this->dieArray = array();
 
         // set die sides and skills, one die at a time
         for ($dieIdx = 0, $count = count($dieSides);
@@ -113,14 +113,12 @@ class BMButton {
     }
 
     // utility methods
+    // to allow array elements to be set directly, change the __get to &__get
+    // to return the result by reference
     public function __get($property)
     {
         if (property_exists($this, $property)) {
             return $this->$property;
-//            switch ($property) {
-//                default:
-//                    return $this->$property;
-//            }
         }
     }
 
