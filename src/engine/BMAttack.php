@@ -186,16 +186,24 @@ class XCYIterator implements Iterator {
     public function __construct($array, $y) {
         $list = $array;
         $depth = $y;
+
+        $position = 1;
+    }
+
+    public function setPosition($newPos) {
+        $position = $newPos;
     }
 
     public function rewind() {
-
-        $position = 1;
         $head = array_pop($list);
         if (count($list > 0) && $depth > 1) {
             $tail = new XCYIterator($list, $depth - 1);
         }
-        if ($tail) { $tail->rewind(); }
+        if ($tail) { 
+            $tail->setPosition($position + 1);
+            $tail->rewind();
+            
+        }
     }
 
     public function current() {
@@ -231,6 +239,7 @@ class XCYIterator implements Iterator {
         }
         else {
             $head = array_pop($list);
+            $position++;
         }
     }
 
