@@ -12,7 +12,7 @@ class BMAttack {
     // because the player may have to choose which attack type to
     // use. Captures are indistinguishable among attacks with no
     // side effects
-    public sideEffect = FALSE;
+    public $sideEffect = FALSE;
 
     private function __construct() {
         // You can't instantiate me; I'm a Singleton!
@@ -26,12 +26,19 @@ class BMAttack {
         return static::$instance[$class];
     }
 
-    // Dice that have this attack
+    // Dice that effect or affect this attack
     protected $validDice = array();
+    protected $helperDice = array()
 
     public function add_die($die) {
         if (!array_contains($die, $validDice)) {
             $validDice[] = $die;
+        }
+    }
+
+    public function add_helper($die) {
+        if (!array_contains($die, $helperDice)) {
+            $helperDice[] = $die;
         }
     }
 
@@ -58,6 +65,73 @@ class BMAttack {
     public function commit_attack($game, $attackers, $defenders) {
         return FALSE;
     }
+
+
+    // methods to find that there is a valid attack
+    //
+    // If anybody wants to add a many dice vs many dice attack, I will
+    // cut then. (It'd _work_, but the words "combinatoric explosion"
+    // are deeply relevant.)
+
+
+    protected function search_onevone($game, $attackers, $defenders) {
+        // Sanity check
+
+        if (count($attackers) < 1 || count($defenders) < 1) {
+            return FALSE;
+        }
+
+        // OK, these aren't necessary for this one, but it's consistent.
+        $aIt = new XCYIterator($attackers, 1);
+        $dIt = new XCYIterator($defenders, 1);
+
+        foreach ($aIt as $att) {
+            foreach ($dIt as $def) {
+                if ($this->validate_attack($game, $att, $def)) {
+                    return TRUE;
+                }
+            }
+        }
+    }
+
+    protected function search_onevmany($game, $attackers, $defenders) {
+        // Sanity check
+
+        if (count($attackers) < 1 || count($defenders) < 1) {
+            return FALSE;
+        }
+
+        $aIt = new XCYIterator($attackers, 1);
+        $dIt = new XCYIterator($defenders, count($defenders));
+
+        foreach ($aIt as $att) {
+            foreach ($dIt as $def) {
+                if ($this->validate_attack($game, $att, $def)) {
+                    return TRUE;
+                }
+            }
+        }
+    }
+
+    // It is entirely possible this method will never be used.
+    protected function search_manyvone($game, $attackers, $defenders) {
+        // Sanity check
+
+        if (count($attackers) < 1 || count($defenders) < 1) {
+            return FALSE;
+        }
+
+        $aIt = new XCYIterator($attackers, count($attackers));
+        $dIt = new XCYIterator($defenders, 1);
+
+        foreach ($aIt as $att) {
+            foreach ($dIt as $def) {
+                if ($this->validate_attack($game, $att, $def)) {
+                    return TRUE;
+                }
+            }
+        }
+    }
 }
 
 
@@ -65,22 +139,11 @@ class BMAttackPower extends BMAttack {
     public $name = "Power";
 
     public function find_attack($game) {
-        // This is wrong; need to look at BMGame code, find whose turn
-        // it isn't, get their die list
-        $targets = $game->targets;
+        // This method doesn't exist; either needs to, or to be
+        // replaced with equivalent functionality
+        $targets = $game->defender_dice();
 
-        $found = FALSE;
-
-        foreach ($validDice as $attacker) {
-            foreach ($targets as $defender) {
-                if ($this->validate_attack($game, array($attacker), array($defender))) {
-                    $found = TRUE;
-                    break 2;
-                }
-            }
-        }
-
-        return $found;
+        return $this->search_onevone($game, $this->validDice, $targets);
     }
 
     public function validate_attack($game, $attackers, $defenders) {
@@ -129,8 +192,11 @@ class BMAttackPower extends BMAttack {
         $at->roll();
 
         $df->captured = TRUE;
-        // tell the game to move the defender
+
         $df->be_captured($this->name, $attackers, $defenders);
+
+        // neither method here exists yet
+        $game->capture_die($game->active_player(), $df);
 
         return TRUE;
     }
@@ -179,72 +245,75 @@ class BMAttackPass extends BMAttack {
 class XCYIterator implements Iterator {
     private $position;
     private $list;
+    private $baseList;
     private $head;
     private $depth;
     private $tail = NULL;
 
     public function __construct($array, $y) {
-        $list = $array;
-        $depth = $y;
-
-        $position = 1;
+        $this->baseList = $array;
+        $this->depth = $y;
     }
 
     public function setPosition($newPos) {
-        $position = $newPos;
+        $this->position = $newPos;
     }
 
     public function rewind() {
-        $head = array_pop($list);
-        if (count($list > 0) && $depth > 1) {
-            $tail = new XCYIterator($list, $depth - 1);
+        $this->position = 1;
+        $this->list = $this->baseList;
+        unset($this->tail);
+
+        $this->head = array_pop($list);
+        if (count($this->list > 0) && $this->depth > 1) {
+            $this->tail = new XCYIterator($this->list, $this->depth - 1);
         }
-        if ($tail) { 
-            $tail->setPosition($position + 1);
-            $tail->rewind();
+        if ($this->tail) { 
+            $this->tail->setPosition($position + 1);
+            $this->tail->rewind();
             
         }
     }
 
     public function current() {
-        if ($tail) {
-            $tmp = $tail->current();
-            return array_push($tmp, $head);
+        if ($this->tail) {
+            $tmp = $this->tail->current();
+            return array_push($tmp, $this->head);
         }
         else {
-            return array($head);
+            return array($this->head);
         }
     }
 
     // Mostly useless.
     public function key() {
-        if ($tail) {
-            return $tail->key() . $position;
+        if ($this->tail) {
+            return $this->tail->key() . $this->position;
         }
         else {
-            return $position;
+            return $this->position;
         }
     }
 
     public function next() {
-        if ($tail) {
-            $tail->next();
-            if (!$tail->valid()) {
-                unset($tail);
-                $head = array_pop($list);
-                if (count($list > 0) && $depth > 1) {
-                    $tail = new XCYIterator($list, $depth - 1);
+        if ($this->tail) {
+            $this->tail->next();
+            if (!$this->tail->valid()) {
+                unset($this->tail);
+                $this->head = array_pop($this->list);
+                if (count($this->list > 0) && $this->depth > 1) {
+                    $this->tail = new XCYIterator($this->list, $this->depth - 1);
                 }
             }
         }
         else {
-            $head = array_pop($list);
-            $position++;
+            $this->head = array_pop($this->list);
+            $this->position++;
         }
     }
 
     public function valid() {
-        if ($head) { return TRUE; }
+        if ($this->head) { return TRUE; }
         else { return FALSE; }
     }
 
