@@ -238,7 +238,9 @@ class BMDie
         return $list;
     }
 
-
+    // Return all possible values the die may use in this type of attack
+    //
+    // The values must be sorted, highest to lowest, with no duplication.
     public function attack_values($type)
     {
         $list = array($this->value);
@@ -297,6 +299,16 @@ class BMDie
     // it's not actually participating in.
     //
     // Fire is currently the only skill that requires this
+    //
+    // Returned values must be sorted from lowest to highest, and zero
+    // must be ommited.
+    //
+    // The attack code currently assumes that every value between the
+    // lowest and highest is possible. If that changes, the code'll
+    // need some work.
+    //
+    // (It does not assume that the values are positive, or that they
+    // start at any particular number.)
     public function assist_attack($type, $attackers, $defenders) {
         $vals = array(0);
 

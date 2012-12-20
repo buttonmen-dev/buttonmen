@@ -8,6 +8,12 @@
 class BMAttack {
     protected static $instance = array();
 
+    // True for attacks that do something besides simple capture,
+    // because the player may have to choose which attack type to
+    // use. Captures are indistinguishable among attacks with no
+    // side effects
+    public sideEffect = FALSE;
+
     private function __construct() {
         // You can't instantiate me; I'm a Singleton!
     }
