@@ -309,7 +309,7 @@ class BMDie
     //
     // (It does not assume that the values are positive, or that they
     // start at any particular number.)
-    public function assist_attack($type, $attackers, $defenders) {
+    public function assist_values($type, $attackers, $defenders) {
         $vals = array(0);
 
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$vals));
@@ -329,7 +329,7 @@ class BMDie
             return FALSE;
         }
 
-        $possibleVals = $this->assist_attack($type, $attackers, $defenders);
+        $possibleVals = $this->assist_values($type, $attackers, $defenders);
 
         $valid = FALSE;
 
