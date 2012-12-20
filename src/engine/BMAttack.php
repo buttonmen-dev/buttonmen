@@ -168,4 +168,74 @@ class BMAttackPass extends BMAttack {
 
 }
 
+// Iterator to return all possible lists of Y elements from list X.
+//
+// Once you take stinger and constant into account, this is probably
+// way too slow for the full search for a skill attack, but we need it
+// anyway for choose 1 and choose 2, and it's easier to understand
+// than the optimized search I have in mind.
+//
+// a generator would be nicer here, but that's not available
+class XCYIterator implements Iterator {
+    private $position;
+    private $list;
+    private $head;
+    private $tail = NULL;
+
+    public function __construct($array) {
+        $list = $array;
+    }
+
+    public function rewind() {
+        $position = 1;
+        $head = array_pop($list);
+        if (count($list > 0)) { $tail = new XCYIterator($list); }
+        if ($tail) { $tail->rewind(); }
+    }
+
+    public function current() {
+        if ($tail) {
+            $tmp = $tail->current();
+            return array_push($tmp, $head);
+        }
+        else {
+            return array($head);
+        }
+    }
+
+    // Mostly useless.
+    public function key() {
+        if ($tail) {
+            return $tail->key() . $position;
+        }
+        else {
+            return $position;
+        }
+    }
+
+    public function next() {
+        if ($tail) {
+            $tail->next();
+            if (!$tail->valid()) {
+                unset($tail);
+                $head = array_pop($list);
+                if (count($list > 0)) {
+                    $tail = new XCYIterator($list);
+                }
+            }
+        }
+        else {
+            $head = array_pop($list);
+        }
+    }
+
+    public function valid() {
+        if ($head) { return TRUE; }
+        else { return FALSE; }
+    }
+
+    
+}
+
+
 ?>
