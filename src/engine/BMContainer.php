@@ -28,7 +28,12 @@ class BMContainer {
 
     // add a die or container to the end of the container
     public function add_thing($thing) {
-
+        // Only dice and containers
+        if (is_a($thing, "BMContainer")  || is_a($thing, "BMDie")) {
+            $this->contents[] = $thing;
+            return $thing;
+        }
+        return NULL;
     }
 
     // skill management
@@ -58,7 +63,7 @@ class BMContainer {
     }
 
     // create the container from an array of dice and containers
-    public static function create_from_list($contents) {
+    public static function create_from_list($contents, $skills = NULL) {
 
     }
 

@@ -27,4 +27,8 @@ class BMDieTesting extends BMDie {
     }
 }
 
+class BMContTesting extends BMContainer {
+
+}
+
 ?>

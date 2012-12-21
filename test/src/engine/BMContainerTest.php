@@ -44,14 +44,59 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers BMContainer::add_thing
-     * @todo   Implement testAdd_thing().
      */
     public function testAdd_thing()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $cont = new BMContainer;
+        $die3 = new BMDieTesting;
+        $cont2 = new BMContTesting;
+        
+        // Adding non-die or containers should fail
+        $this->assertEmpty($this->object->contents);
+        $this->assertNull($this->object->add_thing("thing!"));
+        $this->assertEmpty($this->object->contents);
+
+        $this->assertEmpty($this->object->contents);
+        $this->assertNull($this->object->add_thing($this));
+        $this->assertEmpty($this->object->contents);
+
+        // add dice
+        $this->assertNotNull($this->object->add_thing($die1));
+        $this->assertNotEmpty($this->object->contents);
+        $this->assertEquals(count($this->object->contents), 1);
+        $this->assertContains($die1, $this->object->contents);
+
+        // test return value; should return the added object
+        $this->assertTrue($die2 === $this->object->add_thing($die2));
+        $this->assertNotEmpty($this->object->contents);
+        $this->assertEquals(count($this->object->contents), 2);
+        $this->assertContains($die1, $this->object->contents);
+        $this->assertContains($die2, $this->object->contents);
+
+        // test adding duplicates; should work
+        $this->assertTrue($die1 === $this->object->add_thing($die1));
+        $this->assertNotEmpty($this->object->contents);
+        $this->assertEquals(count($this->object->contents), 3);
+        $this->assertContains($die1, $this->object->contents);
+        $this->assertContains($die2, $this->object->contents);
+
+        // ordering correct?
+        $this->assertTrue($die1 === $this->object->contents[0]);
+        $this->assertTrue($die2 === $this->object->contents[1]);
+        $this->assertTrue($die1 === $this->object->contents[2]);
+
+        // add a container
+        $this->assertTrue($cont === $this->object->add_thing($cont));
+        $this->assertNotEmpty($this->object->contents);
+        $this->assertEquals(count($this->object->contents), 4);
+        $this->assertContains($cont, $this->object->contents);
+
+        // add subclasses
+        $this->assertTrue($die3 === $this->object->add_thing($die3));
+        $this->assertTrue($cont2 === $this->object->add_thing($cont2));
+
     }
 
     /**
@@ -136,6 +181,8 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers BMContainer::create_from_list
+     * @requires testAdd_skill
+     * @requires testAdd_thing
      * @todo   Implement testCreate_from_list().
      */
     public function testCreate_from_list()
@@ -148,6 +195,7 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers BMContainer::__clone
+     * @requires testCreate_from_list
      * @todo   Implement test__clone().
      */
     public function test__clone()
