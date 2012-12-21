@@ -279,6 +279,7 @@ class BMAttackPower extends BMAttack {
         return FALSE;
     }
 
+    // Some of this should be in the game, rather than here.
     public function commit_attack($game, $attackers, $defenders) {
         // Paranoia
         if (!$this->validate_attack($game, $attackers, $defenders)) {
@@ -290,12 +291,12 @@ class BMAttackPower extends BMAttack {
 
         $att->capture($this->name, $attackers, $defenders);
         
+        $def->be_captured($this->name, $attackers, $defenders);
+
         $att->has_attacked = TRUE;
         $att->roll();
 
         $def->captured = TRUE;
-
-        $def->be_captured($this->name, $attackers, $defenders);
 
         // neither method here exists yet
         $game->capture_die($game->active_player(), $def);
