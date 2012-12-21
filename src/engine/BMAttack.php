@@ -28,7 +28,6 @@ class BMAttack {
 
     // Dice that effect or affect this attack
     protected $validDice = array();
-    protected $helperDice = array()
 
     public function add_die($die) {
         if (!array_contains($die, $validDice)) {
@@ -36,10 +35,47 @@ class BMAttack {
         }
     }
 
-    public function add_helper($die) {
-        if (!array_contains($die, $helperDice)) {
-            $helperDice[] = $die;
+    // Figure out what help can be added to the total
+    //
+    // Returns the minimum and maximum values that can be contributed.
+    //
+    // $helpers is and array of the returned values from
+    // assist_values; we don't need to know which die contributes what
+    // here.
+
+    public function help_bounds($helpers) {
+        $helpMin = $helpMax = 0;
+
+        if (count($helpers) == 0) { return array($helpMin, $helpMax); }
+
+        // Help values are sorted lowest to highest, and we enforce
+        // some assumptions about the values to simplify this code a lot
+        foreach ($helpers as $helpVals) {
+            $min = $helpers[0];
+            $max = end($helpers);
+
+            if ($max >= 0) {
+                if ($helpMax > 0) { $helpMax += $max; }
+                else { $helpMax = $max; }
+            }
+            else {
+                // Simplifying assumption here, but life's a lot more
+                // complex if there can be gaps in the help coverage.
+                $helpMax = -1;
+            }
+
+            if ($min <= 0) {
+                if ($helpMin < 0) { $helpMin -= $min; }
+                else { $helpMin = $min; }
+            }
+            else {
+                // Simplifying assumption here, but life's a lot more
+                // complex if there can be gaps in the help coverage.
+                $helpMin = 1;;
+            }
         }
+
+        return array($helpMin, $helpMax);
     }
 
 
@@ -92,6 +128,7 @@ class BMAttack {
                 }
             }
         }
+        return FALSE;
     }
 
     protected function search_onevmany($game, $attackers, $defenders) {
@@ -101,19 +138,48 @@ class BMAttack {
             return FALSE;
         }
 
-        $aIt = new XCYIterator($attackers, 1);
-        $dIt = new XCYIterator($defenders, count($defenders));
+        // We only need to iterate over half the space, since we can
+        // search the complement of the set at the same time.
 
-        foreach ($aIt as $att) {
+        $count = count($defenders);
+        $rem = $count % 2;
+        $count -= $rem;
+        $count /= 2;
+
+        $aIt = new XCYIterator($attackers, 1);
+
+        for ($i = 1; $i <= $count; $i++) {
+            $dIt = new XCYIterator($defenders, $i);
+
             foreach ($dIt as $def) {
-                if ($this->validate_attack($game, $att, $def)) {
-                    return TRUE;
+                foreach ($aIt as $att) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                    $complement =  array_diff($defenders, $def);
+                    if ($this->validate_attack($game, $att, $complement)) {
+                        return TRUE;
+                    }
                 }
             }
         }
+        // Odd number of dice
+        if ($rem) {
+            $dIt = new XCYIterator($defenders, $count + 1);
+            foreach ($dIt as $def) {
+                foreach ($aIt as $att) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                }
+            }
+        }
+        return FALSE;
     }
 
     // It is entirely possible this method will never be used.
+    // 
+    // This and onevmany could be combined fairly easily
     protected function search_manyvone($game, $attackers, $defenders) {
         // Sanity check
 
@@ -121,16 +187,43 @@ class BMAttack {
             return FALSE;
         }
 
-        $aIt = new XCYIterator($attackers, count($attackers));
+        // We only need to iterate over half the space, since we can
+        // search the complement of the set at the same time.
+
+        $count = count($attackers);
+        $rem = $count % 2;
+        $count -= $rem;
+        $count /= 2;
+
         $dIt = new XCYIterator($defenders, 1);
 
-        foreach ($aIt as $att) {
-            foreach ($dIt as $def) {
-                if ($this->validate_attack($game, $att, $def)) {
-                    return TRUE;
+        for ($i = 1; $i <= $count; $i++) {
+            $aIt = new XCYIterator($attackers, $i);
+
+            foreach ($aIt as $att) {
+                foreach ($dIt as $def) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                    $complement =  array_diff($attackers, $att);
+                    if ($this->validate_attack($game, $complement, $def)) {
+                        return TRUE;
+                    }
                 }
             }
         }
+        // Odd number of dice
+        if ($rem) {
+            $aIt = new XCYIterator($attackers, $count + 1);
+            foreach ($aIt as $att) {
+                foreach ($dIt as $def) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                }
+            }
+        }
+        return FALSE;
     }
 }
 
@@ -147,34 +240,43 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, $attackers, $defenders) {
-        $helpers = array();
-        // This is wrong; need to look at BMGame code, find whose turn
-        // it is, get their die list
-        foreach ($game->potentialAttackers as $die) {
-            if ($die === $attackers[0]) { next; }
-
-            $helpVals = $die->assist_attack($this->name, $attackers, $defenders);
-            if ($helpVals[0] != 0 || count($helpVals) > 1) {
-                $helpers[] = $die;
-            }
-        }
-
         if (count($attackers) != 1 || count($defenders) != 1) {
             return FALSE;
         }
 
-        if ($defenders[0]->defense_value() > $attackers[0]->$value) {
-            // Check for helper dice here
-            foreach ($helpers as $die) {
 
+        $helpers = array();
+
+        // Need to implement this method or replace it with something
+        // equivalent
+        foreach ($game->attacker_dice() as $die) {
+            if (array_search($die, $attackers)) {
+                // Attackers can't help their own attack
+                next;
             }
 
-            return FALSE;
+            $helpVals = $die->assist_attack($this->name, $attackers, $defenders);
+            if ($helpVals[0] != 0) {
+                $helpers[] = $helpVals;
+            }
         }
 
-        return ($attackers[0]->valid_attack($this->name, $attackers, $defenders) &&
-                $defenders[0]->valid_target($this->name, $attackers, $defenders));
+        $bounds = $this->help_bounds($helpers);
 
+        foreach ($attackers[0]->attack_values($this->name) as $aVal) {
+
+            if ($aVal + $bounds[1] >= $defenders[0]->defense_value()) {
+
+                if ($attackers[0]->valid_attack($this->name, $attackers, $defenders) &&
+                    $defenders[0]->valid_target($this->name, $attackers, $defenders))
+                {
+                    return $TRUE;
+                }
+            }
+
+        }
+
+        return FALSE;
     }
 
     public function commit_attack($game, $attackers, $defenders) {
@@ -183,20 +285,20 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        $at = $attackers[0];
-        $df = $defenders[0];
+        $att = $attackers[0];
+        $def = $defenders[0];
 
-        $at->capture($this->name, $attackers, $defenders);
+        $att->capture($this->name, $attackers, $defenders);
         
-        $at->has_attacked = TRUE;
-        $at->roll();
+        $att->has_attacked = TRUE;
+        $att->roll();
 
-        $df->captured = TRUE;
+        $def->captured = TRUE;
 
-        $df->be_captured($this->name, $attackers, $defenders);
+        $def->be_captured($this->name, $attackers, $defenders);
 
         // neither method here exists yet
-        $game->capture_die($game->active_player(), $df);
+        $game->capture_die($game->active_player(), $def);
 
         return TRUE;
     }

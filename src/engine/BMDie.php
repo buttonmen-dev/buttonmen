@@ -301,14 +301,15 @@ class BMDie
     // Fire is currently the only skill that requires this
     //
     // Returned values must be sorted from lowest to highest, and zero
-    // must be ommited.
+    // must be ommited unlees you cannot contribute.
     //
     // The attack code currently assumes that every value between the
-    // lowest and highest is possible. If that changes, the code'll
-    // need some work.
+    // lowest and highest is possible, and that 1 and -1 are possible
+    // values if the help values go above or below zero. If that
+    // changes, the code'll need some work.
     //
-    // (It does not assume that the values are positive, or that they
-    // start at any particular number.)
+    // It does not assume that the values are positive, even though
+    // they must be at the moment.
     public function assist_values($type, $attackers, $defenders) {
         $vals = array(0);
 
