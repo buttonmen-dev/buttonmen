@@ -11,7 +11,7 @@ require_once 'BMDie.php';
 class BMContainer {
     public $contents = array();
 
-    // keyed by the Names of the skills that the die has, with values of
+    // keyed by the Names of the skills that the class has, with values of
     // the skill class's name
     //
     // Not that the value is needed, but we use the keys to track
@@ -33,14 +33,27 @@ class BMContainer {
 
     // skill management
     public function add_skill($skill) {
+        $skillClass = "BMSkill$skill";
+
+        // Don't add skills that are already added
+        if (!array_key_exists($skill, $this->skillList)) {
+            $this->skillList[$skill] = $skillClass;
+        }
 
     }
 
     public function has_skill($skill) {
-
+        return array_key_exists($skill, $this->skillList);
     }
 
     public function remove_skill($skill) {
+        if (!$this->has_skill($skill)) {
+            return FALSE;
+        }
+
+        unset($this->skillList[$skill]);
+
+        return TRUE;
 
     }
 
