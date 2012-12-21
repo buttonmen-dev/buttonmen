@@ -62,16 +62,36 @@ class BMContainer {
 
     }
 
-    // create the container from an array of dice and containers
-    public static function create_from_list($contents, $skills = NULL) {
+    // create the container from an array of dice and containers if
+    // any elements of the array are themselves arrays, we will make
+    // them as containers. Skills will only be added to the outermost
+    // container
+    public static function create_from_list($contents, $skills = array()) {
+        $cont = new BMContainer;
 
+        foreach ($contents as $thing) {
+            if (is_array($thing)) {
+                $cont->add_thing(BMContainer::create_from_list($thing));
+            }
+            elseif (!$cont->add_thing($thing)) {
+                throw new UnexpectedValueException("Invalid container contents");
+            }
+        }
+
+        foreach ($skills as $s) {
+            $cont->add_skill($s);
+        }
+
+        return $cont;
     }
 
     // utility methods
 
     // If we clone the container, we must clone all contents as well
     public function __clone() {
-        
+        foreach ($this->contents as $i => $thing) {
+            $this->contents[$i] = clone $thing;
+        }
     }
 }
 

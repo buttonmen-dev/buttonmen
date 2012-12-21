@@ -183,26 +183,107 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
      * @covers BMContainer::create_from_list
      * @requires testAdd_skill
      * @requires testAdd_thing
-     * @todo   Implement testCreate_from_list().
+     * @expectedException UnexpectedValueException
      */
     public function testCreate_from_list()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $cont = NULL;
+
+        // flat test
+        $cont = BMContainer::create_from_list(array(new BMDie));
+        $this->assertNotNull($cont);
+        $this->assertInstanceOf('BMContainer', $cont);
+        $this->assertNotEmpty($cont->contents);
+        $this->assertEquals(1, count($cont->contents));
+        $this->assertInstanceOf('BMDie', $cont->contents[0]);
+
+        $cont = NULL;
+
+        $cont = BMContainer::create_from_list(array(new BMDie, new BMContainer, new BMDieTesting));
+        $this->assertNotNull($cont);
+        $this->assertInstanceOf('BMContainer', $cont);
+        $this->assertNotEmpty($cont->contents);
+        $this->assertEquals(3, count($cont->contents));
+        $this->assertInstanceOf('BMDie', $cont->contents[0]);
+        $this->assertInstanceOf('BMContainer', $cont->contents[1]);
+        $this->assertInstanceOf('BMDieTesting', $cont->contents[2]);
+
+        // Preservation of sub-container contents
+        $cont2 = BMContainer::create_from_list(array(new BMContainer, new BMDie, $cont));
+        $this->assertEquals(3, count($cont2->contents));
+        $this->assertInstanceOf('BMContainer', $cont2->contents[0]);
+        $this->assertInstanceOf('BMDie', $cont2->contents[1]);
+        $this->assertInstanceOf('BMContainer', $cont2->contents[2]);
+        $this->assertEquals(3, count($cont2->contents[2]->contents));
+        $this->assertInstanceOf('BMDie', $cont2->contents[2]->contents[0]);
+        $this->assertInstanceOf('BMContainer', $cont2->contents[2]->contents[1]);
+        $this->assertInstanceOf('BMDieTesting', $cont2->contents[2]->contents[2]);
+
+        // Create new sub-containers from arrays
+        $cont2 = BMContainer::create_from_list(array(new BMDie, array(new BMDie, new BMDieTesting)));
+        $this->assertEquals(2, count($cont2->contents));
+        $this->assertEquals(2, count($cont2->contents[1]->contents));
+        $this->assertInstanceOf('BMDie', $cont2->contents[0]);
+        $this->assertInstanceOf('BMContainer', $cont2->contents[1]);
+        $this->assertInstanceOf('BMDie', $cont2->contents[1]->contents[0]);
+        $this->assertInstanceOf('BMDieTesting', $cont2->contents[1]->contents[1]);
+
+        $cont2 = BMContainer::create_from_list(array(new BMDie, array(new BMDie, array(new BMDieTesting, new BMContainer))));
+        $this->assertEquals(2, count($cont2->contents));
+        $this->assertEquals(2, count($cont2->contents[1]->contents));
+        $this->assertEquals(2, count($cont2->contents[1]->contents[1]->contents));
+        $this->assertInstanceOf('BMDie', $cont2->contents[0]);
+        $this->assertInstanceOf('BMContainer', $cont2->contents[1]);
+        $this->assertInstanceOf('BMDie', $cont2->contents[1]->contents[0]);
+        $this->assertInstanceOf('BMContainer', $cont2->contents[1]->contents[1]);
+        $this->assertInstanceOf('BMDieTesting', $cont2->contents[1]->contents[1]->contents[0]);
+        $this->assertInstanceOf('BMContainer', $cont2->contents[1]->contents[1]->contents[1]);
+
+
+        // skills
+        $cont = BMContainer::create_from_list(array(new BMDie), array("Testing"));
+        $this->assertTrue($cont->has_skill("Testing"));
+        $this->assertFalse($cont->has_skill("Testing2"));
+
+        $cont = BMContainer::create_from_list(array(new BMDie), array("Testing2"));
+        $this->assertTrue($cont->has_skill("Testing2"));
+        $this->assertFalse($cont->has_skill("Testing"));
+
+        $cont = BMContainer::create_from_list(array(new BMDie), array("Testing2", "Testing"));
+        $this->assertTrue($cont->has_skill("Testing"));
+        $this->assertTrue($cont->has_skill("Testing2"));
+
+
+        // Basic error modes -- rewrite to test with try/catch
+        $cont = BMContainer::create_from_list(array("thing"));
+        $this->assertNull($cont);
+
+        $cont = BMContainer::create_from_list(array(array("thing")));
+        $this->assertNull($cont);
+
+        // more complex error
+        $cont2 = NULL;
+        $cont2 = BMContainer::create_from_list(array(new BMDie, array(new BMDieTesting, array(new BMContainer, "thing")), new BMContainer, new BMDie));
+        $this->assertNull($cont2);
+
     }
 
     /**
      * @covers BMContainer::__clone
      * @requires testCreate_from_list
-     * @todo   Implement test__clone().
      */
     public function test__clone()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $list = array(new BMDie, new BMDie, new BMContainer);
+
+        $c1 = BMContainer::create_from_list($list);
+
+        $c2 = clone $c1;
+
+        $this->assertFalse($c1 === $c2, "Basic clone failed");
+
+        foreach ($c1->contents as $i => $thing) {
+            $this->assertFalse($thing === $c2->contents[$i], "Sub-clone failed");
+        }
     }
 }
