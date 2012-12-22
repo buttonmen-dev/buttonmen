@@ -479,8 +479,10 @@ class BMGame {
                 }
                 $this->maxWins = $value;
                 break;
-//            case 'gameState':
-//                break;
+            case 'gameState':
+                BMGameState::validate_game_state($value);
+                $this->gameState = $value;
+                break;
             default:
                 $this->$property = $value;
         }
@@ -524,6 +526,28 @@ class BMGameState {
 
     // end game
     const endGame = 60;
+
+    public static function validate_game_state($value) {
+        if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
+            throw new InvalidArgumentException(
+                'Game state must be an integer.');
+        }
+        if (!in_array($value, array(BMGameState::startGame,
+                                    BMGameState::applyHandicaps,
+                                    BMGameState::chooseAuxiliaryDice,
+                                    BMGameState::loadDiceIntoButtons,
+                                    BMGameState::specifyDice,
+                                    BMGameState::addAvailableDiceToGame,
+                                    BMGameState::determineInitiative,
+                                    BMGameState::startRound,
+                                    BMGameState::startTurn,
+                                    BMGameState::endTurn,
+                                    BMGameState::endRound,
+                                    BMGameState::endGame))) {
+            throw new InvalidArgumentException(
+                'Invalid game state.');
+        }
+    }
 }
 
 ?>
