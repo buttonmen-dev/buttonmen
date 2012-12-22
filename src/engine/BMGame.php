@@ -46,45 +46,52 @@ class BMGame {
                 break;
 
             case BMGameState::applyHandicaps:
-
+                // ignore for the moment
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
-
+                // if there are auxiliary dice, ask players to make decision
+                // update BMButton recipes
                 break;
 
             case BMGameState::loadDiceIntoButtons:
-
+                // load BMButton dieArrays from BMButton recipes
                 break;
 
             case BMGameState::specifyDice:
-
+                // specify swing, option, and plasma dice
+                // update BMButton dieArray
                 break;
 
             case BMGameState::addAvailableDiceToGame;
-
+                // load BMGame activeDieArrayArray from BMButton dieArray
                 break;
 
             case BMGameState::determineInitiative:
-
+                // roll dice
+                // determine initiative relevant dice
+                // determine initiative
+                // if there are focus or chance dice, determine if they might make a difference
+                // if so, then ask player to make decisions
+                // if no more decisions, then set BMGame playerWithInitiativeIdx
                 break;
 
             case BMGameState::startRound:
-
+                // set BMGame activePlayerIdx
                 break;
 
             case BMGameState::startTurn:
-
+                // display dice
+                // while invalid attack {ask player to select attack}
+                // perform attack by updating BMGame activeDieArrayArray
+                // reroll appropriate dice
+                $this->update_active_player();
                 break;
 
             case BMGameState::endTurn:
-
                 break;
 
             case BMGameState::endRound:
-                // score dice
-                // update game score
-
                 break;
 
             case BMGameState::endGame:
@@ -109,7 +116,10 @@ class BMGame {
                 break;
 
             case BMGameState::applyHandicaps:
-                assert(isset($this->maxWins));
+                if (!isset($this->maxWins)) {
+                    throw new LogicException(
+                        'maxWins must be set before applying handicaps.');
+                };
                 if (isset($this->gameScoreArray)) {
                     $nWins = 0;
                     foreach($this->gameScoreArray as $gameScore) {
@@ -188,8 +198,6 @@ class BMGame {
             case BMGameState::startTurn:
                 if ($this->is_valid_attack()) {
                     $this->gameState = BMGameState::endTurn;
-                    // james: this needs to be moved into the stage running code
-                    //$this->perform_attack();
                 }
                 break;
 
@@ -202,7 +210,6 @@ class BMGame {
                     unset($this->activeDieArrayArray);
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->change_active_player();
                 }
                 break;
 
@@ -211,6 +218,7 @@ class BMGame {
                 // update game score
                 $this->reset_play_state();
 
+                // deal with reserve dice
                 $this->gameState = BMGameState::loadDiceIntoButtons;
                 foreach ($this->gameScoreArray as $gameScore) {
                     if ($gameScore['W'] >= $this->maxWins) {
@@ -287,7 +295,7 @@ class BMGame {
         unset($this->roundScoreArray);
     }
 
-    private function change_active_player() {
+    private function update_active_player() {
         assert(isset($this->activePlayerIdx));
 
         // move to the next player
