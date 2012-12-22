@@ -98,7 +98,7 @@ class BMGame {
                 break;
 
             default:
-                throw new LogicException ('An undefined game state cannot be updated.');
+                throw new LogicException ('An undefined game state cannot be performed.');
                 break;
         }
     }

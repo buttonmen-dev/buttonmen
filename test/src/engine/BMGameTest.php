@@ -55,8 +55,120 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step
      */
+    public function test_do_next_step_apply_handicaps() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_choose_auxiliary_dice() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
     public function test_do_next_step_load_dice_into_buttons() {
         //$this->object->buttonArray
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_specify_dice() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_add_available_dice_to_game() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_determine_initiative() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_start_round() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_start_turn() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_end_turn() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_end_round() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_end_game() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_undefined() {
+        unset($this->object->gameState);
+        try {
+            $this->object->do_next_step();
+        }
+        catch (LogicException $expected) {
+        }
     }
 
     /**
