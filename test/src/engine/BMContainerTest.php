@@ -183,7 +183,6 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
      * @covers BMContainer::create_from_list
      * @requires testAdd_skill
      * @requires testAdd_thing
-     * @expectedException UnexpectedValueException
      */
     public function testCreate_from_list()
     {
@@ -253,18 +252,43 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($cont->has_skill("Testing"));
         $this->assertTrue($cont->has_skill("Testing2"));
 
-
         // Basic error modes -- rewrite to test with try/catch
-        $cont = BMContainer::create_from_list(array("thing"));
-        $this->assertNull($cont);
+        $fail = FALSE;
 
-        $cont = BMContainer::create_from_list(array(array("thing")));
-        $this->assertNull($cont);
+        try {
+            $cont = NULL;
+
+            $cont = BMContainer::create_from_list(array("thing"));
+            $this->assertNull($cont);
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+        $this->assertTrue($fail, "Bad contents didn't throw an exception.");
+
+        $fail = FALSE;
+
+        try {
+            $cont = BMContainer::create_from_list(array(array("thing")));
+            $this->assertNull($cont);
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+        $this->assertTrue($fail, "Bad contents didn't throw an exception.");
 
         // more complex error
-        $cont2 = NULL;
-        $cont2 = BMContainer::create_from_list(array(new BMDie, array(new BMDieTesting, array(new BMContainer, "thing")), new BMContainer, new BMDie));
-        $this->assertNull($cont2);
+        $fail = FALSE;
+
+        try {
+            $cont2 = NULL;
+            $cont2 = BMContainer::create_from_list(array(new BMDie, array(new BMDieTesting, array(new BMContainer, "thing")), new BMContainer, new BMDie));
+            $this->assertNull($cont2);
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+        $this->assertTrue($fail, "Bad contents didn't throw an exception.");
 
     }
 

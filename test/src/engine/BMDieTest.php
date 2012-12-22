@@ -204,7 +204,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
-     * @expectedException UnexpectedValueException
      */
     public function testCreate() {
         $die = BMDie::create(6, array());
@@ -212,7 +211,20 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(6, $die->max);
 
-        $die = BMDie::create(-15, array());
+        // expectedException aborts function execution when the
+        // exception is thrown, so doesn't work as part of a large
+        // blob of tests.
+
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(-15, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
 
         $this->assertEquals(6, $die->max);
         
