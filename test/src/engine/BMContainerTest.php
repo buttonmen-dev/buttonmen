@@ -153,6 +153,220 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         $this->assertFalse($this->object->has_skill("Testing3"));
     }
 
+
+    /**
+     * @covers BMContainer::list_dice
+     * @depends testAdd_thing
+     */
+    public function testList_dice() {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $die4 = new BMDie;
+
+        $dice = array(new BMDie, new BMDie, new BMDie);
+
+        $cont1 = new BMContainer;
+        $cont2 = new BMContainer;
+        $cont3 = new BMContainer;
+        $cont4 = new BMContainer;
+
+        $this->assertEmpty($cont1->list_dice());
+
+        foreach ($dice as $d) {
+            $cont1->add_thing($d);
+        }
+
+        $this->assertEquals(3, count($cont1->list_dice()));
+
+        foreach ($dice as $d) {
+            $tmp = $cont1->list_dice();
+
+            $count = 0;
+            foreach ($tmp as $listedDie) {
+                if ($d === $listedDie) { $count++; }
+            }
+            $this->assertEquals(1, $count);
+
+# This version of the above test fails, array_search returning 0 twice
+#  running. No clue why.
+#
+#            $target = array_search($d, $tmp);
+#            $this->assertFalse($target === FALSE);
+#
+#            $this->assertTrue($d === $tmp[$target]);
+        }
+
+        // Nested containers
+        $cont2->add_thing($die1);
+        $cont2->add_thing($cont1);
+
+        $dice[] = $die1;
+
+        $this->assertEquals(4, count($cont2->list_dice()));
+
+        foreach ($dice as $d) {
+            $tmp = $cont2->list_dice();
+
+            $count = 0;
+            foreach ($tmp as $listedDie) {
+                if ($d === $listedDie) { $count++; }
+            }
+            $this->assertEquals(1, $count);
+        }
+
+        // Multi-level nesting
+        $cont3->add_thing($die2);
+        $cont3->add_thing($cont2);
+        $cont3->add_thing($die3);
+
+        $dice[] = $die2;
+        $dice[] = $die3;
+
+        $this->assertEquals(6, count($cont3->list_dice()));
+
+        foreach ($dice as $d) {
+            $tmp = $cont3->list_dice();
+
+            $count = 0;
+            foreach ($tmp as $listedDie) {
+                if ($d === $listedDie) { $count++; }
+            }
+            $this->assertEquals(1, $count);
+        }
+
+        // Multiple containers on same level
+        $cont4->add_thing($die4);
+        $cont3->add_thing($cont4);
+        $dice[] = $die4;
+
+
+        $this->assertEquals(7, count($cont3->list_dice()));
+
+        foreach ($dice as $d) {
+            $tmp = $cont3->list_dice();
+
+            $count = 0;
+            foreach ($tmp as $listedDie) {
+                if ($d === $listedDie) { $count++; }
+            }
+            $this->assertEquals(1, $count);
+        }
+    }
+
+    /**
+     * @covers BMContainer::count_dice
+     * @depends testList_dice
+     * @depends testAdd_thing
+     */
+    public function testCount_dice() {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $die4 = new BMDie;
+
+        $dice = array(new BMDie, new BMDie, new BMDie);
+
+        $cont1 = new BMContainer;
+        $cont2 = new BMContainer;
+        $cont3 = new BMContainer;
+        $cont4 = new BMContainer;
+
+        $this->assertEquals(0, $this->object->count_dice());
+
+        foreach ($dice as $d) {
+            $cont1->add_thing($d);
+        }
+
+        $this->assertEquals(3, $cont1->count_dice());
+
+        // Nested containers
+        $cont2->add_thing($die1);
+        $cont2->add_thing($cont1);
+
+
+        $this->assertEquals(4, $cont2->count_dice());
+
+
+        // Multi-level nesting
+        $cont3->add_thing($die2);
+        $cont3->add_thing($cont2);
+        $cont3->add_thing($die3);
+
+        $this->assertEquals(6, $cont3->count_dice());
+
+        // Multiple containers on same level
+        $cont4->add_thing($die4);
+        $cont3->add_thing($cont4);
+
+
+        $this->assertEquals(7, $cont3->count_dice());
+    }
+
+    /**
+     * @covers BMContainer::count_skill
+     * @depends testAdd_skill
+     * @depends testHas_skill
+     * @depends testAdd_thing
+     */
+    public function testCount_skill()
+    {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $cont = new BMContainer;
+
+        // Trivial case
+        $this->assertEquals(0, $this->object->count_skill("Testing"));
+        $this->assertEquals(0, $this->object->count_skill("Testing2"));
+
+        // Non-existent skill
+        $this->assertEquals(0, $this->object->count_skill("Untested"));
+
+        $this->object->add_thing($die1);
+        $this->object->add_thing($die2);
+
+        $die1->add_skill("Testing");
+
+        $this->assertEquals(1, $this->object->count_skill("Testing"));
+
+        $die2->add_skill("Testing");
+
+        $this->assertEquals(2, $this->object->count_skill("Testing"));
+
+        $die2->add_skill("Testing2");
+
+        $this->assertEquals(1, $this->object->count_skill("Testing2"));
+
+        // Nested containers
+
+        $die3->add_skill("Testing");
+        $cont->add_thing($die3);
+        $this->object->add_thing($cont);
+
+        $this->assertEquals(3, $this->object->count_skill("Testing"));
+        $this->assertEquals(1, $this->object->count_skill("Testing2"));
+
+        // Skills on containers do count
+        $cont->add_skill("Testing2");
+        $this->assertEquals(3, $this->object->count_skill("Testing"));
+        $this->assertEquals(2, $this->object->count_skill("Testing2"));
+
+        // Add some more dice, the ones in the skilled container pick
+        // up the skill
+        $this->object->add_thing(new BMDie);
+        $cont->add_thing(new BMDie);
+        $cont->add_thing(new BMDie);
+        $this->assertEquals(3, $cont->count_skill("Testing2"));
+        $this->assertEquals(3, $this->object->count_skill("Testing"));
+        $this->assertEquals(4, $this->object->count_skill("Testing2"));
+
+        // But redundant skills only count once
+        $this->object->add_skill("Testing2");
+        $this->assertEquals(3, $this->object->count_skill("Testing"));
+        $this->assertEquals(6, $this->object->count_skill("Testing2"));
+    }
+
     /**
      * @covers BMContainer::remove_skill
      * @depends testAdd_skill

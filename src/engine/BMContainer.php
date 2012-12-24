@@ -62,6 +62,51 @@ class BMContainer {
 
     }
 
+    public function count_dice() {
+        return count($this->list_dice());
+    }
+
+    public function list_dice() {
+        $list = array();
+
+        foreach ($this->contents as $thing) {
+            if (is_a($thing, "BMDie")) {
+                $list[] = $thing;
+            }
+            else {
+                $list = array_merge($list, $thing->list_dice());
+            }
+        }
+        return $list;
+    }
+
+
+    // Counts how many dice within the container have the requested skill
+    //
+    // This is the theoretical count. Certain subclasses of
+    // BMContainer could confuse the issue.
+    public function count_skill($skill) {
+        $total = 0;
+
+        if ($this->has_skill($skill)) {
+            $total = $this->count_dice();
+        }
+        else {
+            foreach ($this->contents as $thing) {
+                if (is_a($thing, "BMContainer")) {
+                    $total += $thing->count_skill($skill);
+                } else {
+                    if ($thing->has_skill($skill)) {
+                        $total++;
+                    }
+                }
+            }
+        }
+        return $total;
+    }
+
+
+
     // create the container from an array of dice and containers if
     // any elements of the array are themselves arrays, we will make
     // them as containers. Skills will only be added to the outermost

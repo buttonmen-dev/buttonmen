@@ -612,7 +612,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($dice[0] === $dice[1]);
         $this->assertTrue($this->object === $dice[0]);
         $this->assertNotEquals($dice[0]->max, $dice[1]->max);
-        var_dump($dice[0]->max);
+
         // The order of arguments for assertGreaterThan is screwy.
         $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
         $this->assertEquals(4, $dice[0]->max);
