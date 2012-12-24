@@ -14,6 +14,7 @@ class BMGame {
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
     private $attack;                // array(attacking_die_idx, target_die_idx, attack type)
+    private $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
@@ -42,7 +43,6 @@ class BMGame {
                     $this->activate_GUI('Prompt for button ID');
                 }
 
-
                 break;
 
             case BMGameState::applyHandicaps:
@@ -50,8 +50,34 @@ class BMGame {
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
-                // if there are auxiliary dice, ask players to make decision
-                // update BMButton recipes
+                $auxiliaryDice = '';
+                // create list of auxiliary dice
+                foreach ($this->buttonArray as $tempButton) {
+                    if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
+                        $auxiliaryDice = $auxiliaryDice.' '.
+                                         (BMGame::separate_out_auxiliary_dice(
+                                              $tempButton->recipe)[1]);
+                    }
+                }
+                $auxiliaryDice = trim($auxiliaryDice);
+                // update $auxiliaryDice based on player choices
+                $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
+
+                //james: default is to accept all auxiliary dice
+
+                // update all button recipes and remove auxiliary markers
+                if (!empty($auxiliaryDice)) {
+                    for ($buttonIdx = 0;
+                         $buttonIdx <= (count($this->buttonArray) - 1);
+                         $buttonIdx++) {
+                        $separatedDice = BMGame::separate_out_auxiliary_dice
+                                             ($this->buttonArray[$buttonIdx]->recipe);
+                        $this->buttonArray[$buttonIdx]->recipe =
+                            $separatedDice[0].' '.$auxiliaryDice;
+                        var_dump($auxiliaryDice);
+                    }
+                }
+                $this->save_game_to_database();
                 break;
 
             case BMGameState::loadDiceIntoButtons:
@@ -245,6 +271,27 @@ class BMGame {
         }
     }
 
+    public static function separate_out_auxiliary_dice($recipe) {
+        $dieRecipeArray = explode(' ', $recipe);
+
+        $nonAuxiliaryDice = '';
+        $auxiliaryDice = '';
+
+        foreach ($dieRecipeArray as $dieRecipe) {
+            if (FALSE === strpos($dieRecipe, '+')) {
+                $nonAuxiliaryDice = $nonAuxiliaryDice.$dieRecipe.' ';
+            } else {
+                $strippedDieRecipe = str_replace('+', '', $dieRecipe);
+                $auxiliaryDice = $auxiliaryDice.$strippedDieRecipe.' ';
+            }
+        }
+
+        $nonAuxiliaryDice = trim($nonAuxiliaryDice);
+        $auxiliaryDice = trim($auxiliaryDice);
+
+        return array($nonAuxiliaryDice, $auxiliaryDice);
+    }
+
     // james: parts of this function needs to be moved to the BMDie class
     public static function is_die_specified($die) {
         // A die can be unspecified if it is swing, option, or plasma.
@@ -265,6 +312,11 @@ class BMGame {
     }
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {
+        // currently acts as a placeholder
+        $this->save_game_to_database();
+    }
+
+    private function save_game_to_database() {
         // currently acts as a placeholder
     }
 

@@ -66,10 +66,41 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_choose_auxiliary_dice() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::chooseAuxiliaryDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals($recipe1, $this->object->buttonArray[0]->recipe);
+        $this->assertEquals($recipe2, $this->object->buttonArray[1]->recipe);
+
+        $this->object->gameState = BMGameState::chooseAuxiliaryDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) +(30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals('(4) (8) (12) (30)', $this->object->buttonArray[0]->recipe);
+        $this->assertEquals('(6) (12) (20) (20) (30)', $this->object->buttonArray[1]->recipe);
+
+        $this->object->gameState = BMGameState::chooseAuxiliaryDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) +(30)';
+        $recipe2 = '(6)+ (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals('(4) (8) (12) (30) (6)', $this->object->buttonArray[0]->recipe);
+        $this->assertEquals('(12) (20) (20) (30) (6)', $this->object->buttonArray[1]->recipe);
     }
 
     /**
@@ -506,6 +537,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(BMGame::does_recipe_have_auxiliary_dice('(4) (8) (12) (20)'));
 
         $this->assertTrue(BMGame::does_recipe_have_auxiliary_dice('(4) (8) (12) +(20)'));
+    }
+
+    /**
+     * @covers BMGame::separate_out_auxiliary_dice
+     */
+    public function test_separate_out_auxiliary_dice() {
+        $recipe = '(4) (12) (16) (20)';
+        $this->assertEquals(array($recipe, ''),
+                            BMGame::separate_out_auxiliary_dice($recipe));
+
+        $recipe = '(4) +(12) (16) (20)+';
+        $this->assertEquals(array('(4) (16)', '(12) (20)'),
+                            BMGame::separate_out_auxiliary_dice($recipe));
     }
 
     /**
