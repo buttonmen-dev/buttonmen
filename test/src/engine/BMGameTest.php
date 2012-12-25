@@ -150,7 +150,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             fail('The player who has won initiative must already have been determined.');
         }
         catch (LogicException $expected) {
-
         }
 
         $this->object->gameState = BMGameState::startRound;
@@ -190,10 +189,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_end_round() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->playerIdxArray = array(12345, 54321);
+        $this->object->playerWithInitiativeIdx = 1;
+        $this->object->activePlayerIdx = 0;
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->passStatusArray = array(TRUE, TRUE);
+        $this->object->roundScoreArray = array(26.5, -26.5);
+        $this->object->maxWins = 3;
+        $this->object->gameScoreArrayArray = array(array(1,2,1), array(2,1,1));
+        $this->object->gameState = BMGameState::endRound;
+        $this->object->do_next_step();
+        $this->assertFalse(isset($this->object->activePlayerIdx));
+        $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
+        $this->assertFalse(isset($this->object->activeDieArrayArray));
+        $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
+        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertFalse(isset($this->object->roundScoreArray));
     }
 
     /**
@@ -245,7 +258,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::applyHandicaps, $this->object->gameState);
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
         $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
-                            $this->object->gameScoreArray);
+                            $this->object->gameScoreArrayArray);
     }
 
     /**
@@ -269,7 +282,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->playerIdxArray = array('12345', '54321');
         $this->object->gameState = BMGameState::applyHandicaps;
-        $this->object->gameScoreArray = array(array(0, 0, 0),array(0, 0, 0));
+        $this->object->gameScoreArrayArray = array(array(0, 0, 0),array(0, 0, 0));
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::chooseAuxiliaryDice,
@@ -277,7 +290,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->playerIdxArray = array('12345', '54321');
         $this->object->gameState = BMGameState::applyHandicaps;
-        $this->object->gameScoreArray = array(array(3, 0, 0),array(0, 3, 0));
+        $this->object->gameScoreArrayArray = array(array(3, 0, 0),array(0, 3, 0));
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endGame, $this->object->gameState);
@@ -501,25 +514,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_end_round() {
-        $this->object->playerIdxArray = array(12345, 54321);
-        $this->object->activePlayerIdx = 0;
-        $die1 = new BMDie;
-        $die2 = new BMDie;
-        $this->object->activeDieArrayArray = array(array($die1), array($die2));
-        $this->object->passStatusArray = array(TRUE, TRUE);
-        $this->object->maxWins = 3;
-        $this->object->gameScoreArray = array(array(1,2,1),
-                                              array(2,1,1));
         $this->object->gameState = BMGameState::endRound;
+        $this->object->gameScoreArrayArray = array(array(2,1,2), array(1,2,2));
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::loadDiceIntoButtons, $this->object->gameState);
-        $this->assertFalse(isset($this->object->activePlayerIdx));
-        $this->assertFalse(isset($this->object->activeDieArrayArray));
-        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
 
+        $this->object->activePlayerIdx = 0;
+        $this->object->gameState = BMGameState::endRound;
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::endRound, $this->object->gameState);
+
+        unset($this->object->activePlayerIdx);
         $this->object->maxWins = 5;
-        $this->object->gameScoreArray = array(array(5,2,1),
-                                              array(2,5,1));
+        $this->object->gameScoreArrayArray = array(array(5,2,1),
+                                                   array(2,5,1));
         $this->object->gameState = BMGameState::endRound;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endGame, $this->object->gameState);
@@ -803,7 +811,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__set
      */
-    public function test__set_game_score_array() {
+    public function test__set_game_score_array_array() {
         $this->object->playerIdxArray = array(12345, 54321);
         $die1 = new BMDie;
         $die2 = new BMDie;
@@ -811,17 +819,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($die1, $this->object->dieArrayArray[0][0]);
         $this->assertEquals($die2, $this->object->dieArrayArray[1][0]);
 
-        $this->object->gameScoreArray = array(array(2,1,1), array(1,2,1));
+        $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2,1));
 
         try {
-            $this->object->gameScoreArray = array(array(2,1,1), array(1,2));
+            $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2));
             $this->fail('W/L/D must be three numbers.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->gameScoreArray = array(array(2,1,1));
+            $this->object->gameScoreArrayArray = array(array(2,1,1));
             $this->fail('There must be the same number of players and game scores.');
         }
         catch (InvalidArgumentException $expected) {

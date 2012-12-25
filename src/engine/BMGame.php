@@ -18,7 +18,7 @@ class BMGame {
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
-    private $gameScoreArray;        // number of games W/T/L for all players
+    private $gameScoreArrayArray;   // number of games W/T/L for all players
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
 
@@ -123,6 +123,10 @@ class BMGame {
                 break;
 
             case BMGameState::endRound:
+                // score dice using BMDie->scoreValue()
+                // update game score
+                $this->reset_play_state();
+                $this->save_game_to_database();
                 break;
 
             case BMGameState::endGame:
@@ -142,7 +146,7 @@ class BMGame {
                     isset($this->buttonArray)) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->passStatusArray = array(FALSE, FALSE);
-                    $this->gameScoreArray = array(array(0, 0, 0), array(0, 0, 0));
+                    $this->gameScoreArrayArray = array(array(0, 0, 0), array(0, 0, 0));
                 }
                 break;
 
@@ -151,11 +155,11 @@ class BMGame {
                     throw new LogicException(
                         'maxWins must be set before applying handicaps.');
                 };
-                if (isset($this->gameScoreArray)) {
+                if (isset($this->gameScoreArrayArray)) {
                     $nWins = 0;
-                    foreach($this->gameScoreArray as $gameScore) {
-                        if ($nWins < $gameScore['W']) {
-                            $nWins = $gameScore['W'];
+                    foreach($this->gameScoreArrayArray as $gameScoreArray) {
+                        if ($nWins < $gameScoreArray['W']) {
+                            $nWins = $gameScoreArray['W'];
                         }
                     }
                     if ($nWins >= $this->maxWins) {
@@ -245,14 +249,13 @@ class BMGame {
                 break;
 
             case BMGameState::endRound:
-                // score dice
-                // update game score
-                $this->reset_play_state();
-
+                if (isset($this->activePlayerIdx)) {
+                    break;
+                }
                 // deal with reserve dice
                 $this->gameState = BMGameState::loadDiceIntoButtons;
-                foreach ($this->gameScoreArray as $gameScore) {
-                    if ($gameScore['W'] >= $this->maxWins) {
+                foreach ($this->gameScoreArrayArray as $gameScoreArray) {
+                    if ($gameScoreArray['W'] >= $this->maxWins) {
                         $this->gameState = BMGameState::endGame;
                         break;
                     }
@@ -347,8 +350,8 @@ class BMGame {
             $tempPassStatusArray[] = FALSE;
             $tempCapturedDiceArray[] = array();
         }
-        $this->passStatusArray = $tempPassStatusArray;
         $this->capturedDieArrayArray = $tempCapturedDiceArray;
+        $this->passStatusArray = $tempPassStatusArray;
         unset($this->roundScoreArray);
     }
 
@@ -514,7 +517,7 @@ class BMGame {
                 }
                 $this->roundScoreArray = $value;
                 break;
-            case 'gameScoreArray':
+            case 'gameScoreArrayArray':
                 if (!is_array($value) ||
                     count($this->playerIdxArray) !== count($value)) {
                     throw new InvalidArgumentException(
@@ -532,7 +535,7 @@ class BMGame {
                                                    'L' => $value[$playerIdx][1],
                                                    'D' => $value[$playerIdx][2]);
                 }
-                $this->gameScoreArray = $tempArray;
+                $this->gameScoreArrayArray = $tempArray;
                 break;
             case 'maxWins':
                 if (FALSE === filter_var($value,
