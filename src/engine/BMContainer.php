@@ -22,8 +22,34 @@ class BMContainer {
     // Make the container's special choices, then activate the
     // appropriate contents, adding the container's skills to them
     // first
+    //
+    // Dice return activated versions of themselves. Containers feed
+    // the activated dice to the game and return NULL
+    //
+    // I don't like the differing semantics, but the containers can't
+    // accumulate all the dice and then return them to the game
+    // because that would leave the list of to-be-activated dice
+    // inaccessible by other dice. If they're in the game, they can be
+    // looked at and manipulated as necessary.
+    //
+    // possible rework: activate takes &$dlist = NULL as third
+    // param. If it's null, the container makes one, so the outermost
+    // container's list is being used for all subcontainers. Cleans up
+    // most of the semantics, but doesn't actually gain functionality.
+    // (Seems to complicate the process of getting dice out to the game.)
     public function activate($game, $owner) {
-
+        foreach ($this->contents as $thing) {
+            foreach ($this->skillList as $skill => $class) {
+                $thing->add_skill($skill);
+            }
+            $a = $thing->activate($game, $owner);
+            
+            // only dice return anything from activation
+            if ($a) {
+                $game->add_die($owner, $a);
+            }
+        }
+        return NULL;
     }
 
     // add a die or container to the end of the container

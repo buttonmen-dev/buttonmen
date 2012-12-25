@@ -31,4 +31,13 @@ class BMContTesting extends BMContainer {
 
 }
 
+class DummyGame {
+    public $dice = array();
+
+    public function add_die($player, $die) {
+        $this->dice[] = array($player, $die);
+    }
+
+}
+
 ?>
