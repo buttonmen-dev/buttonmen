@@ -63,7 +63,7 @@ class BMGame {
                 // update $auxiliaryDice based on player choices
                 $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
 
-                //james: default is to accept all auxiliary dice
+                //james: current default is to accept all auxiliary dice
 
                 // update all button recipes and remove auxiliary markers
                 if (!empty($auxiliaryDice)) {
@@ -74,14 +74,14 @@ class BMGame {
                                              ($this->buttonArray[$buttonIdx]->recipe);
                         $this->buttonArray[$buttonIdx]->recipe =
                             $separatedDice[0].' '.$auxiliaryDice;
-                        var_dump($auxiliaryDice);
                     }
                 }
                 $this->save_game_to_database();
                 break;
 
             case BMGameState::loadDiceIntoButtons:
-                // load BMButton dieArrays from BMButton recipes
+                // currently, the BMButton activeDieArrays are automatically loaded
+                // when the BMButton recipes are changed
                 break;
 
             case BMGameState::specifyDice:
@@ -94,16 +94,21 @@ class BMGame {
                 break;
 
             case BMGameState::determineInitiative:
-                // roll dice
-                // determine initiative relevant dice
-                // determine initiative
+                // roll all dice using BMDie->first_roll()
+                // determine initiative relevant dice by using BMDie->initiative_value()
+                // determine player that has won initiative
                 // if there are focus or chance dice, determine if they might make a difference
                 // if so, then ask player to make decisions
-                // if no more decisions, then set BMGame playerWithInitiativeIdx
+                // if no more decisions, then set BMGame->playerWithInitiativeIdx
                 break;
 
             case BMGameState::startRound:
+                if (!isset($this->playerWithInitiativeIdx)) {
+                    throw new LogicException(
+                        'Player that has won initiative must already have been determined.');
+                }
                 // set BMGame activePlayerIdx
+                $this->activePlayerIdx = $this->playerWithInitiativeIdx;
                 break;
 
             case BMGameState::startTurn:

@@ -27,6 +27,8 @@ class BMButton {
         // set die sides and skills, one die at a time
         for ($dieIdx = 0, $count = count($dieSides);
              $dieIdx <= $count - 1; $dieIdx++) {
+            // james: this will probably be replaced by a call to
+            // BMDie::create_from_string
             $tempBMDie = new BMDie;
             $tempBMDie->mSides = $dieSides[$dieIdx];
             if (!empty($dieSkills[$dieIdx])) {
@@ -37,6 +39,7 @@ class BMButton {
     }
 
     public function load_from_name($name) {
+        // james:
         // The implementation here is currently a stub that always returns the
         // recipe of Bauer. This will eventually be replaced by a database call
         // to retrieve the recipe, and then a recipe set for the current button.
@@ -74,8 +77,7 @@ class BMButton {
         }
 
         foreach ($dieArray as $die) {
-            // ideally, we want to shift this functionality to the
-            // and then we just validate each die individually
+        // james: this validation is probably incomplete
             $dieContainsSides = preg_match('/\(.+\)/', $die);
             if (1 !== $dieContainsSides) {
                 throw new InvalidArgumentException('Invalid button recipe.');

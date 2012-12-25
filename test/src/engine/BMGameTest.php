@@ -144,10 +144,26 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_start_round() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::startRound;
+        try {
+            $this->object->do_next_step();
+            fail('The player who has won initiative must already have been determined.');
+        }
+        catch (LogicException $expected) {
+
+        }
+
+        $this->object->gameState = BMGameState::startRound;
+        $this->object->playerWithInitiativeIdx = 0;
+        $this->object->do_next_step();
+        $this->assertEquals($this->object->playerWithInitiativeIdx,
+                            $this->object->activePlayerIdx);
+
+        $this->object->gameState = BMGameState::startRound;
+        $this->object->playerWithInitiativeIdx = 1;
+        $this->object->do_next_step();
+        $this->assertEquals($this->object->playerWithInitiativeIdx,
+                            $this->object->activePlayerIdx);
     }
 
     /**
