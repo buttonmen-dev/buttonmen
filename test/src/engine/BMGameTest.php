@@ -213,10 +213,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_end_game() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::endGame;
+        $this->object->activePlayerIdx = 1;
+        $this->object->do_next_step();
+        $this->assertFalse(isset($this->object->activePlayerIdx));
     }
 
     /**
