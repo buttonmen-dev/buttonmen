@@ -122,7 +122,7 @@ class BMDie
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)
-    public function init($sides, $skills)
+    public function init($sides, $skills = array())
     {
         $this->min = 1;
         $this->max = $sides;
