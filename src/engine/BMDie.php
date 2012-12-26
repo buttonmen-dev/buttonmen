@@ -537,17 +537,41 @@ class BMDie
 }
 
 class BMSwingDie extends BMDie {
-# validation logic:
-#                    $ord("R") <= $ord($recipe) &&
-#                    $ord($recipe) <= $ord("Z")
     public $swingType;
     public $swingValue;
+    public $swingMax;
+    public $swingMin;
     protected $needsValue = TRUE;
+    protected $valueRequested = FALSE;
 
     // To allow correct behavior for turbo and mood swings that get
     // cut in half.
     protected $divosor = 1;
     protected $remainder = 0;
+
+
+    // Don't really like putting data in the code, but where else
+    // should it go?
+    //
+    // Should be a constant, but that isn't allowed. Instead, we wrap
+    // it in a method
+    private static $swingRanges = array(
+        "R"	=> array(2, 16),
+        "S"	=> array(6, 20),
+        "T"	=> array(2, 12),
+        "U"	=> array(8, 30),
+        "V"	=> array(6, 12),
+        "W"	=> array(4, 12),
+        "X"	=> array(4, 20),
+        "Y"	=> array(1, 20),
+        "Z"	=> array(4, 30));
+
+    public static function swing_range($type) {
+        if (array_key_exists($type, self::$swingRanges)) {
+            return self::$swingRanges[$type];
+        }
+        return NULL;
+    }
 
     public function init($type, $skills = array()) {
         $this->min = 1;
@@ -555,6 +579,13 @@ class BMSwingDie extends BMDie {
         $this->needsValue = TRUE;
 
         $this->swingType = $type;
+
+        $range = $this->swing_range($type);
+        if (is_null($range)) {
+            throw new UnexpectedValueException("Invalid swing type: $type");
+        }
+        $this->swingMin = $range[0];
+        $this->swingMax = $range[1];
 
         foreach ($skills as $s)
         {
@@ -578,36 +609,41 @@ class BMSwingDie extends BMDie {
 
     }
 
+    // Can let the parent do the work for us.
     public function activate($game, $owner) {
-        $newDie = clone $this;
+        $newDie = parent::activate($game, $owner);
 
-        $newDie->game = $game;
-        $newDie->owner = $owner;
-
-        $this->run_hooks(__FUNCTION__, array($newDie));
+        // The clone is the one going into the game, so it's the one
+        // that needs a swing value to be set.
+        $game->request_swing_values($newDie, $newDie->swingType);
+        $this->valueRequested = TRUE;
 
         return $newDie;
     }
 
     public function first_roll()
     {
-        $newDie = clone $this;
+        // Get swing value from the game before cloning, so it's saved
+        // from round to round.
+        while ($this->needsValue) {
+            $this->game->require_values();
+        }
 
-        $newDie->roll(FALSE);
-
-        $this->run_hooks(__FUNCTION__, array($newDie));
-
-        return $newDie;
+        return parent::first_roll();
     }
+
+
 
     public function roll($successfulAttack)
     {
-
-        if ($this->doesReroll) {
-            $this->value = mt_rand($this->min, $this->max);
+        while($this->needsValue) {
+            if (!$this->valueRequested) {
+                $this->game->request_swing_values($this, $this->swingType);
+            }
+            $this->game->require_values();
         }
 
-        $this->run_hooks(__FUNCTION__, array($successfulAttack));
+        parent::roll($successfulAttack);
     }
 
 // Print long description

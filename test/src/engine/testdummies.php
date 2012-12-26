@@ -42,6 +42,12 @@ class DummyGame {
         $this->dice[] = array($player, $die);
     }
 
+    public $swingrequest;
+
+    public function request_swing_values($die, $swingtype) {
+        $this->swingrequest = array($die, $swingtype);
+    }
+
 }
 
 ?>
