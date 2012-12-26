@@ -719,3 +719,84 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
 }
+
+class BMSwingDieTest extends PHPUnit_Framework_TestCase {
+
+    /**
+     * @var BMSwingDie
+     */
+    protected $object;
+
+    /**
+     * Sets up the fixture, for example, opens a network connection.
+     * This method is called before a test is executed.
+     */
+    protected function setUp() {
+        $this->object = new BMSwingDie;
+    }
+
+    /**
+     * Tears down the fixture, for example, closes a network connection.
+     * This method is called after a test is executed.
+     */
+    protected function tearDown() {
+
+    }
+
+    public function testInit () {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    public function testCreate() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    public function testActivate () {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    public function testFirst_roll() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    public function testDescribe() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    public function testSplit() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    public function testSet_swingValue() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+}

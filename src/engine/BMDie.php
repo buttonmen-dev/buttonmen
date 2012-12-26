@@ -539,6 +539,81 @@ class BMSwingDie extends BMDie {
 # validation logic:
 #                    $ord("R") <= $ord($recipe) &&
 #                    $ord($recipe) <= $ord("Z")
+    public $swingType;
+    public $swingValue;
+    protected $needsValue = TRUE;
+
+    public function init($type, $skills = array()) {
+
+    }
+
+    public static function create($recipe, $skills = array()) {
+        throw new UnexpectedValueException("Invalid recipe: $recipe");
+
+    }
+
+    public function activate($game, $owner) {
+        $newDie = clone $this;
+
+        $newDie->game = $game;
+        $newDie->owner = $owner;
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        return $newDie;
+    }
+
+    public function first_roll()
+    {
+        $newDie = clone $this;
+
+        $newDie->roll(FALSE);
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        return $newDie;
+    }
+
+    public function roll($successfulAttack)
+    {
+
+        if ($this->doesReroll) {
+            $this->value = mt_rand($this->min, $this->max);
+        }
+
+        $this->run_hooks(__FUNCTION__, array($successfulAttack));
+    }
+
+// Print long description
+    public function describe()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function split()
+    {
+        $newdie = clone $this;
+
+        if ($newdie->max > 1) {
+            $remainder = $newdie->max % 2;
+            $newdie->max -= $remainder;
+            $newdie->max = $newdie->max / 2;
+            $this->max -= $newdie->max;
+        }
+
+        $dice = array($this, $newdie);
+
+        $this->run_hooks(__FUNCTION__, array(&$dice));
+
+        return $dice;
+    }
+
+    public function set_swingValue($swingList) {
+
+    }
+
+
+
 }
 
 class BMWildcardDie extends BMDie {
