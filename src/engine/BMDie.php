@@ -175,7 +175,8 @@ class BMDie
     }
 
     public static function create($size, $skills) {
-        if ($size < 1 || $size > 99) {
+        if (!is_numeric($size) || ($size != (int)$size) ||
+            $size < 1 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
         }
 
@@ -543,12 +544,37 @@ class BMSwingDie extends BMDie {
     public $swingValue;
     protected $needsValue = TRUE;
 
+    // To allow correct behavior for turbo and mood swings that get
+    // cut in half.
+    protected $divosor = 1;
+    protected $remainder = 0;
+
     public function init($type, $skills = array()) {
+        $this->min = 1;
+
+        $this->needsValue = TRUE;
+
+        $this->swingType = $type;
+
+        foreach ($skills as $s)
+        {
+            $this->add_skill($s);
+        }
 
     }
 
     public static function create($recipe, $skills = array()) {
-        throw new UnexpectedValueException("Invalid recipe: $recipe");
+        
+        if (!is_string($recipe) || strlen($recipe) != 1 || 
+            ord("R") > ord($recipe) || ord($recipe) > ord("Z")) {
+            throw new UnexpectedValueException("Invalid recipe: $recipe");
+        }
+
+        $die = new BMSwingDie;
+
+        $die->init($recipe, $skills);
+
+        return $die;
 
     }
 

@@ -1,5 +1,9 @@
 <?php
 
+require_once "engine/BMDie.php";
+require_once "engine/BMSkill.php";
+require_once "engine/BMContainer.php";
+
 // well defined skill classes with which to test
 class BMSkillTesting extends BMSkill {
     public static $hooked_methods = array("test");

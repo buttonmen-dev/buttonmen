@@ -227,7 +227,78 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
 
         $this->assertEquals(6, $die->max);
-        
+
+        $fail = FALSE;
+
+        // try some more bad values
+        try {
+            $die = BMDie::create(1023, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(0, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(100, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
+        $fail = FALSE;
+
+        // downright illegal values
+        try {
+            $die = BMDie::create("thing", array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create("4score", array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(2.718, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create("thing8", array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
     }
 
     /**
@@ -720,83 +791,4 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
 }
 
-class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
-    /**
-     * @var BMSwingDie
-     */
-    protected $object;
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp() {
-        $this->object = new BMSwingDie;
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
-
-    }
-
-    public function testInit () {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testCreate() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testActivate () {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testFirst_roll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testDescribe() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testSplit() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testSet_swingValue() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-}
