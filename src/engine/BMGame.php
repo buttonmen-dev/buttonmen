@@ -82,8 +82,10 @@ class BMGame {
                 break;
 
             case BMGameState::loadDiceIntoButtons:
-                // currently, the BMButton activeDieArrays are automatically loaded
-                // when the BMButton recipes are changed
+                // load clean version of the buttons from their recipes
+                for ($buttonIdx = 0; $buttonIdx < count($this->buttonArray); $buttonIdx++) {
+                    $this->buttonArray[$buttonIdx]->reload();
+                }
                 break;
 
             case BMGameState::specifyDice:
@@ -458,10 +460,6 @@ class BMGame {
         } else {
             return FALSE;
         }
-    }
-
-    private function perform_attack() {
-        // currently just a placeholder
     }
 
     private function reset_play_state() {

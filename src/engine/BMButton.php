@@ -38,6 +38,10 @@ class BMButton {
         }
     }
 
+    public function reload() {
+        $this->load_from_recipe($this->recipe);
+    }
+
     public function load_from_name($name) {
         // james:
         // The implementation here is currently a stub that always returns the

@@ -106,6 +106,29 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMButton::reload
+     */
+    public function test_reload() {
+        // button recipes using dice with no special skills
+        $recipe = '(4) (8) (20) (20)';
+        $this->object->load_from_recipe($recipe);
+        $this->assertEquals(4, count($this->object->dieArray));
+        // empty the array manually
+        $this->object->dieArray = array();
+        // force reload
+        $this->object->reload();
+        $this->assertEquals(4, count($this->object->dieArray));
+
+        $dieSides = array(4, 8, 20, 20);
+        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+          $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
+          $this->assertEquals($dieSides[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSides);
+        }
+
+    }
+
+    /**
      * @covers BMButton::load_from_name
      * @covers BMButton::__set
      */
