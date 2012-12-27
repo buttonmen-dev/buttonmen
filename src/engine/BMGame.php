@@ -95,15 +95,93 @@ class BMGame {
                 foreach ($this->buttonArray as $tempButton) {
                     $this->activeDieArrayArray[] = $tempButton->dieArray;
                 }
+
+                // roll all dice to give them values
+                for ($playerIdx = 0;
+                     $playerIdx <= count($this->activeDieArrayArray) - 1;
+                     $playerIdx++) {
+                    for ($dieIdx = 0;
+                         $dieIdx <= count($this->activeDieArrayArray[$playerIdx]) - 1;
+                         $dieIdx++) {
+                        // james: the following code requires the original dice
+                        // to be rolled, not cloned
+                        //$this->activeDieArrayArray[$playerIdx][$dieIdx]->first_roll();
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                            $this->activeDieArrayArray[$playerIdx][$dieIdx]->first_roll();
+                    }
+                }
                 break;
 
             case BMGameState::determineInitiative:
-                // roll all dice using BMDie->first_roll()
-                // determine initiative relevant dice by using BMDie->initiative_value()
+                $initiativeArrayArray = array();
+                for ($playerIdx = 0;
+                     $playerIdx <= count($this->activeDieArrayArray) - 1;
+                     $playerIdx++) {
+                    $initiativeArrayArray[] = array();
+                    for ($dieIdx = 0;
+                         $dieIdx <= count($this->activeDieArrayArray[$playerIdx]) - 1;
+                         $dieIdx++) {
+                        // update initiative arrays if die counts for initiative
+                        $tempInitiative = $this->activeDieArrayArray[$playerIdx][$dieIdx]->
+                                                   initiative_value();
+                        if ($tempInitiative > 0) {
+                            $initiativeArrayArray[$playerIdx][] = $tempInitiative;
+                        }
+                    }
+                    sort($initiativeArrayArray[$playerIdx]);
+                }
+
                 // determine player that has won initiative
+                $nPlayers = count($this->playerIdxArray);
+                $doesPlayerHaveInitiative = array();
+                for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
+                    $doesPlayerHaveInitiative[] = TRUE;
+                }
+
+                $dieIdx = 0;
+                while (array_sum($doesPlayerHaveInitiative) >= 2) {
+                    $dieValues = array();
+                    foreach($initiativeArrayArray as $initiativeArray) {
+                        if (isset($initiativeArray[$dieIdx])) {
+                            $dieValues[] = $initiativeArray[$dieIdx];
+                        } else {
+                            $dieValues[] = PHP_INT_MAX;
+                        }
+                    }
+                    $minDieValue = min($dieValues);
+                    if (PHP_INT_MAX === $minDieValue) {
+                        break;
+                    }
+                    for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
+                        if ($dieValues[$playerIdx] > $minDieValue) {
+                            $doesPlayerHaveInitiative[$playerIdx] = FALSE;
+                        }
+                    }
+                    $dieIdx++;
+                }
+                if (array_sum($doesPlayerHaveInitiative) > 1) {
+                    $playersWithInitiative = array();
+                    for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
+                        if ($doesPlayerHaveInitiative[$playerIdx]) {
+                            $playersWithInitiative[] = $playerIdx;
+                        }
+                    }
+                    $tempPlayerWithInitiativeIdx = array_rand($playersWithInitiative);
+                } else {
+                    $tempPlayerWithInitiativeIdx =
+                        array_search(TRUE, $doesPlayerHaveInitiative, TRUE);
+                }
+
+                // james: not yet programmed
                 // if there are focus or chance dice, determine if they might make a difference
-                // if so, then ask player to make decisions
+                if (FALSE) {
+                    // if so, then ask player to make decisions
+                    $this->activate_GUI('ask_player_about_focus_dice');
+                    break;
+                }
+
                 // if no more decisions, then set BMGame->playerWithInitiativeIdx
+                $this->playerWithInitiativeIdx = $tempPlayerWithInitiativeIdx;
                 break;
 
             case BMGameState::startRound:

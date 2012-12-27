@@ -136,16 +136,47 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array($this->object->buttonArray[0]->dieArray,
                                   $this->object->buttonArray[1]->dieArray),
                             $this->object->activeDieArrayArray);
+        $this->assertNotNull($this->object->activeDieArrayArray[0][0]->value);
     }
 
     /**
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_determine_initiative() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(1, array());
+        $die1->value = 1;
+        $die2 = BMDie::create(2, array());
+        $die2->value = 2;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->do_next_step();
+        $this->assertEquals(0, $this->object->playerWithInitiativeIdx);
+
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(2, array());
+        $die1->value = 2;
+        $die2 = BMDie::create(1, array());
+        $die2->value = 1;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->do_next_step();
+        $this->assertEquals(1, $this->object->playerWithInitiativeIdx);
+
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(1, array());
+        $die1->value = 1;
+        $die2 = BMDie::create(1, array());
+        $die2->value = 1;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $playerWithInitiativeStore = array();
+        for ($runIdx = 1; $runIdx <= 50; $runIdx++) {
+            unset($this->object->playerWithInitiativeIdx);
+            $this->object->do_next_step();
+            $playerWithInitiativeStore[] = $this->object->playerWithInitiativeIdx;
+        }
+        $this->assertGreaterThanOrEqual(0, min($playerWithInitiativeStore));
+        $this->assertLessThanOrEqual(1, max($playerWithInitiativeStore));
+        $this->assertTrue(in_array(0, $playerWithInitiativeStore));
+        $this->assertTrue(in_array(1, $playerWithInitiativeStore));
     }
 
     /**
