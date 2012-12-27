@@ -91,6 +91,10 @@ class BMGame {
 
             case BMGameState::addAvailableDiceToGame;
                 // load BMGame activeDieArrayArray from BMButton dieArray
+                $this->activeDieArrayArray = array();
+                foreach ($this->buttonArray as $tempButton) {
+                    $this->activeDieArrayArray[] = $tempButton->dieArray;
+                }
                 break;
 
             case BMGameState::determineInitiative:

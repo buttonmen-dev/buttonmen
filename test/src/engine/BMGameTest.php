@@ -124,10 +124,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_add_available_dice_to_game() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::addAvailableDiceToGame;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals(array($this->object->buttonArray[0]->dieArray,
+                                  $this->object->buttonArray[1]->dieArray),
+                            $this->object->activeDieArrayArray);
     }
 
     /**
