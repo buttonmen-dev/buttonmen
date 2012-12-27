@@ -13,7 +13,9 @@ class BMGame {
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
-    private $attack;                // array(attacking_die_idx, target_die_idx, attack type)
+    private $attack;                // array('attackingPlayerIdx', 'targetPlayerIdx',
+                                    //       'attackingDieIdxArray', 'targetDieIdxArray',
+                                    //       'attackType')
     private $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
@@ -177,6 +179,7 @@ class BMGame {
                 if (FALSE) {
                     // if so, then ask player to make decisions
                     $this->activate_GUI('ask_player_about_focus_dice');
+                    $this->save_game_to_database();
                     break;
                 }
 
@@ -195,9 +198,42 @@ class BMGame {
 
             case BMGameState::startTurn:
                 // display dice
+                $this->activate_GUI('show_active_dice');
+
                 // while invalid attack {ask player to select attack}
-                // perform attack by updating BMGame activeDieArrayArray
-                // reroll appropriate dice
+                while (!$this->is_valid_attack()) {
+                    $this->activate_GUI('wait_for_attack');
+                    $this->save_game_to_database();
+                    break;
+                }
+
+                // perform attack
+                // update $this->activeDieArrayArray
+                // update $this->attack['attackingDieIdxArray']
+                // update $this->attack['targetDieIdxArray']
+                // update $isAttackSuccessful
+                $isAttackSuccessful = TRUE;
+
+
+                // reroll all dice involved in the attack that are still active
+                $attackingPlayerIdx = $this->attack['attackingPlayerIdx'];
+                $attackingDieIdxArray = $this->attack['attackingDieIdxArray'];
+                for ($dieIdx = 0;
+                     $dieIdx <= count($attackingDieIdxArray) - 1;
+                     $dieIdx++) {
+                    $this->activeDieArrayArray[$attackingPlayerIdx][
+                               $attackingDieIdxArray[$dieIdx]]->roll($isAttackSuccessful);
+                }
+
+                $targetPlayerIdx = $this->attack['targetPlayerIdx'];
+                $targetDieIdxArray = $this->attack['targetDieIdxArray'];
+                for ($dieIdx = 0;
+                     $dieIdx <= count($targetDieIdxArray) - 1;
+                     $dieIdx++) {
+                    $this->activeDieArrayArray[$targetPlayerIdx][
+                               $targetDieIdxArray[$dieIdx]]->roll($isAttackSuccessful);
+                }
+
                 $this->update_active_player();
                 break;
 
@@ -553,15 +589,23 @@ class BMGame {
                 $this->activeDieArrayArray = $value;
                 break;
             case 'attack':
-                if (!is_array($value) || (3 !== count($value))) {
+                if (!is_array($value) || (5 !== count($value))) {
                     throw new InvalidArgumentException(
-                        'There must be exactly three elements in attack.');
+                        'There must be exactly five elements in attack.');
                 }
-                if (!is_array($value[0]) || !is_array($value[1])) {
+                if (!is_integer($value[0]) || !is_integer($value[1])) {
                     throw new InvalidArgumentException(
-                        'The first two elements in attack must be arrays.');
+                        'The first and second elements in attack must be integers.');
                 }
-                $this->attack = $value;
+                if (!is_array($value[2]) || !is_array($value[3])) {
+                    throw new InvalidArgumentException(
+                        'The third and fourth elements in attack must be arrays.');
+                }
+                $this->attack = array('attackingPlayerIdx' => $value[0],
+                                      'targetPlayerIdx' => $value[1],
+                                      'attackingDieIdxArray' => $value[2],
+                                      'targetDieIdxArray' => $value[3],
+                                      'attackType' => $value[4]);
                 break;
             case 'passStatusArray':
                 if ((!is_array($value)) ||

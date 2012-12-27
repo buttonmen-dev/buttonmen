@@ -208,10 +208,30 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_start_turn() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::startTurn;
+        $this->object->activePlayerIdx = 0;
+        $die1 = BMDie::create(30, array());
+        $die2 = BMDie::create(20, array());
+        $die3 = BMDie::create(16, array());
+        $die1ValueStore = array();
+        $die2ValueStore = array();
+        $die3ValueStore = array();
+        for ($runIdx = 0; $runIdx <= 20; $runIdx++) {
+            $die1->value = 1;
+            $die2->value = 1;
+            $die3->value = 2;
+            $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                       array($die3));
+            $this->object->attack = array(0, 1, array(0, 1), array(0), 'skill');
+            $this->object->do_next_step();
+            $die1ValueStore[] = $die1->value;
+            $die2ValueStore[] = $die2->value;
+            $die3ValueStore[] = $die3->value;
+        }
+        // check that dice have all rerolled
+        $this->assertTrue(max($die1ValueStore) > 1);
+        $this->assertTrue(max($die2ValueStore) > 1);
+        $this->assertTrue(max($die3ValueStore) > 2);
     }
 
     /**
@@ -480,7 +500,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
 
         $this->object->gameState = BMGameState::startTurn;
-        $this->object->attack = array(array(), array(), '');
+        $this->object->attack = array(0, 1, array(), array(), '');
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endTurn, $this->object->gameState);
         //james: need to check that the attack has been carried out
@@ -649,7 +669,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($method->invoke($this->object));
 
         // check with a pass attack
-        $this->object->attack = array(array(), array(), '');
+        $this->object->attack = array(0, 1, array(), array(), '');
         $this->assertTrue($method->invoke($this->object));
 
         // james: need to add test cases for invalid attacks
@@ -915,32 +935,46 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test__set_attack() {
         try {
             $this->object->attack = array(array(1), array(2));
-            $this->fail('There must be exactly three elements in attack.');
+            $this->fail('There must be exactly five elements in attack.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(1, array(2), '');
-            $this->fail('The first element of attack must be an array.');
+            $this->object->attack = array(array(1), 2, array(1), array(2), '');
+            $this->fail('The first element of attack must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(array(1), 2, '');
-            $this->fail('The second element of attack must be an array.');
+            $this->object->attack = array(1, array(2), array(11), array(12), '');
+            $this->fail('The second element of attack must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
-        // james: add test about third element of attack
+        try {
+            $this->object->attack = array(1, 2, 1, array(2), '');
+            $this->fail('The third element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(1, 2, array(11), 12, '');
+            $this->fail('The fourth element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        // james: add test about fifth element of attack
 
         // check that a pass attack is valid
-        $this->object->attack = array(array(), array(), '');
+        $this->object->attack = array(0, 1, array(), array(), '');
 
         // check that a skill attack is valid
-        $this->object->attack = array(array(0, 5), array(2), 'skill');
+        $this->object->attack = array(0, 1, array(0, 5), array(2), 'skill');
     }
 
     /**
