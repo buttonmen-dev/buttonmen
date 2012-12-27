@@ -48,6 +48,10 @@ class DummyGame {
         $this->swingrequest = array($die, $swingtype);
     }
 
+    public function require_values() {
+        throw new Exception("require_values called");
+    }
+
 }
 
 ?>

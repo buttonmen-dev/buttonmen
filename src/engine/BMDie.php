@@ -546,7 +546,7 @@ class BMSwingDie extends BMDie {
 
     // To allow correct behavior for turbo and mood swings that get
     // cut in half.
-    protected $divosor = 1;
+    protected $divisor = 1;
     protected $remainder = 0;
 
 
@@ -654,23 +654,53 @@ class BMSwingDie extends BMDie {
 
     public function split()
     {
-        $newdie = clone $this;
+        $this->divisor *= 2;
 
-        if ($newdie->max > 1) {
-            $remainder = $newdie->max % 2;
-            $newdie->max -= $remainder;
-            $newdie->max = $newdie->max / 2;
-            $this->max -= $newdie->max;
+        $dice = parent::split();
+
+        if ($this->max > $dice[1]->max) {
+            $this->remainder = 1;
         }
-
-        $dice = array($this, $newdie);
-
-        $this->run_hooks(__FUNCTION__, array(&$dice));
 
         return $dice;
     }
 
     public function set_swingValue($swingList) {
+        $valid = FALSE;
+
+        if (!array_key_exists($this->swingType, $swingList)) {
+            return FALSE;
+        }
+
+        $sides = $swingList[$this->swing];
+
+        if ($sides < $this->swing_range($this->swingType)[0] ||
+            $sides > $this->swing_range($this->swingType)[1]) {
+            return FALSE;
+        }
+
+        $this->run_hooks(__FUNCTION__, array(&$valid, $swingList));
+
+        if ($valid) {
+            $this->swingValue = $sides;
+
+            // correctly handle cut-in-half swing dice, however many
+            // times they may have been cut
+            for($i = $this->divisor; $i > 1; $i /= 2) {
+                if ($sides > 1) {
+                    $rem = $sides % 2;
+                    $sides -= $rem;
+                    $sides /= 2;
+                    if ($rem && $this->remainder) {
+                        $sides += 1;
+                    }
+                }
+
+            }
+            $this->max = $sides;
+        }
+
+        return $valid;
 
     }
 

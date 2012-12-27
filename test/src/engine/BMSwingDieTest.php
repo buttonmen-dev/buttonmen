@@ -184,7 +184,9 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
-    public function testRoll() {
+    /**
+     */
+    public function testSplit() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
@@ -193,6 +195,31 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testInit
+     * @depends testSplit
+     */
+    public function testSet_swingValue() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+    /**
+     * @depends testSet_swingValue
+     */
+    public function testRoll() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+
+    }
+
+
+    /**
+     * @depends testSet_swingValue
      * @depends testRoll
      */
     public function testFirst_roll() {
@@ -204,22 +231,6 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testDescribe() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testSplit() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    public function testSet_swingValue() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
                 'This test has not been implemented yet.'
