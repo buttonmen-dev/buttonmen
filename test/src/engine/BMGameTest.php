@@ -614,6 +614,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::proceed_to_next_user_action
+     */
+    public function test_proceed_to_next_user_action() {
+        $this->object->gameState = BMGameState::endGame;
+        $this->object->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::endGame, $this->object->gameState);
+
+        // james: this needs to be completed
+    }
+
+    /**
      * @covers BMGame::does_recipe_have_auxiliary_dice
      */
     public function test_does_recipe_have_auxiliary_dice() {
@@ -695,6 +706,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->passStatusArray = array(TRUE, TRUE);
         $this->object->capturedDieArrayArray = array(array($BMDie3), array($BMDie4));
         $this->object->roundScoreArray = array(40, -25);
+        $this->object->waitingOnActionArray = array(FALSE, TRUE);
 
         $method->invoke($this->object);
         $this->assertFalse(isset($this->object->activePlayerIdx));
@@ -703,6 +715,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
         $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
         $this->assertFalse(isset($this->object->roundScoreArray));
+        $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
     }
 
     /**
@@ -740,6 +753,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('', $game->buttonArray[0]->recipe);
         $this->assertEquals('', $game->buttonArray[1]->recipe);
         $this->assertEquals(3, $game->maxWins);
+        $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
 
         // construct valid game
         $gameId = 2745;
@@ -751,6 +765,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($buttonRecipeArray[0], $game->buttonArray[0]->recipe);
         $this->assertEquals($buttonRecipeArray[1], $game->buttonArray[1]->recipe);
         $this->assertEquals($maxWins, $game->maxWins);
+        $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
 
         // construct invalid game
         $gameId = 2745;
@@ -772,10 +787,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // check that a nonexistent property can be gotten gracefully
         $this->assertEquals(NULL, $this->object->nonsenseVariable);
 
-        $die1 = new BMDie;
-        $die2 = new BMDie;
-        $this->object->buttonArray = array($die1, $die2);
-        $this->assertEquals(array($die1, $die2), $this->object->buttonArray);
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $this->object->buttonArray = array($button1, $button2);
+        $this->assertEquals(array($button1, $button2), $this->object->buttonArray);
     }
 
     /**
@@ -855,13 +870,28 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test__set_button_array() {
         $game = new BMGame(12345, array(123, 456), array('', ''), 3);
 
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $button3 = new BMButton;
+
+        $button1->load_from_recipe('p(23)');
+        $button2->load_from_recipe('s(58)');
+        $button3->load_from_recipe('(4) (8)');
+
         // valid set
-        $game->buttonArray = array('p(23)', 's(58)');
+        $game->buttonArray = array($button1, $button2);
 
         // invalid set
         try {
-            $game->buttonArray = array('', '', '');
+            $game->buttonArray = array($button1, $button2, $button3);
             $this->fail('The number of buttons must match the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $game->buttonArray = array('(45)', '(23)');
+            $this->fail('The buttonArray must contain BMButtons.');
         }
         catch (InvalidArgumentException $expected) {
         }
@@ -1070,6 +1100,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
         catch (InvalidArgumentException $expected) {
         }
+
+        try {
+            $this->object->roundScoreArray = array('abc', 'def');
+            $this->fail('The round scores much be numeric.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
     /**
@@ -1113,6 +1150,31 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->gameState = 0;
             $this->fail('Invalid game state.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_waiting_on_action_array() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // invalid set
+        try {
+            $game->waitingOnActionArray = array(TRUE, FALSE, FALSE);
+            $this->fail('The action array must match the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $game->waitingOnActionArray = array(1, 2);
+            $this->fail('The action array must contain booleans.');
         }
         catch (InvalidArgumentException $expected) {
         }

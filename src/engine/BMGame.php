@@ -23,6 +23,7 @@ class BMGame {
     private $gameScoreArrayArray;   // number of games W/T/L for all players
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
+    private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
 
     // methods
     public function do_next_step() {
@@ -397,6 +398,16 @@ class BMGame {
         }
     }
 
+    public function proceed_to_next_user_action() {
+        while (0 === array_sum($this->waitingOnActionArray)) {
+            $this->update_game_state();
+            $this->do_next_step();
+            if (BMGameState::endGame === $this->gameState) {
+                break;
+            }
+        }
+    }
+
     public static function does_recipe_have_auxiliary_dice($recipe) {
         if (FALSE === strpos($recipe, '+')) {
             return FALSE;
@@ -468,12 +479,15 @@ class BMGame {
         unset($this->activeDieArrayArray);
         $tempPassStatusArray = array();
         $tempCapturedDiceArray = array();
+        $tempWaitingOnActionArray = array();
         foreach ($this->playerIdxArray as $playerIdx) {
             $tempPassStatusArray[] = FALSE;
             $tempCapturedDiceArray[] = array();
+            $tempWaitingOnActionArray[] = FALSE;
         }
         $this->capturedDieArrayArray = $tempCapturedDiceArray;
         $this->passStatusArray = $tempPassStatusArray;
+        $this->waitingOnActionArray = $tempWaitingOnActionArray;
         unset($this->roundScoreArray);
     }
 
@@ -496,6 +510,10 @@ class BMGame {
         }
         $this->gameId = $gameID;
         $this->playerIdxArray = $playerIdxArray;
+        $this->waitingOnActionArray = array();
+        foreach ($this->playerIdxArray as $tempPlayerIdx) {
+            $this->waitingOnActionArray[] = FALSE;
+        }
         foreach ($buttonRecipeArray as $recipe) {
             $tempButton = new BMButton;
             $tempButton->load_from_recipe($recipe);
@@ -564,6 +582,12 @@ class BMGame {
                     count($value) !== count($this->playerIdxArray)) {
                     throw new InvalidArgumentException(
                         'Number of buttons must equal the number of players.');
+                }
+                foreach ($value as $valueElement) {
+                    if (!is_a($valueElement, 'BMButton')) {
+                        throw new InvalidArgumentException(
+                            'Input must be an array of BMButtons.');
+                    }
                 }
                 $this->buttonArray = $value;
                 break;
@@ -645,6 +669,17 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'There must be one round score for each player.');
                 }
+                foreach ($value as $valueElement) {
+                    if (FALSE === filter_var($valueElement, FILTER_VALIDATE_FLOAT)) {
+                        throw new InvalidArgumentException(
+                            'Round scores must be numeric.');
+                    }
+                }
+                if (FALSE === filter_var($value,
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0))))
+
                 $this->roundScoreArray = $value;
                 break;
             case 'gameScoreArrayArray':
@@ -680,6 +715,20 @@ class BMGame {
             case 'gameState':
                 BMGameState::validate_game_state($value);
                 $this->gameState = $value;
+                break;
+            case 'waitingOnActionArray':
+                if (!is_array($value) ||
+                    count($value) !== count($this->playerIdxArray)) {
+                    throw new InvalidArgumentException(
+                        'Number of actions must equal the number of players.');
+                }
+                foreach ($value as $valueElement) {
+                    if (!is_bool($valueElement)) {
+                        throw new InvalidArgumentException(
+                            'Input must be an array of booleans.');
+                    }
+                }
+                $this->waitingOnActionArray = $value;
                 break;
             default:
                 $this->$property = $value;
