@@ -97,22 +97,12 @@ class BMGame {
             case BMGameState::addAvailableDiceToGame;
                 // load BMGame activeDieArrayArray from BMButton dieArray
                 $this->activeDieArrayArray = array();
-                foreach ($this->buttonArray as $tempButton) {
-                    $this->activeDieArrayArray[] = $tempButton->dieArray;
-                }
+                foreach ($this->buttonArray as $buttonIdx => $tempButton) {
+                    $this->activeDieArrayArray[$buttonIdx] = array();
 
-                // roll all dice to give them values
-                for ($playerIdx = 0;
-                     $playerIdx <= count($this->activeDieArrayArray) - 1;
-                     $playerIdx++) {
-                    for ($dieIdx = 0;
-                         $dieIdx <= count($this->activeDieArrayArray[$playerIdx]) - 1;
-                         $dieIdx++) {
-                        // james: the following code requires the original dice
-                        // to be rolled, not cloned
-                        //$this->activeDieArrayArray[$playerIdx][$dieIdx]->first_roll();
-                        $this->activeDieArrayArray[$playerIdx][$dieIdx] =
-                            $this->activeDieArrayArray[$playerIdx][$dieIdx]->first_roll();
+                    foreach ($tempButton->dieArray as $tempDie) {
+                        $this->activeDieArrayArray[$buttonIdx][] =
+                            $tempDie->first_roll();
                     }
                 }
                 break;

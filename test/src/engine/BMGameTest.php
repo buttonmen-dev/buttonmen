@@ -621,7 +621,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::endGame, $this->object->gameState);
 
-        // james: this needs to be completed
+        // james: need to complete this
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
     }
 
     /**
