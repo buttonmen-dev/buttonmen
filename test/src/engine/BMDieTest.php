@@ -398,10 +398,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testRoll
      * @depends testInit
      */
-    public function testFirst_roll() {
+    public function testMake_play_die() {
         $this->object->init(6, array());
 
-        $newDie = $this->object->first_roll();
+        $newDie = $this->object->make_play_die();
 
         $this->assertInstanceOf('BMDie', $newDie);
 
@@ -412,7 +412,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->value = $newDie->value;
 
-        $this->assertFalse(($this->object === $newDie), "first_roll returned the same object.");
+        $this->assertFalse(($this->object === $newDie), "make_play_die returned the same object.");
     }
 
     public function testAttack_list() {

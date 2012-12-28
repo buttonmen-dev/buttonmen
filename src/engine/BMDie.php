@@ -208,7 +208,7 @@ class BMDie
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
-    public function first_roll()
+    public function make_play_die()
     {
         $newDie = clone $this;
 
@@ -625,7 +625,7 @@ class BMSwingDie extends BMDie {
         return $newDie;
     }
 
-    public function first_roll()
+    public function make_play_die()
     {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
@@ -633,7 +633,7 @@ class BMSwingDie extends BMDie {
             $this->game->require_values();
         }
 
-        return parent::first_roll();
+        return parent::make_play_die();
     }
 
 

@@ -488,7 +488,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
      * @depends testSet_swingValue
      * @depends testRoll
      */
-    public function testFirst_roll() {
+    public function testMake_play_die() {
         $game = new DummyGame;
 
         $this->object->init("X");
@@ -499,7 +499,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $ex = FALSE;
         try {
-            $newDie->first_roll();
+            $newDie->make_play_die();
         } catch (Exception $e) {
             $ex = TRUE;
         }
@@ -514,7 +514,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $ex = FALSE;
         try {
-            $rolledDie = $newDie->first_roll();
+            $rolledDie = $newDie->make_play_die();
         } catch (Exception $e) {
             $ex = TRUE;
         }
