@@ -576,6 +576,9 @@ class BMSwingDie extends BMDie {
     public function init($type, $skills = array()) {
         $this->min = 1;
 
+        $this->divisor = 1;
+        $this->remainder = 0;
+
         $this->needsValue = TRUE;
 
         $this->swingType = $type;
@@ -655,6 +658,7 @@ class BMSwingDie extends BMDie {
     public function split()
     {
         $this->divisor *= 2;
+        $this->remainder = 0;
 
         $dice = parent::split();
 
@@ -666,16 +670,15 @@ class BMSwingDie extends BMDie {
     }
 
     public function set_swingValue($swingList) {
-        $valid = FALSE;
+        $valid = TRUE;
 
         if (!array_key_exists($this->swingType, $swingList)) {
             return FALSE;
         }
 
-        $sides = $swingList[$this->swing];
+        $sides = $swingList[$this->swingType];
 
-        if ($sides < $this->swing_range($this->swingType)[0] ||
-            $sides > $this->swing_range($this->swingType)[1]) {
+        if ($sides < $this->swingMin || $sides > $this->swingMax) {
             return FALSE;
         }
 
