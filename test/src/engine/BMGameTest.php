@@ -108,7 +108,23 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_load_dice_into_buttons() {
-        //$this->object->buttonArray
+        $this->object->gameState = BMGameState::loadDiceIntoButtons;
+
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $dieArray1 = $button1->dieArray;
+        $dieArray2 = $button2->dieArray;
+        $button1->dieArray = array();
+        $button2->dieArray = array();
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+
+        $this->assertEquals($dieArray1, $this->object->buttonArray[0]->dieArray);
+        $this->assertEquals($dieArray2, $this->object->buttonArray[1]->dieArray);
     }
 
     /**
@@ -765,7 +781,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // the gameScoreArrayArray must remain unset until BMGameState::applyHandicaps
         $this->assertTrue(!isset($this->object->gameScoreArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
-        $this->assertEquals(array(), $game->lastWinnerIdxArray);
+        $this->assertEquals(array(FALSE, FALSE), $game->lastWinnerIdxArray);
 
         // construct valid game
         $gameId = 2745;

@@ -91,8 +91,10 @@ class BMGame {
             case BMGameState::loadDiceIntoButtons:
                 // load clean version of the buttons from their recipes
                 // if the player has not just won a round
-                foreach ($this->buttonArray as $tempButton) {
-                    $tempButton->reload();
+                foreach ($this->buttonArray as $playerIdx => $tempButton) {
+                    if (!$this->lastWinnerIdxArray[$playerIdx]) {
+                        $tempButton->reload();
+                    }
                 }
                 break;
 
@@ -243,10 +245,6 @@ class BMGame {
                 }
                 $this->activate_GUI('Show end-of-game screen.');
                 break;
-
-            default:
-                throw new LogicException('An undefined game state cannot be performed.');
-                break;
         }
     }
 
@@ -380,10 +378,6 @@ class BMGame {
 
             case BMGameState::endGame:
                 break;
-
-            default:
-                throw new LogicException ('An undefined game state cannot be updated.');
-                break;
         }
     }
 
@@ -503,7 +497,7 @@ class BMGame {
             $this->buttonArray[] = $tempButton;
         }
         $this->maxWins = $maxWins;
-        $this->lastWinnerIdxArray = array();
+        $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     // to allow array elements to be set directly, change the __get to &__get
