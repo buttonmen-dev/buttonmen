@@ -636,9 +636,7 @@ class BMSwingDie extends BMDie {
         return parent::make_play_die();
     }
 
-
-
-    public function roll($successfulAttack = false)
+    public function roll($successfulAttack = FALSE)
     {
         if ($this->needsValue) {
             if (!$this->valueRequested) {
