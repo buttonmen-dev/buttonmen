@@ -250,11 +250,6 @@ class BMAttackPower extends BMAttack {
         // Need to implement this method or replace it with something
         // equivalent
         foreach ($game->attacker_dice() as $die) {
-            if (array_search($die, $attackers)) {
-                // Attackers can't help their own attack
-                next;
-            }
-
             $helpVals = $die->assist_attack($this->name, $attackers, $defenders);
             if ($helpVals[0] != 0) {
                 $helpers[] = $helpVals;

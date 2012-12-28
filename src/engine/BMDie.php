@@ -311,7 +311,13 @@ class BMDie
     // It does not assume that the values are positive, even though
     // they must be at the moment.
     public function assist_values($type, $attackers, $defenders) {
+
         $vals = array(0);
+
+        // Attackers can't help their own attack
+        if (array_search($this, $attackers)) {
+            return $vals;
+        }
 
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$vals));
 
