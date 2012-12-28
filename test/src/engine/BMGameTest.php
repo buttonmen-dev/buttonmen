@@ -777,7 +777,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
         $maxWins = 5;
         try {
-            $game = new BMGame($playerIdxArray, $buttonRecipeArray, $maxWins);
+            $game = new BMGame($gameId, $playerIdxArray, $buttonRecipeArray, $maxWins);
             $this->fail('The number of buttons must equal the number of players.');
         }
         catch (InvalidArgumentException $expected) {

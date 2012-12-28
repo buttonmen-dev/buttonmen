@@ -21,18 +21,17 @@ class BMButton {
             return;
         }
 
-        $dieSides = $this->parse_recipe_for_sides($recipe);
-        $dieSkills = $this->parse_recipe_for_skills($recipe);
+        $dieSidesArray = $this->parse_recipe_for_sides($recipe);
+        $dieSkillsArray = $this->parse_recipe_for_skills($recipe);
 
         // set die sides and skills, one die at a time
-        for ($dieIdx = 0, $count = count($dieSides);
-             $dieIdx <= $count - 1; $dieIdx++) {
+        foreach ($dieSidesArray as $dieIdx => $tempDieSides) {
             // james: this will probably be replaced by a call to
             // BMDie::create_from_string
             $tempBMDie = new BMDie;
-            $tempBMDie->mSides = $dieSides[$dieIdx];
-            if (!empty($dieSkills[$dieIdx])) {
-                $tempBMDie->mSkills = $dieSkills[$dieIdx];
+            $tempBMDie->mSides = $tempDieSides;
+            if (!empty($tempDieSides)) {
+                $tempBMDie->mSkills = $dieSkillsArray[$dieIdx];
             }
             $this->dieArray[] = $tempBMDie;
         }
@@ -51,25 +50,18 @@ class BMButton {
         $this->recipe = '(8) (10) (12) (20) (X)';
     }
 
-    public function load_values($valueArray) {
-        if ((!isset($this->dieArray)) |
-            (count($this->dieArray) != count($valueArray))) {
+    public function load_values(array $valueArray) {
+        if (count($this->dieArray) != count($valueArray)) {
             throw new InvalidArgumentException('Invalid number of values.');
         }
 
-        for ($dieIdx = 0, $count = count($valueArray);
-             $dieIdx <= $count - 1; $dieIdx++) {
-            if (($valueArray[$dieIdx] < 1) |
-                ($valueArray[$dieIdx] > $this->dieArray[$dieIdx]->mSides)) {
+        foreach ($valueArray as $dieIdx => $tempValue) {
+            if (($tempValue < 1) |
+                ($tempValue > $this->dieArray[$dieIdx]->mSides)) {
                 throw new InvalidArgumentException('Invalid values.');
             }
+            $this->dieArray[$dieIdx]->value = $tempValue;
         }
-
-        for ($dieIdx = 0, $count = count($valueArray);
-             $dieIdx <= $count - 1; $dieIdx++) {
-            $this->dieArray[$dieIdx]->value = $valueArray[$dieIdx];
-        }
-
     }
 
     private function validate_recipe($recipe) {
@@ -80,9 +72,9 @@ class BMButton {
             return;
         }
 
-        foreach ($dieArray as $die) {
+        foreach ($dieArray as $tempDie) {
         // james: this validation is probably incomplete
-            $dieContainsSides = preg_match('/\(.+\)/', $die);
+            $dieContainsSides = preg_match('/\(.+\)/', $tempDie);
             if (1 !== $dieContainsSides) {
                 throw new InvalidArgumentException('Invalid button recipe.');
             }
@@ -93,13 +85,11 @@ class BMButton {
         // split by spaces
         $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
 
-        for ($dieIdx = 0; $dieIdx < count($dieSizeArray); $dieIdx++) {
+        foreach ($dieSizeArray as $dieIdx => $tempDieSize) {
             // remove everything before the opening parenthesis
-            $dieSizeArray[$dieIdx] = preg_replace('/^.*\(/', '',
-                                                  $dieSizeArray[$dieIdx]);
+            $tempDieSize = preg_replace('/^.*\(/', '', $tempDieSize);
             // remove everything after the closing parenthesis
-            $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '',
-                                                  $dieSizeArray[$dieIdx]);
+            $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '', $tempDieSize);
         }
 
         return $dieSizeArray;
@@ -110,9 +100,8 @@ class BMButton {
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
 
         // remove everything within parentheses
-        for ($dieIdx = 0; $dieIdx < count($dieSkillArray); $dieIdx++) {
-            $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '',
-                                                  $dieSkillArray[$dieIdx]);
+        foreach ($dieSkillArray as $dieIdx => $tempDieSkill) {
+            $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '', $tempDieSkill);
         }
 
         return $dieSkillArray;

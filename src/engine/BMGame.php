@@ -70,13 +70,10 @@ class BMGame {
 
                 // update all button recipes and remove auxiliary markers
                 if (!empty($auxiliaryDice)) {
-                    for ($buttonIdx = 0;
-                         $buttonIdx <= (count($this->buttonArray) - 1);
-                         $buttonIdx++) {
+                    foreach ($this->buttonArray as $buttonIdx => $tempButton) {
                         $separatedDice = BMGame::separate_out_auxiliary_dice
-                                             ($this->buttonArray[$buttonIdx]->recipe);
-                        $this->buttonArray[$buttonIdx]->recipe =
-                            $separatedDice[0].' '.$auxiliaryDice;
+                                             ($tempButton->recipe);
+                        $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
                     }
                 }
                 $this->save_game_to_database();
@@ -84,8 +81,8 @@ class BMGame {
 
             case BMGameState::loadDiceIntoButtons:
                 // load clean version of the buttons from their recipes
-                for ($buttonIdx = 0; $buttonIdx < count($this->buttonArray); $buttonIdx++) {
-                    $this->buttonArray[$buttonIdx]->reload();
+                foreach ($this->buttonArray as $tempButton) {
+                    $tempButton->reload();
                 }
                 break;
 
@@ -109,16 +106,11 @@ class BMGame {
 
             case BMGameState::determineInitiative:
                 $initiativeArrayArray = array();
-                for ($playerIdx = 0;
-                     $playerIdx <= count($this->activeDieArrayArray) - 1;
-                     $playerIdx++) {
+                foreach ($this->activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
                     $initiativeArrayArray[] = array();
-                    for ($dieIdx = 0;
-                         $dieIdx <= count($this->activeDieArrayArray[$playerIdx]) - 1;
-                         $dieIdx++) {
+                    foreach ($tempActiveDieArray as $dieIdx => $tempDie) {
                         // update initiative arrays if die counts for initiative
-                        $tempInitiative = $this->activeDieArrayArray[$playerIdx][$dieIdx]->
-                                                   initiative_value();
+                        $tempInitiative = $tempDie->initiative_value();
                         if ($tempInitiative > 0) {
                             $initiativeArrayArray[$playerIdx][] = $tempInitiative;
                         }
@@ -128,17 +120,14 @@ class BMGame {
 
                 // determine player that has won initiative
                 $nPlayers = count($this->playerIdxArray);
-                $doesPlayerHaveInitiative = array();
-                for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
-                    $doesPlayerHaveInitiative[] = TRUE;
-                }
+                $doesPlayerHaveInitiative = array_pad(array(), $nPlayers, TRUE);
 
                 $dieIdx = 0;
                 while (array_sum($doesPlayerHaveInitiative) >= 2) {
                     $dieValues = array();
-                    foreach($initiativeArrayArray as $initiativeArray) {
-                        if (isset($initiativeArray[$dieIdx])) {
-                            $dieValues[] = $initiativeArray[$dieIdx];
+                    foreach($initiativeArrayArray as $tempInitiativeArray) {
+                        if (isset($tempInitiativeArray[$dieIdx])) {
+                            $dieValues[] = $tempInitiativeArray[$dieIdx];
                         } else {
                             $dieValues[] = PHP_INT_MAX;
                         }
@@ -156,8 +145,8 @@ class BMGame {
                 }
                 if (array_sum($doesPlayerHaveInitiative) > 1) {
                     $playersWithInitiative = array();
-                    for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
-                        if ($doesPlayerHaveInitiative[$playerIdx]) {
+                    foreach ($doesPlayerHaveInitiative as $playerIdx => $tempHasInitiative) {
+                        if ($tempHasInitiative) {
                             $playersWithInitiative[] = $playerIdx;
                         }
                     }
@@ -211,20 +200,16 @@ class BMGame {
                 // reroll all dice involved in the attack that are still active
                 $attackingPlayerIdx = $this->attack['attackingPlayerIdx'];
                 $attackingDieIdxArray = $this->attack['attackingDieIdxArray'];
-                for ($dieIdx = 0;
-                     $dieIdx <= count($attackingDieIdxArray) - 1;
-                     $dieIdx++) {
+                foreach ($attackingDieIdxArray as $dieIdx => $tempAttackingDieIdx) {
                     $this->activeDieArrayArray[$attackingPlayerIdx][
-                               $attackingDieIdxArray[$dieIdx]]->roll($isAttackSuccessful);
+                               $tempAttackingDieIdx]->roll($isAttackSuccessful);
                 }
 
                 $targetPlayerIdx = $this->attack['targetPlayerIdx'];
                 $targetDieIdxArray = $this->attack['targetDieIdxArray'];
-                for ($dieIdx = 0;
-                     $dieIdx <= count($targetDieIdxArray) - 1;
-                     $dieIdx++) {
+                foreach ($targetDieIdxArray as $dieIdx => $tempTargetDieIdx) {
                     $this->activeDieArrayArray[$targetPlayerIdx][
-                               $targetDieIdxArray[$dieIdx]]->roll($isAttackSuccessful);
+                               $tempTargetDieIdx]->roll($isAttackSuccessful);
                 }
 
                 $this->update_active_player();
@@ -250,7 +235,7 @@ class BMGame {
                 break;
 
             default:
-                throw new LogicException ('An undefined game state cannot be performed.');
+                throw new LogicException('An undefined game state cannot be performed.');
                 break;
         }
     }
@@ -274,9 +259,9 @@ class BMGame {
                 };
                 if (isset($this->gameScoreArrayArray)) {
                     $nWins = 0;
-                    foreach($this->gameScoreArrayArray as $gameScoreArray) {
-                        if ($nWins < $gameScoreArray['W']) {
-                            $nWins = $gameScoreArray['W'];
+                    foreach($this->gameScoreArrayArray as $tempGameScoreArray) {
+                        if ($nWins < $tempGameScoreArray['W']) {
+                            $nWins = $tempGameScoreArray['W'];
                         }
                     }
                     if ($nWins >= $this->maxWins) {
@@ -371,8 +356,8 @@ class BMGame {
                 }
                 // deal with reserve dice
                 $this->gameState = BMGameState::loadDiceIntoButtons;
-                foreach ($this->gameScoreArrayArray as $gameScoreArray) {
-                    if ($gameScoreArray['W'] >= $this->maxWins) {
+                foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
+                    if ($tempGameScoreArray['W'] >= $this->maxWins) {
                         $this->gameState = BMGameState::endGame;
                         break;
                     }
@@ -412,11 +397,11 @@ class BMGame {
         $nonAuxiliaryDice = '';
         $auxiliaryDice = '';
 
-        foreach ($dieRecipeArray as $dieRecipe) {
-            if (FALSE === strpos($dieRecipe, '+')) {
-                $nonAuxiliaryDice = $nonAuxiliaryDice.$dieRecipe.' ';
+        foreach ($dieRecipeArray as $tempDieRecipe) {
+            if (FALSE === strpos($tempDieRecipe, '+')) {
+                $nonAuxiliaryDice = $nonAuxiliaryDice.$tempDieRecipe.' ';
             } else {
-                $strippedDieRecipe = str_replace('+', '', $dieRecipe);
+                $strippedDieRecipe = str_replace('+', '', $tempDieRecipe);
                 $auxiliaryDice = $auxiliaryDice.$strippedDieRecipe.' ';
             }
         }
@@ -467,18 +452,12 @@ class BMGame {
         unset($this->activePlayerIdx);
         unset($this->playerWithInitiativeIdx);
         unset($this->activeDieArrayArray);
-        $tempPassStatusArray = array();
-        $tempCapturedDiceArray = array();
-        $tempWaitingOnActionArray = array();
-        foreach ($this->playerIdxArray as $playerIdx) {
-            $tempPassStatusArray[] = FALSE;
-            $tempCapturedDiceArray[] = array();
-            $tempWaitingOnActionArray[] = FALSE;
-        }
-        $this->capturedDieArrayArray = $tempCapturedDiceArray;
-        $this->passStatusArray = $tempPassStatusArray;
-        $this->waitingOnActionArray = $tempWaitingOnActionArray;
         unset($this->roundScoreArray);
+
+        $nPlayers = count($this->playerIdxArray);
+        $this->passStatusArray = array_pad(array(), $nPlayers, FALSE);
+        $this->capturedDieArrayArray = array_pad(array(), $nPlayers, array());
+        $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     private function update_active_player() {
@@ -491,22 +470,20 @@ class BMGame {
 
     // utility methods
     public function __construct($gameID = 0,
-                                $playerIdxArray = array(0, 0),
-                                $buttonRecipeArray = array('', ''),
+                                array $playerIdxArray = array(0, 0),
+                                array $buttonRecipeArray = array('', ''),
                                 $maxWins = 3) {
         if (count($playerIdxArray) !== count($buttonRecipeArray)) {
             throw new InvalidArgumentException(
                 'Number of buttons must equal the number of players.');
         }
+        $nPlayers = count($playerIdxArray);
         $this->gameId = $gameID;
         $this->playerIdxArray = $playerIdxArray;
-        $this->waitingOnActionArray = array();
-        foreach ($this->playerIdxArray as $tempPlayerIdx) {
-            $this->waitingOnActionArray[] = FALSE;
-        }
-        foreach ($buttonRecipeArray as $recipe) {
+        $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
+        foreach ($buttonRecipeArray as $tempRecipe) {
             $tempButton = new BMButton;
-            $tempButton->load_from_recipe($recipe);
+            $tempButton->load_from_recipe($tempRecipe);
             $this->buttonArray[] = $tempButton;
         }
         $this->maxWins = $maxWins;
@@ -573,8 +550,8 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Number of buttons must equal the number of players.');
                 }
-                foreach ($value as $valueElement) {
-                    if (!is_a($valueElement, 'BMButton')) {
+                foreach ($value as $tempValueElement) {
+                    if (!($tempValueElement instanceof BMButton)) {
                         throw new InvalidArgumentException(
                             'Input must be an array of BMButtons.');
                     }
@@ -586,13 +563,13 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Active die array array must be an array.');
                 }
-                foreach ($value as $valueElement) {
-                    if (!is_array($valueElement)) {
+                foreach ($value as $tempValueElement) {
+                    if (!is_array($tempValueElement)) {
                         throw new InvalidArgumentException(
                             'Individual active die arrays must be arrays.');
                     }
-                    foreach ($valueElement as $die) {
-                        if (!is_a($die, 'BMDie')) {
+                    foreach ($tempValueElement as $die) {
+                        if (!($die instanceof BMDie)) {
                             throw new InvalidArgumentException(
                                 'Elements of active die arrays must be BMDice.');
                         }
@@ -626,8 +603,8 @@ class BMGame {
                         'The number of elements in passStatusArray must be the number of players.');
                 }
                 // require boolean pass statuses
-                foreach ($value as $valueElement) {
-                    if (!is_bool($valueElement)) {
+                foreach ($value as $tempValueElement) {
+                    if (!is_bool($tempValueElement)) {
                         throw new InvalidArgumentException(
                             'Pass statuses must be booleans.');
                     }
@@ -639,13 +616,13 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Captured die array array must be an array.');
                 }
-                foreach ($value as $valueElement) {
-                    if (!is_array($valueElement)) {
+                foreach ($value as $tempValueElement) {
+                    if (!is_array($tempValueElement)) {
                         throw new InvalidArgumentException(
                             'Individual captured die arrays must be arrays.');
                     }
-                    foreach ($valueElement as $die) {
-                        if (!is_a($die, 'BMDie')) {
+                    foreach ($tempValueElement as $tempDie) {
+                        if (!($tempDie instanceof BMDie)) {
                             throw new InvalidArgumentException(
                                 'Elements of captured die arrays must be BMDice.');
                         }
@@ -659,8 +636,8 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'There must be one round score for each player.');
                 }
-                foreach ($value as $valueElement) {
-                    if (FALSE === filter_var($valueElement, FILTER_VALIDATE_FLOAT)) {
+                foreach ($value as $tempValueElement) {
+                    if (FALSE === filter_var($tempValueElement, FILTER_VALIDATE_FLOAT)) {
                         throw new InvalidArgumentException(
                             'Round scores must be numeric.');
                     }
@@ -712,8 +689,8 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Number of actions must equal the number of players.');
                 }
-                foreach ($value as $valueElement) {
-                    if (!is_bool($valueElement)) {
+                foreach ($value as $tempValueElement) {
+                    if (!is_bool($tempValueElement)) {
                         throw new InvalidArgumentException(
                             'Input must be an array of booleans.');
                     }
