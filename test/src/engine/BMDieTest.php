@@ -227,7 +227,77 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
 
         $this->assertEquals(6, $die->max);
+        $fail = FALSE;
 
+        // try some more bad values
+        try {
+            $die = BMDie::create(1023, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(0, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(100, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
+        $fail = FALSE;
+
+        // downright illegal values
+        try {
+            $die = BMDie::create("thing", array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create("4score", array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create(2.718, array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+        $fail = FALSE;
+
+        try {
+            $die = BMDie::create("thing8", array());
+        }
+        catch (UnexpectedValueException $e) {
+            $fail = TRUE;
+        }
+
+        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
     }
 
     /**
@@ -327,10 +397,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testRoll
      * @depends testInit
      */
-    public function testFirst_roll() {
+    public function testMake_play_die() {
         $this->object->init(6, array());
 
-        $newDie = $this->object->first_roll();
+        $newDie = $this->object->make_play_die();
 
         $this->assertInstanceOf('BMDie', $newDie);
 
@@ -341,7 +411,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->value = $newDie->value;
 
-        $this->assertFalse(($this->object === $newDie), "first_roll returned the same object.");
+        $this->assertFalse(($this->object === $newDie), "make_play_die returned the same object.");
     }
 
     public function testAttack_list() {
@@ -719,3 +789,5 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
 }
+
+
