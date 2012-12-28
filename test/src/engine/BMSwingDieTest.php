@@ -302,6 +302,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
      */
     public function testSet_swingValue() {
 
+
         foreach (str_split("RSTUVWXYZ") as $swing) {
             $this->object->init($swing);
             $range = $this->object->swing_range($swing);
@@ -315,6 +316,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
             }
         }
+
 
         $this->object->init("X");
 
@@ -402,27 +404,128 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testInit
+     * @depends testActivate
      * @depends testSet_swingValue
      */
     public function testRoll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
 
+        // testing whether it calls the appropriate methods in BMGame
+
+        $this->object->init("X");
+
+        // needs a value, hasn't requested one. Should call
+        // request_swing_values before calling require_values
+        $game = new DummyGame;
+
+        $this->object->game = $game;
+
+        $ex = FALSE;
+        try {
+            $this->object->roll(FALSE);
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertTrue($ex, "dummy require_values not called.");
+        $this->assertNotEmpty($game->swingrequest);
+
+        // Once activated, it should have requested a value, but still
+        // needs one.
+        // Calls require_values without calling request_swing_values
+
+        $this->object->init("X");
+
+        $game = new DummyGame;
+
+        $newDie = $this->object->activate($game, "owner");
+
+        $this->assertNotNull($game->swingrequest);
+        $game->swingrequest = array();
+
+        $ex = FALSE;
+        try {
+            $newDie->roll(FALSE);
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertTrue($ex, "dummy require_values not called.");
+        $this->assertEmpty($game->swingrequest);
+
+        // And if the swing value is set, it won't call require_values
+        $this->object->init("X");
+
+        $game = new DummyGame;
+
+        $newDie = $this->object->activate($game, "owner");
+
+        $this->assertNotNull($game->swingrequest);
+        $game->swingrequest = array();
+
+        $newDie->set_swingValue(array("X" => "15"));
+
+        // it hasn't rolled yet
+        $this->assertFalse(is_numeric($newDie->value));
+
+
+        $ex = FALSE;
+        try {
+            $newDie->roll(FALSE);
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+        $this->assertFalse($ex, "dummy require_values was called.");
+        $this->assertEmpty($game->swingrequest);
+
+        // Does it roll?
+        $this->assertTrue(is_numeric($newDie->value));
     }
 
 
     /**
+     * @depends testInit
      * @depends testSet_swingValue
      * @depends testRoll
      */
     public function testFirst_roll() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $game = new DummyGame;
 
+        $this->object->init("X");
+
+        $newDie = $this->object->activate($game, "owner");
+
+        // No value yet set. It will call game->require_values()
+
+        $ex = FALSE;
+        try {
+            $newDie->first_roll();
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertTrue($ex, "require_values not called.");
+
+        // If it doesn't need a value, it won't
+        $newDie->set_swingValue(array("X" => "11"));
+
+        // newDie shouldn't have a value yet
+        $this->assertFalse(is_numeric($newDie->value));
+
+        $ex = FALSE;
+        try {
+            $rolledDie = $newDie->first_roll();
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertFalse($ex, "require_values called.");
+
+        // the die it returns should have a value, and not be the
+        // previous die
+        $this->assertFalse($newDie === $rolledDie);
+        $this->assertTrue(is_numeric($rolledDie->value));
+        $this->assertFalse(is_numeric($newDie->value));
     }
 
     public function testDescribe() {

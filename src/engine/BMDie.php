@@ -220,7 +220,7 @@ class BMDie
     }
 
 
-    public function roll($successfulAttack)
+    public function roll($successfulAttack = FALSE)
     {
 
         if ($this->doesReroll) {
@@ -580,6 +580,7 @@ class BMSwingDie extends BMDie {
         $this->remainder = 0;
 
         $this->needsValue = TRUE;
+        $this->valueRequested = FALSE;
 
         $this->swingType = $type;
 
@@ -619,7 +620,7 @@ class BMSwingDie extends BMDie {
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
         $game->request_swing_values($newDie, $newDie->swingType);
-        $this->valueRequested = TRUE;
+        $newDie->valueRequested = TRUE;
 
         return $newDie;
     }
@@ -628,7 +629,7 @@ class BMSwingDie extends BMDie {
     {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
-        while ($this->needsValue) {
+        if ($this->needsValue) {
             $this->game->require_values();
         }
 
@@ -639,9 +640,10 @@ class BMSwingDie extends BMDie {
 
     public function roll($successfulAttack)
     {
-        while($this->needsValue) {
+        if ($this->needsValue) {
             if (!$this->valueRequested) {
                 $this->game->request_swing_values($this, $this->swingType);
+                $this->valueRequested = TRUE;
             }
             $this->game->require_values();
         }
@@ -686,6 +688,10 @@ class BMSwingDie extends BMDie {
 
         if ($valid) {
             $this->swingValue = $sides;
+
+            // Don't need to ask for a swing value any more
+            $this->needsValue = FALSE;
+            $this->valueRequested = FALSE;
 
             // correctly handle cut-in-half swing dice, however many
             // times they may have been cut
