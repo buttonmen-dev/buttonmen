@@ -102,7 +102,7 @@ class BMGame {
 
                     foreach ($tempButton->dieArray as $tempDie) {
                         $this->activeDieArrayArray[$buttonIdx][] =
-                            $tempDie->first_roll();
+                            $tempDie->make_play_die();
                     }
                 }
                 break;

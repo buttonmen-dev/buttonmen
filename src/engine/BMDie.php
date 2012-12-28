@@ -599,8 +599,8 @@ class BMSwingDie extends BMDie {
     }
 
     public static function create($recipe, $skills = array()) {
-        
-        if (!is_string($recipe) || strlen($recipe) != 1 || 
+
+        if (!is_string($recipe) || strlen($recipe) != 1 ||
             ord("R") > ord($recipe) || ord($recipe) > ord("Z")) {
             throw new UnexpectedValueException("Invalid recipe: $recipe");
         }
@@ -638,7 +638,7 @@ class BMSwingDie extends BMDie {
 
 
 
-    public function roll($successfulAttack)
+    public function roll($successfulAttack = false)
     {
         if ($this->needsValue) {
             if (!$this->valueRequested) {
