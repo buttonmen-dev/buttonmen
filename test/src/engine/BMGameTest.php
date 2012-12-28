@@ -56,10 +56,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_apply_handicaps() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->gameState = BMGameState::applyHandicaps;
+        $this->object->do_next_step();
+        $this->assertEquals($this->object->gameScoreArrayArray,
+                            array(array('W' => 0, 'L' => 0, 'T' => 0),
+                                  array('W' => 0, 'L' => 0, 'T' => 0)));
     }
 
     /**
@@ -285,6 +286,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         unset($this->object->gameState);
         try {
             $this->object->do_next_step();
+            fail('Game state must be set.');
         }
         catch (LogicException $expected) {
         }
@@ -328,6 +330,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         unset($this->object->maxWins);
         try {
             $this->object->update_game_state();
+            fail('Max wins must exist.');
         }
         catch (LogicException $expected) {
         }
@@ -605,6 +608,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_not_set() {
+        unset($this->object->gameState);
         try {
             $this->object->update_game_state();
             $this->fail('An undefined game state cannot be updated.');
@@ -754,10 +758,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame;
         $this->assertEquals(0, $game->gameId);
         $this->assertEquals(array(0, 0), $game->playerIdxArray);
+//        $this->assertEquals(BMGameState::startGame, $game->gameState);
         $this->assertEquals('', $game->buttonArray[0]->recipe);
         $this->assertEquals('', $game->buttonArray[1]->recipe);
         $this->assertEquals(3, $game->maxWins);
+        // the gameScoreArrayArray must remain unset until BMGameState::applyHandicaps
+        $this->assertTrue(!isset($this->object->gameScoreArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(array(), $game->lastWinnerIdxArray);
 
         // construct valid game
         $gameId = 2745;

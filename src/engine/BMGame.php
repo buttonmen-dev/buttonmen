@@ -21,12 +21,17 @@ class BMGame {
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
     private $gameScoreArrayArray;   // number of games W/T/L for all players
+    private $lastWinnerIdxArray;    // indices of the winners of the last round
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
 
     // methods
     public function do_next_step() {
+        if (!isset($this->gameState)) {
+            throw new LogicException('Game state must be set.');
+        }
+
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // first player must always be specified
@@ -50,6 +55,10 @@ class BMGame {
 
             case BMGameState::applyHandicaps:
                 // ignore for the moment
+                $this->gameScoreArrayArray =
+                    array_pad(array(),
+                              count($this->playerIdxArray),
+                              array('W' => 0, 'L' => 0, 'T' => 0));
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
@@ -81,6 +90,7 @@ class BMGame {
 
             case BMGameState::loadDiceIntoButtons:
                 // load clean version of the buttons from their recipes
+                // if the player has not just won a round
                 foreach ($this->buttonArray as $tempButton) {
                     $tempButton->reload();
                 }
@@ -241,6 +251,10 @@ class BMGame {
     }
 
     public function update_game_state() {
+        if (!isset($this->gameState)) {
+            throw new LogicException('Game state must be set.');
+        }
+
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // require both players and buttons to be specified
@@ -477,9 +491,11 @@ class BMGame {
             throw new InvalidArgumentException(
                 'Number of buttons must equal the number of players.');
         }
+
         $nPlayers = count($playerIdxArray);
         $this->gameId = $gameID;
         $this->playerIdxArray = $playerIdxArray;
+        $this->gameState = BMGameState::startGame; // james
         $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
         foreach ($buttonRecipeArray as $tempRecipe) {
             $tempButton = new BMButton;
@@ -487,6 +503,7 @@ class BMGame {
             $this->buttonArray[] = $tempButton;
         }
         $this->maxWins = $maxWins;
+        $this->lastWinnerIdxArray = array();
     }
 
     // to allow array elements to be set directly, change the __get to &__get
