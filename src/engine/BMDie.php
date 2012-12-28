@@ -638,7 +638,7 @@ class BMSwingDie extends BMDie {
 
 
 
-    public function roll($successfulAttack)
+    public function roll($successfulAttack = FALSE)
     {
         if ($this->needsValue) {
             if (!$this->valueRequested) {
