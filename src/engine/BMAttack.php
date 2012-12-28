@@ -131,33 +131,35 @@ class BMAttack {
         return FALSE;
     }
 
-    protected function search_onevmany($game, $attackers, $defenders) {
+    // Combine the logive for onevmany and manyvone by use of a
+    // comparison function.
+    private function search_ovm_helper($game, $many, $one, $compare) {
         // Sanity check
 
-        if (count($attackers) < 1 || count($defenders) < 1) {
+        if (count($many) < 1 || count($one) < 1) {
             return FALSE;
         }
 
         // We only need to iterate over half the space, since we can
         // search the complement of the set at the same time.
 
-        $count = count($defenders);
+        $count = count($many);
         $rem = $count % 2;
         $count -= $rem;
         $count /= 2;
 
-        $aIt = new XCYIterator($attackers, 1);
+        $oneIt = new XCYIterator($one, 1);
 
         for ($i = 1; $i <= $count; $i++) {
-            $dIt = new XCYIterator($defenders, $i);
+            $manyIt = new XCYIterator($many, $i);
 
-            foreach ($dIt as $def) {
-                foreach ($aIt as $att) {
-                    if ($this->validate_attack($game, $att, $def)) {
+            foreach ($manyIt as $m) {
+                foreach ($oneIt as $o) {
+                    if ($compare($game, $o, $m)) {
                         return TRUE;
                     }
-                    $complement =  array_diff($defenders, $def);
-                    if ($this->validate_attack($game, $att, $complement)) {
+                    $complement =  array_diff($many, $m);
+                    if ($compare($game, $o, $complement)) {
                         return TRUE;
                     }
                 }
@@ -165,10 +167,10 @@ class BMAttack {
         }
         // Odd number of dice
         if ($rem) {
-            $dIt = new XCYIterator($defenders, $count + 1);
-            foreach ($dIt as $def) {
-                foreach ($aIt as $att) {
-                    if ($this->validate_attack($game, $att, $def)) {
+            $manyIt = new XCYIterator($many, $count + 1);
+            foreach ($manyIt as $m) {
+                foreach ($oneIt as $o) {
+                    if ($compare($game, $o, $m)) {
                         return TRUE;
                     }
                 }
@@ -177,53 +179,21 @@ class BMAttack {
         return FALSE;
     }
 
+    protected function search_onevmany($game, $attackers, $defenders) {
+        $compare = function($g, $att, $def) {
+            return $this->validate_attack($g, $att, $def);
+        };
+
+        return search_ovm_helper($game, $attackers, $defenders, $compare);
+    }
+
     // It is entirely possible this method will never be used.
-    // 
-    // This and onevmany could be combined fairly easily
     protected function search_manyvone($game, $attackers, $defenders) {
-        // Sanity check
+        $compare = function($g, $def, $att) {
+            return $this->validate_attack($g, $att, $def);
+        };
 
-        if (count($attackers) < 1 || count($defenders) < 1) {
-            return FALSE;
-        }
-
-        // We only need to iterate over half the space, since we can
-        // search the complement of the set at the same time.
-
-        $count = count($attackers);
-        $rem = $count % 2;
-        $count -= $rem;
-        $count /= 2;
-
-        $dIt = new XCYIterator($defenders, 1);
-
-        for ($i = 1; $i <= $count; $i++) {
-            $aIt = new XCYIterator($attackers, $i);
-
-            foreach ($aIt as $att) {
-                foreach ($dIt as $def) {
-                    if ($this->validate_attack($game, $att, $def)) {
-                        return TRUE;
-                    }
-                    $complement =  array_diff($attackers, $att);
-                    if ($this->validate_attack($game, $complement, $def)) {
-                        return TRUE;
-                    }
-                }
-            }
-        }
-        // Odd number of dice
-        if ($rem) {
-            $aIt = new XCYIterator($attackers, $count + 1);
-            foreach ($aIt as $att) {
-                foreach ($dIt as $def) {
-                    if ($this->validate_attack($game, $att, $def)) {
-                        return TRUE;
-                    }
-                }
-            }
-        }
-        return FALSE;
+        return search_ovm_helper($game, $defenders, $attackers, $compare);
     }
 }
 
