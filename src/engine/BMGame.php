@@ -57,9 +57,9 @@ class BMGame {
                 // create list of auxiliary dice
                 foreach ($this->buttonArray as $tempButton) {
                     if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-                        $auxiliaryDice = $auxiliaryDice.' '.
-                                         (BMGame::separate_out_auxiliary_dice(
-                                              $tempButton->recipe)[1]);
+                        $tempSplitArray = BMGame::separate_out_auxiliary_dice(
+                                              $tempButton->recipe);
+                        $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
                     }
                 }
                 $auxiliaryDice = trim($auxiliaryDice);
