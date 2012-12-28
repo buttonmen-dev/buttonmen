@@ -1,5 +1,9 @@
 <?php
 
+require_once "engine/BMDie.php";
+require_once "engine/BMSkill.php";
+require_once "engine/BMContainer.php";
+
 // well defined skill classes with which to test
 class BMSkillTesting extends BMSkill {
     public static $hooked_methods = array("test");
@@ -36,6 +40,16 @@ class DummyGame {
 
     public function add_die($player, $die) {
         $this->dice[] = array($player, $die);
+    }
+
+    public $swingrequest;
+
+    public function request_swing_values($die, $swingtype) {
+        $this->swingrequest = array($die, $swingtype);
+    }
+
+    public function require_values() {
+        throw new Exception("require_values called");
     }
 
 }
