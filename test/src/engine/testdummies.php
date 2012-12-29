@@ -3,6 +3,7 @@
 require_once "engine/BMDie.php";
 require_once "engine/BMSkill.php";
 require_once "engine/BMContainer.php";
+require_once "engine/BMAttack.php";
 
 // well defined skill classes with which to test
 class BMSkillTesting extends BMSkill {
@@ -43,6 +44,12 @@ class BMDieTesting extends BMDie {
 
 class BMContTesting extends BMContainer {
 
+}
+
+class BMAttTesting extends BMAttack {
+    public function test_ovm_helper($game, $many, $one, $compare) {
+        return search_ovm_helper($game, $many, $one, $compare);
+    }
 }
 
 class DummyGame {

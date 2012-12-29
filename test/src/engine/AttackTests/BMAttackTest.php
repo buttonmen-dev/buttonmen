@@ -35,10 +35,10 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testGetInstance()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $test1 = BMAttack::getInstance();
+        $test2 = BMAttack::getInstance();
+
+        $this->assertTrue($test1 === $test2);
     }
 
     /**
@@ -47,10 +47,51 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testAdd_die()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+
+
+        $this->object->add_die($die1);
+
+        $dlist = PHPUnit_Framework_Assert::readAttribute($this->object, "validDice");
+
+        $this->assertNotEmpty($dlist);
+        $this->assertEquals(1, count($dlist));
+        $this->assertContains($die1, $dlist);
+
+        // duplication?
+        $this->object->add_die($die1);
+
+        $dlist = PHPUnit_Framework_Assert::readAttribute($this->object, "validDice");
+
+        $this->assertNotEmpty($dlist);
+        $this->assertEquals(1, count($dlist));
+        $this->assertContains($die1, $dlist);
+
+        // multiple dice
+        $this->object->add_die($die2);
+        $this->object->add_die($die3);
+        $dlist = PHPUnit_Framework_Assert::readAttribute($this->object, "validDice");
+
+        $this->assertNotEmpty($dlist);
+        $this->assertEquals(3, count($dlist));
+        $this->assertContains($die1, $dlist);
+        $this->assertContains($die2, $dlist);
+        $this->assertContains($die3, $dlist);
+        
+        // duplication in bigger list
+        $this->object->add_die($die3);
+
+        $dlist = PHPUnit_Framework_Assert::readAttribute($this->object, "validDice");
+
+        $this->assertNotEmpty($dlist);
+        $this->assertEquals(3, count($dlist));
+        $this->assertContains($die1, $dlist);
+        $this->assertContains($die2, $dlist);
+        $this->assertContains($die3, $dlist);
+
+
     }
 
     /**
@@ -59,10 +100,197 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testHelp_bounds()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $nohelp = array(0);
+        $smallhelp = array(1, 2, 3);
+        $bighelp = array(1, 2, 3, 4, 5, 6);
+        $neghelp = array(-4, -3, -2, -1);
+        $widehelp = array(-2, -1, 0, 1, 2);
+
+        // no help
+        $helpvals = array();
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(0, $bounds[0]);
+        $this->assertEquals(0, $bounds[1]);
+
+        // help, but not helpful
+        $helpvals = array($nohelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(0, $bounds[0]);
+        $this->assertEquals(0, $bounds[1]);
+
+        // lots of lack of help
+        $helpvals = array($nohelp, $nohelp, $nohelp, $nohelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(0, $bounds[0]);
+        $this->assertEquals(0, $bounds[1]);
+
+        // various one-die scenarios
+        $helpvals = array($smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(3, $bounds[1]);
+        
+        $helpvals = array($bighelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+
+        $helpvals = array($neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-4, $bounds[0]);
+        $this->assertEquals(-1, $bounds[1]);
+
+
+        $helpvals = array($widehelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-2, $bounds[0]);
+        $this->assertEquals(2, $bounds[1]);
+
+        // combinations
+
+        $helpvals = array($smallhelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+        $helpvals = array($smallhelp, $bighelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(9, $bounds[1]);
+
+        // mix in some non-help (which shouldn't happen)
+
+        $helpvals = array($nohelp, $smallhelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+        $helpvals = array($smallhelp, $nohelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+        $helpvals = array($smallhelp, $smallhelp, $nohelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(1, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+        // negatives
+
+        $helpvals = array($neghelp, $neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-8, $bounds[0]);
+        $this->assertEquals(-1, $bounds[1]);
+
+        $helpvals = array($neghelp, $nohelp, $neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-8, $bounds[0]);
+        $this->assertEquals(-1, $bounds[1]);
+
+        $helpvals = array($nohelp, $neghelp, $neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-8, $bounds[0]);
+        $this->assertEquals(-1, $bounds[1]);
+
+        $helpvals = array($neghelp, $neghelp, $nohelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-8, $bounds[0]);
+        $this->assertEquals(-1, $bounds[1]);
+
+
+
+        // mix pos and heg
+        $helpvals = array($smallhelp, $neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-4, $bounds[0]);
+        $this->assertEquals(3, $bounds[1]);
+
+        $helpvals = array($neghelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-4, $bounds[0]);
+        $this->assertEquals(3, $bounds[1]);
+
+        $helpvals = array($smallhelp, $neghelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-4, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+        $helpvals = array($neghelp, $smallhelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-4, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+        $helpvals = array($smallhelp, $smallhelp, $neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-4, $bounds[0]);
+        $this->assertEquals(6, $bounds[1]);
+
+
+
     }
 
     /**

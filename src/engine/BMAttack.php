@@ -1,6 +1,7 @@
 <?php
 
 require_once 'BMUtility.php';
+require_once 'BMDie.php';
 
 /**
  * BMAttack: attack validation and commital code.
@@ -32,8 +33,11 @@ class BMAttack {
     protected $validDice = array();
 
     public function add_die($die) {
-        if (!array_contains($die, $validDice)) {
-            $validDice[] = $die;
+        if (!is_a($die, "BMDie")) { return; }
+        // need to search with strict on to avoid identical-valued
+        // objects matching
+        if (!in_array($die, $this->validDice, TRUE)) {
+            $this->validDice[] = $die;
         }
     }
 
@@ -53,27 +57,27 @@ class BMAttack {
         // Help values are sorted lowest to highest, and we enforce
         // some assumptions about the values to simplify this code a lot
         foreach ($helpers as $helpVals) {
-            $min = $helpers[0];
-            $max = end($helpers);
+            $min = $helpVals[0];
+            $max = end($helpVals);
 
-            if ($max >= 0) {
+            if ($max > 0) {
                 if ($helpMax > 0) { $helpMax += $max; }
                 else { $helpMax = $max; }
             }
-            else {
+            elseif ($max < 0 && $helpMax < 1) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
                 $helpMax = -1;
             }
 
-            if ($min <= 0) {
-                if ($helpMin < 0) { $helpMin -= $min; }
+            if ($min < 0) {
+                if ($helpMin < 0) { $helpMin += $min; }
                 else { $helpMin = $min; }
             }
-            else {
+            elseif ($min > 0 && $helpMin > -1 ) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
-                $helpMin = 1;;
+                $helpMin = 1;
             }
         }
 
