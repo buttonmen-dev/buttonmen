@@ -28,141 +28,160 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers XCYIterator::setPosition
-     * @todo   Implement testSetPosition().
-     */
-    public function testSetPosition()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers XCYIterator::rewind
-     * @todo   Implement testRewind().
-     */
-    public function testRewind()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers XCYIterator::current
-     * @todo   Implement testCurrent().
-     */
-    public function testCurrent()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers XCYIterator::key
-     * @todo   Implement testKey().
-     */
-    public function testKey()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers XCYIterator::next
-     * @todo   Implement testNext().
-     */
-    public function testNext()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers XCYIterator::valid
-     * @todo   Implement testValid().
      */
-    public function testValid()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-
     public function testXCYIterator() {
+        // Treating the iterator as a black box, rather than trying to
+        // test its individual methods. If it returns the right
+        // results, it's right.
 
         // Test for the right number of results
         //
         // Number of ways to choose Y items from a set of X items is
         // X! / ( Y! * (X-Y)! )
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 1);
+
+        $fiveArray = array('A', 'B', 'C', 'D', 'E');
+        $eightArray = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
+
+        $iter = new XCYIterator($fiveArray, 1);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
             $count++;
+            $this->assertEquals(1, count($item));
         }
         $this->assertEquals(5, $count);
 
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 2);
+        $iter = new XCYIterator($fiveArray, 2);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
             $count++;
+            $this->assertEquals(2, count($item));
         }
         $this->assertEquals(10, $count);
 
 
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 3);
+        $iter = new XCYIterator($fiveArray, 3);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
             $count++;
+            $this->assertEquals(3, count($item));
         }
         $this->assertEquals(10, $count);
 
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 4);
+        $iter = new XCYIterator($fiveArray, 4);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
             $count++;
+            $this->assertEquals(4, count($item));
         }
         $this->assertEquals(5, $count);
 
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 5);
+        $iter = new XCYIterator($fiveArray, 5);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
             $count++;
+            $this->assertEquals(5, count($item));
         }
         $this->assertEquals(1, $count);
 
 
 
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'), 4);
+        $iter = new XCYIterator($eightArray, 4);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
             $count++;
+            $this->assertEquals(4, count($item));
         }
         $this->assertEquals(70, $count);
 
-        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'), 5);
+        $iter = new XCYIterator($eightArray, 5);
         $count = 0;
 
-        foreach ($it1 as $key => $item) {
+        foreach ($iter as $key => $item) {
+            $count++;
+            $this->assertEquals(5, count($item));
+        }
+        $this->assertEquals(56, $count);
+
+        // Test that the results are correct
+
+        // Test correct distribution
+
+        $hitcounts = array();
+        foreach ($eightArray as $key) {
+            $hitcounts[$key] = 0;
+        }
+
+        $iter = new XCYIterator($eightArray, 5);
+        $count = 0;
+
+        foreach ($iter as $key => $item) {
+            foreach ($item as $hit) {
+                $hitcounts[$hit]++;
+            }
             $count++;
         }
         $this->assertEquals(56, $count);
+
+        // Each item will appear an equal number of times
+        $target = $hitcounts['A'];
+
+        foreach ($hitcounts as $key => $hit) {
+            $this->assertEquals($target, $hitcounts[$key]);
+        }
+
+        // we have the right number of results, and the right
+        // distribution. Now, we have to ensure that each correct
+        // combination apears exactly once
+
+        // generate the possible combinations in an inefficient, but
+        // easy to prove correct, manner
+
+        $combinations = array();
+        $keycombinations = array();
+        foreach ($eightArray as $ikey => $i) {
+            foreach ($eightArray as $jkey => $j) {
+                foreach ($eightArray as $kkey => $k) {
+                    if ($k == $i || $k == $j || $i == $j) { continue; }
+                    $tmp = array($i, $j, $k);
+                    sort($tmp);
+                    $key = join($tmp);
+                    // There will be duplications, but this eliminates them
+                    $combinations[$key] = 0;
+
+                    // and test the iteration keys as well
+                    $tmp = array($ikey+1, $jkey+1, $kkey+1);
+                    sort($tmp);
+                    $key = join($tmp);
+                    // There will be duplications, but this eliminates them
+                    $keycombinations[$key] = 0;
+                }
+
+            }
+
+        }
+        $this->assertEquals(56, count($combinations));
+
+        $iter = new XCYIterator($eightArray, 3);
+
+        foreach ($iter as $key => $item) {
+             $combinations[join($item)]++;
+             // get the key's digits in the same order as
+             // $keycombination's keys
+             $tmp = str_split($key);
+             sort($tmp);
+             $keycombinations[join($tmp)]++;
+        }
 
     }
 }
