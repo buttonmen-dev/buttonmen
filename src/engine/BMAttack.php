@@ -41,7 +41,7 @@ class BMAttack {
     //
     // Returns the minimum and maximum values that can be contributed.
     //
-    // $helpers is and array of the returned values from
+    // $helpers is an array of the sets of returned values from
     // assist_values; we don't need to know which die contributes what
     // here.
 
@@ -133,7 +133,7 @@ class BMAttack {
         return FALSE;
     }
 
-    // Combine the logive for onevmany and manyvone by use of a
+    // Combine the logic for onevmany and manyvone by use of a
     // comparison function.
     private function search_ovm_helper($game, $many, $one, $compare) {
         // Sanity check
@@ -142,17 +142,27 @@ class BMAttack {
             return FALSE;
         }
 
-        // We only need to iterate over half the space, since we can
-        // search the complement of the set at the same time.
 
         $count = count($many);
-        $rem = $count % 2;
-        $count -= $rem;
-        $count /= 2;
 
         $oneIt = new XCYIterator($one, 1);
 
+        $checkedSizes = array();
+
         for ($i = 1; $i <= $count; $i++) {
+            $checkedSizes[i] = FALSE;
+        }
+
+
+        for ($i = 1; $i <= $count; $i++) {
+            if ($checkedSizes[$i]) {
+                $continue;
+            }
+
+            // We only need to iterate over about half the space, since we
+            // can search the complement of the set at the same time.
+            $checkedSizes[$count - $i] = TRUE;
+
             $manyIt = new XCYIterator($many, $i);
 
             foreach ($manyIt as $m) {
@@ -160,6 +170,10 @@ class BMAttack {
                     if ($compare($game, $o, $m)) {
                         return TRUE;
                     }
+                    // Don't search the complement when we're halfway
+                    // through an even-sized list
+                    if ($i == $count - $i) { continue; }
+                    
                     $complement =  array_diff($many, $m);
                     if ($compare($game, $o, $complement)) {
                         return TRUE;
@@ -167,17 +181,7 @@ class BMAttack {
                 }
             }
         }
-        // Odd number of dice
-        if ($rem) {
-            $manyIt = new XCYIterator($many, $count + 1);
-            foreach ($manyIt as $m) {
-                foreach ($oneIt as $o) {
-                    if ($compare($game, $o, $m)) {
-                        return TRUE;
-                    }
-                }
-            }
-        }
+
         return FALSE;
     }
 
