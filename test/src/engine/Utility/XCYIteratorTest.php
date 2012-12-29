@@ -97,4 +97,72 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
           'This test has not been implemented yet.'
         );
     }
+
+
+    public function testXCYIterator() {
+
+        // Test for the right number of results
+        //
+        // Number of ways to choose Y items from a set of X items is
+        // X! / ( Y! * (X-Y)! )
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 1);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(5, $count);
+
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 2);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(10, $count);
+
+
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 3);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(10, $count);
+
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 4);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(5, $count);
+
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 5);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(1, $count);
+
+
+
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'), 4);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(70, $count);
+
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'), 5);
+        $count = 0;
+
+        foreach ($it1 as $key => $item) {
+            $count++;
+        }
+        $this->assertEquals(56, $count);
+
+    }
 }
