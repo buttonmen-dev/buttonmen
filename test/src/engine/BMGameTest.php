@@ -29,6 +29,286 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_start_game() {
+        // the first player always has to be set before advancing the game
+        $this->object->gameState = BMGameState::startGame;
+        try {
+            $this->object->do_next_step();
+        }
+        catch (UnexpectedValueException $expected) {
+        }
+
+        // players other than the first can be unspecified
+        $this->object->gameState = BMGameState::startGame;
+        $this->object->playerIdxArray = array(123, 0);
+        $this->object->do_next_step();
+
+        // buttons can be unspecified
+        $this->object->gameState = BMGameState::startGame;
+        $this->object->playerIdxArray = array(123, 456);
+        $this->object->do_next_step();
+
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_apply_handicaps() {
+        $this->object->gameState = BMGameState::applyHandicaps;
+        $this->object->do_next_step();
+        $this->assertEquals($this->object->gameScoreArrayArray,
+                            array(array('W' => 0, 'L' => 0, 'T' => 0),
+                                  array('W' => 0, 'L' => 0, 'T' => 0)));
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_choose_auxiliary_dice() {
+        $this->object->gameState = BMGameState::chooseAuxiliaryDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals($recipe1, $this->object->buttonArray[0]->recipe);
+        $this->assertEquals($recipe2, $this->object->buttonArray[1]->recipe);
+
+        $this->object->gameState = BMGameState::chooseAuxiliaryDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) +(30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals('(4) (8) (12) (30)', $this->object->buttonArray[0]->recipe);
+        $this->assertEquals('(6) (12) (20) (20) (30)', $this->object->buttonArray[1]->recipe);
+
+        $this->object->gameState = BMGameState::chooseAuxiliaryDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) +(30)';
+        $recipe2 = '(6)+ (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals('(4) (8) (12) (30) (6)', $this->object->buttonArray[0]->recipe);
+        $this->assertEquals('(12) (20) (20) (30) (6)', $this->object->buttonArray[1]->recipe);
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_load_dice_into_buttons() {
+        $this->object->gameState = BMGameState::loadDiceIntoButtons;
+
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $dieArray1 = $button1->dieArray;
+        $dieArray2 = $button2->dieArray;
+        $button1->dieArray = array();
+        $button2->dieArray = array();
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+
+        $this->assertEquals($dieArray1, $this->object->buttonArray[0]->dieArray);
+        $this->assertEquals($dieArray2, $this->object->buttonArray[1]->dieArray);
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_specify_dice() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_add_available_dice_to_game() {
+        $this->object->gameState = BMGameState::addAvailableDiceToGame;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals(array($this->object->buttonArray[0]->dieArray,
+                                  $this->object->buttonArray[1]->dieArray),
+                            $this->object->activeDieArrayArray);
+        $this->assertNotNull($this->object->activeDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_determine_initiative() {
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(1, array());
+        $die1->value = 1;
+        $die2 = BMDie::create(2, array());
+        $die2->value = 2;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->do_next_step();
+        $this->assertEquals(0, $this->object->playerWithInitiativeIdx);
+
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(2, array());
+        $die1->value = 2;
+        $die2 = BMDie::create(1, array());
+        $die2->value = 1;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->do_next_step();
+        $this->assertEquals(1, $this->object->playerWithInitiativeIdx);
+
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(1, array());
+        $die1->value = 1;
+        $die2 = BMDie::create(1, array());
+        $die2->value = 1;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $playerWithInitiativeStore = array();
+        for ($runIdx = 1; $runIdx <= 50; $runIdx++) {
+            unset($this->object->playerWithInitiativeIdx);
+            $this->object->do_next_step();
+            $playerWithInitiativeStore[] = $this->object->playerWithInitiativeIdx;
+        }
+        $this->assertGreaterThanOrEqual(0, min($playerWithInitiativeStore));
+        $this->assertLessThanOrEqual(1, max($playerWithInitiativeStore));
+        $this->assertTrue(in_array(0, $playerWithInitiativeStore));
+        $this->assertTrue(in_array(1, $playerWithInitiativeStore));
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_start_round() {
+        $this->object->gameState = BMGameState::startRound;
+        try {
+            $this->object->do_next_step();
+            fail('The player who has won initiative must already have been determined.');
+        }
+        catch (LogicException $expected) {
+        }
+
+        $this->object->gameState = BMGameState::startRound;
+        $this->object->playerWithInitiativeIdx = 0;
+        $this->object->do_next_step();
+        $this->assertEquals($this->object->playerWithInitiativeIdx,
+                            $this->object->activePlayerIdx);
+
+        $this->object->gameState = BMGameState::startRound;
+        $this->object->playerWithInitiativeIdx = 1;
+        $this->object->do_next_step();
+        $this->assertEquals($this->object->playerWithInitiativeIdx,
+                            $this->object->activePlayerIdx);
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_start_turn() {
+        $this->object->gameState = BMGameState::startTurn;
+        $this->object->activePlayerIdx = 0;
+        $die1 = BMDie::create(30, array());
+        $die2 = BMDie::create(20, array());
+        $die3 = BMDie::create(16, array());
+        $die1ValueStore = array();
+        $die2ValueStore = array();
+        $die3ValueStore = array();
+        for ($runIdx = 0; $runIdx <= 20; $runIdx++) {
+            $die1->value = 1;
+            $die2->value = 1;
+            $die3->value = 2;
+            $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                       array($die3));
+            $this->object->attack = array(0, 1, array(0, 1), array(0), 'skill');
+            $this->object->do_next_step();
+            $die1ValueStore[] = $die1->value;
+            $die2ValueStore[] = $die2->value;
+            $die3ValueStore[] = $die3->value;
+        }
+        // check that dice have all rerolled
+        $this->assertTrue(max($die1ValueStore) > 1);
+        $this->assertTrue(max($die2ValueStore) > 1);
+        $this->assertTrue(max($die3ValueStore) > 2);
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_end_turn() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_end_round() {
+        $this->object->playerIdxArray = array(12345, 54321);
+        $this->object->playerWithInitiativeIdx = 1;
+        $this->object->activePlayerIdx = 0;
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->passStatusArray = array(TRUE, TRUE);
+        $this->object->roundScoreArray = array(26.5, -26.5);
+        $this->object->maxWins = 3;
+        $this->object->gameScoreArrayArray = array(array(1,2,1), array(2,1,1));
+        $this->object->gameState = BMGameState::endRound;
+        $this->object->do_next_step();
+        $this->assertFalse(isset($this->object->activePlayerIdx));
+        $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
+        $this->assertFalse(isset($this->object->activeDieArrayArray));
+        $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
+        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertFalse(isset($this->object->roundScoreArray));
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_end_game() {
+        $this->object->gameState = BMGameState::endGame;
+        $this->object->activePlayerIdx = 1;
+        $this->object->do_next_step();
+        $this->assertFalse(isset($this->object->activePlayerIdx));
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
+    public function test_do_next_step_undefined() {
+        unset($this->object->gameState);
+        try {
+            $this->object->do_next_step();
+            fail('Game state must be set.');
+        }
+        catch (LogicException $expected) {
+        }
+    }
+
+    /**
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_start_game() {
@@ -36,11 +316,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startGame, $this->object->gameState);
 
-        // missing the playerIdxArray
+        // default unspecified playerIdxArray
         $this->object->gameState = BMGameState::startGame;
-        if (isset($this->object->playerIdxArray)) {
-            unset($this->object->playerIdxArray);
-        }
         $Button1 = new BMButton;
         $Button2 = new BMButton;
         $this->object->buttonArray = array($Button1, $Button2);
@@ -58,13 +335,22 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::applyHandicaps, $this->object->gameState);
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
         $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
-                            $this->object->gameScoreArray);
+                            $this->object->gameScoreArrayArray);
     }
 
     /**
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_apply_handicaps() {
+        $this->object->gameState = BMGameState::applyHandicaps;
+        unset($this->object->maxWins);
+        try {
+            $this->object->update_game_state();
+            fail('Max wins must exist.');
+        }
+        catch (LogicException $expected) {
+        }
+
         $this->object->playerIdxArray = array(12345, 54321);
         $this->object->gameState = BMGameState::applyHandicaps;
         $this->object->maxWins = 3;
@@ -74,7 +360,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->playerIdxArray = array('12345', '54321');
         $this->object->gameState = BMGameState::applyHandicaps;
-        $this->object->gameScoreArray = array(array(0, 0, 0),array(0, 0, 0));
+        $this->object->gameScoreArrayArray = array(array(0, 0, 0),array(0, 0, 0));
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::chooseAuxiliaryDice,
@@ -82,7 +368,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->playerIdxArray = array('12345', '54321');
         $this->object->gameState = BMGameState::applyHandicaps;
-        $this->object->gameScoreArray = array(array(3, 0, 0),array(0, 3, 0));
+        $this->object->gameScoreArrayArray = array(array(3, 0, 0),array(0, 3, 0));
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endGame, $this->object->gameState);
@@ -233,7 +519,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
 
         $this->object->gameState = BMGameState::startTurn;
-        $this->object->attack = array(array(), array(), '');
+        $this->object->attack = array(0, 1, array(), array(), '');
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endTurn, $this->object->gameState);
         //james: need to check that the attack has been carried out
@@ -248,41 +534,32 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // both players still have dice and both have not passed
         $this->object->playerIdxArray = array(12345, 54321);
-        $this->object->activePlayerIdx = 0;
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
         $this->object->passStatusArray = array(FALSE, FALSE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activePlayerIdx));
-        $this->assertEquals(1, $this->object->activePlayerIdx);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
 
         $this->object->playerIdxArray = array(12345, 54321);
-        $this->object->activePlayerIdx = 1;
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
         $this->object->passStatusArray = array(TRUE, FALSE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activePlayerIdx));
-        $this->assertEquals(0, $this->object->activePlayerIdx);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(TRUE, FALSE), $this->object->passStatusArray);
 
         $this->object->playerIdxArray = array(12345, 54321);
-        $this->object->activePlayerIdx = 0;
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
         $this->object->passStatusArray = array(FALSE, TRUE);
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
-        $this->assertTrue(isset($this->object->activePlayerIdx));
-        $this->assertEquals(1, $this->object->activePlayerIdx);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(FALSE, TRUE), $this->object->passStatusArray);
 
@@ -315,25 +592,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_end_round() {
-        $this->object->playerIdxArray = array(12345, 54321);
-        $this->object->activePlayerIdx = 0;
-        $die1 = new BMDie;
-        $die2 = new BMDie;
-        $this->object->activeDieArrayArray = array(array($die1), array($die2));
-        $this->object->passStatusArray = array(TRUE, TRUE);
-        $this->object->maxWins = 3;
-        $this->object->gameScoreArray = array(array(1,2,1),
-                                              array(2,1,1));
         $this->object->gameState = BMGameState::endRound;
+        $this->object->gameScoreArrayArray = array(array(2,1,2), array(1,2,2));
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::loadDiceIntoButtons, $this->object->gameState);
-        $this->assertFalse(isset($this->object->activePlayerIdx));
-        $this->assertFalse(isset($this->object->activeDieArrayArray));
-        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
 
+        $this->object->activePlayerIdx = 0;
+        $this->object->gameState = BMGameState::endRound;
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::endRound, $this->object->gameState);
+
+        unset($this->object->activePlayerIdx);
         $this->object->maxWins = 5;
-        $this->object->gameScoreArray = array(array(5,2,1),
-                                              array(2,5,1));
+        $this->object->gameScoreArrayArray = array(array(5,2,1),
+                                                   array(2,5,1));
         $this->object->gameState = BMGameState::endRound;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endGame, $this->object->gameState);
@@ -352,6 +624,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state
      */
     public function test_update_game_state_not_set() {
+        unset($this->object->gameState);
         try {
             $this->object->update_game_state();
             $this->fail('An undefined game state cannot be updated.');
@@ -361,12 +634,40 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::proceed_to_next_user_action
+     */
+    public function test_proceed_to_next_user_action() {
+        $this->object->gameState = BMGameState::endGame;
+        $this->object->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::endGame, $this->object->gameState);
+
+        // james: need to complete this
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
      * @covers BMGame::does_recipe_have_auxiliary_dice
      */
     public function test_does_recipe_have_auxiliary_dice() {
         $this->assertFalse(BMGame::does_recipe_have_auxiliary_dice('(4) (8) (12) (20)'));
 
         $this->assertTrue(BMGame::does_recipe_have_auxiliary_dice('(4) (8) (12) +(20)'));
+    }
+
+    /**
+     * @covers BMGame::separate_out_auxiliary_dice
+     */
+    public function test_separate_out_auxiliary_dice() {
+        $recipe = '(4) (12) (16) (20)';
+        $this->assertEquals(array($recipe, ''),
+                            BMGame::separate_out_auxiliary_dice($recipe));
+
+        $recipe = '(4) +(12) (16) (20)+';
+        $this->assertEquals(array('(4) (16)', '(12) (20)'),
+                            BMGame::separate_out_auxiliary_dice($recipe));
     }
 
     /**
@@ -403,7 +704,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($method->invoke($this->object));
 
         // check with a pass attack
-        $this->object->attack = array(array(), array(), '');
+        $this->object->attack = array(0, 1, array(), array(), '');
         $this->assertTrue($method->invoke($this->object));
 
         // james: need to add test cases for invalid attacks
@@ -429,6 +730,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->passStatusArray = array(TRUE, TRUE);
         $this->object->capturedDieArrayArray = array(array($BMDie3), array($BMDie4));
         $this->object->roundScoreArray = array(40, -25);
+        $this->object->waitingOnActionArray = array(FALSE, TRUE);
 
         $method->invoke($this->object);
         $this->assertFalse(isset($this->object->activePlayerIdx));
@@ -437,27 +739,73 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
         $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
         $this->assertFalse(isset($this->object->roundScoreArray));
+        $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
     }
 
     /**
-     * @covers BMGame::change_active_player
+     * @covers BMGame::update_active_player
      */
-    public function test_change_active_player() {
-        $method = new ReflectionMethod('BMGame', 'change_active_player');
+    public function test_update_active_player() {
+        $method = new ReflectionMethod('BMGame', 'update_active_player');
         $method->setAccessible(TRUE);
 
-        $this->object->playerIdxArray = array(1, 12, 21, 3, 15);
-        $this->object->activePlayerIdx = 0;
-        $method->invoke($this->object);
-        $this->assertEquals(1, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(2, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(3, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(4, $this->object->activePlayerIdx);
-        $method->invoke($this->object);
-        $this->assertEquals(0, $this->object->activePlayerIdx);
+        $game = new BMGame(1234,
+                           array(1, 12, 21, 3, 15),
+                           array('', '', '', '', ''),
+                           3);
+        $game->activePlayerIdx = 0;
+        $method->invoke($game);
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(2, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(3, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(4, $game->activePlayerIdx);
+        $method->invoke($game);
+        $this->assertEquals(0, $game->activePlayerIdx);
+    }
+
+    /**
+     * @covers BMGame::__construct
+     */
+    public function test__construct() {
+        // construct default empty game
+        $game = new BMGame;
+        $this->assertEquals(0, $game->gameId);
+        $this->assertEquals(array(0, 0), $game->playerIdxArray);
+//        $this->assertEquals(BMGameState::startGame, $game->gameState);
+        $this->assertEquals('', $game->buttonArray[0]->recipe);
+        $this->assertEquals('', $game->buttonArray[1]->recipe);
+        $this->assertEquals(3, $game->maxWins);
+        // the gameScoreArrayArray must remain unset until BMGameState::applyHandicaps
+        $this->assertTrue(!isset($this->object->gameScoreArrayArray));
+        $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(array(FALSE, FALSE), $game->lastWinnerIdxArray);
+
+        // construct valid game
+        $gameId = 2745;
+        $playerIdxArray = array(123, 456);
+        $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
+        $maxWins = 5;
+        $game = new BMGame($gameId, $playerIdxArray, $buttonRecipeArray, $maxWins);
+        $this->assertEquals($playerIdxArray, $game->playerIdxArray);
+        $this->assertEquals($buttonRecipeArray[0], $game->buttonArray[0]->recipe);
+        $this->assertEquals($buttonRecipeArray[1], $game->buttonArray[1]->recipe);
+        $this->assertEquals($maxWins, $game->maxWins);
+        $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
+
+        // construct invalid game
+        $gameId = 2745;
+        $playerIdxArray = array(123, 456, 789);
+        $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
+        $maxWins = 5;
+        try {
+            $game = new BMGame($gameId, $playerIdxArray, $buttonRecipeArray, $maxWins);
+            $this->fail('The number of buttons must equal the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
     /**
@@ -467,16 +815,120 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // check that a nonexistent property can be gotten gracefully
         $this->assertEquals(NULL, $this->object->nonsenseVariable);
 
-        $die1 = new BMDie;
-        $die2 = new BMDie;
-        $this->object->buttonArray = array($die1, $die2);
-        $this->assertEquals(array($die1, $die2), $this->object->buttonArray);
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $this->object->buttonArray = array($button1, $button2);
+        $this->assertEquals(array($button1, $button2), $this->object->buttonArray);
     }
 
     /**
      * @covers BMGame::__set
      */
-    public function test__set_game_score_array() {
+    public function test__set_game_id() {
+        // valid set
+        $this->object->gameId = 235;
+
+        // invalid set
+        try {
+            $this->object->gameId = 'abc';
+            $this->fail('The game ID must be a non-negative integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_player_idx_array() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->playerIdxArray = array(345, 567);
+
+        // invalid set
+        try {
+            $game->playerIdxArray = array(123, 345, 567);
+            $this->fail('The number of players cannot change during a game.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_active_player_idx() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->activePlayerIdx = 0;
+
+        // invalid set
+        try {
+            $game->activePlayerIdx = 6;
+            $this->fail('The active player index must be a valid index.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_player_with_initiative_idx() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->playerWithInitiativeIdx = 0;
+
+        // invalid set
+        try {
+            $game->playerWithInitiativeIdx = 6;
+            $this->fail('The index of the player with initiative must be valid.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_button_array() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $button3 = new BMButton;
+
+        $button1->load_from_recipe('p(23)');
+        $button2->load_from_recipe('s(58)');
+        $button3->load_from_recipe('(4) (8)');
+
+        // valid set
+        $game->buttonArray = array($button1, $button2);
+
+        // invalid set
+        try {
+            $game->buttonArray = array($button1, $button2, $button3);
+            $this->fail('The number of buttons must match the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $game->buttonArray = array('(45)', '(23)');
+            $this->fail('The buttonArray must contain BMButtons.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_game_score_array_array() {
         $this->object->playerIdxArray = array(12345, 54321);
         $die1 = new BMDie;
         $die2 = new BMDie;
@@ -484,18 +936,52 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($die1, $this->object->dieArrayArray[0][0]);
         $this->assertEquals($die2, $this->object->dieArrayArray[1][0]);
 
-        $this->object->gameScoreArray = array(array(2,1,1), array(1,2,1));
+        $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2,1));
 
         try {
-            $this->object->gameScoreArray = array(array(2,1,1), array(1,2));
+            $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2));
             $this->fail('W/L/D must be three numbers.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->gameScoreArray = array(array(2,1,1));
+            $this->object->gameScoreArrayArray = array(array(2,1,1));
             $this->fail('There must be the same number of players and game scores.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_active_die_array_array() {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+
+        // valid set
+        $this->object->activeDieArrayArray = array(array(), array());
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+
+        // invalid set
+        try {
+            $this->object->activeDieArrayArray = 'abc';
+            $this->fail('Active die array array must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->activeDieArrayArray = array(1, 2);
+            $this->fail('Active die arrays must be arrays.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->activeDieArrayArray = array(array(1), array(2));
+            $this->fail('Active die arrays must be arrays of BM dice.');
         }
         catch (InvalidArgumentException $expected) {
         }
@@ -507,40 +993,225 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test__set_attack() {
         try {
             $this->object->attack = array(array(1), array(2));
-            $this->fail('There must be exactly three elements in attack.');
+            $this->fail('There must be exactly five elements in attack.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(1, array(2), '');
-            $this->fail('The first element of attack must be an array.');
+            $this->object->attack = array(array(1), 2, array(1), array(2), '');
+            $this->fail('The first element of attack must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(array(1), 2, '');
-            $this->fail('The second element of attack must be an array.');
+            $this->object->attack = array(1, array(2), array(11), array(12), '');
+            $this->fail('The second element of attack must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
-        // james: add test about third element of attack
+        try {
+            $this->object->attack = array(1, 2, 1, array(2), '');
+            $this->fail('The third element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(1, 2, array(11), 12, '');
+            $this->fail('The fourth element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        // james: add test about fifth element of attack
 
         // check that a pass attack is valid
-        $this->object->attack = array(array(), array(), '');
+        $this->object->attack = array(0, 1, array(), array(), '');
 
         // check that a skill attack is valid
-        $this->object->attack = array(array(0, 5), array(2), 'skill');
+        $this->object->attack = array(0, 1, array(0, 5), array(2), 'skill');
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_pass_status_array() {
+        // valid set
+        $this->object->passStatusArray = array(TRUE, FALSE);
+
+        // invalid set
+        try {
+            $this->object->passStatusArray = TRUE;
+            $this->fail('Pass status array must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->passStatusArray = array(TRUE, TRUE, TRUE);
+            $this->fail('Pass status array must have the same number of elements '.
+                        'as the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->passStatusArray = array(1, 2);
+            $this->fail('Pass statuses must be booleans.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_captured_die_array_array() {
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+
+        // valid set
+        $this->object->capturedDieArrayArray = array(array(), array());
+        $this->object->capturedDieArrayArray = array(array($die1), array($die2));
+
+        // invalid set
+        try {
+            $this->object->capturedDieArrayArray = 'abc';
+            $this->fail('Active die array array must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->capturedDieArrayArray = array(1, 2);
+            $this->fail('Active die arrays must be arrays.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->capturedDieArrayArray = array(array(1), array(2));
+            $this->fail('Active die arrays must be arrays of BM dice.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_round_score_array() {
+        // valid set
+        $this->object->roundScoreArray = array(22, 35);
+
+        // invalid set
+        try {
+            $this->object->roundScoreArray = 42;
+            $this->fail('The round score must have one score for each player.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->roundScoreArray = array(22, 35, 59);
+            $this->fail('The round score must have one score for each player.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->roundScoreArray = array(22);
+            $this->fail('The round score must have one score for each player.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->roundScoreArray = array('abc', 'def');
+            $this->fail('The round scores much be numeric.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_max_wins() {
+        // valid set
+        $this->object->maxWins = 5;
+
+        // invalid set
+        try {
+            $this->object->maxWins = 0;
+            $this->fail('maxWins must be a positive integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->maxWins = 2.5;
+            $this->fail('maxWins must be a positive integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_game_state() {
+        // valid set
+        $this->object->gameState = BMGameState::startRound;
+
+        // invalid set
+        try {
+            $this->object->gameState = 'abcd';
+            $this->fail('Game state must be an integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->gameState = 0;
+            $this->fail('Invalid game state.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_waiting_on_action_array() {
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
+
+        // valid set
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // invalid set
+        try {
+            $game->waitingOnActionArray = array(TRUE, FALSE, FALSE);
+            $this->fail('The action array must match the number of players.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $game->waitingOnActionArray = array(1, 2);
+            $this->fail('The action array must contain booleans.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
     /**
      * @covers BMGame::__isset
      */
     public function test__isset() {
-        $this->assertFalse(isset($this->object->buttonArray));
-
         $button1 = new BMButton;
         $button2 = new BMButton;
         $this->object->buttonArray = array($button1, $button2);
@@ -559,34 +1230,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->buttonArray = array($button1, $button2);
         unset($this->object->buttonArray);
         $this->assertFalse(isset($this->object->buttonArray));
-    }
-}
-
-
-/**
- * Generated by PHPUnit_SkeletonGenerator 1.2.0 on 2012-12-11 at 13:27:50.
- */
-class BMGameStateTest extends PHPUnit_Framework_TestCase {
-
-    /**
-     * @var BMGameState
-     */
-    protected $object;
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp() {
-        $this->object = new BMGameState;
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
-
     }
 
     /**
@@ -614,6 +1257,29 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
                           BMGameState::endRound);
         $this->assertTrue(BMGameState::endRound <
                           BMGameState::endGame);
+    }
+
+    /**
+     * @covers BMGameState::validate_game_state
+     */
+    public function test_validate_game_state() {
+        // valid set
+        BMGameState::validate_game_state(BMGameState::startRound);
+
+        // invalid set
+        try {
+            BMGameState::validate_game_state('abcd');
+            $this->fail('Game state must be an integer.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            BMGameState::validate_game_state(0);
+            $this->fail('Invalid game state.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
     }
 
 }
