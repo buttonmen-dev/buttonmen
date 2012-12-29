@@ -34,6 +34,12 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      * @covers BMButton::__set
      */
     public function test_load_from_recipe() {
+        // empty button recipe
+        $recipe = '';
+        $this->object->load_from_recipe($recipe);
+        $this->assertEquals($recipe, $this->object->recipe);
+        $this->assertTrue(is_array($this->object->dieArray));
+
         // button recipes using dice with no special skills
         $recipe = '(4) (8) (20) (20)';
         $this->object->load_from_recipe($recipe);
@@ -100,6 +106,29 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMButton::reload
+     */
+    public function test_reload() {
+        // button recipes using dice with no special skills
+        $recipe = '(4) (8) (20) (20)';
+        $this->object->load_from_recipe($recipe);
+        $this->assertEquals(4, count($this->object->dieArray));
+        // empty the array manually
+        $this->object->dieArray = array();
+        // force reload
+        $this->object->reload();
+        $this->assertEquals(4, count($this->object->dieArray));
+
+        $dieSides = array(4, 8, 20, 20);
+        for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
+          $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
+          $this->assertEquals($dieSides[$dieIdx],
+                              $this->object->dieArray[$dieIdx]->mSides);
+        }
+
+    }
+
+    /**
      * @covers BMButton::load_from_name
      * @covers BMButton::__set
      */
@@ -159,6 +188,12 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     public function test_validate_recipe() {
         $method = new ReflectionMethod('BMButton', 'validate_recipe');
         $method->setAccessible(TRUE);
+
+        // empty button recipe
+        $method->invoke(new BMButton, '');
+
+        // single die recipe
+        $method->invoke(new BMButton, '(99)');
 
         // valid button recipe
         $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
