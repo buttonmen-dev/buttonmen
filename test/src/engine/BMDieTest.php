@@ -513,6 +513,32 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals(1, count($assistVals));
             $this->assertEquals(0, $assistVals[0]);
         }
+
+        // test that we don't assist attacks we are making
+        $this->object->add_skill("AVTesting");
+
+        // test that the assist skill works
+        $assistVals = $this->object->assist_values($att,
+                                                   array($attDie),
+                                                   array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(1, count($assistVals));
+        $this->assertEquals(1, $assistVals[0]);
+
+        // now make it not work
+        $assistVals = $this->object->assist_values($att,
+                                                   array($this->object),
+                                                   array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(1, count($assistVals));
+        $this->assertEquals(0, $assistVals[0]);
+
+        $assistVals = $this->object->assist_values($att,
+                                                   array($attDie, $this->object),
+                                                   array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(1, count($assistVals));
+        $this->assertEquals(0, $assistVals[0]);
     }
 
     /**

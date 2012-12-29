@@ -19,6 +19,16 @@ class BMSkillTesting2 extends BMSkill {
     public static function test($args) {
         $args[0] .= "still testing";
     }
+
+}
+
+class BMSkillAVTesting extends BMSkill {
+    public static $hooked_methods = array("assist_values");
+
+    public static function assist_values($args) {
+        $args[3] = array(1);
+    }
+
 }
 
 class BMDieTesting extends BMDie {
