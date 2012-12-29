@@ -25,23 +25,33 @@ class XCYIterator implements Iterator {
     public function __construct($array, $y) {
         $this->baseList = $array;
         $this->depth = $y;
+        $this->basepos = 1;
+        if ($this->depth > count($array)) {
+            $this->depth = count($array);
+        }
+        if ($this->depth < 1) {
+            $this->depth = 1;
+        }
     }
 
     public function setPosition($newPos) {
-        $this->position = $newPos;
+        $this->basepos = $newPos;
     }
 
+    // Called when the foreach begins
+    // 
+    // 
     public function rewind() {
-        $this->position = 1;
+        $this->position = $this->basepos;
         $this->list = $this->baseList;
-        unset($this->tail);
+        $this->tail = NULL;
 
-        $this->head = array_pop($list);
+        $this->head = array_pop($this->list);
         if (count($this->list > 0) && $this->depth > 1) {
             $this->tail = new XCYIterator($this->list, $this->depth - 1);
         }
         if ($this->tail) { 
-            $this->tail->setPosition($position + 1);
+            $this->tail->setPosition($this->position + 1);
             $this->tail->rewind();
             
         }
@@ -50,7 +60,8 @@ class XCYIterator implements Iterator {
     public function current() {
         if ($this->tail) {
             $tmp = $this->tail->current();
-            return array_push($tmp, $this->head);
+            array_push($tmp, $this->head);
+            return $tmp;
         }
         else {
             return array($this->head);
@@ -71,10 +82,14 @@ class XCYIterator implements Iterator {
         if ($this->tail) {
             $this->tail->next();
             if (!$this->tail->valid()) {
-                unset($this->tail);
-                $this->head = array_pop($this->list);
-                if (count($this->list > 0) && $this->depth > 1) {
+                $this->tail = NULL;
+                $this->head = NULL;
+                $this->position++;
+                if (count($this->list) >= $this->depth) {
+                    $this->head = array_pop($this->list);
                     $this->tail = new XCYIterator($this->list, $this->depth - 1);
+                    $this->tail->setPosition($this->position + 1);
+                    $this->tail->rewind();
                 }
             }
         }
@@ -85,8 +100,10 @@ class XCYIterator implements Iterator {
     }
 
     public function valid() {
-        if ($this->head) { return TRUE; }
-        else { return FALSE; }
+        if (!is_null($this->head)) { return TRUE; }
+        else { 
+            return FALSE;
+        }
     }
 
     

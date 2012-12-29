@@ -97,4 +97,13 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
           'This test has not been implemented yet.'
         );
     }
+
+
+    public function testXCYIterator() {
+        $it1 = new XCYIterator(array('A', 'B', 'C', 'D', 'E'), 3);
+
+        foreach ($it1 as $key => $item) {
+            echo $key, " : ", join($item), "\n";
+        }
+    }
 }
