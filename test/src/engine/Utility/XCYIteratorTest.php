@@ -183,5 +183,12 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
              $keycombinations[join($tmp)]++;
         }
 
+        // Each combination should have been visited exactly once
+        foreach ($combinations as $x) {
+            $this->assertEquals(1, $x);
+        }
+        foreach ($keycombinations as $x) {
+            $this->assertEquals(1, $x);
+        }
     }
 }
