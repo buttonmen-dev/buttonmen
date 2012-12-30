@@ -50,6 +50,15 @@ class BMAttTesting extends BMAttack {
     public function test_ovm_helper($game, $many, $one, $compare) {
         return search_ovm_helper($game, $many, $one, $compare);
     }
+
+    public $attackLog = array();
+
+    public function validate_attack($game, $attackers, $defenders) {
+        $attackLog[] = array($attackers, $defenders);
+        // The game isn't used for anything else, so we can use it to
+        // iterate over the whole list or not.
+        return $game;
+    }
 }
 
 class DummyGame {

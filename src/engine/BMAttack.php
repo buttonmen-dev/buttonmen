@@ -21,7 +21,7 @@ class BMAttack {
         // You can't instantiate me; I'm a Singleton!
     }
 
-    static function getInstance() {
+    static function get_instance() {
         $class = get_called_class();
         if (!isset(static::$instance[$class])) {
             static::$instance[$class] = new $class;

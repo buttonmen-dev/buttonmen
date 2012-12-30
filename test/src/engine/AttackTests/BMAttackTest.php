@@ -18,7 +18,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = BMAttack::getInstance();
+        $this->object = BMAttack::get_instance();
     }
 
     /**
@@ -30,20 +30,18 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers BMAttack::getInstance
-     * @todo   Implement testGetInstance().
+     * @covers BMAttack::get_instance
      */
-    public function testGetInstance()
+    public function testGet_instance()
     {
-        $test1 = BMAttack::getInstance();
-        $test2 = BMAttack::getInstance();
+        $test1 = BMAttack::get_instance();
+        $test2 = BMAttack::get_instance();
 
         $this->assertTrue($test1 === $test2);
     }
 
     /**
      * @covers BMAttack::add_die
-     * @todo   Implement testAdd_die().
      */
     public function testAdd_die()
     {
@@ -96,7 +94,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers BMAttack::help_bounds
-     * @todo   Implement testHelp_bounds().
      */
     public function testHelp_bounds()
     {
@@ -246,6 +243,14 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(-8, $bounds[0]);
         $this->assertEquals(-1, $bounds[1]);
 
+        $helpvals = array($neghelp, $neghelp, $neghelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-12, $bounds[0]);
+        $this->assertEquals(-1, $bounds[1]);
+
 
 
         // mix pos and heg
@@ -289,8 +294,40 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(-4, $bounds[0]);
         $this->assertEquals(6, $bounds[1]);
 
+        // mix things up with something that spans zero
+
+        $helpvals = array($smallhelp, $widehelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-2, $bounds[0]);
+        $this->assertEquals(5, $bounds[1]);
+
+        $helpvals = array($neghelp, $widehelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-6, $bounds[0]);
+        $this->assertEquals(2, $bounds[1]);
 
 
+        $helpvals = array($bighelp, $neghelp, $widehelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-6, $bounds[0]);
+        $this->assertEquals(8, $bounds[1]);
+
+        $helpvals = array($widehelp, $nohelp, $neghelp, $widehelp, $smallhelp);
+
+        $bounds = $this->object->help_bounds($helpvals);
+
+        $this->assertEquals(2, count($bounds));
+        $this->assertEquals(-8, $bounds[0]);
+        $this->assertEquals(7, $bounds[1]);
     }
 
     /**
@@ -307,22 +344,44 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
     /**
      * @covers BMAttack::find_attack
-     * @todo   Implement testFind_attack().
      */
     public function testFind_attack()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->assertFalse($this->object->find_attack(new DummyGame));
     }
 
     /**
      * @covers BMAttack::validate_attack
-     * @todo   Implement testValidate_attack().
      */
     public function testValidate_attack()
     {
+        $this->assertFalse($this->object->validate_attack(new DummyGame,
+                                                          array(new BMDie),
+                                                          array(new BMDie)));
+    }
+
+    /**
+     * @covers BMAttack::commit_attack
+     */
+    public function testCommit_attack()
+    {
+        $this->assertFalse($this->object->commit_attack(new DummyGame,
+                                                          array(new BMDie),
+                                                          array(new BMDie)));
+    }
+
+
+    /**
+     * @covers BMAttack::search_ovm_helper
+     */
+    public function testSearch_ovm_helper() {
+
+    }
+
+    /**
+     * @covers BMAttack::search_onevone
+     */
+    public function testSearch_onevone() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
           'This test has not been implemented yet.'
@@ -330,16 +389,28 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers BMAttack::commit_attack
-     * @todo   Implement testCommit_attack().
+     * @covers BMAttack::search_onevmany
+     * @depends testSearch_ovm_helper
      */
-    public function testCommit_attack()
-    {
+    public function testSearch_onevmany() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
           'This test has not been implemented yet.'
         );
     }
+
+    /**
+     * @covers BMAttack::search_manyvone
+     * @depends testSearch_ovm_helper
+     */
+    public function testSearch_manyvone() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+          'This test has not been implemented yet.'
+        );
+
+    }
+
 }
 
 
