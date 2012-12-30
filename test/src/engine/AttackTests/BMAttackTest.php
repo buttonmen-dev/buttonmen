@@ -19,6 +19,8 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     protected function setUp()
     {
         $this->object = BMAttTesting::get_instance();
+        $this->object->clear_dice();
+        $this->object->clear_log();
     }
 
     /**
@@ -27,8 +29,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
-        $this->object->clear_dice();
-        $this->object->clear_log();
     }
 
     /**

@@ -97,6 +97,18 @@ class DummyGame {
         throw new Exception("require_values called");
     }
 
+    public $attackers = array();
+
+    public function attacker_dice() {
+        return $this->attackers;
+    }
+
+    public $defenders = array();
+
+    public function defender_dice() {
+        return $this->defenders;
+    }
+
 }
 
 ?>

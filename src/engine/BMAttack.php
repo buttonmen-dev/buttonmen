@@ -17,6 +17,14 @@ class BMAttack {
     // side effects
     public $sideEffect = FALSE;
 
+    public $name;
+    // The attack's type, which is usually the same as its name.
+    //
+    // This is used for attacks like Sorcates' special attack, which
+    // is a skill attack, so can work on Stealth dice and use Fire
+    // dice, but needs its own class.
+    public $type;
+
     private function __construct() {
         // You can't instantiate me; I'm a Singleton!
     }
@@ -216,6 +224,7 @@ class BMAttack {
 
 class BMAttackPower extends BMAttack {
     public $name = "Power";
+    public $type = 'Power';
 
     public function find_attack($game) {
         // This method doesn't exist; either needs to, or to be
@@ -236,7 +245,7 @@ class BMAttackPower extends BMAttack {
         // Need to implement this method or replace it with something
         // equivalent
         foreach ($game->attacker_dice() as $die) {
-            $helpVals = $die->assist_attack($this->name, $attackers, $defenders);
+            $helpVals = $die->assist_values($this->type, $attackers, $defenders);
             if ($helpVals[0] != 0) {
                 $helpers[] = $helpVals;
             }
@@ -244,14 +253,14 @@ class BMAttackPower extends BMAttack {
 
         $bounds = $this->help_bounds($helpers);
 
-        foreach ($attackers[0]->attack_values($this->name) as $aVal) {
+        foreach ($attackers[0]->attack_values($this->type) as $aVal) {
 
-            if ($aVal + $bounds[1] >= $defenders[0]->defense_value()) {
+            if ($aVal + $bounds[1] >= $defenders[0]->defense_value($this->type)) {
 
-                if ($attackers[0]->valid_attack($this->name, $attackers, $defenders) &&
-                    $defenders[0]->valid_target($this->name, $attackers, $defenders))
+                if ($attackers[0]->valid_attack($this->type, $attackers, $defenders) &&
+                    $defenders[0]->valid_target($this->type, $attackers, $defenders))
                 {
-                    return $TRUE;
+                    return TRUE;
                 }
             }
 
@@ -270,9 +279,9 @@ class BMAttackPower extends BMAttack {
         $att = $attackers[0];
         $def = $defenders[0];
 
-        $att->capture($this->name, $attackers, $defenders);
+        $att->capture($this->type, $attackers, $defenders);
         
-        $def->be_captured($this->name, $attackers, $defenders);
+        $def->be_captured($this->type, $attackers, $defenders);
 
         $att->has_attacked = TRUE;
         $att->roll();
@@ -289,6 +298,7 @@ class BMAttackPower extends BMAttack {
 
 class BMAttackSkill extends BMAttack {
     public $name = "Skill";
+    public $type = "Skill";
 
     public function find_attack($game) {
 
@@ -307,6 +317,7 @@ class BMAttackSkill extends BMAttack {
 
 class BMAttackShadow extends BMAttackPower {
     public $name = "Shadow";
+    public $type = "Shadow";
 
     public function validate_attack($game, $attackers, $defenders) {
 
@@ -315,7 +326,11 @@ class BMAttackShadow extends BMAttackPower {
 
 class BMAttackPass extends BMAttack {
     public $name = "Pass";
+    public $type = "Pass";
 
+    public function find_attack($game) {
+
+    }
 }
 
 
