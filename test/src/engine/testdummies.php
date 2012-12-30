@@ -47,8 +47,8 @@ class BMContTesting extends BMContainer {
 }
 
 class BMAttTesting extends BMAttack {
-    public function test_ovm_helper($game, $many, $one, $compare) {
-        return search_ovm_helper($game, $many, $one, $compare);
+    public function test_ovm_helper($game, $one, $many, $compare) {
+        return $this->search_ovm_helper($game, $one, $many, $compare);
     }
 
     public $attackLog = array();

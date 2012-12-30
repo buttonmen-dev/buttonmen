@@ -375,7 +375,65 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @covers BMAttack::search_ovm_helper
      */
     public function testSearch_ovm_helper() {
+        
+        // need to get at a protected method
+        $attack = BMAttTesting::get_instance();
+        
+        $attackLog = array();
+        $aRef = &$attackLog;
 
+        // basic failure conditions
+        $comparetrue = function ($a, $b, $c) use (&$aRef) { 
+            $aRef[] = array($b, $c);
+            return TRUE;
+        };
+        $comparefalse = function ($a, $b, $c) use (&$aRef) {
+            $aRef[] = array($b, $c);            
+            return FALSE;
+        };
+
+        $this->assertFalse($attack->test_ovm_helper("game", array(), array(), $comparetrue));
+        $this->assertFalse($attack->test_ovm_helper("game", array(new BMDie), array(), $comparetrue));
+        $this->assertFalse($attack->test_ovm_helper("game", array(), array(new BMDie), $comparetrue));
+        $this->assertTrue($attack->test_ovm_helper("game", array(new BMDie), array(new BMDie), $comparetrue));
+
+
+        $attackLog = array();
+
+        // confirm that the search stops on the first hit
+        $attack->test_ovm_helper("game", array(1, 2, 3), array('A', 'B', 'C'), $comparetrue);
+
+        $this->assertEquals(1, count($attackLog));
+
+        $attackLog = array();
+
+        // and that it iterates over everything if it doesn't.
+        // one is three rounds
+        // many is three (at 1) + three (at 2) + 1 (at 3) 
+        // so 21 in all
+        $attack->test_ovm_helper("game", array(1, 2, 3), array('A', 'B', 'C'), $comparefalse);
+
+        $this->assertEquals(21, count($attackLog));
+
+        
+        // check the coverage
+        $check = array();
+        for ($i = 1; $i <= 3; $i++) {
+            $check[$i] = array();
+            foreach(array('A', 'B', 'C', 'AB', 'BC', 'AC', 'ABC') as $key) {
+                $check[$i][$key] = 0;
+            }
+        }
+
+        foreach ($attackLog as $att) {
+            $check[$att[0][0]][join($att[1])]++;
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            foreach ($check[$i] as $hit) {
+                $this->assertEquals(1, $hit);
+            }
+        }
     }
 
     /**

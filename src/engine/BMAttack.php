@@ -139,7 +139,7 @@ class BMAttack {
 
     // Combine the logic for onevmany and manyvone by use of a
     // comparison function.
-    private function search_ovm_helper($game, $many, $one, $compare) {
+    protected function search_ovm_helper($game, $one, $many, $compare) {
         // Sanity check
 
         if (count($many) < 1 || count($one) < 1) {
@@ -154,13 +154,13 @@ class BMAttack {
         $checkedSizes = array();
 
         for ($i = 1; $i <= $count; $i++) {
-            $checkedSizes[i] = FALSE;
+            $checkedSizes[$i] = FALSE;
         }
 
 
         for ($i = 1; $i <= $count; $i++) {
             if ($checkedSizes[$i]) {
-                $continue;
+                continue;
             }
 
             // We only need to iterate over about half the space, since we
@@ -177,6 +177,9 @@ class BMAttack {
                     // Don't search the complement when we're halfway
                     // through an even-sized list
                     if ($i == $count - $i) { continue; }
+
+                    // Or if the complement is empty
+                    if (count($many) == count($m)) { continue; }
                     
                     $complement =  array_diff($many, $m);
                     if ($compare($game, $o, $complement)) {
