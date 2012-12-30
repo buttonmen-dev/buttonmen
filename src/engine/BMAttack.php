@@ -192,21 +192,24 @@ class BMAttack {
         return FALSE;
     }
 
+    // $this may not be used in anonymous functions in PHP 5.3. Bastards.
     protected function search_onevmany($game, $attackers, $defenders) {
-        $compare = function($g, $att, $def) {
-            return $this->validate_attack($g, $att, $def);
+        $myself = $this;
+        $compare = function($g, $att, $def) use ($myself) {
+            return $myself->validate_attack($g, $att, $def);
         };
 
-        return search_ovm_helper($game, $attackers, $defenders, $compare);
+        return $this->search_ovm_helper($game, $attackers, $defenders, $compare);
     }
 
     // It is entirely possible this method will never be used.
     protected function search_manyvone($game, $attackers, $defenders) {
-        $compare = function($g, $def, $att) {
-            return $this->validate_attack($g, $att, $def);
+        $myself = $this;
+        $compare = function($g, $def, $att) use ($myself) {
+            return $myself->validate_attack($g, $att, $def);
         };
 
-        return search_ovm_helper($game, $defenders, $attackers, $compare);
+        return $this->search_ovm_helper($game, $defenders, $attackers, $compare);
     }
 }
 

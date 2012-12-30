@@ -18,7 +18,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = BMAttack::get_instance();
+        $this->object = BMAttTesting::get_instance();
     }
 
     /**
@@ -27,6 +27,8 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
+        $this->object->clear_dice();
+        $this->object->clear_log();
     }
 
     /**
@@ -347,7 +349,8 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testFind_attack()
     {
-        $this->assertFalse($this->object->find_attack(new DummyGame));
+        $att = BMAttack::get_instance();
+        $this->assertFalse($att->find_attack(new DummyGame));
     }
 
     /**
@@ -355,9 +358,10 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testValidate_attack()
     {
-        $this->assertFalse($this->object->validate_attack(new DummyGame,
-                                                          array(new BMDie),
-                                                          array(new BMDie)));
+        $att = BMAttack::get_instance();
+        $this->assertFalse($att->validate_attack(new DummyGame,
+                                                 array(new BMDie),
+                                                 array(new BMDie)));
     }
 
     /**
@@ -365,9 +369,10 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testCommit_attack()
     {
-        $this->assertFalse($this->object->commit_attack(new DummyGame,
-                                                          array(new BMDie),
-                                                          array(new BMDie)));
+        $att = BMAttack::get_instance();
+        $this->assertFalse($att->commit_attack(new DummyGame,
+                                               array(new BMDie),
+                                               array(new BMDie)));
     }
 
 
@@ -440,10 +445,39 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @covers BMAttack::search_onevone
      */
     public function testSearch_onevone() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        // The validate_attack method is rigged to return true if
+        // $game is true
+        $aList = array(1, 2, 3);
+        $dList = array('A', 'B', 'C');
+        $this->assertTrue($this->object->test_ovo(TRUE, $aList, $dList));
+
+        $this->assertEquals(1, count($this->object->attackLog));
+
+        $this->object->clear_log();
+
+        // search the whole space 
+        $this->assertFalse($this->object->test_ovo(FALSE, $aList, $dList));
+
+        $this->assertEquals(9, count($this->object->attackLog));
+
+        // check the coverage
+        $check = array();
+        for ($i = 1; $i <= 3; $i++) {
+            $check[$i] = array();
+            foreach(array('A', 'B', 'C') as $key) {
+                $check[$i][$key] = 0;
+            }
+        }
+
+        foreach ($this->object->attackLog as $att) {
+            $check[$att[0][0]][join($att[1])]++;
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            foreach ($check[$i] as $hit) {
+                $this->assertEquals(1, $hit);
+            }
+        }
     }
 
     /**
@@ -451,10 +485,41 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @depends testSearch_ovm_helper
      */
     public function testSearch_onevmany() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        // The validate_attack method is rigged to return true if
+        // $game is true
+        $this->object->clear_log();
+     
+        $aList = array(1, 2, 3);
+        $dList = array('A', 'B', 'C');
+        $this->assertTrue($this->object->test_ovm(TRUE, $aList, $dList));
+
+        $this->assertEquals(1, count($this->object->attackLog));
+
+        $this->object->clear_log();
+
+        // search the whole space 
+        $this->assertFalse($this->object->test_ovm(FALSE, $aList, $dList));
+
+        $this->assertEquals(21, count($this->object->attackLog));
+
+        // check the coverage
+        $check = array();
+        for ($i = 1; $i <= 3; $i++) {
+            $check[$i] = array();
+            foreach(array('A', 'B', 'C', 'AB', 'AC', 'BC', 'ABC') as $key) {
+                $check[$i][$key] = 0;
+            }
+        }
+
+        foreach ($this->object->attackLog as $att) {
+            $check[$att[0][0]][join($att[1])]++;
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            foreach ($check[$i] as $hit) {
+                $this->assertEquals(1, $hit);
+            }
+        }
     }
 
     /**
@@ -462,11 +527,41 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @depends testSearch_ovm_helper
      */
     public function testSearch_manyvone() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        // The validate_attack method is rigged to return true if
+        // $game is true
+        $this->object->clear_log();
+     
+        $aList = array('A', 'B', 'C');
+        $dList = array(1, 2, 3);
+        $this->assertTrue($this->object->test_mvo(TRUE, $aList, $dList));
 
+        $this->assertEquals(1, count($this->object->attackLog));
+
+        $this->object->clear_log();
+
+        // search the whole space 
+        $this->assertFalse($this->object->test_mvo(FALSE, $aList, $dList));
+
+        $this->assertEquals(21, count($this->object->attackLog));
+
+        // check the coverage
+        $check = array();
+        foreach(array('A', 'B', 'C', 'AB', 'AC', 'BC', 'ABC') as $key) {
+            $check[$key] = array();
+            for ($i = 1; $i <= 3; $i++) {
+                $check[$key][$i] = 0;
+            }
+        }
+
+        foreach ($this->object->attackLog as $att) {
+            $check[join($att[0])][$att[1][0]]++;
+        }
+
+        foreach(array('A', 'B', 'C', 'AB', 'AC', 'BC', 'ABC') as $key) {
+            foreach ($check[$key] as $hit) {
+                $this->assertEquals(1, $hit);
+            }
+        }
     }
 
 }

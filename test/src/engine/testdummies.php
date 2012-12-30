@@ -51,10 +51,29 @@ class BMAttTesting extends BMAttack {
         return $this->search_ovm_helper($game, $one, $many, $compare);
     }
 
+    public function test_ovo($game, $att, $def) {
+        return $this->search_onevone($game, $att, $def);
+    }
+
+    public function test_ovm($game, $att, $def) {
+        return $this->search_onevmany($game, $att, $def);
+    }
+
+    public function test_mvo($game, $att, $def) {
+        return $this->search_manyvone($game, $att, $def);
+    }
+
+    public function clear_dice() {
+        $this->validDice = array();
+    }
+
+    public function clear_log() {
+        $this->attackLog = array();
+    }
     public $attackLog = array();
 
     public function validate_attack($game, $attackers, $defenders) {
-        $attackLog[] = array($attackers, $defenders);
+        $this->attackLog[] = array($attackers, $defenders);
         // The game isn't used for anything else, so we can use it to
         // iterate over the whole list or not.
         return $game;
