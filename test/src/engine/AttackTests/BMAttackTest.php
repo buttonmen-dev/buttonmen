@@ -79,7 +79,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertContains($die1, $dlist);
         $this->assertContains($die2, $dlist);
         $this->assertContains($die3, $dlist);
-        
+
         // duplication in bigger list
         $this->object->add_die($die3);
 
@@ -140,7 +140,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
         $this->assertEquals(3, $bounds[1]);
-        
+
         $helpvals = array($bighelp);
 
         $bounds = $this->object->help_bounds($helpvals);
@@ -422,9 +422,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // attacker->capture
         $die1->add_skill("CaptureCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -435,9 +435,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // defender->be_captured
         $die2->add_skill("CaptureCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -448,9 +448,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // attacker->roll
         $die1->add_skill("RollCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -488,9 +488,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // attacker->capture
         $die1->add_skill("CaptureCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -500,9 +500,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die1->remove_skill("CaptureCatcher");
 
         $die3->add_skill("CaptureCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -513,9 +513,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // defender->be_captured
         $die2->add_skill("CaptureCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -525,9 +525,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die2->remove_skill("CaptureCatcher");
 
         $die4->add_skill("CaptureCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -538,9 +538,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // attacker->roll
         $die1->add_skill("RollCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -550,9 +550,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die1->remove_skill("RollCatcher");
 
         $die3->add_skill("RollCatcher");
-        
+
         $except = FALSE;
-        
+
         try {
             $this->object->commit_attack($game, $att, $def);
         } catch (Exception $e) {
@@ -567,20 +567,20 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @covers BMAttack::search_ovm_helper
      */
     public function testSearch_ovm_helper() {
-        
+
         // need to get at a protected method
         $attack = BMAttTesting::get_instance();
-        
+
         $attackLog = array();
         $aRef = &$attackLog;
 
         // basic failure conditions
-        $comparetrue = function ($a, $b, $c) use (&$aRef) { 
+        $comparetrue = function ($a, $b, $c) use (&$aRef) {
             $aRef[] = array($b, $c);
             return TRUE;
         };
         $comparefalse = function ($a, $b, $c) use (&$aRef) {
-            $aRef[] = array($b, $c);            
+            $aRef[] = array($b, $c);
             return FALSE;
         };
 
@@ -601,13 +601,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // and that it iterates over everything if it doesn't.
         // one is three rounds
-        // many is three (at 1) + three (at 2) + 1 (at 3) 
+        // many is three (at 1) + three (at 2) + 1 (at 3)
         // so 21 in all
         $attack->test_ovm_helper("game", array(1, 2, 3), array('A', 'B', 'C'), $comparefalse);
 
         $this->assertEquals(21, count($attackLog));
 
-        
+
         // check the coverage
         $check = array();
         for ($i = 1; $i <= 3; $i++) {
@@ -643,7 +643,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $this->object->clear_log();
 
-        // search the whole space 
+        // search the whole space
 
         // rig validation
         $this->object->validate = FALSE;
@@ -677,7 +677,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testSearch_onevmany() {
         $this->object->clear_log();
-     
+
         $aList = array(1, 2, 3);
         $dList = array('A', 'B', 'C');
 
@@ -689,7 +689,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $this->object->clear_log();
 
-        // search the whole space 
+        // search the whole space
 
         // rig validation
         $this->object->validate = FALSE;
@@ -723,7 +723,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testSearch_manyvone() {
         $this->object->clear_log();
-     
+
         $aList = array('A', 'B', 'C');
         $dList = array(1, 2, 3);
 
@@ -735,7 +735,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $this->object->clear_log();
 
-        // search the whole space 
+        // search the whole space
 
         // rig validation
         $this->object->validate = FALSE;
@@ -777,12 +777,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $die3 = new BMDie;
         $die3->init(6, array("AVTesting"));
-        $die1->value = 6;
+        $die3->value = 6;
 
         $die4 = new BMDie;
         $die4->init(6);
         $die4->value = 2;
-        
+
         // provide a die that always gives help
         $game->attackers[] = $die3;
         $help = $this->object->collect_helpers($game, array(), array());
