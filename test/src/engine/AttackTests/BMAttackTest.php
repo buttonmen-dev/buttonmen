@@ -774,20 +774,20 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $this->assertEmpty($help);
 
+        $die1 = new BMDie;
+        $die1->init(6, array("AVTesting"));
+        $die1->value = 6;
 
-        $die3 = new BMDie;
-        $die3->init(6, array("AVTesting"));
-        $die3->value = 6;
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 2;
 
-        $die4 = new BMDie;
-        $die4->init(6);
-        $die4->value = 2;
-
-        $die5 = clone $die3;
+        $die3 = clone $die1;
 
         // provide a die that always gives help
-        $game->activeDieArrayArray = array(array($die3), array());
+        $game->activeDieArrayArray = array(array($die1), array());
         $game->attack = array(0, 1, array(), array(), '');
+
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -797,7 +797,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $help[0][0]);
 
         // die that won't help should change nothing
-        $game->activeDieArrayArray = array(array($die3, $die4), array());
+        $game->activeDieArrayArray = array(array($die1, $die2), array());
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -807,7 +807,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $help[0][0]);
 
         // second helping die
-        $game->activeDieArrayArray = array(array($die3, $die4, $die5), array());
+        $game->activeDieArrayArray = array(array($die1, $die2, $die3), array());
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -817,7 +817,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($help[1]));
         $this->assertEquals(1, $help[0][0]);
         $this->assertEquals(1, $help[1][0]);
-
     }
 }
 
