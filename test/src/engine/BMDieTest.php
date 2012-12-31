@@ -501,23 +501,49 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends testAttack_list
      */
-    public function testAssist_attack() {
+    public function testAssist_values() {
         $attDie = new BMDie;
         $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
-            $assistVals = $this->object->assist_attack($att,
+            $assistVals = $this->object->assist_values($att,
                                                        array($attDie),
                                                        array($defDie));
             $this->assertNotEmpty($assistVals);
             $this->assertEquals(1, count($assistVals));
             $this->assertEquals(0, $assistVals[0]);
         }
+
+        // test that we don't assist attacks we are making
+        $this->object->add_skill("AVTesting");
+
+        // test that the assist skill works
+        $assistVals = $this->object->assist_values($att,
+                                                   array($attDie),
+                                                   array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(1, count($assistVals));
+        $this->assertEquals(1, $assistVals[0]);
+
+        // now make it not work
+        $assistVals = $this->object->assist_values($att,
+                                                   array($this->object),
+                                                   array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(1, count($assistVals));
+        $this->assertEquals(0, $assistVals[0]);
+
+        $assistVals = $this->object->assist_values($att,
+                                                   array($attDie, $this->object),
+                                                   array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(1, count($assistVals));
+        $this->assertEquals(0, $assistVals[0]);
     }
 
     /**
      * @depends testAttack_list
-     * @depends testAssist_attack
+     * @depends testAssist_values
      */
     public function testAttack_contribute() {
         $attDie = new BMDie;
