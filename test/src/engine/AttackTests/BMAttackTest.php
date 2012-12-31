@@ -365,14 +365,201 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers BMAttack::calculate_contributions()
+     */
+    public function testCalculate_contributions() {
+        $help = $this->object->calculate_contributions("game", array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(2, count($help));
+        $this->assertEquals(0, $help[0]);
+        $this->assertEmpty($help[1]);
+    }
+
+
+    /**
      * @covers BMAttack::commit_attack
      */
     public function testCommit_attack()
     {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->commit_attack(new DummyGame,
-                                               array(new BMDie),
-                                               array(new BMDie)));
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 6;
+
+        $game = new DummyGame;
+
+        $att = array($die1);
+        $def = array($die2);
+
+        // Test failure
+
+        // rig validation
+        $this->object->validate = FALSE;
+
+        $this->assertFalse($this->object->commit_attack($game, $att, $def));
+
+        // Basic success
+        $this->assertEmpty($game->captures);
+        $this->assertFalse($die1->hasAttacked);
+        $this->assertFalse($die2->captured);
+
+        $this->object->validate = TRUE;
+        $this->assertTrue($this->object->commit_attack($game, $att, $def));
+
+        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die2->captured);
+
+        // test appropriate methods were called
+
+        // $game->capture_die
+        $this->assertNotEmpty($game->captures);
+        $this->assertEquals(1, count($game->captures));
+        $this->assertTrue($die2 === $game->captures[0]);
+
+        // attacker->capture
+        $die1->add_skill("CaptureCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::capture not called");
+        $die1->remove_skill("CaptureCatcher");
+
+        // defender->be_captured
+        $die2->add_skill("CaptureCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::be_captured not called");
+        $die2->remove_skill("CaptureCatcher");
+
+        // attacker->roll
+        $die1->add_skill("RollCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::roll not called");
+        $die1->remove_skill("RollCatcher");
+
+        // make sure that multiple dice are processed
+        $game->captures = array();
+
+        $die3 = new BMDie;
+        $die3->init(6);
+        $die3->value = 6;
+
+        $die4 = new BMDie;
+        $die4->init(6);
+        $die4->value = 6;
+
+        $att[] = $die3;
+        $def[] = $die4;
+
+        $this->assertTrue($this->object->commit_attack($game, $att, $def));
+
+        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die2->captured);
+        $this->assertTrue($die3->hasAttacked);
+        $this->assertTrue($die4->captured);
+
+        // $game->capture_die
+        $this->assertNotEmpty($game->captures);
+        $this->assertEquals(2, count($game->captures));
+        $this->assertTrue($die2 === $game->captures[0]);
+        $this->assertTrue($die4 === $game->captures[1]);
+
+        // attacker->capture
+        $die1->add_skill("CaptureCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::capture not called");
+        $die1->remove_skill("CaptureCatcher");
+
+        $die3->add_skill("CaptureCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::capture not called");
+        $die3->remove_skill("CaptureCatcher");
+
+        // defender->be_captured
+        $die2->add_skill("CaptureCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::be_captured not called");
+        $die2->remove_skill("CaptureCatcher");
+
+        $die4->add_skill("CaptureCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::be_captured not called");
+        $die4->remove_skill("CaptureCatcher");
+
+        // attacker->roll
+        $die1->add_skill("RollCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::roll not called");
+        $die1->remove_skill("RollCatcher");
+
+        $die3->add_skill("RollCatcher");
+        
+        $except = FALSE;
+        
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::roll not called");
+        $die3->remove_skill("RollCatcher");
     }
 
 
@@ -445,10 +632,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @covers BMAttack::search_onevone
      */
     public function testSearch_onevone() {
-        // The validate_attack method is rigged to return true if
-        // $game is true
         $aList = array(1, 2, 3);
         $dList = array('A', 'B', 'C');
+
+        // rig validation
+        $this->object->validate = TRUE;
         $this->assertTrue($this->object->test_ovo(TRUE, $aList, $dList));
 
         $this->assertEquals(1, count($this->object->attackLog));
@@ -456,6 +644,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->object->clear_log();
 
         // search the whole space 
+
+        // rig validation
+        $this->object->validate = FALSE;
         $this->assertFalse($this->object->test_ovo(FALSE, $aList, $dList));
 
         $this->assertEquals(9, count($this->object->attackLog));
@@ -485,12 +676,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @depends testSearch_ovm_helper
      */
     public function testSearch_onevmany() {
-        // The validate_attack method is rigged to return true if
-        // $game is true
         $this->object->clear_log();
      
         $aList = array(1, 2, 3);
         $dList = array('A', 'B', 'C');
+
+        // rig validation
+        $this->object->validate = TRUE;
         $this->assertTrue($this->object->test_ovm(TRUE, $aList, $dList));
 
         $this->assertEquals(1, count($this->object->attackLog));
@@ -498,6 +690,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->object->clear_log();
 
         // search the whole space 
+
+        // rig validation
+        $this->object->validate = FALSE;
         $this->assertFalse($this->object->test_ovm(FALSE, $aList, $dList));
 
         $this->assertEquals(21, count($this->object->attackLog));
@@ -527,12 +722,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @depends testSearch_ovm_helper
      */
     public function testSearch_manyvone() {
-        // The validate_attack method is rigged to return true if
-        // $game is true
         $this->object->clear_log();
      
         $aList = array('A', 'B', 'C');
         $dList = array(1, 2, 3);
+
+        // rig validation
+        $this->object->validate = TRUE;
         $this->assertTrue($this->object->test_mvo(TRUE, $aList, $dList));
 
         $this->assertEquals(1, count($this->object->attackLog));
@@ -540,6 +736,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->object->clear_log();
 
         // search the whole space 
+
+        // rig validation
+        $this->object->validate = FALSE;
         $this->assertFalse($this->object->test_mvo(FALSE, $aList, $dList));
 
         $this->assertEquals(21, count($this->object->attackLog));

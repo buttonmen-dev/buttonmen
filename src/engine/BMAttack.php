@@ -97,8 +97,21 @@ class BMAttack {
     // returns FALSE if it failed to do so (user cancel or error)
     //
     // I don't yet understand what the guts of this function looks like
-    public function collect_contributions($donors) {
+    public function collect_contributions($game, $attackers, $defenders) {
+        $needed = $this->calculate_contributions($game, $attackers, $defenders);
+
+        $amount = $needed[0];
+        $helpers = $needed[1];
+
+        if ($amount == 0) { return TRUE; }
         return FALSE;
+    }
+
+    // return how much help is needed and who can contribute
+    //
+    // implemented in subclassed where they actually know what help they need
+    public function calculate_contributions($game, $attackers, $defenders) {
+        return array(0, array());
     }
 
     // uses the dice in validDice to find a single valid attack within the game
@@ -112,8 +125,44 @@ class BMAttack {
     }
 
     // actually make the attack
+    // Some of this should perhaps be in the game, rather than here.
     public function commit_attack($game, $attackers, $defenders) {
-        return FALSE;
+        // Paranoia
+        if (!$this->validate_attack($game, $attackers, $defenders)) {
+            return FALSE;
+        }
+
+        // Collect the necessary help
+        // not implemented yet
+        if (!$this->collect_contributions($game, $attackers, $defenders)) {
+            // return FALSE;
+        }
+
+
+
+        foreach ($attackers as $att) {
+            $att->capture($this->type, $attackers, $defenders);
+        }
+
+        foreach ($defenders as $def) {
+            $def->be_captured($this->type, $attackers, $defenders);
+        }            
+
+        // Yes, the separation is important for a number of skills
+
+        foreach ($attackers as $att) {
+            $att->hasAttacked = TRUE;
+            $att->roll(TRUE);
+        }
+
+        foreach ($defenders as $def) {
+            $def->captured = TRUE;
+
+            // neither method here exists yet
+            $game->capture_die($game->active_player(), $def);
+        }
+
+        return TRUE;
     }
 
 
@@ -275,30 +324,11 @@ class BMAttackPower extends BMAttack {
         return FALSE;
     }
 
-    // Some of this should be in the game, rather than here.
-    public function commit_attack($game, $attackers, $defenders) {
-        // Paranoia
-        if (!$this->validate_attack($game, $attackers, $defenders)) {
-            return FALSE;
-        }
-
-        $att = $attackers[0];
-        $def = $defenders[0];
-
-        $att->capture($this->type, $attackers, $defenders);
-        
-        $def->be_captured($this->type, $attackers, $defenders);
-
-        $att->has_attacked = TRUE;
-        $att->roll();
-
-        $def->captured = TRUE;
-
-        // neither method here exists yet
-        $game->capture_die($game->active_player(), $def);
-
-        return TRUE;
+    // return how much help is needed and who can contribute
+    public function calculate_contributions($game, $attackers, $defenders) {
+        return array(0, array());
     }
+
 
 }
 

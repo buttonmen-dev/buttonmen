@@ -32,7 +32,7 @@ class BMSkillAVTesting extends BMSkill {
 
 }
 
-class BMSkillCaptureTesting extends BMSkill {
+class BMSkillCaptureCatcher extends BMSkill {
     public static $hooked_methods = array("capture", "be_captured");
 
     public static function capture($args) {
@@ -43,6 +43,14 @@ class BMSkillCaptureTesting extends BMSkill {
         throw new Exception("be_captured called");
     }
 
+}
+
+class BMSkillRollCatcher extends BMSkill {
+    public static $hooked_methods = array("roll");
+
+    public static function roll($args) {
+        throw new Exception("roll called");
+    }
 }
 
 class BMDieTesting extends BMDie {
@@ -85,13 +93,14 @@ class BMAttTesting extends BMAttack {
     }
     public $attackLog = array();
 
+    public $validate = FALSE;
+
     public function validate_attack($game, $attackers, $defenders) {
         $this->attackLog[] = array($attackers, $defenders);
-        // The game isn't used for anything else, so we can use it to
-        // iterate over the whole list or not.
-        return $game;
+        return $this->validate;
     }
 }
+
 
 class DummyGame {
     public $dice = array();
@@ -120,6 +129,16 @@ class DummyGame {
 
     public function defender_dice() {
         return $this->defenders;
+    }
+
+    public $captures = array();
+
+    public function capture_die($player, $victim) {
+        $this->captures[] = $victim;
+    }
+
+    public function active_player() {
+        return 1;
     }
 
 }

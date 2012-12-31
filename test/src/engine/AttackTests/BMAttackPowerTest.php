@@ -167,12 +167,10 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers BMAttackPower::commit_attack
-     * @depends testValidate_attack
-     * @todo   Implement testCommit_attack().
+     * @covers BMAttackPower::calculate_contributions
+     * @todo   Implement testCalculate_contributions
      */
-    public function testCommit_attack()
-    {
+    public function testCalculate_contributions() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
           'This test has not been implemented yet.'
