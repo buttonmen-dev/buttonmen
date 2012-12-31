@@ -13,9 +13,13 @@ class BMGame {
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
-    private $attack;                // array('attackingPlayerIdx', 'targetPlayerIdx',
-                                    //       'attackingDieIdxArray', 'targetDieIdxArray',
+    private $attack;                // array('attackingPlayerIdx',
+                                    //       'defenderPlayerIdx',
+                                    //       'attackerDieIdxArray',
+                                    //       'defenderDieIdxArray',
                                     //       'attackType')
+    private $attackerAttackDieArray; // array of attacker's dice used in attack
+    private $defenderAttackDieArray; // array of defender's dice used in attack
     private $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
@@ -210,18 +214,18 @@ class BMGame {
 
 
                 // reroll all dice involved in the attack that are still active
-                $attackingPlayerIdx = $this->attack['attackingPlayerIdx'];
-                $attackingDieIdxArray = $this->attack['attackingDieIdxArray'];
-                foreach ($attackingDieIdxArray as $dieIdx => $tempAttackingDieIdx) {
-                    $this->activeDieArrayArray[$attackingPlayerIdx][
-                               $tempAttackingDieIdx]->roll($isAttackSuccessful);
+                $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+                $attackerDieIdxArray = $this->attack['attackerAttackDieIdxArray'];
+                foreach ($attackerDieIdxArray as $dieIdx => $tempAttackerDieIdx) {
+                    $this->activeDieArrayArray[$attackerPlayerIdx][
+                               $tempAttackerDieIdx]->roll($isAttackSuccessful);
                 }
 
-                $targetPlayerIdx = $this->attack['targetPlayerIdx'];
-                $targetDieIdxArray = $this->attack['targetDieIdxArray'];
-                foreach ($targetDieIdxArray as $dieIdx => $tempTargetDieIdx) {
-                    $this->activeDieArrayArray[$targetPlayerIdx][
-                               $tempTargetDieIdx]->roll($isAttackSuccessful);
+                $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+                $defenderDieIdxArray = $this->attack['defenderAttackDieIdxArray'];
+                foreach ($defenderDieIdxArray as $dieIdx => $tempDefenderDieIdx) {
+                    $this->activeDieArrayArray[$defenderPlayerIdx][
+                               $tempDefenderDieIdx]->roll($isAttackSuccessful);
                 }
 
                 $this->update_active_player();
@@ -505,7 +509,32 @@ class BMGame {
     public function __get($property)
     {
         if (property_exists($this, $property)) {
-            return $this->$property;
+            switch ($property) {
+                case 'attackerAttackDieArray':
+                    if (!isset($this->attack)) {
+                        return NULL;
+                    }
+                    $attackerAttackDieArray = array();
+                    foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+                        $attackerAttackDieArray[] =
+                            $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                      [$attackerAttackDieIdx];
+                    }
+                    return $attackerAttackDieArray;
+                case 'defenderAttackDieArray':
+                    if (!isset($this->attack)) {
+                        return NULL;
+                    }
+                    $defenderAttackDieArray = array();
+                    foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+                        $defenderAttackDieArray[] =
+                            $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                      [$defenderAttackDieIdx];
+                    }
+                    return $defenderAttackDieArray;
+                default:
+                    return $this->$property;
+            }
         }
     }
 
@@ -601,11 +630,24 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'The third and fourth elements in attack must be arrays.');
                 }
-                $this->attack = array('attackingPlayerIdx' => $value[0],
-                                      'targetPlayerIdx' => $value[1],
-                                      'attackingDieIdxArray' => $value[2],
-                                      'targetDieIdxArray' => $value[3],
+                if (($value[2] !== array_filter($value[2], 'is_int')) ||
+                    ($value[3] !== array_filter($value[3], 'is_int'))) {
+                    throw new InvalidArgumentException(
+                        'The third and fourth elements in attack must contain integers.');
+                }
+                $this->attack = array('attackerPlayerIdx' => $value[0],
+                                      'defenderPlayerIdx' => $value[1],
+                                      'attackerAttackDieIdxArray' => $value[2],
+                                      'defenderAttackDieIdxArray' => $value[3],
                                       'attackType' => $value[4]);
+                break;
+            case 'attackerAttackDieArray':
+                throw new LogicException('
+                    BMGame->attackerAttackDieArray is derived from BMGame->attack.');
+                break;
+            case 'defenderAttackDieArray':
+                throw new LogicException('
+                    BMGame->defenderAttackDieArray is derived from BMGame->attack.');
                 break;
             case 'passStatusArray':
                 if ((!is_array($value)) ||

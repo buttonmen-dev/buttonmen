@@ -768,7 +768,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testCollect_helpers()
     {
-        $game = new DummyGame;
+        $game = new BMGame;
 
         $help = $this->object->collect_helpers($game, array(), array());
 
@@ -783,8 +783,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die4->init(6);
         $die4->value = 2;
 
+        $die5 = clone $die3;
+
         // provide a die that always gives help
-        $game->attackers[] = $die3;
+        $game->activeDieArrayArray = array(array($die3), array());
+        $game->attack = array(0, 1, array(), array(), '');
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -794,8 +797,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $help[0][0]);
 
         // die that won't help should change nothing
-        $game->attackers[] = $die4;
-
+        $game->activeDieArrayArray = array(array($die3, $die4), array());
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -805,8 +807,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $help[0][0]);
 
         // second helping die
-        $game->attackers[] = $die3;
-
+        $game->activeDieArrayArray = array(array($die3, $die4, $die5), array());
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);

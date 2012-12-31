@@ -146,7 +146,7 @@ class BMAttack {
 
         foreach ($defenders as $def) {
             $def->be_captured($this->type, $attackers, $defenders);
-        }            
+        }
 
         // Yes, the separation is important for a number of skills
 
@@ -237,7 +237,7 @@ class BMAttack {
 
                     // Or if the complement is empty
                     if (count($many) == count($m)) { continue; }
-                    
+
                     $complement =  array_diff($many, $m);
                     if ($compare($game, $o, $complement)) {
                         return TRUE;
@@ -272,10 +272,12 @@ class BMAttack {
     // returns a list of possible values that can aid an attack
     public function collect_helpers($game, $attackers, $defenders) {
         $helpers = array();
-        // Need to implement attacker_dice() or replace it with something
-        // equivalent
 
-        foreach ($game->attacker_dice() as $die) {
+        if (is_null($game->activeDieArrayArray)) {
+            return;
+        }
+
+        foreach ($game->activeDieArrayArray[$game->attack['attackerPlayerIdx']] as $die) {
             $helpVals = $die->assist_values($this->type, $attackers, $defenders);
             if ($helpVals[0] != 0) {
                 $helpers[] = $helpVals;
@@ -293,7 +295,7 @@ class BMAttackPower extends BMAttack {
     public function find_attack($game) {
         // This method doesn't exist; either needs to, or to be
         // replaced with equivalent functionality
-        $targets = $game->defender_dice();
+        $targets = $game->activeDieArrayArray[$game->attack['defenderPlayerIdx']];
 
         return $this->search_onevone($game, $this->validDice, $targets);
     }

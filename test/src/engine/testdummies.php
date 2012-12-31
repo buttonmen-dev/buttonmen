@@ -101,7 +101,6 @@ class BMAttTesting extends BMAttack {
     }
 }
 
-
 class DummyGame {
     public $dice = array();
 
@@ -121,13 +120,13 @@ class DummyGame {
 
     public $attackers = array();
 
-    public function attacker_dice() {
+    public function attackerAttackDieArray() {
         return $this->attackers;
     }
 
     public $defenders = array();
 
-    public function defender_dice() {
+    public function defenderAttackDieArray() {
         return $this->defenders;
     }
 
@@ -140,7 +139,6 @@ class DummyGame {
     public function active_player() {
         return 1;
     }
-
 }
 
 ?>
