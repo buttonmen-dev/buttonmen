@@ -219,6 +219,21 @@ class BMAttack {
 
         return $this->search_ovm_helper($game, $defenders, $attackers, $compare);
     }
+
+    // returns a list of possible values that can aid an attack
+    public function collect_helpers($game, $attackers, $defenders) {
+        $helpers = array();
+        // Need to implement attacker_dice() or replace it with something
+        // equivalent
+
+        foreach ($game->attacker_dice() as $die) {
+            $helpVals = $die->assist_values($this->type, $attackers, $defenders);
+            if ($helpVals[0] != 0) {
+                $helpers[] = $helpVals;
+            }
+        }
+        return $helpers;
+    }
 }
 
 
@@ -240,16 +255,7 @@ class BMAttackPower extends BMAttack {
         }
 
 
-        $helpers = array();
-
-        // Need to implement this method or replace it with something
-        // equivalent
-        foreach ($game->attacker_dice() as $die) {
-            $helpVals = $die->assist_values($this->type, $attackers, $defenders);
-            if ($helpVals[0] != 0) {
-                $helpers[] = $helpVals;
-            }
-        }
+        $helpers = $this->collect_helpers($game, $attackers, $defenders);
 
         $bounds = $this->help_bounds($helpers);
 

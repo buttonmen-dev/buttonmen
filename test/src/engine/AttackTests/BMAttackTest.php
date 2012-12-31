@@ -564,6 +564,61 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @covers BMAttack::collect_helpers()
+     */
+    public function testCollect_helpers()
+    {
+        $game = new DummyGame;
+
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertEmpty($help);
+
+
+        $die3 = new BMDie;
+        $die3->init(6, array("AVTesting"));
+        $die1->value = 6;
+
+        $die4 = new BMDie;
+        $die4->init(6);
+        $die4->value = 2;
+        
+        // provide a die that always gives help
+        $game->attackers[] = $die3;
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(1, count($help));
+        $this->assertInternalType('array', $help[0]);
+        $this->assertEquals(1, count($help[0]));
+        $this->assertEquals(1, $help[0][0]);
+
+        // die that won't help should change nothing
+        $game->attackers[] = $die4;
+
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(1, count($help));
+        $this->assertInternalType('array', $help[0]);
+        $this->assertEquals(1, count($help[0]));
+        $this->assertEquals(1, $help[0][0]);
+
+        // second helping die
+        $game->attackers[] = $die3;
+
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(2, count($help));
+        $this->assertInternalType('array', $help[0]);
+        $this->assertEquals(1, count($help[0]));
+        $this->assertEquals(1, count($help[1]));
+        $this->assertEquals(1, $help[0][0]);
+        $this->assertEquals(1, $help[1][0]);
+
+    }
 }
 
 
