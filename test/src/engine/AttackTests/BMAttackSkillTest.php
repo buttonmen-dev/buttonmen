@@ -18,7 +18,7 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = BMAttackSkill::getInstance();
+        $this->object = BMAttackSkill::get_instance();
     }
 
     /**

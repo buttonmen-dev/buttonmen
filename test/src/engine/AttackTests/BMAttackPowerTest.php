@@ -18,7 +18,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = BMAttackPower::getInstance();
+        $this->object = BMAttackPower::get_instance();
     }
 
     /**
@@ -29,17 +29,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
     {
     }
 
-    /**
-     * @covers BMAttackPower::find_attack
-     * @todo   Implement testFind_attack().
-     */
-    public function testFind_attack()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
+
 
     /**
      * @covers BMAttackPower::validate_attack
@@ -47,18 +37,140 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
      */
     public function testValidate_attack()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $game = new DummyGame;
+
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 1;
+
+        // Basic error handling
+        $this->assertFalse($this->object->validate_attack($game, array(), array()));
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array()));
+        $this->assertFalse($this->object->validate_attack($game, array(), array($die1)));
+
+        // Basic attacks
+
+        // 6 > 1
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+
+
+        // 1 ! > 6
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
+
+        // 6 == 6
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die1)));
+
+        // 1 == 1
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die2)));
+
+
+        // Attacks with helpers
+        $die3 = new BMDie;
+        $die3->init(6, array("AVTesting"));
+        $die1->value = 6;
+
+        $die4 = new BMDie;
+        $die4->init(6);
+        $die4->value = 2;
+        
+        $game->attackers[] = $die3;
+
+        // 1 + 1 ! >= 6
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
+
+        // 1 + 1 == 2
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die4)));
+
+        // 6 > 1
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
+
+        // 1 == 1
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die2)));
+
+        // With a few more of those, 1 can take a 6.
+        $game->attackers[] = $die3;
+        $game->attackers[] = $die3;
+        $game->attackers[] = $die3;
+        $game->attackers[] = $die3;
+
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
+
+    }
+
+
+    /**
+     * @covers BMAttackPower::find_attack
+     * @depends testValidate_attack
+     * @todo   Implement testFind_attack().
+     */
+    public function testFind_attack()
+    {
+        $game = new DummyGame;
+
+        // we find nothing when there are no attackers
+        $this->assertFalse($this->object->find_attack($game));
+
+        // Load some dice into the attack.
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+
+        $this->object->add_die($die1);
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 1;
+
+        $this->object->add_die($die2);
+
+        // we find nothing when there are no defenders
+        $this->assertFalse($this->object->find_attack($game));
+
+
+        $die3 = new BMDie;
+        $die3->init(6);
+        $die3->value = 6;
+
+        $die4 = new BMDie;
+        $die4->init(20);
+        $die4->value = 7;
+
+        $game->defenders[] = $die3;
+
+        $this->assertTrue($this->object->find_attack($game));
+
+        $game->defenders = array();
+        $game->defenders[] = $die4;
+
+        $this->assertFalse($this->object->find_attack($game));
+
+        // with both
+        $game->defenders[] = $die3;
+
+        $this->assertTrue($this->object->find_attack($game));
+
+        // with an assist
+        $game->defenders = array();
+        $game->defenders[] = $die4;
+
+        // Attacks with helpers
+        $die5 = new BMDie;
+        $die5->init(6, array("AVTesting"));
+        $die5->value = 1;
+        $game->attackers[] = $die5;
+
+        $this->assertTrue($this->object->find_attack($game));
     }
 
     /**
-     * @covers BMAttackPower::commit_attack
-     * @todo   Implement testCommit_attack().
+     * @covers BMAttackPower::calculate_contributions
+     * @todo   Implement testCalculate_contributions
      */
-    public function testCommit_attack()
-    {
+    public function testCalculate_contributions() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
           'This test has not been implemented yet.'

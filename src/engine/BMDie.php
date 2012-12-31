@@ -316,7 +316,7 @@ class BMDie
         $vals = array(0);
 
         // Attackers can't help their own attack
-        if (array_search($this, $attackers)) {
+        if (FALSE !== array_search($this, $attackers)) {
             return $vals;
         }
 
