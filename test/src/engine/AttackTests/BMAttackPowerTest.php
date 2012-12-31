@@ -71,7 +71,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
         // Attacks with helpers
         $die3 = new BMDie;
         $die3->init(6, array("AVTesting"));
-        $die1->value = 6;
+        $die3->value = 6;
 
         $die4 = new BMDie;
         $die4->init(6);
