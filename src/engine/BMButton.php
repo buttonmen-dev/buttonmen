@@ -10,6 +10,7 @@ class BMButton {
     private $name;
     private $recipe;
     public $dieArray;
+    public $ownerObject;
 
     // methods
     public function load_from_recipe($recipe) {
@@ -62,6 +63,10 @@ class BMButton {
             }
             $this->dieArray[$dieIdx]->value = $tempValue;
         }
+    }
+
+    public function add_die($die) {
+        $this->dieArray[] = $die;
     }
 
     private function validate_recipe($recipe) {

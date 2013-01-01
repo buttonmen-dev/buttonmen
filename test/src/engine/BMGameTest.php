@@ -811,7 +811,47 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__get
      */
-    public function test__get() {
+    public function test__get_attacker_attack_die_array() {
+        $this->assertEquals(NULL, $this->object->attackerAttackDieArray);
+
+        $this->object->attack = array(123, 456, array(), array(), 'pass');
+        $this->assertEquals(array(), $this->object->attackerAttackDieArray);
+
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $die4 = new BMDie;
+
+        $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                   array($die3, $die4));
+        $this->object->attack = array(1, 0, array(1), array(0), 'power');
+        $this->assertEquals(array($die4), $this->object->attackerAttackDieArray);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
+    public function test__get_defender_attack_die_array() {
+        $this->assertEquals(NULL, $this->object->defenderAttackDieArray);
+
+        $this->object->attack = array(0, 1, array(), array(), 'pass');
+        $this->assertEquals(array(), $this->object->defenderAttackDieArray);
+
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $die4 = new BMDie;
+
+        $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                   array($die3, $die4));
+        $this->object->attack = array(1, 0, array(1), array(0), 'power');
+        $this->assertEquals(array($die2), $this->object->defenderAttackDieArray);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
+    public function test__get_nonexistent() {
         // check that a nonexistent property can be gotten gracefully
         $this->assertEquals(NULL, $this->object->nonsenseVariable);
 
@@ -999,29 +1039,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
 
         try {
-            $this->object->attack = array(array(1), 2, array(1), array(2), '');
+            $this->object->attack = array(array(1), 2, array(array(1,3)), array(array(2,5)), '');
             $this->fail('The first element of attack must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(1, array(2), array(11), array(12), '');
+            $this->object->attack = array(1, array(2), array(array(1,3)), array(array(2,5)), '');
             $this->fail('The second element of attack must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(1, 2, 1, array(2), '');
+            $this->object->attack = array(1, 2, 1, array(array(1,3)), '');
             $this->fail('The third element of attack must be an array.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->attack = array(1, 2, array(11), 12, '');
+            $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
             $this->fail('The fourth element of attack must be an array.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
+            $this->fail('The third element of attack must be an array of 2-D indices.');
         }
         catch (InvalidArgumentException $expected) {
         }
@@ -1033,6 +1080,30 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // check that a skill attack is valid
         $this->object->attack = array(0, 1, array(0, 5), array(2), 'skill');
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_attacker_attack_die_array() {
+        try {
+            $this->object->attackerAttackDieArray = array();
+            $this->fail('AttackerAttackDieArray cannot be set.');
+        }
+        catch (LogicException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_defender_attack_die_array() {
+        try {
+            $this->object->defenderAttackDieArray = array();
+            $this->fail('DefenderAttackDieArray cannot be set.');
+        }
+        catch (LogicException $expected) {
+        }
     }
 
     /**

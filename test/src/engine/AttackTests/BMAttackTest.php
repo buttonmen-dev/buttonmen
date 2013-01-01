@@ -350,7 +350,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     public function testFind_attack()
     {
         $att = BMAttack::get_instance();
-        $this->assertFalse($att->find_attack(new DummyGame));
+        $this->assertFalse($att->find_attack(new BMGame));
     }
 
     /**
@@ -359,7 +359,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     public function testValidate_attack()
     {
         $att = BMAttack::get_instance();
-        $this->assertFalse($att->validate_attack(new DummyGame,
+        $this->assertFalse($att->validate_attack(new BMGame,
                                                  array(new BMDie),
                                                  array(new BMDie)));
     }
@@ -390,7 +390,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die2->init(6);
         $die2->value = 6;
 
-        $game = new DummyGame;
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+        $game->attack = array(0, 1, array(0), array(0), '');
 
         $att = array($die1);
         $def = array($die2);
@@ -414,11 +416,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($die2->captured);
 
         // test appropriate methods were called
-
-        // $game->capture_die
-        $this->assertNotEmpty($game->captures);
-        $this->assertEquals(1, count($game->captures));
-        $this->assertTrue($die2 === $game->captures[0]);
+        $this->assertNotEmpty($game->capturedDieArrayArray[
+                                         $game->attack['attackerPlayerIdx']]);
+        $this->assertEquals(1, count($game->capturedDieArrayArray[
+                                         $game->attack['attackerPlayerIdx']]));
+        $this->assertTrue($die2 === $game->capturedDieArrayArray[
+                                         $game->attack['attackerPlayerIdx']][0]);
 
         // attacker->capture
         $die1->add_skill("CaptureCatcher");
@@ -460,8 +463,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die1->remove_skill("RollCatcher");
 
         // make sure that multiple dice are processed
-        $game->captures = array();
-
         $die3 = new BMDie;
         $die3->init(6);
         $die3->value = 6;
@@ -470,8 +471,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die4->init(6);
         $die4->value = 6;
 
-        $att[] = $die3;
-        $def[] = $die4;
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($die1, $die3), array($die2, $die4));
+        $game->attack = array(0, 1, array(0, 1), array(0, 1), '');
+
+        $att = array($die1, $die3);
+        $def = array($die2, $die4);
 
         $this->assertTrue($this->object->commit_attack($game, $att, $def));
 
@@ -481,10 +486,14 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($die4->captured);
 
         // $game->capture_die
-        $this->assertNotEmpty($game->captures);
-        $this->assertEquals(2, count($game->captures));
-        $this->assertTrue($die2 === $game->captures[0]);
-        $this->assertTrue($die4 === $game->captures[1]);
+        $this->assertNotEmpty($game->capturedDieArrayArray[
+                                         $game->attack['attackerPlayerIdx']]);
+        $this->assertEquals(2, count($game->capturedDieArrayArray[
+                                                $game->attack['attackerPlayerIdx']]));
+        $this->assertTrue($die2 === $game->capturedDieArrayArray[
+                                               $game->attack['attackerPlayerIdx']][0]);
+        $this->assertTrue($die4 === $game->capturedDieArrayArray[
+                                               $game->attack['attackerPlayerIdx']][1]);
 
         // attacker->capture
         $die1->add_skill("CaptureCatcher");
@@ -768,7 +777,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testCollect_helpers()
     {
-        $game = new DummyGame;
+        $game = new BMGame;
 
         $help = $this->object->collect_helpers($game, array(), array());
 
@@ -781,9 +790,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $die2 = new BMDie;
         $die2->init(6);
         $die2->value = 2;
-        
+
+        $die3 = clone $die1;
+
         // provide a die that always gives help
-        $game->attackers[] = $die1;
+        $game->activeDieArrayArray = array(array($die1), array());
+        $game->attack = array(0, 1, array(), array(), '');
+
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -793,8 +806,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $help[0][0]);
 
         // die that won't help should change nothing
-        $game->attackers[] = $die2;
-
+        $game->activeDieArrayArray = array(array($die1, $die2), array());
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -804,8 +816,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, $help[0][0]);
 
         // second helping die
-        $game->attackers[] = $die1;
-
+        $game->activeDieArrayArray = array(array($die1, $die2, $die3), array());
         $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertNotEmpty($help);
@@ -815,7 +826,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(1, count($help[1]));
         $this->assertEquals(1, $help[0][0]);
         $this->assertEquals(1, $help[1][0]);
-
     }
 }
 
