@@ -40,7 +40,7 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         $cont = new BMContainer;
         $die3 = new BMDieTesting;
         $cont2 = new BMContTesting;
-        
+
         // Adding non-die or containers should fail
         $this->assertEmpty($this->object->contents);
         $this->assertNull($this->object->add_thing("thing!"));
@@ -116,7 +116,7 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
         $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
         $this->assertEquals($sl["Testing2"], "BMSkillTesting2", "Incorrect stored classname for 'Testing2'");
-        
+
 
         // Redundancy
 
@@ -501,40 +501,32 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
      */
     public function testActivate()
     {
-        $game = new DummyGame;
+        $button = new BMButton;
 
-        $cont1 = new BMContainer;
-        $cont2 = new BMContainer;
+        $this->object->ownerObject = $button;
 
-        $dice = array();
-
-        for ($i = 0; $i <7; $i++) { 
-            $tmp = new BMDie;
-            $tmp->init($i);
-
-            $dice[] = $tmp;
+        for ($dieIdx = 0; $dieIdx <= 6; $dieIdx++) {
+            $dice[$dieIdx] = new BMDie;
+            $dice[$dieIdx]->init($dieIdx);
         }
 
         // Simple tests
-        $this->object->activate($game, "player");
-
-        $this->assertEquals(0, count($game->dice));
+        $this->object->activate();
+        $this->assertEquals(0, count($button->dieArray));
 
         $this->object->add_thing($dice[0]);
-        $this->assertNull($this->object->activate($game, "player"));
+        $this->object->activate();
+        $this->assertEquals(1, count($button->dieArray));
 
-        $this->assertEquals(1, count($game->dice));
-
-        $d = $game->dice[0][1];
+        $d = $button->dieArray[0];
         $this->assertFalse($dice[0] === $d);
-        $this->assertTrue("player" == $game->dice[0][0]);
         $this->assertFalse($d->has_skill("Testing"));
         $this->assertFalse($d->has_skill("Testing2"));
         $this->assertEquals(0, $d->max);
 
         // more dice
-
-        $game = new DummyGame;
+        $button = new BMButton;
+        $this->object->ownerObject = $button;
 
         $dice[1]->add_skill("Testing");
         $dice[2]->add_skill("Testing2");
@@ -544,11 +536,10 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         $this->object->add_thing($dice[1]);
         $this->object->add_thing($dice[2]);
         $this->object->add_thing($dice[3]);
-
-        $this->assertNull($this->object->activate($game, "player"));
+        $this->object->activate();
 
         for ($i=0; $i<4; $i++) {
-            $d = $game->dice[$i][1];
+            $d = $button->dieArray[$i];
 
             // should be a new die
             foreach ($dice as $oldDie) {
@@ -571,9 +562,12 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         }
 
         // Test skill addition
+        $button = new BMButton;
+        $this->object->ownerObject = $button;
 
-        $game = new DummyGame;
-
+        $cont1 = new BMContainer;
+        $cont2 = new BMContainer;
+        $cont1->ownerObject = $button;
         $cont1->add_skill("Testing");
         $cont2->add_skill("Testing2");
 
@@ -581,10 +575,10 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         $cont1->add_thing($dice[5]);
         $cont2->add_thing($dice[6]);
 
-        $cont1->activate($game, "player");
+        $cont1->activate();
 
-        foreach ($game->dice as $pair) {
-            $d = $pair[1];
+        foreach ($button->dieArray as $die) {
+            $d = $die;
 
             $this->assertTrue($d->has_skill("Testing"));
             $this->assertFalse($d->has_skill("Testing2"));
@@ -593,15 +587,16 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
         // test activating nested containers
         $cont1->add_thing($cont2);
         $this->object->add_thing($cont1);
-        
-        $game = new DummyGame;
 
-        $this->object->activate($game, "player");
+        $button = new BMButton;
+        $this->object->ownerObject = $button;
 
-        $this->assertEquals(7, count($game->dice));
+        $this->object->activate();
+
+        $this->assertEquals(7, count($button->dieArray));
 
         for ($i=0; $i<7; $i++) {
-            $d = $game->dice[$i][1];
+            $d = $button->dieArray[$i];
 
             $this->assertEquals($i, $d->max);
 

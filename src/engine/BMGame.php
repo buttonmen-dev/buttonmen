@@ -92,7 +92,7 @@ class BMGame {
                 $this->save_game_to_database();
                 break;
 
-            case BMGameState::loadDiceIntoButtons:
+            case BMGameState::loadDiceIntoButtons: // may become loadContainersIntoButtons
                 // load clean version of the buttons from their recipes
                 // if the player has not just won a round
                 foreach ($this->buttonArray as $playerIdx => $tempButton) {
@@ -102,7 +102,8 @@ class BMGame {
                 }
                 break;
 
-            case BMGameState::specifyDice:
+            case BMGameState::specifyDice: // may become openContainersIntoButtons
+                // james: BMContainer->activate() will probably be used here
                 // specify swing, option, and plasma dice
                 // update BMButton dieArray
                 break;
@@ -110,6 +111,7 @@ class BMGame {
             case BMGameState::addAvailableDiceToGame;
                 // load BMGame activeDieArrayArray from BMButton dieArray
                 $this->activeDieArrayArray = array();
+
                 foreach ($this->buttonArray as $buttonIdx => $tempButton) {
                     $this->activeDieArrayArray[$buttonIdx] = array();
 
@@ -393,6 +395,15 @@ class BMGame {
                 break;
             }
         }
+    }
+
+    public function add_die($die, $playerIdx) {
+        if (!isset($this->activeDieArrayArray)) {
+            throw new LogicException(
+                'activeDieArrayArray must be set before a die can be added.');
+        }
+
+        $this->activeDieArrayArray[$playerIdx][] = $die;
     }
 
     public function capture_die($die) {
