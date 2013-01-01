@@ -395,6 +395,24 @@ class BMGame {
         }
     }
 
+    public function capture_die($die) {
+//        var_dump($this->attack['defenderPlayerIdx']);
+//        var_dump($this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]);
+        $dieIdx = array_search($die, $this->activeDieArrayArray[
+                                                $this->attack['defenderPlayerIdx']], TRUE);
+        if (FALSE === $dieIdx) {
+            throw new LogicException(
+                'Captured die does not exist for the defender.');
+        }
+
+        // add captured die to attacker's captured die array
+        $this->capturedDieArrayArray[$this->attack['attackerPlayerIdx']][] =
+            $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']][$dieIdx];
+        // remove captured die from defender's active die array
+        array_splice($this->activeDieArrayArray[$this->attack['defenderPlayerIdx']],
+                     $dieIdx, 1);
+    }
+
     public static function does_recipe_have_auxiliary_dice($recipe) {
         if (FALSE === strpos($recipe, '+')) {
             return FALSE;

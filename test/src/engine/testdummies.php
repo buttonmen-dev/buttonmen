@@ -118,27 +118,27 @@ class DummyGame {
         throw new Exception("require_values called");
     }
 
-    public $attackers = array();
+//    public $attackers = array();
+//
+//    public function attackerAttackDieArray() {
+//        return $this->attackers;
+//    }
+//
+//    public $defenders = array();
 
-    public function attackerAttackDieArray() {
-        return $this->attackers;
-    }
+//    public function defenderAttackDieArray() {
+//        return $this->defenders;
+//    }
 
-    public $defenders = array();
+//    public $captures = array();
 
-    public function defenderAttackDieArray() {
-        return $this->defenders;
-    }
+//    public function capture_die($player, $victim) {
+//        $this->captures[] = $victim;
+//    }
 
-    public $captures = array();
-
-    public function capture_die($player, $victim) {
-        $this->captures[] = $victim;
-    }
-
-    public function active_player() {
-        return 1;
-    }
+//    public function active_player() {
+//        return 1;
+//    }
 }
 
 ?>

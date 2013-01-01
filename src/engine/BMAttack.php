@@ -157,9 +157,7 @@ class BMAttack {
 
         foreach ($defenders as $def) {
             $def->captured = TRUE;
-
-            // neither method here exists yet
-            $game->capture_die($game->active_player(), $def);
+            $game->capture_die($def);
         }
 
         return TRUE;
