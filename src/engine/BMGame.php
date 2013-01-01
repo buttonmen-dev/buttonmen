@@ -18,6 +18,8 @@ class BMGame {
                                     //       'attackerDieIdxArray',
                                     //       'defenderDieIdxArray',
                                     //       'attackType')
+    private $attackerAllDieArray;   // array of all attacker's dice
+    private $defenderAllDieArray;   // array of all defender's dice
     private $attackerAttackDieArray; // array of attacker's dice used in attack
     private $defenderAttackDieArray; // array of defender's dice used in attack
     private $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
@@ -539,6 +541,16 @@ class BMGame {
     {
         if (property_exists($this, $property)) {
             switch ($property) {
+                case 'attackerAllDieArray':
+                    if (!isset($this->attack)) {
+                        return NULL;
+                    }
+                    return $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']];
+                case 'defenderAllDieArray':
+                    if (!isset($this->attack)) {
+                        return NULL;
+                    }
+                    return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];
                 case 'attackerAttackDieArray':
                     if (!isset($this->attack)) {
                         return NULL;

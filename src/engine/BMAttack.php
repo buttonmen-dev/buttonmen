@@ -275,7 +275,7 @@ class BMAttack {
             return;
         }
 
-        foreach ($game->activeDieArrayArray[$game->attack['attackerPlayerIdx']] as $die) {
+        foreach ($game->attackerAllDieArray as $die) {
             $helpVals = $die->assist_values($this->type, $attackers, $defenders);
             if ($helpVals[0] != 0) {
                 $helpers[] = $helpVals;
@@ -291,9 +291,7 @@ class BMAttackPower extends BMAttack {
     public $type = 'Power';
 
     public function find_attack($game) {
-        // This method doesn't exist; either needs to, or to be
-        // replaced with equivalent functionality
-        $targets = $game->activeDieArrayArray[$game->attack['defenderPlayerIdx']];
+        $targets = $game->defenderAllDieArray;
 
         return $this->search_onevone($game, $this->validDice, $targets);
     }
