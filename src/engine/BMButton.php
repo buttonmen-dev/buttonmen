@@ -48,7 +48,17 @@ class BMButton {
         // recipe of Bauer. This will eventually be replaced by a database call
         // to retrieve the recipe, and then a recipe set for the current button.
         $this->name = $name;
-        $this->recipe = '(8) (10) (12) (20) (X)';
+        switch ($name) {
+            case 'Bauer':
+                $this->recipe = '(8) (10) (12) (20) (X)';
+                break;
+            case 'Stark':
+                $this->recipe = '(4) (6) (8) (X) (X)';
+                break;
+            default:
+                $this->name = 'Default';
+                $this->recipe = '(4) (8) (12) (20) (X)';
+        }
     }
 
     public function load_values(array $valueArray) {
