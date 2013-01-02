@@ -6,18 +6,21 @@
  * @author james
  */
 class BMGame {
-    // properties
+    // properties -- all accessible, but written as private to enable the use of
+    //               getters and setters
     private $gameId;                // game ID number in the database
     private $playerIdxArray;        // array of player IDs
     private $activePlayerIdx;       // index of the active player in playerIdxArray
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
     private $activeDieArrayArray;   // active dice for all players
-    private $attack;                // array('attackingPlayerIdx',
+    private $attack;                // array('attackerPlayerIdx',
                                     //       'defenderPlayerIdx',
                                     //       'attackerDieIdxArray',
                                     //       'defenderDieIdxArray',
                                     //       'attackType')
+    private $attackerPlayerIdx;     // index in playerIdxArray of the attacker
+    private $defenderPlayerIdx;     // index in playerIdxArary of the defender
     private $attackerAllDieArray;   // array of all attacker's dice
     private $defenderAllDieArray;   // array of all defender's dice
     private $attackerAttackDieArray; // array of attacker's dice used in attack
@@ -541,6 +544,16 @@ class BMGame {
     {
         if (property_exists($this, $property)) {
             switch ($property) {
+                case 'attackerPlayerIdx':
+                    if (!isset($this->attack)) {
+                        return NULL;
+                    }
+                    return $this->attack['attackerPlayerIdx'];
+                case 'defenderPlayerIdx':
+                    if (!isset($this->attack)) {
+                        return NULL;
+                    }
+                    return $this->attack['defenderPlayerIdx'];
                 case 'attackerAllDieArray':
                     if (!isset($this->attack)) {
                         return NULL;

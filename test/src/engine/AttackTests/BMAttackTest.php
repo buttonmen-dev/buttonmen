@@ -417,11 +417,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // test appropriate methods were called
         $this->assertNotEmpty($game->capturedDieArrayArray[
-                                         $game->attack['attackerPlayerIdx']]);
+                                         $game->attackerPlayerIdx]);
         $this->assertEquals(1, count($game->capturedDieArrayArray[
-                                         $game->attack['attackerPlayerIdx']]));
+                                         $game->attackerPlayerIdx]));
         $this->assertTrue($die2 === $game->capturedDieArrayArray[
-                                         $game->attack['attackerPlayerIdx']][0]);
+                                         $game->attackerPlayerIdx][0]);
 
         // attacker->capture
         $die1->add_skill("CaptureCatcher");
@@ -487,13 +487,13 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // $game->capture_die
         $this->assertNotEmpty($game->capturedDieArrayArray[
-                                         $game->attack['attackerPlayerIdx']]);
+                                         $game->attackerPlayerIdx]);
         $this->assertEquals(2, count($game->capturedDieArrayArray[
-                                                $game->attack['attackerPlayerIdx']]));
+                                                $game->attackerPlayerIdx]));
         $this->assertTrue($die2 === $game->capturedDieArrayArray[
-                                               $game->attack['attackerPlayerIdx']][0]);
+                                               $game->attackerPlayerIdx][0]);
         $this->assertTrue($die4 === $game->capturedDieArrayArray[
-                                               $game->attack['attackerPlayerIdx']][1]);
+                                               $game->attackerPlayerIdx][1]);
 
         // attacker->capture
         $die1->add_skill("CaptureCatcher");
