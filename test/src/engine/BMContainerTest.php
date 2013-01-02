@@ -1,6 +1,7 @@
 <?php
 
 require_once "engine/BMContainer.php";
+require_once "engine/BMGame.php";
 require_once "testdummies.php";
 
 /**
