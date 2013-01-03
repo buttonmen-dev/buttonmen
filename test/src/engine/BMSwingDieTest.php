@@ -172,14 +172,39 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
+     * @covers BMSwingDie::activate
      */
 
     public function testActivate () {
+        $game = new DummyGame;
+        foreach (str_split("RSTUVWXYZ") as $dieIdx => $swing) {
+            $this->object->init($swing);
+
+            $this->object->ownerObject = $game;
+            $game->all_values_specified = TRUE;
+            $this->object->activate("player");
+            $newDie = $game->dice[$dieIdx][1];
+
+            $this->assertFalse($newDie === $this->object);
+            $this->assertTrue($game === $newDie->ownerObject);
+
+            $this->assertEquals($newDie, $game->swingrequest[0]);
+            $this->assertEquals($swing, $game->swingrequest[1]);
+        }
+
+    }
+
+    /**
+     * @depends testInit
+     * @coversNothing
+     */
+
+    public function testIntegrationActivate () {
         $button = new BMButton;
         foreach (str_split("RSTUVWXYZ") as $swing) {
             $this->object->init($swing);
             $this->object->ownerObject = $button;
-            $this->object->activate(0);
+//            $this->object->activate(0);
 
 // james           $this->assertTrue($game->swingrequest[0] === $newDie);
 //            $this->assertEquals($game->swingrequest[1], $swing);
@@ -404,8 +429,94 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
      * @depends testInit
      * @depends testActivate
      * @depends testSet_swingValue
+     * @covers BMSwingDie::roll
      */
     public function testRoll() {
+
+        // testing whether it calls the appropriate methods in BMGame
+
+        $this->object->init("X");
+
+        // needs a value, hasn't requested one. Should call
+        // request_swing_values before calling require_values
+        $game = new DummyGame;
+
+        $this->object->ownerObject = $game;
+
+        $ex = FALSE;
+        try {
+            $this->object->roll(FALSE);
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertTrue($ex, "dummy require_values not called.");
+        $this->assertNotEmpty($game->swingrequest);
+
+        // Once activated, it should have requested a value, but still
+        // needs one.
+        // Calls require_values without calling request_swing_values
+
+        $this->object->init("X");
+
+        $game = new DummyGame;
+        $this->object->ownerObject = $game;
+
+        $this->object->activate("player");
+        $newDie = $game->dice[0][1];
+
+        $this->assertNotNull($game->swingrequest);
+        $game->swingrequest = array();
+
+        $ex = FALSE;
+        try {
+            $newDie->roll(FALSE);
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertTrue($ex, "dummy require_values not called.");
+        $this->assertEmpty($game->swingrequest);
+
+        // And if the swing value is set, it won't call require_values
+        $this->object->init("X");
+
+        $game = new DummyGame;
+        $this->object->ownerObject = $game;
+
+        $this->object->activate("player");
+        $newDie = $game->dice[0][1];
+
+        $this->assertNotNull($game->swingrequest);
+        $game->swingrequest = array();
+
+        $newDie->set_swingValue(array("X" => "15"));
+
+        // it hasn't rolled yet
+        $this->assertFalse(is_numeric($newDie->value));
+
+
+        $ex = FALSE;
+        try {
+            $newDie->roll(FALSE);
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+        $this->assertFalse($ex, "dummy require_values was called.");
+        $this->assertEmpty($game->swingrequest);
+
+        // Does it roll?
+        $this->assertTrue(is_numeric($newDie->value));
+    }
+
+
+    /**
+     * @depends testInit
+     * @depends testActivate
+     * @depends testSet_swingValue
+     * @coversNothing
+     */
+    public function testInterfaceRoll() {
 
         // testing whether it calls the appropriate methods in BMGame
 

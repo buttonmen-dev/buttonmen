@@ -37,6 +37,21 @@ class BMGame {
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
 
+    public $swingrequest;
+
+    public function request_swing_values($die, $swingtype) {
+        $this->swingrequest = array($die, $swingtype);
+    }
+
+    public $all_values_specified = FALSE;
+
+    public function require_values() {
+        if (!$this->all_values_specified) {
+            throw new Exception("require_values called");
+        }
+    }
+
+
     // methods
     public function do_next_step() {
         if (!isset($this->gameState)) {
