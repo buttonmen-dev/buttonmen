@@ -329,7 +329,29 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @covers BMDie::activate
+     */
+
     public function testActivate() {
+        $game = new DummyGame;
+        $this->object->ownerObject = $game;
+        $this->object->activate('player');
+        $newDie = $game->dice[0][1];
+
+        $this->assertInstanceOf('BMDie', $newDie);
+
+        $this->assertTrue($game === $newDie->ownerObject);
+
+        // Make the dice equal in value
+
+        $this->assertFalse(($this->object === $newDie), "activate returned the same object.");
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testIntegrationActivate() {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
         $this->object->ownerObject = $game;
