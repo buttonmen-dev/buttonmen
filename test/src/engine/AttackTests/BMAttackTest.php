@@ -397,7 +397,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEmpty($help[1]);
     }
 
-/**
+    /**
      * @covers BMAttack::commit_attack
      */
     public function testCommit_attack()
@@ -977,7 +977,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         }
     }
 
-/**
+    /**
      * @covers BMAttack::collect_helpers()
      */
     public function ttestCollect_helpers()
