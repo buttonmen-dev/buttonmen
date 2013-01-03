@@ -271,8 +271,8 @@ class BMAttack {
     public function collect_helpers($game, $attackers, $defenders) {
         $helpers = array();
 
-        if (is_null($game->activeDieArrayArray)) {
-            return;
+        if (is_null($game->attackerAllDieArray)) {
+            return $helpers;
         }
 
         foreach ($game->attackerAllDieArray as $die) {
@@ -281,6 +281,7 @@ class BMAttack {
                 $helpers[] = $helpVals;
             }
         }
+        var_dump($helpers);
         return $helpers;
     }
 }

@@ -134,9 +134,11 @@ class DummyGame {
         return $this->defenders;
     }
 
+    public $attackerAllDieArray = array();
+
     public $captures = array();
 
-    public function capture_die($player, $victim) {
+    public function capture_die($victim, $player = NULL) {
         $this->captures[] = $victim;
     }
 

@@ -428,9 +428,7 @@ class BMGame {
         $this->activeDieArrayArray[$playerIdx][] = $die;
     }
 
-    public function capture_die($die) {
-//        var_dump($this->attack['defenderPlayerIdx']);
-//        var_dump($this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]);
+    public function capture_die($die, $newOwnerIdx = NULL) {
         $dieIdx = array_search($die, $this->activeDieArrayArray[
                                                 $this->attack['defenderPlayerIdx']], TRUE);
         if (FALSE === $dieIdx) {
@@ -438,12 +436,15 @@ class BMGame {
                 'Captured die does not exist for the defender.');
         }
 
-        // add captured die to attacker's captured die array
-        $this->capturedDieArrayArray[$this->attack['attackerPlayerIdx']][] =
-            $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']][$dieIdx];
+        // add captured die to captured die array
+        if (is_null($newOwnerIdx)) {
+            $newOwnerIdx = $this->attack['attackerPlayerIdx'];
+        }
+        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        $this->capturedDieArrayArray[$newOwnerIdx][] =
+            $this->activeDieArrayArray[$defenderPlayerIdx][$dieIdx];
         // remove captured die from defender's active die array
-        array_splice($this->activeDieArrayArray[$this->attack['defenderPlayerIdx']],
-                     $dieIdx, 1);
+        array_splice($this->activeDieArrayArray[$defenderPlayerIdx], $dieIdx, 1);
     }
 
     public static function does_recipe_have_auxiliary_dice($recipe) {
@@ -572,12 +573,14 @@ class BMGame {
                     }
                     return $this->attack['defenderPlayerIdx'];
                 case 'attackerAllDieArray':
-                    if (!isset($this->attack)) {
+                    if (!isset($this->attack) ||
+                        !isset($this->activeDieArrayArray)) {
                         return NULL;
                     }
                     return $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']];
                 case 'defenderAllDieArray':
-                    if (!isset($this->attack)) {
+                    if (!isset($this->attack) ||
+                        !isset($this->activeDieArrayArray)) {
                         return NULL;
                     }
                     return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];

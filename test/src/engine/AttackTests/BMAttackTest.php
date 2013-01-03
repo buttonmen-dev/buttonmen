@@ -351,6 +351,15 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     public function testFind_attack()
     {
         $att = BMAttack::get_instance();
+        $this->assertFalse($att->find_attack(new DummyGame));
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testInteractionFind_attack()
+    {
+        $att = BMAttack::get_instance();
         $this->assertFalse($att->find_attack(new BMGame));
     }
 
@@ -358,6 +367,17 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      * @covers BMAttack::validate_attack
      */
     public function testValidate_attack()
+    {
+        $att = BMAttack::get_instance();
+        $this->assertFalse($att->validate_attack(new DummyGame,
+                                                 array(new BMDie),
+                                                 array(new BMDie)));
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testInteractionValidate_attack()
     {
         $att = BMAttack::get_instance();
         $this->assertFalse($att->validate_attack(new BMGame,
@@ -377,11 +397,195 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertEmpty($help[1]);
     }
 
-
-    /**
+/**
      * @covers BMAttack::commit_attack
      */
     public function testCommit_attack()
+    {
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 6;
+
+        $game = new DummyGame;
+
+        $att = array($die1);
+        $def = array($die2);
+
+        // Test failure
+
+        // rig validation
+        $this->object->validate = FALSE;
+
+        $this->assertFalse($this->object->commit_attack($game, $att, $def));
+
+        // Basic success
+        $this->assertEmpty($game->captures);
+        $this->assertFalse($die1->hasAttacked);
+        $this->assertFalse($die2->captured);
+
+        $this->object->validate = TRUE;
+        $this->assertTrue($this->object->commit_attack($game, $att, $def));
+
+        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die2->captured);
+
+        // test appropriate methods were called
+
+        // $game->capture_die
+        $this->assertNotEmpty($game->captures);
+        $this->assertEquals(1, count($game->captures));
+        $this->assertTrue($die2 === $game->captures[0]);
+
+        // attacker->capture
+        $die1->add_skill("CaptureCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::capture not called");
+        $die1->remove_skill("CaptureCatcher");
+
+        // defender->be_captured
+        $die2->add_skill("CaptureCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::be_captured not called");
+        $die2->remove_skill("CaptureCatcher");
+
+        // attacker->roll
+        $die1->add_skill("RollCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::roll not called");
+        $die1->remove_skill("RollCatcher");
+
+        // make sure that multiple dice are processed
+        $game->captures = array();
+
+        $die3 = new BMDie;
+        $die3->init(6);
+        $die3->value = 6;
+
+        $die4 = new BMDie;
+        $die4->init(6);
+        $die4->value = 6;
+
+        $att[] = $die3;
+        $def[] = $die4;
+
+        $this->assertTrue($this->object->commit_attack($game, $att, $def));
+
+        $this->assertTrue($die1->hasAttacked);
+        $this->assertTrue($die2->captured);
+        $this->assertTrue($die3->hasAttacked);
+        $this->assertTrue($die4->captured);
+
+        // $game->capture_die
+        $this->assertNotEmpty($game->captures);
+        $this->assertEquals(2, count($game->captures));
+        $this->assertTrue($die2 === $game->captures[0]);
+        $this->assertTrue($die4 === $game->captures[1]);
+
+        // attacker->capture
+        $die1->add_skill("CaptureCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::capture not called");
+        $die1->remove_skill("CaptureCatcher");
+
+        $die3->add_skill("CaptureCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::capture not called");
+        $die3->remove_skill("CaptureCatcher");
+
+        // defender->be_captured
+        $die2->add_skill("CaptureCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::be_captured not called");
+        $die2->remove_skill("CaptureCatcher");
+
+        $die4->add_skill("CaptureCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::be_captured not called");
+        $die4->remove_skill("CaptureCatcher");
+
+        // attacker->roll
+        $die1->add_skill("RollCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::roll not called");
+        $die1->remove_skill("RollCatcher");
+
+        $die3->add_skill("RollCatcher");
+
+        $except = FALSE;
+
+        try {
+            $this->object->commit_attack($game, $att, $def);
+        } catch (Exception $e) {
+            $except = TRUE;
+        }
+        $this->assertTrue($except, "BMDie::roll not called");
+        $die3->remove_skill("RollCatcher");
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testInteractionCommit_attack()
     {
         $die1 = new BMDie;
         $die1->init(6);
@@ -773,10 +977,66 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    /**
+/**
      * @covers BMAttack::collect_helpers()
      */
-    public function testCollect_helpers()
+    public function ttestCollect_helpers()
+    {
+        $game = new DummyGame;
+
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertEmpty($help);
+
+
+        $die1 = new BMDie;
+        $die1->init(6, array("AVTesting"));
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 2;
+
+        // provide a die that always gives help
+        $game->attackerAllDieArray[] = $die1;
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(1, count($help));
+        $this->assertInternalType('array', $help[0]);
+        $this->assertEquals(1, count($help[0]));
+        $this->assertEquals(1, $help[0][0]);
+
+        // die that won't help should change nothing
+        $game->attackerAllDieArray[] = $die2;
+
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(1, count($help));
+        $this->assertInternalType('array', $help[0]);
+        $this->assertEquals(1, count($help[0]));
+        $this->assertEquals(1, $help[0][0]);
+
+        // second helping die
+        $game->attackerAllDieArray[] = $die1;
+
+        $help = $this->object->collect_helpers($game, array(), array());
+
+        $this->assertNotEmpty($help);
+        $this->assertEquals(2, count($help));
+        $this->assertInternalType('array', $help[0]);
+        $this->assertEquals(1, count($help[0]));
+        $this->assertEquals(1, count($help[1]));
+        $this->assertEquals(1, $help[0][0]);
+        $this->assertEquals(1, $help[1][0]);
+
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testInteractionCollect_helpers()
     {
         $game = new BMGame;
 
@@ -799,7 +1059,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $game->attack = array(0, 1, array(), array(), '');
 
         $help = $this->object->collect_helpers($game, array(), array());
-
         $this->assertNotEmpty($help);
         $this->assertEquals(1, count($help));
         $this->assertInternalType('array', $help[0]);
