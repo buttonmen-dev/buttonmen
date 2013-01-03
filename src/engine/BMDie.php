@@ -643,11 +643,6 @@ class BMSwingDie extends BMDie {
 
     public function make_play_die()
     {
-        if (!($this->ownerObject instanceof BMGame)) {
-            throw new LogicException(
-                'Play dice can only be added to a BMGame.');
-        }
-
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
         if ($this->needsValue) {

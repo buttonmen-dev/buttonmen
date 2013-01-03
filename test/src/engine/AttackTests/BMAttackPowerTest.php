@@ -171,13 +171,76 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
     }
 
-
-    /**
+/**
      * @covers BMAttackPower::find_attack
      * @depends testValidate_attack
      * @todo   Implement testFind_attack().
      */
     public function testFind_attack()
+    {
+        $game = new DummyGame;
+
+        // we find nothing when there are no attackers
+        $this->assertFalse($this->object->find_attack($game));
+
+        // Load some dice into the attack.
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+
+        $this->object->add_die($die1);
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 1;
+
+        $this->object->add_die($die2);
+
+        // we find nothing when there are no defenders
+        $this->assertFalse($this->object->find_attack($game));
+
+
+        $die3 = new BMDie;
+        $die3->init(6);
+        $die3->value = 6;
+
+        $die4 = new BMDie;
+        $die4->init(20);
+        $die4->value = 7;
+
+        $game->defenderAllDieArray[] = $die3;
+
+        $this->assertTrue($this->object->find_attack($game));
+
+        $game->defenderAllDieArray = array();
+        $game->defenderAllDieArray[] = $die4;
+
+        $this->assertFalse($this->object->find_attack($game));
+
+        // with both
+        $game->defenderAllDieArray[] = $die3;
+
+        $this->assertTrue($this->object->find_attack($game));
+
+        // with an assist
+        $game->defenderAllDieArray = array();
+        $game->defenderAllDieArray[] = $die4;
+
+        // Attacks with helpers
+        $die5 = new BMDie;
+        $die5->init(6, array("AVTesting"));
+        $die5->value = 1;
+        $game->attackerAllDieArray[] = $die5;
+
+        $this->assertTrue($this->object->find_attack($game));
+    }
+
+
+    /**
+     * @coversNothing
+     * @depends testValidate_attack
+     */
+    public function testInterfaceFind_attack()
     {
         $game = new BMGame;
 

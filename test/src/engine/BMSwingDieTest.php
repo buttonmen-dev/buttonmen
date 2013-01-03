@@ -592,13 +592,62 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_numeric($game->activeDieArrayArray[0][0]->value));
     }
 
+    /**
+     * @depends testInit
+     * @depends testSet_swingValue
+     * @depends testRoll
+     * @covers BMSwingDie::make_play_die
+     */
+    public function testMake_play_die() {
+        $game = new DummyGame;
+
+        $this->object->init("X");
+        $this->object->ownerObject = $game;
+
+        $this->object->activate("player");
+        $newDie = $game->dice[0][1];
+
+        // No value yet set. It will call game->require_values()
+
+        $ex = FALSE;
+        try {
+            $newDie->make_play_die();
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertTrue($ex, "require_values not called.");
+
+        // If it doesn't need a value, it won't
+        $newDie->set_swingValue(array("X" => "11"));
+
+        // newDie shouldn't have a value yet
+        $this->assertFalse(is_numeric($newDie->value));
+
+        $ex = FALSE;
+        try {
+            $rolledDie = $newDie->make_play_die();
+        } catch (Exception $e) {
+            $ex = TRUE;
+        }
+
+        $this->assertFalse($ex, "require_values called.");
+
+        // the die it returns should have a value, and not be the
+        // previous die
+        $this->assertFalse($newDie === $rolledDie);
+        $this->assertTrue(is_numeric($rolledDie->value));
+        $this->assertFalse(is_numeric($newDie->value));
+    }
+
 
     /**
      * @depends testInit
      * @depends testSet_swingValue
      * @depends testRoll
+     * @coversNothing
      */
-    public function testMake_play_die() {
+    public function testIntegrationMake_play_die() {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
 

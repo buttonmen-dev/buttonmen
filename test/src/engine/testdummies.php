@@ -122,19 +122,17 @@ class DummyGame {
         }
     }
 
-    public $attackers = array();
-
     public function attackerAttackDieArray() {
         return $this->attackers;
     }
-
-    public $defenders = array();
 
     public function defenderAttackDieArray() {
         return $this->defenders;
     }
 
     public $attackerAllDieArray = array();
+
+    public $defenderAllDieArray = array();
 
     public $captures = array();
 

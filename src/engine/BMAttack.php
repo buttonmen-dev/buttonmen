@@ -281,7 +281,6 @@ class BMAttack {
                 $helpers[] = $helpVals;
             }
         }
-        var_dump($helpers);
         return $helpers;
     }
 }
