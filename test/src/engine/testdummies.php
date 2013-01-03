@@ -102,11 +102,11 @@ class BMAttTesting extends BMAttack {
 }
 
 class DummyGame {
-//    public $dice = array();
+    public $dice = array();
 
-//    public function add_die($player, $die) {
-//        $this->dice[] = array($player, $die);
-//    }
+    public function add_die($die, $player) {
+        $this->dice[] = array($player, $die);
+    }
 
     public $swingrequest;
 
@@ -118,27 +118,27 @@ class DummyGame {
         throw new Exception("require_values called");
     }
 
-//    public $attackers = array();
-//
-//    public function attackerAttackDieArray() {
-//        return $this->attackers;
-//    }
-//
-//    public $defenders = array();
+    public $attackers = array();
 
-//    public function defenderAttackDieArray() {
-//        return $this->defenders;
-//    }
+    public function attackerAttackDieArray() {
+        return $this->attackers;
+    }
 
-//    public $captures = array();
+    public $defenders = array();
 
-//    public function capture_die($player, $victim) {
-//        $this->captures[] = $victim;
-//    }
+    public function defenderAttackDieArray() {
+        return $this->defenders;
+    }
 
-//    public function active_player() {
-//        return 1;
-//    }
+    public $captures = array();
+
+    public function capture_die($player, $victim) {
+        $this->captures[] = $victim;
+    }
+
+    public function active_player() {
+        return 1;
+    }
 }
 
 ?>
