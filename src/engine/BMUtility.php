@@ -39,7 +39,7 @@ class XCYIterator implements Iterator {
     }
 
     // Called when the foreach begins
-    // 
+    //
     // keep making sub-iterators with the tail of the list until we
     // reach the full depth
     public function rewind() {
@@ -51,10 +51,10 @@ class XCYIterator implements Iterator {
         if (count($this->list > 0) && $this->depth > 1) {
             $this->tail = new XCYIterator($this->list, $this->depth - 1);
         }
-        if ($this->tail) { 
+        if ($this->tail) {
             $this->tail->setPosition($this->position + 1);
             $this->tail->rewind();
-            
+
         }
     }
 
@@ -119,7 +119,7 @@ class XCYIterator implements Iterator {
     // Check whether we fell off the end.
     public function valid() {
         if (!is_null($this->head)) { return TRUE; }
-        else { 
+        else {
             return FALSE;
         }
     }

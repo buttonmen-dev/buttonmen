@@ -1,6 +1,7 @@
 <?php
 
 require_once "engine/BMDie.php";
+require_once "engine/BMGame.php";
 require_once "testdummies.php";
 
 /**
@@ -328,20 +329,34 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @covers BMDie::activate
+     */
+
     public function testActivate() {
-        $newDie = $this->object->activate("game", "owner");
+        $game = new DummyGame;
+        $this->object->ownerObject = $game;
+        $this->object->activate('player');
+        $newDie = $game->dice[0][1];
 
         $this->assertInstanceOf('BMDie', $newDie);
 
-        $this->assertEquals("game", $newDie->game);
-        $this->assertEquals("owner", $newDie->owner);
+        $this->assertTrue($game === $newDie->ownerObject);
 
         // Make the dice equal in value
 
-        $this->object->game = "game";
-        $this->object->owner = "owner";
-
         $this->assertFalse(($this->object === $newDie), "activate returned the same object.");
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function testIntegrationActivate() {
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array(), array());
+        $this->object->ownerObject = $game;
+        $this->object->activate(1);
+        $this->assertInstanceOf('BMDie', $game->activeDieArrayArray[1][0]);
     }
 
     /**

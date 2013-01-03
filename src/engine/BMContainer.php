@@ -11,6 +11,8 @@ require_once 'BMDie.php';
 class BMContainer {
     public $contents = array();
 
+    public $ownerObject;
+
     // keyed by the Names of the skills that the class has, with values of
     // the skill class's name
     //
@@ -37,19 +39,14 @@ class BMContainer {
     // container's list is being used for all subcontainers. Cleans up
     // most of the semantics, but doesn't actually gain functionality.
     // (Seems to complicate the process of getting dice out to the game.)
-    public function activate($game, $owner) {
+    public function activate($newOwnerIdx = NULL) {
         foreach ($this->contents as $thing) {
             foreach ($this->skillList as $skill => $class) {
                 $thing->add_skill($skill);
             }
-            $a = $thing->activate($game, $owner);
-            
-            // only dice return anything from activation
-            if ($a) {
-                $game->add_die($owner, $a);
-            }
+            $thing->ownerObject = $this->ownerObject;
+            $thing->activate($newOwnerIdx);
         }
-        return NULL;
     }
 
     // add a die or container to the end of the container
@@ -57,6 +54,7 @@ class BMContainer {
         // Only dice and containers
         if (is_a($thing, "BMContainer")  || is_a($thing, "BMDie")) {
             $this->contents[] = $thing;
+            $thing->ownerObject = $this;
             return $thing;
         }
         return NULL;
