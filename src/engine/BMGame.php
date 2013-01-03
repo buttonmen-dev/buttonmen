@@ -1,5 +1,7 @@
 <?php
 
+require_once 'BMButton.php';
+
 /**
  * BMGame: current status of a game
  *
