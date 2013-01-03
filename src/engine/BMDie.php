@@ -635,25 +635,18 @@ class BMSwingDie extends BMDie {
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        if ($this->ownerObject instanceof BMGame) {
-// james           $this->ownerObject->request_swing_values($newDie, $newDie->swingType);
-            $newDie->valueRequested = TRUE;
-        }
+        $this->ownerObject->request_swing_values($newDie, $newDie->swingType);
+        $newDie->valueRequested = TRUE;
 
         $this->ownerObject->add_die($newDie, $playerIdx);
     }
 
     public function make_play_die()
     {
-        if (!($this->ownerObject instanceof BMGame)) {
-            throw new LogicException(
-                'Play dice can only be added to a BMGame.');
-        }
-
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
         if ($this->needsValue) {
-// james           $this->ownerObject->require_values();
+            $this->ownerObject->require_values();
         }
 
         return parent::make_play_die();
@@ -661,17 +654,15 @@ class BMSwingDie extends BMDie {
 
     public function roll($successfulAttack = FALSE)
     {
-        if ($this->ownerObject instanceof BMGame) {
-            if ($this->needsValue) {
-                if (!$this->valueRequested) {
-// james                   $this->game->request_swing_values($this, $this->swingType);
-                    $this->valueRequested = TRUE;
-                }
-// james               $this->game->require_values();
+        if ($this->needsValue) {
+            if (!$this->valueRequested) {
+                $this->ownerObject->request_swing_values($this, $this->swingType);
+                $this->valueRequested = TRUE;
             }
-
-            parent::roll($successfulAttack);
+            $this->ownerObject->require_values();
         }
+
+        parent::roll($successfulAttack);
     }
 
 // Print long description

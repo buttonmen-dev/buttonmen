@@ -1,5 +1,7 @@
 <?php
 
+require_once 'BMDie.php';
+
 /**
  * BMButton: instantiated button as existing at the beginning of a round
  *

@@ -39,13 +39,13 @@ class BMContainer {
     // container's list is being used for all subcontainers. Cleans up
     // most of the semantics, but doesn't actually gain functionality.
     // (Seems to complicate the process of getting dice out to the game.)
-    public function activate($playerIdx = NULL) {
+    public function activate($newOwnerIdx = NULL) {
         foreach ($this->contents as $thing) {
             foreach ($this->skillList as $skill => $class) {
                 $thing->add_skill($skill);
             }
             $thing->ownerObject = $this->ownerObject;
-            $thing->activate($playerIdx);
+            $thing->activate($newOwnerIdx);
         }
     }
 
