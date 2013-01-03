@@ -27,6 +27,9 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * @covers BMSwingDie::swing_range
+     */
     public function testSwing_range() {
         foreach (str_split("RSTUVWXYZ") as $swing) {
             $range = $this->object->swing_range($swing);
@@ -45,6 +48,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testSwing_range
+     * @covers BMSwingDie::init
      */
     public function testInit () {
         $this->object->init("X", array());
@@ -110,6 +114,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
+     * @covers BMSwingDie::create
      */
     public function testCreate() {
 
@@ -204,7 +209,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         foreach (str_split("RSTUVWXYZ") as $swing) {
             $this->object->init($swing);
             $this->object->ownerObject = $button;
-//            $this->object->activate(0);
+// james           $this->object->activate(0);
 
 // james           $this->assertTrue($game->swingrequest[0] === $newDie);
 //            $this->assertEquals($game->swingrequest[1], $swing);
@@ -214,6 +219,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
+     * @covers BMSwingDie::split
      */
     public function testSplit() {
         $this->object->init("X");
@@ -321,6 +327,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends testInit
      * @depends testSplit
+     * @covers BMSwingDie::set_swingValue
      */
     public function testSet_swingValue() {
 
@@ -548,8 +555,8 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activate(0);
 
-// james       $this->assertNotNull($game->swingrequest);
-//        $game->swingrequest = array();
+        $this->assertNotNull($game->swingrequest);
+        $game->swingrequest = array();
 
         $ex = FALSE;
         try {
@@ -559,7 +566,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         }
 
         $this->assertTrue($ex, "dummy require_values not called.");
-// james       $this->assertEmpty($game->swingrequest);
+        $this->assertEmpty($game->swingrequest);
 
         // And if the swing value is set, it won't call require_values
         $this->object->init("X");
@@ -570,8 +577,8 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activate(0);
 
-// james       $this->assertNotNull($game->swingrequest);
-//        $game->swingrequest = array();
+        $this->assertNotNull($game->swingrequest);
+        $game->swingrequest = array();
 
         $game->activeDieArrayArray[0][0]->set_swingValue(array("X" => "15"));
 
@@ -586,7 +593,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
             $ex = TRUE;
         }
         $this->assertFalse($ex, "dummy require_values was called.");
-// james       $this->assertEmpty($game->swingrequest);
+        $this->assertEmpty($game->swingrequest);
 
         // Does it roll?
         $this->assertTrue(is_numeric($game->activeDieArrayArray[0][0]->value));
@@ -690,6 +697,9 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(is_numeric($newDie->value));
     }
 
+    /*
+     * @covers BMSwingDie::describe
+     */
     public function testDescribe() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
