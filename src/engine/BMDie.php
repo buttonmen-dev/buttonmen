@@ -24,9 +24,8 @@ class BMDie
     public $max;
     public $value;
 
-// references back to the game we're part of
-    public $game;
-    public $owner;
+// references back to the owner
+    public $ownerObject;
 
     protected $scoreValue;
 
@@ -195,16 +194,13 @@ class BMDie
 //
 // Clones the die and returns the clone
 
-    public function activate($game, $owner)
+    public function activate($playerIdx)
     {
         $newDie = clone $this;
 
-        $newDie->game = $game;
-        $newDie->owner = $owner;
-
         $this->run_hooks(__FUNCTION__, array($newDie));
 
-        return $newDie;
+        $this->ownerObject->add_die($newDie, $playerIdx);
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
@@ -632,16 +628,17 @@ class BMSwingDie extends BMDie {
 
     }
 
-    // Can let the parent do the work for us.
-    public function activate($game, $owner) {
-        $newDie = parent::activate($game, $owner);
+    public function activate($playerIdx) {
+        $newDie = clone $this;
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        $game->request_swing_values($newDie, $newDie->swingType);
+        $this->ownerObject->request_swing_values($newDie, $newDie->swingType);
         $newDie->valueRequested = TRUE;
 
-        return $newDie;
+        $this->ownerObject->add_die($newDie, $playerIdx);
     }
 
     public function make_play_die()
@@ -649,7 +646,7 @@ class BMSwingDie extends BMDie {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
         if ($this->needsValue) {
-            $this->game->require_values();
+            $this->ownerObject->require_values();
         }
 
         return parent::make_play_die();
@@ -659,10 +656,10 @@ class BMSwingDie extends BMDie {
     {
         if ($this->needsValue) {
             if (!$this->valueRequested) {
-                $this->game->request_swing_values($this, $this->swingType);
+                $this->ownerObject->request_swing_values($this, $this->swingType);
                 $this->valueRequested = TRUE;
             }
-            $this->game->require_values();
+            $this->ownerObject->require_values();
         }
 
         parent::roll($successfulAttack);
