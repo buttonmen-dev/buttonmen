@@ -273,7 +273,7 @@ class BMDie
             $div = 2;
         }
 
-        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, $mult, $div, $this->captured));
+        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, &$mult, &$div, $this->captured));
 
         return (10 * $this->scoreValue * $mult) / $div;
     }
