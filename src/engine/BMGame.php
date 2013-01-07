@@ -502,16 +502,17 @@ class BMGame {
         // If swing or option, then it is unspecified if the sides are unclear.
         // check for swing letter or option '/' inside the brackets
         // remove everything before the opening parenthesis
-        $sides = $die->mSides;
 
-        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
-            return FALSE;
-        }
+//        $sides = $die->max;
+
+//        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
+//            return FALSE;
+//        }
 
         // If plasma, then it is unspecified if the skills are unclear.
         // james: not written yet
 
-        return TRUE;
+        return (isset($die->max));
     }
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {

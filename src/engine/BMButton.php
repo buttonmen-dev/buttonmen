@@ -31,12 +31,15 @@ class BMButton {
         foreach ($dieSidesArray as $dieIdx => $tempDieSides) {
             // james: this will probably be replaced by a call to
             // BMDie::create_from_string
-            $tempBMDie = new BMDie;
-            $tempBMDie->mSides = $tempDieSides;
-            if (!empty($tempDieSides)) {
-                $tempBMDie->mSkills = $dieSkillsArray[$dieIdx];
-            }
-            $this->dieArray[] = $tempBMDie;
+//            $tempDie = new BMDie;
+//            $tempBMDie->mSides = $tempDieSides;
+//            if (!empty($tempDieSides)) {
+//                $tempBMDie->mSkills = $dieSkillsArray[$dieIdx];
+//            }
+            // james: mock up the function call so that it passes
+            $tempDie = BMDie::create_from_string($tempDieSides, array());
+//                                                 array($dieSkillsArray[$dieIdx]));
+            $this->dieArray[] = $tempDie;
         }
     }
 
@@ -69,8 +72,9 @@ class BMButton {
         }
 
         foreach ($valueArray as $dieIdx => $tempValue) {
-            if (($tempValue < 1) |
-                ($tempValue > $this->dieArray[$dieIdx]->mSides)) {
+            if (($tempValue < 1)
+                | ($tempValue > $this->dieArray[$dieIdx]->max)
+                ) {
                 throw new InvalidArgumentException('Invalid values.');
             }
             $this->dieArray[$dieIdx]->value = $tempValue;

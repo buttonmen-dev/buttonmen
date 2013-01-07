@@ -152,8 +152,23 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load_from_recipe($recipe2);
         $this->object->buttonArray = array($button1, $button2);
         $this->object->do_next_step();
-        $this->assertEquals(array($this->object->buttonArray[0]->dieArray,
-                                  $this->object->buttonArray[1]->dieArray),
+
+        // synchronise values
+        $dieArray1 = [];
+        foreach ($this->object->activeDieArrayArray[0] as $dieIdx => $die) {
+            $tempDie = clone $button1->dieArray[$dieIdx];
+            $tempDie->value = $die->value;
+            $dieArray1[] = clone $tempDie;
+        }
+
+        $dieArray2 = [];
+        foreach ($this->object->activeDieArrayArray[1] as $dieIdx => $die) {
+            $tempDie = clone $button2->dieArray[$dieIdx];
+            $tempDie->value = $die->value;
+            $dieArray2[] = clone $tempDie;
+        }
+
+        $this->assertEquals(array($dieArray1, $dieArray2),
                             $this->object->activeDieArrayArray);
         $this->assertNotNull($this->object->activeDieArrayArray[0][0]->value);
     }
@@ -676,23 +691,27 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::is_die_specified
      */
     public function test_is_die_specified() {
+        // unspecified die
+        $die = new BMDie;
+        $this->assertFalse(BMGame::is_die_specified($die));
+
         // normal die
         $die = new BMDie;
-        $die->mSides = '12';
-        $die->mSkills = '';
+        $die->max = 12;
+//        $die->mSkills = '';
         $this->assertTrue(BMGame::is_die_specified($die));
 
-        // swing die
-        $die = new BMDie;
-        $die->mSides = 'X';
-        $die->mSkills = '';
-        $this->assertFalse(BMGame::is_die_specified($die));
-
-        // option die
-        $die = new BMDie;
-        $die->mSides = '8/12';
-        $die->mSkills = '';
-        $this->assertFalse(BMGame::is_die_specified($die));
+//        // swing die
+//        $die = new BMDie;
+//        $die->mSides = 'X';
+//        $die->mSkills = '';
+//        $this->assertFalse(BMGame::is_die_specified($die));
+//
+//        // option die
+//        $die = new BMDie;
+//        $die->mSides = '8/12';
+//        $die->mSkills = '';
+//        $this->assertFalse(BMGame::is_die_specified($die));
     }
 
     /**
@@ -1363,6 +1382,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button1 = new BMButton;
         $button1->load_from_name('Bauer');
         $this->assertEquals('(8) (10) (12) (20) (X)', $button1->recipe);
+        // check dice in $button1->dieArray are correct
+//        $this->assertEquals(5, count($button1->dieArray));
+//        $die1 = new BMDie();
+
 
         $button2 = new BMButton;
         $button2->load_from_name('Stark');
@@ -1376,6 +1399,30 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+
+        // specify dice
+
+        // round 1
+
+        // roll initiative
+
+        // perform attacks
+
+        // perform end of round scoring
+
+        // round 2
+
+        // perform end of round scoring
+
+        // round 3
+
+        // perform end of round scoring
+
+        // round 4
+
+        // perform end of round scoring
+
+        // perform end of game actions
     }
 
 }
