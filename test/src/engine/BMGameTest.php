@@ -154,14 +154,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->do_next_step();
 
         // synchronise values
-        $dieArray1 = [];
+        $dieArray1 = array();
         foreach ($this->object->activeDieArrayArray[0] as $dieIdx => $die) {
             $tempDie = clone $button1->dieArray[$dieIdx];
             $tempDie->value = $die->value;
             $dieArray1[] = clone $tempDie;
         }
 
-        $dieArray2 = [];
+        $dieArray2 = array();
         foreach ($this->object->activeDieArrayArray[1] as $dieIdx => $die) {
             $tempDie = clone $button2->dieArray[$dieIdx];
             $tempDie->value = $die->value;
