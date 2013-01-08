@@ -24,9 +24,8 @@ class BMDie
     public $max;
     public $value;
 
-// references back to the game we're part of
-    public $game;
-    public $owner;
+// references back to the owner
+    public $ownerObject;
 
     protected $scoreValue;
 
@@ -122,7 +121,7 @@ class BMDie
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)
-    public function init($sides, $skills)
+    public function init($sides, $skills = array())
     {
         $this->min = 1;
         $this->max = $sides;
@@ -175,7 +174,8 @@ class BMDie
     }
 
     public static function create($size, $skills) {
-        if ($size < 1 || $size > 99) {
+        if (!is_numeric($size) || ($size != (int)$size) ||
+            $size < 1 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
         }
 
@@ -194,20 +194,17 @@ class BMDie
 //
 // Clones the die and returns the clone
 
-    public function activate($game, $owner)
+    public function activate($playerIdx)
     {
         $newDie = clone $this;
 
-        $newDie->game = $game;
-        $newDie->owner = $owner;
-
         $this->run_hooks(__FUNCTION__, array($newDie));
 
-        return $newDie;
+        $this->ownerObject->add_die($newDie, $playerIdx);
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
-    public function first_roll()
+    public function make_play_die()
     {
         $newDie = clone $this;
 
@@ -219,7 +216,7 @@ class BMDie
     }
 
 
-    public function roll($successfulAttack)
+    public function roll($successfulAttack = FALSE)
     {
 
         if ($this->doesReroll) {
@@ -238,7 +235,9 @@ class BMDie
         return $list;
     }
 
-
+    // Return all possible values the die may use in this type of attack
+    //
+    // The values must be sorted, highest to lowest, with no duplication.
     public function attack_values($type)
     {
         $list = array($this->value);
@@ -292,6 +291,66 @@ class BMDie
         return $vals;
     }
 
+
+    // Returns what values the die can contribute to an attack that
+    // it's not actually participating in.
+    //
+    // Fire is currently the only skill that requires this
+    //
+    // Returned values must be sorted from lowest to highest, and zero
+    // must be ommited unlees you cannot contribute.
+    //
+    // The attack code currently assumes that every value between the
+    // lowest and highest is possible, and that 1 and -1 are possible
+    // values if the help values go above or below zero. If that
+    // changes, the code'll need some work.
+    //
+    // It does not assume that the values are positive, even though
+    // they must be at the moment.
+    public function assist_values($type, $attackers, $defenders) {
+
+        $vals = array(0);
+
+        // Attackers can't help their own attack
+        if (FALSE !== array_search($this, $attackers)) {
+            return $vals;
+        }
+
+        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$vals));
+
+        return $vals;
+    }
+
+    // Actually contribute to an attack. Returns true if the attack
+    // was contributed to, false otherwise.
+    //
+    // Returning false in normal usage indicates an error somewhere or
+    // an attempt to cheat.
+    //
+    // once again, this is just for Fire
+    public function attack_contribute($type, $attackers, $defenders, $amount) {
+        if ($amount == 0) {
+            return FALSE;
+        }
+
+        $possibleVals = $this->assist_values($type, $attackers, $defenders);
+
+        $valid = FALSE;
+
+        foreach ($possibleVals as $val) {
+            if ($val == $amount) {
+                $valid = TRUE;
+                break;
+            }
+        }
+
+        // Hooks are where the die gets adjusted if need be.
+        if ($valid) {
+            $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, $amount));
+        }
+        return $valid;
+
+    }
 
 // check for special-case situations where an otherwise-valid attack
 // is not legal. Single-die skill attacks with stealth dice are the only
@@ -493,9 +552,183 @@ class BMDie
 }
 
 class BMSwingDie extends BMDie {
-# validation logic:
-#                    $ord("R") <= $ord($recipe) &&
-#                    $ord($recipe) <= $ord("Z")
+    public $swingType;
+    public $swingValue;
+    public $swingMax;
+    public $swingMin;
+    protected $needsValue = TRUE;
+    protected $valueRequested = FALSE;
+
+    // To allow correct behavior for turbo and mood swings that get
+    // cut in half.
+    protected $divisor = 1;
+    protected $remainder = 0;
+
+
+    // Don't really like putting data in the code, but where else
+    // should it go?
+    //
+    // Should be a constant, but that isn't allowed. Instead, we wrap
+    // it in a method
+    private static $swingRanges = array(
+        "R"	=> array(2, 16),
+        "S"	=> array(6, 20),
+        "T"	=> array(2, 12),
+        "U"	=> array(8, 30),
+        "V"	=> array(6, 12),
+        "W"	=> array(4, 12),
+        "X"	=> array(4, 20),
+        "Y"	=> array(1, 20),
+        "Z"	=> array(4, 30));
+
+    public static function swing_range($type) {
+        if (array_key_exists($type, self::$swingRanges)) {
+            return self::$swingRanges[$type];
+        }
+        return NULL;
+    }
+
+    public function init($type, $skills = array()) {
+        $this->min = 1;
+
+        $this->divisor = 1;
+        $this->remainder = 0;
+
+        $this->needsValue = TRUE;
+        $this->valueRequested = FALSE;
+
+        $this->swingType = $type;
+
+        $range = $this->swing_range($type);
+        if (is_null($range)) {
+            throw new UnexpectedValueException("Invalid swing type: $type");
+        }
+        $this->swingMin = $range[0];
+        $this->swingMax = $range[1];
+
+        foreach ($skills as $s)
+        {
+            $this->add_skill($s);
+        }
+
+    }
+
+    public static function create($recipe, $skills = array()) {
+
+        if (!is_string($recipe) || strlen($recipe) != 1 ||
+            ord("R") > ord($recipe) || ord($recipe) > ord("Z")) {
+            throw new UnexpectedValueException("Invalid recipe: $recipe");
+        }
+
+        $die = new BMSwingDie;
+
+        $die->init($recipe, $skills);
+
+        return $die;
+
+    }
+
+    public function activate($playerIdx) {
+        $newDie = clone $this;
+
+        $this->run_hooks(__FUNCTION__, array($newDie));
+
+        // The clone is the one going into the game, so it's the one
+        // that needs a swing value to be set.
+        $this->ownerObject->request_swing_values($newDie, $newDie->swingType);
+        $newDie->valueRequested = TRUE;
+
+        $this->ownerObject->add_die($newDie, $playerIdx);
+    }
+
+    public function make_play_die()
+    {
+        // Get swing value from the game before cloning, so it's saved
+        // from round to round.
+        if ($this->needsValue) {
+            $this->ownerObject->require_values();
+        }
+
+        return parent::make_play_die();
+    }
+
+    public function roll($successfulAttack = FALSE)
+    {
+        if ($this->needsValue) {
+            if (!$this->valueRequested) {
+                $this->ownerObject->request_swing_values($this, $this->swingType);
+                $this->valueRequested = TRUE;
+            }
+            $this->ownerObject->require_values();
+        }
+
+        parent::roll($successfulAttack);
+    }
+
+// Print long description
+    public function describe()
+    {
+        $this->run_hooks(__FUNCTION__, array());
+    }
+
+    public function split()
+    {
+        $this->divisor *= 2;
+        $this->remainder = 0;
+
+        $dice = parent::split();
+
+        if ($this->max > $dice[1]->max) {
+            $this->remainder = 1;
+        }
+
+        return $dice;
+    }
+
+    public function set_swingValue($swingList) {
+        $valid = TRUE;
+
+        if (!array_key_exists($this->swingType, $swingList)) {
+            return FALSE;
+        }
+
+        $sides = $swingList[$this->swingType];
+
+        if ($sides < $this->swingMin || $sides > $this->swingMax) {
+            return FALSE;
+        }
+
+        $this->run_hooks(__FUNCTION__, array(&$valid, $swingList));
+
+        if ($valid) {
+            $this->swingValue = $sides;
+
+            // Don't need to ask for a swing value any more
+            $this->needsValue = FALSE;
+            $this->valueRequested = FALSE;
+
+            // correctly handle cut-in-half swing dice, however many
+            // times they may have been cut
+            for($i = $this->divisor; $i > 1; $i /= 2) {
+                if ($sides > 1) {
+                    $rem = $sides % 2;
+                    $sides -= $rem;
+                    $sides /= 2;
+                    if ($rem && $this->remainder) {
+                        $sides += 1;
+                    }
+                }
+
+            }
+            $this->max = $sides;
+        }
+
+        return $valid;
+
+    }
+
+
+
 }
 
 class BMWildcardDie extends BMDie {
