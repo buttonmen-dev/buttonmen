@@ -11,7 +11,8 @@ class BMGame {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters
     private $gameId;                // game ID number in the database
-    private $playerIdxArray;        // array of player IDs
+    private $playerIdArray;         // array of player IDs
+    private $nPlayers;              // number of players in the game
     private $activePlayerIdx;       // index of the active player in playerIdxArray
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
@@ -61,20 +62,22 @@ class BMGame {
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // first player must always be specified
-                if (0 === $this->playerIdxArray[0]) {
+                if (0 === $this->playerIdArray[0]) {
                     throw new UnexpectedValueException(
                         'First player must be specified before game can be advanced.');
                 }
 
                 // if other players are unspecified, resolve this first
-                if (in_array(0, array_slice($this->playerIdxArray, 1))) {
+                if (in_array(0, array_slice($this->playerIdArray, 1))) {
                     $this->activate_GUI('Prompt for player ID');
                     return;
                 }
 
                 // if buttons are unspecified, allow players to choose buttons
-                foreach ($this->buttonArray as $tempButton) {
-                    $this->activate_GUI('Prompt for button ID');
+                foreach ($this->buttonArray as $buttonIdx => $tempButton) {
+                    if (is_null($tempButton)) {
+                        $this->activate_GUI('Prompt for button ID', $buttonIdx);
+                    }
                 }
 
                 break;
@@ -83,7 +86,7 @@ class BMGame {
                 // ignore for the moment
                 $this->gameScoreArrayArray =
                     array_pad(array(),
-                              count($this->playerIdxArray),
+                              count($this->playerIdArray),
                               array('W' => 0, 'L' => 0, 'T' => 0));
                 break;
 
@@ -128,6 +131,9 @@ class BMGame {
                 // james: BMContainer->activate() will probably be used here
                 // specify swing, option, and plasma dice
                 // update BMButton dieArray
+                $this->waitingOnActionArray =
+                    array_pad(array(), count($this->playerIdArray), TRUE);
+
                 break;
 
             case BMGameState::addAvailableDiceToGame;
@@ -159,7 +165,7 @@ class BMGame {
                 }
 
                 // determine player that has won initiative
-                $nPlayers = count($this->playerIdxArray);
+                $nPlayers = count($this->playerIdArray);
                 $doesPlayerHaveInitiative = array_pad(array(), $nPlayers, TRUE);
 
                 $dieIdx = 0;
@@ -284,7 +290,7 @@ class BMGame {
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // require both players and buttons to be specified
-                if (!in_array(0, $this->playerIdxArray) &&
+                if (!in_array(0, $this->playerIdArray) &&
                     isset($this->buttonArray)) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->passStatusArray = array(FALSE, FALSE);
@@ -410,11 +416,24 @@ class BMGame {
     }
 
     public function proceed_to_next_user_action() {
+        $repeatCount = 0;
         while (0 === array_sum($this->waitingOnActionArray)) {
+            $startGameState = $this->gameState;
             $this->update_game_state();
             $this->do_next_step();
             if (BMGameState::endGame === $this->gameState) {
                 break;
+            }
+
+            if ($startGameState === $this->gameState) {
+                $repeatCount++;
+            } else {
+                $repeatCount = 0;
+            }
+            if ($repeatCount >= 100) {
+                var_dump($this->gameState);
+                throw new LogicException(
+                    'Infinite loop detected when advancing game state.');
             }
         }
     }
@@ -483,16 +502,17 @@ class BMGame {
         // If swing or option, then it is unspecified if the sides are unclear.
         // check for swing letter or option '/' inside the brackets
         // remove everything before the opening parenthesis
-        $sides = $die->mSides;
 
-        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
-            return FALSE;
-        }
+//        $sides = $die->max;
+
+//        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
+//            return FALSE;
+//        }
 
         // If plasma, then it is unspecified if the skills are unclear.
         // james: not written yet
 
-        return TRUE;
+        return (isset($die->max));
     }
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {
@@ -518,7 +538,7 @@ class BMGame {
         unset($this->activeDieArrayArray);
         unset($this->roundScoreArray);
 
-        $nPlayers = count($this->playerIdxArray);
+        $nPlayers = count($this->playerIdArray);
         $this->passStatusArray = array_pad(array(), $nPlayers, FALSE);
         $this->capturedDieArrayArray = array_pad(array(), $nPlayers, array());
         $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
@@ -529,23 +549,23 @@ class BMGame {
 
         // move to the next player
         $this->activePlayerIdx = ($this->activePlayerIdx + 1) %
-                                 count($this->playerIdxArray);
+                                 count($this->playerIdArray);
     }
 
     // utility methods
     public function __construct($gameID = 0,
-                                array $playerIdxArray = array(0, 0),
+                                array $playerIdArray = array(0, 0),
                                 array $buttonRecipeArray = array('', ''),
                                 $maxWins = 3) {
-        if (count($playerIdxArray) !== count($buttonRecipeArray)) {
+        if (count($playerIdArray) !== count($buttonRecipeArray)) {
             throw new InvalidArgumentException(
                 'Number of buttons must equal the number of players.');
         }
 
-        $nPlayers = count($playerIdxArray);
+        $nPlayers = count($playerIdArray);
         $this->gameId = $gameID;
-        $this->playerIdxArray = $playerIdxArray;
-        $this->gameState = BMGameState::startGame; // james
+        $this->playerIdArray = $playerIdArray;
+        $this->gameState = BMGameState::startGame;
         $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
         foreach ($buttonRecipeArray as $tempRecipe) {
             $tempButton = new BMButton;
@@ -562,6 +582,8 @@ class BMGame {
     {
         if (property_exists($this, $property)) {
             switch ($property) {
+                case 'nPlayers':
+                    return count($this->activePlayerIdx);
                 case 'attackerPlayerIdx':
                     if (!isset($this->attack)) {
                         return NULL;
@@ -614,6 +636,9 @@ class BMGame {
 
     public function __set($property, $value) {
         switch ($property) {
+            case 'nPlayers':
+                throw new LogicException(
+                    'nPlayers is derived from BMGame->playerIdArray');
             case 'gameId':
                 if (FALSE === filter_var($value,
                                          FILTER_VALIDATE_INT,
@@ -624,13 +649,13 @@ class BMGame {
                 }
                 $this->gameId = $value;
                 break;
-            case 'playerIdxArray':
+            case 'playerIdArray':
                 if (!is_array($value) ||
-                    count($value) !== count($this->playerIdxArray)) {
+                    count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
                         'The number of players cannot be changed during a game.');
                 }
-                $this->playerIdxArray = $value;
+                $this->playerIdArray = $value;
                 break;
             case 'activePlayerIdx':
                 // require a valid index
@@ -639,7 +664,7 @@ class BMGame {
                                FILTER_VALIDATE_INT,
                                array("options"=>
                                      array("min_range"=>0,
-                                           "max_range"=>count($this->playerIdxArray))))) {
+                                           "max_range"=>count($this->playerIdArray))))) {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
@@ -652,7 +677,7 @@ class BMGame {
                                FILTER_VALIDATE_INT,
                                array("options"=>
                                      array("min_range"=>0,
-                                           "max_range"=>count($this->playerIdxArray))))) {
+                                           "max_range"=>count($this->playerIdArray))))) {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
@@ -660,7 +685,7 @@ class BMGame {
                 break;
             case 'buttonArray':
                 if (!is_array($value) ||
-                    count($value) !== count($this->playerIdxArray)) {
+                    count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
                         'Number of buttons must equal the number of players.');
                 }
@@ -725,7 +750,7 @@ class BMGame {
                 break;
             case 'passStatusArray':
                 if ((!is_array($value)) ||
-                    (count($this->playerIdxArray) !== count($value))) {
+                    (count($this->playerIdArray) !== count($value))) {
                     throw new InvalidArgumentException(
                         'The number of elements in passStatusArray must be the number of players.');
                 }
@@ -759,7 +784,7 @@ class BMGame {
                 break;
             case 'roundScoreArray':
                 if (!is_array($value) ||
-                    (count($this->playerIdxArray) !== count($value))) {
+                    (count($this->playerIdArray) !== count($value))) {
                     throw new InvalidArgumentException(
                         'There must be one round score for each player.');
                 }
@@ -778,7 +803,7 @@ class BMGame {
                 break;
             case 'gameScoreArrayArray':
                 if (!is_array($value) ||
-                    count($this->playerIdxArray) !== count($value)) {
+                    count($this->playerIdArray) !== count($value)) {
                     throw new InvalidArgumentException(
                         'There must be one game score for each player.');
                 }
@@ -812,7 +837,7 @@ class BMGame {
                 break;
             case 'waitingOnActionArray':
                 if (!is_array($value) ||
-                    count($value) !== count($this->playerIdxArray)) {
+                    count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
                         'Number of actions must equal the number of players.');
                 }

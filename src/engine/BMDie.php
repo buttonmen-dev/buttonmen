@@ -23,15 +23,12 @@ class BMDie
     public $min;
     public $max;
     public $value;
+    public $recipe;
 
 // references back to the owner
     public $ownerObject;
 
     protected $scoreValue;
-
-    protected $mRecipe;
-    protected $mSides;
-    protected $mSkills;
 
     protected $doesReroll = true;
     public $captured = false;
@@ -496,48 +493,19 @@ class BMDie
     public function __get($property)
     {
         if (property_exists($this, $property)) {
-            switch ($property) {
-                case '$mRecipe':
-                    return ($this->mSkills).($this->mSides);
-
-                default:
+//            switch ($property) {
+//                default:
                     return $this->$property;
-            }
+//            }
         }
     }
 
     public function __set($property, $value)
     {
-        switch ($property) {
-            case 'mSides':
-                // require a positive integer number of sides if an integer is provided
-                if (filter_var($value,
-                               FILTER_VALIDATE_INT,
-                               array("options"=>array("min_range"=>1)))) {
-                    $this->mSides = $value;
-                // check for a swing die
-                } elseif (filter_var($value,
-                               FILTER_VALIDATE_REGEXP,
-                               array("options"=>array("regexp"=>"/[[:alpha:]]/")))) {
-                    $this->mSides = $value;
-                // check for an option die
-                } elseif (filter_var($value,
-                               FILTER_VALIDATE_REGEXP,
-                               array("options"=>array("regexp"=>"#.+/.+#")))) {
-                    $this->mSides = $value;
-                // this is an invalid number of sides
-                } else {
-                    throw new InvalidArgumentException("Invalid number of sides.");
-                }
-                break;
-
-            case 'mRecipe':
-                throw new Exception("Cannot set recipe directly.");
-                break;
-
-            default:
+//        switch ($property) {
+//            default:
                 $this->$property = $value;
-        }
+//        }
     }
 
     public function __toString()

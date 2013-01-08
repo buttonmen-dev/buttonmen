@@ -49,7 +49,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSides);
+                              $this->object->dieArray[$dieIdx]->max);
         }
 
         $recipe = '(6) (10) (12)';
@@ -60,7 +60,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSides);
+                              $this->object->dieArray[$dieIdx]->max);
         }
 
         // button recipe with dice with skills
@@ -73,9 +73,9 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSides);
-          $this->assertEquals($dieSkills[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSkills);
+                              $this->object->dieArray[$dieIdx]->max);
+//          $this->assertEquals($dieSkills[$dieIdx],
+//                              $this->object->dieArray[$dieIdx]->mSkills);
         }
 
         // invalid button recipe with no die sides for one die
@@ -96,9 +96,9 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSides);
-          $this->assertEquals($dieSkills[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSkills);
+                              $this->object->dieArray[$dieIdx]->max);
+//          $this->assertEquals($dieSkills[$dieIdx],
+//                              $this->object->dieArray[$dieIdx]->mSkills);
         }
 
         // twin dice, option dice
@@ -123,7 +123,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->mSides);
+                              $this->object->dieArray[$dieIdx]->max);
         }
 
     }
@@ -140,6 +140,22 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->object->name = 'Bauer';
         $this->assertEquals('Bauer', $this->object->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
+
+        $this->object->load_from_name('Stark');
+        $this->assertEquals('Stark', $this->object->name);
+        $this->assertEquals('(4) (6) (8) (X) (X)', $this->object->recipe);
+
+        $this->object->name = 'Stark';
+        $this->assertEquals('Stark', $this->object->name);
+        $this->assertEquals('(4) (6) (8) (X) (X)', $this->object->recipe);
+
+        $this->object->load_from_name('unknownTestName');
+        $this->assertEquals('Default', $this->object->name);
+        $this->assertEquals('(4) (8) (12) (20) (X)', $this->object->recipe);
+
+        $this->object->name = 'unknownTestName';
+        $this->assertEquals('Default', $this->object->name);
+        $this->assertEquals('(4) (8) (12) (20) (X)', $this->object->recipe);
     }
 
     /**
