@@ -110,8 +110,8 @@ class DummyGame {
 
     public $swingrequest;
 
-    public function request_swing_values($die, $swingtype) {
-        $this->swingrequest = array($die, $swingtype);
+    public function request_swing_values($swingtype, $die) {
+        $this->swingrequest = array($swingtype, $die);
     }
 
     public $all_values_specified = FALSE;

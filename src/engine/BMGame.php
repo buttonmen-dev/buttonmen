@@ -40,8 +40,14 @@ class BMGame {
 
     public $swingrequest;
 
-    public function request_swing_values($die, $swingtype) {
-        $this->swingrequest = array($die, $swingtype);
+    public function request_swing_values($swingtype, $die = NULL) {
+        if (isset($this->swingrequest[$swingtype])) {
+            if (isset($die)) {
+                $die->max = $this->swingrequest[$swingtype];
+            }
+        } else {
+            $this->swingrequest[$swingtype] = NULL;
+        }
     }
 
     public $all_values_specified = FALSE;
