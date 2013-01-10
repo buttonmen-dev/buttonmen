@@ -795,7 +795,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame;
         $this->assertEquals(0, $game->gameId);
         $this->assertEquals(array(0, 0), $game->playerIdArray);
-//        $this->assertEquals(BMGameState::startGame, $game->gameState);
+        $this->assertEquals(BMGameState::startGame, $game->gameState);
         $this->assertEquals('', $game->buttonArray[0]->recipe);
         $this->assertEquals('', $game->buttonArray[1]->recipe);
         $this->assertEquals(3, $game->maxWins);
@@ -1383,13 +1383,22 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button1->load_from_name('Bauer');
         $this->assertEquals('(8) (10) (12) (20) (X)', $button1->recipe);
         // check dice in $button1->dieArray are correct
-//        $this->assertEquals(5, count($button1->dieArray));
-//        $die1 = new BMDie();
-
+        $this->assertEquals(5, count($button1->dieArray));
+        $this->assertEquals(8, $button1->dieArray[0]->max);
+        $this->assertEquals(10, $button1->dieArray[1]->max);
+        $this->assertEquals(12, $button1->dieArray[2]->max);
+        $this->assertEquals(20, $button1->dieArray[3]->max);
+        $this->assertFalse(isset($button1->dieArray[4]->max));
 
         $button2 = new BMButton;
         $button2->load_from_name('Stark');
         $this->assertEquals('(4) (6) (8) (X) (X)', $button2->recipe);
+        $this->assertEquals(5, count($button1->dieArray));
+        $this->assertEquals(4, $button2->dieArray[0]->max);
+        $this->assertEquals(6, $button2->dieArray[1]->max);
+        $this->assertEquals(8, $button2->dieArray[2]->max);
+        $this->assertFalse(isset($button2->dieArray[3]->max));
+        $this->assertFalse(isset($button2->dieArray[4]->max));
 
         // load game
         $game = new BMGame(424242, array(123, 456));

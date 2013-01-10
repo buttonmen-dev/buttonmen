@@ -55,14 +55,14 @@ class BMButton {
         $this->name = $name;
         switch ($name) {
             case 'Bauer':
-                $this->recipe = '(8) (10) (12) (20) (X)';
+                $this->load_from_recipe('(8) (10) (12) (20) (X)');
                 break;
             case 'Stark':
-                $this->recipe = '(4) (6) (8) (X) (X)';
+                $this->load_from_recipe('(4) (6) (8) (X) (X)');
                 break;
             default:
                 $this->name = 'Default';
-                $this->recipe = '(4) (8) (12) (20) (X)';
+                $this->load_from_recipe('(4) (8) (12) (20) (X)');
         }
     }
 
