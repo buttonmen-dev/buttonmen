@@ -193,8 +193,8 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
             $this->assertFalse($newDie === $this->object);
             $this->assertTrue($game === $newDie->ownerObject);
 
-            $this->assertEquals($newDie, $game->swingrequest[0]);
-            $this->assertEquals($swing, $game->swingrequest[1]);
+            $this->assertEquals($swing, $game->swingrequest[0]);
+            $this->assertEquals($newDie, $game->swingrequest[1]);
         }
 
     }

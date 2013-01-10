@@ -85,6 +85,12 @@ class BMButton {
         $this->dieArray[] = $die;
     }
 
+    public function request_swing_values($swingtype, $die = NULL) {
+        if (isset($this->ownerObject)) {
+            $this->ownerObject->request_swing_values($swingtype);
+        }
+    }
+
     private function validate_recipe($recipe) {
         $dieArray = preg_split('/[[:space:]]+/', $recipe,
                                NULL, PREG_SPLIT_NO_EMPTY);

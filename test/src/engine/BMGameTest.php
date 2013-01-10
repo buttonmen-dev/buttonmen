@@ -1410,8 +1410,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
 
         // specify dice
-        var_dump($game->buttonArray[0]->dieArray[4]);
         $this->assertEquals('X', $game->buttonArray[0]->dieArray[4]->recipe);
+
 
         // round 1
 

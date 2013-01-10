@@ -607,7 +607,7 @@ class BMSwingDie extends BMDie {
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values($newDie, $newDie->swingType);
+        $this->ownerObject->request_swing_values($newDie->swingType, $newDie);
         $newDie->valueRequested = TRUE;
 
         $this->ownerObject->add_die($newDie, $playerIdx);
@@ -628,7 +628,7 @@ class BMSwingDie extends BMDie {
     {
         if ($this->needsValue) {
             if (!$this->valueRequested) {
-                $this->ownerObject->request_swing_values($this, $this->swingType);
+                $this->ownerObject->request_swing_values($this->swingType, $this);
                 $this->valueRequested = TRUE;
             }
             $this->ownerObject->require_values();
