@@ -980,7 +980,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
     /**
      * @covers BMAttack::collect_helpers()
      */
-    public function ttestCollect_helpers()
+    public function testCollect_helpers()
     {
         $game = new DummyGame;
 
@@ -1004,8 +1004,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($help);
         $this->assertEquals(1, count($help));
         $this->assertInternalType('array', $help[0]);
-        $this->assertEquals(1, count($help[0]));
-        $this->assertEquals(1, $help[0][0]);
+        $this->assertEquals(2, count($help[0]));
+        $this->assertEquals(-1, $help[0][0]);
+        $this->assertEquals(1, $help[0][1]);
 
         // die that won't help should change nothing
         $game->attackerAllDieArray[] = $die2;
@@ -1015,8 +1016,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($help);
         $this->assertEquals(1, count($help));
         $this->assertInternalType('array', $help[0]);
-        $this->assertEquals(1, count($help[0]));
-        $this->assertEquals(1, $help[0][0]);
+        $this->assertEquals(2, count($help[0]));
+        $this->assertEquals(-1, $help[0][0]);
+        $this->assertEquals(1, $help[0][1]);
 
         // second helping die
         $game->attackerAllDieArray[] = $die1;
@@ -1026,15 +1028,18 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($help);
         $this->assertEquals(2, count($help));
         $this->assertInternalType('array', $help[0]);
-        $this->assertEquals(1, count($help[0]));
-        $this->assertEquals(1, count($help[1]));
-        $this->assertEquals(1, $help[0][0]);
-        $this->assertEquals(1, $help[1][0]);
+        $this->assertEquals(2, count($help[0]));
+        $this->assertEquals(2, count($help[1]));
+        $this->assertEquals(-1, $help[0][0]);
+        $this->assertEquals(1, $help[0][1]);
+        $this->assertEquals(-1, $help[1][0]);
+        $this->assertEquals(1, $help[1][1]);
 
     }
 
     /**
-     * @coversNothing
+     * @covers BMAttack::collect_helpers()
+     * @depends testCollect_helpers
      */
     public function testInteractionCollect_helpers()
     {
@@ -1062,8 +1067,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($help);
         $this->assertEquals(1, count($help));
         $this->assertInternalType('array', $help[0]);
-        $this->assertEquals(1, count($help[0]));
-        $this->assertEquals(1, $help[0][0]);
+        $this->assertEquals(2, count($help[0]));
+        $this->assertEquals(-1, $help[0][0]);
+        $this->assertEquals(1, $help[0][1]);
 
         // die that won't help should change nothing
         $game->activeDieArrayArray = array(array($die1, $die2), array());
@@ -1072,8 +1078,9 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($help);
         $this->assertEquals(1, count($help));
         $this->assertInternalType('array', $help[0]);
-        $this->assertEquals(1, count($help[0]));
-        $this->assertEquals(1, $help[0][0]);
+        $this->assertEquals(2, count($help[0]));
+        $this->assertEquals(-1, $help[0][0]);
+        $this->assertEquals(1, $help[0][1]);
 
         // second helping die
         $game->activeDieArrayArray = array(array($die1, $die2, $die3), array());
@@ -1082,10 +1089,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
         $this->assertNotEmpty($help);
         $this->assertEquals(2, count($help));
         $this->assertInternalType('array', $help[0]);
-        $this->assertEquals(1, count($help[0]));
-        $this->assertEquals(1, count($help[1]));
-        $this->assertEquals(1, $help[0][0]);
-        $this->assertEquals(1, $help[1][0]);
+        $this->assertEquals(2, count($help[0]));
+        $this->assertEquals(2, count($help[1]));
+        $this->assertEquals(-1, $help[0][0]);
+        $this->assertEquals(-1, $help[1][0]);
+        $this->assertEquals(1, $help[0][1]);
+        $this->assertEquals(1, $help[1][1]);
     }
 }
 

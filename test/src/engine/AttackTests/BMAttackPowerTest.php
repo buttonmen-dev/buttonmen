@@ -100,7 +100,8 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @coversNothing
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
      */
     public function testInterfaceValidate_attack()
     {
@@ -171,7 +172,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
     }
 
-/**
+    /**
      * @covers BMAttackPower::find_attack
      * @depends testValidate_attack
      * @todo   Implement testFind_attack().
