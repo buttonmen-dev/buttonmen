@@ -39,6 +39,7 @@ class BMGame {
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
 
     public $swingRequestArrayArray;
+    public $swingValuesArrayArray;
 
     public $all_values_specified = FALSE;
 
@@ -123,15 +124,6 @@ class BMGame {
                 }
                 break;
 
-            case BMGameState::specifyDice: // may become openContainersIntoButtons
-                // james: BMContainer->activate() will probably be used here
-                // specify swing, option, and plasma dice
-                // update BMButton dieArray
-                $this->waitingOnActionArray =
-                    array_pad(array(), count($this->playerIdArray), TRUE);
-
-                break;
-
             case BMGameState::addAvailableDiceToGame;
                 // load BMGame activeDieArrayArray from BMButton dieArray
                 $this->activeDieArrayArray = array();
@@ -144,6 +136,15 @@ class BMGame {
                             $tempDie->make_play_die();
                     }
                 }
+                break;
+
+            case BMGameState::specifyDice: // may become openContainersIntoButtons
+                // james: BMContainer->activate() will probably be used here
+                // specify swing, option, and plasma dice
+                // update BMButton dieArray
+                $this->waitingOnActionArray =
+                    array_pad(array(), count($this->playerIdArray), TRUE);
+
                 break;
 
             case BMGameState::determineInitiative:
@@ -337,6 +338,12 @@ class BMGame {
                     }
                 }
                 if ($buttonsLoadedWithDice) {
+                    $this->gameState = BMGameState::addAvailableDiceToGame;
+                }
+                break;
+
+            case BMGameState::addAvailableDiceToGame;
+                if (isset($this->activeDieArrayArray)) {
                     $this->gameState = BMGameState::specifyDice;
                 }
                 break;
@@ -352,12 +359,6 @@ class BMGame {
                     }
                 }
                 if ($areAllDiceSpecified) {
-                    $this->gameState = BMGameState::addAvailableDiceToGame;
-                }
-                break;
-
-            case BMGameState::addAvailableDiceToGame;
-                if (isset($this->activeDieArrayArray)) {
                     $this->gameState = BMGameState::determineInitiative;
                 }
                 break;
@@ -467,7 +468,7 @@ class BMGame {
             $this->swingRequestArrayArray =
                 array_pad(array(), $this->nPlayers, array());
         }
-        $this->swingRequestArrayArray[$playerIdx][$swingtype] = NULL;
+        $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
     }
 
     public static function does_recipe_have_auxiliary_dice($recipe) {
@@ -882,8 +883,8 @@ class BMGameState {
 
     // pre-round
     const loadDiceIntoButtons = 20;
-    const specifyDice = 21;
     const addAvailableDiceToGame = 22;
+    const specifyDice = 24;
     const determineInitiative = 29;
 
     // start round
@@ -908,8 +909,8 @@ class BMGameState {
                                     BMGameState::applyHandicaps,
                                     BMGameState::chooseAuxiliaryDice,
                                     BMGameState::loadDiceIntoButtons,
-                                    BMGameState::specifyDice,
                                     BMGameState::addAvailableDiceToGame,
+                                    BMGameState::specifyDice,
                                     BMGameState::determineInitiative,
                                     BMGameState::startRound,
                                     BMGameState::startTurn,
