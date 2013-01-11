@@ -13,6 +13,7 @@ class BMButton {
     private $recipe;
     public $dieArray;
     public $ownerObject;
+    public $playerIdx;
 
     // methods
     public function load_from_recipe($recipe) {

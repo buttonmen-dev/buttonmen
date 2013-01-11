@@ -555,8 +555,8 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activate(0);
 
-        $this->assertNotNull($game->swingrequest);
-        $game->swingrequest = array();
+        $this->assertNotNull($game->swingRequestArrayArray);
+//        $game->swingRequestArrayArray = array(array(), array();
 
         $ex = FALSE;
         try {
@@ -577,14 +577,13 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activate(0);
 
-        $this->assertNotNull($game->swingrequest);
+        $this->assertNotNull($game->swingRequestArrayArray);
         $game->swingrequest = array();
 
         $game->activeDieArrayArray[0][0]->set_swingValue(array("X" => "15"));
 
         // it hasn't rolled yet
         $this->assertFalse(is_numeric($game->activeDieArrayArray[0][0]->value));
-
 
         $ex = FALSE;
         try {
@@ -593,7 +592,6 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
             $ex = TRUE;
         }
         $this->assertFalse($ex, "dummy require_values was called.");
-        $this->assertEmpty($game->swingrequest);
 
         // Does it roll?
         $this->assertTrue(is_numeric($game->activeDieArrayArray[0][0]->value));

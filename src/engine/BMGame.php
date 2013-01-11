@@ -38,11 +38,7 @@ class BMGame {
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
 
-    public $swingrequest;
-
-    public function request_swing_values($die, $swingtype) {
-        $this->swingrequest = array($die, $swingtype);
-    }
+    public $swingRequestArrayArray;
 
     public $all_values_specified = FALSE;
 
@@ -466,6 +462,14 @@ class BMGame {
         array_splice($this->activeDieArrayArray[$defenderPlayerIdx], $dieIdx, 1);
     }
 
+    public function request_swing_values($die, $swingtype, $playerIdx) {
+        if (!isset($this->swingRequestArrayArray)) {
+            $this->swingRequestArrayArray =
+                array_pad(array(), $this->nPlayers, array());
+        }
+        $this->swingRequestArrayArray[$playerIdx][$swingtype] = NULL;
+    }
+
     public static function does_recipe_have_auxiliary_dice($recipe) {
         if (FALSE === strpos($recipe, '+')) {
             return FALSE;
@@ -563,6 +567,7 @@ class BMGame {
         }
 
         $nPlayers = count($playerIdArray);
+        $this->nPlayers = $nPlayers;
         $this->gameId = $gameID;
         $this->playerIdArray = $playerIdArray;
         $this->gameState = BMGameState::startGame;
@@ -582,8 +587,6 @@ class BMGame {
     {
         if (property_exists($this, $property)) {
             switch ($property) {
-                case 'nPlayers':
-                    return count($this->activePlayerIdx);
                 case 'attackerPlayerIdx':
                     if (!isset($this->attack)) {
                         return NULL;
@@ -696,6 +699,9 @@ class BMGame {
                     }
                 }
                 $this->buttonArray = $value;
+                foreach ($this->buttonArray as $playerIdx => $button) {
+                    $button->playerIdx = $playerIdx;
+                }
                 break;
             case 'activeDieArrayArray':
                 if (!is_array($value)) {
