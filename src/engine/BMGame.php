@@ -436,13 +436,13 @@ class BMGame {
         }
     }
 
-    public function add_die($die, $playerIdx) {
+    public function add_die($die) {
         if (!isset($this->activeDieArrayArray)) {
             throw new LogicException(
                 'activeDieArrayArray must be set before a die can be added.');
         }
 
-        $this->activeDieArrayArray[$playerIdx][] = $die;
+        $this->activeDieArrayArray[$die->playerIdx][] = $die;
     }
 
     public function capture_die($die, $newOwnerIdx = NULL) {

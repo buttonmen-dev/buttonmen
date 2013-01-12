@@ -574,8 +574,9 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
         $this->object->ownerObject = $game;
+        $this->object->playerIdx = 0;
 
-        $this->object->activate(0);
+        $this->object->activate();
 
         $this->assertNotNull($game->swingRequestArrayArray);
         $game->swingrequest = array();
@@ -658,8 +659,9 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->init("X");
         $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
 
-        $this->object->activate(1);
+        $this->object->activate();
         $newDie = $game->activeDieArrayArray[1][0];
 
         // No value yet set. It will call game->require_values()

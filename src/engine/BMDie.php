@@ -197,12 +197,12 @@ class BMDie
 // Clones the die and returns the clone
 
     public function activate()
-    { 
+    {
         $newDie = clone $this;
 
         $this->run_hooks(__FUNCTION__, array($newDie));
 
-        $this->ownerObject->add_die($newDie, $this->playerIdx);
+        $this->ownerObject->add_die($newDie);
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
@@ -601,17 +601,18 @@ class BMSwingDie extends BMDie {
 
     }
 
-    public function activate($playerIdx) {
+    public function activate() {
         $newDie = clone $this;
 
         $this->run_hooks(__FUNCTION__, array($newDie));
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values($newDie, $newDie->swingType, $playerIdx);
+        $this->ownerObject->request_swing_values($newDie, $newDie->swingType,
+                                                          $newDie->playerIdx);
         $newDie->valueRequested = TRUE;
 
-        $this->ownerObject->add_die($newDie, $playerIdx);
+        $this->ownerObject->add_die($newDie);
     }
 
     public function make_play_die()
