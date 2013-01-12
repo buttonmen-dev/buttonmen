@@ -11,9 +11,9 @@ class BMButton {
     // properties
     private $name;
     private $recipe;
-    public $dieArray;
-    public $ownerObject;
-    public $playerIdx;
+    private $dieArray;
+    private $ownerObject;
+    private $playerIdx;
 
     // methods
     public function load_from_recipe($recipe) {
@@ -103,6 +103,12 @@ class BMButton {
         }
     }
 
+    public function activate() {
+        foreach ($this->dieArray as $die) {
+            $die->activate();
+        }
+    }
+
     private function parse_recipe_for_sides($recipe) {
         // split by spaces
         $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
@@ -148,6 +154,36 @@ class BMButton {
 
             case 'recipe':
                 $this->load_from_recipe($value);
+                break;
+
+            case 'dieArray':
+                $this->dieArray = $value;
+                foreach ($this->dieArray as $die) {
+                    if (isset($this->ownerObject)) {
+                        $die->ownerObject = $this->ownerObject;
+                    }
+                    if (isset($this->playerIdx)) {
+                        $die->playerIdx = $this->playerIdx;
+                    }
+                }
+                break;
+
+            case 'ownerObject':
+                $this->ownerObject = $value;
+                if (isset($this->dieArray)) {
+                    foreach ($this->dieArray as $die) {
+                        $die->ownerObject = $this->ownerObject;
+                    }
+                }
+                break;
+
+            case 'playerIdx':
+                $this->playerIdx = $value;
+                if (isset($this->dieArray)) {
+                    foreach ($this->dieArray as $die) {
+                        $die->playerIdx = $this->playerIdx;
+                    }
+                }
                 break;
 
             default:

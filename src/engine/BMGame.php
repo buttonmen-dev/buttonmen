@@ -88,6 +88,7 @@ class BMGame {
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
+                // james: this game state may drop to after loadDiceIntoButtons
                 $auxiliaryDice = '';
                 // create list of auxiliary dice
                 foreach ($this->buttonArray as $tempButton) {
@@ -126,24 +127,24 @@ class BMGame {
 
             case BMGameState::addAvailableDiceToGame;
                 // load BMGame activeDieArrayArray from BMButton dieArray
-                $this->activeDieArrayArray = array();
+                $this->activeDieArrayArray =
+                    array_pad(array(), $this->nPlayers, array());
 
                 foreach ($this->buttonArray as $buttonIdx => $tempButton) {
-                    $this->activeDieArrayArray[$buttonIdx] = array();
-
-                    foreach ($tempButton->dieArray as $tempDie) {
-                        $this->activeDieArrayArray[$buttonIdx][] =
-                            $tempDie->make_play_die();
-                    }
+                    $tempButton->activate();
                 }
                 break;
 
-            case BMGameState::specifyDice: // may become openContainersIntoButtons
-                // james: BMContainer->activate() will probably be used here
-                // specify swing, option, and plasma dice
-                // update BMButton dieArray
+            case BMGameState::specifyDice:
+//james: currently not yet fully implemented
                 $this->waitingOnActionArray =
                     array_pad(array(), count($this->playerIdArray), TRUE);
+                // set waitingOnActionArray based on if there are unspecified
+                // swing dice for that player
+
+                if (in_array(TRUE, $this->waitingOnActionArray)) {
+                    $this->activate_GUI('Waiting on player action.');
+                }
 
                 break;
 
@@ -702,6 +703,7 @@ class BMGame {
                 $this->buttonArray = $value;
                 foreach ($this->buttonArray as $playerIdx => $button) {
                     $button->playerIdx = $playerIdx;
+                    $button->ownerObject = $this;
                 }
                 break;
             case 'activeDieArrayArray':

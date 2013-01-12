@@ -27,6 +27,7 @@ class BMDie
 
 // references back to the owner
     public $ownerObject;
+    public $playerIdx;
 
     protected $scoreValue;
 
@@ -195,13 +196,13 @@ class BMDie
 //
 // Clones the die and returns the clone
 
-    public function activate($playerIdx)
-    {
+    public function activate()
+    { 
         $newDie = clone $this;
 
         $this->run_hooks(__FUNCTION__, array($newDie));
 
-        $this->ownerObject->add_die($newDie, $playerIdx);
+        $this->ownerObject->add_die($newDie, $this->playerIdx);
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.

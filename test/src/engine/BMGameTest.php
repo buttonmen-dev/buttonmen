@@ -157,20 +157,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArray1 = array();
         foreach ($this->object->activeDieArrayArray[0] as $dieIdx => $die) {
             $tempDie = clone $button1->dieArray[$dieIdx];
-            $tempDie->value = $die->value;
+//            $tempDie->value = $die->value;
             $dieArray1[] = clone $tempDie;
         }
 
         $dieArray2 = array();
         foreach ($this->object->activeDieArrayArray[1] as $dieIdx => $die) {
             $tempDie = clone $button2->dieArray[$dieIdx];
-            $tempDie->value = $die->value;
+//            $tempDie->value = $die->value;
             $dieArray2[] = clone $tempDie;
         }
 
         $this->assertEquals(array($dieArray1, $dieArray2),
                             $this->object->activeDieArrayArray);
-        $this->assertNotNull($this->object->activeDieArrayArray[0][0]->value);
+        $this->assertNull($this->object->activeDieArrayArray[0][0]->value);
     }
 
     /**
@@ -470,14 +470,16 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::specifyDice, $this->object->gameState);
 
-        $this->object->gameState = BMGameState::specifyDice;
-        $button1 = new BMButton;
-        $button2 = new BMButton;
-        $button1->load_from_recipe('(4) (8) (12) (20)');
-        $button2->load_from_recipe('(4) (12) (20) (4/12)');
-        $this->object->buttonArray = array($button1, $button2);
-        $this->object->update_game_state();
-        $this->assertEquals(BMGameState::specifyDice, $this->object->gameState);
+        //james: option dice are not yet implemented
+//        $this->object->gameState = BMGameState::specifyDice;
+//        $button1 = new BMButton;
+//        $button2 = new BMButton;
+//        $button1->load_from_recipe('(4) (8) (12) (20)');
+//        $button2->load_from_recipe('(4) (12) (20) (4/12)');
+//        var_dump($button2);
+//        $this->object->buttonArray = array($button1, $button2);
+//        $this->object->update_game_state();
+//        $this->assertEquals(BMGameState::specifyDice, $this->object->gameState);
     }
 
     public function test_update_game_state_add_available_dice_to_game() {

@@ -524,7 +524,8 @@ class BMContainerTest extends PHPUnit_Framework_TestCase
 
         $this->object->add_thing($dice[0]);
 
-        $this->object->activate("player");
+        $this->object->playerIdx = 'player';
+        $this->object->activate();
         $this->assertEquals(1, count($game->dice));
 
         $d = $game->dice[0][1];

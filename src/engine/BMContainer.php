@@ -12,6 +12,7 @@ class BMContainer {
     public $contents = array();
 
     public $ownerObject;
+    public $playerIdx;
 
     // keyed by the Names of the skills that the class has, with values of
     // the skill class's name
@@ -39,13 +40,14 @@ class BMContainer {
     // container's list is being used for all subcontainers. Cleans up
     // most of the semantics, but doesn't actually gain functionality.
     // (Seems to complicate the process of getting dice out to the game.)
-    public function activate($newOwnerIdx = NULL) {
+    public function activate() {
         foreach ($this->contents as $thing) {
             foreach ($this->skillList as $skill => $class) {
                 $thing->add_skill($skill);
             }
             $thing->ownerObject = $this->ownerObject;
-            $thing->activate($newOwnerIdx);
+            $thing->playerIdx = $this->playerIdx;
+            $thing->activate();
         }
     }
 
@@ -55,6 +57,9 @@ class BMContainer {
         if (is_a($thing, "BMContainer")  || is_a($thing, "BMDie")) {
             $this->contents[] = $thing;
             $thing->ownerObject = $this;
+            if (isset($this->playerIdx)) {
+                $thing->playerIdx = $this->playerIdx;
+            }
             return $thing;
         }
         return NULL;
