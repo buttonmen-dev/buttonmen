@@ -88,7 +88,7 @@ class BMGame {
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
-                // james: this game state may drop to after loadDiceIntoButtons
+                // james: this game state will probably move to after loadDiceIntoButtons
                 $auxiliaryDice = '';
                 // create list of auxiliary dice
                 foreach ($this->buttonArray as $tempButton) {
@@ -115,14 +115,15 @@ class BMGame {
                 $this->save_game_to_database();
                 break;
 
-            case BMGameState::loadDiceIntoButtons: // may become loadContainersIntoButtons
+            case BMGameState::loadDiceIntoButtons:
+            //james: this will be replaced with a call to the database
                 // load clean version of the buttons from their recipes
                 // if the player has not just won a round
-                foreach ($this->buttonArray as $playerIdx => $tempButton) {
-                    if (!$this->lastWinnerIdxArray[$playerIdx]) {
-                        $tempButton->reload();
-                    }
-                }
+//                foreach ($this->buttonArray as $playerIdx => $tempButton) {
+//                    if (!$this->lastWinnerIdxArray[$playerIdx]) {
+//                        $tempButton->reload();
+//                    }
+//                }
                 break;
 
             case BMGameState::addAvailableDiceToGame;
