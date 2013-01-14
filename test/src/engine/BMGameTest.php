@@ -1517,11 +1517,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(8,  $game->activeDieArrayArray[1][2]->max);
         $this->assertEquals(4,  $game->activeDieArrayArray[1][3]->max);
         $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->max);
-
+        $this->assertEquals(19, $game->activeDieArrayArray[0][4]->swingValue);
+        $this->assertEquals(4,  $game->activeDieArrayArray[1][3]->swingValue);
+        $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->swingValue);
 
         // round 1
 
-        // roll initiative
+        // check that the player with initiative is set as the attacking player
 
         // perform attacks
 
