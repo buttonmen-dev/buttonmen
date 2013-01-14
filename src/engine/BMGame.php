@@ -165,24 +165,27 @@ class BMGame {
                 }
 
                 foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                    if (in_array(TRUE, $this->waitingOnActionArray)) {
+                    if ($waitingOnAction) {
                         $this->activate_GUI('Waiting on player action.', $playerIdx);
                     } else {
                         // apply swing values
                         foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
                             if ($die instanceof BMSwingDie) {
-                                $isSetSuccessful = $die->set_swingValue($this->swingValuesArrayArray[$playerIdx]);
+                                $isSetSuccessful = $die->set_swingValue(
+                                    $this->swingValuesArrayArray[$playerIdx]);
                                 // act appropriately if the swing values are invalid
                                 if (!$isSetSuccessful) {
-                                    $this->activate_GUI('Incorrect swing value chosen.', $playerIdx);
+                                    $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
                                     $this->swingValuesArrayArray[$playerIdx] = array();
-                                    return;
+                                    $this->waitingOnActionArray[$playerIdx] = TRUE;
+                                    break;
                                 }
                             }
                         }
                     }
                 }
 
+                $this->save_game_to_database();
                 break;
 
             case BMGameState::determineInitiative:
@@ -452,6 +455,9 @@ class BMGame {
 
     public function proceed_to_next_user_action() {
         $repeatCount = 0;
+        $this->update_game_state();
+        $this->do_next_step();
+
         while (0 === array_sum($this->waitingOnActionArray)) {
             $startGameState = $this->gameState;
             $this->update_game_state();
