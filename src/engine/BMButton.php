@@ -11,8 +11,9 @@ class BMButton {
     // properties
     private $name;
     private $recipe;
-    public $dieArray;
-    public $ownerObject;
+    private $dieArray;
+    private $ownerObject;
+    private $playerIdx;
 
     // methods
     public function load_from_recipe($recipe) {
@@ -55,14 +56,14 @@ class BMButton {
         $this->name = $name;
         switch ($name) {
             case 'Bauer':
-                $this->recipe = '(8) (10) (12) (20) (X)';
+                $this->load_from_recipe('(8) (10) (12) (20) (X)');
                 break;
             case 'Stark':
-                $this->recipe = '(4) (6) (8) (X) (X)';
+                $this->load_from_recipe('(4) (6) (8) (X) (X)');
                 break;
             default:
                 $this->name = 'Default';
-                $this->recipe = '(4) (8) (12) (20) (X)';
+                $this->load_from_recipe('(4) (8) (12) (20) (X)');
         }
     }
 
@@ -99,6 +100,12 @@ class BMButton {
             if (1 !== $dieContainsSides) {
                 throw new InvalidArgumentException('Invalid button recipe.');
             }
+        }
+    }
+
+    public function activate() {
+        foreach ($this->dieArray as $die) {
+            $die->activate();
         }
     }
 
@@ -147,6 +154,36 @@ class BMButton {
 
             case 'recipe':
                 $this->load_from_recipe($value);
+                break;
+
+            case 'dieArray':
+                $this->dieArray = $value;
+                foreach ($this->dieArray as $die) {
+                    if (isset($this->ownerObject)) {
+                        $die->ownerObject = $this->ownerObject;
+                    }
+                    if (isset($this->playerIdx)) {
+                        $die->playerIdx = $this->playerIdx;
+                    }
+                }
+                break;
+
+            case 'ownerObject':
+                $this->ownerObject = $value;
+                if (isset($this->dieArray)) {
+                    foreach ($this->dieArray as $die) {
+                        $die->ownerObject = $this->ownerObject;
+                    }
+                }
+                break;
+
+            case 'playerIdx':
+                $this->playerIdx = $value;
+                if (isset($this->dieArray)) {
+                    foreach ($this->dieArray as $die) {
+                        $die->playerIdx = $this->playerIdx;
+                    }
+                }
                 break;
 
             default:

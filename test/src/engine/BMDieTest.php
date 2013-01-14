@@ -355,7 +355,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
         $this->object->ownerObject = $game;
-        $this->object->activate(1);
+        $this->object->playerIdx = 1;
+        $this->object->activate();
         $this->assertInstanceOf('BMDie', $game->activeDieArrayArray[1][0]);
     }
 
