@@ -269,8 +269,9 @@ class BMGame {
                 // while invalid attack {ask player to select attack}
                 while (!$this->is_valid_attack()) {
                     $this->activate_GUI('wait_for_attack');
+                    $this->waitingOnActionArray[$this->attackerPlayerIdx] = TRUE;
                     $this->save_game_to_database();
-                    break;
+                    return;
                 }
 
                 // perform attack
@@ -391,8 +392,8 @@ class BMGame {
 
             case BMGameState::specifyDice:
                 $areAllDiceSpecified = TRUE;
-                foreach ($this->buttonArray as $tempButton) {
-                    foreach ($tempButton->dieArray as $tempDie) {
+                foreach ($this->activeDieArrayArray as $activeDieArray) {
+                    foreach ($activeDieArray as $tempDie) {
                         if (!$this->is_die_specified($tempDie)) {
                             $areAllDiceSpecified = FALSE;
                             break 2;
