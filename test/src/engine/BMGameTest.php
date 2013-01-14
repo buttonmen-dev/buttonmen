@@ -133,10 +133,57 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step
      */
     public function test_do_next_step_specify_dice() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        // no swing dice
+        $this->object->gameState = BMGameState::specifyDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->activeDieArrayArray = array($button1->dieArray,
+                                                   $button2->dieArray);
+        $this->object->swingRequestArrayArray = array(array(), array());
+        $this->object->do_next_step();
+        $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
+        $this->assertEquals(array(array(), array()), $this->object->swingValuesArrayArray);
+
+        // with swing dice
+        $this->object->gameState = BMGameState::specifyDice;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (X)';
+        $recipe2 = '(6) (12) (Y) (Y)';
+        $button1->load_from_recipe($recipe1);
+        $button2->load_from_recipe($recipe2);
+        $this->object->activeDieArrayArray = array($button1->dieArray,
+                                                   $button2->dieArray);
+        $this->object->swingRequestArrayArray =
+            array(array('X'=>array($this->object->activeDieArrayArray[0][3])),
+                  array('Y'=>array($this->object->activeDieArrayArray[1][2],
+                                   $this->object->activeDieArrayArray[1][3])));
+        $this->object->do_next_step();
+        $this->assertEquals(array(TRUE, TRUE), $this->object->waitingOnActionArray);
+        $this->assertEquals(array(array('X'=>NULL), array('Y'=>NULL)),
+                            $this->object->swingValuesArrayArray);
+
+        $this->object->swingValuesArrayArray = array(array('X'=>3), array('Y'=>1));
+        $this->object->do_next_step();
+        $this->assertEquals(array(array(), array('Y'=>1)),
+                            $this->object->swingValuesArrayArray);
+
+        $this->object->swingValuesArrayArray = array(array('X'=>5), array('Y'=>20));
+        $this->object->do_next_step();
+        $this->assertEquals(array(array('X'=>5), array('Y'=>20)),
+                            $this->object->swingValuesArrayArray);
+        $this->assertEquals(4,  $this->object->activeDieArrayArray[0][0]->max);
+        $this->assertEquals(8,  $this->object->activeDieArrayArray[0][1]->max);
+        $this->assertEquals(12, $this->object->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(5,  $this->object->activeDieArrayArray[0][3]->max);
+        $this->assertEquals(6,  $this->object->activeDieArrayArray[1][0]->max);
+        $this->assertEquals(12, $this->object->activeDieArrayArray[1][1]->max);
+        $this->assertEquals(20, $this->object->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(20, $this->object->activeDieArrayArray[1][3]->max);
     }
 
     /**
@@ -1439,6 +1486,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+        $this->assertEquals(array(array('X'=>NULL), array('X'=>NULL)),
+                            $game->swingValuesArrayArray);
+
+        $game->swingValuesArrayArray = array(array('X'=>3), array('X'=>4));
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+//        $this->assertEquals(array(array('X'=>NULL), array('X'=>4)),
+//                            $game->swingValuesArrayArray);
 
 //        $game->update_game_state();
 //        $this->assertEquals(BMGameState::applyHandicaps, $game->gameState);
