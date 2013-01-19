@@ -315,7 +315,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die1ValueStore = array();
         $die2ValueStore = array();
         $die3ValueStore = array();
-        for ($runIdx = 0; $runIdx <= 20; $runIdx++) {
+        for ($runIdx = 0; $runIdx <= 50; $runIdx++) {
             $die1->value = 1;
             $die2->value = 3;
             $die3->value = 2;
@@ -328,7 +328,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
         // check that dice have all rerolled
         $this->assertEquals(1, max($die1ValueStore));
-        $this->assertTrue(max($die2ValueStore) > 3);
+        $this->assertTrue(count(array_values($die2ValueStore)) > 1);
         $this->assertTrue($die3->captured);
 
         $dieArrayArray = $this->object->activeDieArrayArray;
@@ -1583,7 +1583,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(2), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
                               'power'); // attackType
-//        $game->proceed_to_next_user_action();
+        $game->proceed_to_next_user_action();
 
         // perform end of round scoring
 
