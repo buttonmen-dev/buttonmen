@@ -328,7 +328,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
         // check that dice have all rerolled
         $this->assertEquals(1, max($die1ValueStore));
-        $this->assertTrue(count(array_values($die2ValueStore)) > 1);
+        $this->assertTrue(count(array_flip($die2ValueStore)) > 1);
         $this->assertTrue($die3->captured);
 
         $dieArrayArray = $this->object->activeDieArrayArray;
