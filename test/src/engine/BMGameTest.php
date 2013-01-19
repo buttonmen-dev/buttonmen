@@ -256,6 +256,26 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertLessThanOrEqual(1, max($playerWithInitiativeStore));
         $this->assertTrue(in_array(0, $playerWithInitiativeStore));
         $this->assertTrue(in_array(1, $playerWithInitiativeStore));
+
+        $this->object->gameState = BMGameState::determineInitiative;
+        $die1 = BMDie::create(20, array());
+        $die1->value = 10;
+        $die2 = BMDie::create(20, array());
+        $die2->value = 12;
+        $die3 = BMDie::create(20, array());
+        $die3->value = 10;
+        $die4 = BMDie::create(20, array());
+        $die4->value = 11;
+        $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                   array($die3, $die4));
+        $playerWithInitiativeStore = array();
+        for ($runIdx = 1; $runIdx <= 50; $runIdx++) {
+            unset($this->object->playerWithInitiativeIdx);
+            $this->object->do_next_step();
+            $playerWithInitiativeStore[] = $this->object->playerWithInitiativeIdx;
+        }
+        $this->assertFalse(in_array(0, $playerWithInitiativeStore));
+        $this->assertTrue(in_array(1, $playerWithInitiativeStore));
     }
 
     /**
@@ -297,20 +317,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die3ValueStore = array();
         for ($runIdx = 0; $runIdx <= 20; $runIdx++) {
             $die1->value = 1;
-            $die2->value = 1;
+            $die2->value = 3;
             $die3->value = 2;
             $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                        array($die3));
-            $this->object->attack = array(0, 1, array(0, 1), array(0), 'skill');
+            $this->object->attack = array(0, 1, array(1), array(0), 'power');
             $this->object->do_next_step();
             $die1ValueStore[] = $die1->value;
             $die2ValueStore[] = $die2->value;
-            $die3ValueStore[] = $die3->value;
         }
         // check that dice have all rerolled
-        $this->assertTrue(max($die1ValueStore) > 1);
-        $this->assertTrue(max($die2ValueStore) > 1);
-        $this->assertTrue(max($die3ValueStore) > 2);
+        $this->assertEquals(1, max($die1ValueStore));
+        $this->assertTrue(max($die2ValueStore) > 3);
+        $this->assertTrue($die3->captured);
+
+        $dieArrayArray = $this->object->activeDieArrayArray;
+        // set values manually
+        $dieArrayArray[0][0]->value = 5;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[1][0]->value = 4;
+
+        $this->assertEquals(5, $this->object->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $this->object->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(4, $this->object->activeDieArrayArray[1][0]->value);
+
+        $this->object->attack = array(0, 1, array(0), array(0), "power");
+        $this->object->gameState = BMGameState::startTurn;
+        $this->object->do_next_step();
+
+        $this->assertEquals(2, count($this->object->activeDieArrayArray[0]));
+        $this->assertEquals(0, count($this->object->activeDieArrayArray[1]));
     }
 
     /**
@@ -1505,8 +1541,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(array(array('X'=>19), array('X'=>4)),
                             $game->swingValuesArrayArray);
-
-        var_dump($game->activeDieArrayArray);
         $this->assertEquals(8,  $game->activeDieArrayArray[0][0]->max);
         $this->assertEquals(10, $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
@@ -1522,10 +1556,34 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->swingValue);
 
         // round 1
-
         // check that the player with initiative is set as the attacking player
+        $this->assertEquals($game->activePlayerIdx, $game->playerWithInitiativeIdx);
+
+        // artificially set player 2 as winning initiative
+        $game->playerWithInitiativeIdx = 1;
+        $game->activePlayerIdx = 1;
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 8;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 10;
+        $dieArrayArray[0][3]->value = 15;
+        $dieArrayArray[0][4]->value = 7;
+        $dieArrayArray[1][0]->value = 2;
+        $dieArrayArray[1][1]->value = 3;
+        $dieArrayArray[1][2]->value = 8;
+        $dieArrayArray[1][3]->value = 4;
+        $dieArrayArray[1][4]->value = 1;
+
+        $this->assertEquals(8, $game->activeDieArrayArray[0][0]->value);
 
         // perform attacks
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(2), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'power'); // attackType
+//        $game->proceed_to_next_user_action();
 
         // perform end of round scoring
 

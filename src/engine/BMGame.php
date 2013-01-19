@@ -1,6 +1,7 @@
 <?php
 
 require_once 'BMButton.php';
+require_once 'BMAttack.php';
 
 /**
  * BMGame: current status of a game
@@ -275,27 +276,31 @@ class BMGame {
                 }
 
                 // perform attack
-                // update $this->activeDieArrayArray
-                // update $this->attack['attackingDieIdxArray']
-                // update $this->attack['targetDieIdxArray']
-                // update $isAttackSuccessful
+                switch ($this->attack['attackType']) {
+                    case "power":
+                        $attack = BMAttackPower::get_instance();
+                        break;
+                    default:
+                        throw new LogicException('Invalid attack type.');
+                }
+                $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+                $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+                $attackerAttackDieArray = array();
+                foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+                    $attackerAttackDieArray[] =
+                        $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                  [$attackerAttackDieIdx];
+                }
+                $defenderAttackDieArray = array();
+                foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+                    $defenderAttackDieArray[] =
+                        $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                  [$defenderAttackDieIdx];
+                }
+
+                $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
+
                 $isAttackSuccessful = TRUE;
-
-
-                // reroll all dice involved in the attack that are still active
-                $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
-                $attackerDieIdxArray = $this->attack['attackerAttackDieIdxArray'];
-                foreach ($attackerDieIdxArray as $dieIdx => $tempAttackerDieIdx) {
-                    $this->activeDieArrayArray[$attackerPlayerIdx][
-                               $tempAttackerDieIdx]->roll($isAttackSuccessful);
-                }
-
-                $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-                $defenderDieIdxArray = $this->attack['defenderAttackDieIdxArray'];
-                foreach ($defenderDieIdxArray as $dieIdx => $tempDefenderDieIdx) {
-                    $this->activeDieArrayArray[$defenderPlayerIdx][
-                               $tempDefenderDieIdx]->roll($isAttackSuccessful);
-                }
 
                 $this->update_active_player();
                 break;
