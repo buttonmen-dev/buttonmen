@@ -20,8 +20,8 @@ class BMGame {
     private $activeDieArrayArray;   // active dice for all players
     private $attack;                // array('attackerPlayerIdx',
                                     //       'defenderPlayerIdx',
-                                    //       'attackerDieIdxArray',
-                                    //       'defenderDieIdxArray',
+                                    //       'attackerAttackDieIdxArray',
+                                    //       'defenderAttackDieIdxArray',
                                     //       'attackType')
     private $attackerPlayerIdx;     // index in playerIdxArray of the attacker
     private $defenderPlayerIdx;     // index in playerIdxArary of the defender
@@ -495,8 +495,27 @@ class BMGame {
     }
 
     public function capture_die($die, $newOwnerIdx = NULL) {
-        $dieIdx = array_search($die, $this->activeDieArrayArray[
-                                                $this->attack['defenderPlayerIdx']], TRUE);
+        if (!isset($this->activeDieArrayArray)) {
+            throw new LogicException(
+                'activeDieArrayArray must be set before capturing dice.');
+        }
+
+        if (!isset($this->attack)) {
+            throw new LogicException(
+                'attack must be set before capturing dice.');
+        }
+
+        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+
+        $defenderAttackDieArray = array();
+        foreach ($this->attack['defenderAttackDieIdxArray'] as
+                     $defenderDieIdx) {
+            $defenderAttackDieArray[] =
+                $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                          [$defenderDieIdx];
+        }
+
+        $dieIdx = array_search($die, $defenderAttackDieArray, TRUE);
         if (FALSE === $dieIdx) {
             throw new LogicException(
                 'Captured die does not exist for the defender.');
@@ -506,7 +525,6 @@ class BMGame {
         if (is_null($newOwnerIdx)) {
             $newOwnerIdx = $this->attack['attackerPlayerIdx'];
         }
-        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
         $this->capturedDieArrayArray[$newOwnerIdx][] =
             $this->activeDieArrayArray[$defenderPlayerIdx][$dieIdx];
         // remove captured die from defender's active die array
@@ -661,7 +679,8 @@ class BMGame {
                     }
                     return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];
                 case 'attackerAttackDieArray':
-                    if (!isset($this->attack)) {
+                    if (!isset($this->attack) ||
+                        !isset($this->activeDieArrayArray)) {
                         return NULL;
                     }
                     $attackerAttackDieArray = array();
@@ -792,6 +811,31 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'The third and fourth elements in attack must contain integers.');
                 }
+
+                if (!preg_match('/'.
+                                'power'.'|'.
+                                'skill'.'|'.
+                                'pass'.'/', $value[4])) {
+                    throw new InvalidArgumentException(
+                        'Invalid attack type.');
+                }
+
+                if (count($value[2]) > 0 &&
+                    (max($value[2]) >
+                         (count($this->activeDieArrayArray[$value[0]]) - 1) ||
+                     min($value[2]) < 0)) {
+                    throw new LogicException(
+                        'Invalid attacker attack die indices.');
+                }
+
+                if (count($value[3]) > 0 &&
+                    (max($value[3]) >
+                         (count($this->activeDieArrayArray[$value[1]]) - 1) ||
+                     min($value[3]) < 0)) {
+                    throw new LogicException(
+                        'Invalid defender attack die indices.');
+                }
+
                 $this->attack = array('attackerPlayerIdx' => $value[0],
                                       'defenderPlayerIdx' => $value[1],
                                       'attackerAttackDieIdxArray' => $value[2],
