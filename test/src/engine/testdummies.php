@@ -104,8 +104,8 @@ class BMAttTesting extends BMAttack {
 class DummyGame {
     public $dice = array();
 
-    public function add_die($die, $player) {
-        $this->dice[] = array($player, $die);
+    public function add_die($die) {
+        $this->dice[] = array($die->playerIdx, $die);
     }
 
     public $swingrequest;
