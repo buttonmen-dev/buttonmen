@@ -128,7 +128,6 @@ class BMAttack {
     // Some of this should perhaps be in the game, rather than here.
     public function commit_attack($game, $attackers, $defenders) {
         // Paranoia
-        var_dump($this->validate_attack($game, $attackers, $defenders));
         if (!$this->validate_attack($game, $attackers, $defenders)) {
             return FALSE;
         }
@@ -139,9 +138,6 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
-var_dump('XXX');
-var_dump($attackers);
-var_dump('YYY');
         foreach ($attackers as $att) {
             $att->capture($this->type, $attackers, $defenders);
         }
@@ -299,15 +295,9 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, $attackers, $defenders) {
-var_dump('XXX');
-var_dump($attackers);
-var_dump('YYY');
-var_dump($defenders);
-var_dump('ZZZ');
         if (count($attackers) != 1 || count($defenders) != 1) {
             return FALSE;
         }
-var_dump('debug1');
 
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
 
