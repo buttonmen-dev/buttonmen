@@ -993,6 +993,58 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__get
      */
+    public function test__get_attacker_player_idx() {
+        $this->assertNull($this->object->attackerPlayerIdx);
+
+        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->assertEquals(1, $this->object->attackerPlayerIdx);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
+    public function test__get_defender_player_idx() {
+        $this->assertNull($this->object->defenderPlayerIdx);
+
+        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->assertEquals(0, $this->object->defenderPlayerIdx);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
+    public function test__get_attacker_all_die_array() {
+        $this->assertNull($this->object->attackerAllDieArray);
+
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $die4 = new BMDie;
+        $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                   array($die3, $die4));
+        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->assertEquals(array($die3, $die4), $this->object->attackerAllDieArray);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
+    public function test__get_defender_all_die_array() {
+        $this->assertNull($this->object->defenderAllDieArray);
+
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die3 = new BMDie;
+        $die4 = new BMDie;
+        $this->object->activeDieArrayArray = array(array($die1, $die2),
+                                                   array($die3, $die4));
+        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->assertEquals(array($die1, $die2), $this->object->defenderAllDieArray);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
     public function test__get_attacker_attack_die_array() {
         $this->assertEquals(NULL, $this->object->attackerAttackDieArray);
 
@@ -1042,6 +1094,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $this->object->buttonArray = array($button1, $button2);
         $this->assertEquals(array($button1, $button2), $this->object->buttonArray);
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
+    public function test__set_nPlayers() {
+        // set is always invalid
+        try {
+            $this->object->nPlayers = 5;
+            $this->fail('The number of players is automatically determined.');
+        }
+        catch (LogicException $expected) {
+        }
     }
 
     /**
@@ -1261,6 +1326,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
             $this->fail('The third element of attack must be a 1-D array of indices.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(1, 2, array('hello'), array(0), '');
+            $this->fail('The third element of attack must be a 1-D array of indices.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+
+        try {
+            $this->object->attack = array(1, 2, array(0), array('hello'), '');
+            $this->fail('The fourth element of attack must be a 1-D array of indices.');
         }
         catch (InvalidArgumentException $expected) {
         }
