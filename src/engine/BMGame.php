@@ -71,10 +71,15 @@ class BMGame {
                     return;
                 }
 
+                $this->reset_play_state();
+
                 // if buttons are unspecified, allow players to choose buttons
-                foreach ($this->buttonArray as $buttonIdx => $tempButton) {
-                    if (is_null($tempButton)) {
-                        $this->activate_GUI('Prompt for button ID', $buttonIdx);
+                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+                     $playerIdx <= $nPlayers - 1;
+                     $playerIdx++) {
+                    if (!isset($this->buttonArray[$playerIdx])) {
+                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        $this->activate_GUI('Prompt for button ID', $playerIdx);
                     }
                 }
 
@@ -331,8 +336,10 @@ class BMGame {
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // require both players and buttons to be specified
+                $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
+
                 if (!in_array(0, $this->playerIdArray) &&
-                    isset($this->buttonArray)) {
+                    $allButtonsSet) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->passStatusArray = array(FALSE, FALSE);
                     $this->gameScoreArrayArray = array(array(0, 0, 0), array(0, 0, 0));
@@ -642,10 +649,12 @@ class BMGame {
         $this->playerIdArray = $playerIdArray;
         $this->gameState = BMGameState::startGame;
         $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
-        foreach ($buttonRecipeArray as $tempRecipe) {
-            $tempButton = new BMButton;
-            $tempButton->load_from_recipe($tempRecipe);
-            $this->buttonArray[] = $tempButton;
+        foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
+            if (strlen($tempRecipe) > 0) {
+                $tempButton = new BMButton;
+                $tempButton->load_from_recipe($tempRecipe);
+                $this->buttonArray[$buttonIdx] = $tempButton;
+            }
         }
         $this->maxWins = $maxWins;
         $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
