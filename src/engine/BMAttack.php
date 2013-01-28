@@ -334,6 +334,15 @@ class BMAttackSkill extends BMAttack {
     public $name = "Skill";
     public $type = "Skill";
 
+    // Especially once you take stinger and constant into account,
+    // searching the full attack space is slow and complex
+    //
+    // Building a hit table once trades some increased setup cost for
+    // a much reduced search cost
+    //
+    // Fire still makes life more complex than it might be.
+    private $hit_table = NULL;
+
     public function find_attack($game) {
 
     }

@@ -125,3 +125,65 @@ class XCYIterator implements Iterator {
     }
 }
 
+// Class to hold and search all the possible combinations that a skill
+// attack could hit
+//
+// It's huge and complicated, but hopefully better than a naive search.
+class BMHitTable {
+    private $dice = [];
+
+    // $hits is an array keyed by numbers. Values is an array, keyed
+    // by the combined unique ids of the sets of dice used to make the value
+    // 
+    // So, if 4 can be made with A and B or C and D, 
+    // $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
+    private $hits = [];
+
+    public function __construct($dice) {
+        // Every die needs a unique identifier, no matter how many
+        // there are, but if there are more than 36, something is
+        // very, very wrong.
+        $ids = str_split("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        for ($i = 0; $i < count($dice); $i++) {
+            $die = $dice[$i];
+            $die_id = $ids[$i];
+
+            $this->dice[] = $die;
+
+            foreach (array_keys($this->hits) as $target) {
+                foreach ($this->hits[$target] as $key => $combo) {
+                    // We've already been used in this combo
+                    if (FALSE === strpos($key, $die_id)) {
+                        continue;
+                    }
+                    $newcombo = clone $target;
+                    $newcombo[] = $die;
+                    // the new key will always be sorted, since we
+                    // process the dice in order
+                    $newkey = $key.$die_id;
+
+                    foreach ($die->attack_values("Skill") as $val) {
+                        $newtarget = $target + $val;
+                        if ($array_key_exists($newtarget, $this->hits)) {
+                            // If the same die combo makes a number
+                            // two ways, we just overwrite the old
+                            // entry.
+                            $this->hits[$newtarget][$newkey] = $newcombo;
+                        } else {
+                            $this->hits[$newtarget] = array($newkey => $newcombo);
+                        }
+                    }
+                }
+            }
+
+            // Add the unique values the die may provide
+            foreach ($die->attack_values("Skill") as $val) {
+                if ($array_key_exists($val, $this->hits)) {
+                    continue;
+                }
+                $this->hits[$val] = array($die_id => array($die));
+            }
+
+        }
+    }
+}
