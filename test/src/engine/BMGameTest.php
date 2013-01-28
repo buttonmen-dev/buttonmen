@@ -791,23 +791,21 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         catch (LogicException $expected) {
         }
 
-        $this->object->activeDieArrayArray = array(array(), array());
-        try {
-            $this->object->capture_die(new BMDie);
-            $this->fail('attack must be set before capturing dice.');
-        }
-        catch (LogicException $expected) {
-        }
+        // valid capture
+        $die = new BMDie;
+        $this->object->activeDieArrayArray = array(array(new BMDie), array($die));
+        $this->object->capture_die($die);
 
+        // invalid capture
         $this->object->activeDieArrayArray = array(array(new BMDie), array(new BMDie));
-        $this->object->attack = array(0, 1, array(0), array(0), 'power');
-
         try {
             $this->object->capture_die(new BMDie);
             $this->fail('Captured die does not exist for the defender.');
         }
         catch (LogicException $expected) {
         }
+
+
     }
 
     /**
