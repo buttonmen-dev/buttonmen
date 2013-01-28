@@ -310,27 +310,32 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_do_next_step_start_turn() {
         $this->object->gameState = BMGameState::startTurn;
         $this->object->activePlayerIdx = 0;
-        $die1 = BMDie::create(30, array());
-        $die2 = BMDie::create(20, array());
-        $die3 = BMDie::create(16, array());
+
         $die1ValueStore = array();
         $die2ValueStore = array();
-        $die3ValueStore = array();
+        $die4ValueStore = array();
         for ($runIdx = 0; $runIdx <= 50; $runIdx++) {
+            $die1 = BMDie::create(30, array());
+            $die2 = BMDie::create(20, array());
+            $die3 = BMDie::create(16, array());
+            $die4 = BMDie::create(50, array());
             $die1->value = 1;
             $die2->value = 3;
             $die3->value = 2;
+            $die4->value = 1;
             $this->object->activeDieArrayArray = array(array($die1, $die2),
-                                                       array($die3));
+                                                       array($die3, $die4));
             $this->object->attack = array(0, 1, array(1), array(0), 'power');
             $this->object->do_next_step();
             $die1ValueStore[] = $die1->value;
             $die2ValueStore[] = $die2->value;
+            $die4ValueStore[] = $die4->value;
         }
-        // check that dice have all rerolled
+        // check that only dice involved in the attack have rerolled
         $this->assertEquals(1, max($die1ValueStore));
         $this->assertTrue(count(array_flip($die2ValueStore)) > 1);
         $this->assertTrue($die3->captured);
+        $this->assertEquals(1, max($die4ValueStore));
 
         $dieArrayArray = $this->object->activeDieArrayArray;
         // set values manually
@@ -1777,7 +1782,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(4, count($game->activeDieArrayArray[0]));
         $this->assertEquals(5, count($game->activeDieArrayArray[1]));
-        var_dump($game->capturedDieArrayArray);
         $this->assertNotNull($game->capturedDieArrayArray);
         $this->assertEquals(0, count($game->capturedDieArrayArray[0]));
         $this->assertEquals(1, count($game->capturedDieArrayArray[1]));
