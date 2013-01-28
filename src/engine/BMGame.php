@@ -500,25 +500,16 @@ class BMGame {
                 'activeDieArrayArray must be set before capturing dice.');
         }
 
-        if (!isset($this->attack)) {
-            throw new LogicException(
-                'attack must be set before capturing dice.');
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            $dieIdx = array_search($die, $activeDieArray, TRUE);
+            if (FALSE !== $dieIdx) {
+                break;
+            }
         }
 
-        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-
-        $defenderAttackDieArray = array();
-        foreach ($this->attack['defenderAttackDieIdxArray'] as
-                     $defenderDieIdx) {
-            $defenderAttackDieArray[] =
-                $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
-                                          [$defenderDieIdx];
-        }
-
-        $dieIdx = array_search($die, $defenderAttackDieArray, TRUE);
         if (FALSE === $dieIdx) {
             throw new LogicException(
-                'Captured die does not exist for the defender.');
+                'Captured die does not exist.');
         }
 
         // add captured die to captured die array
@@ -526,9 +517,9 @@ class BMGame {
             $newOwnerIdx = $this->attack['attackerPlayerIdx'];
         }
         $this->capturedDieArrayArray[$newOwnerIdx][] =
-            $this->activeDieArrayArray[$defenderPlayerIdx][$dieIdx];
-        // remove captured die from defender's active die array
-        array_splice($this->activeDieArrayArray[$defenderPlayerIdx], $dieIdx, 1);
+            $this->activeDieArrayArray[$playerIdx][$dieIdx];
+        // remove captured die from active die array
+        array_splice($this->activeDieArrayArray[$playerIdx], $dieIdx, 1);
     }
 
     public function request_swing_values($die, $swingtype, $playerIdx) {
