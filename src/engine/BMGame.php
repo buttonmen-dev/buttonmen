@@ -166,7 +166,7 @@ class BMGame {
                 }
 
                 foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                    if ($waitingOnAction) {
+                    if (TRUE === $waitingOnAction) {
                         $this->activate_GUI('Waiting on player action.', $playerIdx);
                     } else {
                         // apply swing values
@@ -270,7 +270,7 @@ class BMGame {
                 // while invalid attack {ask player to select attack}
                 while (!$this->is_valid_attack()) {
                     $this->activate_GUI('wait_for_attack');
-                    $this->waitingOnActionArray[$this->attackerPlayerIdx] = TRUE;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
                     $this->save_game_to_database();
                     return;
                 }
@@ -299,9 +299,6 @@ class BMGame {
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
-
-                $isAttackSuccessful = TRUE;
-
                 $this->update_active_player();
                 break;
 
@@ -376,7 +373,11 @@ class BMGame {
                 break;
 
             case BMGameState::loadDiceIntoButtons:
-                assert(isset($this->buttonArray));
+                if (!isset($this->buttonArray)) {
+                    throw new LogicException(
+                        'Button array must be set before loading dice into buttons.');
+                }
+
                 $buttonsLoadedWithDice = TRUE;
                 foreach ($this->buttonArray as $tempButton) {
                     if (!isset($tempButton->dieArray)) {
@@ -423,7 +424,8 @@ class BMGame {
                 break;
 
             case BMGameState::startTurn:
-                if ($this->is_valid_attack()) {
+                if ($this->is_valid_attack() &&
+                    FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
                     $this->gameState = BMGameState::endTurn;
                 }
                 break;
@@ -437,6 +439,8 @@ class BMGame {
                     unset($this->activeDieArrayArray);
                 } else {
                     $this->gameState = BMGameState::startTurn;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+                    unset($this->attack);
                 }
                 break;
 
@@ -609,11 +613,17 @@ class BMGame {
     }
 
     private function update_active_player() {
-        assert(isset($this->activePlayerIdx));
+        if (!isset($this->activePlayerIdx)) {
+            throw new LogicException(
+                'Active player must be set before it can be updated.');
+        }
 
+        $nPlayers = count($this->playerIdArray);
         // move to the next player
-        $this->activePlayerIdx = ($this->activePlayerIdx + 1) %
-                                 count($this->playerIdArray);
+        $this->activePlayerIdx = ($this->activePlayerIdx + 1) % $nPlayers;
+
+        // currently not waiting on anyone
+        $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     // utility methods

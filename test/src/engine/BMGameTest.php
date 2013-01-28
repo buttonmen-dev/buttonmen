@@ -316,7 +316,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die1ValueStore = array();
         $die2ValueStore = array();
         $die3ValueStore = array();
-        for ($runIdx = 0; $runIdx <= 50; $runIdx++) {
+        for ($runIdx = 0; $runIdx <= 100; $runIdx++) {
             $die1->value = 1;
             $die2->value = 3;
             $die3->value = 2;
@@ -1704,6 +1704,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($game, $game->buttonArray[1]->dieArray[4]->ownerObject);
 
         $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
         $this->assertEquals(array(array('X'=>NULL), array('X'=>NULL)),
                             $game->swingValuesArrayArray);
@@ -1711,6 +1712,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // specify swing dice incorrectly
         $game->swingValuesArrayArray = array(array('X'=>3), array('X'=>4));
         $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
         $this->assertEquals(array(array(), array('X'=>4)),
                             $game->swingValuesArrayArray);
@@ -1718,6 +1720,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // specify swing dice correctly
         $game->swingValuesArrayArray = array(array('X'=>19), array('X'=>4));
         $game->proceed_to_next_user_action();
+
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(array(array('X'=>19), array('X'=>4)),
                             $game->swingValuesArrayArray);
@@ -1742,6 +1746,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // artificially set player 2 as winning initiative
         $game->playerWithInitiativeIdx = 1;
         $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
         // artificially set die values
         $dieArrayArray = $game->activeDieArrayArray;
         $dieArrayArray[0][0]->value = 8;
@@ -1764,6 +1769,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'power'); // attackType
         $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
 
         // perform end of round scoring
 
