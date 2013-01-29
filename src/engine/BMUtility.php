@@ -130,14 +130,14 @@ class XCYIterator implements Iterator {
 //
 // It's huge and complicated, but hopefully better than a naive search.
 class BMHitTable {
-    private $dice = [];
+    private $dice = array();
 
     // $hits is an array keyed by numbers. Values is an array, keyed
     // by the combined unique ids of the sets of dice used to make the value
     // 
     // So, if 4 can be made with A and B or C and D, 
     // $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
-    private $hits = [];
+    private $hits = array();
 
     public function __construct($dice) {
         // Every die needs a unique identifier, no matter how many
@@ -178,12 +178,25 @@ class BMHitTable {
 
             // Add the unique values the die may provide
             foreach ($die->attack_values("Skill") as $val) {
-                if ($array_key_exists($val, $this->hits)) {
+                if (array_key_exists($val, $this->hits)) {
                     continue;
                 }
                 $this->hits[$val] = array($die_id => array($die));
             }
 
         }
+    }
+
+    // Test for a hit. Return all possible sets of dice that can make that hit.
+    public function find_hit($target) {
+        if (array_key_exists($target, $this->hits)) {
+            return $this->hits[$target];
+        }
+        return FALSE;
+    }
+
+    // Return a list of all possible hits
+    public function list_hits() {
+        return keys($this->hits);
     }
 }
