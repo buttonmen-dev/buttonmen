@@ -157,13 +157,13 @@ class BMHitTable {
                     if (FALSE !== strpos($key, $die_id)) {
                         continue;
                     }
-                    $newcombo = $this->hits[$target];
-                    $newcombo[] = $die;
-                    // the new key will always be sorted, since we
-                    // process the dice in order
-                    $newkey = $key.$die_id;
 
                     foreach ($die->attack_values("Skill") as $val) {
+                        $newcombo = $this->hits[$target][$key];
+                        $newcombo[] = $die;
+                        // the new key will always be sorted, since we
+                        // process the dice in order
+                        $newkey = $key.$die_id;
                         $newtarget = $target + $val;
                         if (array_key_exists($newtarget, $this->hits)) {
                             // If the same die combo makes a number
@@ -191,13 +191,14 @@ class BMHitTable {
     // Test for a hit. Return all possible sets of dice that can make that hit.
     public function find_hit($target) {
         if (array_key_exists($target, $this->hits)) {
-            return $this->hits[$target];
+
+            return array_values($this->hits[$target]);
         }
         return FALSE;
     }
 
     // Return a list of all possible hits
     public function list_hits() {
-        return keys($this->hits);
+        return array_keys($this->hits);
     }
 }

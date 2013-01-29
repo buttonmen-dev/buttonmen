@@ -36,26 +36,74 @@ class BMHitTableTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers BMHitTable::find_hit
-     * @todo   Implement testFind_hit().
+     * @covers BMHitTable::__construct
+     * @todo   Implement testList_hits().
      */
-    public function testFind_hit()
+    public function test__construct()
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
           'This test has not been implemented yet.'
         );
     }
+    /**
+     * @covers BMHitTable::find_hit
+     */
+    public function testFind_hit()
+    {
+        // 2, 8, 1, 18 can combine to make:
+        $hits = array(1, 2, 3, 8, 9, 10, 11, 18, 19, 20, 21, 26, 27, 28, 29);
+
+        for ($i = -64; $i < 64; $i++) {
+            if (in_array($i, $hits)) {
+                $this->assertTrue(TRUE == $this->object->find_hit($i));
+                $ret = $this->object->find_hit($i);
+                $this->assertEquals(1, count($ret));
+            } else {
+                $this->assertFalse(TRUE == $this->object->find_hit($i));
+            }
+        }
+
+        foreach (array(1, 2, 8, 18) as $i) {
+            $ret = $this->object->find_hit($i);
+            $this->assertEquals(1, count($ret[0]));
+            $sum = 0;
+            foreach ($ret[0] as $die) {
+                $sum += $die->value;
+            }
+            $this->assertEquals($i, $sum);
+        }
+
+        foreach (array(3, 9, 10, 19, 20, 26) as $i) {
+            $ret = $this->object->find_hit($i);
+            $this->assertEquals(2, count($ret[0]));
+        }
+
+        foreach (array(11, 21, 27, 28) as $i) {
+            $ret = $this->object->find_hit($i);
+            $this->assertEquals(3, count($ret[0]));
+        }
+
+        foreach (array(29) as $i) {
+            $ret = $this->object->find_hit($i);
+            $this->assertEquals(4, count($ret[0]));
+        }
+    }
 
     /**
      * @covers BMHitTable::list_hits
-     * @todo   Implement testList_hits().
      */
     public function testList_hits()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        // 2, 8, 1, 18 can combine to make:
+        $hits = array(1, 2, 3, 8, 9, 10, 11, 18, 19, 20, 21, 26, 27, 28, 29);
+
+        for ($i = -64; $i < 64; $i++) {
+            if (in_array($i, $hits)) {
+                $this->assertContains($i, $this->object->list_hits());
+            } else {
+                $this->assertNotContains($i, $this->object->list_hits());
+            }
+        }
     }
 }
