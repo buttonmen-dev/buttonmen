@@ -1506,7 +1506,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('X'=>19), array('X'=>4)),
                             $game->swingValuesArrayArray);
 
-        var_dump($game->activeDieArrayArray);
         $this->assertEquals(8,  $game->activeDieArrayArray[0][0]->max);
         $this->assertEquals(10, $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);

@@ -126,9 +126,11 @@ class BMDie
 
         $this->scoreValue = $sides;
 
-        foreach ($skills as $s)
-        {
-            $this->add_skill($s);
+        if ($skills) {
+            foreach ($skills as $s)
+            {
+                $this->add_skill($s);
+            }
         }
     }
 
@@ -138,8 +140,9 @@ class BMDie
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
 
-    public static function create_from_string($recipe, $skills) {
+    public static function create_from_string($recipe, $skills = NULL) {
         $die = NULL;
+
         try {
             $opt_list = explode("|", $recipe);
 
@@ -175,7 +178,7 @@ class BMDie
         return $die;
     }
 
-    public static function create($size, $skills) {
+    public static function create($size, $skills = NULL) {
         if (!is_numeric($size) || ($size != (int)$size) ||
             $size < 1 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");

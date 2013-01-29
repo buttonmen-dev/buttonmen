@@ -53,6 +53,18 @@ class BMSkillRollCatcher extends BMSkill {
     }
 }
 
+class BMSkillTestStinger extends BMSkill {
+    public static $hooked_methods = array("attack_list");
+
+    public static function attack_list($args) {
+        $alist &= $args[1];
+
+        for ($i = $alist[0] - 1; $i > 0; $i--) {
+            $alist[] = $i;
+        }
+    }
+}
+
 class BMDieTesting extends BMDie {
     public $testvar = "";
 

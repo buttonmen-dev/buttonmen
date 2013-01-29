@@ -15,7 +15,16 @@ class BMHitTableTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $this->object = new BMHitTable;
+        $die1 = BMDie::create(6);
+        $die1->value = 2;
+        $die2 = BMDie::create(10);
+        $die2->value = 8;
+        $die3 = BMDie::create(16);
+        $die3->value = 1;
+        $die4 = BMDie::create(20);
+        $die4->value = 18;
+
+        $this->object = new BMHitTable(array($die1, $die2, $die3, $die4));
     }
 
     /**

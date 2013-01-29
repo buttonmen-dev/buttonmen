@@ -151,12 +151,13 @@ class BMHitTable {
             $this->dice[] = $die;
 
             foreach (array_keys($this->hits) as $target) {
+
                 foreach ($this->hits[$target] as $key => $combo) {
                     // We've already been used in this combo
-                    if (FALSE === strpos($key, $die_id)) {
+                    if (FALSE !== strpos($key, $die_id)) {
                         continue;
                     }
-                    $newcombo = clone $target;
+                    $newcombo = $this->hits[$target];
                     $newcombo[] = $die;
                     // the new key will always be sorted, since we
                     // process the dice in order
@@ -164,7 +165,7 @@ class BMHitTable {
 
                     foreach ($die->attack_values("Skill") as $val) {
                         $newtarget = $target + $val;
-                        if ($array_key_exists($newtarget, $this->hits)) {
+                        if (array_key_exists($newtarget, $this->hits)) {
                             // If the same die combo makes a number
                             // two ways, we just overwrite the old
                             // entry.
