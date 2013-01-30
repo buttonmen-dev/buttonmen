@@ -164,14 +164,14 @@ class BMGame {
 
                         // set waitingOnActionArray based on if there are
                         // unspecified swing dice for that player
-                        if (NULL === $this->swingValuesArrayArray[$playerIdx][$key]) {
+                        if (is_null($this->swingValuesArrayArray[$playerIdx][$key])) {
                             $this->waitingOnActionArray[$playerIdx] = TRUE;
                         }
                     }
                 }
 
                 foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                    if (TRUE === $waitingOnAction) {
+                    if ($waitingOnAction) {
                         $this->activate_GUI('Waiting on player action.', $playerIdx);
                     } else {
                         // apply swing values
