@@ -7,6 +7,38 @@ require_once 'BMAttack.php';
  * BMGame: current status of a game
  *
  * @author james
+ *
+ * @property      int   $gameId                  Game ID number in the database
+ * @property      array $playerIdArray           Array of player IDs
+ * @property-read array $nPlayers                Number of players in the game
+ * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
+ * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
+ * @property      array $buttonArray             Buttons for all players
+ * @property-read array $activeDieArrayArray     Active dice for all players
+ * @property      array $attack                  array('attackerPlayerIdx',<br>
+                                                       'defenderPlayerIdx',<br>
+                                                       'attackerAttackDieIdxArray',<br>
+                                                       'defenderAttackDieIdxArray',<br>
+                                                       'attackType')
+ * @property-read int   $attackerPlayerIdx       Index in playerIdxArray of the attacker
+ * @property-read int   $defenderPlayerIdx       Index in playerIdxArary of the defender
+ * @property-read array $attackerAllDieArray     Array of all attacker's dice
+ * @property-read array $defenderAllDieArray     Array of all defender's dice
+ * @property-read array $attackerAttackDieArray  Array of attacker's dice used in attack
+ * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
+ * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
+ * @property-read array $passStatusArray         Boolean array whether each player passed
+ * @property-read array $capturedDieArrayArray   Captured dice for all players
+ * @property-read array $roundScoreArray         Current points score in this round
+ * @property-read array $gameScoreArrayArray     Number of games W/T/L for all players
+ * @property-read array $lastWinnerIdxArray      Indices of the winners of the last round
+ * @property      int   $maxWins                 The game ends when a player has this many wins
+ * @property-read BMGameState $gameState         Current game state as a BMGameState enum
+ * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
+ * @property      array $swingRequestArrayArray  Swing requests for all players
+ * @property      array $swingValueArrayArray    Swing values for all players
+ * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
+ *
  */
 class BMGame {
     // properties -- all accessible, but written as private to enable the use of
@@ -40,12 +72,12 @@ class BMGame {
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
 
     public $swingRequestArrayArray;
-    public $swingValuesArrayArray;
+    public $swingValueArrayArray;
 
-    public $all_values_specified = FALSE;
+    public $allValuesSpecified = FALSE;
 
     public function require_values() {
-        if (!$this->all_values_specified) {
+        if (!$this->allValuesSpecified) {
             throw new Exception("require_values called");
         }
     }
@@ -150,21 +182,21 @@ class BMGame {
                 foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
                     $keyArray = array_keys($swingRequestArray);
 
-                    // initialise swingValuesArrayArray if necessary
-                    if (!isset($this->swingValuesArrayArray[$playerIdx])) {
-                        $this->swingValuesArrayArray[$playerIdx] = array();
+                    // initialise swingValueArrayArray if necessary
+                    if (!isset($this->swingValueArrayArray[$playerIdx])) {
+                        $this->swingValueArrayArray[$playerIdx] = array();
                     }
 
                     foreach ($keyArray as $key) {
                         // copy swing request keys to swing value keys if they
                         // do not already exist
-                        if (!array_key_exists($key, $this->swingValuesArrayArray[$playerIdx])) {
-                            $this->swingValuesArrayArray[$playerIdx][$key] = NULL;
+                        if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
+                            $this->swingValueArrayArray[$playerIdx][$key] = NULL;
                         }
 
                         // set waitingOnActionArray based on if there are
                         // unspecified swing dice for that player
-                        if (is_null($this->swingValuesArrayArray[$playerIdx][$key])) {
+                        if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
                             $this->waitingOnActionArray[$playerIdx] = TRUE;
                         }
                     }
@@ -178,11 +210,11 @@ class BMGame {
                         foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
                             if ($die instanceof BMSwingDie) {
                                 $isSetSuccessful = $die->set_swingValue(
-                                    $this->swingValuesArrayArray[$playerIdx]);
+                                    $this->swingValueArrayArray[$playerIdx]);
                                 // act appropriately if the swing values are invalid
                                 if (!$isSetSuccessful) {
                                     $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
-                                    $this->swingValuesArrayArray[$playerIdx] = array();
+                                    $this->swingValueArrayArray[$playerIdx] = array();
                                     $this->waitingOnActionArray[$playerIdx] = TRUE;
                                     break;
                                 }
@@ -443,11 +475,11 @@ class BMGame {
                 if ((0 === min($nDice)) ||
                     !in_array(FALSE, $this->passStatusArray, TRUE)) {
                     $this->gameState = BMGameState::endRound;
-                    unset($this->activeDieArrayArray);
+                    $this->activeDieArrayArray = NULL;
                 } else {
                     $this->gameState = BMGameState::startTurn;
                     $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    unset($this->attack);
+                    $this->attack = NULL;
                 }
                 break;
 
@@ -608,10 +640,10 @@ class BMGame {
     }
 
     private function reset_play_state() {
-        unset($this->activePlayerIdx);
-        unset($this->playerWithInitiativeIdx);
-        unset($this->activeDieArrayArray);
-        unset($this->roundScoreArray);
+        $this->activePlayerIdx = NULL;
+        $this->playerWithInitiativeIdx = NULL;
+        $this->activeDieArrayArray = NULL;
+        $this->roundScoreArray = NULL;
 
         $nPlayers = count($this->playerIdArray);
         $this->passStatusArray = array_pad(array(), $nPlayers, FALSE);
@@ -804,6 +836,7 @@ class BMGame {
                 $this->activeDieArrayArray = $value;
                 break;
             case 'attack':
+                $value = array_values($value);
                 if (!is_array($value) || (5 !== count($value))) {
                     throw new InvalidArgumentException(
                         'There must be exactly five elements in attack.');
@@ -846,7 +879,7 @@ class BMGame {
                         'Invalid defender attack die indices.');
                 }
 
-                $this->attack = array('attackerPlayerIdx' => $value[0],
+                $this->$property = array('attackerPlayerIdx' => $value[0],
                                       'defenderPlayerIdx' => $value[1],
                                       'attackerAttackDieIdxArray' => $value[2],
                                       'defenderAttackDieIdxArray' => $value[3],
@@ -914,6 +947,7 @@ class BMGame {
                 $this->roundScoreArray = $value;
                 break;
             case 'gameScoreArrayArray':
+                $value = array_values($value);
                 if (!is_array($value) ||
                     count($this->playerIdArray) !== count($value)) {
                     throw new InvalidArgumentException(
