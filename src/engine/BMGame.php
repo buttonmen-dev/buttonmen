@@ -1,6 +1,7 @@
 <?php
 
 require_once 'BMButton.php';
+require_once 'BMAttack.php';
 
 /**
  * BMGame: current status of a game
@@ -19,8 +20,8 @@ class BMGame {
     private $activeDieArrayArray;   // active dice for all players
     private $attack;                // array('attackerPlayerIdx',
                                     //       'defenderPlayerIdx',
-                                    //       'attackerDieIdxArray',
-                                    //       'defenderDieIdxArray',
+                                    //       'attackerAttackDieIdxArray',
+                                    //       'defenderAttackDieIdxArray',
                                     //       'attackType')
     private $attackerPlayerIdx;     // index in playerIdxArray of the attacker
     private $defenderPlayerIdx;     // index in playerIdxArary of the defender
@@ -70,10 +71,15 @@ class BMGame {
                     return;
                 }
 
+                $this->reset_play_state();
+
                 // if buttons are unspecified, allow players to choose buttons
-                foreach ($this->buttonArray as $buttonIdx => $tempButton) {
-                    if (is_null($tempButton)) {
-                        $this->activate_GUI('Prompt for button ID', $buttonIdx);
+                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+                     $playerIdx <= $nPlayers - 1;
+                     $playerIdx++) {
+                    if (!isset($this->buttonArray[$playerIdx])) {
+                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        $this->activate_GUI('Prompt for button ID', $playerIdx);
                     }
                 }
 
@@ -158,7 +164,7 @@ class BMGame {
 
                         // set waitingOnActionArray based on if there are
                         // unspecified swing dice for that player
-                        if (NULL === $this->swingValuesArrayArray[$playerIdx][$key]) {
+                        if (is_null($this->swingValuesArrayArray[$playerIdx][$key])) {
                             $this->waitingOnActionArray[$playerIdx] = TRUE;
                         }
                     }
@@ -269,34 +275,35 @@ class BMGame {
                 // while invalid attack {ask player to select attack}
                 while (!$this->is_valid_attack()) {
                     $this->activate_GUI('wait_for_attack');
-                    $this->waitingOnActionArray[$this->attackerPlayerIdx] = TRUE;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
                     $this->save_game_to_database();
                     return;
                 }
 
                 // perform attack
-                // update $this->activeDieArrayArray
-                // update $this->attack['attackingDieIdxArray']
-                // update $this->attack['targetDieIdxArray']
-                // update $isAttackSuccessful
-                $isAttackSuccessful = TRUE;
-
-
-                // reroll all dice involved in the attack that are still active
-                $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
-                $attackerDieIdxArray = $this->attack['attackerAttackDieIdxArray'];
-                foreach ($attackerDieIdxArray as $dieIdx => $tempAttackerDieIdx) {
-                    $this->activeDieArrayArray[$attackerPlayerIdx][
-                               $tempAttackerDieIdx]->roll($isAttackSuccessful);
+                switch ($this->attack['attackType']) {
+                    case "power":
+                        $attack = BMAttackPower::get_instance();
+                        break;
+                    default:
+                        throw new LogicException('Invalid attack type.');
+                }
+                $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+                $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+                $attackerAttackDieArray = array();
+                foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+                    $attackerAttackDieArray[] =
+                        $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                  [$attackerAttackDieIdx];
+                }
+                $defenderAttackDieArray = array();
+                foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+                    $defenderAttackDieArray[] =
+                        $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                  [$defenderAttackDieIdx];
                 }
 
-                $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-                $defenderDieIdxArray = $this->attack['defenderAttackDieIdxArray'];
-                foreach ($defenderDieIdxArray as $dieIdx => $tempDefenderDieIdx) {
-                    $this->activeDieArrayArray[$defenderPlayerIdx][
-                               $tempDefenderDieIdx]->roll($isAttackSuccessful);
-                }
-
+                $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
                 $this->update_active_player();
                 break;
 
@@ -329,8 +336,10 @@ class BMGame {
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // require both players and buttons to be specified
+                $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
+
                 if (!in_array(0, $this->playerIdArray) &&
-                    isset($this->buttonArray)) {
+                    $allButtonsSet) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->passStatusArray = array(FALSE, FALSE);
                     $this->gameScoreArrayArray = array(array(0, 0, 0), array(0, 0, 0));
@@ -371,7 +380,11 @@ class BMGame {
                 break;
 
             case BMGameState::loadDiceIntoButtons:
-                assert(isset($this->buttonArray));
+                if (!isset($this->buttonArray)) {
+                    throw new LogicException(
+                        'Button array must be set before loading dice into buttons.');
+                }
+
                 $buttonsLoadedWithDice = TRUE;
                 foreach ($this->buttonArray as $tempButton) {
                     if (!isset($tempButton->dieArray)) {
@@ -418,7 +431,8 @@ class BMGame {
                 break;
 
             case BMGameState::startTurn:
-                if ($this->is_valid_attack()) {
+                if ($this->is_valid_attack() &&
+                    FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
                     $this->gameState = BMGameState::endTurn;
                 }
                 break;
@@ -432,6 +446,8 @@ class BMGame {
                     unset($this->activeDieArrayArray);
                 } else {
                     $this->gameState = BMGameState::startTurn;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+                    unset($this->attack);
                 }
                 break;
 
@@ -490,22 +506,31 @@ class BMGame {
     }
 
     public function capture_die($die, $newOwnerIdx = NULL) {
-        $dieIdx = array_search($die, $this->activeDieArrayArray[
-                                                $this->attack['defenderPlayerIdx']], TRUE);
+        if (!isset($this->activeDieArrayArray)) {
+            throw new LogicException(
+                'activeDieArrayArray must be set before capturing dice.');
+        }
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            $dieIdx = array_search($die, $activeDieArray, TRUE);
+            if (FALSE !== $dieIdx) {
+                break;
+            }
+        }
+
         if (FALSE === $dieIdx) {
             throw new LogicException(
-                'Captured die does not exist for the defender.');
+                'Captured die does not exist.');
         }
 
         // add captured die to captured die array
         if (is_null($newOwnerIdx)) {
             $newOwnerIdx = $this->attack['attackerPlayerIdx'];
         }
-        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
         $this->capturedDieArrayArray[$newOwnerIdx][] =
-            $this->activeDieArrayArray[$defenderPlayerIdx][$dieIdx];
-        // remove captured die from defender's active die array
-        array_splice($this->activeDieArrayArray[$defenderPlayerIdx], $dieIdx, 1);
+            $this->activeDieArrayArray[$playerIdx][$dieIdx];
+        // remove captured die from active die array
+        array_splice($this->activeDieArrayArray[$playerIdx], $dieIdx, 1);
     }
 
     public function request_swing_values($die, $swingtype, $playerIdx) {
@@ -595,11 +620,17 @@ class BMGame {
     }
 
     private function update_active_player() {
-        assert(isset($this->activePlayerIdx));
+        if (!isset($this->activePlayerIdx)) {
+            throw new LogicException(
+                'Active player must be set before it can be updated.');
+        }
 
+        $nPlayers = count($this->playerIdArray);
         // move to the next player
-        $this->activePlayerIdx = ($this->activePlayerIdx + 1) %
-                                 count($this->playerIdArray);
+        $this->activePlayerIdx = ($this->activePlayerIdx + 1) % $nPlayers;
+
+        // currently not waiting on anyone
+        $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     // utility methods
@@ -618,10 +649,12 @@ class BMGame {
         $this->playerIdArray = $playerIdArray;
         $this->gameState = BMGameState::startGame;
         $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
-        foreach ($buttonRecipeArray as $tempRecipe) {
-            $tempButton = new BMButton;
-            $tempButton->load_from_recipe($tempRecipe);
-            $this->buttonArray[] = $tempButton;
+        foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
+            if (strlen($tempRecipe) > 0) {
+                $tempButton = new BMButton;
+                $tempButton->load_from_recipe($tempRecipe);
+                $this->buttonArray[$buttonIdx] = $tempButton;
+            }
         }
         $this->maxWins = $maxWins;
         $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
@@ -656,7 +689,8 @@ class BMGame {
                     }
                     return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];
                 case 'attackerAttackDieArray':
-                    if (!isset($this->attack)) {
+                    if (!isset($this->attack) ||
+                        !isset($this->activeDieArrayArray)) {
                         return NULL;
                     }
                     $attackerAttackDieArray = array();
@@ -787,6 +821,31 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'The third and fourth elements in attack must contain integers.');
                 }
+
+                if (!preg_match('/'.
+                                'power'.'|'.
+                                'skill'.'|'.
+                                'pass'.'/', $value[4])) {
+                    throw new InvalidArgumentException(
+                        'Invalid attack type.');
+                }
+
+                if (count($value[2]) > 0 &&
+                    (max($value[2]) >
+                         (count($this->activeDieArrayArray[$value[0]]) - 1) ||
+                     min($value[2]) < 0)) {
+                    throw new LogicException(
+                        'Invalid attacker attack die indices.');
+                }
+
+                if (count($value[3]) > 0 &&
+                    (max($value[3]) >
+                         (count($this->activeDieArrayArray[$value[1]]) - 1) ||
+                     min($value[3]) < 0)) {
+                    throw new LogicException(
+                        'Invalid defender attack die indices.');
+                }
+
                 $this->attack = array('attackerPlayerIdx' => $value[0],
                                       'defenderPlayerIdx' => $value[1],
                                       'attackerAttackDieIdxArray' => $value[2],

@@ -134,11 +134,9 @@ class BMAttack {
 
         // Collect the necessary help
         // not implemented yet
-        if (!$this->collect_contributions($game, $attackers, $defenders)) {
-            // return FALSE;
-        }
-
-
+//        if (!$this->collect_contributions($game, $attackers, $defenders)) {
+//            // return FALSE;
+//        }
 
         foreach ($attackers as $att) {
             $att->capture($this->type, $attackers, $defenders);
@@ -300,7 +298,6 @@ class BMAttackPower extends BMAttack {
         if (count($attackers) != 1 || count($defenders) != 1) {
             return FALSE;
         }
-
 
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
 
