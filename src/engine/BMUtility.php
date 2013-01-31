@@ -193,12 +193,7 @@ class BMHitTable {
     // Test for a hit. Return all possible sets of dice that can make that hit.
     public function find_hit($target) {
         if (array_key_exists($target, $this->hits)) {
-
-            $res = array();
-            foreach (array_values($this->hits[$target]) as $combo) {
-                $res[] = $combo;
-            }
-            return $res;
+            return array_values($this->hits[$target]);
         }
         return FALSE;
     }
