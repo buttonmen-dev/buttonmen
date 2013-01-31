@@ -292,6 +292,11 @@ class BMHitTableTest extends PHPUnit_Framework_TestCase
 
         $ht = new BMHitTable(array($die1, $die2, $die3));
 
+        for ($i = 1; $i <= 3; $i++) {
+            $this->assertContains($i, $ht->list_hits());
+        }
+
+        $this->assertEquals(3, count($ht->list_hits()));
 
         // Multi-value dice
         $die1 = BMDie::create(4, array("TestStinger"));
