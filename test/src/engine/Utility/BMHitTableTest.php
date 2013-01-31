@@ -36,18 +36,8 @@ class BMHitTableTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers BMHitTable::__construct
-     * @todo   Implement testList_hits().
-     */
-    public function test__construct()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-    /**
      * @covers BMHitTable::find_hit
+     * @covers BMHitTable::__construct
      */
     public function testFind_hit()
     {
@@ -77,21 +67,205 @@ class BMHitTableTest extends PHPUnit_Framework_TestCase
         foreach (array(3, 9, 10, 19, 20, 26) as $i) {
             $ret = $this->object->find_hit($i);
             $this->assertEquals(2, count($ret[0]));
+            $sum = 0;
+            foreach ($ret[0] as $die) {
+                $sum += $die->value;
+            }
+            $this->assertEquals($i, $sum);
         }
 
         foreach (array(11, 21, 27, 28) as $i) {
             $ret = $this->object->find_hit($i);
             $this->assertEquals(3, count($ret[0]));
+            $sum = 0;
+            foreach ($ret[0] as $die) {
+                $sum += $die->value;
+            }
+            $this->assertEquals($i, $sum);
         }
 
         foreach (array(29) as $i) {
             $ret = $this->object->find_hit($i);
             $this->assertEquals(4, count($ret[0]));
+            $sum = 0;
+            foreach ($ret[0] as $die) {
+                $sum += $die->value;
+            }
+            $this->assertEquals($i, $sum);
+        }
+
+        // More complex setups
+
+        // Overlap
+        $die1 = BMDie::create(1);
+        $die1->value = 1;
+        $die2 = BMDie::create(2);
+        $die2->value = 1;
+        $die3 = BMDie::create(3);
+        $die3->value = 1;
+
+        $ht = new BMHitTable(array($die1, $die2, $die3));
+
+        $ret = $ht->find_hit(1);
+        $this->assertEquals(3, count($ret));
+        foreach (array($die1, $die2, $die3) as $targetdie) {
+            $hit = 0;
+            foreach ($ret as $combo) {
+                foreach ($combo as $die) {
+                    if ($targetdie === $die) {
+                        $hit++;
+                    }
+                }
+            }
+            $this->assertEquals(1, $hit);
+        }
+
+        $ret = $ht->find_hit(2);
+        $this->assertEquals(3, count($ret));
+        foreach (array($die1, $die2, $die3) as $targetdie) {
+            $hit = 0;
+            foreach ($ret as $combo) {
+                foreach ($combo as $die) {
+                    if ($targetdie === $die) {
+                        $hit++;
+                    }
+                }
+            }
+            $this->assertEquals(2, $hit);
+        }
+
+        $ret = $ht->find_hit(3);
+        $this->assertEquals(1, count($ret));
+        foreach (array($die1, $die2, $die3) as $targetdie) {
+            $hit = 0;
+            foreach ($ret as $combo) {
+                foreach ($combo as $die) {
+                    if ($targetdie === $die) {
+                        $hit++;
+                    }
+                }
+            }
+            $this->assertEquals(1, $hit);
+        }
+
+        // Multi-value dice
+        $die1 = BMDie::create(10, array("TestStinger"));
+        $die1->value = 10;
+        $die2 = BMDie::create(6);
+        $die2->value = 6;
+
+        $ht = new BMHitTable(array($die1, $die2));
+
+        // Two ways to make 6-10, one for all the rest
+        foreach (array(6, 7, 8, 9, 10) as $i) {
+            $ret = $ht->find_hit($i);
+            $this->assertEquals(2, count($ret));
+            foreach ($ret as $combo) {
+                $this->assertTrue(count($combo) > 0 && count($combo) < 3);
+                if ($i == 6) {
+                    // 6 is a special case, as it's the only die1 or die2
+                    $this->assertEquals(1, count($combo));
+                } else {
+                    if (count($combo) == 2) {
+                        $this->assertContains($die1, $combo);
+                        $this->assertContains($die2, $combo);
+                    } else {
+                        $this->assertEquals(1, count($combo));
+                        $this->assertContains($die1, $combo);
+                    }
+                }
+            }
+            if ($i == 6) {
+                $this->assertTrue($ret[0][0] === $die1 ||
+                                  $ret[1][0] === $die1);
+                $this->assertTrue($ret[0][0] === $die2 ||
+                                  $ret[1][0] === $die2);
+            }
+        }
+
+        // made with just die1
+        foreach (array(1, 2, 3, 4, 5) as $i) {
+            $ret = $ht->find_hit($i);
+            $this->assertEquals(1, count($ret));
+            $this->assertEquals(1, count($ret[0]));
+            $this->assertContains($die1, $ret[0]);
+        }
+
+        // made with both
+        foreach (array(11, 12, 13, 14, 15, 16) as $i) {
+            $ret = $ht->find_hit($i);
+            $this->assertEquals(1, count($ret));
+            $this->assertEquals(2, count($ret[0]));
+            $this->assertContains($die1, $ret[0]);
+            $this->assertContains($die2, $ret[0]);
+        }
+
+
+
+        $die1 = BMDie::create(10, array("TestStinger"));
+        $die1->value = 10;
+        $die2 = BMDie::create(6, array("TestStinger"));
+        $die2->value = 6;
+
+        $ht = new BMHitTable(array($die1, $die2));
+
+        // One way to make 11-16
+        foreach (array(11, 12, 13, 14, 15, 16) as $i) {
+            $ret = $ht->find_hit($i);
+            $this->assertEquals(1, count($ret));
+            $this->assertEquals(2, count($ret[0]));
+            $this->assertContains($die1, $ret[0]);
+            $this->assertContains($die2, $ret[0]);
+        }
+
+        // Two ways to make 7-10
+        foreach (array(7, 8, 9, 10) as $i) {
+            $ret = $ht->find_hit($i);
+            $this->assertEquals(2, count($ret));
+            foreach ($ret as $combo) {
+                $this->assertTrue(count($combo) > 0 && count($combo) < 3);
+                if (count($combo) == 2) {
+                    $this->assertContains($die1, $combo);
+                    $this->assertContains($die2, $combo);
+                } else {
+                    $this->assertEquals(1, count($combo));
+                    $this->assertContains($die1, $combo);
+                }
+            }
+        }
+
+        // two ways to make 1
+        $ret = $ht->find_hit(1);
+        $this->assertEquals(2, count($ret));
+        $this->assertTrue($ret[0][0] === $die1 ||
+                          $ret[1][0] === $die1);
+        $this->assertTrue($ret[0][0] === $die2 ||
+                          $ret[1][0] === $die2);
+
+
+        // Three ways to make 2-6
+        foreach (array(2, 3, 4, 5, 6) as $i) {
+            $found1 = FALSE;
+            $found2 = FALSE;
+            $ret = $ht->find_hit($i);
+            $this->assertEquals(3, count($ret));
+            foreach ($ret as $combo) {
+                $this->assertTrue(count($combo) > 0 && count($combo) < 3);
+                if (count($combo) == 2) {
+                    $this->assertContains($die1, $combo);
+                    $this->assertContains($die2, $combo);
+                } else {
+                    if ($combo[0] === $die1) { $found1 = TRUE; }
+                    if ($combo[0] === $die2) { $found2 = TRUE; }
+                }
+            }
+            $this->assertTrue($found1 && $found2);
         }
     }
 
     /**
      * @covers BMHitTable::list_hits
+     * @covers BMHitTable::__construct
      */
     public function testList_hits()
     {
@@ -105,5 +279,55 @@ class BMHitTableTest extends PHPUnit_Framework_TestCase
                 $this->assertNotContains($i, $this->object->list_hits());
             }
         }
+
+        // More complex setups
+
+        // Overlap
+        $die1 = BMDie::create(1);
+        $die1->value = 1;
+        $die2 = BMDie::create(2);
+        $die2->value = 1;
+        $die3 = BMDie::create(3);
+        $die3->value = 1;
+
+        $ht = new BMHitTable(array($die1, $die2, $die3));
+
+
+        // Multi-value dice
+        $die1 = BMDie::create(4, array("TestStinger"));
+        $die1->value = 4;
+        $die2 = BMDie::create(6);
+        $die2->value = 6;
+
+
+        $ht = new BMHitTable(array($die1, $die2));
+
+        for ($i = -64; $i < 64; $i++) {
+            // They should cover 1-4, 6-10
+            if ($i != 5 && $i > 0 && $i < 11) {
+                $this->assertContains($i, $ht->list_hits());
+            } else {
+                $this->assertNotContains($i, $ht->list_hits());
+            }
+        }
+
+
+        $die1 = BMDie::create(4, array("TestStinger"));
+        $die1->value = 4;
+        $die2 = BMDie::create(8, array("TestStinger"));
+        $die2->value = 8;
+
+        $ht = new BMHitTable(array($die1, $die2));
+
+        for ($i = -64; $i < 64; $i++) {
+            // They should cover 1-12
+            if ($i > 0 && $i < 13) {
+                $this->assertContains($i, $ht->list_hits());
+            } else {
+                $this->assertNotContains($i, $ht->list_hits());
+            }
+        }
+
+
     }
 }

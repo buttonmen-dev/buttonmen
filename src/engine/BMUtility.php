@@ -140,10 +140,10 @@ class BMHitTable {
     private $hits = array();
 
     public function __construct($dice) {
-        // Every die needs a unique identifier, no matter how many
-        // there are, but if there are more than 36, something is
-        // very, very wrong.
-        $ids = str_split("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        // For building hash keys, every die needs a unique
+        // identifier, no matter how many there are, but if there are
+        // more than 36 dice, something is very, very wrong.
+        $ids = str_split("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         for ($i = 0; $i < count($dice); $i++) {
             $die = $dice[$i];
             $die_id = $ids[$i];
@@ -151,7 +151,6 @@ class BMHitTable {
             $this->dice[] = $die;
 
             foreach (array_keys($this->hits) as $target) {
-
                 foreach ($this->hits[$target] as $key => $combo) {
                     // We've already been used in this combo
                     if (FALSE !== strpos($key, $die_id)) {
@@ -170,8 +169,10 @@ class BMHitTable {
                             // two ways, we just overwrite the old
                             // entry.
                             $this->hits[$newtarget][$newkey] = $newcombo;
+
                         } else {
                             $this->hits[$newtarget] = array($newkey => $newcombo);
+
                         }
                     }
                 }
@@ -180,9 +181,10 @@ class BMHitTable {
             // Add the unique values the die may provide
             foreach ($die->attack_values("Skill") as $val) {
                 if (array_key_exists($val, $this->hits)) {
-                    continue;
+                    $this->hits[$val][$die_id] = array($die);
+                } else {
+                    $this->hits[$val] = array($die_id => array($die));
                 }
-                $this->hits[$val] = array($die_id => array($die));
             }
 
         }
@@ -192,7 +194,11 @@ class BMHitTable {
     public function find_hit($target) {
         if (array_key_exists($target, $this->hits)) {
 
-            return array_values($this->hits[$target]);
+            $res = array();
+            foreach (array_values($this->hits[$target]) as $combo) {
+                $res[] = $combo;
+            }
+            return $res;
         }
         return FALSE;
     }
