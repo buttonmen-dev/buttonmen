@@ -96,6 +96,10 @@ class BMAttTesting extends BMAttack {
         return $this->search_manyvone($game, $att, $def);
     }
 
+    public function test_collect_helpers($game, $att, $def) {
+        return $this->collect_helpers($game, $att, $def);
+    }
+
     public function clear_dice() {
         $this->validDice = array();
     }
