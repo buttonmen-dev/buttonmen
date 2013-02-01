@@ -434,27 +434,20 @@ class BMAttackSkill extends BMAttack {
                     return TRUE;
                 }
             }
-        } else {
-            // LOGIC BUG -- we're not checking for helpers if we have
-            // an entry in the hit table, but it's not one that
-            // matches the attacking dice
-            //
-            // Also, we're going through the checks with helpers even
-            // when there are none.
-            //
-            // But I'm tired and need sleep
+        } 
 
-            $helpers = $this->collect_helpers($game, $attackers, $defenders);
-            $bounds = $this->help_bounds($helpers);
-            for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
-                $combos = $this->hit_table->find_hit($dval + $i);
-                if ($combos) {
-                    foreach ($combos as $c) {
-                        if (count($c) == count($attackers) &&
-                            count(array_uintersect($c, $attackers, $cmp)) ==
-                            count($c)) {
-                            return TRUE;
-                        }
+        // assisted attacks
+        $helpers = $this->collect_helpers($game, $attackers, $defenders);
+        $bounds = $this->help_bounds($helpers);
+        if ($bounds[0] == 0 && $bounds[1] == 0) { return FALSE; }
+        for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
+            $combos = $this->hit_table->find_hit($dval + $i);
+            if ($combos) {
+                foreach ($combos as $c) {
+                    if (count($c) == count($attackers) &&
+                        count(array_uintersect($c, $attackers, $cmp)) ==
+                        count($c)) {
+                        return TRUE;
                     }
                 }
             }

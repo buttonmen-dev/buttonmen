@@ -141,6 +141,32 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($sk->validate_attack($game, array($die1), $def));
         $target->value = 2;
         $this->assertTrue($sk->validate_attack($game, array($die1), $def));
+
+        // Not when the helper's involved
+        $target->value = 5;
+        $this->assertFalse($sk->validate_attack($game, array($die1, $die5), $def));
+
+        // multi-value dice
+        $die1->value = 6;
+        $die1->add_skill("TestStinger");
+        $die2->value = 6;
+        $die3->value = 6;
+        $die4->value = 6;
+        $die5->value = 6;
+        $die5->remove_skill("AVTesting");
+
+        // reset the hit table
+        $sk->make_hit_table();
+
+        for ($i = 1; $i <= 5; $i++) {
+            $target->value = $i;
+            $this->assertTrue($sk->validate_attack($game, array($die1), $def));
+            $this->assertFalse($sk->validate_attack($game, array($die2), $def));
+            $target->value = $i + 12;
+            $this->assertTrue($sk->validate_attack($game, array($die1, $die2, $die3), $def));
+            $this->assertFalse($sk->validate_attack($game, array($die1, $die4), $def));
+
+        }
     }
 
     /**
