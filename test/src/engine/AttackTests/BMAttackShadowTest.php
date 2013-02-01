@@ -156,7 +156,7 @@ class BMAttackShadowTest extends PHPUnit_Framework_TestCase
         $die4->value = 2;
 
         $game->activeDieArrayArray = array(array($die3), array());
-        $game->attack = array(0, 1, array(), array(), '');
+        $game->attack = array(0, 1, array(), array(), 'shadow');
 
         // 6 - 1 ! <= 1
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));

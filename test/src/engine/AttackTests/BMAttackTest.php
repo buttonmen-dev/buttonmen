@@ -597,7 +597,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1), array($die2));
-        $game->attack = array(0, 1, array(0), array(0), '');
+        $game->attack = array(0, 1, array(0), array(0), 'pass');
 
         $att = array($die1);
         $def = array($die2);
@@ -678,7 +678,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1, $die3), array($die2, $die4));
-        $game->attack = array(0, 1, array(0, 1), array(0, 1), '');
+        $game->attack = array(0, 1, array(0, 1), array(0, 1), 'pass');
 
         $att = array($die1, $die3);
         $def = array($die2, $die4);
@@ -1061,7 +1061,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
 
         // provide a die that always gives help
         $game->activeDieArrayArray = array(array($die1), array());
-        $game->attack = array(0, 1, array(), array(), '');
+        $game->attack = array(0, 1, array(), array(), 'pass');
 
         $help = $this->object->test_collect_helpers($game, array(), array());
         $this->assertNotEmpty($help);
