@@ -257,7 +257,9 @@ class BMAttack {
         return $this->search_ovm_helper($game, $attackers, $defenders, $compare);
     }
 
-    // It is entirely possible this method will never be used.
+    // It is entirely possible this method will never be used, since
+    // skill attacks build a hit table instead. (For hopefully
+    // improved efficiency.)
     protected function search_manyvone($game, $attackers, $defenders) {
         $myself = $this;
         $compare = function($g, $def, $att) use ($myself) {
@@ -268,7 +270,7 @@ class BMAttack {
     }
 
     // returns a list of possible values that can aid an attack
-    public function collect_helpers($game, $attackers, $defenders) {
+    protected function collect_helpers($game, $attackers, $defenders) {
         $helpers = array();
 
         if (is_null($game->attackerAllDieArray)) {
@@ -326,8 +328,6 @@ class BMAttackPower extends BMAttack {
     public function calculate_contributions($game, $attackers, $defenders) {
         return array(0, array());
     }
-
-
 }
 
 class BMAttackSkill extends BMAttack {
@@ -341,20 +341,111 @@ class BMAttackSkill extends BMAttack {
     // a much reduced search cost
     //
     // Fire still makes life more complex than it might be.
+    //
+    // "Premature optimization is the root of all evil." -- Knuth
     private $hit_table = NULL;
 
     public function find_attack($game) {
+        if (!$this->hit_table) {
+            $this->hit_table = new BMHitTable($this->validDice);
+        }
 
+        $targets = $game->defenderAllDieArray;
+
+        if (count($targets) < 1) { return FALSE; }
+
+        // Check all precise hits before trying any with help, because
+        // help is slow
+        foreach ($targets as $def) {
+            if ($this->hit_table->find_hit($def->defense_value($this->type))) {
+                return TRUE;
+            }
+        }
+
+        // Potentially save some time by checking for the possibility of help
+
+        $help_found = FALSE;
+
+        foreach ($targets as $def) {
+            foreach ($game->attackerAllDieArray as $att) {
+                if ($this->collect_helpers($game, $att, $def)) {
+                    $help_found = TRUE;
+                    break 2;
+                }
+            }
+        }
+
+        if (!$help_found) { return FALSE; }
+
+        $hits = sort($this->hit_table->list_hits());
+
+
+        // Should perhaps start around the defending die's value and
+        // work outward, but probably not worth the extra overhead to
+        // do so. We half-ass it by starting in the middle.
+        $i = count($hits) / 2;
+        $j = $i + 1;
+        $i += count($hits) % 2; // Start in the exact middle of an odd count
+        while ($i >= 0) {
+            foreach ($targets as $def) {
+                $combos = $this->hit_table->find_hit($hits[$j]);
+                foreach ($combos as $att) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                }
+                if ($i == $j) { continue; }
+                $combos = $this->hit_table->find_hit($hits[$i]);
+                foreach ($combos as $att) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                }
+            }
+            $i--; $j++;
+        }
+            
+        return FALSE;
     }
 
     public function validate_attack($game, $attackers, $defenders) {
+        if (count($attackers) < 1 || count($defenders) != 1) {
+            return FALSE;
+        }
 
+        $dval = $defenders[0]->defense_value($this->type);
+
+        // exact hits
+        $combos = $this->hit_table->find_hit($dval);
+        if ($combos) {
+            foreach ($combos as $c) {
+                if (count(array_intersect($c, $attackers)) ==
+                    count($attackers)) {
+                    return TRUE;
+                }
+            }
+        } else {
+            $helpers = $this->collect_helpers($game, $attackers, $defenders);
+            $bounds = $this->help_bounds($helpers);
+            for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
+                $combos = $this->hit_table->find_hit($dval + $i);
+                if ($combos) {
+                    foreach ($combos as $c) {
+                        if (count(array_intersect($c, $attackers)) ==
+                            count($attackers)) {
+                            return TRUE;
+                        }
+                    }
+                }
+            }
+        }
+        return FALSE;
     }
 
-    public function commit_attack($game, $attackers, $defenders) {
-
+    // return how much help is needed and who can contribute
+    public function calculate_contributions($game, $attackers, $defenders) {
+        return array(0, array());
     }
-
 }
 
 
