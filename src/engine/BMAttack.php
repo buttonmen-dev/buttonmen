@@ -365,10 +365,9 @@ class BMAttackSkill extends BMAttack {
         // Potentially save some time by checking for the possibility of help
 
         $help_found = FALSE;
-
         foreach ($targets as $def) {
             foreach ($game->attackerAllDieArray as $att) {
-                if ($this->collect_helpers($game, $att, $def)) {
+                if ($this->collect_helpers($game, array($att), array($def))) {
                     $help_found = TRUE;
                     break 2;
                 }
@@ -377,32 +376,35 @@ class BMAttackSkill extends BMAttack {
 
         if (!$help_found) { return FALSE; }
 
-        $hits = sort($this->hit_table->list_hits());
-
+        $hits = $this->hit_table->list_hits();
+        sort($hits);
 
         // Should perhaps start around the defending die's value and
         // work outward, but probably not worth the extra overhead to
         // do so. We half-ass it by starting in the middle.
-        $i = count($hits) / 2;
-        $j = $i + 1;
-        $i += count($hits) % 2; // Start in the exact middle of an odd count
-        while ($i >= 0) {
-            foreach ($targets as $def) {
-                $combos = $this->hit_table->find_hit($hits[$j]);
-                foreach ($combos as $att) {
-                    if ($this->validate_attack($game, $att, $def)) {
-                        return TRUE;
-                    }
-                }
-                if ($i == $j) { continue; }
+
+        // PHP, why do you have no integer division operator?
+        $i = (int)(count($hits) / 2);
+        $j = $i - 1;
+        $j += count($hits) % 2; // Start in the exact middle of an odd count
+        while ($j >= 0) {
+            foreach ($targets as $t) {
+                $def = array($t);
                 $combos = $this->hit_table->find_hit($hits[$i]);
                 foreach ($combos as $att) {
                     if ($this->validate_attack($game, $att, $def)) {
                         return TRUE;
                     }
                 }
+                if ($i == $j) { continue; }
+                $combos = $this->hit_table->find_hit($hits[$j]);
+                foreach ($combos as $att) {
+                    if ($this->validate_attack($game, $att, $def)) {
+                        return TRUE;
+                    }
+                }
             }
-            $i--; $j++;
+            $j--; $i++;
         }
             
         return FALSE;
