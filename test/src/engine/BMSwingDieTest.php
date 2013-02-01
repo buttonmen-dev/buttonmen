@@ -186,7 +186,6 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
             $this->object->init($swing);
 
             $this->object->ownerObject = $game;
-            $game->all_values_specified = TRUE;
             $this->object->activate("player");
             $newDie = $game->dice[$dieIdx][1];
 
