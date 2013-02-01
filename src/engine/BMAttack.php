@@ -343,7 +343,7 @@ class BMAttackSkill extends BMAttack {
     // Fire still makes life more complex than it might be.
     //
     // "Premature optimization is the root of all evil." -- Knuth
-    private $hit_table = NULL;
+    protected $hit_table = NULL;
 
     public function find_attack($game) {
         if (!$this->hit_table) {
@@ -413,26 +413,46 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        // array_intersect tries to convert to strings, so we
+        // use array_uintersect, which needs a comparison
+        // function
+        $cmp = function ($v1,$v2) {
+            if ($v1===$v2) { return 0; }
+            if ($v1 > $v2) { return 1; }
+            return -1;
+        };
+
         $dval = $defenders[0]->defense_value($this->type);
 
         // exact hits
         $combos = $this->hit_table->find_hit($dval);
         if ($combos) {
             foreach ($combos as $c) {
-                if (count(array_intersect($c, $attackers)) ==
-                    count($attackers)) {
+                if (count($c) == count($attackers) &&
+                    count(array_uintersect($c, $attackers, $cmp)) == 
+                    count($c)) {
                     return TRUE;
                 }
             }
         } else {
+            // LOGIC BUG -- we're not checking for helpers if we have
+            // an entry in the hit table, but it's not one that
+            // matches the attacking dice
+            //
+            // Also, we're going through the checks with helpers even
+            // when there are none.
+            //
+            // But I'm tired and need sleep
+
             $helpers = $this->collect_helpers($game, $attackers, $defenders);
             $bounds = $this->help_bounds($helpers);
             for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
                 $combos = $this->hit_table->find_hit($dval + $i);
                 if ($combos) {
                     foreach ($combos as $c) {
-                        if (count(array_intersect($c, $attackers)) ==
-                            count($attackers)) {
+                        if (count($c) == count($attackers) &&
+                            count(array_uintersect($c, $attackers, $cmp)) ==
+                            count($c)) {
                             return TRUE;
                         }
                     }

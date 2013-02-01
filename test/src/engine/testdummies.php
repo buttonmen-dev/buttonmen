@@ -29,7 +29,6 @@ class BMSkillAVTesting extends BMSkill {
     public static function assist_values($args) {
         $args[3] = array(-1, 1);
     }
-
 }
 
 class BMSkillCaptureCatcher extends BMSkill {
@@ -114,6 +113,17 @@ class BMAttTesting extends BMAttack {
     public function validate_attack($game, $attackers, $defenders) {
         $this->attackLog[] = array($attackers, $defenders);
         return $this->validate;
+    }
+}
+
+class BMAttSkillTesting extends BMAttackSkill {
+    public function reset() {
+        $this->hit_table = NULL;
+        $this->validDice = array();
+    }
+
+    public function make_hit_table() {
+        $this->hit_table = new BMHitTable($this->validDice);
     }
 }
 
