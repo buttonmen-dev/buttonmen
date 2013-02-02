@@ -538,8 +538,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
                                                    array($attDie),
                                                    array($defDie));
         $this->assertNotEmpty($assistVals);
-        $this->assertEquals(1, count($assistVals));
-        $this->assertEquals(1, $assistVals[0]);
+        $this->assertEquals(2, count($assistVals));
+        $this->assertEquals(-1, $assistVals[0]);
+        $this->assertEquals(1, $assistVals[1]);
 
         // now make it not work
         $assistVals = $this->object->assist_values($att,
