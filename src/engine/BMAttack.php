@@ -29,7 +29,16 @@ class BMAttack {
         // You can't instantiate me; I'm a Singleton!
     }
 
-    static function get_instance() {
+    static function get_instance($type = NULL) {
+        if ($type) {
+            $cname = "BMAttack" . $type;
+            if (class_exists($cname)) {
+                return $cname::get_instance();
+            } else {
+                return NULL;
+            }
+        }
+
         $class = get_called_class();
         if (!isset(static::$instance[$class])) {
             static::$instance[$class] = new $class;
