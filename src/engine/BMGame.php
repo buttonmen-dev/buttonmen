@@ -489,7 +489,6 @@ class BMGame {
                 $repeatCount = 0;
             }
             if ($repeatCount >= 100) {
-                var_dump($this->gameState);
                 throw new LogicException(
                     'Infinite loop detected when advancing game state.');
             }
@@ -825,6 +824,7 @@ class BMGame {
                 if (!preg_match('/'.
                                 'power'.'|'.
                                 'skill'.'|'.
+                                'shadow'.'|'.
                                 'pass'.'/', $value[4])) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.');
