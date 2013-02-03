@@ -37,10 +37,19 @@ class BMAttackTest extends PHPUnit_Framework_TestCase
      */
     public function testGet_instance()
     {
+        // Baseline version
         $test1 = BMAttack::get_instance();
         $test2 = BMAttack::get_instance();
 
         $this->assertTrue($test1 === $test2);
+
+        // Specific type lookup
+        $this->assertNull(BMAttack::get_instance("NotAnAttack"));
+
+        $power = BMAttack::get_instance("Power");
+        $this->assertNotNull($power);
+        $this->assertInstanceOf('BMAttack', $power);
+        $this->assertInstanceOf('BMAttackPower', $power);
     }
 
     /**
