@@ -313,13 +313,11 @@ class BMGame {
                 }
 
                 // perform attack
-                switch ($this->attack['attackType']) {
-                    case "power":
-                        $attack = BMAttackPower::get_instance();
-                        break;
-                    default:
-                        throw new LogicException('Invalid attack type.');
-                }
+                $attack = BMAttack::get_instance($this->attack['attackType']);
+
+                // james: skill attacks need the hit_table to be refreshed at some stage
+//              $attack->make_hit_table();
+
                 $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
                 $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
                 $attackerAttackDieArray = array();
