@@ -356,8 +356,6 @@ class BMAttackSkill extends BMAttack {
             $this->hit_table = new BMHitTable($this->validDice);
         }
 
-        var_dump('defenders');
-        var_dump($game->defenderAllDieArray);
         $targets = $game->defenderAllDieArray;
 
         if (count($targets) < 1) { return FALSE; }
@@ -514,7 +512,12 @@ class BMAttackPass extends BMAttack {
     public $type = "Pass";
 
     public function find_attack($game) {
+        return $this->validate_attack($game, $this->validDice,
+                                      $game->defenderAttackDieArray);
+    }
 
+    public function validate_attack($game, $attackers, $defenders) {
+        return (empty($attackers) && empty($defenders));
     }
 }
 
