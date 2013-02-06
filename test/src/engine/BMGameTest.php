@@ -1837,39 +1837,39 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // player 2 takes player 1's d8 with a skill attack
         // artificially set value of rolled die
         $dieArrayArray[0][3]->value = 16;
-//        $game->attack = array(1,        // attackerPlayerIdx
-//                              0,        // defenderPlayerIdx
-//                              array(1, 2, 3), // attackerAttackDieIdxArray
-//                              array(0), // defenderAttackDieIdxArray
-//                              'skill'); // attackType
-//        $game->proceed_to_next_user_action();
-//        $this->assertEquals(0, $game->activePlayerIdx);
-//        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::startTurn, $game->gameState);
-//        $this->assertEquals(3, count($game->activeDieArrayArray[0]));
-//        $this->assertEquals(4, count($game->activeDieArrayArray[1]));
-//        $this->assertEquals(1, count($game->capturedDieArrayArray[0]));
-//        $this->assertEquals(2, count($game->capturedDieArrayArray[1]));
-//        $this->assertEquals(8, $game->capturedDieArrayArray[0][0]->max);
-//        $this->assertEquals(5, $game->capturedDieArrayArray[0][0]->value);
-//        $this->assertEquals(10, $game->capturedDieArrayArray[1][0]->max);
-//        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
-//        $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->max);
-//        $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->value);
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(1, 2, 3), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'skill'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(0, $game->activePlayerIdx);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(3, count($game->activeDieArrayArray[0]));
+        $this->assertEquals(4, count($game->activeDieArrayArray[1]));
+        $this->assertEquals(1, count($game->capturedDieArrayArray[0]));
+        $this->assertEquals(2, count($game->capturedDieArrayArray[1]));
+        $this->assertEquals(8, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(5, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(10, $game->capturedDieArrayArray[1][0]->max);
+        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+        $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->max);
+        $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->value);
 
         // round 1, turn 4
         // player 1: [12 20 19] showing [10 15 16], captured [8]
         // player 2: [4 6 4 4] showing [2 1 3 2], captured [10 8]
         // player 2 takes player 1's d19 with a skill attack
         // artificially set value of rolled dice
-//        $dieArrayArray[1][1]->value = 1;
-//        $dieArrayArray[1][2]->value = 3;
-//        $dieArrayArray[1][3]->value = 2;
-//        $game->attack = array(1,        // attackerPlayerIdx
-//                              0,        // defenderPlayerIdx
-//                              array(), // attackerAttackDieIdxArray
-//                              array(), // defenderAttackDieIdxArray
-//                              'pass'); // attackType
+        $dieArrayArray[1][1]->value = 1;
+        $dieArrayArray[1][2]->value = 3;
+        $dieArrayArray[1][3]->value = 2;
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(), // attackerAttackDieIdxArray
+                              array(), // defenderAttackDieIdxArray
+                              'pass'); // attackType
 
         // perform end of round scoring
 

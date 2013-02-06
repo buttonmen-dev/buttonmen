@@ -315,9 +315,6 @@ class BMGame {
                 // perform attack
                 $attack = BMAttack::get_instance($this->attack['attackType']);
 
-                // james: skill attacks need the hit_table to be refreshed at some stage
-//              $attack->make_hit_table();
-
                 $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
                 $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
                 $attackerAttackDieArray = array();
@@ -331,6 +328,14 @@ class BMGame {
                     $defenderAttackDieArray[] =
                         $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
                                                   [$defenderAttackDieIdx];
+                }
+
+                foreach ($attackerAttackDieArray as $attackDie) {
+                    $attack->add_die($attackDie);
+                }
+
+                if (!($attack->find_attack($this))) {
+                    throw new LogicException('No valid attack found.');
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);

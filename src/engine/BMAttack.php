@@ -356,6 +356,8 @@ class BMAttackSkill extends BMAttack {
             $this->hit_table = new BMHitTable($this->validDice);
         }
 
+        var_dump('defenders');
+        var_dump($game->defenderAllDieArray);
         $targets = $game->defenderAllDieArray;
 
         if (count($targets) < 1) { return FALSE; }
@@ -412,7 +414,7 @@ class BMAttackSkill extends BMAttack {
             }
             $j--; $i++;
         }
-            
+
         return FALSE;
     }
 
@@ -437,12 +439,12 @@ class BMAttackSkill extends BMAttack {
         if ($combos) {
             foreach ($combos as $c) {
                 if (count($c) == count($attackers) &&
-                    count(array_uintersect($c, $attackers, $cmp)) == 
+                    count(array_uintersect($c, $attackers, $cmp)) ==
                     count($c)) {
                     return TRUE;
                 }
             }
-        } 
+        }
 
         // assisted attacks
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
