@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <title>JSON Testing</title>
+    </head>
+    <body>
+        <p><button id="fetch">Fetch JSON info!</button><br />
+        <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea></p>
+        <p><strong>Name:</strong> <span id="rs_name">??</span></p>
+
+
+        <script src="jquery-1.9.0.min.js">
+        </script>
+        <script>
+            $(document).ready(function() {
+                $('#fetch').click(function(e) {                     // When the button is clicked...
+                    $('#result').html('Fetching...');               // Show that we're doing a network fetch
+                    jQuery.ajax({                                   // Do a jQuery AJAX fetch
+                        url: 'json_test_emitter.php',               // Returns a content-type of "application/json" so jQuery knows its a JSON object
+                        success: function(rs, status, xhr) {
+                            console.log(rs);                        // Debug; show that this is indeed a javascript object, and not just a string
+                            $rs = $('#result');
+                            if (rs.status == 'ok') {
+                                $rs.html("JSON fetch succeeded!\nThe data of the result is:\n"+
+                                         JSON.stringify(rs.data));  // Show the result
+                                $('#rs_name').html(rs.data.name);   // Grab a specific data element from the result
+                            } else {
+                                $rs.html("JSON fetch failed\n"+
+                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
