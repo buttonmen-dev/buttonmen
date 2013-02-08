@@ -6,6 +6,12 @@ require_once 'BMDie.php';
  * BMButton: instantiated button as existing at the beginning of a round
  *
  * @author james
+ *
+ * @property      string $name        Name of button
+ * @property      string $recipe      String representation of the button recipe
+ * @property-read array  $dieArray    Array of BMDie
+ * @property      BMGame $ownerObject BMGame that owns the BMButton
+ * $property      BMGame $playerIdx   BMGame index of the player that owns the BMButton
  */
 class BMButton {
     // properties

@@ -412,7 +412,7 @@ class BMAttackSkill extends BMAttack {
             }
             $j--; $i++;
         }
-            
+
         return FALSE;
     }
 
@@ -437,12 +437,12 @@ class BMAttackSkill extends BMAttack {
         if ($combos) {
             foreach ($combos as $c) {
                 if (count($c) == count($attackers) &&
-                    count(array_uintersect($c, $attackers, $cmp)) == 
+                    count(array_uintersect($c, $attackers, $cmp)) ==
                     count($c)) {
                     return TRUE;
                 }
             }
-        } 
+        }
 
         // assisted attacks
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
@@ -512,7 +512,12 @@ class BMAttackPass extends BMAttack {
     public $type = "Pass";
 
     public function find_attack($game) {
+        return $this->validate_attack($game, $this->validDice,
+                                      $game->defenderAttackDieArray);
+    }
 
+    public function validate_attack($game, $attackers, $defenders) {
+        return (empty($attackers) && empty($defenders));
     }
 }
 
