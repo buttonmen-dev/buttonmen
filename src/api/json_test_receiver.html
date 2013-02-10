@@ -16,6 +16,7 @@
         <img src="images/d6-1.png">
         <img src="images/d6-1.png">
         <img src="images/d6-1.png">
+        <p><button id="submit">Submit</button><br />
 
 <!--
 james: eventually, we will want to use the hosted version of the JQuery library
@@ -29,7 +30,7 @@ james: eventually, we will want to use the hosted version of the JQuery library
                     $(this).toggleClass('selected');
                 });
 
-                $('#fetch').click(function(e) {                     // When the button is clicked...
+                $('#fetch').click(function() {                      // When the button is clicked...
                     $('#result').html('Fetching...');               // Show that we're doing a network fetch
                     jQuery.ajax({                                   // Do a jQuery AJAX fetch
                         url: 'json_test_emitter.php',               // Returns a content-type of "application/json" so jQuery knows its a JSON object
@@ -46,6 +47,10 @@ james: eventually, we will want to use the hosted version of the JQuery library
                             }
                         }
                     });
+                });
+
+                $('#submit').click(function() {
+                    $("img.selected").hide();
                 });
             });
         </script>
