@@ -3,17 +3,32 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=utf-8">
         <title>JSON Testing</title>
+        <style type="text/css">
+            .selected { border-style:solid; border-color:red; }
+        </style>
     </head>
     <body>
         <p><button id="fetch">Fetch JSON info!</button><br />
         <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea></p>
         <p><strong>Name:</strong> <span id="rs_name">??</span></p>
 
+        <img src="images/d6-1.png">
+        <img src="images/d6-1.png">
+        <img src="images/d6-1.png">
+        <img src="images/d6-1.png">
 
-        <script src="jquery-1.9.0.min.js">
-        </script>
+<!--
+james: eventually, we will want to use the hosted version of the JQuery library
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+-->
+        <script src="jquery-1.9.0.min.js"></script>
         <script>
+
             $(document).ready(function() {
+                $('img').click(function(){
+                    $(this).toggleClass('selected');
+                });
+
                 $('#fetch').click(function(e) {                     // When the button is clicked...
                     $('#result').html('Fetching...');               // Show that we're doing a network fetch
                     jQuery.ajax({                                   // Do a jQuery AJAX fetch
