@@ -12,10 +12,10 @@
         <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea></p>
         <p><strong>Name:</strong> <span id="rs_name">??</span></p>
 
-        <img src="images/d6-1.png">
-        <img src="images/d6-1.png">
-        <img src="images/d6-1.png">
-        <img src="images/d6-1.png">
+        <img src="images/d6-1.png" alt="die image" width="50" id="playerIdx_0_dieIdx_0">
+        <img src="images/d6-2.png" alt="die image" width="50" id="playerIdx_0_dieIdx_1">
+        <img src="images/d6-3.png" alt="die image" width="50" id="playerIdx_1_dieIdx_0">
+        <img src="images/d6-4.png" alt="die image" width="50" id="playerIdx_1_dieIdx_1">
         <p><button id="submit">Submit</button><br />
 
 <!--
@@ -50,7 +50,11 @@ james: eventually, we will want to use the hosted version of the JQuery library
                 });
 
                 $('#submit').click(function() {
-                    $("img.selected").hide();
+                    var dieText = '';
+                    $("img.selected").each(function(index, element) {
+                        dieText = dieText + $(element).attr('id') + '\n';
+                    })
+                    $('#result').html(dieText);
                 });
             });
         </script>
