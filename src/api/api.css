@@ -1,0 +1,20 @@
+/*
+    Document   : api.css
+    Created on : Feb 13, 2013, 11:52:30 PM
+    Author     : james
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+.selected {
+    border: 2px solid red;
+}
+
+.die_img {
+    /*background-image: url("images/d6-5.png");*/
+    background-size: 50px 50px;
+    width:50px;
+    height:50px;
+    color:blue;
+}
+

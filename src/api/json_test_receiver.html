@@ -1,35 +1,42 @@
 <!DOCTYPE html>
-<html>
+<!--
+    This document should be written in polyglot HTML5/XHTML5, and therefore
+    should run when served either as text/html or application/xhtml+xml.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
-        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta charset="utf-8" />
         <title>JSON Testing</title>
-        <style type="text/css">
-            .selected { border-style:solid; border-color:red; }
-        </style>
+        <link rel="stylesheet" href="api.css" />
     </head>
-    <body>
-        <p><button id="fetch">Fetch JSON info!</button><br />
-        <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea></p>
-        <p><strong>Name:</strong> <span id="rs_name">??</span></p>
+    <body> <!-- onload="prepareWebpage"> -->
+        <p>
+            <button id="fetch">Fetch JSON info!</button><br />
+            <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea>
+        </p>
+        <p>
+            <strong>Name:</strong> <span id="rs_name">??</span>
+        </p>
 
-        <img src="images/d6-1.png" alt="die image" width="50" id="playerIdx_0_dieIdx_0">
-        <img src="images/d6-2.png" alt="die image" width="50" id="playerIdx_0_dieIdx_1">
-        <img src="images/d6-3.png" alt="die image" width="50" id="playerIdx_1_dieIdx_0">
-        <img src="images/d6-4.png" alt="die image" width="50" id="playerIdx_1_dieIdx_1">
-        <p><button id="submit">Submit</button><br />
+        <div class="die_img" id="test_div"> <p> hello </p> </div>
+
+        <div align="center" id="div_attack">  </div>
+        <br />
+        <div align="center" id="div_defend">  </div>
+
+        <div align="center">
+            <br />
+            <button id="submit">Submit</button>
+        </div>
 
 <!--
-james: eventually, we will want to use the hosted version of the JQuery library
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    james: eventually, we will want to use the hosted version of the JQuery library
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 -->
         <script src="jquery-1.9.0.min.js"></script>
         <script>
 
             $(document).ready(function() {
-                $('img').click(function(){
-                    $(this).toggleClass('selected');
-                });
-
                 $('#fetch').click(function() {                      // When the button is clicked...
                     $('#result').html('Fetching...');               // Show that we're doing a network fetch
                     jQuery.ajax({                                   // Do a jQuery AJAX fetch
@@ -51,11 +58,31 @@ james: eventually, we will want to use the hosted version of the JQuery library
 
                 $('#submit').click(function() {
                     var dieText = '';
-                    $("img.selected").each(function(index, element) {
+                    $("div.selected").each(function(index, element) {
                         dieText = dieText + $(element).attr('id') + '\n';
                     })
                     $('#result').html(dieText);
                 });
+
+                function addDie(id, parent) {
+                    if (document.createElement){
+                        var die_div=document.createElement("div");
+                        die_div.id=id;
+                        $('#'+parent).append(die_div);
+                        $('#'+id).addClass("die_img");
+                        $('#'+id).css("background-image", "url('images/d6-2.png')");
+                        $('#'+id).text('5');
+                        die_div.onclick=borderToggle;
+                    }
+                }
+
+                function borderToggle() {
+                    $(this).toggleClass('selected');
+                }
+
+                addDie('playerIdx_0_dieIdx_0', "div_attack");
+                addDie('playerIdx_0_dieIdx_1', "div_attack");
+                addDie('playerIdx_1_dieIdx_0', "div_defend");
             });
         </script>
     </body>
