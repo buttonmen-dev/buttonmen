@@ -64,25 +64,25 @@
                     $('#result').html(dieText);
                 });
 
-                function addDie(id, parent) {
+                function addDie(id, rolled_number, parent) {
                     if (document.createElement){
                         var die_div=document.createElement("div");
                         die_div.id=id;
                         $('#'+parent).append(die_div);
-                        $('#'+id).addClass("die_img");
+                        $('#'+id).addClass("die_img unselected");
                         $('#'+id).css("background-image", "url('images/d6-2.png')");
-                        $('#'+id).text('5');
-                        die_div.onclick=borderToggle;
+                        $('#'+id).text(rolled_number);
+                        $('#'+id).click(borderToggle);
                     }
                 }
 
                 function borderToggle() {
-                    $(this).toggleClass('selected');
+                    $(this).toggleClass("selected unselected");
                 }
 
-                addDie('playerIdx_0_dieIdx_0', "div_attack");
-                addDie('playerIdx_0_dieIdx_1', "div_attack");
-                addDie('playerIdx_1_dieIdx_0', "div_defend");
+                addDie('playerIdx_0_dieIdx_0', 5, "div_attack");
+                addDie('playerIdx_0_dieIdx_1', 4, "div_attack");
+                addDie('playerIdx_1_dieIdx_0', 1, "div_defend");
             });
         </script>
     </body>

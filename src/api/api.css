@@ -10,11 +10,17 @@
     border: 2px solid red;
 }
 
+.unselected {
+    border: 2px solid white;
+}
+
 .die_img {
-    /*background-image: url("images/d6-5.png");*/
     background-size: 50px 50px;
     width:50px;
     height:50px;
     color:blue;
+    display:inline-block;
+    margin:4px;
+    /*border: 5px solid white;*/
 }
 
