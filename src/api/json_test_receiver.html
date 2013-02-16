@@ -18,8 +18,6 @@
             <strong>Name:</strong> <span id="rs_name">??</span>
         </p>
 
-        <div class="die_img" id="test_div"> <p> hello </p> </div>
-
         <div align="center" id="div_attack">  </div>
         <br />
         <div align="center" id="div_defend">  </div>
@@ -70,6 +68,8 @@
                         die_div.id=id;
                         $('#'+parent).append(die_div);
                         $('#'+id).addClass("die_img unselected");
+                        // next line could theoretically be put into api.css
+                        // it is here to remind me of the syntax to alter the css directly
                         $('#'+id).css("background-image", "url('images/d6-2.png')");
                         $('#'+id).text(rolled_number);
                         $('#'+id).click(borderToggle);
@@ -80,9 +80,27 @@
                     $(this).toggleClass("selected unselected");
                 }
 
-                addDie('playerIdx_0_dieIdx_0', 5, "div_attack");
-                addDie('playerIdx_0_dieIdx_1', 4, "div_attack");
-                addDie('playerIdx_1_dieIdx_0', 1, "div_defend");
+                var dieAttackValues = new Array(5,4,2,6,8);
+                var dieDefendValues = new Array(1,3);
+
+                var dieAttackIdx;
+                var dieDefendIdx;
+
+                for (dieAttackIdx = 0;
+                     dieAttackIdx < dieAttackValues.length;
+                     dieAttackIdx++) {
+                    addDie('playerIdx_0_dieIdx_' + dieAttackIdx,
+                           dieAttackValues[dieAttackIdx],
+                           "div_attack");
+                }
+
+                for (dieDefendIdx = 0;
+                     dieDefendIdx < dieDefendValues.length;
+                     dieDefendIdx++) {
+                    addDie('playerIdx_1_dieIdx_' + dieDefendIdx,
+                           dieDefendValues[dieDefendIdx],
+                           "div_defend");
+                }
             });
         </script>
     </body>
