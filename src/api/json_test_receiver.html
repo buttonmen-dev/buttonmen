@@ -9,7 +9,7 @@
         <title>JSON Testing</title>
         <link rel="stylesheet" href="api.css" />
     </head>
-    <body> <!-- onload="prepareWebpage"> -->
+    <body>
         <p>
             <button id="fetch">Fetch JSON info!</button><br />
             <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea>
@@ -33,10 +33,23 @@
 -->
         <script src="jquery-1.9.0.min.js"></script>
         <script>
-
             $(document).ready(function() {
-                $('#fetch').click(function() {                      // When the button is clicked...
-                    $('#result').html('Fetching...');               // Show that we're doing a network fetch
+                // functions
+                function addDie(id, rolled_number, parent) {
+                    if (document.createElement){
+                        var die_div=document.createElement("div");
+                        die_div.id=id;
+                        $('#'+parent).append(die_div);
+                        $('#'+id).addClass("die_img unselected");
+                        // next line could theoretically be put into api.css
+                        // it is here to remind me of the syntax to alter the css directly
+                        $('#'+id).css("background-image", "url('images/d6-2.png')");
+                        $('#'+id).text(rolled_number);
+                        $('#'+id).click(borderToggle);
+                    }
+                }
+
+                function ajaxTest() {
                     jQuery.ajax({                                   // Do a jQuery AJAX fetch
                         url: 'json_test_emitter.php',               // Returns a content-type of "application/json" so jQuery knows its a JSON object
                         success: function(rs, status, xhr) {
@@ -52,6 +65,42 @@
                             }
                         }
                     });
+                }
+
+                function borderToggle() {
+                    $(this).toggleClass("selected unselected");
+                }
+
+                function displayDice() {
+                    var dieAttackIdx;
+                    var dieDefendIdx;
+
+                    for (dieAttackIdx = 0;
+                         dieAttackIdx < dieAttackValues.length;
+                         dieAttackIdx++) {
+                        addDie('playerIdx_0_dieIdx_' + dieAttackIdx,
+                               dieAttackValues[dieAttackIdx],
+                               "div_attack");
+                    }
+
+                    for (dieDefendIdx = 0;
+                         dieDefendIdx < dieDefendValues.length;
+                         dieDefendIdx++) {
+                        addDie('playerIdx_1_dieIdx_' + dieDefendIdx,
+                               dieDefendValues[dieDefendIdx],
+                               "div_defend");
+                    }
+                }
+
+                function loadGameInfo() {
+                    dieAttackValues = new Array(5,4,2,6,9);
+                    dieDefendValues = new Array(1,3);
+                }
+
+                // on-click behaviour
+                $('#fetch').click(function() {                      // When the button is clicked...
+                    $('#result').html('Fetching...');               // Show that we're doing a network fetch
+                    ajaxTest();
                 });
 
                 $('#submit').click(function() {
@@ -62,45 +111,12 @@
                     $('#result').html(dieText);
                 });
 
-                function addDie(id, rolled_number, parent) {
-                    if (document.createElement){
-                        var die_div=document.createElement("div");
-                        die_div.id=id;
-                        $('#'+parent).append(die_div);
-                        $('#'+id).addClass("die_img unselected");
-                        // next line could theoretically be put into api.css
-                        // it is here to remind me of the syntax to alter the css directly
-                        $('#'+id).css("background-image", "url('images/d6-2.png')");
-                        $('#'+id).text(rolled_number);
-                        $('#'+id).click(borderToggle);
-                    }
-                }
+                // code to run when page is ready
+                var dieAttackValues;
+                var dieDefendValues;
 
-                function borderToggle() {
-                    $(this).toggleClass("selected unselected");
-                }
-
-                var dieAttackValues = new Array(5,4,2,6,8);
-                var dieDefendValues = new Array(1,3);
-
-                var dieAttackIdx;
-                var dieDefendIdx;
-
-                for (dieAttackIdx = 0;
-                     dieAttackIdx < dieAttackValues.length;
-                     dieAttackIdx++) {
-                    addDie('playerIdx_0_dieIdx_' + dieAttackIdx,
-                           dieAttackValues[dieAttackIdx],
-                           "div_attack");
-                }
-
-                for (dieDefendIdx = 0;
-                     dieDefendIdx < dieDefendValues.length;
-                     dieDefendIdx++) {
-                    addDie('playerIdx_1_dieIdx_' + dieDefendIdx,
-                           dieDefendValues[dieDefendIdx],
-                           "div_defend");
-                }
+                loadGameInfo();
+                displayDice();
             });
         </script>
     </body>
