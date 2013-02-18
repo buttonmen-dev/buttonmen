@@ -108,7 +108,13 @@
                     $("div.selected").each(function(index, element) {
                         dieText = dieText + $(element).attr('id') + '\n';
                     })
-                    $('#result').html(dieText);
+                    $.post('json_test_button_info.php',
+                           {
+                               selectedDice: dieText
+                           },
+                           function(data, status){
+                               $('#result').html(data);
+                           });
                 });
 
                 // code to run when page is ready
