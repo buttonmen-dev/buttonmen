@@ -51,7 +51,8 @@
 
                 function ajaxTest() {
                     jQuery.ajax({                                   // Do a jQuery AJAX fetch
-                        url: 'json_test_emitter.php',               // Returns a content-type of "application/json" so jQuery knows its a JSON object
+//                        url: 'json_test_emitter.php',               // Returns a content-type of "application/json" so jQuery knows its a JSON object
+                        url: 'json_test_initial_load_data.php',
                         success: function(rs, status, xhr) {
                             console.log(rs);                        // Debug; show that this is indeed a javascript object, and not just a string
                             $rs = $('#result');
