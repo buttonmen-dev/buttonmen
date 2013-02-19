@@ -40,7 +40,7 @@ require_once 'BMAttack.php';
  * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
  *
  */
-class BMGame {
+class BMGame implements JsonSerializable {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters
     private $gameId;                // game ID number in the database
@@ -56,7 +56,7 @@ class BMGame {
                                     //       'defenderAttackDieIdxArray',
                                     //       'attackType')
     private $attackerPlayerIdx;     // index in playerIdxArray of the attacker
-    private $defenderPlayerIdx;     // index in playerIdxArary of the defender
+    private $defenderPlayerIdx;     // index in playerIdxArray of the defender
     private $attackerAllDieArray;   // array of all attacker's dice
     private $defenderAllDieArray;   // array of all defender's dice
     private $attackerAttackDieArray; // array of attacker's dice used in attack
@@ -1014,6 +1014,14 @@ class BMGame {
         } else {
             return FALSE;
         }
+    }
+
+    public function jsonSerialize() {
+        $dataArray = array('name' => 'Morgan',
+                           'playerIdArray' => $this->playerIdArray,
+                           'nDice' => array_map('count', $this->activeDieArrayArray));
+
+        return array('status' => 'ok', 'data' => $dataArray);
     }
 }
 

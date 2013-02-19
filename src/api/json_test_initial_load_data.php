@@ -20,11 +20,8 @@ $game->proceed_to_next_user_action();
 $game->swingValueArrayArray = array(array('X'=>19), array('X'=>4));
 $game->proceed_to_next_user_action();
 
-$gameDataJson = json_encode(array('status' => 'ok',
-                                  'data' => array('name' => 'Morgan',
-                                                  'playerId' => $game->playerIdArray)));
+$gameDataJson = json_encode($game);
 
 header('Content-Type: application/json');
-//echo json_encode(array('status' => 'ok', 'data' => array('name' => 'Morgan')));
 echo $gameDataJson;
 ?>
