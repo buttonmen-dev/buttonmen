@@ -34,6 +34,10 @@
         <script src="jquery-1.9.0.min.js"></script>
         <script>
             $(document).ready(function() {
+                // global variables
+                var dieAttackValues;
+                var dieDefendValues;
+
                 // functions
                 function addDie(id, rolled_number, parent) {
                     if (document.createElement){
@@ -94,8 +98,24 @@
                 }
 
                 function loadGameInfo() {
-                    dieAttackValues = new Array(5,4,2,6,9);
-                    dieDefendValues = new Array(1,3);
+//                    dieAttackValues = new Array(5,4,2,6,9);
+//                    dieDefendValues = new Array(1,3);
+                    jQuery.ajax({                                   // Do a jQuery AJAX fetch
+                        url: 'json_test_initial_load_data.php',
+                        success: function(rs, status, xhr) {
+                            $rs = $('#result');
+                            if (rs.status == 'ok') {
+                                dieAttackValues = array(2,3,5);
+                                dieDefendValues = array(4,1);
+//                            }
+//                                dieAttackValues = rs.data.valueArrayArray[0];
+//                                dieDefendValues = rs.data.valueArrayArray[1];
+                            } else {
+                                $rs.html("JSON fetch failed\n"+
+                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                            }
+                        }
+                    });
                 }
 
                 // on-click behaviour
@@ -119,9 +139,6 @@
                 });
 
                 // code to run when page is ready
-                var dieAttackValues;
-                var dieDefendValues;
-
                 loadGameInfo();
                 displayDice();
             });

@@ -2,6 +2,7 @@
 
 require_once 'BMButton.php';
 require_once 'BMAttack.php';
+require_once 'BMDie.php';
 
 /**
  * BMGame: current status of a game
@@ -216,10 +217,24 @@ class BMGame implements JsonSerializable {
                                     $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
                                     $this->swingValueArrayArray[$playerIdx] = array();
                                     $this->waitingOnActionArray[$playerIdx] = TRUE;
-                                    break;
+                                    break 3;
                                 }
                             }
                         }
+                    }
+                }
+
+                // roll dice
+                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => $die) {
+                        if ($die instanceof BMSwingDie) {
+                            if ($die->needsValue) {
+                                // swing value has not yet been set
+                                continue;
+                            }
+                        }
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                            $die->make_play_die(FALSE);
                     }
                 }
 
@@ -1017,9 +1032,27 @@ class BMGame implements JsonSerializable {
     }
 
     public function jsonSerialize() {
-        $dataArray = array('name' => 'Morgan',
-                           'playerIdArray' => $this->playerIdArray,
-                           'nDice' => array_map('count', $this->activeDieArrayArray));
+        foreach ($this->buttonArray as $button) {
+            $buttonNameArray[] = $button->name;
+        }
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            $valueArrayArray[] = array();
+            $sidesArrayArray[] = array();
+            foreach ($activeDieArray as $die) {
+                $valueArrayArray[$playerIdx][] = $die->value;
+                $sidesArrayArray[$playerIdx][] = $die->max;
+            }
+        }
+
+        $dataArray =
+            array('activePlayerIdx'         => $this->activePlayerIdx,
+                  'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
+                  'playerIdArray'           => $this->playerIdArray,
+                  'buttonNameArray'         => $buttonNameArray,
+                  'nDieArray'               => array_map('count', $this->activeDieArrayArray),
+                  'valueArrayArray'         => $valueArrayArray,
+                  'sidesArrayArray'         => $sidesArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
