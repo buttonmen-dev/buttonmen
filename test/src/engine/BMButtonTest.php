@@ -50,8 +50,8 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $dieSides = array(4, 8, 20, 20);
         for ($dieIdx = 0; $dieIdx <= (count($dieSides) - 1); $dieIdx++) {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
-          $this->assertEquals($dieSides[$dieIdx],
-                              $this->object->dieArray[$dieIdx]->max);
+          $this->assertTrue($dieSides[$dieIdx] ===
+                            $this->object->dieArray[$dieIdx]->max);
         }
 
         $recipe = '(6) (10) (12)';
