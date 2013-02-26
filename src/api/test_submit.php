@@ -18,18 +18,19 @@
         return;
     }
 
-    // determine attacker and defender indices, using the first and last die
-    // selected by the user
-    $attackerIdx = $stringArray[0];
-    $defenderIdx = $stringArray[$arrayLength - 2];
+    // determine attacker and defender indices from POST
+    $attackerIdx = $_POST['attackerIdx'];
+    $defenderIdx = $_POST['defenderIdx'];
+    $attackers = array();
+    $defenders = array();
 
     // divide selected dice up into attackers and defenders
     $arrayIdx = 0;
     while ($arrayIdx < $arrayLength) {
-        if ($attackerIdx === $stringArray[$arrayIdx]) {
+        if ($attackerIdx == $stringArray[$arrayIdx]) {
             $arrayIdx++;
             $attackers[] = $game->activeDieArrayArray[$attackerIdx][$stringArray[$arrayIdx]];
-        } elseif ($defenderIdx === $stringArray[$arrayIdx]) {
+        } elseif ($defenderIdx == $stringArray[$arrayIdx]) {
             $arrayIdx++;
             $defenders[] = $game->activeDieArrayArray[$defenderIdx][$stringArray[$arrayIdx]];
         } else {
@@ -40,8 +41,18 @@
     }
 
     // validate attack
-    $attack = BMAttackPower::get_instance();
-    $success = $attack->validate_attack($game, $attackers, $defenders);
+    $success = FALSE;
+    $attackArray = array(BMAttackPass::get_instance(),
+                         BMAttackPower::get_instance()
+//                         BMAttackSkill::get_instance()
+        );
+    foreach ($attackArray as $attack) {
+        $success = $attack->validate_attack($game, $attackers, $defenders);
+        if ($success) {
+            break;
+        }
+    }
+
 
     // output the result of the attack
     if ($success) {

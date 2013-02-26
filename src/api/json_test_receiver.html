@@ -149,20 +149,22 @@
                     $("div.selected").each(function(index, element) {
                         dieText = dieText + $(element).attr('id') + ' ';
                     })
-                    $.post('json_test_button_info.php',
-                           {
-                               selectedDice: dieText
-                           },
-                           function(data, status){
-                               $('#result').html(data);
-                           });
-//                    $.post('test_submit.php',
-//                               {
-//                                   selectedDice: dieText
-//                               },
-//                               function(data, status){
-//                                   $('#result').html(data);
-//                               });
+//                    $.post('json_test_button_info.php',
+//                           {
+//                               selectedDice: dieText
+//                           },
+//                           function(data, status){
+//                               $('#result').html(data);
+//                           });
+                    $.post('test_submit.php',
+                               {
+                                   attackerIdx: attackerIdx,
+                                   defenderIdx: defenderIdx,
+                                   selectedDice: dieText
+                               },
+                               function(data, status){
+                                   $('#result').html(data);
+                               });
                 });
 
                 // code to run when page is ready
