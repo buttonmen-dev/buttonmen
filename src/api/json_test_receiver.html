@@ -10,28 +10,40 @@
         <link rel="stylesheet" href="api.css" />
     </head>
     <body>
-        <div align="center" id="div_attacker_id">
+        <div>
+            Game #<span id="game_id">??</span>
+        </div>
+        <br />
+        <!-- attacker dice -->
+        <div>
             Player #<span id="attacker_id">??</span>
         </div>
-        <div align="center" id="div_attack">  </div>
+        <div>
+            Button: <span id="attacker_button">??</span>
+        </div>
+        <div id="div_attack">  </div>
         <br />
-        <div align="center" id="div_defend">  </div>
-        <div align="center" id="div_defender_id">
+        <!-- defender dice -->
+        <div id="div_defend">  </div>
+        <div>
+            Button: <span id="defender_button">??</span>
+        </div>
+        <div>
             Player #<span id="defender_id">??</span>
         </div>
 
-        <div align="center">
+        <div >
             <br />
             <button id="submit">Submit</button>
         </div>
 
-        <p>
+<!--        <p>
             <button id="fetch">Fetch JSON info!</button><br />
             <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea>
         </p>
         <p>
             <strong>Name:</strong> <span id="rs_name">??</span>
-        </p>
+        </p>-->
 <!--        <p>
             <textarea id="debug_result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Debug...</textarea>
         </p>-->
@@ -68,22 +80,22 @@
                     }
                 }
 
-                function fetchGameInfo() {
-                    jQuery.ajax({                                   // Do a jQuery AJAX fetch
-                        url: 'json_test_initial_load_data.php',
-                        success: function(rs, status, xhr) {
-                            console.log(rs);                        // Debug; show that this is indeed a javascript object, and not just a string
-                            if (rs.status == 'ok') {
-                                $res.html("JSON fetch succeeded!\nThe data of the result is:\n"+
-                                         JSON.stringify(rs.data));  // Show the result
-                                $('#rs_name').html(rs.data.name);   // Grab a specific data element from the result
-                            } else {
-                                $res.html("JSON fetch failed\n"+
-                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-                            }
-                        }
-                    });
-                }
+//                function fetchGameInfo() {
+//                    jQuery.ajax({                                   // Do a jQuery AJAX fetch
+//                        url: 'json_test_initial_load_data.php',
+//                        success: function(rs, status, xhr) {
+//                            console.log(rs);                        // Debug; show that this is indeed a javascript object, and not just a string
+//                            if (rs.status == 'ok') {
+//                                $res.html("JSON fetch succeeded!\nThe data of the result is:\n"+
+//                                         JSON.stringify(rs.data));  // Show the result
+//                                $('#rs_name').html(rs.data.name);   // Grab a specific data element from the result
+//                            } else {
+//                                $res.html("JSON fetch failed\n"+
+//                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+//                            }
+//                        }
+//                    });
+//                }
 
                 function borderToggle() {
                     $(this).toggleClass("selected unselected");
@@ -128,6 +140,9 @@
                                 dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
                                 $('#attacker_id').html(rs.data.playerIdArray[attackerIdx]);
                                 $('#defender_id').html(rs.data.playerIdArray[defenderIdx]);
+                                $('#attacker_button').html(rs.data.buttonNameArray[attackerIdx]);
+                                $('#defender_button').html(rs.data.buttonNameArray[defenderIdx]);
+                                $('#game_id').html(rs.data.gameId);
                                 displayDice();
                             } else {
                                 $rs.html("JSON fetch failed\n"+

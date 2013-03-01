@@ -6,6 +6,10 @@
         Purpose of the stylesheet follows.
 */
 
+div {
+    text-align: center;
+}
+
 .selected {
     border: 2px solid red;
 }

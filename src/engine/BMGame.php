@@ -1046,7 +1046,8 @@ class BMGame implements JsonSerializable {
         }
 
         $dataArray =
-            array('activePlayerIdx'         => $this->activePlayerIdx,
+            array('gameId'                  => $this->gameId,
+                  'activePlayerIdx'         => $this->activePlayerIdx,
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
                   'playerIdArray'           => $this->playerIdArray,
                   'buttonNameArray'         => $buttonNameArray,
