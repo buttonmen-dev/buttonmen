@@ -349,8 +349,20 @@ class BMGame implements JsonSerializable {
                     $attack->add_die($attackDie);
                 }
 
-                if (!($attack->find_attack($this))) {
-                    throw new LogicException('No valid attack found.');
+                $possible = $attack->find_attack($this);
+                if ($possible) {
+                    $valid = $attack->validate_attack($this,
+                                                      $attackerAttackDieArray,
+                                                      $defenderAttackDieArray);
+                } else {
+                    $valid = FALSE;
+                }
+
+                if (!$valid) {
+                    $this->activate_GUI('Invalid attack');
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+                    $this->attack = NULL;
+                    return;
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);

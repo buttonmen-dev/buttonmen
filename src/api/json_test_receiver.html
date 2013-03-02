@@ -4,187 +4,147 @@
     should run when served either as text/html or application/xhtml+xml.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <title>JSON Testing</title>
-        <link rel="stylesheet" href="api.css" />
-    </head>
-    <body>
-        <div>
-            Game #<span id="game_id">??</span>
-        </div>
-        <br />
-        <!-- attacker dice -->
-        <div>
-            Player #<span id="attacker_id">??</span>
-        </div>
-        <div>
-            Button: <span id="attacker_button">??</span>
-        </div>
-        <div id="div_attack">  </div>
-        <br />
-        <!-- defender dice -->
-        <div id="div_defend">  </div>
-        <div>
-            Button: <span id="defender_button">??</span>
-        </div>
-        <div>
-            Player #<span id="defender_id">??</span>
-        </div>
+<head>
 
-        <div >
-            <br />
-            <button id="submit">Submit</button>
-        </div>
+<meta charset="utf-8" />
+<title>JSON Testing</title>
+<link rel="stylesheet" href="api.css" />
 
-<!--        <p>
-            <button id="fetch">Fetch JSON info!</button><br />
-            <textarea id="result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Waiting...</textarea>
-        </p>
-        <p>
-            <strong>Name:</strong> <span id="rs_name">??</span>
-        </p>-->
-<!--        <p>
-            <textarea id="debug_result" style="width:500px; height:300px; font-size:10pt; font-family: Courier New, monospace">Debug...</textarea>
-        </p>-->
+</head>
+
+<body>
+<div>Game #<span id="game_id">?</span></div>
+<br />
+<!-- attacker dice -->
+<div>Player #<span id="attacker_id">?</span></div>
+<div>Button: <span id="attacker_button">?</span></div>
+<div id="div_attack"></div>
+<br />
+<!-- defender dice -->
+<div id="div_defend"></div>
+<div>Button: <span id="defender_button">??</span></div>
+<div>Player #<span id="defender_id">??</span></div>
+<br />
+<div ><button id="submit">Submit</button></div>
+<br />
+<div><span id="submit_status"></span></div>
 
 <!--
-    james: eventually, we will want to use the hosted version of the JQuery library
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+james: eventually, we will want to use the hosted version of the JQuery library
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
 -->
-        <script src="jquery-1.9.0.min.js"></script>
-        <script>
-            $(document).ready(function() {
-                // global variables
-                var attackerIdx;
-                var defenderIdx;
-                var dieAttackValues;
-                var dieDefendValues;
-                var dieAttackSides;
-                var dieDefendSides;
+<script src="jquery-1.9.0.min.js"></script>
+<script>
 
-                var $res = $('#result');
+$(document).ready(function() {
+    // global variables
+    var attackerIdx;
+    var defenderIdx;
+    var dieAttackValues;
+    var dieDefendValues;
+    var dieAttackSides;
+    var dieDefendSides;
 
-                // functions
-                function addDie(id, rolled_number, nSides, parent) {
-                    if (document.createElement){
-                        var die_div=document.createElement("div");
-                        die_div.id=id;
-                        $('#'+parent).append(die_div);
-                        $('#'+id).addClass("die_img unselected");
-                        // next line could theoretically be put into api.css
-                        // it is here to remind me of the syntax to alter the css directly
-                        $('#'+id).css("background-image", "url('images/d6-2.png')");
-                        $('#'+id).text(rolled_number + '\nd' + nSides);
-                        $('#'+id).click(borderToggle);
-                    }
+    var $res = $('#result');
+
+    // functions
+    function addDie(id, rolled_number, nSides, parent) {
+        if (document.createElement){
+            var die_div=document.createElement("div");
+            die_div.id=id;
+            $('#'+parent).append(die_div);
+            $('#'+id).addClass("die_img unselected");
+            // next line could theoretically be put into api.css
+            // it is here to remind me of the syntax to alter the css directly
+            $('#'+id).css("background-image", "url('images/d6-2.png')");
+            $('#'+id).text(rolled_number + '\nd' + nSides);
+            $('#'+id).click(borderToggle);
+        }
+    }
+
+    function borderToggle() {
+        $(this).toggleClass("selected unselected");
+    }
+
+    function displayDice() {
+        var dieAttackIdx;
+        var dieDefendIdx;
+
+        for (dieAttackIdx = 0;
+             dieAttackIdx < dieAttackValues.length;
+             dieAttackIdx++) {
+            addDie('playerIdx_' + attackerIdx +
+                   '_dieIdx_' + dieAttackIdx,
+                   dieAttackValues[dieAttackIdx],
+                   dieAttackSides[dieAttackIdx],
+                   "div_attack");
+        }
+
+        for (dieDefendIdx = 0;
+             dieDefendIdx < dieDefendValues.length;
+             dieDefendIdx++) {
+            addDie('playerIdx_' + defenderIdx +
+                   '_dieIdx_' + dieDefendIdx,
+                   dieDefendValues[dieDefendIdx],
+                   dieDefendSides[dieDefendIdx],
+                   "div_defend");
+        }
+    }
+
+    function loadGameInfo() {
+        jQuery.ajax({                                   // Do a jQuery AJAX fetch
+            url: 'json_test_initial_load_data.php',
+            success: function(rs, status, xhr) {
+                var $rs = $('#result');
+                if (rs.status == 'ok') {
+                    attackerIdx = rs.data.activePlayerIdx;
+                    defenderIdx = (rs.data.activePlayerIdx + 1)%2;
+                    dieAttackValues = rs.data.valueArrayArray[attackerIdx];
+                    dieDefendValues = rs.data.valueArrayArray[defenderIdx];
+                    dieAttackSides  = rs.data.sidesArrayArray[attackerIdx];
+                    dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
+                    $('#attacker_id').html(rs.data.playerIdArray[attackerIdx]);
+                    $('#defender_id').html(rs.data.playerIdArray[defenderIdx]);
+                    $('#attacker_button').html(rs.data.buttonNameArray[attackerIdx]);
+                    $('#defender_button').html(rs.data.buttonNameArray[defenderIdx]);
+                    $('#game_id').html(rs.data.gameId);
+                    displayDice();
+                } else {
+                    $rs.html("JSON fetch failed\n"+
+                             JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
                 }
+            }
+        });
+    }
 
-//                function fetchGameInfo() {
-//                    jQuery.ajax({                                   // Do a jQuery AJAX fetch
-//                        url: 'json_test_initial_load_data.php',
-//                        success: function(rs, status, xhr) {
-//                            console.log(rs);                        // Debug; show that this is indeed a javascript object, and not just a string
-//                            if (rs.status == 'ok') {
-//                                $res.html("JSON fetch succeeded!\nThe data of the result is:\n"+
-//                                         JSON.stringify(rs.data));  // Show the result
-//                                $('#rs_name').html(rs.data.name);   // Grab a specific data element from the result
-//                            } else {
-//                                $res.html("JSON fetch failed\n"+
-//                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-//                            }
-//                        }
-//                    });
-//                }
+    // on-click behaviour
+    $('#fetch').click(function() {                      // When the button is clicked...
+        $('#result').html('Fetching...');               // Show that we're doing a network fetch
+        fetchGameInfo();
+    });
 
-                function borderToggle() {
-                    $(this).toggleClass("selected unselected");
-                }
+    $('#submit').click(function() {
+        var dieText = '';
+        $res.html('test1');
+        $("div.selected").each(function(index, element) {
+            dieText = dieText + $(element).attr('id') + ' ';
+        })
+        $.post('test_submit.php',
+                   {
+                       attackerIdx: attackerIdx,
+                       defenderIdx: defenderIdx,
+                       selectedDice: dieText
+                   },
+                   function(data, status){
+                       $('#submit_status').html(data);
+                   });
+    });
 
-                function displayDice() {
-                    var dieAttackIdx;
-                    var dieDefendIdx;
+    // code to run when page is ready
+    loadGameInfo();
+});
 
-                    for (dieAttackIdx = 0;
-                         dieAttackIdx < dieAttackValues.length;
-                         dieAttackIdx++) {
-                        addDie('playerIdx_' + attackerIdx +
-                               '_dieIdx_' + dieAttackIdx,
-                               dieAttackValues[dieAttackIdx],
-                               dieAttackSides[dieAttackIdx],
-                               "div_attack");
-                    }
+</script>
 
-                    for (dieDefendIdx = 0;
-                         dieDefendIdx < dieDefendValues.length;
-                         dieDefendIdx++) {
-                        addDie('playerIdx_' + defenderIdx +
-                               '_dieIdx_' + dieDefendIdx,
-                               dieDefendValues[dieDefendIdx],
-                               dieDefendSides[dieDefendIdx],
-                               "div_defend");
-                    }
-                }
-
-                function loadGameInfo() {
-                    jQuery.ajax({                                   // Do a jQuery AJAX fetch
-                        url: 'json_test_initial_load_data.php',
-                        success: function(rs, status, xhr) {
-                            var $rs = $('#result');
-                            if (rs.status == 'ok') {
-                                attackerIdx = rs.data.activePlayerIdx;
-                                defenderIdx = (rs.data.activePlayerIdx + 1)%2;
-                                dieAttackValues = rs.data.valueArrayArray[attackerIdx];
-                                dieDefendValues = rs.data.valueArrayArray[defenderIdx];
-                                dieAttackSides  = rs.data.sidesArrayArray[attackerIdx];
-                                dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
-                                $('#attacker_id').html(rs.data.playerIdArray[attackerIdx]);
-                                $('#defender_id').html(rs.data.playerIdArray[defenderIdx]);
-                                $('#attacker_button').html(rs.data.buttonNameArray[attackerIdx]);
-                                $('#defender_button').html(rs.data.buttonNameArray[defenderIdx]);
-                                $('#game_id').html(rs.data.gameId);
-                                displayDice();
-                            } else {
-                                $rs.html("JSON fetch failed\n"+
-                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-                            }
-                        }
-                    });
-                }
-
-                // on-click behaviour
-                $('#fetch').click(function() {                      // When the button is clicked...
-                    $('#result').html('Fetching...');               // Show that we're doing a network fetch
-                    fetchGameInfo();
-                });
-
-                $('#submit').click(function() {
-                    var dieText = '';
-                    $res.html('test1');
-                    $("div.selected").each(function(index, element) {
-                        dieText = dieText + $(element).attr('id') + ' ';
-                    })
-//                    $.post('json_test_button_info.php',
-//                           {
-//                               selectedDice: dieText
-//                           },
-//                           function(data, status){
-//                               $('#result').html(data);
-//                           });
-                    $.post('test_submit.php',
-                               {
-                                   attackerIdx: attackerIdx,
-                                   defenderIdx: defenderIdx,
-                                   selectedDice: dieText
-                               },
-                               function(data, status){
-                                   $('#result').html(data);
-                               });
-                });
-
-                // code to run when page is ready
-                loadGameInfo();
-            });
-        </script>
-    </body>
+</body>
 </html>
