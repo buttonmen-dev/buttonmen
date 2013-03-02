@@ -28,3 +28,7 @@ div {
     /*border: 5px solid white;*/
 }
 
+.die_overlay {
+    position:relative;
+    top:16px
+}
