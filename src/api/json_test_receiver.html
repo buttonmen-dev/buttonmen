@@ -45,6 +45,8 @@ $(document).ready(function() {
     var dieAttackSides;
     var dieDefendSides;
 
+    var dieSelectStatus = new Object;
+
     var $res = $('#result');
 
     // functions
@@ -65,6 +67,8 @@ $(document).ready(function() {
             $('#'+id+'_span').text(rolled_number + ' d' + nSides);
 
             $('#'+id).click(borderToggle);
+
+            dieSelectStatus[id] = false;
         }
     }
 
@@ -130,16 +134,17 @@ $(document).ready(function() {
     });
 
     $('#submit').click(function() {
-        var dieText = '';
-        $res.html('test1');
+        for (var statusKey in dieSelectStatus) {
+            dieSelectStatus[statusKey] = false;
+        }
         $("div.selected").each(function(index, element) {
-            dieText = dieText + $(element).attr('id') + ' ';
+            dieSelectStatus[$(element).attr('id')] = true;
         })
         $.post('test_submit.php',
                    {
                        attackerIdx: attackerIdx,
                        defenderIdx: defenderIdx,
-                       selectedDice: dieText
+                       dieSelectStatus: JSON.stringify(dieSelectStatus)
                    },
                    function(data, status){
                        $('#submit_status').html(data);

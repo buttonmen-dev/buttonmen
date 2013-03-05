@@ -4,13 +4,14 @@
     require_once '../engine/BMAttack.php';
 
     $game = loadMockGameData();
-    // load POST string, which should be something like:
-    // playerIdx_1_dieIdx_1 playerIdx_0_dieIdx_2
-    $selectedDiceString = $_POST['selectedDice'];
-    // parse string into its component values, which should end up with something like
-    // 1 1 0 2
-    $stringArray = preg_split("/[^[:digit:]]+/", $selectedDiceString, NULL, PREG_SPLIT_NO_EMPTY);
-    $arrayLength = count($stringArray);
+    // load dieSelectStatus, which should contain boolean values of whether each
+    // die is selected, starting with attacker dice and concluding with
+    // defender dice
+    //
+    // note that the object is coerced into an associative array by the second
+    // input parameter in json_decode, and then into an indexed array by
+    // array_values
+    $dieSelectStatus = array_values(json_decode($_POST['dieSelectStatus'], TRUE));
 
     // determine attacker and defender indices from POST
     $attackerIdx = intval($_POST['attackerIdx']);
@@ -21,21 +22,44 @@
     $defenderDieIdx = array();
 
     // divide selected dice up into attackers and defenders
-    $arrayIdx = 0;
-    while ($arrayIdx < $arrayLength) {
-        if ($attackerIdx == $stringArray[$arrayIdx]) {
-            $arrayIdx++;
-            $attackers[] = $game->activeDieArrayArray[$attackerIdx][$stringArray[$arrayIdx]];
-            $attackerDieIdx[] = intval($stringArray[$arrayIdx]);
-        } elseif ($defenderIdx == $stringArray[$arrayIdx]) {
-            $arrayIdx++;
-            $defenders[] = $game->activeDieArrayArray[$defenderIdx][$stringArray[$arrayIdx]];
-            $defenderDieIdx[] = intval($stringArray[$arrayIdx]);
-        } else {
-            throw new LogicException('There can only be one attacker and one defender.');
-        }
+    $nAttackerDice = count($game->activeDieArrayArray[$attackerIdx]);
+    $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
 
-        $arrayIdx++;
+    // determine which die is the defender's first die
+    // (used in multiplayer scenarios)
+    //
+    // In the GUI, the dice must come in the following order:
+    // attacker, then increasing idx until player idx ($nPlayers - 1) is reached,
+    // then idx 0, then increasing until (attacker idx - 1)
+    $defenderStartIdx = 0;
+    for ($playerIdx = $attackerIdx; $playerIdx < $game->nPlayers; $playerIdx++) {
+        if ($defenderIdx == $playerIdx) {
+            break;
+        }
+        $defenderStartIdx += count($game->activeDieArrayArray[$playerIdx]);
+    }
+    if ($defenderIdx < $attackerIdx && $defenderIdx > 0) {
+        for ($playerIdx = 0; $playerIdx < $defenderIdx; $playerIdx++) {
+            $defenderStartIdx += count($game->activeDieArrayArray[$playerIdx]);
+        }
+    }
+
+    // divide up selections into those for attackers and those for defenders
+    $dieSelectStatusForAttacker = array_slice($dieSelectStatus, 0, $nAttackerDice);
+    $dieSelectStatusForDefender = array_slice($dieSelectStatus, $defenderStartIdx, $nDefenderDice);
+
+    for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
+        if ($dieSelectStatusForAttacker[$dieIdx]) {
+            $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
+            $attackerDieIdx[] = $dieIdx;
+        }
+    }
+
+    for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
+        if ($dieSelectStatusForDefender[$dieIdx]) {
+            $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
+            $defenderDieIdx[] = $dieIdx;
+        }
     }
 
     // validate attack
