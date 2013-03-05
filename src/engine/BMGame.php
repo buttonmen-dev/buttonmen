@@ -41,7 +41,7 @@ require_once 'BMDie.php';
  * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
  *
  */
-class BMGame implements JsonSerializable {
+class BMGame {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters
     private $gameId;                // game ID number in the database
@@ -1043,7 +1043,7 @@ class BMGame implements JsonSerializable {
         }
     }
 
-    public function jsonSerialize() {
+    public function getJsonData() {
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
         }
