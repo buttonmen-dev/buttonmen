@@ -11,7 +11,7 @@
     // note that the object is coerced into an associative array by the second
     // input parameter in json_decode, and then into an indexed array by
     // array_values
-    $dieSelectStatus = array_values(json_decode($_POST['dieSelectStatus'], TRUE));
+    $dieSelectStatus = json_decode($_POST['dieSelectStatus'], TRUE);
 
     // determine attacker and defender indices from POST
     $attackerIdx = intval($_POST['attackerIdx']);
@@ -25,38 +25,15 @@
     $nAttackerDice = count($game->activeDieArrayArray[$attackerIdx]);
     $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
 
-    // determine which die is the defender's first die
-    // (used in multiplayer scenarios)
-    //
-    // In the GUI, the dice must come in the following order:
-    // attacker, then increasing idx until player idx ($nPlayers - 1) is reached,
-    // then idx 0, then increasing until (attacker idx - 1)
-    $defenderStartIdx = 0;
-    for ($playerIdx = $attackerIdx; $playerIdx < $game->nPlayers; $playerIdx++) {
-        if ($defenderIdx == $playerIdx) {
-            break;
-        }
-        $defenderStartIdx += count($game->activeDieArrayArray[$playerIdx]);
-    }
-    if ($defenderIdx < $attackerIdx && $defenderIdx > 0) {
-        for ($playerIdx = 0; $playerIdx < $defenderIdx; $playerIdx++) {
-            $defenderStartIdx += count($game->activeDieArrayArray[$playerIdx]);
-        }
-    }
-
-    // divide up selections into those for attackers and those for defenders
-    $dieSelectStatusForAttacker = array_slice($dieSelectStatus, 0, $nAttackerDice);
-    $dieSelectStatusForDefender = array_slice($dieSelectStatus, $defenderStartIdx, $nDefenderDice);
-
     for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
-        if ($dieSelectStatusForAttacker[$dieIdx]) {
+        if ($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx]) {
             $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
             $attackerDieIdx[] = $dieIdx;
         }
     }
 
     for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
-        if ($dieSelectStatusForDefender[$dieIdx]) {
+        if ($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx]) {
             $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
             $defenderDieIdx[] = $dieIdx;
         }
