@@ -1,0 +1,34 @@
+/*
+    Document   : api.css
+    Created on : Feb 13, 2013, 11:52:30 PM
+    Author     : james
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+div {
+    text-align: center;
+}
+
+.selected {
+    border: 2px solid red;
+}
+
+.unselected {
+    border: 2px solid white;
+}
+
+.die_img {
+    background-size: 50px 50px;
+    width:50px;
+    height:50px;
+    color:blue;
+    display:inline-block;
+    margin:4px;
+    /*border: 5px solid white;*/
+}
+
+.die_overlay {
+    position:relative;
+    top:16px
+}
