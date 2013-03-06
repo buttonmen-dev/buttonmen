@@ -123,7 +123,11 @@ class BMButton {
             // remove everything before the opening parenthesis
             $tempDieSize = preg_replace('/^.*\(/', '', $tempDieSize);
             // remove everything after the closing parenthesis
-            $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '', $tempDieSize);
+            $tempDieSize = preg_replace('/\).*$/', '', $tempDieSize);
+            $tempDieSizeInt = intval($tempDieSize);
+            $dieSizeArray[$dieIdx] = ($tempDieSizeInt > 0 ?
+                                          $tempDieSizeInt :
+                                          $tempDieSize);
         }
 
         return $dieSizeArray;

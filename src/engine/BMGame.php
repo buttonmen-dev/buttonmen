@@ -2,6 +2,7 @@
 
 require_once 'BMButton.php';
 require_once 'BMAttack.php';
+require_once 'BMDie.php';
 
 /**
  * BMGame: current status of a game
@@ -56,7 +57,7 @@ class BMGame {
                                     //       'defenderAttackDieIdxArray',
                                     //       'attackType')
     private $attackerPlayerIdx;     // index in playerIdxArray of the attacker
-    private $defenderPlayerIdx;     // index in playerIdxArary of the defender
+    private $defenderPlayerIdx;     // index in playerIdxArray of the defender
     private $attackerAllDieArray;   // array of all attacker's dice
     private $defenderAllDieArray;   // array of all defender's dice
     private $attackerAttackDieArray; // array of attacker's dice used in attack
@@ -216,10 +217,24 @@ class BMGame {
                                     $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
                                     $this->swingValueArrayArray[$playerIdx] = array();
                                     $this->waitingOnActionArray[$playerIdx] = TRUE;
-                                    break;
+                                    break 3;
                                 }
                             }
                         }
+                    }
+                }
+
+                // roll dice
+                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => $die) {
+                        if ($die instanceof BMSwingDie) {
+                            if ($die->needsValue) {
+                                // swing value has not yet been set
+                                continue;
+                            }
+                        }
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                            $die->make_play_die(FALSE);
                     }
                 }
 
@@ -334,8 +349,20 @@ class BMGame {
                     $attack->add_die($attackDie);
                 }
 
-                if (!($attack->find_attack($this))) {
-                    throw new LogicException('No valid attack found.');
+                $possible = $attack->find_attack($this);
+                if ($possible) {
+                    $valid = $attack->validate_attack($this,
+                                                      $attackerAttackDieArray,
+                                                      $defenderAttackDieArray);
+                } else {
+                    $valid = FALSE;
+                }
+
+                if (!$valid) {
+                    $this->activate_GUI('Invalid attack');
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+                    $this->attack = NULL;
+                    return;
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
@@ -1014,6 +1041,33 @@ class BMGame {
         } else {
             return FALSE;
         }
+    }
+
+    public function getJsonData() {
+        foreach ($this->buttonArray as $button) {
+            $buttonNameArray[] = $button->name;
+        }
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            $valueArrayArray[] = array();
+            $sidesArrayArray[] = array();
+            foreach ($activeDieArray as $die) {
+                $valueArrayArray[$playerIdx][] = $die->value;
+                $sidesArrayArray[$playerIdx][] = $die->max;
+            }
+        }
+
+        $dataArray =
+            array('gameId'                  => $this->gameId,
+                  'activePlayerIdx'         => $this->activePlayerIdx,
+                  'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
+                  'playerIdArray'           => $this->playerIdArray,
+                  'buttonNameArray'         => $buttonNameArray,
+                  'nDieArray'               => array_map('count', $this->activeDieArrayArray),
+                  'valueArrayArray'         => $valueArrayArray,
+                  'sidesArrayArray'         => $sidesArrayArray);
+
+        return array('status' => 'ok', 'data' => $dataArray);
     }
 }
 
