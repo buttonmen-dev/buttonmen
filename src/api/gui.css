@@ -1,0 +1,59 @@
+/*
+    Document   : api.css
+    Created on : Feb 13, 2013, 11:52:30 PM
+    Author     : james
+    Description: Stylesheet for the GUI for the Button Men Online Game
+*/
+
+div {
+    text-align: center;
+}
+
+table {
+    table-layout: auto;
+    alignment-baseline: central;
+    border: thin;
+    border-collapse: collapse;
+    empty-cells: hide;
+    margin: auto;
+}
+
+td{
+    text-align: center;
+    /*border: 1px solid black;*/
+    padding: 0.2em 0.2em;
+}
+
+th {
+    text-align: center;
+    /*border: 1px solid black;*/
+    padding: 0.5em 2em;
+    font-size: 1.1em;
+}
+
+input.text {
+    margin: 1em;
+}
+
+.selected {
+    border: 2px solid red;
+}
+
+.unselected {
+    border: 2px solid white;
+}
+
+.die_img {
+    background-size: 50px 50px;
+    width:50px;
+    height:50px;
+    color:blue;
+    display:inline-block;
+    margin:4px;
+    /*border: 5px solid white;*/
+}
+
+.die_overlay {
+    position:relative;
+    top:16px
+}
