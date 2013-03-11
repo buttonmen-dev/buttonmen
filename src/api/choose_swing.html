@@ -18,22 +18,10 @@
         <div>Round #<span id="round_number">?</span></div>
         <br />
 
-        <table>
+        <table id="die_description_table">
             <tr>
                 <th>Your dice</th>
                 <th>Opponent's dice</th>
-            </tr>
-            <tr>
-                <td>1anoeuth</td>
-                <td>aocehuoenthu</td>
-            </tr>
-            <tr>
-                <td>anoethrcoheu</td>
-                <td>oeoeunth</td>
-            </tr>
-            <tr>
-                <td></td>
-                <td>oenutnoethu</td>
             </tr>
         </table>
 
@@ -68,29 +56,35 @@
         <script>
 
         $(document).ready(function() {
+            // global variables
+            var currentPlayerIdx;
+            var opponentPlayerIdx;
+            var nCurrentPlayerDice;
+            var nOpponentPlayerDice;
+            var currentPlayerDieDescriptionArray;
+            var opponentPlayerDieDescriptionArray;
+
             function displayDieDetails() {
-//                var dieAttackIdx;
-//                var dieDefendIdx;
-//
-//                for (dieAttackIdx = 0;
-//                     dieAttackIdx < dieAttackValues.length;
-//                     dieAttackIdx++) {
-//                    addDie('playerIdx_' + attackerIdx +
-//                           '_dieIdx_' + dieAttackIdx,
-//                           dieAttackValues[dieAttackIdx],
-//                           dieAttackSides[dieAttackIdx],
-//                           "div_attack");
-//                }
-//
-//                for (dieDefendIdx = 0;
-//                     dieDefendIdx < dieDefendValues.length;
-//                     dieDefendIdx++) {
-//                    addDie('playerIdx_' + defenderIdx +
-//                           '_dieIdx_' + dieDefendIdx,
-//                           dieDefendValues[dieDefendIdx],
-//                           dieDefendSides[dieDefendIdx],
-//                           "div_defend");
-//                }
+                if (document.createElement){
+                    var maxNumDice = Math.max(nCurrentPlayerDice, nOpponentPlayerDice);
+                    for (var rowIdx = 1; rowIdx <= maxNumDice; rowIdx++) {
+                        $('#die_description_table').append(
+                            $('<tr id=row' + rowIdx + '>' +
+                                  '<td id=row' + rowIdx + 'cell1>?1</td>' +
+                                  '<td id=row' + rowIdx + 'cell2>?2</td>'+
+                              '</tr>')
+                        );
+                    }
+
+                    for (var dieIdx = 1; dieIdx <= nCurrentPlayerDice; dieIdx++) {
+                        $('#row' + dieIdx + 'cell1').text('test1');
+                    }
+
+                    for (dieIdx = 1; dieIdx <= nOpponentPlayerDice; dieIdx++) {
+                        $('#row' + dieIdx + 'cell2').text('test2');
+                    }
+                }
+
             }
 
             function loadGameInfo() {
@@ -100,6 +94,10 @@
                         // $rs is the place where the error message will be shown
                         var $rs = $('#game_id');
                         if (rs.status == 'ok') {
+                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
+                            nCurrentPlayerDice = rs.data.nDieArray[currentPlayerIdx];
+                            nOpponentPlayerDice = rs.data.nDieArray[opponentPlayerIdx];
+
                             $('#game_id').html(rs.data.gameId);
                             displayDieDetails();
                         } else {
@@ -109,6 +107,9 @@
                     }
                 });
             }
+
+            // code to initialise game variables
+            currentPlayerIdx = 1;
 
             // code to run when page is ready
             loadGameInfo();
