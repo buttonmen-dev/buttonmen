@@ -3,7 +3,7 @@
 require_once '../engine/BMButton.php';
 require_once '../engine/BMGame.php';
 
-function loadMockGameData() {
+function loadMockGameDataWaitingForSwing() {
     // load buttons
     $button1 = new BMButton;
     $button1->load_from_name('Bauer');
@@ -16,6 +16,12 @@ function loadMockGameData() {
     $game->buttonArray = array($button1, $button2);
     $game->waitingOnActionArray = array(FALSE, FALSE);
     $game->proceed_to_next_user_action();
+
+    return($game);
+}
+
+function loadMockGameData() {
+    $game = loadMockGameDataWaitingForSwing();
 
     // specify swing dice correctly
     $game->swingValueArrayArray = array(array('X'=>19), array('X'=>4));

@@ -1,5 +1,5 @@
 /*
-    Document   : api.css
+    Document   : gui.css
     Created on : Feb 13, 2013, 11:52:30 PM
     Author     : james
     Description: Stylesheet for the GUI for the Button Men Online Game
@@ -11,7 +11,6 @@ div {
 
 table {
     table-layout: auto;
-    alignment-baseline: central;
     border: thin;
     border-collapse: collapse;
     empty-cells: hide;
@@ -27,20 +26,13 @@ td{
 th {
     text-align: center;
     /*border: 1px solid black;*/
-    padding: 0.5em 2em;
+    padding: 0.2em 2em;
     font-size: 1.1em;
+    font-weight: bold;
 }
 
 input.text {
-    margin: 1em;
-}
-
-.selected {
-    border: 2px solid red;
-}
-
-.unselected {
-    border: 2px solid white;
+    margin: 0.2em;
 }
 
 .die_img {
@@ -56,4 +48,18 @@ input.text {
 .die_overlay {
     position:relative;
     top:16px
+}
+
+.selected {
+    border: 2px solid red;
+}
+
+.title2 {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0.2em;
+}
+
+.unselected {
+    border: 2px solid white;
 }

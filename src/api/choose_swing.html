@@ -39,7 +39,7 @@
 
         <br />
 
-        <div>
+        <div class="title2">
             Set swing values
         </div>
 
@@ -60,22 +60,6 @@
         </form>
         </div>
 
-
-
-<!--         attacker dice
-        <div>Player #<span id="attacker_id">?</span></div>
-        <div>Button: <span id="attacker_button">?</span></div>
-        <div id="div_attack"></div>
-        <br />
-         defender dice
-        <div id="div_defend"></div>
-        <div>Button: <span id="defender_button">??</span></div>
-        <div>Player #<span id="defender_id">??</span></div>
-        <br />
-        <div ><button id="submit">Submit</button></div>
-        <br />
-        <div><span id="submit_status"></span></div>-->
-
         <!--
         james: eventually, we will want to use the hosted version of the JQuery library
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
@@ -84,8 +68,51 @@
         <script>
 
         $(document).ready(function() {
+            function displayDieDetails() {
+//                var dieAttackIdx;
+//                var dieDefendIdx;
+//
+//                for (dieAttackIdx = 0;
+//                     dieAttackIdx < dieAttackValues.length;
+//                     dieAttackIdx++) {
+//                    addDie('playerIdx_' + attackerIdx +
+//                           '_dieIdx_' + dieAttackIdx,
+//                           dieAttackValues[dieAttackIdx],
+//                           dieAttackSides[dieAttackIdx],
+//                           "div_attack");
+//                }
+//
+//                for (dieDefendIdx = 0;
+//                     dieDefendIdx < dieDefendValues.length;
+//                     dieDefendIdx++) {
+//                    addDie('playerIdx_' + defenderIdx +
+//                           '_dieIdx_' + dieDefendIdx,
+//                           dieDefendValues[dieDefendIdx],
+//                           dieDefendSides[dieDefendIdx],
+//                           "div_defend");
+//                }
+            }
 
-        }
+            function loadGameInfo() {
+                jQuery.ajax({                                   // Do a jQuery AJAX fetch
+                    url: 'load_test_game_waiting_on_swing.php',
+                    success: function(rs, status, xhr) {
+                        // $rs is the place where the error message will be shown
+                        var $rs = $('#game_id');
+                        if (rs.status == 'ok') {
+                            $('#game_id').html(rs.data.gameId);
+                            displayDieDetails();
+                        } else {
+                            $rs.html("JSON fetch failed\n"+
+                                     JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                        }
+                    }
+                });
+            }
+
+            // code to run when page is ready
+            loadGameInfo();
+        });
 
         </script>
     </body>
