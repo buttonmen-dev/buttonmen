@@ -33,15 +33,15 @@
 
         <div>
         <form action="choose_swing.php" id="swing_values">
-            <table>
-                <tr>
+            <table id="swing_table">
+<!--                <tr>
                     <td>X :</td>
                     <td><input type="text" name="swing_X" class="text" size="2" maxlength="2"/></td>
                 </tr>
                 <tr>
                     <td>Y :</td>
                     <td><input type="text" name="swing_Y" class="text" size="2" maxlength="2"/></td>
-                </tr>
+                </tr>-->
             </table>
             <br />
             <input type="submit" value="Submit"/>
@@ -69,7 +69,7 @@
                     var maxNumDice = Math.max(nCurrentPlayerDice, nOpponentPlayerDice);
                     for (var rowIdx = 1; rowIdx <= maxNumDice; rowIdx++) {
                         $('#die_description_table').append(
-                            $('<tr id=row' + rowIdx + '>' +
+                            $('<tr>' +
                                   '<td id=row' + rowIdx + 'cell1>?1</td>' +
                                   '<td id=row' + rowIdx + 'cell2>?2</td>'+
                               '</tr>')
@@ -87,6 +87,21 @@
 
             }
 
+            function displaySwingDetails() {
+                if (document.createElement){
+                    for (var swingIdx = 1; swingIdx <= 3; swingIdx++) {
+                        $('#swing_table').append(
+                            $('<tr>' +
+                                  '<td>' + swingIdx + ' :</td>' +
+                                  '<td><input type="text" class="text" ' +
+                                       'id="swing_' + swingIdx + '" ' +
+                                       'size="2" maxlength="2"/></td>' +
+                              '</tr>')
+                        );
+                    }
+                }
+            }
+
             function loadGameInfo() {
                 jQuery.ajax({                                   // Do a jQuery AJAX fetch
                     url: 'load_test_game_waiting_on_swing.php',
@@ -100,6 +115,7 @@
 
                             $('#game_id').html(rs.data.gameId);
                             displayDieDetails();
+                            displaySwingDetails();
                         } else {
                             $rs.html("JSON fetch failed\n"+
                                      JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
