@@ -59,14 +59,14 @@
             // global variables
             var currentPlayerIdx;
             var opponentPlayerIdx;
-            var nCurrentPlayerDice;
-            var nOpponentPlayerDice;
-            var currentPlayerDieDescriptionArray;
-            var opponentPlayerDieDescriptionArray;
+            var currentPlayerDieRecipeArray;
+            var opponentPlayerDieRecipeArray;
+            var nCurrentPlayerDieArray;
+            var nOpponentPlayerDieArray;
 
             function displayDieDetails() {
                 if (document.createElement){
-                    var maxNumDice = Math.max(nCurrentPlayerDice, nOpponentPlayerDice);
+                    var maxNumDice = Math.max(nCurrentPlayerDieArray, nOpponentPlayerDieArray);
                     for (var rowIdx = 1; rowIdx <= maxNumDice; rowIdx++) {
                         $('#die_description_table').append(
                             $('<tr>' +
@@ -76,12 +76,12 @@
                         );
                     }
 
-                    for (var dieIdx = 1; dieIdx <= nCurrentPlayerDice; dieIdx++) {
-                        $('#row' + dieIdx + 'cell1').text('test1');
+                    for (var dieIdx = 1; dieIdx <= nCurrentPlayerDieArray; dieIdx++) {
+                        $('#row' + dieIdx + 'cell1').text(currentPlayerDieRecipeArray[dieIdx-1]);
                     }
 
-                    for (dieIdx = 1; dieIdx <= nOpponentPlayerDice; dieIdx++) {
-                        $('#row' + dieIdx + 'cell2').text('test2');
+                    for (dieIdx = 1; dieIdx <= nOpponentPlayerDieArray; dieIdx++) {
+                        $('#row' + dieIdx + 'cell2').text(opponentPlayerDieRecipeArray[dieIdx-1]);
                     }
                 }
 
@@ -89,12 +89,14 @@
 
             function displaySwingDetails() {
                 if (document.createElement){
-                    for (var swingIdx = 1; swingIdx <= 3; swingIdx++) {
+                    var nSwing = 3;
+                    for (var swingIdx = 1; swingIdx <= nSwing; swingIdx++) {
                         $('#swing_table').append(
                             $('<tr>' +
                                   '<td>' + swingIdx + ' :</td>' +
                                   '<td><input type="text" class="text" ' +
-                                       'id="swing_' + swingIdx + '" ' +
+                                       'id="swing_' + swingIdx +
+                                       '" ' +
                                        'size="2" maxlength="2"/></td>' +
                               '</tr>')
                         );
@@ -110,10 +112,14 @@
                         var $rs = $('#game_id');
                         if (rs.status == 'ok') {
                             opponentPlayerIdx = (currentPlayerIdx + 1)%2;
-                            nCurrentPlayerDice = rs.data.nDieArray[currentPlayerIdx];
-                            nOpponentPlayerDice = rs.data.nDieArray[opponentPlayerIdx];
+                            nCurrentPlayerDieArray = rs.data.nDieArray[currentPlayerIdx];
+                            nOpponentPlayerDieArray = rs.data.nDieArray[opponentPlayerIdx];
+                            currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
+                            opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
 
-                            $('#game_id').html(rs.data.gameId);
+                            $('#game_id').text(rs.data.gameId);
+                            $('#round_number').text(rs.data.roundNumber);
+
                             displayDieDetails();
                             displaySwingDetails();
                         } else {

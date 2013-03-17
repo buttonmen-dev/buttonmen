@@ -1639,6 +1639,30 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($this->object->buttonArray));
     }
 
+
+    /**
+     * @covers BMGame::getJsonData
+     */
+    public function test__get_json_data() {
+        $button1 = new BMButton;
+        $button1->load_from_name('Bauer');
+
+        $button2 = new BMButton;
+        $button2->load_from_name('Stark');
+
+        // load game
+        $game = new BMGame(424242, array(123, 456));
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $out = $game->getJsonData();
+
+//        var_dump($out);
+
+    }
+
+
     /**
      */
     public function testBMGameStateOrder() {
