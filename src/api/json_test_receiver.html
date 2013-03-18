@@ -8,7 +8,7 @@
 
 <meta charset="utf-8" />
 <title>JSON Testing</title>
-<link rel="stylesheet" href="api.css" />
+<link rel="stylesheet" href="gui.css" />
 
 </head>
 
@@ -52,20 +52,13 @@ $(document).ready(function() {
     // functions
     function addDie(id, rolled_number, nSides, parent) {
         if (document.createElement){
-            var die_div=document.createElement("div");
-            die_div.id=id;
-            $('#'+parent).append(die_div);
-            $('#'+id).addClass("die_img unselected");
-            // next line could theoretically be put into api.css
-            // it is here to remind me of the syntax to alter the css directly
-            $('#'+id).css("background-image", "url('images/Circle.png')");
-
-            var die_text_span=document.createElement("span");
-            die_text_span.id=id+'_span';
-            $('#'+id).append(die_text_span);
-            $('#'+id+'_span').addClass("die_overlay");
-            $('#'+id+'_span').text(rolled_number + ' d' + nSides);
-
+            $('#'+parent).append(
+                $('<div id="' + id + '" class="die_img unselected"' +
+                  'style="background-image: url(images/Circle.png)">' +
+                      '<span id="' + id + '_span" class="die_overlay">' +
+                          rolled_number + ' d' + nSides +
+                      '</span>' +
+                  '</div>'));
             $('#'+id).click(borderToggle);
 
             dieSelectStatus[id] = false;

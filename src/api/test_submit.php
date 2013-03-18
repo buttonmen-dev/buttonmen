@@ -9,8 +9,7 @@
     // defender dice
     //
     // note that the object is coerced into an associative array by the second
-    // input parameter in json_decode, and then into an indexed array by
-    // array_values
+    // input parameter in json_decode
     $dieSelectStatus = json_decode($_POST['dieSelectStatus'], TRUE);
 
     // determine attacker and defender indices from POST

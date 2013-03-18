@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<!--
+    This document should be written in polyglot HTML5/XHTML5, and therefore
+    should run when served either as text/html or application/xhtml+xml.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+
+        <meta charset="utf-8" />
+        <title>Choose swing values</title>
+        <link rel="stylesheet" href="gui.css" />
+
+    </head>
+
+    <body>
+
+        <div>Game #<span id="game_id">?</span></div>
+        <div>Round #<span id="round_number">?</span></div>
+        <br />
+
+        <table id="die_description_table">
+            <tr>
+                <th>Your dice</th>
+                <th>Opponent's dice</th>
+            </tr>
+        </table>
+
+        <br />
+
+        <div class="title2">
+            Set swing values
+        </div>
+
+        <div>
+        <form action="choose_swing.php" id="swing_values">
+            <table id="swing_table">
+            </table>
+            <br />
+            <input type="submit" value="Submit"/>
+        </form>
+        </div>
+
+        <!--
+        james: eventually, we will want to use the hosted version of the JQuery library
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        -->
+        <script src="jquery-1.9.0.min.js"></script>
+        <script>
+
+        $(document).ready(function() {
+            // global variables
+            var currentPlayerIdx;
+            var opponentPlayerIdx;
+            var currentPlayerDieRecipeArray;
+            var opponentPlayerDieRecipeArray;
+            var nCurrentPlayerDieArray;
+            var nOpponentPlayerDieArray;
+            var swingRequestArray;
+
+            function displayDieDetails() {
+                if (document.createElement){
+                    var maxNumDice = Math.max(nCurrentPlayerDieArray, nOpponentPlayerDieArray);
+                    for (var rowIdx = 1; rowIdx <= maxNumDice; rowIdx++) {
+                        $('#die_description_table').append(
+                            $('<tr>' +
+                                  '<td id=row' + rowIdx + 'cell1>?1</td>' +
+                                  '<td id=row' + rowIdx + 'cell2>?2</td>'+
+                              '</tr>')
+                        );
+                    }
+
+                    for (var dieIdx = 1; dieIdx <= nCurrentPlayerDieArray; dieIdx++) {
+                        $('#row' + dieIdx + 'cell1').text(currentPlayerDieRecipeArray[dieIdx-1]);
+                    }
+
+                    for (dieIdx = 1; dieIdx <= nOpponentPlayerDieArray; dieIdx++) {
+                        $('#row' + dieIdx + 'cell2').text(opponentPlayerDieRecipeArray[dieIdx-1]);
+                    }
+                }
+
+            }
+
+            function displaySwingDetails() {
+                if (document.createElement){
+                    var nSwing = swingRequestArray.length;
+                    for (var swingIdx = 1; swingIdx <= nSwing; swingIdx++) {
+                        $('#swing_table').append(
+                            $('<tr>' +
+                                  '<td>' + swingRequestArray[swingIdx-1] + ' :</td>' +
+                                  '<td><input type="text" class="text" ' +
+                                       'id="swing_' + swingIdx +
+                                       '" ' +
+                                       'size="2" maxlength="2"/></td>' +
+                              '</tr>')
+                        );
+                    }
+                }
+            }
+
+            function loadGameInfo() {
+                jQuery.ajax({                                   // Do a jQuery AJAX fetch
+                    url: 'load_test_game_waiting_on_swing.php',
+                    success: function(rs, status, xhr) {
+                        // $rs is the place where the error message will be shown
+                        var $rs = $('#game_id');
+                        if (rs.status == 'ok') {
+                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
+                            nCurrentPlayerDieArray = rs.data.nDieArray[currentPlayerIdx];
+                            nOpponentPlayerDieArray = rs.data.nDieArray[opponentPlayerIdx];
+                            currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
+                            opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
+                            swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
+
+                            $('#game_id').text(rs.data.gameId);
+                            $('#round_number').text(rs.data.roundNumber);
+
+                            displayDieDetails();
+                            displaySwingDetails();
+                        } else {
+                            $rs.html("JSON fetch failed\n"+
+                                     JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                        }
+                    }
+                });
+            }
+
+            // code to initialise game variables
+            currentPlayerIdx = 1;
+
+            // code to run when page is ready
+            loadGameInfo();
+        });
+
+        </script>
+    </body>
+</html>
