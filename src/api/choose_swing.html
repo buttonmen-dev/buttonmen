@@ -34,14 +34,6 @@
         <div>
         <form action="choose_swing.php" id="swing_values">
             <table id="swing_table">
-<!--                <tr>
-                    <td>X :</td>
-                    <td><input type="text" name="swing_X" class="text" size="2" maxlength="2"/></td>
-                </tr>
-                <tr>
-                    <td>Y :</td>
-                    <td><input type="text" name="swing_Y" class="text" size="2" maxlength="2"/></td>
-                </tr>-->
             </table>
             <br />
             <input type="submit" value="Submit"/>
@@ -63,6 +55,7 @@
             var opponentPlayerDieRecipeArray;
             var nCurrentPlayerDieArray;
             var nOpponentPlayerDieArray;
+            var swingRequestArray;
 
             function displayDieDetails() {
                 if (document.createElement){
@@ -89,11 +82,11 @@
 
             function displaySwingDetails() {
                 if (document.createElement){
-                    var nSwing = 3;
+                    var nSwing = swingRequestArray.length;
                     for (var swingIdx = 1; swingIdx <= nSwing; swingIdx++) {
                         $('#swing_table').append(
                             $('<tr>' +
-                                  '<td>' + swingIdx + ' :</td>' +
+                                  '<td>' + swingRequestArray[swingIdx-1] + ' :</td>' +
                                   '<td><input type="text" class="text" ' +
                                        'id="swing_' + swingIdx +
                                        '" ' +
@@ -116,6 +109,7 @@
                             nOpponentPlayerDieArray = rs.data.nDieArray[opponentPlayerIdx];
                             currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
                             opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
+                            swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
 
                             $('#game_id').text(rs.data.gameId);
                             $('#round_number').text(rs.data.roundNumber);

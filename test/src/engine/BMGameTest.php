@@ -1658,7 +1658,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $out = $game->getJsonData();
 
-//        var_dump($out);
+        var_dump($out);
 
     }
 
