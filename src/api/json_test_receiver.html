@@ -18,12 +18,14 @@
 <!-- attacker dice -->
 <div>Player #<span id="attacker_id">?</span></div>
 <div>Button: <span id="attacker_button">?</span></div>
+<div>Score: <span id="attacker_score">?</span></div>
 <div id="div_attack"></div>
 <br />
 <!-- defender dice -->
 <div id="div_defend"></div>
-<div>Button: <span id="defender_button">??</span></div>
-<div>Player #<span id="defender_id">??</span></div>
+<div>Score: <span id="defender_score">?</span></div>
+<div>Button: <span id="defender_button">?</span></div>
+<div>Player #<span id="defender_id">?</span></div>
 <br />
 <div ><button id="submit">Submit</button></div>
 <br />
@@ -106,10 +108,12 @@ $(document).ready(function() {
                     dieDefendValues = rs.data.valueArrayArray[defenderIdx];
                     dieAttackSides  = rs.data.sidesArrayArray[attackerIdx];
                     dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
-                    $('#attacker_id').html(rs.data.playerIdArray[attackerIdx]);
-                    $('#defender_id').html(rs.data.playerIdArray[defenderIdx]);
-                    $('#attacker_button').html(rs.data.buttonNameArray[attackerIdx]);
-                    $('#defender_button').html(rs.data.buttonNameArray[defenderIdx]);
+                    $('#attacker_id').text(rs.data.playerIdArray[attackerIdx]);
+                    $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
+                    $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
+                    $('#defender_button').text(rs.data.buttonNameArray[defenderIdx]);
+                    $('#attacker_score').text(rs.data.roundScoreArray[attackerIdx]);
+                    $('#defender_score').text(rs.data.roundScoreArray[defenderIdx]);
                     $('#game_id').html(rs.data.gameId);
                     displayDice();
                 } else {

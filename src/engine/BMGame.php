@@ -720,6 +720,32 @@ class BMGame {
         $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
     }
 
+    private function get_roundScoreArray() {
+        $roundScoreArray = array();
+
+        foreach ((array)$this->activeDieArrayArray as $activeDieArray) {
+            $activeDieScore = 0;
+            foreach ($activeDieArray as $activeDie) {
+                $activeDieScore += $activeDie->get_scoreValue();
+            }
+            $roundScoreArray[] = $activeDieScore;
+        }
+
+        foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
+            $capturedDieScore = 0;
+            foreach ($capturedDieArray as $capturedDie) {
+                $capturedDieScore += $capturedDie->get_scoreValue();
+            }
+            $roundScoreArray[$playerIdx] += $capturedDieScore;
+        }
+
+        foreach ($roundScoreArray as $playerIdx => $roundScore) {
+            $roundScoreArray[$playerIdx] = $roundScore/10;
+        }
+
+        return $roundScoreArray;
+    }
+
     // to allow array elements to be set directly, change the __get to &__get
     // to return the result by reference
     public function __get($property)
@@ -772,29 +798,7 @@ class BMGame {
                     }
                     return $defenderAttackDieArray;
                 case 'roundScoreArray':
-                    $roundScoreArray = array();
-
-                    foreach ($this->activeDieArrayArray as $activeDieArray) {
-                        $activeDieScore = 0;
-                        foreach ($activeDieArray as $activeDie) {
-                            $activeDieScore += $activeDie->get_scoreValue();
-                        }
-                        $roundScoreArray[] = $activeDieScore;
-                    }
-
-                    foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                        $capturedDieScore = 0;
-                        foreach ($capturedDieArray as $capturedDie) {
-                            $capturedDieScore += $capturedDie->get_scoreValue();
-                        }
-                        $roundScoreArray[$playerIdx] += $capturedDieScore;
-                    }
-
-                    foreach ($roundScoreArray as $playerIdx => $roundScore) {
-                        $roundScoreArray[$playerIdx] = $roundScore/10;
-                    }
-                    
-                    return $roundScoreArray;
+                    return $this->get_roundScoreArray();
                 default:
                     return $this->$property;
             }
@@ -1079,7 +1083,8 @@ class BMGame {
                   'valueArrayArray'         => $valueArrayArray,
                   'sidesArrayArray'         => $sidesArrayArray,
                   'dieRecipeArrayArray'     => $dieRecipeArrayArray,
-                  'swingRequestArrayArray'  => $swingRequestArrayArray);
+                  'swingRequestArrayArray'  => $swingRequestArrayArray,
+                  'roundScoreArray'         => $this->get_roundScoreArray());
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
