@@ -18,12 +18,14 @@
 <!-- attacker dice -->
 <div>Player #<span id="attacker_id">?</span></div>
 <div>Button: <span id="attacker_button">?</span></div>
-<div>Score: <span id="attacker_score">?</span></div>
+<div>W/L/T: <span id="attacker_game_score">?</span></div>
+<div>Score: <span id="attacker_round_score">?</span></div>
 <div id="div_attack"></div>
 <br />
 <!-- defender dice -->
 <div id="div_defend"></div>
-<div>Score: <span id="defender_score">?</span></div>
+<div>Score: <span id="defender_round_score">?</span></div>
+<div>W/L/T: <span id="defender_game_score">?</span></div>
 <div>Button: <span id="defender_button">?</span></div>
 <div>Player #<span id="defender_id">?</span></div>
 <br />
@@ -110,10 +112,22 @@ $(document).ready(function() {
                     dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
                     $('#attacker_id').text(rs.data.playerIdArray[attackerIdx]);
                     $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
+
+                    var attacker_game_score_array = rs.data.gameScoreArrayArray[attackerIdx];
+                    var attacker_game_score = attacker_game_score_array['W'] + '/' +
+                                              attacker_game_score_array['L'] + '/' +
+                                              attacker_game_score_array['T'];
+                    $('#attacker_game_score').text(attacker_game_score);
+                    var defender_game_score_array = rs.data.gameScoreArrayArray[defenderIdx];
+                    var defender_game_score = defender_game_score_array['W'] + '/' +
+                                              defender_game_score_array['L'] + '/' +
+                                              defender_game_score_array['T'];
+                    $('#defender_game_score').text(defender_game_score);
+
                     $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
                     $('#defender_button').text(rs.data.buttonNameArray[defenderIdx]);
-                    $('#attacker_score').text(rs.data.roundScoreArray[attackerIdx]);
-                    $('#defender_score').text(rs.data.roundScoreArray[defenderIdx]);
+                    $('#attacker_round_score').text(rs.data.roundScoreArray[attackerIdx]);
+                    $('#defender_round_score').text(rs.data.roundScoreArray[defenderIdx]);
                     $('#game_id').html(rs.data.gameId);
                     displayDice();
                 } else {

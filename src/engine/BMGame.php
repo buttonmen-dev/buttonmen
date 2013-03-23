@@ -1084,7 +1084,8 @@ class BMGame {
                   'sidesArrayArray'         => $sidesArrayArray,
                   'dieRecipeArrayArray'     => $dieRecipeArrayArray,
                   'swingRequestArrayArray'  => $swingRequestArrayArray,
-                  'roundScoreArray'         => $this->get_roundScoreArray());
+                  'roundScoreArray'         => $this->get_roundScoreArray(),
+                  'gameScoreArrayArray'     => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
