@@ -672,7 +672,6 @@ class BMGame {
         $this->activePlayerIdx = NULL;
         $this->playerWithInitiativeIdx = NULL;
         $this->activeDieArrayArray = NULL;
-        $this->roundScoreArray = NULL;
 
         $nPlayers = count($this->playerIdArray);
         $this->passStatusArray = array_pad(array(), $nPlayers, FALSE);
@@ -772,6 +771,30 @@ class BMGame {
                                                       [$defenderAttackDieIdx];
                     }
                     return $defenderAttackDieArray;
+                case 'roundScoreArray':
+                    $roundScoreArray = array();
+
+                    foreach ($this->activeDieArrayArray as $activeDieArray) {
+                        $activeDieScore = 0;
+                        foreach ($activeDieArray as $activeDie) {
+                            $activeDieScore += $activeDie->get_scoreValue();
+                        }
+                        $roundScoreArray[] = $activeDieScore;
+                    }
+
+                    foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
+                        $capturedDieScore = 0;
+                        foreach ($capturedDieArray as $capturedDie) {
+                            $capturedDieScore += $capturedDie->get_scoreValue();
+                        }
+                        $roundScoreArray[$playerIdx] += $capturedDieScore;
+                    }
+
+                    foreach ($roundScoreArray as $playerIdx => $roundScore) {
+                        $roundScoreArray[$playerIdx] = $roundScore/10;
+                    }
+                    
+                    return $roundScoreArray;
                 default:
                     return $this->$property;
             }
@@ -958,23 +981,8 @@ class BMGame {
                 $this->capturedDieArrayArray = $value;
                 break;
             case 'roundScoreArray':
-                if (!is_array($value) ||
-                    (count($this->playerIdArray) !== count($value))) {
-                    throw new InvalidArgumentException(
-                        'There must be one round score for each player.');
-                }
-                foreach ($value as $tempValueElement) {
-                    if (FALSE === filter_var($tempValueElement, FILTER_VALIDATE_FLOAT)) {
-                        throw new InvalidArgumentException(
-                            'Round scores must be numeric.');
-                    }
-                }
-                if (FALSE === filter_var($value,
-                                         FILTER_VALIDATE_INT,
-                                         array("options"=>
-                                               array("min_range"=>0))))
-
-                $this->roundScoreArray = $value;
+                throw new LogicException('
+                    BMGame->roundScoreArray is derived automatically from BMGame.');
                 break;
             case 'gameScoreArrayArray':
                 $value = array_values($value);
