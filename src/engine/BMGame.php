@@ -1051,21 +1051,27 @@ class BMGame {
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             $valueArrayArray[] = array();
             $sidesArrayArray[] = array();
+            $dieRecipeArrayArray[] = array();
+            $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
             foreach ($activeDieArray as $die) {
                 $valueArrayArray[$playerIdx][] = $die->value;
                 $sidesArrayArray[$playerIdx][] = $die->max;
+                $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
             }
         }
 
         $dataArray =
             array('gameId'                  => $this->gameId,
+                  'roundNumber'             => array_sum($this->gameScoreArrayArray[0]) + 1,
                   'activePlayerIdx'         => $this->activePlayerIdx,
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
                   'playerIdArray'           => $this->playerIdArray,
                   'buttonNameArray'         => $buttonNameArray,
                   'nDieArray'               => array_map('count', $this->activeDieArrayArray),
                   'valueArrayArray'         => $valueArrayArray,
-                  'sidesArrayArray'         => $sidesArrayArray);
+                  'sidesArrayArray'         => $sidesArrayArray,
+                  'dieRecipeArrayArray'     => $dieRecipeArrayArray,
+                  'swingRequestArrayArray'  => $swingRequestArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
