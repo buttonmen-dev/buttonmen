@@ -397,11 +397,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->playerWithInitiativeIdx = 1;
         $this->object->activePlayerIdx = 0;
-        $die1 = new BMDie;
-        $die2 = new BMDie;
+        $die1 = BMDie::create(12);
+        $die2 = BMDie::create(15);
         $this->object->activeDieArrayArray = array(array($die1), array($die2));
         $this->object->passStatusArray = array(TRUE, TRUE);
-        $this->object->roundScoreArray = array(26.5, -26.5);
+//        $this->object->roundScoreArray = array(26.5, -26.5);
         $this->object->maxWins = 3;
         $this->object->gameScoreArrayArray = array(array(1,2,1), array(2,1,1));
         $this->object->gameState = BMGameState::endRound;
@@ -884,9 +884,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(BMGame::is_die_specified($die));
 
         // normal die
-        $die = new BMDie;
-        $die->max = 12;
-//        $die->mSkills = '';
+        $die = BMDie::create(12);
         $this->assertTrue(BMGame::is_die_specified($die));
 
 //        // swing die
@@ -930,15 +928,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activePlayerIdx = 1;
         $this->object->playerWithInitiativeIdx = 0;
 
-        $die1 = new BMDie;
-        $die2 = new BMDie;
-        $BMDie3 = new BMDie;
-        $BMDie4 = new BMDie;
+        $die1 = BMDie::create(3);
+        $die2 = BMDie::create(4);
+        $BMDie3 = BMDie::create(5);
+        $BMDie4 = BMDie::create(6);
 
         $this->object->activeDieArrayArray = array(array($die1), array($die2));
         $this->object->passStatusArray = array(TRUE, TRUE);
         $this->object->capturedDieArrayArray = array(array($BMDie3), array($BMDie4));
-        $this->object->roundScoreArray = array(40, -25);
+//        $this->object->roundScoreArray = array(40, -25);
         $this->object->waitingOnActionArray = array(FALSE, TRUE);
 
         $method->invoke($this->object);
@@ -1111,6 +1109,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                                    array($die3, $die4));
         $this->object->attack = array(1, 0, array(1), array(0), 'power');
         $this->assertEquals(array($die2), $this->object->defenderAttackDieArray);
+    }
+
+    /**
+     * @covers BMGame::__get
+     */
+    public function test__get_round_score_array() {
+        $die1 = BMDie::create(5);
+        $die2 = BMDie::create(8);
+
+        $die1->captured = FALSE;
+        $this->object->activeDieArrayArray = array(array($die1), array());
+        $this->object->capturedDieArrayArray = array(array(), array());
+        $this->assertEquals(array(5/2, 0), $this->object->roundScoreArray);
+
+        $die1->captured = FALSE;
+        $die2->captured = FALSE;
+        $this->object->activeDieArrayArray = array(array(), array($die1, $die2));
+        $this->object->capturedDieArrayArray = array(array(), array());
+        $this->assertEquals(array(0, 13/2), $this->object->roundScoreArray);
+
+        $die1->captured = TRUE;
+        $this->object->activeDieArrayArray = array(array(), array());
+        $this->object->capturedDieArrayArray = array(array(), array($die1));
+        $this->assertEquals(array(0, 5), $this->object->roundScoreArray);
+
+        $die1->captured = TRUE;
+        $die2->captured = TRUE;
+        $this->object->activeDieArrayArray = array(array(), array());
+        $this->object->capturedDieArrayArray = array(array(), array($die1, $die2));
+        $this->assertEquals(array(0, 13), $this->object->roundScoreArray);
     }
 
     /**
@@ -1511,36 +1539,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__set
      */
     public function test__set_round_score_array() {
-        // valid set
-        $this->object->roundScoreArray = array(22, 35);
-
-        // invalid set
+        // all sets are invalid
         try {
-            $this->object->roundScoreArray = 42;
-            $this->fail('The round score must have one score for each player.');
+            $this->object->roundScoreArray = array(22, 35);
+            $this->fail('Round score array cannot be set directly.');
         }
-        catch (InvalidArgumentException $expected) {
-        }
-
-        try {
-            $this->object->roundScoreArray = array(22, 35, 59);
-            $this->fail('The round score must have one score for each player.');
-        }
-        catch (InvalidArgumentException $expected) {
-        }
-
-        try {
-            $this->object->roundScoreArray = array(22);
-            $this->fail('The round score must have one score for each player.');
-        }
-        catch (InvalidArgumentException $expected) {
-        }
-
-        try {
-            $this->object->roundScoreArray = array('abc', 'def');
-            $this->fail('The round scores much be numeric.');
-        }
-        catch (InvalidArgumentException $expected) {
+        catch (LogicException $expected) {
         }
     }
 
@@ -1658,7 +1662,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $out = $game->getJsonData();
 
-        var_dump($out);
+//        var_dump($out);
 
     }
 

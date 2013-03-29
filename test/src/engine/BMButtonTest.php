@@ -266,10 +266,8 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     public function test_activate() {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
-        $die1 = new BMDie;
-        $die1->max = 15;
-        $die2 = new BMDie;
-        $die2->max = 3;
+        $die1 = BMDie::create(15);
+        $die2 = BMDie::create(3);
         $this->object->dieArray = array($die1, $die2);
         $this->object->ownerObject = $game;
         $this->object->playerIdx = 1;
