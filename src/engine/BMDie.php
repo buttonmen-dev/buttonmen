@@ -698,6 +698,7 @@ class BMSwingDie extends BMDie {
 
             }
             $this->max = $sides;
+            $this->scoreValue = $sides;
         }
 
         return $valid;
