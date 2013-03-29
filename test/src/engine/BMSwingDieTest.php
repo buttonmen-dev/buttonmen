@@ -186,7 +186,6 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
             $this->object->init($swing);
 
             $this->object->ownerObject = $game;
-            $game->all_values_specified = TRUE;
             $this->object->activate("player");
             $newDie = $game->dice[$dieIdx][1];
 
@@ -555,8 +554,8 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activate(0);
 
-        $this->assertNotNull($game->swingrequest);
-        $game->swingrequest = array();
+        $this->assertNotNull($game->swingRequestArrayArray);
+//        $game->swingRequestArrayArray = array(array(), array();
 
         $ex = FALSE;
         try {
@@ -574,17 +573,17 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
         $this->object->ownerObject = $game;
+        $this->object->playerIdx = 0;
 
-        $this->object->activate(0);
+        $this->object->activate();
 
-        $this->assertNotNull($game->swingrequest);
+        $this->assertNotNull($game->swingRequestArrayArray);
         $game->swingrequest = array();
 
         $game->activeDieArrayArray[0][0]->set_swingValue(array("X" => "15"));
 
         // it hasn't rolled yet
         $this->assertFalse(is_numeric($game->activeDieArrayArray[0][0]->value));
-
 
         $ex = FALSE;
         try {
@@ -593,7 +592,6 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
             $ex = TRUE;
         }
         $this->assertFalse($ex, "dummy require_values was called.");
-        $this->assertEmpty($game->swingrequest);
 
         // Does it roll?
         $this->assertTrue(is_numeric($game->activeDieArrayArray[0][0]->value));
@@ -660,8 +658,9 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->init("X");
         $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
 
-        $this->object->activate(1);
+        $this->object->activate();
         $newDie = $game->activeDieArrayArray[1][0];
 
         // No value yet set. It will call game->require_values()

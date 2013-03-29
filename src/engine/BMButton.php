@@ -6,13 +6,20 @@ require_once 'BMDie.php';
  * BMButton: instantiated button as existing at the beginning of a round
  *
  * @author james
+ *
+ * @property      string $name        Name of button
+ * @property      string $recipe      String representation of the button recipe
+ * @property-read array  $dieArray    Array of BMDie
+ * @property      BMGame $ownerObject BMGame that owns the BMButton
+ * $property      BMGame $playerIdx   BMGame index of the player that owns the BMButton
  */
 class BMButton {
     // properties
     private $name;
     private $recipe;
-    public $dieArray;
-    public $ownerObject;
+    private $dieArray;
+    private $ownerObject;
+    private $playerIdx;
 
     // methods
     public function load_from_recipe($recipe) {
@@ -55,14 +62,14 @@ class BMButton {
         $this->name = $name;
         switch ($name) {
             case 'Bauer':
-                $this->recipe = '(8) (10) (12) (20) (X)';
+                $this->load_from_recipe('(8) (10) (12) (20) (X)');
                 break;
             case 'Stark':
-                $this->recipe = '(4) (6) (8) (X) (X)';
+                $this->load_from_recipe('(4) (6) (8) (X) (X)');
                 break;
             default:
                 $this->name = 'Default';
-                $this->recipe = '(4) (8) (12) (20) (X)';
+                $this->load_from_recipe('(4) (8) (12) (20) (X)');
         }
     }
 
@@ -102,6 +109,12 @@ class BMButton {
         }
     }
 
+    public function activate() {
+        foreach ($this->dieArray as $die) {
+            $die->activate();
+        }
+    }
+
     private function parse_recipe_for_sides($recipe) {
         // split by spaces
         $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
@@ -110,7 +123,11 @@ class BMButton {
             // remove everything before the opening parenthesis
             $tempDieSize = preg_replace('/^.*\(/', '', $tempDieSize);
             // remove everything after the closing parenthesis
-            $dieSizeArray[$dieIdx] = preg_replace('/\).*$/', '', $tempDieSize);
+            $tempDieSize = preg_replace('/\).*$/', '', $tempDieSize);
+            $tempDieSizeInt = intval($tempDieSize);
+            $dieSizeArray[$dieIdx] = ($tempDieSizeInt > 0 ?
+                                          $tempDieSizeInt :
+                                          $tempDieSize);
         }
 
         return $dieSizeArray;
@@ -147,6 +164,36 @@ class BMButton {
 
             case 'recipe':
                 $this->load_from_recipe($value);
+                break;
+
+            case 'dieArray':
+                $this->dieArray = $value;
+                foreach ($this->dieArray as $die) {
+                    if (isset($this->ownerObject)) {
+                        $die->ownerObject = $this->ownerObject;
+                    }
+                    if (isset($this->playerIdx)) {
+                        $die->playerIdx = $this->playerIdx;
+                    }
+                }
+                break;
+
+            case 'ownerObject':
+                $this->ownerObject = $value;
+                if (isset($this->dieArray)) {
+                    foreach ($this->dieArray as $die) {
+                        $die->ownerObject = $this->ownerObject;
+                    }
+                }
+                break;
+
+            case 'playerIdx':
+                $this->playerIdx = $value;
+                if (isset($this->dieArray)) {
+                    foreach ($this->dieArray as $die) {
+                        $die->playerIdx = $this->playerIdx;
+                    }
+                }
                 break;
 
             default:

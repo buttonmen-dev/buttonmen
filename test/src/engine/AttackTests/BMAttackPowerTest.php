@@ -100,7 +100,8 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @coversNothing
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
      */
     public function testInterfaceValidate_attack()
     {
@@ -145,7 +146,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
         $die4->value = 2;
 
         $game->activeDieArrayArray = array(array($die3), array());
-        $game->attack = array(0, 1, array(), array(), '');
+        $game->attack = array(0, 1, array(), array(), 'power');
 
         // 1 + 1 ! >= 6
         $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
@@ -166,12 +167,11 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
         $die8 = clone $die3;
 
         $game->activeDieArrayArray = array(array($die3, $die5, $die6, $die7, $die8), array());
-        $help = $this->object->collect_helpers($game, array(), array());
 
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
     }
 
-/**
+    /**
      * @covers BMAttackPower::find_attack
      * @depends testValidate_attack
      * @todo   Implement testFind_attack().
@@ -274,7 +274,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase
 
 
         $game->activeDieArrayArray = array(array(), array($die3));
-        $game->attack = array(0, 1, array(), array(), '');
+        $game->attack = array(0, 1, array(), array(), 'power');
 
         $this->assertTrue($this->object->find_attack($game));
 

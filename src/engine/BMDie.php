@@ -27,6 +27,7 @@ class BMDie
 
 // references back to the owner
     public $ownerObject;
+    public $playerIdx;
 
     protected $scoreValue;
 
@@ -125,9 +126,11 @@ class BMDie
 
         $this->scoreValue = $sides;
 
-        foreach ($skills as $s)
-        {
-            $this->add_skill($s);
+        if ($skills) {
+            foreach ($skills as $s)
+            {
+                $this->add_skill($s);
+            }
         }
     }
 
@@ -137,40 +140,45 @@ class BMDie
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
 
-    public static function create_from_string($recipe, $skills) {
+    public static function create_from_string($recipe, $skills = NULL) {
+        $die = NULL;
 
         try {
             $opt_list = explode("|", $recipe);
 
             // Option dice divide on a |, can contain any die type
             if (count($opt_list) > 1) {
-                return BMOptionDie::create_from_list($opt_list, $skills);
+                $die = BMOptionDie::create_from_list($opt_list, $skills);
             }
             // Twin dice divide on a comma, can contain any type but option
             elseif (count($twin_list = explode(",", $recipe)) > 1) {
-                return BMTwinDie::create_from_list($twin_list, $skills);
+                $die = BMTwinDie::create_from_list($twin_list, $skills);
             }
             elseif ($recipe == "C") {
-                return BMWildcardDie::create($recipe, $skills);
+                $die = BMWildcardDie::create($recipe, $skills);
             }
             // Integers are normal dice
             elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
-                return BMDie::create($recipe, $skills);
+                $die = BMDie::create($recipe, $skills);
             }
             // Single character that's not a number is a swing die
             elseif (strlen($recipe) == 1) {
-                return BMSwingDie::create($recipe, $skills);
+                $die = BMSwingDie::create($recipe, $skills);
             }
             // oops
-            throw new UnexpectedValueException("Invalid recipe: $recipe");
+            else {
+                throw new UnexpectedValueException("Invalid recipe: $recipe");
+            }
         }
         catch (UnexpectedValueException $e) {
             return NULL;
         }
 
+        $die->recipe = $recipe;
+        return $die;
     }
 
-    public static function create($size, $skills) {
+    public static function create($size, $skills = NULL) {
         if (!is_numeric($size) || ($size != (int)$size) ||
             $size < 1 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
@@ -191,13 +199,13 @@ class BMDie
 //
 // Clones the die and returns the clone
 
-    public function activate($playerIdx)
+    public function activate()
     {
         $newDie = clone $this;
 
         $this->run_hooks(__FUNCTION__, array($newDie));
 
-        $this->ownerObject->add_die($newDie, $playerIdx);
+        $this->ownerObject->add_die($newDie);
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
@@ -270,7 +278,7 @@ class BMDie
             $div = 2;
         }
 
-        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, $mult, $div, $this->captured));
+        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, &$mult, &$div, $this->captured));
 
         return (10 * $this->scoreValue * $mult) / $div;
     }
@@ -596,17 +604,18 @@ class BMSwingDie extends BMDie {
 
     }
 
-    public function activate($playerIdx) {
+    public function activate() {
         $newDie = clone $this;
 
         $this->run_hooks(__FUNCTION__, array($newDie));
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values($newDie, $newDie->swingType);
+        $this->ownerObject->request_swing_values($newDie, $newDie->swingType,
+                                                          $newDie->playerIdx);
         $newDie->valueRequested = TRUE;
 
-        $this->ownerObject->add_die($newDie, $playerIdx);
+        $this->ownerObject->add_die($newDie);
     }
 
     public function make_play_die()

@@ -27,9 +27,8 @@ class BMSkillAVTesting extends BMSkill {
     public static $hooked_methods = array("assist_values");
 
     public static function assist_values($args) {
-        $args[3] = array(1);
+        $args[3] = array(-1, 1);
     }
-
 }
 
 class BMSkillCaptureCatcher extends BMSkill {
@@ -50,6 +49,18 @@ class BMSkillRollCatcher extends BMSkill {
 
     public static function roll($args) {
         throw new Exception("roll called");
+    }
+}
+
+class BMSkillTestStinger extends BMSkill {
+    public static $hooked_methods = array("attack_values");
+
+    public static function attack_values($args) {
+        $alist = &$args[1];
+
+        for ($i = $alist[0] - 1; $i > 0; $i--) {
+            $alist[] = $i;
+        }
     }
 }
 
@@ -84,6 +95,10 @@ class BMAttTesting extends BMAttack {
         return $this->search_manyvone($game, $att, $def);
     }
 
+    public function test_collect_helpers($game, $att, $def) {
+        return $this->collect_helpers($game, $att, $def);
+    }
+
     public function clear_dice() {
         $this->validDice = array();
     }
@@ -101,11 +116,22 @@ class BMAttTesting extends BMAttack {
     }
 }
 
+class BMAttSkillTesting extends BMAttackSkill {
+    public function reset() {
+        $this->hit_table = NULL;
+        $this->validDice = array();
+    }
+
+    public function make_hit_table() {
+        $this->hit_table = new BMHitTable($this->validDice);
+    }
+}
+
 class DummyGame {
     public $dice = array();
 
-    public function add_die($die, $player) {
-        $this->dice[] = array($player, $die);
+    public function add_die($die) {
+        $this->dice[] = array($die->playerIdx, $die);
     }
 
     public $swingrequest;
@@ -117,9 +143,7 @@ class DummyGame {
     public $all_values_specified = FALSE;
 
     public function require_values() {
-        if (!$this->all_values_specified) {
             throw new Exception("require_values called");
-        }
     }
 
     public function attackerAttackDieArray() {
