@@ -39,7 +39,7 @@ function loadMockGameData() {
     $activeDieArrayArray[0][1]->value = 1;
     $activeDieArrayArray[0][2]->value = 3;
     $activeDieArrayArray[0][3]->value = 4;
-    $activeDieArrayArray[0][4]->value = 6;
+    $activeDieArrayArray[0][4]->value = 4;
     $activeDieArrayArray[1][0]->value = 2;
     $activeDieArrayArray[1][1]->value = 1;
     $activeDieArrayArray[1][2]->value = 3;
