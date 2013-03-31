@@ -20,12 +20,18 @@ function loadMockGameDataWaitingForSwing() {
     return($game);
 }
 
-function loadMockGameData() {
+function loadMockGameDataDeterminingInitiative() {
     $game = loadMockGameDataWaitingForSwing();
 
     // specify swing dice correctly
-    $game->swingValueArrayArray = array(array('X'=>19), array('X'=>4));
+    $game->swingValueArrayArray = array(array('X'=>4), array('X'=>19));
     $game->proceed_to_next_user_action();
+
+    return($game);
+}
+
+function loadMockGameData() {
+    $game = loadMockGameDataDeterminingInitiative();
 
     $game->activePlayerIdx = 1;
     $activeDieArrayArray = $game->activeDieArrayArray;

@@ -57,27 +57,29 @@
             var nOpponentPlayerDieArray;
             var swingRequestArray;
 
-            function displayDieDetails() {
-                if (document.createElement){
-                    var maxNumDice = Math.max(nCurrentPlayerDieArray, nOpponentPlayerDieArray);
-                    for (var rowIdx = 1; rowIdx <= maxNumDice; rowIdx++) {
-                        $('#die_description_table').append(
-                            $('<tr>' +
-                                  '<td id=row' + rowIdx + 'cell1>?1</td>' +
-                                  '<td id=row' + rowIdx + 'cell2>?2</td>'+
-                              '</tr>')
-                        );
-                    }
+            function displayDice() {
+                var dieAttackIdx;
+                var dieDefendIdx;
 
-                    for (var dieIdx = 1; dieIdx <= nCurrentPlayerDieArray; dieIdx++) {
-                        $('#row' + dieIdx + 'cell1').text(currentPlayerDieRecipeArray[dieIdx-1]);
-                    }
-
-                    for (dieIdx = 1; dieIdx <= nOpponentPlayerDieArray; dieIdx++) {
-                        $('#row' + dieIdx + 'cell2').text(opponentPlayerDieRecipeArray[dieIdx-1]);
-                    }
+                for (dieAttackIdx = 0;
+                     dieAttackIdx < dieAttackValues.length;
+                     dieAttackIdx++) {
+                    addDie('playerIdx_' + attackerIdx +
+                           '_dieIdx_' + dieAttackIdx,
+                           dieAttackValues[dieAttackIdx],
+                           dieAttackSides[dieAttackIdx],
+                           "div_attack");
                 }
 
+                for (dieDefendIdx = 0;
+                     dieDefendIdx < dieDefendValues.length;
+                     dieDefendIdx++) {
+                    addDie('playerIdx_' + defenderIdx +
+                           '_dieIdx_' + dieDefendIdx,
+                           dieDefendValues[dieDefendIdx],
+                           dieDefendSides[dieDefendIdx],
+                           "div_defend");
+                }
             }
 
             function displaySwingDetails() {
