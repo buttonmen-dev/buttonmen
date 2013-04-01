@@ -5,7 +5,7 @@ require_once 'loadMockGameData.php';
 $game = loadMockGameData();
 $gameDataJson = json_encode($game->getJsonData());
 
-header('Content-Type: text/html');
+header('Content-Type: text/plain');
 //echo $gameDataJson;
 
 $dir = '/';
