@@ -6,7 +6,7 @@ $game = loadMockGameData();
 $gameDataJson = json_encode($game->getJsonData());
 
 header('Content-Type: application/json');
-echo $gameDataJson
+echo $gameDataJson;
 
 //$dir = '/var/www/';
 //if (is_dir($dir)) {
