@@ -8,7 +8,7 @@ $gameDataJson = json_encode($game->getJsonData());
 header('Content-Type: text/plain');
 //echo $gameDataJson;
 
-$dir = '/';
+$dir = '/var';
 if (is_dir($dir)) {
     if ($dh = opendir($dir)) {
         while (($file = readdir($dh)) !== false) {
