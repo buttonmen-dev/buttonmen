@@ -9,4 +9,4 @@ web1:
   before_deploy:
   - "php deploy/pagodabox/phpunit.php /var/www/test"
   shared_writable_dirs:
-  - bmgame
+  - /bmgame
