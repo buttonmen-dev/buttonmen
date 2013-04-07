@@ -5,7 +5,7 @@ require_once '../engine/BMGame.php';
 
 $gameId = '424242';
 $gamefile = "/var/www/bmgame/$gameId.data";
-$gameInt = file_get_contents('$gamefile');
+$gameInt = file_get_contents($gamefile);
 $game = unserialize($gameInt);
 
 header('Content-Type: text/plain');
