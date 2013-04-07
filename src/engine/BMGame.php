@@ -694,58 +694,30 @@ class BMGame {
     }
 
     // utility methods
-    public function __construct() {
-        // Don't use constructor directly: instead use one of the construction methods
-    }
-
-    public function create($gameID = 0,
-                           array $playerIdArray = array(0, 0),
-                           array $buttonRecipeArray = array('', ''),
-                           $maxWins = 3) {
-        $game = new self();
+    public function __construct($gameID = 0,
+                                array $playerIdArray = array(0, 0),
+                                array $buttonRecipeArray = array('', ''),
+                                $maxWins = 3) {
         if (count($playerIdArray) !== count($buttonRecipeArray)) {
             throw new InvalidArgumentException(
                 'Number of buttons must equal the number of players.');
         }
 
         $nPlayers = count($playerIdArray);
-        $game->nPlayers = $nPlayers;
-        $game->gameId = $gameID;
-        $game->playerIdArray = $playerIdArray;
-        $game->gameState = BMGameState::startGame;
-        $game->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
+        $this->nPlayers = $nPlayers;
+        $this->gameId = $gameID;
+        $this->playerIdArray = $playerIdArray;
+        $this->gameState = BMGameState::startGame;
+        $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
         foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
             if (strlen($tempRecipe) > 0) {
                 $tempButton = new BMButton;
                 $tempButton->load_from_recipe($tempRecipe);
-                $game->buttonArray[$buttonIdx] = $tempButton;
+                $this->buttonArray[$buttonIdx] = $tempButton;
             }
         }
-        $game->maxWins = $maxWins;
-        $game->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
-        return $game;
-    }
-
-    public function create_from_obj($obj) {
-        $game = new self();
-        
-        $game->gameId = $obj->gameID;
-        $game->playerIdArray = $obj->playerIdArray;
-        $nPlayers = count($game->playerIdArray);
-        $game->nPlayers = $nPlayers;
-
-        $game->gameState = BMGameState::startGame;
-        $game->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
-        foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
-            if (strlen($tempRecipe) > 0) {
-                $tempButton = new BMButton;
-                $tempButton->load_from_recipe($tempRecipe);
-                $game->buttonArray[$buttonIdx] = $tempButton;
-            }
-        }
-        $game->maxWins = $maxWins;
-        $game->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
-        return $game;
+        $this->maxWins = $maxWins;
+        $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     private function get_roundScoreArray() {

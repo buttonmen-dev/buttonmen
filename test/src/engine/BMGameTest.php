@@ -20,7 +20,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->object = BMGame::create();
+        $this->object = new BMGame;
     }
 
     /**
@@ -956,7 +956,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $method = new ReflectionMethod('BMGame', 'update_active_player');
         $method->setAccessible(TRUE);
 
-        $game = BMGame::create(1234,
+        $game = new BMGame(1234,
                            array(1, 12, 21, 3, 15),
                            array('', '', '', '', ''),
                            3);
@@ -979,7 +979,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     public function test__construct() {
         // construct default empty game
-        $game = BMGame::create();
+        $game = new BMGame;
         $this->assertEquals(0, $game->gameId);
         $this->assertEquals(array(0, 0), $game->playerIdArray);
         $this->assertEquals(2, $game->nPlayers);
@@ -997,7 +997,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $playerIdArray = array(123, 456);
         $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
         $maxWins = 5;
-        $game = BMGame::create($gameId, $playerIdArray, $buttonRecipeArray, $maxWins);
+        $game = new BMGame($gameId, $playerIdArray, $buttonRecipeArray, $maxWins);
         $this->assertEquals($playerIdArray, $game->playerIdArray);
         $this->assertEquals(2, $game->nPlayers);
         $this->assertEquals($buttonRecipeArray[0], $game->buttonArray[0]->recipe);
@@ -1011,7 +1011,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $buttonRecipeArray = array('(4) (8) (12) (20)', '(4) (4) (4) (20)');
         $maxWins = 5;
         try {
-            $game = BMGame::create($gameId, $playerIdArray, $buttonRecipeArray, $maxWins);
+            $game = new BMGame($gameId, $playerIdArray, $buttonRecipeArray, $maxWins);
             $this->fail('The number of buttons must equal the number of players.');
         }
         catch (InvalidArgumentException $expected) {
@@ -1187,7 +1187,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__set
      */
     public function test__set_player_idx_array() {
-        $game = BMGame::create(12345, array(123, 456), array('', ''), 3);
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
 
         // valid set
         $game->playerIdArray = array(345, 567);
@@ -1205,7 +1205,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__set
      */
     public function test__set_active_player_idx() {
-        $game = BMGame::create(12345, array(123, 456), array('', ''), 3);
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
 
         // valid set
         $game->activePlayerIdx = 0;
@@ -1223,7 +1223,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__set
      */
     public function test__set_player_with_initiative_idx() {
-        $game = BMGame::create(12345, array(123, 456), array('', ''), 3);
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
 
         // valid set
         $game->playerWithInitiativeIdx = 0;
@@ -1242,7 +1242,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__set
      */
     public function test__set_button_array() {
-        $game = BMGame::create(12345, array(123, 456), array('', ''), 3);
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
 
         $button1 = new BMButton;
         $button2 = new BMButton;
@@ -1598,7 +1598,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::__set
      */
     public function test__set_waiting_on_action_array() {
-        $game = BMGame::create(12345, array(123, 456), array('', ''), 3);
+        $game = new BMGame(12345, array(123, 456), array('', ''), 3);
 
         // valid set
         $game->waitingOnActionArray = array(TRUE, FALSE);
@@ -1655,7 +1655,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load_from_name('Stark');
 
         // load game
-        $game = BMGame::create(424242, array(123, 456));
+        $game = new BMGame(424242, array(123, 456));
         $game->buttonArray = array($button1, $button2);
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->proceed_to_next_user_action();
@@ -1750,7 +1750,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($button2->dieArray[4]->needsValue);
 
         // load game
-        $game = BMGame::create(424242, array(123, 456));
+        $game = new BMGame(424242, array(123, 456));
         $this->assertEquals(BMGameState::startGame, $game->gameState);
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::startGame, $game->gameState);
