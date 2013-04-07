@@ -18,6 +18,6 @@ echo $gameDataJson;
 //    }
 //}
 
-file_put_contents('/var/www/bmgame/gamedata.json', $gameDataJson);
+file_put_contents('/var/www/bmgame/gamedata.json', "$gameDataJson\n");
 
 ?>
