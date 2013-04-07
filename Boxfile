@@ -7,3 +7,5 @@ web1:
   - "chmod a+x deploy-includes/phpunit.phar"
   before_deploy:
   - "php deploy/pagodabox/phpunit.php /var/www/test"
+  shared_writable_dirs:
+  - /bmgame
