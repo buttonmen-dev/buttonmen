@@ -12,7 +12,7 @@ function loadMockGameDataWaitingForSwing() {
     $button2->load_from_name('Stark');
 
     // load game
-    $game = new BMGame(424242, array(123, 456));
+    $game = BMGame::create(424242, array(123, 456));
     $game->buttonArray = array($button1, $button2);
     $game->waitingOnActionArray = array(FALSE, FALSE);
     $game->proceed_to_next_user_action();

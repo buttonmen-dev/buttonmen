@@ -694,30 +694,36 @@ class BMGame {
     }
 
     // utility methods
-    public function __construct($gameID = 0,
-                                array $playerIdArray = array(0, 0),
-                                array $buttonRecipeArray = array('', ''),
-                                $maxWins = 3) {
+    public function __construct() {
+        // Don't use constructor directly: instead use one of the construction methods
+    }
+
+    public function create($gameID = 0,
+                           array $playerIdArray = array(0, 0),
+                           array $buttonRecipeArray = array('', ''),
+                           $maxWins = 3) {
+        $game = new self();
         if (count($playerIdArray) !== count($buttonRecipeArray)) {
             throw new InvalidArgumentException(
                 'Number of buttons must equal the number of players.');
         }
 
         $nPlayers = count($playerIdArray);
-        $this->nPlayers = $nPlayers;
-        $this->gameId = $gameID;
-        $this->playerIdArray = $playerIdArray;
-        $this->gameState = BMGameState::startGame;
-        $this->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
+        $game->nPlayers = $nPlayers;
+        $game->gameId = $gameID;
+        $game->playerIdArray = $playerIdArray;
+        $game->gameState = BMGameState::startGame;
+        $game->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
         foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
             if (strlen($tempRecipe) > 0) {
                 $tempButton = new BMButton;
                 $tempButton->load_from_recipe($tempRecipe);
-                $this->buttonArray[$buttonIdx] = $tempButton;
+                $game->buttonArray[$buttonIdx] = $tempButton;
             }
         }
-        $this->maxWins = $maxWins;
-        $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
+        $game->maxWins = $maxWins;
+        $game->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
+        return $game;
     }
 
     private function get_roundScoreArray() {
