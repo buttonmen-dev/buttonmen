@@ -5,6 +5,9 @@ require_once 'loadMockGameData.php';
 $game = loadMockGameData();
 $gameDataJson = json_encode($game->getJsonData());
 
+$gameInt = serialize($game);
+file_put_contents('tmp1', $gameInt);
+
 header('Content-Type: application/json');
 echo $gameDataJson;
 

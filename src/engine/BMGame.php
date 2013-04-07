@@ -726,6 +726,28 @@ class BMGame {
         return $game;
     }
 
+    public function create_from_obj($obj) {
+        $game = new self();
+        
+        $game->gameId = $obj->gameID;
+        $game->playerIdArray = $obj->playerIdArray;
+        $nPlayers = count($game->playerIdArray);
+        $game->nPlayers = $nPlayers;
+
+        $game->gameState = BMGameState::startGame;
+        $game->waitingOnActionArray = array_pad(array(), $nPlayers, FALSE);
+        foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
+            if (strlen($tempRecipe) > 0) {
+                $tempButton = new BMButton;
+                $tempButton->load_from_recipe($tempRecipe);
+                $game->buttonArray[$buttonIdx] = $tempButton;
+            }
+        }
+        $game->maxWins = $maxWins;
+        $game->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
+        return $game;
+    }
+
     private function get_roundScoreArray() {
         $roundScoreArray = array();
 
