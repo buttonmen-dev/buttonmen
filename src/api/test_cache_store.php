@@ -1,6 +1,7 @@
 <?php
 
 require_once 'loadMockGameData.php';
+require_once '../engine/BMInterface.php';
 
 $game = loadMockGameData();
 //$gameInt = serialize($game);
