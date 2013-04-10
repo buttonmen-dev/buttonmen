@@ -748,8 +748,7 @@ class BMGame {
 
     // to allow array elements to be set directly, change the __get to &__get
     // to return the result by reference
-    public function __get($property)
-    {
+    public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
                 case 'attackerPlayerIdx':
