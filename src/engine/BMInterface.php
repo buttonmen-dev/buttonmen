@@ -35,6 +35,25 @@ class BMInterface {
 
         $message = "Generated game $game->gameId: caching data in file: $gamefile\n";
     }
+
+    public function __get($property) {
+        if (property_exists($this, $property)) {
+            switch ($property) {
+                default:
+                    return $this->$property;
+            }
+        }
+    }
+
+    public function __set($property, $value) {
+        switch ($property) {
+            case 'message':
+                throw new LogicException(
+                    'message can only be read, not written.');
+            default:
+                $this->$property = $value;
+        }
+    }
 }
 
 
