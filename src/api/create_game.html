@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<!--
+    This document should be written in polyglot HTML5/XHTML5, and therefore
+    should run when served either as text/html or application/xhtml+xml.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+
+        <meta charset="utf-8" />
+        <title>Start new game</title>
+        <link rel="stylesheet" href="gui.css" />
+
+    </head>
+
+    <body>
+        <div class="title2">Create a new game</div>
+
+        <br />
+
+        <div>
+            <table id="button_choice_table">
+                <tr>
+                    <td>
+                        Opponent:
+                    </td>
+                    <td>
+                        <input type="text" name="opp_player_name"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Your button:
+                    </td>
+                    <td>
+                        <select>
+                            <optgroup label="Soldiers">
+                                <option value="your_die_bauer">Bauer</option>
+                                <option value="your_die_stark">Stark</option>
+                            </optgroup>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Opponent's button:
+                    </td>
+                    <td>
+                        <select>
+                            <optgroup label="Soldiers">
+                                <option value="opp_die_bauer">Bauer</option>
+                                <option value="opp_die_stark">Stark</option>
+                            </optgroup>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        Number of rounds:
+                    </td>
+                    <td>
+                        <select>
+                            <option value="nround_1">1</option>
+                            <option value="nround_2">2</option>
+                            <option value="nround_3">3</option>
+                            <option value="nround_4">4</option>
+                            <option value="nround_5">5</option>
+                        </select>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <br />
+
+        <div ><button id="submit">Start game!</button></div>
+        <br />
+        <div><span id="submit_status"></span></div>
+
+        <!--
+        james: eventually, we will want to use the hosted version of the JQuery library
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+        -->
+        <script src="jquery-1.9.0.min.js"></script>
+        <script>
+
+        </script>
+    </body>
+</html>
