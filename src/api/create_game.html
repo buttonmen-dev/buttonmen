@@ -4,85 +4,112 @@
     should run when served either as text/html or application/xhtml+xml.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-    <head>
+<head>
 
-        <meta charset="utf-8" />
-        <title>Start new game</title>
-        <link rel="stylesheet" href="gui.css" />
+    <meta charset="utf-8" />
+    <title>Start new game</title>
+    <link rel="stylesheet" href="gui.css" />
 
-    </head>
+</head>
 
-    <body>
-        <div class="title2">Create a new game</div>
+<body>
+    <div class="title2">Create a new game</div>
 
-        <br />
+    <br />
 
-        <div>
-            <table id="button_choice_table">
-                <tr>
-                    <td>
-                        Opponent:
-                    </td>
-                    <td>
-                        <input type="text" name="opp_player_name"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Your button:
-                    </td>
-                    <td>
-                        <select>
-                            <optgroup label="Soldiers">
-                                <option value="your_die_bauer">Bauer</option>
-                                <option value="your_die_stark">Stark</option>
-                            </optgroup>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Opponent's button:
-                    </td>
-                    <td>
-                        <select>
-                            <optgroup label="Soldiers">
-                                <option value="opp_die_bauer">Bauer</option>
-                                <option value="opp_die_stark">Stark</option>
-                            </optgroup>
-                        </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Number of rounds:
-                    </td>
-                    <td>
-                        <select>
-                            <option value="nround_1">1</option>
-                            <option value="nround_2">2</option>
-                            <option value="nround_3">3</option>
-                            <option value="nround_4">4</option>
-                            <option value="nround_5">5</option>
-                        </select>
-                    </td>
-                </tr>
-            </table>
-        </div>
+    <div>
+        <table id="button_choice_table">
+            <tr>
+                <td>
+                    Opponent:
+                </td>
+                <td>
+                    <input type="text" name="opp_player_name"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Your button:
+                </td>
+                <td>
+                    <select id="select_you">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Opponent's button:
+                </td>
+                <td>
+                    <select id="select_opp">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Number of rounds:
+                </td>
+                <td>
+                    <select>
+                        <option value="nround_1">1</option>
+                        <option value="nround_2">2</option>
+                        <option value="nround_3">3</option>
+                        <option value="nround_4">4</option>
+                        <option value="nround_5">5</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
 
-        <br />
+    <br />
 
-        <div ><button id="submit">Start game!</button></div>
-        <br />
-        <div><span id="submit_status"></span></div>
+    <div ><button id="submit">Start game!</button></div>
+    <br />
+    <div><span id="submit_status"></span></div>
 
-        <!--
-        james: eventually, we will want to use the hosted version of the JQuery library
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
-        -->
-        <script src="jquery-1.9.0.min.js"></script>
-        <script>
+    <br />
+    <div><span id="debug_message"></span></div>
 
-        </script>
-    </body>
+    <!--
+    james: eventually, we will want to use the hosted version of the JQuery library
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    -->
+    <script src="jquery-1.9.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // global variables
+            var buttonNameArray;
+
+            // functions
+            function loadButtonNames() {
+                $.ajax({
+                    type: 'POST',
+                    url: 'ajax_responder.php',
+                    data: {type:'loadButtonNames'},
+                    dataType: 'json',
+                    success: function(rs) {
+                        // add buttons to selects
+                        for (var buttonIdx = 0;
+                             buttonIdx < rs.buttonNameArray.length;
+                             buttonIdx++) {
+                            $('#select_you').append(
+                                $('<option value=your_die_"' +
+                                  rs.buttonNameArray[buttonIdx] + '">' +
+                                  rs.buttonNameArray[buttonIdx] + '</option>'));
+                            $('#select_opp').append(
+                                $('<option value=opp_die_"' +
+                                  rs.buttonNameArray[buttonIdx] + '">' +
+                                  rs.buttonNameArray[buttonIdx] + '</option>'));
+                            }
+                    }
+                });
+            };
+
+            // code to run when page is ready
+            loadButtonNames();
+        });
+
+    </script>
+</body>
 </html>

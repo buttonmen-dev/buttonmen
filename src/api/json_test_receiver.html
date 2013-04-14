@@ -52,8 +52,6 @@ $(document).ready(function() {
 
     var dieSelectStatus = new Object;
 
-    var $res = $('#result');
-
     // functions
     function addDie(id, rolled_number, nSides, parent) {
         if (document.createElement){
@@ -103,7 +101,6 @@ $(document).ready(function() {
         jQuery.ajax({                                   // Do a jQuery AJAX fetch
             url: 'json_test_initial_load_data.php',
             success: function(rs, status, xhr) {
-                var $rs = $('#result');
                 if (rs.status == 'ok') {
                     attackerIdx = rs.data.activePlayerIdx;
                     defenderIdx = (rs.data.activePlayerIdx + 1)%2;
@@ -133,8 +130,8 @@ $(document).ready(function() {
                     $('#round_number').text(rs.data.roundNumber);
                     displayDice();
                 } else {
-                    $rs.html("JSON fetch failed\n"+
-                             JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                    $('#result').html("JSON fetch failed\n"+
+                                      JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
                 }
             }
         });

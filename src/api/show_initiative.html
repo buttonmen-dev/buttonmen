@@ -93,8 +93,6 @@
                 jQuery.ajax({                                   // Do a jQuery AJAX fetch
                     url: 'load_test_game_determining_initiative.php',
                     success: function(rs, status, xhr) {
-                        // $rs is the place where the error message will be shown
-                        var $rs = $('#game_id');
                         if (rs.status == 'ok') {
                             opponentPlayerIdx = (currentPlayerIdx + 1)%2;
                             nCurrentPlayerDice = rs.data.nDieArray[currentPlayerIdx];
@@ -116,8 +114,8 @@
                             displayDice();
                             displayInitiativeDetails();
                         } else {
-                            $rs.html("JSON fetch failed\n"+
-                                     JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                            $('#game_id').html("JSON fetch failed\n"+
+                                               JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
                         }
                     }
                 });

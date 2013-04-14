@@ -16,7 +16,7 @@ class BMInterface {
     private $message;               // message intended for GUI
 
     // methods
-    public function loadGame($gameId) {
+    public function load_game($gameId) {
         // this will be rewritten in the future to use a database instead of a file
         $gamefile = "/var/www/bmgame/$gameId.data";
         $gameInt = file_get_contents($gamefile);
@@ -27,13 +27,20 @@ class BMInterface {
         return $game;
     }
 
-    public function saveGame($game) {
+    public function save_game($game) {
         // this will be rewritten in the future to use a database instead of a file
         $gamefile = "/var/www/bmgame/$game->gameId.data";
         $gameInt = serialize($game);
         file_put_contents($gamefile, $gameInt);
 
         $message = "Generated game $game->gameId: caching data in file: $gamefile\n";
+    }
+
+    public function get_all_button_names() {
+        // this will be rewritten in the future to use a database instead of a
+        // hard-coded array
+        $buttonNameArray = array('Bauer', 'Stark');
+        return $buttonNameArray;
     }
 
     public function __get($property) {
