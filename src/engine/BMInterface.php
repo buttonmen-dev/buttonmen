@@ -16,7 +16,7 @@ class BMInterface {
     private $message;               // message intended for GUI
 
     // methods
-    public function load_game($gameId) {
+    public function loadGame($gameId) {
         // this will be rewritten in the future to use a database instead of a file
         $gamefile = "/var/www/bmgame/$gameId.data";
         $gameInt = file_get_contents($gamefile);
@@ -27,7 +27,7 @@ class BMInterface {
         return $game;
     }
 
-    public function save_game($game) {
+    public function saveGame($game) {
         // this will be rewritten in the future to use a database instead of a file
         $gamefile = "/var/www/bmgame/$game->gameId.data";
         $gameInt = serialize($game);
