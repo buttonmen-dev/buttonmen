@@ -93,15 +93,16 @@
                         for (var buttonIdx = 0;
                              buttonIdx < rs.buttonNameArray.length;
                              buttonIdx++) {
+                            var buttonName = rs.buttonNameArray[buttonIdx];
                             $('#select_you').append(
-                                $('<option value=your_die_"' +
-                                  rs.buttonNameArray[buttonIdx] + '">' +
-                                  rs.buttonNameArray[buttonIdx] + '</option>'));
+                                $('<option></option>').
+                                    text(buttonName).
+                                    val('your_die_' + buttonName));
                             $('#select_opp').append(
-                                $('<option value=opp_die_"' +
-                                  rs.buttonNameArray[buttonIdx] + '">' +
-                                  rs.buttonNameArray[buttonIdx] + '</option>'));
-                            }
+                                $('<option></option>').
+                                    text(buttonName).
+                                    val('opp_die_' + buttonName));
+                        }
                     }
                 });
             };
