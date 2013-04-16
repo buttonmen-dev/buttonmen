@@ -43,6 +43,20 @@ class BMInterface {
         return $buttonNameArray;
     }
 
+    public function get_player_id_from_name($name) {
+        // this will be rewritten in the future to use a database instead of a
+        // hard-coded array
+        $idArray = array('blackshadowshade' => '314159',
+                         'cgolubi' => '356995',
+                         'jl8e' => '271828');
+
+        if (array_key_exists($name, $idArray)) {
+            return $idArray[$name];
+        } else {
+            return '';
+        }
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
