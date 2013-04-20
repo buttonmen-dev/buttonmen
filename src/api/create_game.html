@@ -85,7 +85,7 @@
             function loadButtonNames() {
                 $.ajax({
                     type: 'POST',
-                    url: 'ajax_responder.php',
+                    url: 'responder.php',
                     data: {type:'loadButtonNames'},
                     dataType: 'json',
                     success: function(rs) {
