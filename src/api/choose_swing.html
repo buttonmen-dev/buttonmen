@@ -33,13 +33,16 @@
     </div>
 
     <div>
-    <form action="responder.php" id="swing_values">
+    <form action="responder.php" method="post">
         <table id="swing_table">
         </table>
         <br />
-        <input type="submit" value="Submit"/>
+        <div><span id="submit_status"></span></div>
     </form>
     </div>
+
+    <br />
+    <div ><button id="submit">Submit</button></div>
 
     <!--
     james: eventually, we will want to use the hosted version of the JQuery library
@@ -50,51 +53,38 @@
 
     $(document).ready(function() {
         // global variables
+        var gameId;
+        var roundNumber;
         var currentPlayerIdx;
         var opponentPlayerIdx;
         var currentPlayerDieRecipeArray;
         var opponentPlayerDieRecipeArray;
         var swingRequestArray;
-
-        function addDie(dieRecipe, parent) {
-            if (document.createElement){
-                $('#'+parent).append('<p>' + dieRecipe + '</p>');
-            }
-        }
+        var swingValueArray;
 
         function displayDieDetails() {
-            var dieCurrentPlayerIdx;
-            var dieOpponentIdx;
+            $.each(currentPlayerDieRecipeArray, function(index, value) {
+                $('#div_current_player').append('<p>' + value + '</p>');
+            })
 
-            for (dieCurrentPlayerIdx = 0;
-                 dieCurrentPlayerIdx < currentPlayerDieRecipeArray.length;
-                 dieCurrentPlayerIdx++) {
-                addDie(currentPlayerDieRecipeArray[dieCurrentPlayerIdx],
-                       "div_current_player");
-            }
-
-            for (dieOpponentIdx = 0;
-                 dieOpponentIdx < opponentPlayerDieRecipeArray.length;
-                 dieOpponentIdx++) {
-                addDie(opponentPlayerDieRecipeArray[dieOpponentIdx],
-                       "div_opponent");
-            }
+            $.each(opponentPlayerDieRecipeArray, function(index, value) {
+                $('#div_opponent').append('<p>' + value + '</p>');
+            })
         }
 
         function displaySwingDetails() {
             if (document.createElement){
-                var nSwing = swingRequestArray.length;
-                for (var swingIdx = 1; swingIdx <= nSwing; swingIdx++) {
+                $.each(swingRequestArray, function(index, value) {
                     $('#swing_table').append(
                         $('<tr>' +
-                              '<td>' + swingRequestArray[swingIdx-1] + ' :</td>' +
+                              '<td>' + value + ' :</td>' +
                               '<td><input type="text" class="text" ' +
-                                   'id="swing_' + swingIdx +
+                                   'id="swing_' + index +
                                    '" ' +
                                    'size="2" maxlength="2"/></td>' +
                           '</tr>')
                     );
-                }
+                })
             }
         }
 
@@ -107,9 +97,11 @@
                         currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
                         opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
                         swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
+                        gameId = rs.data.gameId;
+                        roundNumber = rs.data.roundNumber;
 
-                        $('#game_id').text(rs.data.gameId);
-                        $('#round_number').text(rs.data.roundNumber);
+                        $('#game_id').text(gameId);
+                        $('#round_number').text(roundNumber);
 
                         displayDieDetails();
                         displaySwingDetails();
@@ -120,6 +112,35 @@
                 }
             });
         }
+
+        $('#submit').click(function() {
+            var textFieldsFilled = true;
+            swingValueArray = [];
+
+            $("input:text").each(function(index, element) {
+                var value = $(element).val();
+                if ($.isNumeric(value)) {
+                    swingValueArray[index] = value;
+                } else {
+                    textFieldsFilled = false;
+                };
+            });
+
+            if (textFieldsFilled) {
+
+                $.post('responder.php',
+                       {
+                           type: 'submitSwingValues',
+                           gameId: gameId,
+                           roundNumber: roundNumber,
+                           currentPlayerIdx: currentPlayerIdx,
+                           swingValueArray: JSON.stringify(swingValueArray)
+                       },
+                       function(rs){
+                           $('#submit_status').html(rs.status);
+                       });
+            }
+        });
 
         // code to initialise game variables
         currentPlayerIdx = 1;

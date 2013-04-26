@@ -151,14 +151,15 @@ $(document).ready(function() {
             dieSelectStatus[$(element).attr('id')] = true;
         })
         $.post('test_submit.php',
-                   {
-                       attackerIdx: attackerIdx,
-                       defenderIdx: defenderIdx,
-                       dieSelectStatus: JSON.stringify(dieSelectStatus)
-                   },
-                   function(data, status){
-                       $('#submit_status').html(data);
-                   });
+               {
+                   type: 'loadButtonNames',
+                   attackerIdx: attackerIdx,
+                   defenderIdx: defenderIdx,
+                   dieSelectStatus: JSON.stringify(dieSelectStatus)
+               },
+               function(data){
+                   $('#submit_status').html(data);
+               });
     });
 
     // code to run when page is ready

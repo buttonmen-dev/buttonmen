@@ -11,6 +11,9 @@
                 'buttonNameArray' => $interface->get_all_button_names());
             echo json_encode($dataArray);
             break;
+        case 'submitSwingValues':
+            echo json_encode(array('status' => 'ok', 'data' => 'hello'));
+            break;
         default:
             //do nothing
     }
