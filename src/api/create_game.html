@@ -21,10 +21,18 @@
         <table id="button_choice_table">
             <tr>
                 <td>
+                    You:
+                </td>
+                <td>
+                    <span id="your_player_name"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
                     Opponent:
                 </td>
                 <td>
-                    <input type="text" name="opp_player_name"/>
+                    <input type="text" id="opp_player_name" name="opp_player_name"/>
                 </td>
             </tr>
             <tr>
@@ -80,8 +88,17 @@
         $(document).ready(function() {
             // global variables
             var buttonNameArray = new Array();
+            var playerNameArray = new Array();
 
             // functions
+            function loadPlayerName() {
+                $.post('responder.php',
+                       {type: 'loadPlayerName'},
+                       function(rs){
+                           $('#your_player_name').text(rs.data);
+                       });
+            }
+
             function loadButtonNames() {
                 $.post('responder.php',
                        {type: 'loadButtonNames'},
@@ -104,20 +121,48 @@
             };
 
             $('#submit').click(function() {
-                // get both selections
+                playerNameArray[0] = $('#your_player_name').text();
+                playerNameArray[1] = $('#opp_player_name').val();
+
+                // check that the opponent's name is filled in
+                if (!playerNameArray[1]) {
+                    return false;
+                }
+
+                var areNamesValid = false;
+                // check that the players' names are valid
+                var nameCheck = $.post('responder.php',
+                       {type: 'checkPlayerNames',
+                        playerNameArray: playerNameArray},
+                       function(rs){
+                           areNamesValid = rs.data;
+                       })
+
+                nameCheck.done(function() {
+                    if (!areNamesValid) {
+                        $('#submit_status').text('Invalid opponent name');
+                        return false;
+                    }
+                });
+
+                $('#submit_status').text('Valid opponent name');
+
+                // get both button selections
                 buttonNameArray[0] = $('#select_you').val();
                 buttonNameArray[1] = $('#select_opp').val();
 
-                // post both selections
+                // post both button selections and create game
                 $.post('responder.php',
                        {type: 'chooseButtons',
                         buttonNameArray: buttonNameArray},
                        function(rs){
-                           $('#submit_status').html(rs.data);
+                           // give feedback about the status of the submit
+//                           $('#debug_message').html(rs.data);
                        });
             });
 
             // code to run when page is ready
+            loadPlayerName();
             loadButtonNames();
         });
 
