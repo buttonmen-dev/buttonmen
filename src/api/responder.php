@@ -11,6 +11,11 @@
                 'buttonNameArray' => $interface->get_all_button_names());
             echo json_encode($dataArray);
             break;
+        case 'chooseButtons':
+            $buttonNameArray = $_POST['buttonNameArray'];
+            echo json_encode(array('status' => 'ok',
+                                   'data' => $buttonNameArray));
+            break;
         case 'submitSwingValues':
             echo json_encode(array('status' => 'ok', 'data' => 'hello'));
             break;

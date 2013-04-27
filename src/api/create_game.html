@@ -79,33 +79,43 @@
     <script>
         $(document).ready(function() {
             // global variables
-            var buttonNameArray;
+            var buttonNameArray = new Array();
 
             // functions
             function loadButtonNames() {
-                $.ajax({
-                    type: 'POST',
-                    url: 'responder.php',
-                    data: {type:'loadButtonNames'},
-                    dataType: 'json',
-                    success: function(rs) {
-                        // add buttons to selects
-                        for (var buttonIdx = 0;
-                             buttonIdx < rs.buttonNameArray.length;
-                             buttonIdx++) {
-                            var buttonName = rs.buttonNameArray[buttonIdx];
-                            $('#select_you').append(
-                                $('<option></option>').
-                                    text(buttonName).
-                                    val('your_die_' + buttonName));
-                            $('#select_opp').append(
-                                $('<option></option>').
-                                    text(buttonName).
-                                    val('opp_die_' + buttonName));
-                        }
-                    }
-                });
+                $.post('responder.php',
+                       {type: 'loadButtonNames'},
+                       function(rs){
+                           // add buttons to selects
+                           for (var buttonIdx = 0;
+                                buttonIdx < rs.buttonNameArray.length;
+                                buttonIdx++) {
+                               var buttonName = rs.buttonNameArray[buttonIdx];
+                               $('#select_you').append(
+                                   $('<option></option>').
+                                       text(buttonName).
+                                       val('your_die_' + buttonName));
+                               $('#select_opp').append(
+                                   $('<option></option>').
+                                       text(buttonName).
+                                       val('opp_die_' + buttonName));
+                           }
+                       });
             };
+
+            $('#submit').click(function() {
+                // get both selections
+                buttonNameArray[0] = $('#select_you').val();
+                buttonNameArray[1] = $('#select_opp').val();
+
+                // post both selections
+                $.post('responder.php',
+                       {type: 'chooseButtons',
+                        buttonNameArray: buttonNameArray},
+                       function(rs){
+                           $('#submit_status').html(rs.data);
+                       });
+            });
 
             // code to run when page is ready
             loadButtonNames();
