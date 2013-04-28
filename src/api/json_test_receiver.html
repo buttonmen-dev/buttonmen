@@ -53,13 +53,13 @@ $(document).ready(function() {
     var dieSelectStatus = {};
 
     // functions
-    function addDie(id, rolled_number, nSides, parent) {
+    function addDie(id, rolledNumber, nSides, parent) {
         if (document.createElement){
             $('#'+parent).append(
                 $('<div id="' + id + '" class="die_img unselected"' +
                   'style="background-image: url(images/Circle.png)">' +
                       '<span id="' + id + '_span" class="die_overlay">' +
-                          rolled_number + ' d' + nSides +
+                          rolledNumber + ' d' + nSides +
                       '</span>' +
                   '</div>'));
             $('#'+id).click(borderToggle);
@@ -69,7 +69,7 @@ $(document).ready(function() {
     }
 
     function borderToggle() {
-        $(this).toggleClass("selected unselected");
+        $(this).toggleClass('selected unselected');
     }
 
     function displayDice() {
@@ -83,7 +83,7 @@ $(document).ready(function() {
                    '_dieIdx_' + dieAttackIdx,
                    dieAttackValues[dieAttackIdx],
                    dieAttackSides[dieAttackIdx],
-                   "div_attack");
+                   'div_attack');
         }
 
         for (dieDefendIdx = 0;
@@ -93,14 +93,14 @@ $(document).ready(function() {
                    '_dieIdx_' + dieDefendIdx,
                    dieDefendValues[dieDefendIdx],
                    dieDefendSides[dieDefendIdx],
-                   "div_defend");
+                   'div_defend');
         }
     }
 
     function loadGameInfo() {
         jQuery.ajax({                                   // Do a jQuery AJAX fetch
             url: 'json_test_initial_load_data.php',
-            success: function(rs, status, xhr) {
+            success: function(rs) {
                 if (rs.status == 'ok') {
                     attackerIdx = rs.data.activePlayerIdx;
                     defenderIdx = (rs.data.activePlayerIdx + 1)%2;
@@ -111,16 +111,16 @@ $(document).ready(function() {
                     $('#attacker_id').text(rs.data.playerIdArray[attackerIdx]);
                     $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
 
-                    var attacker_game_score_array = rs.data.gameScoreArrayArray[attackerIdx];
-                    var attacker_game_score = attacker_game_score_array.W + '/' +
-                                              attacker_game_score_array.L + '/' +
-                                              attacker_game_score_array.T;
-                    $('#attacker_game_score').text(attacker_game_score);
-                    var defender_game_score_array = rs.data.gameScoreArrayArray[defenderIdx];
-                    var defender_game_score = defender_game_score_array.W + '/' +
-                                              defender_game_score_array.L + '/' +
-                                              defender_game_score_array.T;
-                    $('#defender_game_score').text(defender_game_score);
+                    var attackerGameScoreArray = rs.data.gameScoreArrayArray[attackerIdx];
+                    var attackerGameScore = attackerGameScoreArray.W + '/' +
+                                            attackerGameScoreArray.L + '/' +
+                                            attackerGameScoreArray.T;
+                    $('#attacker_game_score').text(attackerGameScore);
+                    var defenderGameScoreArray = rs.data.gameScoreArrayArray[defenderIdx];
+                    var defenderGameScore = defenderGameScoreArray.W + '/' +
+                                            defenderGameScoreArray.L + '/' +
+                                            defenderGameScoreArray.T;
+                    $('#defender_game_score').text(defenderGameScore);
 
                     $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
                     $('#defender_button').text(rs.data.buttonNameArray[defenderIdx]);
@@ -130,24 +130,18 @@ $(document).ready(function() {
                     $('#round_number').text(rs.data.roundNumber);
                     displayDice();
                 } else {
-                    $('#result').html("JSON fetch failed\n"+
+                    $('#result').html('JSON fetch failed\n'+
                                       JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
                 }
             }
         });
     }
 
-    // on-click behaviour
-    $('#fetch').click(function() {                      // When the button is clicked...
-        $('#result').html('Fetching...');               // Show that we're doing a network fetch
-        fetchGameInfo();
-    });
-
     $('#submit').click(function() {
         for (var statusKey in dieSelectStatus) {
             dieSelectStatus[statusKey] = false;
         }
-        $("div.selected").each(function(index, element) {
+        $('div.selected').each(function(index, element) {
             dieSelectStatus[$(element).attr('id')] = true;
         });
         $.post('test_submit.php',

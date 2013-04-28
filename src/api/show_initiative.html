@@ -47,13 +47,13 @@
             var playerWithInitiativeId;
 
             // functions
-            function addDie(id, rolled_number, nSides, parent) {
+            function addDie(id, rolledNumber, nSides, parent) {
                 if (document.createElement){
                     $('#'+parent).append(
                         $('<div id="' + id + '" class="die_img unselected"' +
                           'style="background-image: url(images/Circle.png)">' +
                               '<span id="' + id + '_span" class="die_overlay">' +
-                                  rolled_number + ' d' + nSides +
+                                  rolledNumber + ' d' + nSides +
                               '</span>' +
                           '</div>'));
                 }
@@ -70,7 +70,7 @@
                            '_dieIdx_' + dieCurrentIdx,
                            currentPlayerDieValueArray[dieCurrentIdx],
                            currentPlayerSidesArray[dieCurrentIdx],
-                           "div_current_player");
+                           'div_current_player');
                 }
 
                 for (dieOpponentIdx = 0;
@@ -80,7 +80,7 @@
                            '_dieIdx_' + dieOpponentIdx,
                            opponentPlayerDieValueArray[dieOpponentIdx],
                            opponentPlayerSidesArray[dieOpponentIdx],
-                           "div_opponent");
+                           'div_opponent');
                 }
             }
 
@@ -92,7 +92,7 @@
             function loadGameInfo() {
                 jQuery.ajax({                                   // Do a jQuery AJAX fetch
                     url: 'load_test_game_determining_initiative.php',
-                    success: function(rs, status, xhr) {
+                    success: function(rs) {
                         if (rs.status == 'ok') {
                             opponentPlayerIdx = (currentPlayerIdx + 1)%2;
                             nCurrentPlayerDice = rs.data.nDieArray[currentPlayerIdx];
@@ -114,7 +114,7 @@
                             displayDice();
                             displayInitiativeDetails();
                         } else {
-                            $('#game_id').html("JSON fetch failed\n"+
+                            $('#game_id').html('JSON fetch failed\n'+
                                                JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
                         }
                     }

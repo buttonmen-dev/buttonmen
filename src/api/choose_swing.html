@@ -91,7 +91,7 @@
         function loadGameInfo() {
             $.ajax({                                   // Do a jQuery AJAX fetch
                 url: 'load_test_game_waiting_on_swing.php',
-                success: function(rs, status, xhr) {
+                success: function(rs) {
                     if (rs.status == 'ok') {
                         opponentPlayerIdx = (currentPlayerIdx + 1)%2;
                         currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
@@ -106,7 +106,7 @@
                         displayDieDetails();
                         displaySwingDetails();
                     } else {
-                        $('#game_id').html("JSON fetch failed\n"+
+                        $('#game_id').html('JSON fetch failed\n'+
                                            JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
                     }
                 }
@@ -117,7 +117,7 @@
             var textFieldsFilled = true;
             swingValueArray = [];
 
-            $("input:text").each(function(index, element) {
+            $('input:text').each(function(index, element) {
                 var value = $(element).val();
                 if ($.isNumeric(value)) {
                     swingValueArray[index] = value;

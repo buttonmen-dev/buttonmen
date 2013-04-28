@@ -40,7 +40,10 @@ module.exports = function(grunt) {
 //            all: ['Gruntfile.js', 'src/**/*.js', 'test/src/**/*.js']
 //        }
         inlinelint: {
-            html: ['./src/**/*.html']
+            html: ['./src/**/*.html'],
+            options: {
+                jshintrc: '.jshintrc'
+            }
         }
     });
     
