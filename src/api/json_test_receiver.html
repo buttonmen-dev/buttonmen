@@ -50,7 +50,7 @@ $(document).ready(function() {
     var dieAttackSides;
     var dieDefendSides;
 
-    var dieSelectStatus = new Object;
+    var dieSelectStatus = {};
 
     // functions
     function addDie(id, rolled_number, nSides, parent) {
@@ -112,14 +112,14 @@ $(document).ready(function() {
                     $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
 
                     var attacker_game_score_array = rs.data.gameScoreArrayArray[attackerIdx];
-                    var attacker_game_score = attacker_game_score_array['W'] + '/' +
-                                              attacker_game_score_array['L'] + '/' +
-                                              attacker_game_score_array['T'];
+                    var attacker_game_score = attacker_game_score_array.W + '/' +
+                                              attacker_game_score_array.L + '/' +
+                                              attacker_game_score_array.T;
                     $('#attacker_game_score').text(attacker_game_score);
                     var defender_game_score_array = rs.data.gameScoreArrayArray[defenderIdx];
-                    var defender_game_score = defender_game_score_array['W'] + '/' +
-                                              defender_game_score_array['L'] + '/' +
-                                              defender_game_score_array['T'];
+                    var defender_game_score = defender_game_score_array.W + '/' +
+                                              defender_game_score_array.L + '/' +
+                                              defender_game_score_array.T;
                     $('#defender_game_score').text(defender_game_score);
 
                     $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
@@ -149,7 +149,7 @@ $(document).ready(function() {
         }
         $("div.selected").each(function(index, element) {
             dieSelectStatus[$(element).attr('id')] = true;
-        })
+        });
         $.post('test_submit.php',
                {
                    type: 'loadButtonNames',

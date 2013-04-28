@@ -87,8 +87,8 @@
     <script>
         $(document).ready(function() {
             // global variables
-            var buttonNameArray = new Array();
-            var playerNameArray = new Array();
+            var buttonNameArray = [];
+            var playerNameArray = [];
 
             // functions
             function loadPlayerName() {
@@ -118,7 +118,7 @@
                                        val('opp_die_' + buttonName));
                            }
                        });
-            };
+            }
 
             $('#submit').click(function() {
                 playerNameArray[0] = $('#your_player_name').text();
@@ -132,11 +132,11 @@
                 var areNamesValid = false;
                 // check that the players' names are valid
                 var nameCheck = $.post('responder.php',
-                       {type: 'checkPlayerNames',
-                        playerNameArray: playerNameArray},
-                       function(rs){
-                           areNamesValid = rs.data;
-                       })
+                                       {type: 'checkPlayerNames',
+                                        playerNameArray: playerNameArray},
+                                       function(rs){
+                                           areNamesValid = rs.data;
+                                       });
 
                 nameCheck.done(function() {
                     if (!areNamesValid) {
