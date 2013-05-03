@@ -16,6 +16,32 @@ class BMInterface {
     private $message;               // message intended for GUI
 
     // methods
+    public function create_game($playerIdArray,
+                                $buttonNameArray,
+                                $maxWins = 3,
+                                $requestedGameId = 0) {
+        if (0 == $requestedGameId) {
+            $gameId = mt_rand();
+        } else {
+            $gameId = $requestedGameId;
+        }
+
+        // this will be rewritten in the future to use a database
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $button1->load_from_name($buttonNameArray[0]);
+        $button2->load_from_name($buttonNameArray[1]);
+
+        $game = new BMGame($gameId,
+                           $playerIdArray,
+                           array('', ''),
+                           $maxWins);
+        $game->buttonArray = array($button1, $button2);
+        $this->save_game($game);
+
+        return $gameId;
+    }
+
     public function load_game($gameId) {
         // this will be rewritten in the future to use a database instead of a file
         $gamefile = "/var/www/bmgame/$gameId.data";

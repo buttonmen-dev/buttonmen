@@ -89,6 +89,7 @@
             // global variables
             var buttonNameArray = [];
             var playerNameArray = [];
+            var maxWins = 3;
 
             // functions
             function loadPlayerName() {
@@ -154,7 +155,9 @@
                 // post both button selections and create game
                 $.post('responder.php',
                        {type: 'chooseButtons',
-                        buttonNameArray: buttonNameArray},
+                        playerNameArray: playerNameArray,
+                        buttonNameArray: buttonNameArray,
+                        maxWins: maxWins},
                        function(rs){
                            // give feedback about the status of the submit
                            $('#debug_message').html(rs.data);

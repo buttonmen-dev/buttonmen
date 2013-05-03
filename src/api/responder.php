@@ -1,19 +1,17 @@
 <?php
     require_once '../engine/BMInterface.php';
 
-    $interface = new BMInterface;
-
     header('Content-Type: application/json');
+
+    $interface = new BMInterface;
 
     switch ($_POST['type']) {
         case 'loadPlayerName':
-            echo json_encode(array('status' => 'ok',
-                                   'data' => 'blackshadowshade'));
+            $output = array('status' => 'ok',
+                            'data' => 'blackshadowshade');
             break;
         case 'loadButtonNames':
-            $dataArray = array(
-                'buttonNameArray' => $interface->get_all_button_names());
-            echo json_encode($dataArray);
+            $output = array('buttonNameArray' => $interface->get_all_button_names());
             break;
         case 'checkPlayerNames':
             $arePlayerNamesValid = TRUE;
@@ -22,19 +20,31 @@
                     $arePlayerNamesValid = FALSE;
                 }
             }
-            echo json_encode(array('status' => 'ok',
-                                   'data' => $arePlayerNamesValid));
+            $output = array('status' => 'ok',
+                            'data' => $arePlayerNamesValid);
             break;
         case 'chooseButtons':
+            $playerNameArray = $_POST['playerNameArray'];
+            $playerIdArray = [];
+            foreach ($playerNameArray as $playerName) {
+                $playerIdArray[] = $interface->get_player_id_from_name($playerName);
+            }
+
             $buttonNameArray = $_POST['buttonNameArray'];
-            echo json_encode(array('status' => 'ok',
-                                   'data' => $buttonNameArray));
+            $maxWins = $_POST['maxWins'];
+
+            $gameId = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
+
+            $output = array('status' => 'ok',
+                            'data' => $gameId);
             break;
         case 'submitSwingValues':
-            echo json_encode(array('status' => 'ok',
-                                   'data' => 'created game'));
+            $output = array('status' => 'ok',
+                            'data' => 'created game');
             break;
         default:
-            //do nothing
+            $output = FALSE;
     }
+
+    echo json_encode($output);
 ?>
