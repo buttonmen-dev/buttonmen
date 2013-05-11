@@ -98,43 +98,42 @@ $(document).ready(function() {
     }
 
     function loadGameInfo() {
-        jQuery.ajax({                                   // Do a jQuery AJAX fetch
-            url: 'json_test_initial_load_data.php',
-            success: function(rs) {
-                if (rs.status == 'ok') {
-                    attackerIdx = rs.data.activePlayerIdx;
-                    defenderIdx = (rs.data.activePlayerIdx + 1)%2;
-                    dieAttackValues = rs.data.valueArrayArray[attackerIdx];
-                    dieDefendValues = rs.data.valueArrayArray[defenderIdx];
-                    dieAttackSides  = rs.data.sidesArrayArray[attackerIdx];
-                    dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
-                    $('#attacker_id').text(rs.data.playerIdArray[attackerIdx]);
-                    $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
+        $.post('responder.php',
+               {type: 'loadMockGameDataRoundStart'},
+               function(rs) {
+                   if (rs.status == 'ok') {
+                       attackerIdx = rs.data.activePlayerIdx;
+                       defenderIdx = (rs.data.activePlayerIdx + 1)%2;
+                       dieAttackValues = rs.data.valueArrayArray[attackerIdx];
+                       dieDefendValues = rs.data.valueArrayArray[defenderIdx];
+                       dieAttackSides  = rs.data.sidesArrayArray[attackerIdx];
+                       dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
+                       $('#attacker_id').text(rs.data.playerIdArray[attackerIdx]);
+                       $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
 
-                    var attackerGameScoreArray = rs.data.gameScoreArrayArray[attackerIdx];
-                    var attackerGameScore = attackerGameScoreArray.W + '/' +
-                                            attackerGameScoreArray.L + '/' +
-                                            attackerGameScoreArray.T;
-                    $('#attacker_game_score').text(attackerGameScore);
-                    var defenderGameScoreArray = rs.data.gameScoreArrayArray[defenderIdx];
-                    var defenderGameScore = defenderGameScoreArray.W + '/' +
-                                            defenderGameScoreArray.L + '/' +
-                                            defenderGameScoreArray.T;
-                    $('#defender_game_score').text(defenderGameScore);
+                       var attackerGameScoreArray = rs.data.gameScoreArrayArray[attackerIdx];
+                       var attackerGameScore = attackerGameScoreArray.W + '/' +
+                                               attackerGameScoreArray.L + '/' +
+                                               attackerGameScoreArray.T;
+                       $('#attacker_game_score').text(attackerGameScore);
+                       var defenderGameScoreArray = rs.data.gameScoreArrayArray[defenderIdx];
+                       var defenderGameScore = defenderGameScoreArray.W + '/' +
+                                               defenderGameScoreArray.L + '/' +
+                                               defenderGameScoreArray.T;
+                       $('#defender_game_score').text(defenderGameScore);
 
-                    $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
-                    $('#defender_button').text(rs.data.buttonNameArray[defenderIdx]);
-                    $('#attacker_round_score').text(rs.data.roundScoreArray[attackerIdx]);
-                    $('#defender_round_score').text(rs.data.roundScoreArray[defenderIdx]);
-                    $('#game_id').text(rs.data.gameId);
-                    $('#round_number').text(rs.data.roundNumber);
-                    displayDice();
-                } else {
-                    $('#result').html('JSON fetch failed\n'+
-                                      JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-                }
-            }
-        });
+                       $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
+                       $('#defender_button').text(rs.data.buttonNameArray[defenderIdx]);
+                       $('#attacker_round_score').text(rs.data.roundScoreArray[attackerIdx]);
+                       $('#defender_round_score').text(rs.data.roundScoreArray[defenderIdx]);
+                       $('#game_id').text(rs.data.gameId);
+                       $('#round_number').text(rs.data.roundNumber);
+                       displayDice();
+                   } else {
+                       $('#result').html('JSON fetch failed\n'+
+                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                   }
+               });
     }
 
     $('#submit').click(function() {

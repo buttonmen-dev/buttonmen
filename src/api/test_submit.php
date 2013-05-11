@@ -3,7 +3,7 @@
     require_once 'loadMockGameData.php';
     require_once '../engine/BMAttack.php';
 
-    $game = loadMockGameData();
+    $game = loadMockGameDataRoundStart();
     // load dieSelectStatus, which should contain boolean values of whether each
     // die is selected, starting with attacker dice and concluding with
     // defender dice
