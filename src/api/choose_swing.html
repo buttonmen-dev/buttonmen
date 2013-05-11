@@ -90,7 +90,7 @@
 
         function loadGameInfo() {
             $.post('responder.php',
-                    {type: 'loadMockGameData'},
+                    {type: 'loadMockGameDataWaitingForSwing'},
                     function(rs) {
                         if (rs.status == 'ok') {
                             opponentPlayerIdx = (currentPlayerIdx + 1)%2;
