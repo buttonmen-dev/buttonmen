@@ -90,6 +90,7 @@
             var buttonNameArray = [];
             var playerNameArray = [];
             var maxWins = 3;
+            var message = '';
 
             // functions
             function loadPlayerName() {
@@ -97,6 +98,7 @@
                        {type: 'loadPlayerName'},
                        function(rs){
                            $('#your_player_name').text(rs.data);
+                           message = rs.message;
                        });
             }
 
@@ -118,6 +120,7 @@
                                        text(buttonName).
                                        val('opp_die_' + buttonName));
                            }
+                           message = rs.message;
                        });
             }
 
@@ -137,16 +140,15 @@
                                         playerNameArray: playerNameArray},
                                        function(rs){
                                            areNamesValid = rs.data;
+                                           message = rs.message;
                                        });
 
                 nameCheck.done(function() {
+                    $('#submit_status').text(message);
                     if (!areNamesValid) {
-                        $('#submit_status').text('Invalid opponent name');
                         return false;
                     }
                 });
-
-                $('#submit_status').text('Valid opponent name');
 
                 // get both button selections
                 buttonNameArray[0] = $('#select_you').val();
@@ -160,7 +162,7 @@
                         maxWins: maxWins},
                        function(rs){
                            // give feedback about the status of the submit
-                           $('#debug_message').html(rs.data);
+                           $('#debug_message').html(rs.message);
                        });
             });
 

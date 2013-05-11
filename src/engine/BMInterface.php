@@ -20,66 +20,86 @@ class BMInterface {
                                 $buttonNameArray,
                                 $maxWins = 3,
                                 $requestedGameId = 0) {
-        if (0 == $requestedGameId) {
-            $gameId = mt_rand();
-        } else {
-            $gameId = $requestedGameId;
+        try {
+            if (0 == $requestedGameId) {
+                $gameId = mt_rand();
+            } else {
+                $gameId = $requestedGameId;
+            }
+
+            // this will be rewritten in the future to use a database
+            $button1 = new BMButton;
+            $button2 = new BMButton;
+            $button1->load_from_name($buttonNameArray[0]);
+            $button2->load_from_name($buttonNameArray[1]);
+
+            $game = new BMGame($gameId,
+                               $playerIdArray,
+                               array('', ''),
+                               $maxWins);
+            $game->buttonArray = array($button1, $button2);
+            $this->save_game($game);
+            $this->message = "Game $gameId created successfully.";
+            return $gameId;
+        } catch (Exception $e) {
+            $this->message = 'Game create failed.';
         }
-
-        // this will be rewritten in the future to use a database
-        $button1 = new BMButton;
-        $button2 = new BMButton;
-        $button1->load_from_name($buttonNameArray[0]);
-        $button2->load_from_name($buttonNameArray[1]);
-
-        $game = new BMGame($gameId,
-                           $playerIdArray,
-                           array('', ''),
-                           $maxWins);
-        $game->buttonArray = array($button1, $button2);
-        $this->save_game($game);
-
-        return $gameId;
     }
 
     public function load_game($gameId) {
-        // this will be rewritten in the future to use a database instead of a file
-        $gamefile = "/var/www/bmgame/$gameId.data";
-        $gameInt = file_get_contents($gamefile);
-        $game = unserialize($gameInt);
-
-        $message = "Loaded data for game $gameId from file $gamefile.  Data:\n";
-
-        return $game;
+        try {
+            // this will be rewritten in the future to use a database instead of a file
+            $gamefile = '/var/www/bmgame/$gameId.data';
+            $gameInt = file_get_contents($gamefile);
+            $game = unserialize($gameInt);
+            $this->message = "Loaded data for game $gameId from file $gamefile.";
+            return $game;
+        } catch (Exception $e) {
+            $this->message = 'Game load failed.';
+        }
     }
 
     public function save_game($game) {
-        // this will be rewritten in the future to use a database instead of a file
-        $gamefile = "/var/www/bmgame/$game->gameId.data";
-        $gameInt = serialize($game);
-        file_put_contents($gamefile, $gameInt);
-
-        $message = "Generated game $game->gameId: caching data in file: $gamefile\n";
+        try {
+            // this will be rewritten in the future to use a database instead of a file
+            $gamefile = "/var/www/bmgame/$game->gameId.data";
+            $gameInt = serialize($game);
+            file_put_contents($gamefile, $gameInt);
+            $this->message = "Generated game $game->gameId: caching data in file: $gamefile.";
+        } catch (Exception $e) {
+            $this->message = 'Game save failed.';
+        }
     }
 
     public function get_all_button_names() {
-        // this will be rewritten in the future to use a database instead of a
-        // hard-coded array
-        $buttonNameArray = array('Bauer', 'Stark');
-        return $buttonNameArray;
+        try {
+            // this will be rewritten in the future to use a database instead of a
+            // hard-coded array
+            $buttonNameArray = array('Bauer', 'Stark');
+            $this->message = 'All button names retrieved successfully.';
+            return $buttonNameArray;
+        } catch (Exception $e) {
+            $this->message = 'Button name get failed.';
+        }
     }
 
     public function get_player_id_from_name($name) {
-        // this will be rewritten in the future to use a database instead of a
-        // hard-coded array
-        $idArray = array('blackshadowshade' => '314159',
-                         'cgolubi' => '356995',
-                         'jl8e' => '271828');
+        try {
+            // this will be rewritten in the future to use a database instead of a
+            // hard-coded array
+            $idArray = array('blackshadowshade' => '314159',
+                             'cgolubi' => '356995',
+                             'jl8e' => '271828');
 
-        if (array_key_exists($name, $idArray)) {
-            return $idArray[$name];
-        } else {
-            return '';
+            if (array_key_exists($name, $idArray)) {
+                $this->message = 'Player ID retrieved successfully.';
+                return $idArray[$name];
+            } else {
+                $this->message = 'Player name does not exist.';
+                return '';
+            }
+        } catch (Exception $e) {
+            $this->message = 'Player ID get failed.';
         }
     }
 

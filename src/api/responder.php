@@ -45,6 +45,10 @@
         default:
             $output = FALSE;
     }
+    
+    if (is_array($output)) {
+        $output['message'] = $interface->message;
+    }
 
     echo json_encode($output);
 ?>
