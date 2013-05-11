@@ -90,35 +90,34 @@
             }
 
             function loadGameInfo() {
-                jQuery.ajax({                                   // Do a jQuery AJAX fetch
-                    url: 'load_test_game_determining_initiative.php',
-                    success: function(rs) {
-                        if (rs.status == 'ok') {
-                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
-                            nCurrentPlayerDice = rs.data.nDieArray[currentPlayerIdx];
-                            nOpponentPlayerDice = rs.data.nDieArray[opponentPlayerIdx];
-                            currentPlayerSidesArray = rs.data.sidesArrayArray[currentPlayerIdx];
-                            opponentPlayerSidesArray = rs.data.sidesArrayArray[opponentPlayerIdx];
-                            currentPlayerDieValueArray = rs.data.valueArrayArray[currentPlayerIdx];
-                            opponentPlayerDieValueArray = rs.data.valueArrayArray[opponentPlayerIdx];
-//                            swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
-                            playerWithInitiativeId = rs.data.playerIdArray[rs.data.playerWithInitiativeIdx];
+                $.post('responder.php',
+                       {type: 'loadMockGameDataDeterminingInitiative'},
+                       function(rs) {
+                           if (rs.status == 'ok') {
+                               opponentPlayerIdx = (currentPlayerIdx + 1)%2;
+                               nCurrentPlayerDice = rs.data.nDieArray[currentPlayerIdx];
+                               nOpponentPlayerDice = rs.data.nDieArray[opponentPlayerIdx];
+                               currentPlayerSidesArray = rs.data.sidesArrayArray[currentPlayerIdx];
+                               opponentPlayerSidesArray = rs.data.sidesArrayArray[opponentPlayerIdx];
+                               currentPlayerDieValueArray = rs.data.valueArrayArray[currentPlayerIdx];
+                               opponentPlayerDieValueArray = rs.data.valueArrayArray[opponentPlayerIdx];
+   //                            swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
+                               playerWithInitiativeId = rs.data.playerIdArray[rs.data.playerWithInitiativeIdx];
 
-                            $('#game_id').text(rs.data.gameId);
-                            $('#round_number').text(rs.data.roundNumber);
-                            $('#current_button').text(rs.data.buttonNameArray[currentPlayerIdx]);
-                            $('#opponent_button').text(rs.data.buttonNameArray[opponentPlayerIdx]);
-                            $('#current_player_id').text(rs.data.playerIdArray[currentPlayerIdx]);
-                            $('#opponent_player_id').text(rs.data.playerIdArray[opponentPlayerIdx]);
+                               $('#game_id').text(rs.data.gameId);
+                               $('#round_number').text(rs.data.roundNumber);
+                               $('#current_button').text(rs.data.buttonNameArray[currentPlayerIdx]);
+                               $('#opponent_button').text(rs.data.buttonNameArray[opponentPlayerIdx]);
+                               $('#current_player_id').text(rs.data.playerIdArray[currentPlayerIdx]);
+                               $('#opponent_player_id').text(rs.data.playerIdArray[opponentPlayerIdx]);
 
-                            displayDice();
-                            displayInitiativeDetails();
-                        } else {
-                            $('#game_id').html('JSON fetch failed\n'+
-                                               JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-                        }
-                    }
-                });
+                               displayDice();
+                               displayInitiativeDetails();
+                           } else {
+                               $('#game_id').html('JSON fetch failed\n'+
+                                                  JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                           }
+                       });
             }
 
             // code to initialise game variables

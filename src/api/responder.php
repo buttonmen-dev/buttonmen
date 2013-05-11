@@ -45,6 +45,20 @@
             $output = $game->getJsonData();
             break;
 
+        case 'loadMockGameDataDeterminingInitiative':
+            // load game
+            require_once 'loadMockGameData.php';
+            $game = loadMockGameDataDeterminingInitiative();
+
+            // save game to create a real file
+            $interface->save_game($game);
+
+            // reload game
+            $gameId = $game->gameId;
+            $game = $interface->load_game($gameId);
+            $output = $game->getJsonData();
+            break;
+
         case 'loadMockGameDataWaitingForSwing':
             // load game
             require_once 'loadMockGameData.php';
