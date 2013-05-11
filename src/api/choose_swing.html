@@ -135,7 +135,11 @@
                            swingValueArray: JSON.stringify(swingValueArray)
                        },
                        function(rs){
-                           $('#submit_status').html(rs.status);
+                           if ('ok' == rs.status) {
+                               $('#submit_status').text('Successful swing value set.');
+                           } else {
+                               $('#submit_status').text('Failed swing value set.');
+                           }
                        });
             }
         });

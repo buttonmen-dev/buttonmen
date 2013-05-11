@@ -103,6 +103,7 @@
                 ($game->gameState > BMGameState::specifyDice) ||
                 ($game->roundNumber > $roundNumber)) {
                 $output = array('status' => 'ok');
+                $interface->save_game($game);
             } else {
                 $output = array('status' => $game->message);
             }
