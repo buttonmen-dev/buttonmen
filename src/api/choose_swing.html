@@ -89,28 +89,27 @@
         }
 
         function loadGameInfo() {
-            $.ajax({                                   // Do a jQuery AJAX fetch
-                url: 'load_test_game_waiting_on_swing.php',
-                success: function(rs) {
-                    if (rs.status == 'ok') {
-                        opponentPlayerIdx = (currentPlayerIdx + 1)%2;
-                        currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
-                        opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
-                        swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
-                        gameId = rs.data.gameId;
-                        roundNumber = rs.data.roundNumber;
+            $.post('responder.php',
+                    {type: 'loadMockGameData'},
+                    function(rs) {
+                        if (rs.status == 'ok') {
+                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
+                            currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
+                            opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
+                            swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
+                            gameId = rs.data.gameId;
+                            roundNumber = rs.data.roundNumber;
 
-                        $('#game_id').text(gameId);
-                        $('#round_number').text(roundNumber);
+                            $('#game_id').text(gameId);
+                            $('#round_number').text(roundNumber);
 
-                        displayDieDetails();
-                        displaySwingDetails();
-                    } else {
-                        $('#game_id').html('JSON fetch failed\n'+
-                                           JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-                    }
-                }
-            });
+                            displayDieDetails();
+                            displaySwingDetails();
+                        } else {
+                            $('#game_id').html('JSON fetch failed\n'+
+                                               JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
+                        }
+                    });
         }
 
         $('#submit').click(function() {

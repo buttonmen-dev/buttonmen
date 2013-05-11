@@ -6,13 +6,6 @@
     $interface = new BMInterface;
 
     switch ($_POST['type']) {
-        case 'loadPlayerName':
-            $output = array('status' => 'ok',
-                            'data' => 'blackshadowshade');
-            break;
-        case 'loadButtonNames':
-            $output = array('buttonNameArray' => $interface->get_all_button_names());
-            break;
         case 'checkPlayerNames':
             $arePlayerNamesValid = TRUE;
             foreach ($_POST['playerNameArray'] as $playerName) {
@@ -38,6 +31,23 @@
             $output = array('status' => 'ok',
                             'data' => $gameId);
             break;
+        case 'loadButtonNames':
+            $output = array('buttonNameArray' => $interface->get_all_button_names());
+            break;
+        case 'loadGameData':
+            $gameId = $_POST['gameId'];
+            $game = $interface->load_game($gameId);
+            $output = $game->getJsonData();
+            break;
+        case 'loadMockGameData':
+            require_once 'loadMockGameData.php';
+            $game = loadMockGameDataWaitingForSwing();
+            $output = $game->getJsonData();
+            break;
+        case 'loadPlayerName':
+            $output = array('status' => 'ok',
+                            'data' => 'blackshadowshade');
+            break;
         case 'submitSwingValues':
             $output = array('status' => 'ok',
                             'data' => 'created game');
@@ -45,7 +55,7 @@
         default:
             $output = FALSE;
     }
-    
+
     if (is_array($output)) {
         $output['message'] = $interface->message;
     }
