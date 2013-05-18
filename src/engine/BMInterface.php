@@ -72,10 +72,14 @@ class BMInterface {
     }
 
     public function get_all_button_names() {
+        require_once('../database/mysql.inc.php');
         try {
-            // this will be rewritten in the future to use a database instead of a
-            // hard-coded array
-            $buttonNameArray = array('Bauer', 'Stark');
+            $statement = $conn->prepare('SELECT name FROM button_view');
+            $statement->execute();
+
+            while($row = $statement->fetch()) {
+                $buttonNameArray[] = $row['name'];
+            }
             $this->message = 'All button names retrieved successfully.';
             return $buttonNameArray;
         } catch (Exception $e) {
