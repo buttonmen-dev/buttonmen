@@ -15,10 +15,10 @@
 
 <body>
     <?php
-        $id = 1;
+        $name = 'Bauer';
         require_once('mysql.inc.php');
-        $statement = $conn->prepare('SELECT * FROM button_definitions WHERE button_id = :id');
-        $statement->execute(array('id' => $id));
+        $statement = $conn->prepare('SELECT * FROM button_view WHERE name = :name');
+        $statement->execute(array('name' => $name));
 
         while($row = $statement->fetch()) {
             print_r($row);
