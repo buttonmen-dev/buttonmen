@@ -21,7 +21,7 @@
 
         case 'chooseButtons':
             $playerNameArray = $_POST['playerNameArray'];
-            $playerIdArray = [];
+            $playerIdArray = array();
             foreach ($playerNameArray as $playerName) {
                 $playerIdArray[] = $interface->get_player_id_from_name($playerName);
             }
