@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+    This document should be written in polyglot HTML5/XHTML5, and therefore
+    should run when served either as text/html or application/xhtml+xml.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+
+    <meta charset="utf-8" />
+    <title>Start new game</title>
+    <link rel="stylesheet" href="gui.css" />
+
+</head>
+
+<body>
+    <div class="title2">Create a new game</div>
+
+    <br />
+
+    <div>
+        <table id="button_choice_table">
+            <tr>
+                <td>
+                    You:
+                </td>
+                <td>
+                    <span id="your_player_name"></span>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Opponent:
+                </td>
+                <td>
+                    <input type="text" id="opp_player_name" name="opp_player_name"/>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Your button:
+                </td>
+                <td>
+                    <select id="select_you">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Opponent's button:
+                </td>
+                <td>
+                    <select id="select_opp">
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Number of rounds:
+                </td>
+                <td>
+                    <select>
+                        <option value="nround_1">1</option>
+                        <option value="nround_2">2</option>
+                        <option value="nround_3">3</option>
+                        <option value="nround_4">4</option>
+                        <option value="nround_5">5</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <br />
+
+    <div ><button id="submit">Start game!</button></div>
+    <br />
+    <div><span id="submit_status"></span></div>
+
+    <br />
+    <div><span id="debug_message"></span></div>
+
+    <!--
+    james: eventually, we will want to use the hosted version of the JQuery library
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    -->
+    <script src="jquery-1.9.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // global variables
+            var buttonNameArray = [];
+            var playerNameArray = [];
+            var maxWins = 3;
+            var message = '';
+
+            // functions
+            function loadPlayerName() {
+                $.post('responder.php',
+                       {type: 'loadPlayerName'},
+                       function(rs){
+                           $('#your_player_name').text(rs.data);
+                           message = rs.message;
+                       });
+            }
+
+            function loadButtonNames() {
+                $.post('responder.php',
+                       {type: 'loadButtonNames'},
+                       function(rs){
+                           // add buttons to selects
+                           for (var buttonIdx = 0;
+                                buttonIdx < rs.buttonNameArray.length;
+                                buttonIdx++) {
+                               var buttonName = rs.buttonNameArray[buttonIdx];
+                               $('#select_you').append(
+                                   $('<option></option>').
+                                       text(buttonName).
+                                       val('your_die_' + buttonName));
+                               $('#select_opp').append(
+                                   $('<option></option>').
+                                       text(buttonName).
+                                       val('opp_die_' + buttonName));
+                           }
+                           message = rs.message;
+                       });
+            }
+
+            $('#submit').click(function() {
+                playerNameArray[0] = $('#your_player_name').text();
+                playerNameArray[1] = $('#opp_player_name').val();
+
+                // check that the opponent's name is filled in
+                if (!playerNameArray[1]) {
+                    return false;
+                }
+
+                var areNamesValid = false;
+                // check that the players' names are valid
+                var nameCheck = $.post('responder.php',
+                                       {type: 'checkPlayerNames',
+                                        playerNameArray: playerNameArray},
+                                       function(rs){
+                                           areNamesValid = rs.data;
+                                           message = rs.message;
+                                       });
+
+                nameCheck.done(function() {
+                    $('#submit_status').text(message);
+                    if (!areNamesValid) {
+                        return false;
+                    }
+                });
+
+                // get both button selections
+                buttonNameArray[0] = $('#select_you').val();
+                buttonNameArray[1] = $('#select_opp').val();
+
+                // post both button selections and create game
+                $.post('responder.php',
+                       {type: 'chooseButtons',
+                        playerNameArray: playerNameArray,
+                        buttonNameArray: buttonNameArray,
+                        maxWins: maxWins},
+                       function(rs){
+                           // give feedback about the status of the submit
+                           $('#debug_message').html(rs.message);
+                       });
+            });
+
+            // code to run when page is ready
+            loadPlayerName();
+            loadButtonNames();
+        });
+
+    </script>
+</body>
+</html>
