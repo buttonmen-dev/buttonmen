@@ -1,31 +1,35 @@
 # CREATE DATABASE buttonmen CHARACTER SET utf8;
 # USE buttonmen;
 
+DROP VIEW IF EXISTS button_view;
+DROP TABLE IF EXISTS button_definitions;
+DROP TABLE IF EXISTS button_sets;
+
 CREATE TABLE button_sets (
-    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     /* 'Chicagoland Games Enclave' has 27 characters */
-    name VARCHAR(40) NOT NULL
+    name        VARCHAR(40) NOT NULL
 );
 
 CREATE TABLE button_definitions (
-    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     /* 'The Fictitious Alan Clark' has 25 characters */
-    name VARCHAR(40) NOT NULL,
+    name        VARCHAR(40) UNIQUE NOT NULL,
     /* 'Gryphon' has a recipe of:
        P{g,sF}10 P{f,z}12 P{f,z}12 X! +`R! ro@Z? rz(V,V) rP{m,D}8 grP{h,o,n}Y
        which has 70 characters */
-    recipe VARCHAR(100) NOT NULL,
-    tourn_legal BOOLEAN,
-    image_path VARCHAR(100),
-    set_id SMALLINT,
-    UNIQUE (name),
+    recipe      VARCHAR(100) NOT NULL,
+    tourn_legal BOOLEAN NOT NULL,
+    image_path  VARCHAR(100),
+    set_id      SMALLINT UNSIGNED,
     INDEX (name)
 );
 
 CREATE VIEW button_view
 AS SELECT d.name, d.recipe, d.tourn_legal, d.image_path, s.name AS set_name
-FROM button_definitions AS d, button_sets AS s
-WHERE d.set_id = s.id;
+FROM button_definitions AS d
+LEFT JOIN button_sets AS s
+ON d.set_id = s.id;
 
 INSERT INTO button_sets (name) VALUES
 ('Soldiers'),
