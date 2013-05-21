@@ -1,5 +1,5 @@
 web1:
-  php_extensions: [mcrypt, mysqli, mysql, mbstring, pdo, pdo_mysql]
+  php_extensions: [mysql, pdo_mysql]
   document_root: src/
   apache_log_level: debug
   after_build:
