@@ -8,6 +8,7 @@
 
     <meta charset="utf-8" />
     <title>Start new game</title>
+    <link rel="stylesheet" href="jquery-ui.css" />
     <link rel="stylesheet" href="gui.css" />
 
 </head>
@@ -80,10 +81,12 @@
     <div><span id="debug_message"></span></div>
 
     <!--
-    james: eventually, we will want to use the hosted version of the JQuery library
+    james: eventually, we will want to use the hosted version of the JQuery libraries
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
     -->
     <script src="jquery-1.9.0.min.js"></script>
+    <script src="jquery-ui.min.js"></script>
     <script>
         $(document).ready(function() {
             // global variables
@@ -124,6 +127,24 @@
                            message = rs.message;
                        });
             }
+
+            $('#opp_player_name').autocomplete({
+                source: function(request, response) {
+                    $.post('responder.php',
+                           {type: 'loadPlayerNamesLike',
+                            input: request.term},
+                           function(rs) {
+                               response(rs.nameArray);
+                           },
+                           'json');
+                },
+                delay: 500
+//                ,
+//                messages: {
+//                    noResults: '',
+//                    results: function() {}
+//                }
+                });
 
             $('#submit').click(function() {
                 playerNameArray[0] = $('#your_player_name').text();

@@ -92,6 +92,15 @@
                             'data' => 'blackshadowshade');
             break;
 
+        case 'loadPlayerNames':
+            $output = $interface->get_player_names_like('');
+            break;
+
+        case 'loadPlayerNamesLike':
+            $input = $_POST['input'];
+            $output = $interface->get_player_names_like($input);
+            break;
+
         case 'submitSwingValues':
             $gameId = $_POST['gameId'];
 

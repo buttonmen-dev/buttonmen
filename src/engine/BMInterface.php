@@ -77,7 +77,7 @@ class BMInterface {
             $statement = $conn->prepare('SELECT name, recipe FROM button_view');
             $statement->execute();
 
-            while($row = $statement->fetch()) {
+            while ($row = $statement->fetch()) {
                 $buttonNameArray[] = $row['name'];
                 $recipeArray[] = $row['recipe'];
             }
@@ -86,6 +86,24 @@ class BMInterface {
                          'recipeArray'     => $recipeArray);
         } catch (Exception $e) {
             $this->message = 'Button name get failed.';
+        }
+    }
+
+    public function get_player_names_like($input = '') {
+        require_once('../database/mysql.inc.php');
+        try {
+            $sql = "SELECT name_ingame FROM player_info WHERE name_ingame LIKE :input ORDER BY name_ingame";
+            $statement = $conn->prepare($sql);
+            $statement->execute(array(':input' => $input.'%'));
+
+            $nameArray = [];
+            while ($row = $statement->fetch()) {
+                $nameArray[] = $row['name_ingame'];
+            }
+            $this->message = 'Names retrieved successfully.';
+            return array('nameArray' => $nameArray);
+        } catch (Exception $e) {
+            $this->message = 'Player name get failed.';
         }
     }
 
