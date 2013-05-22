@@ -36,7 +36,7 @@
             break;
 
         case 'loadButtonNames':
-            $output = array('buttonNameArray' => $interface->get_all_button_names());
+            $output = $interface->get_all_button_names();
             break;
 
         case 'loadGameData':

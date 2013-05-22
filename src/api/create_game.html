@@ -111,13 +111,14 @@
                                 buttonIdx < rs.buttonNameArray.length;
                                 buttonIdx++) {
                                var buttonName = rs.buttonNameArray[buttonIdx];
+                               var recipe = rs.recipeArray[buttonIdx];
                                $('#select_you').append(
                                    $('<option></option>').
-                                       text(buttonName).
+                                       text(buttonName + ' : ' + recipe).
                                        val('your_die_' + buttonName));
                                $('#select_opp').append(
                                    $('<option></option>').
-                                       text(buttonName).
+                                       text(buttonName + ' : ' + recipe).
                                        val('opp_die_' + buttonName));
                            }
                            message = rs.message;
