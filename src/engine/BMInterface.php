@@ -96,7 +96,7 @@ class BMInterface {
             $statement = $conn->prepare($sql);
             $statement->execute(array(':input' => $input.'%'));
 
-            $nameArray = [];
+            $nameArray = array();
             while ($row = $statement->fetch()) {
                 $nameArray[] = $row['name_ingame'];
             }
