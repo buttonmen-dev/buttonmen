@@ -24,7 +24,7 @@ CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED,
     player_id          SMALLINT UNSIGNED,
     button_id          SMALLINT UNSIGNED,
-    player_position    TINYINT UNSIGNED,
+    position           TINYINT UNSIGNED NOT NULL,
     is_awaiting_action BOOLEAN,
     n_rounds_won       TINYINT UNSIGNED,
     n_rounds_drawn     TINYINT UNSIGNED,
@@ -34,11 +34,12 @@ CREATE TABLE game_player_map (
 
 CREATE TABLE die_details (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    recipe             VARCHAR(20) NOT NULL,
-    value              SMALLINT,
-    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME'),
     owner_id           TINYINT UNSIGNED NOT NULL,
-    game_id            MEDIUMINT UNSIGNED
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
+    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME') DEFAULT 'NORMAL',
+    recipe             VARCHAR(20) NOT NULL,
+    position           TINYINT UNSIGNED NOT NULL,
+    value              SMALLINT
 );
 
 -- CREATE TABLE button_definitions (
