@@ -20,6 +20,6 @@ CREATE TABLE player_info (
 
 INSERT INTO player_info (name_ingame, name_irl) VALUES
 ('blackshadowshade', 'James'),
-('cgolubi', 'Chaos'),
+('glassonion', 'Chaos'),
 ('jl8e', 'Julian'),
 ('midnightlightning', 'Brooks');
