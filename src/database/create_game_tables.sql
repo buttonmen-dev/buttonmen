@@ -1,7 +1,7 @@
 # CREATE DATABASE buttonmen CHARACTER SET utf8;
 # USE buttonmen;
 
-DROP VIEW  IF EXISTS game_player_view;
+DROP VIEW  IF EXISTS game_player_view, open_game_possible_button_view;
 DROP TABLE IF EXISTS game_details,
                      game_player_map,
                      die_details,
