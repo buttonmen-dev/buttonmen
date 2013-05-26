@@ -1,35 +1,40 @@
 # CREATE DATABASE buttonmen CHARACTER SET utf8;
 # USE buttonmen;
 
-DROP VIEW IF EXISTS game_view;
-DROP TABLE IF EXISTS game_details;
-DROP TABLE IF EXISTS die_details;
+-- DROP VIEW IF EXISTS game_view;
+DROP TABLE IF EXISTS game_details,
+                     game_player_map,
+                     die_details,
+                     open_game_possible_buttons,
+                     open_game_possible_button_sets,
+                     tournament_details;
 
 CREATE TABLE game_details (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
     n_players          TINYINT UNSIGNED DEFAULT 2,
-    n_target_wins      TINYINT UNSIGNED,
+    n_target_wins      TINYINT UNSIGNED NOT NULL,
     n_recent_draws     TINYINT UNSIGNED DEFAULT 0,
     n_recent_passes    TINYINT UNSIGNED DEFAULT 0,
+    creator_id         SMALLINT UNSIGNED NOT NULL,
     current_player_id  SMALLINT UNSIGNED,
     last_winner_id     SMALLINT UNSIGNED,
     tournament_id      SMALLINT UNSIGNED,
-    description        VARCHAR(255),
+    description        VARCHAR(255) NOT NULL,
     chat               TEXT
 );
 
 CREATE TABLE game_player_map (
-    game_id            MEDIUMINT UNSIGNED,
-    player_id          SMALLINT UNSIGNED,
+    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
+    player_id          SMALLINT UNSIGNED NOT NULL,
     button_id          SMALLINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
-    is_awaiting_action BOOLEAN,
-    n_rounds_won       TINYINT UNSIGNED,
-    n_rounds_drawn     TINYINT UNSIGNED,
-    handicap           TINYINT UNSIGNED,
-    is_player_hidden   BOOLEAN
+    is_awaiting_action BOOLEAN DEFAULT FALSE,
+    n_rounds_won       TINYINT UNSIGNED DEFAULT 0,
+    n_rounds_drawn     TINYINT UNSIGNED DEFAULT 0,
+    handicap           TINYINT UNSIGNED DEFAULT 0,
+    is_player_hidden   BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE die_details (
@@ -42,20 +47,27 @@ CREATE TABLE die_details (
     value              SMALLINT
 );
 
--- CREATE TABLE button_definitions (
---     id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
---     /* 'The Fictitious Alan Clark' has 25 characters */
---     name        VARCHAR(40) UNIQUE NOT NULL,
---     /* 'Gryphon' has a recipe of:
---        P{g,sF}10 P{f,z}12 P{f,z}12 X! +`R! ro@Z? rz(V,V) rP{m,D}8 grP{h,o,n}Y
---        which has 70 characters */
---     recipe      VARCHAR(100) NOT NULL,
---     tourn_legal BOOLEAN NOT NULL,
---     image_path  VARCHAR(100),
---     set_id      SMALLINT UNSIGNED,
---     INDEX (name)
--- );
---
+CREATE TABLE open_game_possible_buttons (
+    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
+    button_id          SMALLINT UNSIGNED NOT NULL
+);
+
+CREATE TABLE open_game_possible_button_sets (
+    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
+    set_id             SMALLINT UNSIGNED NOT NULL
+);
+
+CREATE TABLE tournament_details (
+    id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
+    current_round      TINYINT UNSIGNED DEFAULT 1,
+    n_players          TINYINT UNSIGNED NOT NULL,
+    n_target_wins      TINYINT UNSIGNED NOT NULL,
+    is_double_elim     BOOLEAN NOT NULL,
+    creator_id         SMALLINT UNSIGNED NOT NULL,
+    description        VARCHAR(255) NOT NULL
+);
+
 -- CREATE VIEW button_view
 -- AS SELECT d.name, d.recipe, d.tourn_legal, d.image_path, s.name AS set_name
 -- FROM button_definitions AS d
