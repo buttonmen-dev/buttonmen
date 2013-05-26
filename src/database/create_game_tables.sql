@@ -1,7 +1,7 @@
 # CREATE DATABASE buttonmen CHARACTER SET utf8;
 # USE buttonmen;
 
--- DROP VIEW IF EXISTS game_view;
+DROP VIEW  IF EXISTS game_player_view;
 DROP TABLE IF EXISTS game_details,
                      game_player_map,
                      die_details,
@@ -68,11 +68,28 @@ CREATE TABLE tournament_details (
     description        VARCHAR(255) NOT NULL
 );
 
--- CREATE VIEW button_view
--- AS SELECT d.name, d.recipe, d.tourn_legal, d.image_path, s.name AS set_name
--- FROM button_definitions AS d
--- LEFT JOIN button_sets AS s
--- ON d.set_id = s.id;
+CREATE VIEW game_player_view
+AS SELECT m.*, p.name_ingame AS player_name, b.name AS button_name
+FROM game_player_map AS m
+LEFT JOIN player_info AS p
+ON m.player_id = p.id
+LEFT JOIN button_definitions AS b
+ON m.button_id = b.id;
+
+CREATE VIEW open_game_possible_button_view
+AS SELECT g.id, pb.button_id, ps.set_id, b.name AS button_name, s.name AS set_name
+FROM game_details AS g
+LEFT JOIN open_game_possible_buttons AS pb
+ON g.id = pb.game_id
+LEFT JOIN open_game_possible_button_sets AS ps
+ON g.id = ps.game_id
+LEFT JOIN button_definitions AS b
+ON pb.button_id = b.id
+LEFT JOIN button_sets AS s
+ON ps.set_id = s.id
+WHERE g.status = "OPEN";
+
+
 --
 -- INSERT INTO button_sets (name) VALUES
 -- ('Soldiers'),
