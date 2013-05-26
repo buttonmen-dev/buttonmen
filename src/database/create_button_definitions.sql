@@ -1,9 +1,9 @@
 # CREATE DATABASE buttonmen CHARACTER SET utf8;
 # USE buttonmen;
 
-DROP VIEW IF EXISTS button_view;
-DROP TABLE IF EXISTS button_definitions;
-DROP TABLE IF EXISTS button_sets;
+DROP VIEW  IF EXISTS button_view;
+DROP TABLE IF EXISTS button_definitions,
+                     button_sets;
 
 CREATE TABLE button_sets (
     id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
