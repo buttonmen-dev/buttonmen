@@ -1110,21 +1110,21 @@ class BMGame {
 class BMGameState {
     // pre-game
     const startGame = 10;
-    const applyHandicaps = 11;
-    const chooseAuxiliaryDice = 12;
+    const applyHandicaps = 13;
+    const chooseAuxiliaryDice = 16;
 
     // pre-round
     const loadDiceIntoButtons = 20;
     const addAvailableDiceToGame = 22;
     const specifyDice = 24;
-    const determineInitiative = 29;
+    const determineInitiative = 26;
 
     // start round
     const startRound = 30;
 
     // turn
     const startTurn = 40;
-    const endTurn = 49;
+    const endTurn = 48;
 
     // end round
     const endRound = 50;
