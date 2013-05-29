@@ -23,7 +23,7 @@ CREATE TABLE game_details (
 );
 
 CREATE TABLE game_player_map (
-    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
     button_id          SMALLINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
