@@ -36,7 +36,7 @@
             break;
 
         case 'loadButtonNames':
-            $output = array('buttonNameArray' => $interface->get_all_button_names());
+            $output = $interface->get_all_button_names();
             break;
 
         case 'loadGameData':
@@ -90,6 +90,15 @@
         case 'loadPlayerName':
             $output = array('status' => 'ok',
                             'data' => 'blackshadowshade');
+            break;
+
+        case 'loadPlayerNames':
+            $output = $interface->get_player_names_like('');
+            break;
+
+        case 'loadPlayerNamesLike':
+            $input = $_POST['input'];
+            $output = $interface->get_player_names_like($input);
             break;
 
         case 'submitSwingValues':

@@ -1,1 +1,6 @@
-PHP code for interfacing with the buttonmen database
+SQL code for creating and PHP code for interfacing with the ButtonMen database
+
+Run the SQL code in the following order to create the database correctly:
+  create_button_definitions.sql
+  create_player_tables.sql
+  create_game_tables.sql
