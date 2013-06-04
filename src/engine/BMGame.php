@@ -12,6 +12,7 @@ require_once 'BMDie.php';
  * @property      int   $gameId                  Game ID number in the database
  * @property      array $playerIdArray           Array of player IDs
  * @property-read array $nPlayers                Number of players in the game
+ * @property-read int   $roundNumber;            Current round number
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
  * @property      array $buttonArray             Buttons for all players
@@ -36,6 +37,7 @@ require_once 'BMDie.php';
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
+ * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
@@ -47,6 +49,7 @@ class BMGame {
     private $gameId;                // game ID number in the database
     private $playerIdArray;         // array of player IDs
     private $nPlayers;              // number of players in the game
+    private $roundNumber;           // current round number
     private $activePlayerIdx;       // index of the active player in playerIdxArray
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
@@ -71,6 +74,7 @@ class BMGame {
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
+    private $message;               // message to be passed to the GUI
 
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
@@ -89,6 +93,8 @@ class BMGame {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
         }
+
+        $this->message = 'ok';
 
         switch ($this->gameState) {
             case BMGameState::startGame:
@@ -178,7 +184,6 @@ class BMGame {
             case BMGameState::specifyDice:
                 $this->waitingOnActionArray =
                     array_pad(array(), count($this->playerIdArray), FALSE);
-
 
                 foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
                     $keyArray = array_keys($swingRequestArray);
@@ -653,6 +658,8 @@ class BMGame {
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {
         // currently acts as a placeholder
+        $this->message = $this->message.'\n'.
+                         $activation_type.' '.$input_parameters;
         $this->save_game_to_database();
     }
 
@@ -718,6 +725,10 @@ class BMGame {
         }
         $this->maxWins = $maxWins;
         $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
+    }
+
+    private function get_roundNumber() {
+        return(array_sum($this->gameScoreArrayArray[0]) + 1);
     }
 
     private function get_roundScoreArray() {
@@ -796,6 +807,8 @@ class BMGame {
                                                       [$defenderAttackDieIdx];
                     }
                     return $defenderAttackDieArray;
+                case 'roundNumber':
+                    return $this->get_roundNumber();
                 case 'roundScoreArray':
                     return $this->get_roundScoreArray();
                 default:
@@ -983,6 +996,10 @@ class BMGame {
                 }
                 $this->capturedDieArrayArray = $value;
                 break;
+            case 'roundNumber':
+                throw new LogicException('
+                    BMGame->roundNumber is derived automatically from BMGame.');
+                break;
             case 'roundScoreArray':
                 throw new LogicException('
                     BMGame->roundScoreArray is derived automatically from BMGame.');
@@ -1073,7 +1090,7 @@ class BMGame {
 
         $dataArray =
             array('gameId'                  => $this->gameId,
-                  'roundNumber'             => array_sum($this->gameScoreArrayArray[0]) + 1,
+                  'roundNumber'             => $this->get_roundNumber(),
                   'activePlayerIdx'         => $this->activePlayerIdx,
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
                   'playerIdArray'           => $this->playerIdArray,

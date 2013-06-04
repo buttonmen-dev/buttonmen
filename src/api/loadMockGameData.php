@@ -30,7 +30,7 @@ function loadMockGameDataDeterminingInitiative() {
     return($game);
 }
 
-function loadMockGameData() {
+function loadMockGameDataRoundStart() {
     $game = loadMockGameDataDeterminingInitiative();
 
     $game->activePlayerIdx = 1;
