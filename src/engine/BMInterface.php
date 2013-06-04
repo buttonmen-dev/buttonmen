@@ -72,14 +72,38 @@ class BMInterface {
     }
 
     public function get_all_button_names() {
+        require_once('../database/mysql.inc.php');
         try {
-            // this will be rewritten in the future to use a database instead of a
-            // hard-coded array
-            $buttonNameArray = array('Bauer', 'Stark');
+            $statement = $conn->prepare('SELECT name, recipe FROM button_view');
+            $statement->execute();
+
+            while ($row = $statement->fetch()) {
+                $buttonNameArray[] = $row['name'];
+                $recipeArray[] = $row['recipe'];
+            }
             $this->message = 'All button names retrieved successfully.';
-            return $buttonNameArray;
+            return array('buttonNameArray' => $buttonNameArray,
+                         'recipeArray'     => $recipeArray);
         } catch (Exception $e) {
             $this->message = 'Button name get failed.';
+        }
+    }
+
+    public function get_player_names_like($input = '') {
+        require_once('../database/mysql.inc.php');
+        try {
+            $sql = "SELECT name_ingame FROM player_info WHERE name_ingame LIKE :input ORDER BY name_ingame";
+            $statement = $conn->prepare($sql);
+            $statement->execute(array(':input' => $input.'%'));
+
+            $nameArray = array();
+            while ($row = $statement->fetch()) {
+                $nameArray[] = $row['name_ingame'];
+            }
+            $this->message = 'Names retrieved successfully.';
+            return array('nameArray' => $nameArray);
+        } catch (Exception $e) {
+            $this->message = 'Player name get failed.';
         }
     }
 
