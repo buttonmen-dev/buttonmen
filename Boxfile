@@ -10,3 +10,7 @@ web1:
   - "php deploy/pagodabox/phpunit.php /var/www/test"
   shared_writable_dirs:
   - /bmgame
+
+db1:
+  name: buttonmen
+  type: mysql
