@@ -1,0 +1,18 @@
+Utility directory for Grunt, the javascript task runner:
+  http://gruntjs.com/
+
+At the moment, this can be used for linting of javascript files in
+the buttonmen source tree.  It may be used for other javascript
+tasks in the future.
+
+To install the grunt utilities to perform linting in your working
+directory:
+ * Install npm (the node.js package manager) on your system
+ * Run: ./npm_install_grunt
+This will place the needed utilities in your ./node_modules directory.
+Please do not check ./node_modules into git! 
+
+Once you have grunt installed in your working directory, to run the
+lint check, use:
+  ./node_modules/grunt-cli/bin/grunt inlinelint
+
