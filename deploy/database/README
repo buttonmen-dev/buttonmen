@@ -1,0 +1,8 @@
+SQL files for the Buttonmen database
+
+To regenerate schemas, views, and data, source:
+  initialize_all.sql
+
+To drop and recreate all data only, source:
+  initialize_data.sql
+
