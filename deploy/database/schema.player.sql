@@ -1,5 +1,4 @@
 DROP TABLE IF EXISTS player_info;
-
 CREATE TABLE player_info (
     id                  SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name_ingame         VARCHAR(25) NOT NULL UNIQUE,
@@ -17,9 +16,3 @@ CREATE TABLE player_info (
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
     INDEX (name_ingame)
 );
-
-INSERT INTO player_info (name_ingame, name_irl) VALUES
-('blackshadowshade', 'James'),
-('glassonion', 'Chaos'),
-('jl8e', 'Julian'),
-('midnightlightning', 'Brooks');
