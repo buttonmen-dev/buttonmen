@@ -1,11 +1,6 @@
-DROP VIEW  IF EXISTS game_player_view, open_game_possible_button_view;
-DROP TABLE IF EXISTS game_details,
-                     game_player_map,
-                     die_details,
-                     open_game_possible_buttons,
-                     open_game_possible_button_sets,
-                     tournament_details;
+# Table schemas for game-related tables
 
+DROP TABLE IF EXISTS game_details;
 CREATE TABLE game_details (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -24,6 +19,7 @@ CREATE TABLE game_details (
     chat               TEXT
 );
 
+DROP TABLE IF EXISTS game_player_map;
 CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
@@ -37,6 +33,7 @@ CREATE TABLE game_player_map (
     is_player_hidden   BOOLEAN DEFAULT FALSE
 );
 
+DROP TABLE IF EXISTS die_details;
 CREATE TABLE die_details (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     owner_id           TINYINT UNSIGNED NOT NULL,
@@ -48,16 +45,19 @@ CREATE TABLE die_details (
     value              SMALLINT
 );
 
+DROP TABLE IF EXISTS open_game_possible_buttons;
 CREATE TABLE open_game_possible_buttons (
     game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
     button_id          SMALLINT UNSIGNED NOT NULL
 );
 
+DROP TABLE IF EXISTS open_game_possible_button_sets;
 CREATE TABLE open_game_possible_button_sets (
     game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
     set_id             SMALLINT UNSIGNED NOT NULL
 );
 
+DROP TABLE IF EXISTS last_attack;
 CREATE TABLE last_attack (
     game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
     attacker_id        SMALLINT UNSIGNED NOT NULL,
@@ -66,6 +66,7 @@ CREATE TABLE last_attack (
     attack_type        VARCHAR(20) NOT NULL
 );
 
+DROP TABLE IF EXISTS last_attack_die_map;
 CREATE TABLE last_attack_die_map (
    game_id             MEDIUMINT UNSIGNED PRIMARY KEY,
    die_id              INT UNSIGNED NOT NULL,
@@ -74,6 +75,7 @@ CREATE TABLE last_attack_die_map (
    was_captured        BOOLEAN NOT NULL
 );
 
+DROP TABLE IF EXISTS tournament_details;
 CREATE TABLE tournament_details (
     id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
@@ -84,24 +86,3 @@ CREATE TABLE tournament_details (
     creator_id         SMALLINT UNSIGNED NOT NULL,
     description        VARCHAR(255) NOT NULL
 );
-
-CREATE VIEW game_player_view
-AS SELECT m.*, p.name_ingame AS player_name, b.name AS button_name
-FROM game_player_map AS m
-LEFT JOIN player_info AS p
-ON m.player_id = p.id
-LEFT JOIN button_definitions AS b
-ON m.button_id = b.id;
-
-CREATE VIEW open_game_possible_button_view
-AS SELECT g.id, pb.button_id, ps.set_id, b.name AS button_name, s.name AS set_name
-FROM game_details AS g
-LEFT JOIN open_game_possible_buttons AS pb
-ON g.id = pb.game_id
-LEFT JOIN open_game_possible_button_sets AS ps
-ON g.id = ps.game_id
-LEFT JOIN button_definitions AS b
-ON pb.button_id = b.id
-LEFT JOIN button_sets AS s
-ON ps.set_id = s.id
-WHERE g.status = "OPEN";
