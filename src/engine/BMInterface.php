@@ -46,7 +46,8 @@ class BMInterface {
 
             $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
             $statement->execute();
-            $gameId = $statement->fetch()[0];
+            $fetchData = $statement->fetch();
+            $gameId = $fetchData[0];
 
             foreach ($playerIdArray as $position => $playerId) {
                 // get button ID
@@ -56,7 +57,8 @@ class BMInterface {
                              'WHERE name = :button_name';
                     $statement = self::$conn->prepare($query);
                     $statement->execute(array(':button_name' => $buttonName));
-                    $buttonId = $statement->fetch()[0];
+                    $fetchData = $statement->fetch();
+                    $buttonId = $fetchData[0];
                 } else {
                     $buttonId = NULL;
                 }
@@ -89,8 +91,8 @@ class BMInterface {
             $this->message = "Game $gameId created successfully.";
             return $gameId;
         } catch (Exception $e) {
-            $this->message = 'Game create failed: '.
-                             $statement->errorInfo()[2];
+            $errorData = $statement->errorInfo();
+            $this->message = 'Game create failed: '.$errorData[2];
         }
     }
 
