@@ -8,9 +8,9 @@ module.exports = function(grunt) {
  
         // Metadata.
         meta: {
-            basePath: './',
-            srcPath: './src/',
-            deployPath: './deploy/'
+            basePath: './../../',
+            srcPath: './../../src/',
+            deployPath: './../../deploy/'
         },
  
         banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
@@ -40,7 +40,7 @@ module.exports = function(grunt) {
 //            all: ['Gruntfile.js', 'src/**/*.js', 'test/src/**/*.js']
 //        }
         inlinelint: {
-            html: ['./src/**/*.html'],
+            html: ['./../../src/**/*.html'],
             options: {
                 jshintrc: '.jshintrc'
             }
