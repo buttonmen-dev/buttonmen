@@ -47,13 +47,13 @@ CREATE TABLE die_details (
 
 DROP TABLE IF EXISTS open_game_possible_buttons;
 CREATE TABLE open_game_possible_buttons (
-    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
     button_id          SMALLINT UNSIGNED NOT NULL
 );
 
 DROP TABLE IF EXISTS open_game_possible_button_sets;
 CREATE TABLE open_game_possible_button_sets (
-    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
     set_id             SMALLINT UNSIGNED NOT NULL
 );
 
