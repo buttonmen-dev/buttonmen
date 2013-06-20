@@ -59,12 +59,12 @@
                     Number of rounds:
                 </td>
                 <td>
-                    <select>
-                        <option value="nround_1">1</option>
-                        <option value="nround_2">2</option>
-                        <option value="nround_3">3</option>
-                        <option value="nround_4">4</option>
-                        <option value="nround_5">5</option>
+                    <select id="n_rounds">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3" selected="selected">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
                     </select>
                 </td>
             </tr>
@@ -90,9 +90,6 @@
     <script>
         $(document).ready(function() {
             // global variables
-            var buttonNameArray = [];
-            var playerNameArray = [];
-            var maxWins = 3;
             var message = '';
 
             // functions
@@ -118,11 +115,11 @@
                                $('#select_you').append(
                                    $('<option></option>').
                                        text(buttonName + ' : ' + recipe).
-                                       val('your_die_' + buttonName));
+                                       val(buttonName));
                                $('#select_opp').append(
                                    $('<option></option>').
                                        text(buttonName + ' : ' + recipe).
-                                       val('opp_die_' + buttonName));
+                                       val(buttonName));
                            }
                            message = rs.message;
                        });
@@ -147,6 +144,7 @@
                 });
 
             $('#submit').click(function() {
+                var playerNameArray = [];
                 playerNameArray[0] = $('#your_player_name').text();
                 playerNameArray[1] = $('#opp_player_name').val();
 
@@ -173,8 +171,12 @@
                 });
 
                 // get both button selections
+                var buttonNameArray = [];
                 buttonNameArray[0] = $('#select_you').val();
                 buttonNameArray[1] = $('#select_opp').val();
+
+                // get number of rounds
+                var maxWins = $('#n_rounds').val();
 
                 // post both button selections and create game
                 $.post('responder.php',
@@ -184,7 +186,7 @@
                         maxWins: maxWins},
                        function(rs){
                            // give feedback about the status of the submit
-                           $('#debug_message').html(rs.message);
+                           $('#debug_message').html(rs);
                        });
             });
 
