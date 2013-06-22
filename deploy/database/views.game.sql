@@ -4,7 +4,7 @@ DROP VIEW IF EXISTS game_player_view;
 CREATE VIEW game_player_view
 AS SELECT m.*, p.name_ingame AS player_name, b.name AS button_name
 FROM game_player_map AS m
-LEFT JOIN player_info AS p
+LEFT JOIN player AS p
 ON m.player_id = p.id
 LEFT JOIN button AS b
 ON m.button_id = b.id;

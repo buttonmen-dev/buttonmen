@@ -151,7 +151,7 @@ class BMInterface {
 
     public function get_player_names_like($input = '') {
         try {
-            $query = 'SELECT name_ingame FROM player_info '.
+            $query = 'SELECT name_ingame FROM player '.
                      'WHERE name_ingame LIKE :input '.
                      'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);
@@ -175,7 +175,7 @@ class BMInterface {
 //            $idArray = array('blackshadowshade' => '1',
 //                             'glassonion' => '3',
 //                             'jl8e' => '2');
-            $query = 'SELECT id FROM player_info '.
+            $query = 'SELECT id FROM player '.
                      'WHERE name_ingame = :input';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
