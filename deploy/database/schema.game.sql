@@ -33,8 +33,8 @@ CREATE TABLE game_player_map (
     is_player_hidden   BOOLEAN DEFAULT FALSE
 );
 
-DROP TABLE IF EXISTS die_details;
-CREATE TABLE die_details (
+DROP TABLE IF EXISTS die;
+CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     owner_id           TINYINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,

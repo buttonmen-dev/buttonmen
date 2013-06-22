@@ -4,7 +4,7 @@ DELETE FROM game_details;
 
 DELETE FROM game_player_map;
 
-DELETE FROM die_details;
+DELETE FROM die;
 
 DELETE FROM open_game_possible_buttons;
 
