@@ -1,0 +1,23 @@
+#!/bin/sh
+##### Utility script to install grunt and dependencies
+
+# exit if anything goes wrong
+set -e
+
+# Echo what the script does
+set -x
+
+echo "Checking to see if npm is in your path.  If not, install it before proceeding"
+type npm
+
+echo "Using npm to install needed grunt libraries"
+
+for module in grunt-cli grunt grunt-contrib-jshint grunt-contrib-concat \
+              grunt-contrib-uglify grunt-lint-inline; do
+  if [ -f node_modules/${module}/package.json ]; then
+    echo "${module} already installed"
+  else
+    npm install ${module}
+  fi
+done
+
