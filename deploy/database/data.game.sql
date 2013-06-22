@@ -14,4 +14,4 @@ DELETE FROM last_attack;
 
 DELETE FROM last_attack_die_map;
 
-DELETE FROM tournament_details;
+DELETE FROM tournament;

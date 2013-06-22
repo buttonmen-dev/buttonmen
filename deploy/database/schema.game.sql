@@ -75,8 +75,8 @@ CREATE TABLE last_attack_die_map (
    was_captured        BOOLEAN NOT NULL
 );
 
-DROP TABLE IF EXISTS tournament_details;
-CREATE TABLE tournament_details (
+DROP TABLE IF EXISTS tournament;
+CREATE TABLE tournament (
     id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
     current_round      TINYINT UNSIGNED DEFAULT 1,
