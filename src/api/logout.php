@@ -1,6 +1,6 @@
 <?php
-// clear authorisation cookie
-setcookie('auth', '1', time()-3600, '/', '', FALSE);
+require 'api_core.php';
+logout();
 
 // create display string
 $display_block = '<p>Authorisation cookie cleared!</p>';

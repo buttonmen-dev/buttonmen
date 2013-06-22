@@ -5,35 +5,19 @@ if ((!isset($_POST['username'])) || (!isset($_POST['password']))) {
     exit;
 }
 
-// connect to server
-// connection is $conn
-require '../database/mysql.inc.php';
+session_start();
+require 'api_core.php';
+$login_success = login($_POST['username'], $_POST['password']);
 
-// query the player id
-$sql = 'SELECT password_hashed FROM player_info
-        WHERE name_ingame     = :username';
-$query = $conn->prepare($sql);
-$query->execute(array(':username' => $_POST['username']));
 
-$result = $query->fetchAll();
-
-// check if the username and password already exist
-if (1 == count($result)) {
-    $password_hashed = $result[0]['password_hashed'];
-
-    if ($password_hashed == crypt($_POST['password'], $password_hashed)) {
-        // set authorisation cookie
-        setcookie('auth', $_POST['username'], 0, '/', '', FALSE);
-
-        // create display string
-        $display_block = '<p>Authorised!</p>';
-    } else {
-        $display_block = '<p>Password incorrect</p>';
-    }
+// check if the username already exists
+if ($login_success) {
+    // create display string
+    $display_block = '<p>Authorised!</p>';
 } else {
+    $display_block = '<p>Failed.</p>';
     // redirect back to login form if not authorised
-    header('Location: login.html');
-//    exit;
+    //header('Location: login.html');
 }
 ?>
 
