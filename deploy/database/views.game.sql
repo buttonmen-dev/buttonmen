@@ -19,6 +19,6 @@ LEFT JOIN open_game_possible_button_sets AS ps
 ON g.id = ps.game_id
 LEFT JOIN button AS b
 ON pb.button_id = b.id
-LEFT JOIN button_sets AS s
+LEFT JOIN button_set AS s
 ON ps.set_id = s.id
 WHERE g.status = "OPEN";

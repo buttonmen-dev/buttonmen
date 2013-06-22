@@ -1,7 +1,7 @@
 # Table definitions for button-related tables
 
-DROP TABLE IF EXISTS button_sets;
-CREATE TABLE button_sets (
+DROP TABLE IF EXISTS button_set;
+CREATE TABLE button_set (
     id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     /* 'Chicagoland Games Enclave' has 27 characters */
     name        VARCHAR(40) NOT NULL
