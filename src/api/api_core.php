@@ -21,6 +21,13 @@ function login($username, $password) {
             // create authorisation key
             $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
 
+            // write authorisation key to database
+            $sql = 'INSERT INTO player_auth (id, auth_key) VALUES (:id, :auth_key)
+                    ON DUPLICATE KEY UPDATE auth_key = :auth_key';
+            $query = $conn->prepare($sql);
+            $query->execute(array(':id'       => $result['id'],
+                                  ':auth_key' => $auth_key));
+
             // set authorisation cookie
             setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
             session_regenerate_id(true);

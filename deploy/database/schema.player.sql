@@ -16,3 +16,9 @@ CREATE TABLE player_info (
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
     INDEX (name_ingame)
 );
+
+DROP TABLE IF EXISTS player_auth;
+CREATE TABLE player_auth (
+    id        SMALLINT UNSIGNED PRIMARY KEY,
+    auth_key  VARCHAR(253) UNIQUE NOT NULL
+);
