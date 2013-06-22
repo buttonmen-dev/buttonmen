@@ -20,7 +20,7 @@
         $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // Make sure auto_increment_increment is 1 
-        $statement = self::$conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
+        $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
         $statement->execute();
     } catch(PDOException $e) {
         echo 'ERROR: ' . $e->getMessage();
