@@ -3,8 +3,8 @@ INSERT INTO button_sets (name) VALUES
 ('Soldiers'),
 ('Brom');
 
-DELETE FROM button_definitions;
-INSERT INTO button_definitions (name, recipe, tourn_legal, set_id) VALUES
+DELETE FROM button;
+INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Avis', '4 4 10 12 X', 1, (SELECT id FROM button_sets WHERE name="Soldiers")),
 ('Hammer', '6 12 20 20 X', 1, (SELECT id FROM button_sets WHERE name="Soldiers")),
 ('Bauer', '8 10 12 20 X', 1, (SELECT id FROM button_sets WHERE name="Soldiers")),

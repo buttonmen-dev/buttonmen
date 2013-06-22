@@ -53,7 +53,7 @@ class BMInterface {
                 // get button ID
                 $buttonName = $buttonNameArray[$position];
                 if (!is_null($buttonName)) {
-                    $query = 'SELECT id FROM button_definitions '.
+                    $query = 'SELECT id FROM button '.
                              'WHERE name = :button_name';
                     $statement = self::$conn->prepare($query);
                     $statement->execute(array(':button_name' => $buttonName));

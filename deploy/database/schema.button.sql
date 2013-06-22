@@ -7,8 +7,8 @@ CREATE TABLE button_sets (
     name        VARCHAR(40) NOT NULL
 );
 
-DROP TABLE IF EXISTS button_definitions;
-CREATE TABLE button_definitions (
+DROP TABLE IF EXISTS button;
+CREATE TABLE button (
     id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     /* 'The Fictitious Alan Clark' has 25 characters */
     name        VARCHAR(40) UNIQUE NOT NULL,
