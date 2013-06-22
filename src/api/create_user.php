@@ -16,7 +16,6 @@ $query = $conn->prepare($sql);
 $query->execute(array(':username' => $_POST['username']));
 $result = $query->fetchAll();
 
-// check if the username already exists
 if (count($result) > 0) {
     $user_id = $result[0]['id'];
 
@@ -29,6 +28,8 @@ if (count($result) > 0) {
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $_POST['username'],
                           ':password' => crypt($_POST['password'])));
+    var_dump($_POST['password']);
+    var_dump(crypt($_POST['password']));
     //$result = $query->fetchAll();
     $display_block = '<p>User '.$_POST['username'].' created successfully!</p>';
 }
@@ -37,7 +38,7 @@ if (count($result) > 0) {
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
     <head>
         <title>
-            Login
+            Create user
         </title>
     </head>
     <body>

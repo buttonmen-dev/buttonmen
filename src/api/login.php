@@ -10,22 +10,26 @@ if ((!isset($_POST['username'])) || (!isset($_POST['password']))) {
 require '../database/mysql.inc.php';
 
 // query the player id
-$sql = 'SELECT id FROM player_info
-        WHERE name_ingame     = :username
-        AND   password_hashed = :password';
+$sql = 'SELECT password_hashed FROM player_info
+        WHERE name_ingame     = :username';
 $query = $conn->prepare($sql);
-$query->execute(array(':username' => $_POST['username'],
-                      ':password' => crypt($_POST['password'])));
+$query->execute(array(':username' => $_POST['username']));
+
 $result = $query->fetchAll();
 
 // check if the username and password already exist
 if (1 == count($result)) {
-    $user_id = $result['id'];
-    // set authorisation cookie
-    setcookie('auth', '1', 0, '/', 'pagodabox.com', 0);
+    $password_hashed = $result[0]['password_hashed'];
 
-    // create display string
-    $display_block = '<p>'.$user_id.' is authorised!</p>';
+    if ($password_hashed == crypt($_POST['password'], $password_hashed)) {
+        // set authorisation cookie
+        setcookie('auth', $_POST['username'], 0, '/', '', FALSE);
+
+        // create display string
+        $display_block = '<p>Authorised!</p>';
+    } else {
+        $display_block = '<p>Password incorrect</p>';
+    }
 } else {
     // redirect back to login form if not authorised
     header('Location: login.html');
