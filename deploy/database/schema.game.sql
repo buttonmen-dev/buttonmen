@@ -1,7 +1,7 @@
 # Table schemas for game-related tables
 
-DROP TABLE IF EXISTS game_details;
-CREATE TABLE game_details (
+DROP TABLE IF EXISTS game;
+CREATE TABLE game (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,

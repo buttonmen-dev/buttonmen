@@ -1,6 +1,6 @@
 
 
-DELETE FROM game_details;
+DELETE FROM game;
 
 DELETE FROM game_player_map;
 

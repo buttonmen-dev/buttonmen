@@ -35,7 +35,7 @@ class BMInterface {
             }
 
             // create basic game details
-            $query = 'INSERT INTO game_details '.
+            $query = 'INSERT INTO game '.
                      '(n_players, n_target_wins, creator_id) '.
                      'VALUES '.
                      '(:n_players, :n_target_wins, :creator_id)';
@@ -115,7 +115,7 @@ class BMInterface {
 //            $gamefile = "/var/www/bmgame/$game->gameId.data";
 //            $gameInt = serialize($game);
 //            file_put_contents($gamefile, $gameInt);
-            $query = "INSERT INTO game_details () ".
+            $query = "INSERT INTO game () ".
                      "VALUES ".
                      "()";
             $statement = self::$conn->prepare($query);
