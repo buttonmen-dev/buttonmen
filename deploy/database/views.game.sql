@@ -15,10 +15,10 @@ AS SELECT g.id, pb.button_id, ps.set_id, b.name AS button_name, s.name AS set_na
 FROM game AS g
 LEFT JOIN open_game_possible_buttons AS pb
 ON g.id = pb.game_id
-LEFT JOIN open_game_possible_button_sets AS ps
+LEFT JOIN open_game_possible_buttonsets AS ps
 ON g.id = ps.game_id
 LEFT JOIN button AS b
 ON pb.button_id = b.id
-LEFT JOIN button_set AS s
+LEFT JOIN buttonset AS s
 ON ps.set_id = s.id
 WHERE g.status = "OPEN";

@@ -8,7 +8,7 @@ DELETE FROM die;
 
 DELETE FROM open_game_possible_buttons;
 
-DELETE FROM open_game_possible_button_sets;
+DELETE FROM open_game_possible_buttonsets;
 
 DELETE FROM last_attack;
 

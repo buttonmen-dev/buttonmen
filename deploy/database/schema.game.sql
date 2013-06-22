@@ -51,8 +51,8 @@ CREATE TABLE open_game_possible_buttons (
     button_id          SMALLINT UNSIGNED NOT NULL
 );
 
-DROP TABLE IF EXISTS open_game_possible_button_sets;
-CREATE TABLE open_game_possible_button_sets (
+DROP TABLE IF EXISTS open_game_possible_buttonsets;
+CREATE TABLE open_game_possible_buttonsets (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     set_id             SMALLINT UNSIGNED NOT NULL
 );
