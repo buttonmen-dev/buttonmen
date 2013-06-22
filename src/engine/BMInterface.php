@@ -14,6 +14,13 @@ require_once 'BMGame.php';
 class BMInterface {
     // properties
     private $message;               // message intended for GUI
+    private static $conn = NULL;    // connection to database
+
+    // constructor
+    public function __construct() {
+        require '../database/mysql.inc.php';
+        self::$conn = $conn;
+    }
 
     // methods
     public function create_game($playerIdArray,
@@ -27,22 +34,65 @@ class BMInterface {
                 $gameId = $requestedGameId;
             }
 
-            // this will be rewritten in the future to use a database
-            $button1 = new BMButton;
-            $button2 = new BMButton;
-            $button1->load_from_name($buttonNameArray[0]);
-            $button2->load_from_name($buttonNameArray[1]);
+            // create basic game details
+            $query = 'INSERT INTO game_details '.
+                     '(n_players, n_target_wins, creator_id) '.
+                     'VALUES '.
+                     '(:n_players, :n_target_wins, :creator_id)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':n_players'     => count($playerIdArray),
+                                      ':n_target_wins' => $maxWins,
+                                      ':creator_id'    => $playerIdArray[0]));
 
-            $game = new BMGame($gameId,
-                               $playerIdArray,
-                               array('', ''),
-                               $maxWins);
-            $game->buttonArray = array($button1, $button2);
-            $this->save_game($game);
+            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
+            $statement->execute();
+            $fetchData = $statement->fetch();
+            $gameId = $fetchData[0];
+
+            foreach ($playerIdArray as $position => $playerId) {
+                // get button ID
+                $buttonName = $buttonNameArray[$position];
+                if (!is_null($buttonName)) {
+                    $query = 'SELECT id FROM button_definitions '.
+                             'WHERE name = :button_name';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':button_name' => $buttonName));
+                    $fetchData = $statement->fetch();
+                    $buttonId = $fetchData[0];
+                } else {
+                    $buttonId = NULL;
+                }
+
+                // add info to game_player_map
+                $query = 'INSERT INTO game_player_map '.
+                         '(game_id, player_id, button_id, position) '.
+                         'VALUES '.
+                         '(:game_id, :player_id, :button_id, :position)';
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':game_id'   => $gameId,
+                                          ':player_id' => $playerId,
+                                          ':button_id' => $buttonId,
+                                          ':position'  => $position));
+            }
+
+            // this will be rewritten in the future to use a database
+//            $button1 = new BMButton;
+//            $button2 = new BMButton;
+//            $button1->load_from_name($buttonNameArray[0]);
+//            $button2->load_from_name($buttonNameArray[1]);
+
+//            $game = new BMGame($gameId,
+//                               $playerIdArray,
+//                               array('', ''),
+//                               $maxWins);
+//            $game->buttonArray = array($button1, $button2);
+//            $this->save_game($game);
             $this->message = "Game $gameId created successfully.";
             return $gameId;
         } catch (Exception $e) {
-            $this->message = 'Game create failed.';
+            $errorData = $statement->errorInfo();
+            $this->message = 'Game create failed: '.$errorData[2];
         }
     }
 
@@ -62,9 +112,20 @@ class BMInterface {
     public function save_game($game) {
         try {
             // this will be rewritten in the future to use a database instead of a file
-            $gamefile = "/var/www/bmgame/$game->gameId.data";
-            $gameInt = serialize($game);
-            file_put_contents($gamefile, $gameInt);
+//            $gamefile = "/var/www/bmgame/$game->gameId.data";
+//            $gameInt = serialize($game);
+//            file_put_contents($gamefile, $gameInt);
+            $query = "INSERT INTO game_details () ".
+                     "VALUES ".
+                     "()";
+            $statement = self::$conn->prepare($query);
+            $statement->execute();
+
+            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
+            $gameId = $statement->execute();
+
+
+
             $this->message = "Generated game $game->gameId: caching data in file: $gamefile.";
         } catch (Exception $e) {
             $this->message = 'Game save failed.';
@@ -72,9 +133,8 @@ class BMInterface {
     }
 
     public function get_all_button_names() {
-        require_once('../database/mysql.inc.php');
         try {
-            $statement = $conn->prepare('SELECT name, recipe FROM button_view');
+            $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
             $statement->execute();
 
             while ($row = $statement->fetch()) {
@@ -90,10 +150,11 @@ class BMInterface {
     }
 
     public function get_player_names_like($input = '') {
-        require_once('../database/mysql.inc.php');
         try {
-            $sql = "SELECT name_ingame FROM player_info WHERE name_ingame LIKE :input ORDER BY name_ingame";
-            $statement = $conn->prepare($sql);
+            $query = 'SELECT name_ingame FROM player_info '.
+                     'WHERE name_ingame LIKE :input '.
+                     'ORDER BY name_ingame';
+            $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $input.'%'));
 
             $nameArray = array();
@@ -111,16 +172,20 @@ class BMInterface {
         try {
             // this will be rewritten in the future to use a database instead of a
             // hard-coded array
-            $idArray = array('blackshadowshade' => '314159',
-                             'cgolubi' => '356995',
-                             'jl8e' => '271828');
-
-            if (array_key_exists($name, $idArray)) {
-                $this->message = 'Player ID retrieved successfully.';
-                return $idArray[$name];
-            } else {
+//            $idArray = array('blackshadowshade' => '1',
+//                             'glassonion' => '3',
+//                             'jl8e' => '2');
+            $query = 'SELECT id FROM player_info '.
+                     'WHERE name_ingame = :input';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':input' => $name));
+            $result = $statement->fetch();
+            if (!$result) {
                 $this->message = 'Player name does not exist.';
-                return '';
+                return('');
+            } else {
+                $this->message = 'Player ID retrieved successfully.';
+                return($result[0]);
             }
         } catch (Exception $e) {
             $this->message = 'Player ID get failed.';
