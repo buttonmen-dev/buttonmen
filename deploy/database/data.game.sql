@@ -1,17 +1,17 @@
 
 
-DELETE FROM game_details;
+DELETE FROM game;
 
 DELETE FROM game_player_map;
 
-DELETE FROM die_details;
+DELETE FROM die;
 
 DELETE FROM open_game_possible_buttons;
 
-DELETE FROM open_game_possible_button_sets;
+DELETE FROM open_game_possible_buttonsets;
 
 DELETE FROM last_attack;
 
 DELETE FROM last_attack_die_map;
 
-DELETE FROM tournament_details;
+DELETE FROM tournament;
