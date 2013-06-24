@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     require_once '../engine/BMInterface.php';
     require_once '../engine/BMGame.php';
 
@@ -89,7 +91,7 @@
 
         case 'loadPlayerName':
             $output = array('status' => 'ok',
-                            'data' => 'blackshadowshade');
+                            'data' => $_SESSION['user_name']);
             break;
 
         case 'loadPlayerNames':
