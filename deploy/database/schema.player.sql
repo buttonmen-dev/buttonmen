@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS player_info;
-CREATE TABLE player_info (
+DROP TABLE IF EXISTS player;
+CREATE TABLE player (
     id                  SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name_ingame         VARCHAR(25) UNIQUE NOT NULL,
     password_hashed     VARCHAR(40),
