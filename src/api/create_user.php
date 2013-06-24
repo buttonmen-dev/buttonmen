@@ -10,7 +10,7 @@ if ((!isset($_POST['username'])) || (!isset($_POST['password']))) {
 require '../database/mysql.inc.php';
 
 // check if username already exists
-$sql = 'SELECT id FROM player_info
+$sql = 'SELECT id FROM player
         WHERE name_ingame = :username';
 $query = $conn->prepare($sql);
 $query->execute(array(':username' => $_POST['username']));
@@ -23,14 +23,11 @@ if (count($result) > 0) {
     $display_block = '<p>'.$_POST['username'].' already exists at id '.$user_id.'</p>';
 } else {
     // create user
-    $sql = 'INSERT INTO player_info (name_ingame, password_hashed)
+    $sql = 'INSERT INTO player (name_ingame, password_hashed)
             VALUES (:username, :password)';
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $_POST['username'],
                           ':password' => crypt($_POST['password'])));
-    var_dump($_POST['password']);
-    var_dump(crypt($_POST['password']));
-    //$result = $query->fetchAll();
     $display_block = '<p>User '.$_POST['username'].' created successfully!</p>';
 }
 ?>

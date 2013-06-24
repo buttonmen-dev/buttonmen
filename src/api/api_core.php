@@ -32,7 +32,7 @@ function initiate() {
 function login($username, $password) {
     require '../database/mysql.inc.php';
 
-    $sql = 'SELECT id, password_hashed FROM player_info
+    $sql = 'SELECT id, password_hashed FROM player
             WHERE name_ingame = :username';
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $username));
@@ -82,11 +82,11 @@ function logout() {
 
     $_SESSION = array();
 
-    setcookie('auth_key',      '', time()-3600, '/');
+    setcookie('auth_key', '', time()-3600, '/');
 
     $params = session_get_cookie_params();
-    setcookie(session_name(),  '', time()-3600,
-              $params["path"],   $params["domain"],
+    setcookie(session_name(), '', time()-3600,
+              $params["path"], $params["domain"],
               $params["secure"], $params["httponly"]);
 
     session_destroy();
