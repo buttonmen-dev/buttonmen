@@ -1,8 +1,5 @@
 <?php
 
-//require_once 'BMButton.php';
-//require_once 'BMGame.php';
-
 /**
  * BMInterface: interface between GUI and BMGame
  *
@@ -76,18 +73,6 @@ class BMInterface {
                                           ':position'  => $position));
             }
 
-            // this will be rewritten in the future to use a database
-//            $button1 = new BMButton;
-//            $button2 = new BMButton;
-//            $button1->load_from_name($buttonNameArray[0]);
-//            $button2->load_from_name($buttonNameArray[1]);
-
-//            $game = new BMGame($gameId,
-//                               $playerIdArray,
-//                               array('', ''),
-//                               $maxWins);
-//            $game->buttonArray = array($button1, $button2);
-//            $this->save_game($game);
             $this->message = "Game $gameId created successfully.";
             return $gameId;
         } catch (Exception $e) {
@@ -111,10 +96,6 @@ class BMInterface {
 
     public function save_game($game) {
         try {
-            // this will be rewritten in the future to use a database instead of a file
-//            $gamefile = "/var/www/bmgame/$game->gameId.data";
-//            $gameInt = serialize($game);
-//            file_put_contents($gamefile, $gameInt);
             $query = "INSERT INTO game () ".
                      "VALUES ".
                      "()";
@@ -220,11 +201,6 @@ class BMInterface {
 
     public function get_player_id_from_name($name) {
         try {
-            // this will be rewritten in the future to use a database instead of a
-            // hard-coded array
-//            $idArray = array('blackshadowshade' => '1',
-//                             'glassonion' => '3',
-//                             'jl8e' => '2');
             $query = 'SELECT id FROM player '.
                      'WHERE name_ingame = :input';
             $statement = self::$conn->prepare($query);
