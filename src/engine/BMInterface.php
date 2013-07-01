@@ -132,6 +132,56 @@ class BMInterface {
         }
     }
 
+    public function get_all_active_games($playerId) {
+        try {
+            // the following SQL logic assumes that there are only two players per game
+            $sql = 'SELECT v1.game_id,'.
+                   'v1.player_id AS opponent_id,'.
+                   'v1.player_name AS opponent_name,'.
+                   'v2.button_name AS my_button_name,'.
+                   'v1.button_name AS opponent_button_name,'.
+                   'v2.n_rounds_won AS n_wins,'.
+                   'v2.n_rounds_drawn AS n_draws,'.
+                   'v1.n_rounds_won AS n_losses,'.
+                   'g.status '.
+                   'FROM game_player_view AS v1 '.
+                   'LEFT JOIN game_player_view AS v2 '.
+                   'ON v1.game_id = v2.game_id '.
+                   'LEFT JOIN game AS g '.
+                   'ON g.id = v1.game_id '.
+                   'WHERE v2.player_id = :player_id '.
+                   'AND v1.player_id != v2.player_id '.
+                   'AND g.status != "COMPLETE" '.
+                   'ORDER BY v1.game_id;';
+            $statement = self::$conn->prepare($sql);
+            $statement->execute(array(':player_id' => $playerId));
+
+            while ($row = $statement->fetch()) {
+                $gameIdArray[]             = $row['game_id'];
+                $opponentIdArray[]         = $row['opponent_id'];
+                $opponentNameArray[]       = $row['opponent_name'];
+                $myButtonNameArray[]       = $row['my_button_name'];
+                $opponentButtonNameArray[] = $row['opponent_button_name'];
+                $nWinsArray[]              = $row['n_wins'];
+                $nDrawsArray[]             = $row['n_draws'];
+                $nLossesArray[]            = $row['n_losses'];
+                $statusArray[]             = $row['status'];
+            }
+            $this->message = 'All game details retrieved successfully.';
+            return array('gameIdArray'             => $gameIdArray,
+                         'opponentIdArray'         => $opponentIdArray,
+                         'opponentNameArray'       => $opponentNameArray,
+                         'myButtonNameArray'       => $myButtonNameArray,
+                         'opponentButtonNameArray' => $opponentButtonNameArray,
+                         'nWinsArray'              => $nWinsArray,
+                         'nDrawsArray'             => $nDrawsArray,
+                         'nLossesArray'            => $nLossesArray,
+                         'statusArray'             => $statusArray);
+        } catch (Exception $e) {
+            $this->message = 'Game detail get failed.';
+        }
+    }
+
     public function get_all_button_names() {
         try {
             $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
