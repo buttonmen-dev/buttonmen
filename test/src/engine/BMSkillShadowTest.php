@@ -5,8 +5,7 @@
 require_once 'engine/BMSkill.php';
 
 
-class BMSkillShadowTest extends PHPUnit_Framework_TestCase
-{
+class BMSkillShadowTest extends PHPUnit_Framework_TestCase {
     /**
      * @var BMSkillShadow
      */

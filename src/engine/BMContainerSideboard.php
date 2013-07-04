@@ -5,7 +5,7 @@
 
 // Special container that is opened last each round, so the dice
 // within can replace other dice.
-class BMSideboardContainer extends BMContainer {
+class BMContainerSideboard extends BMContainer {
 }
 
 ?>

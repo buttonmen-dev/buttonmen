@@ -6,8 +6,7 @@ require_once 'engine/BMDie.php';
 // (And, once we have skills that overlap, attempting to test their
 // interaction with one another.)
 
-class BMSkillIntegrationTest extends PHPUnit_Framework_TestCase
-{
+class BMSkillIntegrationTest extends PHPUnit_Framework_TestCase {
     protected $object;
 
     /**
