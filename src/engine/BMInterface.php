@@ -1,8 +1,5 @@
 <?php
 
-//require_once 'BMButton.php';
-require_once 'BMGame.php';
-
 /**
  * BMInterface: interface between GUI and BMGame
  *
@@ -35,7 +32,7 @@ class BMInterface {
             }
 
             // create basic game details
-            $query = 'INSERT INTO game_details '.
+            $query = 'INSERT INTO game '.
                      '(n_players, n_target_wins, creator_id) '.
                      'VALUES '.
                      '(:n_players, :n_target_wins, :creator_id)';
@@ -53,7 +50,7 @@ class BMInterface {
                 // get button ID
                 $buttonName = $buttonNameArray[$position];
                 if (!is_null($buttonName)) {
-                    $query = 'SELECT id FROM button_definitions '.
+                    $query = 'SELECT id FROM button '.
                              'WHERE name = :button_name';
                     $statement = self::$conn->prepare($query);
                     $statement->execute(array(':button_name' => $buttonName));
@@ -76,18 +73,6 @@ class BMInterface {
                                           ':position'  => $position));
             }
 
-            // this will be rewritten in the future to use a database
-//            $button1 = new BMButton;
-//            $button2 = new BMButton;
-//            $button1->load_from_name($buttonNameArray[0]);
-//            $button2->load_from_name($buttonNameArray[1]);
-
-//            $game = new BMGame($gameId,
-//                               $playerIdArray,
-//                               array('', ''),
-//                               $maxWins);
-//            $game->buttonArray = array($button1, $button2);
-//            $this->save_game($game);
             $this->message = "Game $gameId created successfully.";
             return $gameId;
         } catch (Exception $e) {
@@ -111,11 +96,7 @@ class BMInterface {
 
     public function save_game($game) {
         try {
-            // this will be rewritten in the future to use a database instead of a file
-//            $gamefile = "/var/www/bmgame/$game->gameId.data";
-//            $gameInt = serialize($game);
-//            file_put_contents($gamefile, $gameInt);
-            $query = "INSERT INTO game_details () ".
+            $query = "INSERT INTO game () ".
                      "VALUES ".
                      "()";
             $statement = self::$conn->prepare($query);
@@ -129,6 +110,56 @@ class BMInterface {
             $this->message = "Generated game $game->gameId: caching data in file: $gamefile.";
         } catch (Exception $e) {
             $this->message = 'Game save failed.';
+        }
+    }
+
+    public function get_all_active_games($playerId) {
+        try {
+            // the following SQL logic assumes that there are only two players per game
+            $sql = 'SELECT v1.game_id,'.
+                   'v1.player_id AS opponent_id,'.
+                   'v1.player_name AS opponent_name,'.
+                   'v2.button_name AS my_button_name,'.
+                   'v1.button_name AS opponent_button_name,'.
+                   'v2.n_rounds_won AS n_wins,'.
+                   'v2.n_rounds_drawn AS n_draws,'.
+                   'v1.n_rounds_won AS n_losses,'.
+                   'g.status '.
+                   'FROM game_player_view AS v1 '.
+                   'LEFT JOIN game_player_view AS v2 '.
+                   'ON v1.game_id = v2.game_id '.
+                   'LEFT JOIN game AS g '.
+                   'ON g.id = v1.game_id '.
+                   'WHERE v2.player_id = :player_id '.
+                   'AND v1.player_id != v2.player_id '.
+                   'AND g.status != "COMPLETE" '.
+                   'ORDER BY v1.game_id;';
+            $statement = self::$conn->prepare($sql);
+            $statement->execute(array(':player_id' => $playerId));
+
+            while ($row = $statement->fetch()) {
+                $gameIdArray[]             = $row['game_id'];
+                $opponentIdArray[]         = $row['opponent_id'];
+                $opponentNameArray[]       = $row['opponent_name'];
+                $myButtonNameArray[]       = $row['my_button_name'];
+                $opponentButtonNameArray[] = $row['opponent_button_name'];
+                $nWinsArray[]              = $row['n_wins'];
+                $nDrawsArray[]             = $row['n_draws'];
+                $nLossesArray[]            = $row['n_losses'];
+                $statusArray[]             = $row['status'];
+            }
+            $this->message = 'All game details retrieved successfully.';
+            return array('gameIdArray'             => $gameIdArray,
+                         'opponentIdArray'         => $opponentIdArray,
+                         'opponentNameArray'       => $opponentNameArray,
+                         'myButtonNameArray'       => $myButtonNameArray,
+                         'opponentButtonNameArray' => $opponentButtonNameArray,
+                         'nWinsArray'              => $nWinsArray,
+                         'nDrawsArray'             => $nDrawsArray,
+                         'nLossesArray'            => $nLossesArray,
+                         'statusArray'             => $statusArray);
+        } catch (Exception $e) {
+            $this->message = 'Game detail get failed.';
         }
     }
 
@@ -151,7 +182,7 @@ class BMInterface {
 
     public function get_player_names_like($input = '') {
         try {
-            $query = 'SELECT name_ingame FROM player_info '.
+            $query = 'SELECT name_ingame FROM player '.
                      'WHERE name_ingame LIKE :input '.
                      'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);
@@ -170,12 +201,7 @@ class BMInterface {
 
     public function get_player_id_from_name($name) {
         try {
-            // this will be rewritten in the future to use a database instead of a
-            // hard-coded array
-//            $idArray = array('blackshadowshade' => '1',
-//                             'glassonion' => '3',
-//                             'jl8e' => '2');
-            $query = 'SELECT id FROM player_info '.
+            $query = 'SELECT id FROM player '.
                      'WHERE name_ingame = :input';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));

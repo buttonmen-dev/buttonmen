@@ -15,10 +15,12 @@ Please do not check ./node_modules into git!
 Once you have grunt installed in your working directory, to run the
 lint check, use:
   ./node_modules/grunt-cli/bin/grunt
+(or simply "grunt", if you have grunt centrally installed on this
+system.)
 
-A copy of the .jshintrc config file used to set lint parameters is present as
-dot_jshintrc. This file can either go anywhere in the search path for JSHint,
-i.e. (1) in the directory with the Javascript files to be linted,
-     (2) in directories above the files to be linted, or
-     (3) in ~
-(see https://github.com/mctenshi/jshint/pull/2)
+
+Note: this should work correctly if you execute grunt while in this
+directory, but is not guaranteed to work if you cd elsewhere.  The
+.jshintrc file and node_modules which grunt uses will be here, and
+the config files specify the directories to lint relative to this
+directory.

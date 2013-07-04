@@ -1,4 +1,6 @@
 <?php
+    session_start();
+
     require_once '../engine/BMInterface.php';
     require_once '../engine/BMGame.php';
 
@@ -33,6 +35,10 @@
 
             $output = array('status' => 'ok',
                             'data' => $gameId);
+            break;
+
+        case 'loadActiveGames':
+            $output = $interface->get_all_active_games($_SESSION['user_id']);
             break;
 
         case 'loadButtonNames':
@@ -89,7 +95,7 @@
 
         case 'loadPlayerName':
             $output = array('status' => 'ok',
-                            'data' => 'blackshadowshade');
+                            'data' => $_SESSION['user_name']);
             break;
 
         case 'loadPlayerNames':
