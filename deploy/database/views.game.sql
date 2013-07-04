@@ -2,12 +2,15 @@
 
 DROP VIEW IF EXISTS game_player_view;
 CREATE VIEW game_player_view
-AS SELECT m.*, p.name_ingame AS player_name, b.name AS button_name
+AS SELECT m.*, p.name_ingame AS player_name, b.name AS button_name,
+          g.n_target_wins
 FROM game_player_map AS m
 LEFT JOIN player AS p
 ON m.player_id = p.id
 LEFT JOIN button AS b
-ON m.button_id = b.id;
+ON m.button_id = b.id
+LEFT JOIN game AS g
+ON m.game_id = g.id;
 
 DROP VIEW IF EXISTS open_game_possible_button_view;
 CREATE VIEW open_game_possible_button_view
