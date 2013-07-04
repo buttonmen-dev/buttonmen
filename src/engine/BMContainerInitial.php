@@ -5,7 +5,7 @@
 
 // Special container for Auxiliary dice and the like. Activated only
 // at the start of games.
-class BMInitialContainer extends BMContainer {
+class BMContainerInitial extends BMContainer {
 }
 
 ?>
