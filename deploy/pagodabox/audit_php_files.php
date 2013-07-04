@@ -4,7 +4,6 @@
   $php_compliant_dirs = array(
     "src/engine",
     "test/src/engine",
-    "test/src/engine/AttackTests",
     "test/src/engine/Utility",
   );
 
