@@ -6,7 +6,7 @@
 class XCYIteratorTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var XCYIterator
+     * @var BMUtilityXCYIterator
      */
     protected $object;
 
@@ -27,14 +27,14 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @covers XCYIterator::setPosition
-     * @covers XCYIterator::rewind
-     * @covers XCYIterator::current
-     * @covers XCYIterator::key
-     * @covers XCYIterator::next
-     * @covers XCYIterator::valid
+     * @covers BMUtilityXCYIterator::setPosition
+     * @covers BMUtilityXCYIterator::rewind
+     * @covers BMUtilityXCYIterator::current
+     * @covers BMUtilityXCYIterator::key
+     * @covers BMUtilityXCYIterator::next
+     * @covers BMUtilityXCYIterator::valid
      */
-    public function testXCYIterator() {
+    public function testBMUtilityXCYIterator() {
         // Treating the iterator as a black box, rather than trying to
         // test its individual methods. If it returns the right
         // results, it's right.
@@ -47,7 +47,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         $fiveArray = array('A', 'B', 'C', 'D', 'E');
         $eightArray = array('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H');
 
-        $iter = new XCYIterator($fiveArray, 1);
+        $iter = new BMUtilityXCYIterator($fiveArray, 1);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -56,7 +56,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals(5, $count);
 
-        $iter = new XCYIterator($fiveArray, 2);
+        $iter = new BMUtilityXCYIterator($fiveArray, 2);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -66,7 +66,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(10, $count);
 
 
-        $iter = new XCYIterator($fiveArray, 3);
+        $iter = new BMUtilityXCYIterator($fiveArray, 3);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -75,7 +75,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals(10, $count);
 
-        $iter = new XCYIterator($fiveArray, 4);
+        $iter = new BMUtilityXCYIterator($fiveArray, 4);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -84,7 +84,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals(5, $count);
 
-        $iter = new XCYIterator($fiveArray, 5);
+        $iter = new BMUtilityXCYIterator($fiveArray, 5);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -95,7 +95,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
 
 
 
-        $iter = new XCYIterator($eightArray, 4);
+        $iter = new BMUtilityXCYIterator($eightArray, 4);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -104,7 +104,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals(70, $count);
 
-        $iter = new XCYIterator($eightArray, 5);
+        $iter = new BMUtilityXCYIterator($eightArray, 5);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -122,7 +122,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
             $hitcounts[$key] = 0;
         }
 
-        $iter = new XCYIterator($eightArray, 5);
+        $iter = new BMUtilityXCYIterator($eightArray, 5);
         $count = 0;
 
         foreach ($iter as $key => $item) {
@@ -172,7 +172,7 @@ class XCYIteratorTest extends PHPUnit_Framework_TestCase
         }
         $this->assertEquals(56, count($combinations));
 
-        $iter = new XCYIterator($eightArray, 3);
+        $iter = new BMUtilityXCYIterator($eightArray, 3);
 
         foreach ($iter as $key => $item) {
              $combinations[join($item)]++;
