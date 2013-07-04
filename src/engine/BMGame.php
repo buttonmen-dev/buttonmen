@@ -3,6 +3,7 @@
 require_once 'BMButton.php';
 require_once 'BMAttack.php';
 require_once 'BMDie.php';
+require_once 'BMGameState.php';
 
 /**
  * BMGame: current status of a game
@@ -214,7 +215,7 @@ class BMGame {
                     } else {
                         // apply swing values
                         foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                            if ($die instanceof BMSwingDie) {
+                            if ($die instanceof BMDieSwing) {
                                 $isSetSuccessful = $die->set_swingValue(
                                     $this->swingValueArrayArray[$playerIdx]);
                                 // act appropriately if the swing values are invalid
@@ -232,7 +233,7 @@ class BMGame {
                 // roll dice
                 foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => $die) {
-                        if ($die instanceof BMSwingDie) {
+                        if ($die instanceof BMDieSwing) {
                             if ($die->needsValue) {
                                 // swing value has not yet been set
                                 continue;
@@ -1104,54 +1105,6 @@ class BMGame {
                   'gameScoreArrayArray'     => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
-    }
-}
-
-class BMGameState {
-    // pre-game
-    const startGame = 10;
-    const applyHandicaps = 13;
-    const chooseAuxiliaryDice = 16;
-
-    // pre-round
-    const loadDiceIntoButtons = 20;
-    const addAvailableDiceToGame = 22;
-    const specifyDice = 24;
-    const determineInitiative = 26;
-
-    // start round
-    const startRound = 30;
-
-    // turn
-    const startTurn = 40;
-    const endTurn = 48;
-
-    // end round
-    const endRound = 50;
-
-    // end game
-    const endGame = 60;
-
-    public static function validate_game_state($value) {
-        if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
-            throw new InvalidArgumentException(
-                'Game state must be an integer.');
-        }
-        if (!in_array($value, array(BMGameState::startGame,
-                                    BMGameState::applyHandicaps,
-                                    BMGameState::chooseAuxiliaryDice,
-                                    BMGameState::loadDiceIntoButtons,
-                                    BMGameState::addAvailableDiceToGame,
-                                    BMGameState::specifyDice,
-                                    BMGameState::determineInitiative,
-                                    BMGameState::startRound,
-                                    BMGameState::startTurn,
-                                    BMGameState::endTurn,
-                                    BMGameState::endRound,
-                                    BMGameState::endGame))) {
-            throw new InvalidArgumentException(
-                'Invalid game state.');
-        }
     }
 }
 
