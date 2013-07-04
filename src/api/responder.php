@@ -37,6 +37,10 @@
                             'data' => $gameId);
             break;
 
+        case 'loadActiveGames':
+            $output = $interface->get_all_active_games($_SESSION['user_id']);
+            break;
+
         case 'loadButtonNames':
             $output = $interface->get_all_button_names();
             break;
