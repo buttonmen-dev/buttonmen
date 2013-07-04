@@ -15,15 +15,6 @@
 
   // Any other directories shouldn't contain PHP files
 
-  // Never look at these subdirectories
-
-  function test_dir_class_name() {
-    unset($output);
-    exec('grep "^class .* {" src/engine/BMDieSwing.php', &$output);
-    var_dump($output);
-  }
-
-
   function find_all_dirs(&$dirs, $startdir) {
     $php_skip_subdirs = array( '.', '..', '.git', );
     $dirs[] = $startdir;
@@ -37,7 +28,7 @@
         $dirpath = "$startdir/$dirfile";
       }
       if (is_dir($dirpath)) {
-        find_all_dirs(&$dirs, "$dirpath");
+        find_all_dirs($dirs, "$dirpath");
       }
     }
   }
@@ -45,7 +36,7 @@
   function verify_php_file_classes(&$problems, $subdir) {
     foreach (glob("$subdir/*.php") as $phpfile) {
       unset($output);
-      exec('grep "^class .* {" ' . $phpfile, &$output);
+      exec('grep "^class .* {" ' . $phpfile, $output);
       $numlines = count($output);
       if ($numlines == 0) {
         $problems[] = "PHP file contains no classes: $phpfile";
@@ -76,14 +67,14 @@
   $subdirs = array();
   $problems = array();
 
-  find_all_dirs(&$subdirs, ".");
+  find_all_dirs($subdirs, ".");
   foreach ($subdirs as $subdir) {
     if (in_array($subdir, $php_noncompliant_dirs)) {
       // don't run any checks for this directory
     } elseif (in_array($subdir, $php_compliant_dirs)) {
-      verify_php_file_classes(&$problems, $subdir);
+      verify_php_file_classes($problems, $subdir);
     } else {
-      verify_no_php_files(&$problems, $subdir);
+      verify_no_php_files($problems, $subdir);
     }
   }
   if (count($problems) > 0) {
