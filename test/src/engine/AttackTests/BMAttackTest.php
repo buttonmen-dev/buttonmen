@@ -1,6 +1,7 @@
 <?php
 
 require_once "engine/BMAttack.php";
+require_once "engine/BMAttackPower.php";
 require_once "engine/BMGame.php";
 
 /**

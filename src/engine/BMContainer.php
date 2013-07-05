@@ -2,6 +2,13 @@
 
 require_once 'BMDie.php';
 
+// require each type of container
+require_once 'BMContainerInitial.php';
+require_once 'BMContainerPlasma.php';
+require_once 'BMContainerReserve.php';
+require_once 'BMContainerSelect.php';
+require_once 'BMContainerSideboard.php';
+
 /*
  * BMContainer: Managing die groups.
  *
@@ -167,34 +174,6 @@ class BMContainer {
             $this->contents[$i] = clone $thing;
         }
     }
-}
-
-
-class BMSelectContainer extends BMContainer {
-
-}
-
-class BMPlasmaContainer extends BMContainer {
-
-}
-
-class BMReserveContainer extends BMContainer {
-
-}
-
-// These last two may not be needed; the engine could possibly use
-// generic containers and simply open them first or last.
-
-// Special container for Auxiliary dice and the like. Activated only
-// at the start of games.
-class BMInitialContainer extends BMContainer {
-
-}
-
-// Special container that is opened last each round, so the dice
-// within can replace other dice.
-class BMSideboardContainer extends BMContainer {
-
 }
 
 ?>
