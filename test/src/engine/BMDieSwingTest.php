@@ -2,8 +2,6 @@
 
 require_once "engine/BMDie.php";
 require_once "engine/BMGame.php";
-require_once "testdummies.php";
-
 
 class BMDieSwingTest extends PHPUnit_Framework_TestCase {
     /**
@@ -181,7 +179,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      */
 
     public function testActivate () {
-        $game = new DummyGame;
+        $game = new TestDummyGame;
         foreach (str_split("RSTUVWXYZ") as $dieIdx => $swing) {
             $this->object->init($swing);
 
@@ -445,7 +443,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
 
         // needs a value, hasn't requested one. Should call
         // request_swing_values before calling require_values
-        $game = new DummyGame;
+        $game = new TestDummyGame;
 
         $this->object->ownerObject = $game;
 
@@ -465,7 +463,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
 
         $this->object->init("X");
 
-        $game = new DummyGame;
+        $game = new TestDummyGame;
         $this->object->ownerObject = $game;
 
         $this->object->activate("player");
@@ -487,7 +485,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         // And if the swing value is set, it won't call require_values
         $this->object->init("X");
 
-        $game = new DummyGame;
+        $game = new TestDummyGame;
         $this->object->ownerObject = $game;
 
         $this->object->activate("player");
@@ -604,7 +602,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieSwing::make_play_die
      */
     public function testMake_play_die() {
-        $game = new DummyGame;
+        $game = new TestDummyGame;
 
         $this->object->init("X");
         $this->object->ownerObject = $game;
