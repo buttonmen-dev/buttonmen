@@ -101,24 +101,24 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEmpty($sl, "Skill list not initially empty.");
 
-        $this->object->add_skill("Testing");
+        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
 
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
         $this->assertNotEmpty($sl, "Skill list should not be empty.");
         $this->assertEquals(count($sl), 1, "Skill list contains more than it should.");
         $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertEquals($sl["Testing"], "BMSkillTesting", "Incorrect stored classname for 'Testing'");
+        $this->assertEquals($sl["Testing"], "TestDummyBMSkillTesting", "Incorrect stored classname for 'Testing'");
 
         // Another skill
 
-        $this->object->add_skill("Testing2");
+        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
 
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
         $this->assertNotEmpty($sl, "Skill list should not be empty.");
         $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
         $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
         $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-        $this->assertEquals($sl["Testing2"], "BMSkillTesting2", "Incorrect stored classname for 'Testing2'");
+        $this->assertEquals($sl["Testing2"], "TestDummyBMSkillTesting2", "Incorrect stored classname for 'Testing2'");
 
 
         // Redundancy
@@ -317,21 +317,21 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
         $this->object->add_thing($die1);
         $this->object->add_thing($die2);
 
-        $die1->add_skill("Testing");
+        $die1->add_skill("Testing", "TestDummyBMSkillTesting");
 
         $this->assertEquals(1, $this->object->count_skill("Testing"));
 
-        $die2->add_skill("Testing");
+        $die2->add_skill("Testing", "TestDummyBMSkillTesting");
 
         $this->assertEquals(2, $this->object->count_skill("Testing"));
 
-        $die2->add_skill("Testing2");
+        $die2->add_skill("Testing2", "TestDummyBMSkillTesting2");
 
         $this->assertEquals(1, $this->object->count_skill("Testing2"));
 
         // Nested containers
 
-        $die3->add_skill("Testing");
+        $die3->add_skill("Testing", "TestDummyBMSkillTesting");
         $cont->add_thing($die3);
         $this->object->add_thing($cont);
 
@@ -339,7 +339,7 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $this->object->count_skill("Testing2"));
 
         // Skills on containers do count
-        $cont->add_skill("Testing2");
+        $cont->add_skill("Testing2", "TestDummyBMSkillTesting2");
         $this->assertEquals(3, $this->object->count_skill("Testing"));
         $this->assertEquals(2, $this->object->count_skill("Testing2"));
 
@@ -542,10 +542,10 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
         $game = new TestDummyGame;
         $this->object->ownerObject = $game;
 
-        $dice[1]->add_skill("Testing");
-        $dice[2]->add_skill("Testing2");
-        $dice[3]->add_skill("Testing");
-        $dice[3]->add_skill("Testing2");
+        $dice[1]->add_skill("Testing", "TestDummyBMSkillTesting");
+        $dice[2]->add_skill("Testing2", "TestDummyBMSkillTesting2");
+        $dice[3]->add_skill("Testing", "TestDummyBMSkillTesting");
+        $dice[3]->add_skill("Testing2", "TestDummyBMSkillTesting2");
 
         $this->object->add_thing($dice[1]);
         $this->object->add_thing($dice[2]);
@@ -580,8 +580,8 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
 
         $game = new TestDummyGame;
 
-        $cont1->add_skill("Testing");
-        $cont2->add_skill("Testing2");
+        $cont1->add_skill("Testing", "TestDummyBMSkillTesting");
+        $cont2->add_skill("Testing2", "TestDummyBMSkillTesting2");
 
         $cont1->add_thing($dice[4]);
         $cont1->add_thing($dice[5]);
@@ -624,7 +624,6 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
             } else {
                 $this->assertFalse($d->has_skill("Testing2"));
             }
-
         }
     }
 
@@ -662,10 +661,10 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
         $button = new BMButton;
         $this->object->ownerObject = $button;
 
-        $dice[1]->add_skill("Testing");
-        $dice[2]->add_skill("Testing2");
-        $dice[3]->add_skill("Testing");
-        $dice[3]->add_skill("Testing2");
+        $dice[1]->add_skill("Testing", "TestDummyBMSkillTesting");
+        $dice[2]->add_skill("Testing2", "TestDummyBMSkillTesting2");
+        $dice[3]->add_skill("Testing", "TestDummyBMSkillTesting");
+        $dice[3]->add_skill("Testing2", "TestDummyBMSkillTesting2");
 
         $this->object->add_thing($dice[1]);
         $this->object->add_thing($dice[2]);
@@ -702,8 +701,8 @@ class BMContainerTest extends PHPUnit_Framework_TestCase {
         $cont1 = new BMContainer;
         $cont2 = new BMContainer;
         $cont1->ownerObject = $button;
-        $cont1->add_skill("Testing");
-        $cont2->add_skill("Testing2");
+        $cont1->add_skill("Testing", "TestDummyBMSkillTesting");
+        $cont2->add_skill("Testing2", "TestDummyBMSkillTesting2");
 
         $cont1->add_thing($dice[4]);
         $cont1->add_thing($dice[5]);

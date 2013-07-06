@@ -70,7 +70,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die3 = new BMDie;
-        $die3->init(6, array("AVTesting"));
+        $die3->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting", ));
         $die3->value = 6;
 
         $die4 = new BMDie;
@@ -140,7 +140,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die3 = new BMDie;
-        $die3->init(6, array("AVTesting"));
+        $die3->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die3->value = 6;
 
         $die4 = new BMDie;
@@ -230,7 +230,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die5 = new BMDie;
-        $die5->init(6, array("AVTesting"));
+        $die5->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die5->value = 1;
         $game->attackerAllDieArray[] = $die5;
 
@@ -293,7 +293,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die5 = new BMDie;
-        $die5->init(6, array("AVTesting"));
+        $die5->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die5->value = 1;
 
         $game->activeDieArrayArray = array(array($die5), array($die4));

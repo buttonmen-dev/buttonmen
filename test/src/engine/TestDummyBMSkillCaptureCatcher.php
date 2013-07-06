@@ -6,7 +6,7 @@ require_once "engine/BMContainer.php";
 require_once "engine/BMAttack.php";
 require_once "engine/BMAttackSkill.php";
 
-class BMSkillCaptureCatcher extends BMSkill {
+class TestDummyBMSkillCaptureCatcher extends BMSkill {
     public static $hooked_methods = array("capture", "be_captured");
 
     public static function capture($args) {
