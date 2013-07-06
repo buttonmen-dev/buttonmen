@@ -66,7 +66,8 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($this->object->has_skill("Testing"));
         $this->assertFalse($this->object->has_skill("Testing2"));
 
-        $this->object->init("Z", array("Testing2"));
+        $this->object->init("Z",
+                            array("TestDummyBMSkillTesting2" => "Testing2"));
 
         $this->assertEquals($this->object->min, 1);
         $this->assertEquals($this->object->swingType, "Z");

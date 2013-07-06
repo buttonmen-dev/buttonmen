@@ -80,9 +80,15 @@ class BMDie {
         }
     }
 
-    public function add_skill($skill)
+    // Other code inside engine must never set $skillClass, but
+    // instead name skill classes according to the expected pattern.
+    // The optional argument is only for outside code which needs
+    // to add skills (currently, it's used for unit testing).
+    public function add_skill($skill, $skillClass = False)
     {
-        $skillClass = "BMSkill$skill";
+        if (!$skillClass) {
+            $skillClass = "BMSkill$skill";
+        }
 
         // Don't add skills that are already added
         if (!array_key_exists($skill, $this->skillList)) {
@@ -125,6 +131,12 @@ class BMDie {
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)
+    // Hackish: the caller can specify each skill as either a plain
+    // value, "skill", or a key/value pair "ClassName" => "skill",
+    // where the key is the class name which implements that skill.
+    // This is only for use by callers outside of engine (e.g.
+    // testing), and should never be used for the default BMSkill<skill>
+    // set of skills.
     public function init($sides, $skills = array())
     {
         $this->min = 1;
@@ -133,9 +145,12 @@ class BMDie {
         $this->scoreValue = $sides;
 
         if ($skills) {
-            foreach ($skills as $s)
-            {
-                $this->add_skill($s);
+            foreach ($skills as $skillClass => $skill) {
+                if (is_string($skillClass)) {
+                    $this->add_skill($skill, $skillClass);
+                } else {
+                    $this->add_skill($skill);
+                }
             }
         }
     }

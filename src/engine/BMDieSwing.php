@@ -55,11 +55,15 @@ class BMDieSwing extends BMDie {
         $this->swingMin = $range[0];
         $this->swingMax = $range[1];
 
-        foreach ($skills as $s)
-        {
-            $this->add_skill($s);
+        if ($skills) {
+            foreach ($skills as $skillClass => $skill) {
+                if (is_string($skillClass)) {
+                    $this->add_skill($skill, $skillClass);
+                } else {
+                    $this->add_skill($skill);
+                }
+            }
         }
-
     }
 
     public static function create($recipe, $skills = array()) {
