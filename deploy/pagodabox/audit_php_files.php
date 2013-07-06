@@ -48,12 +48,7 @@
         $expected_class = basename($phpfile, ".php");
         $found_class = $classinfo[1];
         if ($expected_class != $found_class) {
-          if ((substr($expected_class, 0, 16) == 'TestDummyBMSkill') and
-              (substr($expected_class, 9) == $found_class)) {
-            print "WARNING: Class name in file is deprecated, but i don't know how to fix it yet: $phpfile\n";
-          } else {
-            $problems[] = "Class in PHP file doesn't match file name: $phpfile";
-          }
+          $problems[] = "Class in PHP file doesn't match file name: $phpfile";
         }
       }
     }
