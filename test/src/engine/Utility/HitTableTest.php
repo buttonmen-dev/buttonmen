@@ -148,7 +148,8 @@ class HitTableTest extends PHPUnit_Framework_TestCase {
         }
 
         // Multi-value dice
-        $die1 = BMDie::create(10, array("TestStinger"));
+        $die1 = BMDie::create(10,
+                     array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die1->value = 10;
         $die2 = BMDie::create(6);
         $die2->value = 6;
@@ -201,9 +202,11 @@ class HitTableTest extends PHPUnit_Framework_TestCase {
 
 
 
-        $die1 = BMDie::create(10, array("TestStinger"));
+        $die1 = BMDie::create(10,
+                    array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die1->value = 10;
-        $die2 = BMDie::create(6, array("TestStinger"));
+        $die2 = BMDie::create(6, 
+                    array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die2->value = 6;
 
         $ht = new BMUtilityHitTable(array($die1, $die2));
@@ -298,7 +301,8 @@ class HitTableTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(3, count($ht->list_hits()));
 
         // Multi-value dice
-        $die1 = BMDie::create(4, array("TestStinger"));
+        $die1 = BMDie::create(4,
+                    array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die1->value = 4;
         $die2 = BMDie::create(6);
         $die2->value = 6;
@@ -316,9 +320,11 @@ class HitTableTest extends PHPUnit_Framework_TestCase {
         }
 
 
-        $die1 = BMDie::create(4, array("TestStinger"));
+        $die1 = BMDie::create(4,
+                    array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die1->value = 4;
-        $die2 = BMDie::create(8, array("TestStinger"));
+        $die2 = BMDie::create(8,
+                    array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die2->value = 8;
 
         $ht = new BMUtilityHitTable(array($die1, $die2));
@@ -331,7 +337,5 @@ class HitTableTest extends PHPUnit_Framework_TestCase {
                 $this->assertNotContains($i, $ht->list_hits());
             }
         }
-
-
     }
 }

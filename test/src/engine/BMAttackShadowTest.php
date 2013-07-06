@@ -67,7 +67,7 @@ class BMAttackShadowTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die3 = new BMDie;
-        $die3->init(6, array("AVTesting"));
+        $die3->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die3->value = 6;
 
         $die4 = new BMDie;
@@ -148,7 +148,7 @@ class BMAttackShadowTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die3 = new BMDie;
-        $die3->init(6, array("AVTesting"));
+        $die3->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die3->value = 6;
 
         $die4 = new BMDie;
