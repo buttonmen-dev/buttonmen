@@ -6,7 +6,7 @@ require_once "engine/BMContainer.php";
 require_once "engine/BMAttack.php";
 require_once "engine/BMAttackSkill.php";
 
-class BMSkillTesting2 extends BMSkill {
+class TestDummyBMSkillTesting2 extends BMSkill {
     public static $hooked_methods = array("test");
 
     public static function test($args) {

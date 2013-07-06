@@ -453,7 +453,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($die2 === $game->captures[0]);
 
         // attacker->capture
-        $die1->add_skill("CaptureCatcher");
+        $die1->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -466,7 +466,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1->remove_skill("CaptureCatcher");
 
         // defender->be_captured
-        $die2->add_skill("CaptureCatcher");
+        $die2->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -479,7 +479,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die2->remove_skill("CaptureCatcher");
 
         // attacker->roll
-        $die1->add_skill("RollCatcher");
+        $die1->add_skill("RollCatcher", "TestDummyBMSkillRollCatcher");
 
         $except = FALSE;
 
@@ -519,7 +519,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($die4 === $game->captures[1]);
 
         // attacker->capture
-        $die1->add_skill("CaptureCatcher");
+        $die1->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -531,7 +531,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($except, "BMDie::capture not called");
         $die1->remove_skill("CaptureCatcher");
 
-        $die3->add_skill("CaptureCatcher");
+        $die3->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -544,7 +544,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die3->remove_skill("CaptureCatcher");
 
         // defender->be_captured
-        $die2->add_skill("CaptureCatcher");
+        $die2->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -556,7 +556,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($except, "BMDie::be_captured not called");
         $die2->remove_skill("CaptureCatcher");
 
-        $die4->add_skill("CaptureCatcher");
+        $die4->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -569,7 +569,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die4->remove_skill("CaptureCatcher");
 
         // attacker->roll
-        $die1->add_skill("RollCatcher");
+        $die1->add_skill("RollCatcher", "TestDummyBMSkillRollCatcher");
 
         $except = FALSE;
 
@@ -581,7 +581,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($except, "BMDie::roll not called");
         $die1->remove_skill("RollCatcher");
 
-        $die3->add_skill("RollCatcher");
+        $die3->add_skill("RollCatcher", "TestDummyBMSkillRollCatcher");
 
         $except = FALSE;
 
@@ -641,7 +641,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
                                          $game->attackerPlayerIdx][0]);
 
         // attacker->capture
-        $die1->add_skill("CaptureCatcher");
+        $die1->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -654,7 +654,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1->remove_skill("CaptureCatcher");
 
         // defender->be_captured
-        $die2->add_skill("CaptureCatcher");
+        $die2->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -667,7 +667,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die2->remove_skill("CaptureCatcher");
 
         // attacker->roll
-        $die1->add_skill("RollCatcher");
+        $die1->add_skill("RollCatcher", "TestDummyBMSkillRollCatcher");
 
         $except = FALSE;
 
@@ -713,7 +713,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
                                                $game->attackerPlayerIdx][1]);
 
         // attacker->capture
-        $die1->add_skill("CaptureCatcher");
+        $die1->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -725,7 +725,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($except, "BMDie::capture not called");
         $die1->remove_skill("CaptureCatcher");
 
-        $die3->add_skill("CaptureCatcher");
+        $die3->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -738,7 +738,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die3->remove_skill("CaptureCatcher");
 
         // defender->be_captured
-        $die2->add_skill("CaptureCatcher");
+        $die2->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -750,7 +750,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($except, "BMDie::be_captured not called");
         $die2->remove_skill("CaptureCatcher");
 
-        $die4->add_skill("CaptureCatcher");
+        $die4->add_skill("CaptureCatcher", "TestDummyBMSkillCaptureCatcher");
 
         $except = FALSE;
 
@@ -763,7 +763,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die4->remove_skill("CaptureCatcher");
 
         // attacker->roll
-        $die1->add_skill("RollCatcher");
+        $die1->add_skill("RollCatcher", "TestDummyBMSkillRollCatcher");
 
         $except = FALSE;
 
@@ -775,7 +775,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($except, "BMDie::roll not called");
         $die1->remove_skill("RollCatcher");
 
-        $die3->add_skill("RollCatcher");
+        $die3->add_skill("RollCatcher", "TestDummyBMSkillRollCatcher");
 
         $except = FALSE;
 
@@ -1002,7 +1002,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
 
         $die1 = new BMDie;
-        $die1->init(6, array("AVTesting"));
+        $die1->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die1->value = 6;
 
         $die2 = new BMDie;
@@ -1062,7 +1062,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertEmpty($help);
 
         $die1 = new BMDie;
-        $die1->init(6, array("AVTesting"));
+        $die1->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die1->value = 6;
 
         $die2 = new BMDie;

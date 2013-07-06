@@ -132,7 +132,7 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $die3->value = 9;
         $die4->value = 6;
         $die5->value = 1;
-        $die5->add_skill("AVTesting");
+        $die5->add_skill("AVTesting", "TestDummyBMSkillAVTesting");
 
         // reset the hit table
         $sk->make_hit_table();
@@ -149,7 +149,7 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
 
         // multi-value dice
         $die1->value = 6;
-        $die1->add_skill("TestStinger");
+        $die1->add_skill("TestStinger", "TestDummyBMSkillTestStinger");
         $die2->value = 6;
         $die3->value = 6;
         $die4->value = 6;
@@ -230,7 +230,8 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         // Attacks with helpers
         $sk->reset();
 
-        $die5 = BMDie::create(6, array("AVTesting"));
+        $die5 = BMDie::create(6,
+                    array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die5->value = 1;
 
         $sk->add_die($die1);
@@ -254,7 +255,7 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $die5->value = 6;
 
         $die1->value = 6;
-        $die1->add_skill("TestStinger");
+        $die1->add_skill("TestStinger", "TestDummyBMSkillTestStinger");
 
         $die2->value = 4;
 
