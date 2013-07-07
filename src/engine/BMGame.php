@@ -1,10 +1,5 @@
 <?php
 
-require_once 'BMButton.php';
-require_once 'BMAttack.php';
-require_once 'BMDie.php';
-require_once 'BMGameState.php';
-
 /**
  * BMGame: current status of a game
  *

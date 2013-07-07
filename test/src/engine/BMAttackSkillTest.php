@@ -1,6 +1,5 @@
 <?php
 
-require_once "engine/BMAttack.php";
 require_once "TestDummyBMSkillTestStinger.php";
 require_once "TestDummyBMAttSkillTesting.php";
 

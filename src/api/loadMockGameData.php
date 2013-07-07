@@ -1,7 +1,6 @@
 <?php
 
-require_once '../engine/BMButton.php';
-require_once '../engine/BMGame.php';
+require_once('../lib/bootstrap.php');
 
 function loadMockGameDataWaitingForSwing() {
     // load buttons

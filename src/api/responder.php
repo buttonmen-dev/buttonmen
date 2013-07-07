@@ -1,8 +1,7 @@
 <?php
     session_start();
 
-    require_once '../engine/BMInterface.php';
-    require_once '../engine/BMGame.php';
+    require_once('../lib/bootstrap.php');
 
     header('Content-Type: application/json');
 
