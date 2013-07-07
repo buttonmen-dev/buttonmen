@@ -1,8 +1,5 @@
 <?php
 
-require_once "engine/BMDie.php";
-require_once "engine/BMGame.php";
-
 class BMDieSwingTest extends PHPUnit_Framework_TestCase {
     /**
      * @var BMDieSwing

@@ -1,14 +1,5 @@
 <?php
 
-require_once 'BMDie.php';
-
-// require each type of container
-require_once 'BMContainerInitial.php';
-require_once 'BMContainerPlasma.php';
-require_once 'BMContainerReserve.php';
-require_once 'BMContainerSelect.php';
-require_once 'BMContainerSideboard.php';
-
 /*
  * BMContainer: Managing die groups.
  *

@@ -1,7 +1,5 @@
 <?php
 
-require_once 'engine/BMDie.php';
-
 // Testing the integration between BMDie and the various skills.
 // (And, once we have skills that overlap, attempting to test their
 // interaction with one another.)

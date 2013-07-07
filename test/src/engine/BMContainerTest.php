@@ -1,7 +1,5 @@
 <?php
 
-require_once "engine/BMContainer.php";
-require_once "engine/BMGame.php";
 require_once "TestDummyBMSkillTesting.php";
 require_once "TestDummyBMSkillTesting2.php";
 require_once "TestDummyBMDieTesting.php";
