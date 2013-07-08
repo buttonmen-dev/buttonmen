@@ -31,5 +31,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     public function test_create_and_load_game() {
         $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'));
         $game = $this->object->load_game($gameId);
+        var_dump($this->object->message);
+
+//        $this->assertEquals(1, $game->playerIdArray[1]);
     }
 }

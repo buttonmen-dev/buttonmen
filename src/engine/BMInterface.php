@@ -91,19 +91,17 @@ class BMInterface {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
                      'v.player_id, v.position,'.
+                     'v.button_name,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
-                     'v.is_awaiting_action'.
+                     'v.is_awaiting_action '.
                      'FROM game AS g '.
                      'LEFT JOIN game_player_view AS v '.
-                     'ON g.id = v.game_id'.
+                     'ON g.id = v.game_id '.
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $gameId));
-            // this logic needs to be divided up into:
-            //   set once per game and
-            //   set once per row
-            // data
+
             while ($row = $statement->fetch()) {
                 if (!isset($game)) {
                     $game = new BMGame;
@@ -115,20 +113,28 @@ class BMInterface {
                 }
 
                 $pos = $row['position'];
-                $game->playerIdArray[$pos] = $row['player_id'];
-                $game->gameScoreArrayArray[$pos] =
+                $playerIdArray[$pos] = $row['player_id'];
+                $gameScoreArrayArray[$pos] =
                     array($row['n_rounds_won'],
                           $row['n_rounds_lost'],
                           $row['n_rounds_drawn']);
-                $game->buttonArray[$pos] = new BMButton();
-                $game->buttonArray[$pos]->load_from_name($row['button_name']);
-                $game->waitingOnActionArray[$pos] = $row['is_awaiting_action'];
+                $buttonArray[$pos] = new BMButton();
+                $buttonArray[$pos]->load_from_name($row['button_name']);
+
+                switch ($row['is_awaiting_action']) {
+                    case 1:
+                        $waitingOnActionArray[$pos] = TRUE;
+                        break;
+                    case 0:
+                        $waitingOnActionArray[$pos] = FALSE;
+                        break;
+                }
 
                 // add dice to activeDieArrayArray
                 // add something about auxiliar dice
 
 
-                if ($row['current_player'] == $row['player_id']) {
+                if ($row['current_player_id'] == $row['player_id']) {
                     $game->activePlayerIdx = $pos;
                 }
 
@@ -138,15 +144,20 @@ class BMInterface {
 
             }
 
+            $game->playerIdArray = $playerIdArray;
+            $game->gameScoreArrayArray = $gameScoreArrayArray;
+            $game->buttonArray = $buttonArray;
+            $game->waitingOnActionArray = $waitingOnActionArray;
+
             if (!isset($game)) {
                 $this->message = "Game $gameId does not exist.";
                 return FALSE;
             }
 
-            $this->message = "Loaded data for game $gameId from file $gamefile.";
+            $this->message = "Loaded data for game $gameId.";
             return $game;
         } catch (Exception $e) {
-            $this->message = 'Game load failed.';
+            $this->message = "Game load failed: $e";
         }
     }
 
