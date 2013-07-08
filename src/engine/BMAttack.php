@@ -1,14 +1,5 @@
 <?php
 
-require_once 'BMUtility.php';
-require_once 'BMDie.php';
-
-// require each type of attack
-require_once 'BMAttackPower.php';
-require_once 'BMAttackShadow.php';
-require_once 'BMAttackSkill.php';
-require_once 'BMAttackPass.php';
-
 /**
  * BMAttack: attack validation and commital code.
  *
@@ -26,7 +17,7 @@ class BMAttack {
     public $name;
     // The attack's type, which is usually the same as its name.
     //
-    // This is used for attacks like Sorcates' special attack, which
+    // This is used for attacks like Socrates' special attack, which
     // is a skill attack, so can work on Stealth dice and use Fire
     // dice, but needs its own class.
     public $type;
@@ -37,7 +28,7 @@ class BMAttack {
 
     static function get_instance($type = NULL) {
         if ($type) {
-            $cname = "BMAttack" . $type;
+            $cname = "BMAttack" . ucfirst(strtolower($type));
             if (class_exists($cname)) {
                 return $cname::get_instance();
             } else {

@@ -1,17 +1,26 @@
 <?php
 
-  // Each PHP file in these directories should contain exactly one class, named after the filename
+  // Each PHP file in these directories should contain exactly one
+  // class, named after the filename
   $php_compliant_dirs = array(
     "src/engine",
     "test/src/engine",
     "test/src/engine/Utility",
   );
 
-  // These directories may contain PHP files which we don't check for class compliance
+  // These directories may contain PHP files which we don't check
+  // for class compliance
   $php_noncompliant_dirs = array(
     "deploy/pagodabox",
     "src/api",
     "src/database",
+    "src/lib",
+  );
+
+  // Each PHP file in the first directory must contain a matching
+  // test file in the second directory
+  $php_test_dirs = array(
+    "src/engine" => "test/src/engine",
   );
 
   // Any other directories shouldn't contain PHP files
@@ -60,6 +69,17 @@
     }
   }
 
+  function verify_php_test_coverage(&$problems, $srcdir, $testdir) {
+    foreach (glob("$srcdir/*.php") as $srcfile) {
+      $phpfile = basename($srcfile, '.php');
+      $testfile = "$testdir/${phpfile}Test.php";
+      if (!is_file($testfile)) {
+        $problems[] =
+          "No test file $testfile corresponding to source file $srcfile";
+      }
+    }
+  }
+
   // Actually do the testing
   $testdir = $argv[1];
   print "Testing class/file layout compliance of PHP files under: $testdir\n";
@@ -68,6 +88,8 @@
   $subdirs = array();
   $problems = array();
 
+  // Iterate over all subdirectories looking for unexpected or
+  // misnamed PHP files
   find_all_dirs($subdirs, ".");
   foreach ($subdirs as $subdir) {
     if (in_array($subdir, $php_noncompliant_dirs)) {
@@ -78,6 +100,12 @@
       verify_no_php_files($problems, $subdir);
     }
   }
+
+  // Do unit test coverage checks
+  foreach ($php_test_dirs as $srcdir => $testdir) {
+    verify_php_test_coverage($problems, $srcdir, $testdir);
+  }
+
   if (count($problems) > 0) {
     print "PHP files found which don't comply with layout standards:\n";
     foreach ($problems as $problem) {

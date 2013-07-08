@@ -1,8 +1,5 @@
 <?php
 
-require_once 'BMUtility.php';
-require_once 'BMDie.php';
-
 class BMAttackPass extends BMAttack {
     public $name = "Pass";
     public $type = "Pass";

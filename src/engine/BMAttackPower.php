@@ -1,9 +1,5 @@
 <?php
 
-require_once 'BMUtility.php';
-require_once 'BMDie.php';
-require_once 'BMAttack.php';
-
 class BMAttackPower extends BMAttack {
     public $name = "Power";
     public $type = 'Power';
