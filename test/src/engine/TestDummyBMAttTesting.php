@@ -1,11 +1,5 @@
 <?php
 
-require_once "engine/BMDie.php";
-require_once "engine/BMSkill.php";
-require_once "engine/BMContainer.php";
-require_once "engine/BMAttack.php";
-require_once "engine/BMAttackSkill.php";
-
 class TestDummyBMAttTesting extends BMAttack {
     public function test_ovm_helper($game, $one, $many, $compare) {
         return $this->search_ovm_helper($game, $one, $many, $compare);

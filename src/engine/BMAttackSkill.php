@@ -1,8 +1,5 @@
 <?php
 
-require_once 'BMUtility.php';
-require_once 'BMDie.php';
-
 class BMAttackSkill extends BMAttack {
     public $name = "Skill";
     public $type = "Skill";

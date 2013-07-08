@@ -1,13 +1,5 @@
 <?php
 
-require_once 'BMSkill.php';
-
-// require each type of die
-require_once 'BMDieOption.php';
-require_once 'BMDieSwing.php';
-require_once 'BMDieTwin.php';
-require_once 'BMDieWildcard.php';
-
 /*
  * BMDie: the fundamental unit of game mechanics
  *
