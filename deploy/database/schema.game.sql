@@ -28,6 +28,7 @@ CREATE TABLE game_player_map (
     did_win_initiative BOOLEAN DEFAULT FALSE,
     is_awaiting_action BOOLEAN DEFAULT FALSE,
     n_rounds_won       TINYINT UNSIGNED DEFAULT 0,
+    n_rounds_lost      TINYINT UNSIGNED DEFAULT 0,
     n_rounds_drawn     TINYINT UNSIGNED DEFAULT 0,
     handicap           TINYINT UNSIGNED DEFAULT 0,
     is_player_hidden   BOOLEAN DEFAULT FALSE
