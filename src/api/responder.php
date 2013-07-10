@@ -20,6 +20,11 @@
                             'data' => $arePlayerNamesValid);
             break;
 
+        case 'chooseActiveGame':
+            $_SESSION['activeGame'] = $_POST['input'];
+            $output = array('status' => 'ok');
+            break;
+
         case 'chooseButtons':
             $playerNameArray = $_POST['playerNameArray'];
             $playerIdArray = array();
