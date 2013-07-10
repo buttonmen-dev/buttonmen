@@ -135,36 +135,6 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
     }
 
-//    /**
-//     * @covers BMButton::load_from_name
-//     * @covers BMButton::__set
-//     */
-//    public function test_load_from_name() {
-//        $this->object->load_from_name('Bauer');
-//        $this->assertEquals('Bauer', $this->object->name);
-//        $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
-//
-//        $this->object->name = 'Bauer';
-//        $this->assertEquals('Bauer', $this->object->name);
-//        $this->assertEquals('(8) (10) (12) (20) (X)', $this->object->recipe);
-//
-//        $this->object->load_from_name('Stark');
-//        $this->assertEquals('Stark', $this->object->name);
-//        $this->assertEquals('(4) (6) (8) (X) (X)', $this->object->recipe);
-//
-//        $this->object->name = 'Stark';
-//        $this->assertEquals('Stark', $this->object->name);
-//        $this->assertEquals('(4) (6) (8) (X) (X)', $this->object->recipe);
-//
-//        $this->object->load_from_name('unknownTestName');
-//        $this->assertEquals('Default', $this->object->name);
-//        $this->assertEquals('(4) (8) (12) (20) (X)', $this->object->recipe);
-//
-//        $this->object->name = 'unknownTestName';
-//        $this->assertEquals('Default', $this->object->name);
-//        $this->assertEquals('(4) (8) (12) (20) (X)', $this->object->recipe);
-//    }
-
     /**
      * @covers BMButton::load_values
      */
