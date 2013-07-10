@@ -20,7 +20,11 @@ class BMButton {
     private $playerIdx;
 
     // methods
-    public function load_from_recipe($recipe) {
+    public function load($recipe, $name = NULL) {
+        if (!is_null($name)) {
+            $this->name = $name;
+        }
+
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;
         $this->dieArray = array();
@@ -49,27 +53,36 @@ class BMButton {
     }
 
     public function reload() {
-        $this->load_from_recipe($this->recipe);
+        $this->load($this->recipe);
     }
 
-    public function load_from_name($name) {
-        // james:
-        // The implementation here is currently a stub that always returns the
-        // recipe of Bauer. This will eventually be replaced by a database call
-        // to retrieve the recipe, and then a recipe set for the current button.
-        $this->name = $name;
-        switch ($name) {
-            case 'Bauer':
-                $this->load_from_recipe('(8) (10) (12) (20) (X)');
-                break;
-            case 'Stark':
-                $this->load_from_recipe('(4) (6) (8) (X) (X)');
-                break;
-            default:
-                $this->name = 'Default';
-                $this->load_from_recipe('(4) (8) (12) (20) (X)');
-        }
-    }
+//    public function load_from_name($name) {
+//        $interface = new BMInterface;
+//        $recipe = $interface->get_button_recipe_from_name($name);
+//
+//        if ($recipe) {
+//            $this->name = $name;
+//            $this->load_from_recipe($recipe);
+//        } else {
+//            throw new InvalidArgumentException('Invalid button name.');
+//        }
+//        // james:
+//        // The implementation here is currently a stub that always returns the
+//        // recipe of Bauer. This will eventually be replaced by a database call
+//        // to retrieve the recipe, and then a recipe set for the current button.
+////        $this->name = $name;
+////        switch ($name) {
+////            case 'Bauer':
+////                $this->load_from_recipe('(8) (10) (12) (20) (X)');
+////                break;
+////            case 'Stark':
+////                $this->load_from_recipe('(4) (6) (8) (X) (X)');
+////                break;
+////            default:
+////                $this->name = 'Default';
+////                $this->load_from_recipe('(4) (8) (12) (20) (X)');
+////        }
+//    }
 
     public function load_values(array $valueArray) {
         if (count($this->dieArray) != count($valueArray)) {
@@ -156,12 +169,12 @@ class BMButton {
     public function __set($property, $value)
     {
         switch ($property) {
-            case 'name':
-                $this->load_from_name($value);
-                break;
+//            case 'name':
+//                $this->load_from_name($value);
+//                break;
 
             case 'recipe':
-                $this->load_from_recipe($value);
+                $this->load($value);
                 break;
 
             case 'dieArray':

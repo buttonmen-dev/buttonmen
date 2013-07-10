@@ -31,8 +31,22 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     public function test_create_and_load_game() {
         $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'));
         $game = $this->object->load_game($gameId);
-        var_dump($this->object->message);
 
-//        $this->assertEquals(1, $game->playerIdArray[1]);
+        // check player id
+        $this->assertEquals(2, count($game->playerIdArray));
+        $this->assertEquals(1, $game->playerIdArray[0]);
+        $this->assertEquals(2, $game->playerIdArray[1]);
+        $this->assertEquals(BMGameState::startGame, $game->gameState);
+
+        // check buttons
+        $this->assertEquals(2, count($game->buttonArray));
+        $this->assertTrue(is_a($game->buttonArray[0], 'BMButton'));
+        $this->assertEquals('Bauer', $game->buttonArray[0]->name);
+        $this->assertEquals('(8) (10) (12) (20) (X)', $game->buttonArray[0]->recipe);
+
+        $this->assertTrue(is_a($game->buttonArray[1], 'BMButton'));
+        $this->assertEquals('Stark', $game->buttonArray[1]->name);
+        $this->assertEquals('(4) (6) (8) (X) (X)', $game->buttonArray[1]->recipe);
+
     }
 }

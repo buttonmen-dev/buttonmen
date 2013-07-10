@@ -118,8 +118,16 @@ class BMInterface {
                     array($row['n_rounds_won'],
                           $row['n_rounds_lost'],
                           $row['n_rounds_drawn']);
-                $buttonArray[$pos] = new BMButton();
-                $buttonArray[$pos]->load_from_name($row['button_name']);
+                $recipe = $this->get_button_recipe_from_name($row['button_name']);
+                if ($recipe) {
+                    $button = new BMButton;
+                    $button->load($recipe, $row['button_name']);
+
+
+                    $buttonArray[$pos] = $button;
+                } else {
+                    throw new InvalidArgumentException('Invalid button name.');
+                }
 
                 switch ($row['is_awaiting_action']) {
                     case 1:
@@ -247,6 +255,20 @@ class BMInterface {
                          'recipeArray'     => $recipeArray);
         } catch (Exception $e) {
             $this->message = 'Button name get failed.';
+        }
+    }
+
+    public function get_button_recipe_from_name($name) {
+        try {
+            $query = 'SELECT recipe FROM button_view '.
+                     'WHERE name = :name';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':name' => $name));
+
+            $row = $statement->fetch();
+            return($row['recipe']);
+        } catch (Exception $e) {
+            $this->message = 'Button recipe get failed.';
         }
     }
 

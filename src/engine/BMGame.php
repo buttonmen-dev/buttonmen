@@ -715,7 +715,7 @@ class BMGame {
         foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
             if (strlen($tempRecipe) > 0) {
                 $tempButton = new BMButton;
-                $tempButton->load_from_recipe($tempRecipe);
+                $tempButton->load($tempRecipe);
                 $this->buttonArray[$buttonIdx] = $tempButton;
             }
         }

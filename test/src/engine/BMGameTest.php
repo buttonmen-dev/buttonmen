@@ -70,8 +70,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) (30)';
         $recipe2 = '(6) (12) (20) (20)';
-        $button1->load_from_recipe($recipe1);
-        $button2->load_from_recipe($recipe2);
+        $button1->load($recipe1);
+        $button2->load($recipe2);
         $this->object->buttonArray = array($button1, $button2);
         $this->object->do_next_step();
         $this->assertEquals($recipe1, $this->object->buttonArray[0]->recipe);
@@ -82,8 +82,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) +(30)';
         $recipe2 = '(6) (12) (20) (20)';
-        $button1->load_from_recipe($recipe1);
-        $button2->load_from_recipe($recipe2);
+        $button1->load($recipe1);
+        $button2->load($recipe2);
         $this->object->buttonArray = array($button1, $button2);
         $this->object->do_next_step();
         $this->assertEquals('(4) (8) (12) (30)', $this->object->buttonArray[0]->recipe);
@@ -94,8 +94,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) +(30)';
         $recipe2 = '(6)+ (12) (20) (20)';
-        $button1->load_from_recipe($recipe1);
-        $button2->load_from_recipe($recipe2);
+        $button1->load($recipe1);
+        $button2->load($recipe2);
         $this->object->buttonArray = array($button1, $button2);
         $this->object->do_next_step();
         $this->assertEquals('(4) (8) (12) (30) (6)', $this->object->buttonArray[0]->recipe);
@@ -134,8 +134,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) (30)';
         $recipe2 = '(6) (12) (20) (20)';
-        $button1->load_from_recipe($recipe1);
-        $button2->load_from_recipe($recipe2);
+        $button1->load($recipe1);
+        $button2->load($recipe2);
         $this->object->buttonArray = array($button1, $button2);
         $this->object->do_next_step();
 
@@ -167,8 +167,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) (30)';
         $recipe2 = '(6) (12) (20) (20)';
-        $button1->load_from_recipe($recipe1);
-        $button2->load_from_recipe($recipe2);
+        $button1->load($recipe1);
+        $button2->load($recipe2);
         $this->object->activeDieArrayArray = array($button1->dieArray,
                                                    $button2->dieArray);
         $this->object->swingRequestArrayArray = array(array(), array());
@@ -182,8 +182,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $recipe1 = '(4) (8) (12) (X)';
         $recipe2 = '(6) (12) (Y) (Y)';
-        $button1->load_from_recipe($recipe1);
-        $button2->load_from_recipe($recipe2);
+        $button1->load($recipe1);
+        $button2->load($recipe2);
 
         $this->assertTrue($button1->dieArray[3] instanceof BMDieSwing);
         $this->assertTrue($button2->dieArray[2] instanceof BMDieSwing);
@@ -538,8 +538,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::loadDiceIntoButtons;
         $button1 = new BMButton;
         $button2 = new BMButton;
-        $button1->load_from_recipe('(4) (8) (12) (20)');
-        $button2->load_from_recipe('(4) (12) (20) (X)');
+        $button1->load('(4) (8) (12) (20)');
+        $button2->load('(4) (12) (20) (X)');
         $this->object->buttonArray = array($button1, new $button2);
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::loadDiceIntoButtons, $this->object->gameState);
@@ -547,8 +547,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::loadDiceIntoButtons;
         $button1 = new BMButton;
         $button2 = new BMButton;
-        $button1->load_from_recipe('(4) (8) (12) (20)');
-        $button2->load_from_recipe('(4) (12) (20) (X)');
+        $button1->load('(4) (8) (12) (20)');
+        $button2->load('(4) (12) (20) (X)');
         $this->object->buttonArray = array($button1, $button2);
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::addAvailableDiceToGame, $this->object->gameState);
@@ -578,8 +578,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::specifyDice;
         $button1 = new BMButton;
         $button2 = new BMButton;
-        $button1->load_from_recipe('(4) (8) (12) (20)');
-        $button2->load_from_recipe('(4) (12) (20) (20)');
+        $button1->load('(4) (8) (12) (20)');
+        $button2->load('(4) (12) (20) (20)');
         $this->object->activeDieArrayArray = array($button1->dieArray,
                                                    $button2->dieArray);
         $this->object->update_game_state();
@@ -589,8 +589,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::specifyDice;
         $button1 = new BMButton;
         $button2 = new BMButton;
-        $button1->load_from_recipe('(4) (8) (12) (20)');
-        $button2->load_from_recipe('(4) (12) (20) (X)');
+        $button1->load('(4) (8) (12) (20)');
+        $button2->load('(4) (12) (20) (X)');
         $this->object->activeDieArrayArray = array($button1->dieArray,
                                                    $button2->dieArray);
         $this->object->update_game_state();
@@ -1243,9 +1243,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2 = new BMButton;
         $button3 = new BMButton;
 
-        $button1->load_from_recipe('p(23)');
-        $button2->load_from_recipe('s(58)');
-        $button3->load_from_recipe('(4) (8)');
+        $button1->load('p(23)');
+        $button2->load('s(58)');
+        $button3->load('(4) (8)');
 
         // valid set
         $game->buttonArray = array($button1, $button2);
@@ -1644,10 +1644,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     public function test__get_json_data() {
         $button1 = new BMButton;
-        $button1->load_from_name('Bauer');
+        $button1->load('(8) (10) (12) (20) (X)', 'Bauer');
 
         $button2 = new BMButton;
-        $button2->load_from_name('Stark');
+        $button2->load('(4) (6) (8) (X) (X)', 'Stark');
 
         // load game
         $game = new BMGame(424242, array(123, 456));
@@ -1718,7 +1718,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_full_soldiers_game() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load_from_name('Bauer');
+        $button1->load('(8) (10) (12) (20) (X)', 'Bauer');
+        $this->assertEquals('Bauer', $button1->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertEquals(5, count($button1->dieArray));
@@ -1731,7 +1732,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($button1->dieArray[4]->needsValue);
 
         $button2 = new BMButton;
-        $button2->load_from_name('Stark');
+        $button2->load('(4) (6) (8) (X) (X)', 'Stark');
+        $this->assertEquals('Stark', $button2->name);
         $this->assertEquals('(4) (6) (8) (X) (X)', $button2->recipe);
         $this->assertEquals(5, count($button1->dieArray));
         $this->assertEquals(4, $button2->dieArray[0]->max);
