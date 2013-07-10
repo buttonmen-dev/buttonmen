@@ -28,8 +28,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
-    public function test_create_and_load_game() {
-        $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'));
+    public function test_create_and_load_new_game() {
+        $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
         $game = $this->object->load_game($gameId);
 
         // check player info
@@ -61,14 +61,19 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
+        $this->assertFalse(isset($game->capturedDieArrayArray));
+        $this->assertFalse(isset($game->swingRequestArrayArray));
+        $this->assertFalse(isset($game->swingValueArrayArray));
+        $this->assertFalse($game->allValuesSpecified);
 
-        // check round
+        // check round info
         $this->assertEquals(1, $game->roundNumber);
+        $this->assertEquals(4, $game->maxWins);
 
-        // check attack
+        // check action info
         $this->assertFalse(isset($game->attack));
         $this->assertFalse(isset($game->passStatusArray));
-        $this->assertFalse(isset($game->capturedDieArrayArray));
+        $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
 
         // check score
         $this->assertFalse(isset($game->roundScoreArray));
@@ -80,11 +85,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['L']);
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['D']);
 
-// * @property-read array $lastWinnerIdxArray      Indices of the winners of the last round
-// * @property      int   $maxWins                 The game ends when a player has this many wins
-// * @property-read BMGameState $gameState         Current game state as a BMGameState enum
-// * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
-// * @property-read string $message                Message to be passed to the GUI
+
 // * @property      array $swingRequestArrayArray  Swing requests for all players
 // * @property      array $swingValueArrayArray    Swing values for all players
 // * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
