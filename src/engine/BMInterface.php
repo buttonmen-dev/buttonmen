@@ -83,11 +83,6 @@ class BMInterface {
 
     public function load_game($gameId) {
         try {
-            // this will be rewritten in the future to use a database instead of a file
-//            $gamefile = "/var/www/bmgame/$gameId.data";
-//            $gameInt = file_get_contents($gamefile);
-//            $game = unserialize($gameInt);
-//
             // check that the gameId exists
             $query = 'SELECT g.*,'.
                      'v.player_id, v.position,'.

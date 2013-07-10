@@ -19,7 +19,7 @@
                                                        'defenderAttackDieIdxArray',<br>
                                                        'attackType')
  * @property-read int   $attackerPlayerIdx       Index in playerIdxArray of the attacker
- * @property-read int   $defenderPlayerIdx       Index in playerIdxArary of the defender
+ * @property-read int   $defenderPlayerIdx       Index in playerIdxArray of the defender
  * @property-read array $attackerAllDieArray     Array of all attacker's dice
  * @property-read array $defenderAllDieArray     Array of all defender's dice
  * @property-read array $attackerAttackDieArray  Array of attacker's dice used in attack
@@ -29,7 +29,7 @@
  * @property-read array $capturedDieArrayArray   Captured dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/T/L for all players
- * @property-read array $lastWinnerIdxArray      Indices of the winners of the last round
+ * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
@@ -66,7 +66,7 @@ class BMGame {
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
     private $gameScoreArrayArray;   // number of games W/T/L for all players
-    private $lastWinnerIdxArray;    // indices of the winners of the last round
+    private $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
@@ -161,7 +161,7 @@ class BMGame {
                 // load clean version of the buttons from their recipes
                 // if the player has not just won a round
 //                foreach ($this->buttonArray as $playerIdx => $tempButton) {
-//                    if (!$this->lastWinnerIdxArray[$playerIdx]) {
+//                    if (!$this->isPrevRoundWinnerArray[$playerIdx]) {
 //                        $tempButton->reload();
 //                    }
 //                }
@@ -720,7 +720,7 @@ class BMGame {
             }
         }
         $this->maxWins = $maxWins;
-        $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
+        $this->isPrevRoundWinnerArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     private function get_roundNumber() {

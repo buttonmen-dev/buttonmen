@@ -985,7 +985,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // the gameScoreArrayArray must remain unset until BMGameState::applyHandicaps
         $this->assertTrue(!isset($this->object->gameScoreArrayArray));
         $this->assertEquals(array(FALSE, FALSE), $game->waitingOnActionArray);
-        $this->assertEquals(array(FALSE, FALSE), $game->lastWinnerIdxArray);
+        $this->assertEquals(array(FALSE, FALSE), $game->isPrevRoundWinnerArray);
 
         // construct valid game
         $gameId = 2745;
