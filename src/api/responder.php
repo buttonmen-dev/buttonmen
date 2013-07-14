@@ -21,7 +21,7 @@
             break;
 
         case 'chooseActiveGame':
-            $_SESSION['activeGame'] = $_POST['input'];
+            $_SESSION['active_game'] = $_POST['input'];
             $output = array('status' => 'ok');
             break;
 
@@ -50,8 +50,7 @@
             break;
 
         case 'loadGameData':
-            $gameId = $_POST['gameId'];
-            $game = $interface->load_game($gameId);
+            $game = $interface->load_game($_SESSION['active_game']);
             $output = $game->getJsonData();
             break;
 
