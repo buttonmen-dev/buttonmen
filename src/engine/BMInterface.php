@@ -134,7 +134,7 @@ class BMInterface {
                 }
 
                 // add dice to activeDieArrayArray
-                // add something about auxiliar dice
+                // add something about auxiliary dice
 
 
                 if ($row['current_player_id'] == $row['player_id']) {
@@ -166,18 +166,31 @@ class BMInterface {
 
     public function save_game($game) {
         try {
-            $query = 'INSERT INTO game () '.
-                     'VALUES '.
-                     '()';
+            if (is_null($game->activePlayerIdx)) {
+                $currentPlayerId = NULL;
+            } else {
+                $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
+            }
+
+            $query = 'UPDATE game '.
+                     'SET game_state = :game_state,'.
+                     '    round_number = :round_number,'.
+            //:n_recent_draws
+            //:n_recent_passes
+                     '    current_player_id = :current_player_id '.
+            //:last_winner_id
+            //:tournament_id
+            //:description
+            //:chat
+                     'WHERE id = :game_id;';
             $statement = self::$conn->prepare($query);
-            $statement->execute();
+            $statement->execute(array(':game_state' => $game->gameState,
+                                      ':round_number' => $game->roundNumber,
+                                      ':current_player_id' => $currentPlayerId,
+                                      ':game_id' => $game->gameId));
 
-            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
-            $gameId = $statement->execute();
 
-
-
-            $this->message = "Generated game $game->gameId: caching data in file: $gamefile.";
+            $this->message = "Saved game $game->gameId.";
         } catch (Exception $e) {
             $this->message = 'Game save failed.';
         }
