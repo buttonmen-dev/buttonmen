@@ -172,6 +172,7 @@ class BMInterface {
                 $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
             }
 
+            // game
             $query = 'UPDATE game '.
                      'SET game_state = :game_state,'.
                      '    round_number = :round_number,'.
@@ -189,6 +190,48 @@ class BMInterface {
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
 
+            // set existing dice to have a status of DELETED and get die ids
+            //
+            // note that the logic is written this way to make debugging easier
+            // in case something fails during the addition of dice
+            $query = 'UPDATE die '.
+                     'SET status = "DELETED" '.
+                     'WHERE game_id = :game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+
+            // james: need to add all dice, not just active dice, currently INCOMPLETE
+            // add dice to table 'die'
+            foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $dieIdx => $activeDie) {
+                    // james: set status, this is currently INCOMPLETE
+                    if ($activeDie->captured) {
+                        $status = 'CAPTURED';
+                    } else {
+                        $status = 'NORMAL';
+                    }
+
+                    $query = 'INSERT INTO die '.
+                             '(owner_id, game_id, status, recipe, swing_value, position, value) '.
+                             'VALUES (:owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':owner_id' => $game->playerIdArray[0],
+                                              ':game_id' => $game->gameId,
+                                              ':status' => $status,
+                                              ':recipe' => $activeDie->recipe,
+                                              ':swing_value' => $activeDie->swingValue,
+                                              ':position' => $dieIdx,
+                                              ':value' => $activeDie->value));
+                }
+            }
+
+            // delete dice with a status of "DELETED"
+            // perhaps this should be to delete those dice specifically deleted
+            // during this turn
+            $query = 'DELETE FROM die '.
+                     'WHERE status = "DELETED"';
+            $statement = self::$conn->prepare($query);
+            $statement->execute();
 
             $this->message = "Saved game $game->gameId.";
         } catch (Exception $e) {
