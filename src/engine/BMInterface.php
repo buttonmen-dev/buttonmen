@@ -94,14 +94,14 @@ class BMInterface {
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
                      'WHERE game_id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $gameId));
+            $statement1 = self::$conn->prepare($query);
+            $statement1->execute(array(':game_id' => $gameId));
 
-            while ($row = $statement->fetch()) {
+            while ($row = $statement1->fetch()) {
+                // load game attributes
                 if (!isset($game)) {
                     $game = new BMGame;
 
-                    // load attributes from database into BMGame
                     $game->gameId          = $gameId;
                     $game->gameState       = $row['game_state'];
                     $game->maxWins         = $row['n_target_wins'];
@@ -109,10 +109,11 @@ class BMInterface {
 
                 $pos = $row['position'];
                 $playerIdArray[$pos] = $row['player_id'];
-                $gameScoreArrayArray[$pos] =
-                    array($row['n_rounds_won'],
-                          $row['n_rounds_lost'],
-                          $row['n_rounds_drawn']);
+                $gameScoreArrayArray[$pos] = array($row['n_rounds_won'],
+                                                   $row['n_rounds_lost'],
+                                                   $row['n_rounds_drawn']);
+
+                // load button attributes
                 $recipe = $this->get_button_recipe_from_name($row['button_name']);
                 if ($recipe) {
                     $button = new BMButton;
@@ -124,6 +125,7 @@ class BMInterface {
                     throw new InvalidArgumentException('Invalid button name.');
                 }
 
+                // load player attributes
                 switch ($row['is_awaiting_action']) {
                     case 1:
                         $waitingOnActionArray[$pos] = TRUE;
@@ -132,10 +134,6 @@ class BMInterface {
                         $waitingOnActionArray[$pos] = FALSE;
                         break;
                 }
-
-                // add dice to activeDieArrayArray
-                // add something about auxiliary dice
-
 
                 if ($row['current_player_id'] == $row['player_id']) {
                     $game->activePlayerIdx = $pos;
@@ -147,14 +145,48 @@ class BMInterface {
 
             }
 
+            // check whether the game exists
+            if (!isset($game)) {
+                $this->message = "Game $gameId does not exist.";
+                return FALSE;
+            }
+
+            // fill up the game object with the database data
             $game->playerIdArray = $playerIdArray;
             $game->gameScoreArrayArray = $gameScoreArrayArray;
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
 
-            if (!isset($game)) {
-                $this->message = "Game $gameId does not exist.";
-                return FALSE;
+            // add die attributes
+            $query = 'SELECT * '.
+                     'FROM die AS d '.
+                     'WHERE game_id = :game_id;';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId));
+
+            while ($row = $statement2->fetch()) {
+                if (!isset($activeDieArrayArray)) {
+                    $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
+                    $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
+                }
+
+                $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
+                $die = BMDie::create_from_string($row['recipe']);
+                $die->value = $row['value'];
+                $die->swingValue = $row['swing_value'];
+                switch ($row['status']) {
+                    case 'NORMAL':
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
+                    case 'CAPTURED':
+                        $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
+                }
+            }
+
+            if (isset($activeDieArrayArray)) {
+                $game->activeDieArrayArray = $activeDieArrayArray;
+                $game->capturedDieArrayArray = $capturedDieArrayArray;
             }
 
             $this->message = "Loaded data for game $gameId.";
@@ -215,7 +247,7 @@ class BMInterface {
                              '(owner_id, game_id, status, recipe, swing_value, position, value) '.
                              'VALUES (:owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
                     $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':owner_id' => $game->playerIdArray[0],
+                    $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                               ':game_id' => $game->gameId,
                                               ':status' => $status,
                                               ':recipe' => $activeDie->recipe,
@@ -225,13 +257,12 @@ class BMInterface {
                 }
             }
 
-            // delete dice with a status of "DELETED"
-            // perhaps this should be to delete those dice specifically deleted
-            // during this turn
+            // delete dice with a status of "DELETED" for this game
             $query = 'DELETE FROM die '.
-                     'WHERE status = "DELETED"';
+                     'WHERE status = "DELETED" '.
+                     'AND game_id = :game_id;';
             $statement = self::$conn->prepare($query);
-            $statement->execute();
+            $statement->execute(array(':game_id' => $game->gameId));
 
             $this->message = "Saved game $game->gameId.";
         } catch (Exception $e) {

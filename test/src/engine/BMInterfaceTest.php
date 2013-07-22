@@ -128,7 +128,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check dice
         $this->assertTrue(isset($game->activeDieArrayArray));
-        $this->assertEquals(5, count($game->activeDieArrayArray));
+//        $this->assertEquals(2, count($game->activeDieArrayArray));
+//        $this->assertEquals(5, count($game->activeDieArrayArray[0]));
+//        $this->assertEquals(5, count($game->activeDieArrayArray[1]));
 //        $this->assertFalse(isset($game->attackerAllDieArray));
 //        $this->assertFalse(isset($game->defenderAllDieArray));
 //        $this->assertFalse(isset($game->attackerAttackDieArray));
