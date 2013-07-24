@@ -101,7 +101,6 @@ class BMInterface {
                 // load game attributes
                 if (!isset($game)) {
                     $game = new BMGame;
-
                     $game->gameId          = $gameId;
                     $game->gameState       = $row['game_state'];
                     $game->maxWins         = $row['n_target_wins'];
@@ -177,6 +176,9 @@ class BMInterface {
                 switch ($row['status']) {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        if ($die instanceof BMDieSwing) {
+                            $game->swingRequestArrayArray[$playerIdx][$row['recipe']][] = $die;
+                        }
                         break;
                     case 'CAPTURED':
                         $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
