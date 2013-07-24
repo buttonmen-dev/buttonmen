@@ -66,6 +66,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($game->swingValueArrayArray));
         $this->assertFalse($game->allValuesSpecified);
 
+        // check swing details
+        $this->assertFalse(isset($game->swingRequestArrayArray));
+        $this->assertFalse(isset($game->swingValueArrayArray));
+        $this->assertFalse($game->allValuesSpecified);
+
         // check round info
         $this->assertEquals(1, $game->roundNumber);
         $this->assertEquals(4, $game->maxWins);
@@ -84,11 +89,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['W']);
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['L']);
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['D']);
-
-        // check swing details
-        $this->assertFalse(isset($game->swingRequestArrayArray));
-        $this->assertFalse(isset($game->swingValueArrayArray));
-        $this->assertFalse($game->allValuesSpecified);
     }
 
     /**
@@ -128,16 +128,61 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check dice
         $this->assertTrue(isset($game->activeDieArrayArray));
-//        $this->assertEquals(2, count($game->activeDieArrayArray));
-//        $this->assertEquals(5, count($game->activeDieArrayArray[0]));
-//        $this->assertEquals(5, count($game->activeDieArrayArray[1]));
-//        $this->assertFalse(isset($game->attackerAllDieArray));
-//        $this->assertFalse(isset($game->defenderAllDieArray));
-//        $this->assertFalse(isset($game->attackerAttackDieArray));
-//        $this->assertFalse(isset($game->attackerAttackDieArray));
-//        $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
+        $this->assertEquals(2, count($game->activeDieArrayArray));
+
+        $this->assertEquals(5, count($game->activeDieArrayArray[0]));
+
+        $this->assertEquals(8, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals('8', $game->activeDieArrayArray[0][0]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[0][0]->value));
+
+        $this->assertEquals(10, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals('10', $game->activeDieArrayArray[0][1]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[0][1]->value));
+
+        $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals('12', $game->activeDieArrayArray[0][2]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[0][2]->value));
+
+        $this->assertEquals(20, $game->activeDieArrayArray[0][3]->max);
+        $this->assertEquals('20', $game->activeDieArrayArray[0][3]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[0][3]->value));
+
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertEquals('X', $game->activeDieArrayArray[0][4]->recipe);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->value));
+
+        $this->assertEquals(5, count($game->activeDieArrayArray[1]));
+
+        $this->assertEquals(4, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals('4', $game->activeDieArrayArray[1][0]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[1][0]->value));
+
+        $this->assertEquals(6, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals('6', $game->activeDieArrayArray[1][1]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[1][1]->value));
+
+        $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals('8', $game->activeDieArrayArray[1][2]->recipe);
+        $this->assertTrue(isset($game->activeDieArrayArray[1][2]->value));
+
+        $this->assertFalse(isset($game->activeDieArrayArray[1][3]->max));
+        $this->assertEquals('X', $game->activeDieArrayArray[1][3]->recipe);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][3]->value));
+
+        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->max));
+        $this->assertEquals('X', $game->activeDieArrayArray[1][4]->recipe);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->value));
+
+        $this->assertFalse(isset($game->attackerAllDieArray));
+        $this->assertFalse(isset($game->defenderAllDieArray));
+        $this->assertFalse(isset($game->attackerAttackDieArray));
+        $this->assertFalse(isset($game->attackerAttackDieArray));
+        $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
 //        $this->assertFalse(isset($game->capturedDieArrayArray));
-//        $this->assertFalse(isset($game->swingRequestArrayArray));
+
+        // check swing details
+//        $this->assertTrue(isset($game->swingRequestArrayArray));
 //        $this->assertFalse(isset($game->swingValueArrayArray));
 //        $this->assertFalse($game->allValuesSpecified);
 
@@ -159,10 +204,5 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['W']);
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['L']);
         $this->assertEquals(0, $game->gameScoreArrayArray[1]['D']);
-
-        // check swing details
-//        $this->assertFalse(isset($game->swingRequestArrayArray));
-        $this->assertFalse(isset($game->swingValueArrayArray));
-        $this->assertFalse($game->allValuesSpecified);
     }
 }
