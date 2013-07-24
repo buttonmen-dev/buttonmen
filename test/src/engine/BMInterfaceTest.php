@@ -135,7 +135,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $expectedSizes = array(array(8, 10, 12, 20, NAN),
                                array(4, 6, 8, NAN, NAN));
         foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            $this->assertEquals(count($expectedRecipes[$playerIdx]), count($activeDieArray));
+            $this->assertEquals(count($expectedRecipes[$playerIdx]),
+                                count($activeDieArray));
             for ($dieIdx = 0; $dieIdx <= 4; $dieIdx++) {
                 $this->assertEquals($expectedRecipes[$playerIdx][$dieIdx],
                                     $activeDieArray[$dieIdx]->recipe);
@@ -159,9 +160,28 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check swing details
         $this->assertTrue(isset($game->swingRequestArrayArray));
-//        var_dump($game->swingRequestArrayArray);
-//        $this->assertFalse(isset($game->swingValueArrayArray));
-//        $this->assertFalse($game->allValuesSpecified);
+        $this->assertEquals(2, count($game->swingRequestArrayArray));
+        $this->assertEquals(1, count($game->swingRequestArrayArray[0]));
+        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[0]));
+        $this->assertEquals(1, count($game->swingRequestArrayArray[0]['X']));
+        $this->assertTrue($game->swingRequestArrayArray[0]['X'][0] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[0][4] ===
+                          $game->swingRequestArrayArray[0]['X'][0]);
+
+        $this->assertEquals(1, count($game->swingRequestArrayArray[1]));
+        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[1]));
+        $this->assertEquals(2, count($game->swingRequestArrayArray[1]['X']));
+        $this->assertTrue($game->swingRequestArrayArray[1]['X'][0] instanceof BMDieSwing);
+        $this->assertTrue($game->swingRequestArrayArray[1]['X'][1] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[1][3] ===
+                          $game->swingRequestArrayArray[1]['X'][0]);
+        $this->assertTrue($game->activeDieArrayArray[1][4] ===
+                          $game->swingRequestArrayArray[1]['X'][1]);
+
+        $this->assertTrue(isset($game->swingValueArrayArray));
+        $this->assertEquals(array(array('X' => NULL), array('X' => NULL)),
+                            $game->swingValueArrayArray);
+        $this->assertFalse($game->allValuesSpecified);
 
         // check round info
         $this->assertEquals(1, $game->roundNumber);

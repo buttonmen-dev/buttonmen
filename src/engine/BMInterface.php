@@ -178,6 +178,7 @@ class BMInterface {
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         if ($die instanceof BMDieSwing) {
                             $game->swingRequestArrayArray[$playerIdx][$row['recipe']][] = $die;
+                            $game->swingValueArrayArray[$playerIdx][$row['recipe']] = $die->swingValue;
                         }
                         break;
                     case 'CAPTURED':
