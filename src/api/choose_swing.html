@@ -77,7 +77,7 @@
             }
         }
 
-        function loadGameInfo(gameId) {
+        function loadGameInfo() {
             $.post('responder.php',
                    {type: 'loadGameData'},
                    function(rs) {
@@ -92,6 +92,7 @@
                            swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
                            roundNumber = rs.data.roundNumber;
 
+                           $('#game_id').text(rs.data.gameId);
                            $('#round_number').text(roundNumber);
 
                            displayDieDetails();

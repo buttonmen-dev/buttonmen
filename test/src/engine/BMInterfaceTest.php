@@ -156,7 +156,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->attackerAttackDieArray));
         $this->assertFalse(isset($game->auxiliaryDieDecisionArrayArray));
-//        $this->assertFalse(isset($game->capturedDieArrayArray));
+        $this->assertTrue(isset($game->capturedDieArrayArray));
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
 
         // check swing details
         $this->assertTrue(isset($game->swingRequestArrayArray));

@@ -51,6 +51,8 @@
 
         case 'loadGameData':
             $game = $interface->load_game($_SESSION['active_game']);
+            $game->proceed_to_next_user_action();
+
             $output = $game->getJsonData();
             break;
 
