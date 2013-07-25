@@ -53,7 +53,12 @@
             $game = $interface->load_game($_SESSION['active_game']);
             $game->proceed_to_next_user_action();
 
-            $output = $game->getJsonData();
+            $currentPlayerId = $_SESSION['user_id'];
+            $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+
+            $output = array('status' => 'ok',
+                            'currentPlayerIdx' => $currentPlayerIdx,
+                            'gameData' => $game->getJsonData());
             break;
 
         case 'loadMockGameDataDeterminingInitiative':

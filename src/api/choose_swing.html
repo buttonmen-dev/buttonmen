@@ -82,17 +82,16 @@
                    {type: 'loadGameData'},
                    function(rs) {
                        if (rs.status == 'ok') {
-
-                           // mock
-                           currentPlayerIdx = 1;
-//                           currentPlayerIdx = rs.data.currentPlayerIdx;
+                           var gameData = rs.gameData.data;
+                           playerIdArray = gameData.playerIdArray;
+                           currentPlayerIdx = rs.currentPlayerIdx;
                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
-                           currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
-                           opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
-                           swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
-                           roundNumber = rs.data.roundNumber;
+                           currentPlayerDieRecipeArray = gameData.dieRecipeArrayArray[currentPlayerIdx];
+                           opponentPlayerDieRecipeArray = gameData.dieRecipeArrayArray[opponentPlayerIdx];
+                           swingRequestArray = gameData.swingRequestArrayArray[currentPlayerIdx];
+                           roundNumber = gameData.roundNumber;
 
-                           $('#game_id').text(rs.data.gameId);
+                           $('#game_id').text(gameData.gameId);
                            $('#round_number').text(roundNumber);
 
                            displayDieDetails();
