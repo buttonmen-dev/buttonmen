@@ -51,7 +51,6 @@
 
         case 'loadGameData':
             $game = $interface->load_game($_SESSION['active_game']);
-            $game->proceed_to_next_user_action();
 
             $currentPlayerId = $_SESSION['user_id'];
             $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);

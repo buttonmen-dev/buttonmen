@@ -4,7 +4,7 @@ class BMAttackShadow extends BMAttackPower {
     public $name = "Shadow";
     public $type = "Shadow";
 
-    public function validate_attack($game, $attackers, $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders) {
         if (count($attackers) != 1 || count($defenders) != 1) {
             return FALSE;
         }
@@ -32,7 +32,7 @@ class BMAttackShadow extends BMAttackPower {
     }
 
     // return how much help is needed and who can contribute
-    public function calculate_contributions($game, $attackers, $defenders) {
+    public function calculate_contributions(BMGame $game, array $attackers, array $defenders) {
         return array(0, array());
     }
 }
