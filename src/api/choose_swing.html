@@ -83,6 +83,7 @@
                    function(rs) {
                        if (rs.status == 'ok') {
                            var gameData = rs.gameData.data;
+                           gameId = gameData.gameId;
                            playerIdArray = gameData.playerIdArray;
                            currentPlayerIdx = rs.currentPlayerIdx;
                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
@@ -91,7 +92,7 @@
                            swingRequestArray = gameData.swingRequestArrayArray[currentPlayerIdx];
                            roundNumber = gameData.roundNumber;
 
-                           $('#game_id').text(gameData.gameId);
+                           $('#game_id').text(gameId);
                            $('#round_number').text(roundNumber);
 
                            displayDieDetails();
