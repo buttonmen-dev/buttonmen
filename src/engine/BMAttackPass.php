@@ -9,7 +9,7 @@ class BMAttackPass extends BMAttack {
                                       $game->defenderAttackDieArray);
     }
 
-    public function validate_attack($game, $attackers, $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders) {
         return (empty($attackers) && empty($defenders));
     }
 }

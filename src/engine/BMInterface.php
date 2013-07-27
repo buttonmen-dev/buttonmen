@@ -27,8 +27,8 @@ class BMInterface {
     }
 
     // methods
-    public function create_game($playerIdArray,
-                                $buttonNameArray,
+    public function create_game(array $playerIdArray,
+                                array $buttonNameArray,
                                 $maxWins = 3) {
         try {
             // create basic game details
@@ -72,6 +72,10 @@ class BMInterface {
                                           ':button_id' => $buttonId,
                                           ':position'  => $position));
             }
+
+            // update game state to latest possible
+            $game = $this->load_game($gameId);
+            $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
             return $gameId;
@@ -199,7 +203,10 @@ class BMInterface {
         }
     }
 
-    public function save_game($game) {
+    public function save_game(BMGame $game) {
+        // force game to proceed to the latest possible before saving
+        $game->proceed_to_next_user_action();
+
         try {
             if (is_null($game->activePlayerIdx)) {
                 $currentPlayerId = NULL;

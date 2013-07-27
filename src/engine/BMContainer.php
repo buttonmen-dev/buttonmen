@@ -145,7 +145,7 @@ class BMContainer {
     // any elements of the array are themselves arrays, we will make
     // them as containers. Skills will only be added to the outermost
     // container
-    public static function create_from_list($contents, $skills = array()) {
+    public static function create_from_list($contents, array $skills = array()) {
         $cont = new BMContainer;
 
         foreach ($contents as $thing) {
