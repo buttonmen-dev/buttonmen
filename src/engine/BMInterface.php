@@ -429,6 +429,25 @@ class BMInterface {
         }
     }
 
+    public function get_player_name_from_id($id) {
+        try {
+            $query = 'SELECT name_ingame FROM player '.
+                     'WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $id));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Player ID does not exist.';
+                return('');
+            } else {
+                $this->message = 'Player name retrieved successfully.';
+                return($result[0]);
+            }
+        } catch (Exception $e) {
+            $this->message = 'Player name get failed.';
+        }
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {

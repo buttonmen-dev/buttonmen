@@ -55,9 +55,14 @@
             $currentPlayerId = $_SESSION['user_id'];
             $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
 
+            foreach ($game->playerIdArray as $playerId) {
+                $playerNameArray[] = $interface->get_player_name_from_id($playerId);
+            }
+
             $output = array('status' => 'ok',
                             'currentPlayerIdx' => $currentPlayerIdx,
-                            'gameData' => $game->getJsonData());
+                            'gameData' => $game->getJsonData(),
+                            'playerNameArray' => $playerNameArray);
             break;
 
         case 'loadMockGameDataDeterminingInitiative':

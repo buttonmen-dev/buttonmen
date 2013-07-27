@@ -94,6 +94,8 @@
 
                            $('#game_id').text(gameId);
                            $('#round_number').text(roundNumber);
+                           $('#header_current_player').text(rs.playerNameArray[currentPlayerIdx]);
+                           $('#header_opponent').text(rs.playerNameArray[opponentPlayerIdx]);
 
                            displayDieDetails();
                            displaySwingDetails();
