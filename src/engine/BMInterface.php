@@ -112,6 +112,10 @@ class BMInterface {
 
                 $pos = $row['position'];
                 $playerIdArray[$pos] = $row['player_id'];
+                if (1 == $row['did_win_initiative']) {
+                    $game->playerWithInitiativeIdx = $pos;
+                }
+
                 $gameScoreArrayArray[$pos] = array($row['n_rounds_won'],
                                                    $row['n_rounds_lost'],
                                                    $row['n_rounds_drawn']);
@@ -176,14 +180,22 @@ class BMInterface {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
                 $die = BMDie::create_from_string($row['recipe']);
                 $die->value = $row['value'];
-                $die->swingValue = $row['swing_value'];
+
+                if ($die instanceof BMDieSwing) {
+                    $game->swingRequestArrayArray[$playerIdx][$row['recipe']][] = $die;
+                    $game->swingValueArrayArray[$playerIdx][$row['recipe']] = $row['swing_value'];
+
+                    if (isset($row['swing_value'])) {
+                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$playerIdx]);
+                        if (!$swingSetSuccess) {
+                            throw new LogicException('Swing value set failed.');
+                        }
+                    }
+                }
+
                 switch ($row['status']) {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
-                        if ($die instanceof BMDieSwing) {
-                            $game->swingRequestArrayArray[$playerIdx][$row['recipe']][] = $die;
-                            $game->swingValueArrayArray[$playerIdx][$row['recipe']] = $die->swingValue;
-                        }
                         break;
                     case 'CAPTURED':
                         $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -196,10 +208,13 @@ class BMInterface {
                 $game->capturedDieArrayArray = $capturedDieArrayArray;
             }
 
+            $game->proceed_to_next_user_action();
+
             $this->message = "Loaded data for game $gameId.";
             return $game;
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
+            var_dump($this->message);
         }
     }
 
@@ -231,6 +246,17 @@ class BMInterface {
                                       ':round_number' => $game->roundNumber,
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
+
+            // game_player_map
+            if (isset($game->playerWithInitiativeIdx)) {
+                $query = 'UPDATE game_player_map '.
+                         'SET did_win_initiative = 1 '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id' => $game->gameId,
+                                          ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
+            }
 
             // set existing dice to have a status of DELETED and get die ids
             //
@@ -276,7 +302,8 @@ class BMInterface {
 
             $this->message = "Saved game $game->gameId.";
         } catch (Exception $e) {
-            $this->message = 'Game save failed.';
+            $this->message = "Game save failed: $e";
+            var_dump($this->message);
         }
     }
 
