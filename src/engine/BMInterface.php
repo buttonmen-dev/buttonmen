@@ -247,7 +247,7 @@ class BMInterface {
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
 
-            // game_player_map
+            // set player that won initiative
             if (isset($game->playerWithInitiativeIdx)) {
                 $query = 'UPDATE game_player_map '.
                          'SET did_win_initiative = 1 '.
@@ -256,6 +256,25 @@ class BMInterface {
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':game_id' => $game->gameId,
                                           ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
+            }
+
+            var_dump($game->waitingOnActionArray);
+
+            // set players awaiting action
+            foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+                $query = 'UPDATE game_player_map '.
+                         'SET is_awaiting_action = :is_awaiting_action '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id;';
+                $statement = self::$conn->prepare($query);
+                if ($waitingOnAction) {
+                    $is_awaiting_action = 1;
+                } else {
+                    $is_awaiting_action = 0;
+                }
+                $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
+                                          ':game_id' => $game->gameId,
+                                          ':player_id' => $game->playerIdArray[$playerIdx]));
             }
 
             // set existing dice to have a status of DELETED and get die ids
