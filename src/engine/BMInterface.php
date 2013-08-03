@@ -105,9 +105,9 @@ class BMInterface {
                 // load game attributes
                 if (!isset($game)) {
                     $game = new BMGame;
-                    $game->gameId          = $gameId;
-                    $game->gameState       = $row['game_state'];
-                    $game->maxWins         = $row['n_target_wins'];
+                    $game->gameId    = $gameId;
+                    $game->gameState = $row['game_state'];
+                    $game->maxWins   = $row['n_target_wins'];
                 }
 
                 $pos = $row['position'];

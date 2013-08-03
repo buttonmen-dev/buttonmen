@@ -138,7 +138,7 @@
             }
 
             // try to set swing values
-            $swingValueArray = json_decode($_POST['swingValueArray']);
+            $swingValueArray = $_POST['swingValueArray'];
             $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
 
             if (count($swingRequestArray) != count($swingValueArray)) {
