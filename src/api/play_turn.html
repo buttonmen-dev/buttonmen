@@ -100,8 +100,11 @@
                    {type: 'loadGameData'},
                    function(rs) {
                        if (rs.status == 'ok') {
-                           attackerIdx = rs.gameData.data.activePlayerIdx;
-                           defenderIdx = (rs.gameData.data.activePlayerIdx + 1)%2;
+                           // need to explicitly convert the activePlayerIdx to
+                           // an integer, so that I can perform integer addition
+                           attackerIdx = parseInt(rs.gameData.data.activePlayerIdx, 10);
+                           defenderIdx = (attackerIdx + 1)%2;
+                           
                            dieAttackValues = rs.gameData.data.valueArrayArray[attackerIdx];
                            dieDefendValues = rs.gameData.data.valueArrayArray[defenderIdx];
                            dieAttackSides  = rs.gameData.data.sidesArrayArray[attackerIdx];
@@ -112,12 +115,12 @@
                            var attackerGameScoreArray = rs.gameData.data.gameScoreArrayArray[attackerIdx];
                            var attackerGameScore = attackerGameScoreArray.W + '/' +
                                                    attackerGameScoreArray.L + '/' +
-                                                   attackerGameScoreArray.T;
+                                                   attackerGameScoreArray.D;
                            $('#attacker_game_score').text(attackerGameScore);
                            var defenderGameScoreArray = rs.gameData.data.gameScoreArrayArray[defenderIdx];
                            var defenderGameScore = defenderGameScoreArray.W + '/' +
                                                    defenderGameScoreArray.L + '/' +
-                                                   defenderGameScoreArray.T;
+                                                   defenderGameScoreArray.D;
                            $('#defender_game_score').text(defenderGameScore);
 
                            $('#attacker_button').text(rs.gameData.data.buttonNameArray[attackerIdx]);
@@ -126,6 +129,7 @@
                            $('#defender_round_score').text(rs.gameData.data.roundScoreArray[defenderIdx]);
                            $('#game_id').text(rs.gameData.data.gameId);
                            $('#round_number').text(rs.gameData.data.roundNumber);
+
                            displayDice();
                        } else {
                            // We got some JSON we didn't expect
