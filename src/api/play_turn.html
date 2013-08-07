@@ -146,15 +146,15 @@
             $('div.selected').each(function(index, element) {
                 dieSelectStatus[$(element).attr('id')] = true;
             });
-            $.post('test_submit.php',
+            $.post('responder.php',
                    {
-                       type: 'loadButtonNames',
+                       type: 'submitTurn',
                        attackerIdx: attackerIdx,
                        defenderIdx: defenderIdx,
-                       dieSelectStatus: JSON.stringify(dieSelectStatus)
+                       dieSelectStatus: dieSelectStatus
                    },
                    function(data){
-                       $('#submit_status').html(data);
+                       $('#submit_status').html(data.status);
                    });
         });
 
