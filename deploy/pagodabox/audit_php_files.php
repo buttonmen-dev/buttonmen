@@ -5,7 +5,7 @@
   $php_compliant_dirs = array(
     "src/engine",
     "test/src/engine",
-    "test/src/engine/Utility",
+    "test/src/engine/Utility"
   );
 
   // These directories may contain PHP files which we don't check
@@ -15,18 +15,19 @@
     "src/api",
     "src/database",
     "src/lib",
+    "test/src/database"
   );
 
   // Each PHP file in the first directory must contain a matching
   // test file in the second directory
   $php_test_dirs = array(
-    "src/engine" => "test/src/engine",
+    "src/engine" => "test/src/engine"
   );
 
   // Any other directories shouldn't contain PHP files
 
   function find_all_dirs(&$dirs, $startdir) {
-    $php_skip_subdirs = array( '.', '..', '.git', );
+    $php_skip_subdirs = array( '.', '..', '.git' );
     $dirs[] = $startdir;
     foreach (scandir($startdir) as $dirfile) {
       if (in_array($dirfile, $php_skip_subdirs)) {
