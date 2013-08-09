@@ -62,7 +62,11 @@
             $output = array('status' => 'ok',
                             'currentPlayerIdx' => $currentPlayerIdx,
                             'gameData' => $game->getJsonData(),
-                            'playerNameArray' => $playerNameArray);
+                            'playerNameArray' => $playerNameArray,
+                            'timestamp' => $interface->timestamp->format(DATE_RSS));
+
+//            var_dump(date(DATE_W3C, $interface->timestamp));
+
             break;
 
         case 'loadMockGameDataDeterminingInitiative':

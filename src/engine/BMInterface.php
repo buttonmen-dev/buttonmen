@@ -9,11 +9,13 @@ require_once 'BMGame.php';
  * @author james
  *
  * @property-read string $message                Message intended for GUI
+ * @property-read DateTime $timestamp            Timestamp of last game action
  *
  */
 class BMInterface {
     // properties
     private $message;               // message intended for GUI
+    private $timestamp;             // timestamp of last game action
     private static $conn = NULL;    // connection to database
 
     // constructor
@@ -108,6 +110,7 @@ class BMInterface {
                     $game->gameId    = $gameId;
                     $game->gameState = $row['game_state'];
                     $game->maxWins   = $row['n_target_wins'];
+                    $this->timestamp = new DateTime($row['last_action_time']);
                 }
 
                 $pos = $row['position'];
