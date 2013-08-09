@@ -28,6 +28,7 @@ CREATE TABLE game_player_map (
     did_win_initiative BOOLEAN DEFAULT FALSE,
     is_awaiting_action BOOLEAN DEFAULT FALSE,
     n_rounds_won       TINYINT UNSIGNED DEFAULT 0,
+    n_rounds_lost      TINYINT UNSIGNED DEFAULT 0,
     n_rounds_drawn     TINYINT UNSIGNED DEFAULT 0,
     handicap           TINYINT UNSIGNED DEFAULT 0,
     is_player_hidden   BOOLEAN DEFAULT FALSE
@@ -38,7 +39,7 @@ CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     owner_id           TINYINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
-    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME') DEFAULT 'NORMAL',
+    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME', 'DELETED') DEFAULT 'NORMAL',
     recipe             VARCHAR(20) NOT NULL,
     swing_value        TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
