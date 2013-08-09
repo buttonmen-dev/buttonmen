@@ -36,7 +36,7 @@ class BMAttackPower extends BMAttack {
     }
 
     // return how much help is needed and who can contribute
-    public function calculate_contributions(BMGame $game, array $attackers, array $defenders) {
+    public function calculate_contributions($game, array $attackers, array $defenders) {
         return array(0, array());
     }
 }
