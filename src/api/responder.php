@@ -1,5 +1,6 @@
 <?php
     session_start();
+    require 'api_core.php';
 
     require_once('../lib/bootstrap.php');
 
@@ -64,9 +65,6 @@
                             'gameData' => $game->getJsonData(),
                             'playerNameArray' => $playerNameArray,
                             'timestamp' => $interface->timestamp->format(DATE_RSS));
-
-//            var_dump(date(DATE_W3C, $interface->timestamp));
-
             break;
 
         case 'loadMockGameDataDeterminingInitiative':
@@ -129,14 +127,17 @@
             $gameId = $_POST['gameId'];
 
             $game = $interface->load_game($gameId);
-
-            // check that the game state is correct and that the swing values
-            // still need to be set
-            $roundNumber = $_POST['roundNumber'];
             $currentPlayerIdx = $_POST['currentPlayerIdx'];
-            if (($roundNumber != $game->roundNumber) ||
-                (BMGameState::specifyDice != $game->gameState) ||
-                (FALSE == $game->waitingOnActionArray[$currentPlayerIdx])) {
+            $roundNumber = $_POST['roundNumber'];
+
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!is_page_current($interface,
+                                 $game,
+                                 BMGameState::specifyDice,
+                                 $_POST['timestamp'],
+                                 $roundNumber,
+                                 $currentPlayerIdx)) {
                 $output = FALSE;
                 break;
             }
@@ -171,6 +172,16 @@
 
             break;
         case 'submitTurn':
+            if (!is_page_current($interface,
+                                 $game,
+                                 BMGameState::startTurn,
+                                 $_POST['timestamp'],
+                                 $_POST['roundNumber'],
+                                 $_POST['currentPlayerIdx'])) {
+                $output = FALSE;
+                break;
+            }
+
             require_once '../engine/BMAttack.php';
 
             $game = $interface->load_game($_SESSION['active_game']);

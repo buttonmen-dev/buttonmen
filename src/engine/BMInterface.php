@@ -261,8 +261,6 @@ class BMInterface {
                                           ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
             }
 
-            var_dump($game->waitingOnActionArray);
-
             // set players awaiting action
             foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
                 $query = 'UPDATE game_player_map '.

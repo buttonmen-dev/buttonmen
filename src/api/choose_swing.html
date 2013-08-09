@@ -130,7 +130,8 @@
                            gameId: gameId,
                            roundNumber: roundNumber,
                            currentPlayerIdx: currentPlayerIdx,
-                           swingValueArray: swingValueArray
+                           swingValueArray: swingValueArray,
+                           timestamp: $('#timestamp').text()
                        },
                        function(rs){
                            if ('ok' == rs.status) {
