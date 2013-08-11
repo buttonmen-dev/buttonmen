@@ -63,7 +63,7 @@ class BMAttack {
     // assist_values; we don't need to know which die contributes what
     // here.
 
-    public function help_bounds($helpers) {
+    public function help_bounds(array $helpers) {
         $helpMin = $helpMax = 0;
 
         if (count($helpers) == 0) { return array($helpMin, $helpMax); }
@@ -103,7 +103,7 @@ class BMAttack {
     // returns FALSE if it failed to do so (user cancel or error)
     //
     // I don't yet understand what the guts of this function looks like
-    public function collect_contributions($game, $attackers, $defenders) {
+    public function collect_contributions(BMGame $game, array $attackers, array $defenders) {
         $needed = $this->calculate_contributions($game, $attackers, $defenders);
 
         $amount = $needed[0];
@@ -116,7 +116,7 @@ class BMAttack {
     // return how much help is needed and who can contribute
     //
     // implemented in subclassed where they actually know what help they need
-    public function calculate_contributions($game, $attackers, $defenders) {
+    public function calculate_contributions(BMGame $game, array $attackers, array $defenders) {
         return array(0, array());
     }
 
@@ -126,13 +126,13 @@ class BMAttack {
     }
 
     // confirm that an attack is legal
-    public function validate_attack($game, $attackers, $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders) {
         return FALSE;
     }
 
     // actually make the attack
     // Some of this should perhaps be in the game, rather than here.
-    public function commit_attack($game, $attackers, $defenders) {
+    public function commit_attack($game, array $attackers, array $defenders) {
         // Paranoia
         if (!$this->validate_attack($game, $attackers, $defenders)) {
             return FALSE;
@@ -252,7 +252,7 @@ class BMAttack {
     }
 
     // $this may not be used in anonymous functions in PHP 5.3. Bastards.
-    protected function search_onevmany($game, $attackers, $defenders) {
+    protected function search_onevmany($game, array $attackers, array $defenders) {
         $myself = $this;
         $compare = function($g, $att, $def) use ($myself) {
             return $myself->validate_attack($g, $att, $def);
@@ -264,7 +264,7 @@ class BMAttack {
     // It is entirely possible this method will never be used, since
     // skill attacks build a hit table instead. (For hopefully
     // improved efficiency.)
-    protected function search_manyvone($game, $attackers, $defenders) {
+    protected function search_manyvone($game, array $attackers, array $defenders) {
         $myself = $this;
         $compare = function($g, $def, $att) use ($myself) {
             return $myself->validate_attack($g, $att, $def);
@@ -274,7 +274,7 @@ class BMAttack {
     }
 
     // returns a list of possible values that can aid an attack
-    protected function collect_helpers($game, $attackers, $defenders) {
+    protected function collect_helpers($game, array $attackers, array $defenders) {
         $helpers = array();
 
         if (is_null($game->attackerAllDieArray)) {

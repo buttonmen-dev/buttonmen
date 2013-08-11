@@ -5,161 +5,159 @@
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-
-<meta charset="utf-8" />
-<title>JSON Testing</title>
-<link rel="stylesheet" href="gui.css" />
-
+    <meta charset="utf-8" />
+    <title>JSON Testing</title>
+    <link rel="stylesheet" href="gui.css" />
 </head>
 
 <body>
-<div>Game #<span id="game_id">?</span></div>
-<div>Round #<span id="round_number">?</span></div>
-<br />
-<!-- attacker dice -->
-<div>Player #<span id="attacker_id">?</span></div>
-<div>Button: <span id="attacker_button">?</span></div>
-<div>W/L/T: <span id="attacker_game_score">?</span></div>
-<div>Score: <span id="attacker_round_score">?</span></div>
-<div id="div_attack"></div>
-<br />
-<!-- defender dice -->
-<div id="div_defend"></div>
-<div>Score: <span id="defender_round_score">?</span></div>
-<div>W/L/T: <span id="defender_game_score">?</span></div>
-<div>Button: <span id="defender_button">?</span></div>
-<div>Player #<span id="defender_id">?</span></div>
-<br />
-<div ><button id="submit">Submit</button></div>
-<br />
-<div><span id="submit_status"></span></div>
+    <div>Game #<span id="game_id">?</span></div>
+    <div>Round #<span id="round_number">?</span></div>
+    <br />
+    <!-- attacker dice -->
+    <div>Player #<span id="attacker_id">?</span></div>
+    <div>Button: <span id="attacker_button">?</span></div>
+    <div>W/L/T: <span id="attacker_game_score">?</span></div>
+    <div>Score: <span id="attacker_round_score">?</span></div>
+    <div id="div_attack"></div>
+    <br />
+    <!-- defender dice -->
+    <div id="div_defend"></div>
+    <div>Score: <span id="defender_round_score">?</span></div>
+    <div>W/L/T: <span id="defender_game_score">?</span></div>
+    <div>Button: <span id="defender_button">?</span></div>
+    <div>Player #<span id="defender_id">?</span></div>
+    <br />
+    <div ><button id="submit">Submit</button></div>
+    <br />
+    <div><span id="submit_status"></span></div>
 
-<!--
-james: eventually, we will want to use the hosted version of the JQuery library
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
--->
-<script src="jquery-1.9.0.min.js"></script>
-<script>
+    <!--
+    james: eventually, we will want to use the hosted version of the JQuery library
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    -->
+    <script src="jquery-1.9.0.min.js"></script>
+    <script>
 
-$(document).ready(function() {
-    // global variables
-    var attackerIdx;
-    var defenderIdx;
-    var dieAttackValues;
-    var dieDefendValues;
-    var dieAttackSides;
-    var dieDefendSides;
+    $(document).ready(function() {
+        // global variables
+        var attackerIdx;
+        var defenderIdx;
+        var dieAttackValues;
+        var dieDefendValues;
+        var dieAttackSides;
+        var dieDefendSides;
 
-    var dieSelectStatus = {};
+        var dieSelectStatus = {};
 
-    // functions
-    function addDie(id, rolledNumber, nSides, parent) {
-        if (document.createElement){
-            $('#'+parent).append(
-                $('<div id="' + id + '" class="die_img unselected"' +
-                  'style="background-image: url(images/Circle.png)">' +
-                      '<span id="' + id + '_span" class="die_overlay">' +
-                          rolledNumber + ' d' + nSides +
-                      '</span>' +
-                  '</div>'));
-            $('#'+id).click(borderToggle);
+        // functions
+        function addDie(id, rolledNumber, nSides, parent) {
+            if (document.createElement){
+                $('#'+parent).append(
+                    $('<div id="' + id + '" class="die_img unselected"' +
+                      'style="background-image: url(images/Circle.png)">' +
+                          '<span id="' + id + '_span" class="die_overlay">' +
+                              rolledNumber + ' d' + nSides +
+                          '</span>' +
+                      '</div>'));
+                $('#'+id).click(borderToggle);
 
-            dieSelectStatus[id] = false;
-        }
-    }
-
-    function borderToggle() {
-        $(this).toggleClass('selected unselected');
-    }
-
-    function displayDice() {
-        var dieAttackIdx;
-        var dieDefendIdx;
-
-        for (dieAttackIdx = 0;
-             dieAttackIdx < dieAttackValues.length;
-             dieAttackIdx++) {
-            addDie('playerIdx_' + attackerIdx +
-                   '_dieIdx_' + dieAttackIdx,
-                   dieAttackValues[dieAttackIdx],
-                   dieAttackSides[dieAttackIdx],
-                   'div_attack');
+                dieSelectStatus[id] = false;
+            }
         }
 
-        for (dieDefendIdx = 0;
-             dieDefendIdx < dieDefendValues.length;
-             dieDefendIdx++) {
-            addDie('playerIdx_' + defenderIdx +
-                   '_dieIdx_' + dieDefendIdx,
-                   dieDefendValues[dieDefendIdx],
-                   dieDefendSides[dieDefendIdx],
-                   'div_defend');
+        function borderToggle() {
+            $(this).toggleClass('selected unselected');
         }
-    }
 
-    function loadGameInfo() {
-        $.post('responder.php',
-               {type: 'loadMockGameDataRoundStart'},
-               function(rs) {
-                   if (rs.status == 'ok') {
-                       attackerIdx = rs.data.activePlayerIdx;
-                       defenderIdx = (rs.data.activePlayerIdx + 1)%2;
-                       dieAttackValues = rs.data.valueArrayArray[attackerIdx];
-                       dieDefendValues = rs.data.valueArrayArray[defenderIdx];
-                       dieAttackSides  = rs.data.sidesArrayArray[attackerIdx];
-                       dieDefendSides  = rs.data.sidesArrayArray[defenderIdx];
-                       $('#attacker_id').text(rs.data.playerIdArray[attackerIdx]);
-                       $('#defender_id').text(rs.data.playerIdArray[defenderIdx]);
+        function displayDice() {
+            var dieAttackIdx;
+            var dieDefendIdx;
 
-                       var attackerGameScoreArray = rs.data.gameScoreArrayArray[attackerIdx];
-                       var attackerGameScore = attackerGameScoreArray.W + '/' +
-                                               attackerGameScoreArray.L + '/' +
-                                               attackerGameScoreArray.T;
-                       $('#attacker_game_score').text(attackerGameScore);
-                       var defenderGameScoreArray = rs.data.gameScoreArrayArray[defenderIdx];
-                       var defenderGameScore = defenderGameScoreArray.W + '/' +
-                                               defenderGameScoreArray.L + '/' +
-                                               defenderGameScoreArray.T;
-                       $('#defender_game_score').text(defenderGameScore);
+            for (dieAttackIdx = 0;
+                 dieAttackIdx < dieAttackValues.length;
+                 dieAttackIdx++) {
+                addDie('playerIdx_' + attackerIdx +
+                       '_dieIdx_' + dieAttackIdx,
+                       dieAttackValues[dieAttackIdx],
+                       dieAttackSides[dieAttackIdx],
+                       'div_attack');
+            }
 
-                       $('#attacker_button').text(rs.data.buttonNameArray[attackerIdx]);
-                       $('#defender_button').text(rs.data.buttonNameArray[defenderIdx]);
-                       $('#attacker_round_score').text(rs.data.roundScoreArray[attackerIdx]);
-                       $('#defender_round_score').text(rs.data.roundScoreArray[defenderIdx]);
-                       $('#game_id').text(rs.data.gameId);
-                       $('#round_number').text(rs.data.roundNumber);
-                       displayDice();
-                   } else {
-                       $('#result').html('JSON fetch failed\n'+
-                                         JSON.stringify(rs.data));  // We got some JSON we didn't expect (the network fetch succeeded, but the engine had an error)
-                   }
-               });
-    }
-
-    $('#submit').click(function() {
-        for (var statusKey in dieSelectStatus) {
-            dieSelectStatus[statusKey] = false;
+            for (dieDefendIdx = 0;
+                 dieDefendIdx < dieDefendValues.length;
+                 dieDefendIdx++) {
+                addDie('playerIdx_' + defenderIdx +
+                       '_dieIdx_' + dieDefendIdx,
+                       dieDefendValues[dieDefendIdx],
+                       dieDefendSides[dieDefendIdx],
+                       'div_defend');
+            }
         }
-        $('div.selected').each(function(index, element) {
-            dieSelectStatus[$(element).attr('id')] = true;
+
+        function loadGameInfo() {
+            $.post('responder.php',
+                   {type: 'loadGameData'},
+                   function(rs) {
+                       if (rs.status == 'ok') {
+                           attackerIdx = rs.gameData.activePlayerIdx;
+                           defenderIdx = (rs.gameData.activePlayerIdx + 1)%2;
+                           dieAttackValues = rs.gameData.valueArrayArray[attackerIdx];
+                           dieDefendValues = rs.gameData.valueArrayArray[defenderIdx];
+                           dieAttackSides  = rs.gameData.sidesArrayArray[attackerIdx];
+                           dieDefendSides  = rs.gameData.sidesArrayArray[defenderIdx];
+                           $('#attacker_id').text(rs.gameData.playerIdArray[attackerIdx]);
+                           $('#defender_id').text(rs.gameData.playerIdArray[defenderIdx]);
+
+                           var attackerGameScoreArray = rs.gameData.gameScoreArrayArray[attackerIdx];
+                           var attackerGameScore = attackerGameScoreArray.W + '/' +
+                                                   attackerGameScoreArray.L + '/' +
+                                                   attackerGameScoreArray.T;
+                           $('#attacker_game_score').text(attackerGameScore);
+                           var defenderGameScoreArray = rs.gameData.gameScoreArrayArray[defenderIdx];
+                           var defenderGameScore = defenderGameScoreArray.W + '/' +
+                                                   defenderGameScoreArray.L + '/' +
+                                                   defenderGameScoreArray.T;
+                           $('#defender_game_score').text(defenderGameScore);
+
+                           $('#attacker_button').text(rs.gameData.buttonNameArray[attackerIdx]);
+                           $('#defender_button').text(rs.gameData.buttonNameArray[defenderIdx]);
+                           $('#attacker_round_score').text(rs.gameData.roundScoreArray[attackerIdx]);
+                           $('#defender_round_score').text(rs.gameData.roundScoreArray[defenderIdx]);
+                           $('#game_id').text(rs.gameData.gameId);
+                           $('#round_number').text(rs.gameData.roundNumber);
+                           displayDice();
+                       } else {
+                           // We got some JSON we didn't expect
+                           // (the network fetch succeeded, but the engine had an error)
+                           $('#result').html('JSON fetch failed\n'+
+                                             JSON.stringify(rs.gameData));                       }
+                   });
+        }
+
+        $('#submit').click(function() {
+            for (var statusKey in dieSelectStatus) {
+                dieSelectStatus[statusKey] = false;
+            }
+            $('div.selected').each(function(index, element) {
+                dieSelectStatus[$(element).attr('id')] = true;
+            });
+            $.post('test_submit.php',
+                   {
+                       type: 'loadButtonNames',
+                       attackerIdx: attackerIdx,
+                       defenderIdx: defenderIdx,
+                       dieSelectStatus: JSON.stringify(dieSelectStatus)
+                   },
+                   function(data){
+                       $('#submit_status').html(data);
+                   });
         });
-        $.post('test_submit.php',
-               {
-                   type: 'loadButtonNames',
-                   attackerIdx: attackerIdx,
-                   defenderIdx: defenderIdx,
-                   dieSelectStatus: JSON.stringify(dieSelectStatus)
-               },
-               function(data){
-                   $('#submit_status').html(data);
-               });
+
+        // code to run when page is ready
+        loadGameInfo();
     });
 
-    // code to run when page is ready
-    loadGameInfo();
-});
-
-</script>
-
+    </script>
 </body>
 </html>

@@ -325,7 +325,7 @@ class BMDie {
     //
     // It does not assume that the values are positive, even though
     // they must be at the moment.
-    public function assist_values($type, $attackers, $defenders) {
+    public function assist_values($type, array $attackers, array $defenders) {
 
         $vals = array(0);
 
@@ -346,7 +346,7 @@ class BMDie {
     // an attempt to cheat.
     //
     // once again, this is just for Fire
-    public function attack_contribute($type, $attackers, $defenders, $amount) {
+    public function attack_contribute($type, array $attackers, array $defenders, $amount) {
         if ($amount == 0) {
             return FALSE;
         }
@@ -375,7 +375,7 @@ class BMDie {
 // situation I can come up with off the top of my head
 //
 // These methods cannot act, they may only check: they're called a lot
-    public function valid_attack($type, $attackers, $defenders)
+    public function valid_attack($type, array $attackers, array $defenders)
     {
         $valid = TRUE;
 
@@ -404,7 +404,7 @@ class BMDie {
     }
 
 
-    public function valid_target($type, $attackers, $defenders)
+    public function valid_target($type, array $attackers, array $defenders)
     {
         $valid = TRUE;
 
@@ -431,13 +431,13 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, $attackers, $victims)
+    public function capture($type, array $attackers, array $victims)
     {
         $this->run_hooks(__FUNCTION__, array());
     }
 
 
-    public function be_captured($type, $attackers, $victims)
+    public function be_captured($type, array $attackers, array $victims)
     {
         $this->captured = TRUE;
 

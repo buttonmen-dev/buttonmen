@@ -80,7 +80,7 @@ class BMAttackSkill extends BMAttack {
         return FALSE;
     }
 
-    public function validate_attack($game, $attackers, $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders) {
         if (count($attackers) < 1 || count($defenders) != 1) {
             return FALSE;
         }
@@ -128,7 +128,7 @@ class BMAttackSkill extends BMAttack {
     }
 
     // return how much help is needed and who can contribute
-    public function calculate_contributions($game, $attackers, $defenders) {
+    public function calculate_contributions($game, array $attackers, array $defenders) {
         return array(0, array());
     }
 }

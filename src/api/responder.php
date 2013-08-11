@@ -20,6 +20,11 @@
                             'data' => $arePlayerNamesValid);
             break;
 
+        case 'chooseActiveGame':
+            $_SESSION['active_game'] = $_POST['input'];
+            $output = array('status' => 'ok');
+            break;
+
         case 'chooseButtons':
             $playerNameArray = $_POST['playerNameArray'];
             $playerIdArray = array();
@@ -45,9 +50,19 @@
             break;
 
         case 'loadGameData':
-            $gameId = $_POST['gameId'];
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
+            $game = $interface->load_game($_SESSION['active_game']);
+
+            $currentPlayerId = $_SESSION['user_id'];
+            $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+
+            foreach ($game->playerIdArray as $playerId) {
+                $playerNameArray[] = $interface->get_player_name_from_id($playerId);
+            }
+
+            $output = array('status' => 'ok',
+                            'currentPlayerIdx' => $currentPlayerIdx,
+                            'gameData' => $game->getJsonData(),
+                            'playerNameArray' => $playerNameArray);
             break;
 
         case 'loadMockGameDataDeterminingInitiative':
@@ -123,7 +138,7 @@
             }
 
             // try to set swing values
-            $swingValueArray = json_decode($_POST['swingValueArray']);
+            $swingValueArray = $_POST['swingValueArray'];
             $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
 
             if (count($swingRequestArray) != count($swingValueArray)) {

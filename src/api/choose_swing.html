@@ -17,8 +17,8 @@
 
     <table id="die_description_table">
         <tr>
-            <th>Your dice</th>
-            <th>Opponent's dice</th>
+            <th id="header_current_player"></th>
+            <th id="header_opponent"></th>
         </tr>
         <tr>
             <td id="div_current_player"></td>
@@ -50,18 +50,7 @@
     -->
     <script src="jquery-1.9.0.min.js"></script>
     <script>
-
     $(document).ready(function() {
-        // global variables
-        var gameId;
-        var roundNumber;
-        var currentPlayerIdx;
-        var opponentPlayerIdx;
-        var currentPlayerDieRecipeArray;
-        var opponentPlayerDieRecipeArray;
-        var swingRequestArray;
-        var swingValueArray;
-
         function displayDieDetails() {
             $.each(currentPlayerDieRecipeArray, function(index, value) {
                 $('#div_current_player').append('<p>' + value + '</p>');
@@ -90,18 +79,23 @@
 
         function loadGameInfo() {
             $.post('responder.php',
-                   {type: 'loadMockGameDataWaitingForSwing'},
+                   {type: 'loadGameData'},
                    function(rs) {
                        if (rs.status == 'ok') {
+                           var gameData = rs.gameData.data;
+                           gameId = gameData.gameId;
+                           playerIdArray = gameData.playerIdArray;
+                           currentPlayerIdx = rs.currentPlayerIdx;
                            opponentPlayerIdx = (currentPlayerIdx + 1)%2;
-                           currentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[currentPlayerIdx];
-                           opponentPlayerDieRecipeArray = rs.data.dieRecipeArrayArray[opponentPlayerIdx];
-                           swingRequestArray = rs.data.swingRequestArrayArray[currentPlayerIdx];
-                           gameId = rs.data.gameId;
-                           roundNumber = rs.data.roundNumber;
+                           currentPlayerDieRecipeArray = gameData.dieRecipeArrayArray[currentPlayerIdx];
+                           opponentPlayerDieRecipeArray = gameData.dieRecipeArrayArray[opponentPlayerIdx];
+                           swingRequestArray = gameData.swingRequestArrayArray[currentPlayerIdx];
+                           roundNumber = gameData.roundNumber;
 
                            $('#game_id').text(gameId);
                            $('#round_number').text(roundNumber);
+                           $('#header_current_player').text(rs.playerNameArray[currentPlayerIdx]);
+                           $('#header_opponent').text(rs.playerNameArray[opponentPlayerIdx]);
 
                            displayDieDetails();
                            displaySwingDetails();
@@ -132,7 +126,7 @@
                            gameId: gameId,
                            roundNumber: roundNumber,
                            currentPlayerIdx: currentPlayerIdx,
-                           swingValueArray: JSON.stringify(swingValueArray)
+                           swingValueArray: swingValueArray
                        },
                        function(rs){
                            if ('ok' == rs.status) {

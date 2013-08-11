@@ -360,7 +360,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     public function testFind_attack()
     {
         $att = BMAttack::get_instance();
-        $this->assertFalse($att->find_attack(new TestDummyGame));
+        $this->assertFalse($att->find_attack(new BMGame));
     }
 
     /**
@@ -398,7 +398,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
      * @covers BMAttack::calculate_contributions()
      */
     public function testCalculate_contributions() {
-        $help = $this->object->calculate_contributions("game", array(), array());
+        $help = $this->object->calculate_contributions(new BMGame, array(), array());
 
         $this->assertNotEmpty($help);
         $this->assertEquals(2, count($help));
