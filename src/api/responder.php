@@ -1,5 +1,6 @@
 <?php
     session_start();
+    require 'api_core.php';
 
     require_once('../lib/bootstrap.php');
 
@@ -62,7 +63,8 @@
             $output = array('status' => 'ok',
                             'currentPlayerIdx' => $currentPlayerIdx,
                             'gameData' => $game->getJsonData(),
-                            'playerNameArray' => $playerNameArray);
+                            'playerNameArray' => $playerNameArray,
+                            'timestamp' => $interface->timestamp->format(DATE_RSS));
             break;
 
         case 'loadMockGameDataDeterminingInitiative':
@@ -122,17 +124,18 @@
             break;
 
         case 'submitSwingValues':
-            $gameId = $_POST['gameId'];
-
-            $game = $interface->load_game($gameId);
-
-            // check that the game state is correct and that the swing values
-            // still need to be set
-            $roundNumber = $_POST['roundNumber'];
+            $game = $interface->load_game($_SESSION['active_game']);
             $currentPlayerIdx = $_POST['currentPlayerIdx'];
-            if (($roundNumber != $game->roundNumber) ||
-                (BMGameState::specifyDice != $game->gameState) ||
-                (FALSE == $game->waitingOnActionArray[$currentPlayerIdx])) {
+            $roundNumber = $_POST['roundNumber'];
+
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!is_page_current($interface,
+                                 $game,
+                                 BMGameState::specifyDice,
+                                 $_POST['timestamp'],
+                                 $roundNumber,
+                                 $_SESSION['user_id'])) {
                 $output = FALSE;
                 break;
             }
@@ -166,7 +169,110 @@
             }
 
             break;
+        case 'submitTurn':
+            $game = $interface->load_game($_SESSION['active_game']);
+            if (!is_page_current($interface,
+                                 $game,
+                                 BMGameState::startTurn,
+                                 $_POST['timestamp'],
+                                 $_POST['roundNumber'],
+                                 $_SESSION['user_id'])) {
+                $output = FALSE;
+                break;
+            }
 
+            require_once '../engine/BMAttack.php';
+
+            $game = $interface->load_game($_SESSION['active_game']);
+            // load dieSelectStatus, which should contain boolean values of whether each
+            // die is selected, starting with attacker dice and concluding with
+            // defender dice
+            $dieSelectStatus = $_POST['dieSelectStatus'];
+
+            // determine attacker and defender indices from POST
+            $attackerIdx = intval($_POST['attackerIdx']);
+            $defenderIdx = intval($_POST['defenderIdx']);
+            $attackers = array();
+            $defenders = array();
+            $attackerDieIdx = array();
+            $defenderDieIdx = array();
+
+            // divide selected dice up into attackers and defenders
+            $nAttackerDice = count($game->activeDieArrayArray[$attackerIdx]);
+            $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
+
+            for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
+                if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
+                    FILTER_VALIDATE_BOOLEAN)) {
+                    $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
+                    $attackerDieIdx[] = $dieIdx;
+                }
+            }
+
+            for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
+                if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
+                    FILTER_VALIDATE_BOOLEAN)) {
+                    $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
+                    $defenderDieIdx[] = $dieIdx;
+                }
+            }
+
+            // validate attack
+            $attackArray = array(BMAttackPower::get_instance(),
+                                 BMAttackSkill::get_instance());
+            $attackTypeArray = array('power', 'skill');
+
+            $success = FALSE;
+
+            foreach ($attackArray as $idx => $attack) {
+                // find out if the chosen dice form a valid attack
+                $game->attack = array($attackerIdx, $defenderIdx, $attackerDieIdx, $defenderDieIdx, $attackTypeArray[$idx]);
+
+                foreach ($attackers as $attackDie) {
+                    $attack->add_die($attackDie);
+                }
+                if ($attack->find_attack($game)) {
+                    if ($attack->validate_attack($game, $attackers, $defenders)) {
+                        $success = TRUE;
+                        break;
+                    }
+                }
+            }
+
+            // james: maybe the following code needs to be in the logic for the pass
+            //        attack validation
+            if (!$success &&
+                (0 == count($attackerDieIdx)) &&
+                (0 == count($defenderDieIdx))) {
+                $success = TRUE;
+
+                // find out if there are any possible attacks with any combination of
+                // the attacker's and defender's dice
+                foreach ($attackArray as $idx => $attack) {
+                    $game->attack = array($attackerIdx,
+                                          $defenderIdx,
+                                          range(0, count($game->attackerAllDieArray) - 1),
+                                          range(0, count($game->defenderAllDieArray) - 1),
+                                          $attackTypeArray[$idx]);
+                    foreach ($game->attackerAllDieArray as $attackDie) {
+                        $attack->add_die($attackDie);
+                    }
+                    if ($attack->find_attack($game)) {
+                        // a pass attack is invalid
+                        $success = FALSE;
+                        break;
+                    }
+                }
+            }
+
+            // output the result of the attack
+            if ($success) {
+                $output = array('status' => 'attack valid');
+                $interface->save_game($game);
+            } else {
+                $output = array('status' => 'attack invalid');
+            }
+            break;
         default:
             $output = FALSE;
     }
