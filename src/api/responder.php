@@ -269,6 +269,7 @@
             // output the result of the attack
             if ($success) {
                 $output = array('status' => 'attack valid');
+                $interface->save_game($game);
             } else {
                 $output = array('status' => 'attack invalid');
             }
