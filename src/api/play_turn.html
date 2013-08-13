@@ -156,7 +156,9 @@
                        type: 'submitTurn',
                        attackerIdx: attackerIdx,
                        defenderIdx: defenderIdx,
-                       dieSelectStatus: dieSelectStatus
+                       dieSelectStatus: dieSelectStatus,
+                       timestamp: $('#timestamp').text(),
+                       roundNumber: $('#round_number').text()
                    },
                    function(data){
                        $('#submit_status').html(data.status);

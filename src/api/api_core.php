@@ -34,7 +34,8 @@ function is_page_current(BMInterface $interface,
                          $expectedGameState,
                          $postedTimestamp,
                          $roundNumber,
-                         $currentPlayerIdx) {
+                         $currentPlayerId) {
+    $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
     return (($postedTimestamp == $interface->timestamp->format(DATE_RSS)) &&
             ($roundNumber == $game->roundNumber) &&
             ($expectedGameState == $game->gameState) &&

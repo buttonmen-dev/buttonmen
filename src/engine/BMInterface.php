@@ -77,6 +77,7 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
+//            var_dump($game->capturedDieArrayArray);
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
@@ -177,12 +178,10 @@ class BMInterface {
             $statement2 = self::$conn->prepare($query);
             $statement2->execute(array(':game_id' => $gameId));
 
-            while ($row = $statement2->fetch()) {
-                if (!isset($activeDieArrayArray)) {
-                    $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
-                    $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
-                }
+            $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
+            $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
 
+            while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
                 $die = BMDie::create_from_string($row['recipe']);
                 $die->value = $row['value'];
@@ -209,10 +208,8 @@ class BMInterface {
                 }
             }
 
-            if (isset($activeDieArrayArray)) {
-                $game->activeDieArrayArray = $activeDieArrayArray;
-                $game->capturedDieArrayArray = $capturedDieArrayArray;
-            }
+            $game->activeDieArrayArray = $activeDieArrayArray;
+            $game->capturedDieArrayArray = $capturedDieArrayArray;
 
             $game->proceed_to_next_user_action();
 

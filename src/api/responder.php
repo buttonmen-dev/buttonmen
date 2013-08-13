@@ -124,9 +124,7 @@
             break;
 
         case 'submitSwingValues':
-            $gameId = $_POST['gameId'];
-
-            $game = $interface->load_game($gameId);
+            $game = $interface->load_game($_SESSION['active_game']);
             $currentPlayerIdx = $_POST['currentPlayerIdx'];
             $roundNumber = $_POST['roundNumber'];
 
@@ -137,7 +135,7 @@
                                  BMGameState::specifyDice,
                                  $_POST['timestamp'],
                                  $roundNumber,
-                                 $currentPlayerIdx)) {
+                                 $_SESSION['user_id'])) {
                 $output = FALSE;
                 break;
             }
@@ -172,12 +170,13 @@
 
             break;
         case 'submitTurn':
+            $game = $interface->load_game($_SESSION['active_game']);
             if (!is_page_current($interface,
                                  $game,
                                  BMGameState::startTurn,
                                  $_POST['timestamp'],
                                  $_POST['roundNumber'],
-                                 $_POST['currentPlayerIdx'])) {
+                                 $_SESSION['user_id'])) {
                 $output = FALSE;
                 break;
             }
