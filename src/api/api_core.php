@@ -29,6 +29,19 @@ function initiate() {
     }
 }
 
+function is_page_current(BMInterface $interface,
+                         BMGame $game,
+                         $expectedGameState,
+                         $postedTimestamp,
+                         $roundNumber,
+                         $currentPlayerId) {
+    $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+    return (($postedTimestamp == $interface->timestamp->format(DATE_RSS)) &&
+            ($roundNumber == $game->roundNumber) &&
+            ($expectedGameState == $game->gameState) &&
+            (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
+}
+
 function login($username, $password) {
     require '../database/mysql.inc.php';
 

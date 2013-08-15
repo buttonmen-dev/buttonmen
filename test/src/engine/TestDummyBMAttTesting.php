@@ -32,7 +32,7 @@ class TestDummyBMAttTesting extends BMAttack {
 
     public $validate = FALSE;
 
-    public function validate_attack($game, $attackers, $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders) {
         $this->attackLog[] = array($attackers, $defenders);
         return $this->validate;
     }
