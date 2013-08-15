@@ -285,7 +285,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->object->save_game($game);
         $game = $this->object->load_game($gameId);
 
-        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(4, count($game->activeDieArrayArray[0]));
         $this->assertEquals(5, count($game->activeDieArrayArray[1]));
