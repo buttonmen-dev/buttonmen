@@ -15,3 +15,7 @@ web1:
 db1:
   name: buttonmen
   type: mysql
+
+db2:
+  name: buttonmen_test
+  type: mysql
