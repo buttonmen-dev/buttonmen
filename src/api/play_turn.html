@@ -31,6 +31,8 @@
     <div ><button id="submit">Submit</button></div>
     <br />
     <div><span id="submit_status"></span></div>
+    <br />
+    <div>Last action time: <span id="timestamp">?</span></div>
 
     <!--
     james: eventually, we will want to use the hosted version of the JQuery library
@@ -100,38 +102,45 @@
                    {type: 'loadGameData'},
                    function(rs) {
                        if (rs.status == 'ok') {
-                           attackerIdx = rs.gameData.activePlayerIdx;
-                           defenderIdx = (rs.gameData.activePlayerIdx + 1)%2;
-                           dieAttackValues = rs.gameData.valueArrayArray[attackerIdx];
-                           dieDefendValues = rs.gameData.valueArrayArray[defenderIdx];
-                           dieAttackSides  = rs.gameData.sidesArrayArray[attackerIdx];
-                           dieDefendSides  = rs.gameData.sidesArrayArray[defenderIdx];
-                           $('#attacker_id').text(rs.gameData.playerIdArray[attackerIdx]);
-                           $('#defender_id').text(rs.gameData.playerIdArray[defenderIdx]);
+                           // need to explicitly convert the activePlayerIdx to
+                           // an integer, so that I can perform integer addition
+                           attackerIdx = parseInt(rs.gameData.data.activePlayerIdx, 10);
+                           defenderIdx = (attackerIdx + 1)%2;
 
-                           var attackerGameScoreArray = rs.gameData.gameScoreArrayArray[attackerIdx];
+                           dieAttackValues = rs.gameData.data.valueArrayArray[attackerIdx];
+                           dieDefendValues = rs.gameData.data.valueArrayArray[defenderIdx];
+                           dieAttackSides  = rs.gameData.data.sidesArrayArray[attackerIdx];
+                           dieDefendSides  = rs.gameData.data.sidesArrayArray[defenderIdx];
+                           $('#attacker_id').text(rs.gameData.data.playerIdArray[attackerIdx]);
+                           $('#defender_id').text(rs.gameData.data.playerIdArray[defenderIdx]);
+
+                           var attackerGameScoreArray = rs.gameData.data.gameScoreArrayArray[attackerIdx];
                            var attackerGameScore = attackerGameScoreArray.W + '/' +
                                                    attackerGameScoreArray.L + '/' +
-                                                   attackerGameScoreArray.T;
+                                                   attackerGameScoreArray.D;
                            $('#attacker_game_score').text(attackerGameScore);
-                           var defenderGameScoreArray = rs.gameData.gameScoreArrayArray[defenderIdx];
+                           var defenderGameScoreArray = rs.gameData.data.gameScoreArrayArray[defenderIdx];
                            var defenderGameScore = defenderGameScoreArray.W + '/' +
                                                    defenderGameScoreArray.L + '/' +
-                                                   defenderGameScoreArray.T;
+                                                   defenderGameScoreArray.D;
                            $('#defender_game_score').text(defenderGameScore);
 
-                           $('#attacker_button').text(rs.gameData.buttonNameArray[attackerIdx]);
-                           $('#defender_button').text(rs.gameData.buttonNameArray[defenderIdx]);
-                           $('#attacker_round_score').text(rs.gameData.roundScoreArray[attackerIdx]);
-                           $('#defender_round_score').text(rs.gameData.roundScoreArray[defenderIdx]);
-                           $('#game_id').text(rs.gameData.gameId);
-                           $('#round_number').text(rs.gameData.roundNumber);
+                           $('#attacker_button').text(rs.gameData.data.buttonNameArray[attackerIdx]);
+                           $('#defender_button').text(rs.gameData.data.buttonNameArray[defenderIdx]);
+                           $('#attacker_round_score').text(rs.gameData.data.roundScoreArray[attackerIdx]);
+                           $('#defender_round_score').text(rs.gameData.data.roundScoreArray[defenderIdx]);
+                           $('#game_id').text(rs.gameData.data.gameId);
+                           $('#round_number').text(rs.gameData.data.roundNumber);
+                           $('#timestamp').text(rs.timestamp);
+
+
+
                            displayDice();
                        } else {
                            // We got some JSON we didn't expect
                            // (the network fetch succeeded, but the engine had an error)
                            $('#result').html('JSON fetch failed\n'+
-                                             JSON.stringify(rs.gameData));                       }
+                                             JSON.stringify(rs.gameData.data));                       }
                    });
         }
 
@@ -142,15 +151,17 @@
             $('div.selected').each(function(index, element) {
                 dieSelectStatus[$(element).attr('id')] = true;
             });
-            $.post('test_submit.php',
+            $.post('responder.php',
                    {
-                       type: 'loadButtonNames',
+                       type: 'submitTurn',
                        attackerIdx: attackerIdx,
                        defenderIdx: defenderIdx,
-                       dieSelectStatus: JSON.stringify(dieSelectStatus)
+                       dieSelectStatus: dieSelectStatus,
+                       timestamp: $('#timestamp').text(),
+                       roundNumber: $('#round_number').text()
                    },
                    function(data){
-                       $('#submit_status').html(data);
+                       $('#submit_status').html(data.status);
                    });
         });
 
