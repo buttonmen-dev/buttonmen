@@ -125,7 +125,7 @@
 
         case 'submitSwingValues':
             $game = $interface->load_game($_SESSION['active_game']);
-            $currentPlayerIdx = $_POST['currentPlayerIdx'];
+            $currentPlayerIdx = array_search($_SESSION['user_id'], $game->playerIdArray);
             $roundNumber = $_POST['roundNumber'];
 
             // check that the timestamp and the game state are correct, and that
