@@ -354,6 +354,7 @@ class BMInterface {
                      'v2.n_rounds_drawn AS n_draws,'.
                      'v1.n_rounds_won AS n_losses,'.
                      'v1.n_target_wins,'.
+                     'v2.is_awaiting_action,'.
                      'g.status '.
                      'FROM game_player_view AS v1 '.
                      'LEFT JOIN game_player_view AS v2 '.
@@ -377,6 +378,7 @@ class BMInterface {
                 $nDrawsArray[]             = $row['n_draws'];
                 $nLossesArray[]            = $row['n_losses'];
                 $nTargetWinsArray[]        = $row['n_target_wins'];
+                $isAwaitingActionArray[]   = $row['is_awaiting_action'];
                 $statusArray[]             = $row['status'];
             }
             $this->message = 'All game details retrieved successfully.';
@@ -389,6 +391,7 @@ class BMInterface {
                          'nDrawsArray'             => $nDrawsArray,
                          'nLossesArray'            => $nLossesArray,
                          'nTargetWinsArray'        => $nTargetWinsArray,
+                         'isAwaitingActionArray'   => $isAwaitingActionArray,
                          'statusArray'             => $statusArray);
         } catch (Exception $e) {
             $this->message = 'Game detail get failed.';

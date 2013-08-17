@@ -27,7 +27,7 @@
                 <td>Your button</td>
                 <td>Opponent's button</td>
                 <td>Score</td>
-                <td>Status</td>
+                <td>Action</td>
                 </tr>
             </thead>
             <tbody id="active_games">
@@ -61,7 +61,8 @@
                                var $tr = $('<tr/>').appendTo($('#active_games'));
 
                                // add columns
-                               var $td1 = $('<td/>').appendTo($tr);
+                               //var $td1 = $('<td/>').appendTo($tr);
+                               $tr.append($('<td/>')).text(rs.gameIdArray[gameIdx]);
                                $tr.append($('<td/>').text(rs.opponentNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.myButtonNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.opponentButtonNameArray[gameIdx]));
@@ -69,12 +70,20 @@
                                                           rs.nDrawsArray[gameIdx]      + ' / ' +
                                                           rs.nLossesArray[gameIdx]     + ' ('  +
                                                           rs.nTargetWinsArray[gameIdx] + ')'));
-                               $tr.append($('<td/>').text(rs.statusArray[gameIdx]));
+                               var $td6 = $('<td/>').appendTo($tr);
 
-                               // deal with the contents of the first column
+                               // deal with the contents of the last column
+                               var action = 'View';
+                               var href = 'view_turn.html';
+                               if (1 == rs.isAwaitingActionArray[gameIdx]) {
+                                   action = 'Play';
+                                   href = 'play_turn.html';
+                               }
                                var gameId = rs.gameIdArray[gameIdx];
-                               $td1.append($('<a/>', {
-                                   text: gameId,
+                               
+                               $td6.append($('<a/>', {
+                                   text: action,
+                                   href: href,
                                    click: function () {
                                               $.post('responder.php',
                                                      {type: 'chooseActiveGame',
