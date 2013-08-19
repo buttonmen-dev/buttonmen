@@ -81,15 +81,19 @@
                                }
                                var gameId = rs.gameIdArray[gameIdx];
                                
+                               // if true then window.location = "http..."
+                               
+                               
                                $td6.append($('<a/>', {
                                    text: action,
-                                   href: href,
+                                   //href: 	'',
                                    click: function () {
                                               $.post('responder.php',
                                                      {type: 'chooseActiveGame',
                                                       input: gameId},
                                                      function(rs2){
-                                                         $('#message').text('Game ' + gameId + ' loaded.');
+                                                         $('#message').text('Game ' + rs2.data + ' loaded.');
+                                                         window.location = href;
                                                      } // end function
                                               ); // end post
                                           } // end click function

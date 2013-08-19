@@ -11,6 +11,8 @@
 </head>
 
 <body>
+    <div>You are logged in as <span id="player_name"></div>
+    <br />
     <div>Game #<span id="game_id">?</span></div>
     <div>Round #<span id="round_number">?</span></div>
     <br />
@@ -104,13 +106,15 @@
                        if (rs.status == 'ok') {
                            // need to explicitly convert the activePlayerIdx to
                            // an integer, so that I can perform integer addition
-                           attackerIdx = parseInt(rs.gameData.data.activePlayerIdx, 10);
+                           playerIdx = parseInt(rs.gameData.data.activePlayerIdx, 10);
+                           attackerIdx = playerIdx;
                            defenderIdx = (attackerIdx + 1)%2;
 
                            dieAttackValues = rs.gameData.data.valueArrayArray[attackerIdx];
                            dieDefendValues = rs.gameData.data.valueArrayArray[defenderIdx];
                            dieAttackSides  = rs.gameData.data.sidesArrayArray[attackerIdx];
                            dieDefendSides  = rs.gameData.data.sidesArrayArray[defenderIdx];
+                           $('#player_name').text(rs.playerNameArray[playerIdx]);
                            $('#attacker_name').text(rs.playerNameArray[attackerIdx]);
                            $('#defender_name').text(rs.playerNameArray[defenderIdx]);
 

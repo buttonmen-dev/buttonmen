@@ -23,7 +23,8 @@
 
         case 'chooseActiveGame':
             $_SESSION['active_game'] = $_POST['input'];
-            $output = array('status' => 'ok');
+            $output = array('status' => 'ok',
+                            'data' => $_SESSION['active_game']);
             break;
 
         case 'chooseButtons':
