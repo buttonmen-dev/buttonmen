@@ -100,7 +100,8 @@ class BMInterface {
                      'FROM game AS g '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
-                     'WHERE game_id = :game_id;';
+                     'WHERE game_id = :game_id '.
+                     'ORDER BY game_id;';
             $statement1 = self::$conn->prepare($query);
             $statement1->execute(array(':game_id' => $gameId));
 
@@ -174,7 +175,8 @@ class BMInterface {
             // add die attributes
             $query = 'SELECT * '.
                      'FROM die AS d '.
-                     'WHERE game_id = :game_id;';
+                     'WHERE game_id = :game_id '.
+                     'ORDER BY id;';
             $statement2 = self::$conn->prepare($query);
             $statement2->execute(array(':game_id' => $gameId));
 

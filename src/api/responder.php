@@ -264,6 +264,11 @@
                         break;
                     }
                 }
+
+                if ($success) {
+                    // pass attack is the only other one left
+                    $game->attack = array($attackerIdx, $defenderIdx, $attackerDieIdx, $defenderDieIdx, 'pass');
+                }
             }
 
             // output the result of the attack
