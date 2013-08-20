@@ -1,7 +1,7 @@
 # Table schemas for game-related tables
 
-DROP TABLE IF EXISTS game_details;
-CREATE TABLE game_details (
+DROP TABLE IF EXISTS game;
+CREATE TABLE game (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
@@ -28,17 +28,18 @@ CREATE TABLE game_player_map (
     did_win_initiative BOOLEAN DEFAULT FALSE,
     is_awaiting_action BOOLEAN DEFAULT FALSE,
     n_rounds_won       TINYINT UNSIGNED DEFAULT 0,
+    n_rounds_lost      TINYINT UNSIGNED DEFAULT 0,
     n_rounds_drawn     TINYINT UNSIGNED DEFAULT 0,
     handicap           TINYINT UNSIGNED DEFAULT 0,
     is_player_hidden   BOOLEAN DEFAULT FALSE
 );
 
-DROP TABLE IF EXISTS die_details;
-CREATE TABLE die_details (
+DROP TABLE IF EXISTS die;
+CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     owner_id           TINYINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
-    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME') DEFAULT 'NORMAL',
+    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME', 'DELETED') DEFAULT 'NORMAL',
     recipe             VARCHAR(20) NOT NULL,
     swing_value        TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
@@ -51,8 +52,8 @@ CREATE TABLE open_game_possible_buttons (
     button_id          SMALLINT UNSIGNED NOT NULL
 );
 
-DROP TABLE IF EXISTS open_game_possible_button_sets;
-CREATE TABLE open_game_possible_button_sets (
+DROP TABLE IF EXISTS open_game_possible_buttonsets;
+CREATE TABLE open_game_possible_buttonsets (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     set_id             SMALLINT UNSIGNED NOT NULL
 );
@@ -75,8 +76,8 @@ CREATE TABLE last_attack_die_map (
    was_captured        BOOLEAN NOT NULL
 );
 
-DROP TABLE IF EXISTS tournament_details;
-CREATE TABLE tournament_details (
+DROP TABLE IF EXISTS tournament;
+CREATE TABLE tournament (
     id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
     current_round      TINYINT UNSIGNED DEFAULT 1,

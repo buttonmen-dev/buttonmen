@@ -1,0 +1,3 @@
+To run these tests by hand:
+
+phpunit --bootstrap /path/to/src/lib/bootstrap.php /path/to/test

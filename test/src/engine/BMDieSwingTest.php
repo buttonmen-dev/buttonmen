@@ -1,13 +1,8 @@
 <?php
 
-require_once "engine/BMDie.php";
-require_once "engine/BMGame.php";
-require_once "testdummies.php";
-
-
-class BMSwingDieTest extends PHPUnit_Framework_TestCase {
+class BMDieSwingTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSwingDie
+     * @var BMDieSwing
      */
     protected $object;
 
@@ -16,7 +11,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        $this->object = new BMSwingDie;
+        $this->object = new BMDieSwing;
     }
 
     /**
@@ -28,7 +23,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSwingDie::swing_range
+     * @covers BMDieSwing::swing_range
      */
     public function testSwing_range() {
         foreach (str_split("RSTUVWXYZ") as $swing) {
@@ -48,7 +43,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testSwing_range
-     * @covers BMSwingDie::init
+     * @covers BMDieSwing::init
      */
     public function testInit () {
         $this->object->init("X", array());
@@ -68,7 +63,8 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($this->object->has_skill("Testing"));
         $this->assertFalse($this->object->has_skill("Testing2"));
 
-        $this->object->init("Z", array("Testing2"));
+        $this->object->init("Z",
+                            array("TestDummyBMSkillTesting2" => "Testing2"));
 
         $this->assertEquals($this->object->min, 1);
         $this->assertEquals($this->object->swingType, "Z");
@@ -114,16 +110,16 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
-     * @covers BMSwingDie::create
+     * @covers BMDieSwing::create
      */
     public function testCreate() {
 
         // Test all valid swing types
         foreach (str_split("RSTUVWXYZ") as $swing) {
-            $die = BMSwingDie::create($swing, array());
+            $die = BMDieSwing::create($swing, array());
 
             $this->assertInstanceOf('BMDie', $die);
-            $this->assertInstanceOf('BMSwingDie', $die);
+            $this->assertInstanceOf('BMDieSwing', $die);
             $this->assertEquals($swing, $die->swingType);
         }
 
@@ -132,7 +128,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         foreach (str_split("rstuvwxyzaQ") as $swing) {
             $fail = FALSE;
             try {
-                $die = BMSwingDie::create($swing, array());
+                $die = BMDieSwing::create($swing, array());
             } catch (UnexpectedValueException $e) {
                 $fail = TRUE;
             }
@@ -144,7 +140,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         // try some more bad values
         try {
-            $die = BMSwingDie::create(6, array());
+            $die = BMDieSwing::create(6, array());
         }
         catch (UnexpectedValueException $e) {
             $fail = TRUE;
@@ -154,7 +150,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $fail = FALSE;
 
         try {
-            $die = BMSwingDie::create("RT", array());
+            $die = BMDieSwing::create("RT", array());
         }
         catch (UnexpectedValueException $e) {
             $fail = TRUE;
@@ -164,7 +160,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         $fail = FALSE;
 
         try {
-            $die = BMSwingDie::create("0.A", array());
+            $die = BMDieSwing::create("0.A", array());
         }
         catch (UnexpectedValueException $e) {
             $fail = TRUE;
@@ -177,11 +173,11 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
-     * @covers BMSwingDie::activate
+     * @covers BMDieSwing::activate
      */
 
     public function testActivate () {
-        $game = new DummyGame;
+        $game = new TestDummyGame;
         foreach (str_split("RSTUVWXYZ") as $dieIdx => $swing) {
             $this->object->init($swing);
 
@@ -218,7 +214,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
-     * @covers BMSwingDie::split
+     * @covers BMDieSwing::split
      */
     public function testSplit() {
         $this->object->init("X");
@@ -326,7 +322,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends testInit
      * @depends testSplit
-     * @covers BMSwingDie::set_swingValue
+     * @covers BMDieSwing::set_swingValue
      */
     public function testSet_swingValue() {
 
@@ -435,7 +431,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
      * @depends testInit
      * @depends testActivate
      * @depends testSet_swingValue
-     * @covers BMSwingDie::roll
+     * @covers BMDieSwing::roll
      */
     public function testRoll() {
 
@@ -445,7 +441,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         // needs a value, hasn't requested one. Should call
         // request_swing_values before calling require_values
-        $game = new DummyGame;
+        $game = new TestDummyGame;
 
         $this->object->ownerObject = $game;
 
@@ -465,7 +461,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->init("X");
 
-        $game = new DummyGame;
+        $game = new TestDummyGame;
         $this->object->ownerObject = $game;
 
         $this->object->activate("player");
@@ -487,7 +483,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
         // And if the swing value is set, it won't call require_values
         $this->object->init("X");
 
-        $game = new DummyGame;
+        $game = new TestDummyGame;
         $this->object->ownerObject = $game;
 
         $this->object->activate("player");
@@ -601,10 +597,10 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
      * @depends testInit
      * @depends testSet_swingValue
      * @depends testRoll
-     * @covers BMSwingDie::make_play_die
+     * @covers BMDieSwing::make_play_die
      */
     public function testMake_play_die() {
-        $game = new DummyGame;
+        $game = new TestDummyGame;
 
         $this->object->init("X");
         $this->object->ownerObject = $game;
@@ -697,7 +693,7 @@ class BMSwingDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
-     * @covers BMSwingDie::describe
+     * @covers BMDieSwing::describe
      */
     public function testDescribe() {
         // Remove the following lines when you implement this test.

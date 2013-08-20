@@ -1,7 +1,5 @@
 <?php
 
-require_once 'BMDie.php';
-
 /*
  * BMContainer: Managing die groups.
  *
@@ -43,7 +41,7 @@ class BMContainer {
     public function activate() {
         foreach ($this->contents as $thing) {
             foreach ($this->skillList as $skill => $class) {
-                $thing->add_skill($skill);
+                $thing->add_skill($skill, $class);
             }
             $thing->ownerObject = $this->ownerObject;
             $thing->playerIdx = $this->playerIdx;
@@ -66,8 +64,15 @@ class BMContainer {
     }
 
     // skill management
-    public function add_skill($skill) {
-        $skillClass = "BMSkill$skill";
+    // Other code inside engine must never set $skillClass, but
+    // instead name skill classes according to the expected pattern.
+    // The optional argument is only for outside code which needs
+    // to add skills (currently, it's used for unit testing).
+    public function add_skill($skill, $skillClass = False) {
+
+        if (!$skillClass) {
+            $skillClass = "BMSkill$skill";
+        }
 
         // Don't add skills that are already added
         if (!array_key_exists($skill, $this->skillList)) {
@@ -140,7 +145,7 @@ class BMContainer {
     // any elements of the array are themselves arrays, we will make
     // them as containers. Skills will only be added to the outermost
     // container
-    public static function create_from_list($contents, $skills = array()) {
+    public static function create_from_list($contents, array $skills = array()) {
         $cont = new BMContainer;
 
         foreach ($contents as $thing) {
@@ -167,34 +172,6 @@ class BMContainer {
             $this->contents[$i] = clone $thing;
         }
     }
-}
-
-
-class BMSelectContainer extends BMContainer {
-
-}
-
-class BMPlasmaContainer extends BMContainer {
-
-}
-
-class BMReserveContainer extends BMContainer {
-
-}
-
-// These last two may not be needed; the engine could possibly use
-// generic containers and simply open them first or last.
-
-// Special container for Auxiliary dice and the like. Activated only
-// at the start of games.
-class BMInitialContainer extends BMContainer {
-
-}
-
-// Special container that is opened last each round, so the dice
-// within can replace other dice.
-class BMSideboardContainer extends BMContainer {
-
 }
 
 ?>

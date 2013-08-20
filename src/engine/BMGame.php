@@ -1,9 +1,5 @@
 <?php
 
-require_once 'BMButton.php';
-require_once 'BMAttack.php';
-require_once 'BMDie.php';
-
 /**
  * BMGame: current status of a game
  *
@@ -23,7 +19,7 @@ require_once 'BMDie.php';
                                                        'defenderAttackDieIdxArray',<br>
                                                        'attackType')
  * @property-read int   $attackerPlayerIdx       Index in playerIdxArray of the attacker
- * @property-read int   $defenderPlayerIdx       Index in playerIdxArary of the defender
+ * @property-read int   $defenderPlayerIdx       Index in playerIdxArray of the defender
  * @property-read array $attackerAllDieArray     Array of all attacker's dice
  * @property-read array $defenderAllDieArray     Array of all defender's dice
  * @property-read array $attackerAttackDieArray  Array of attacker's dice used in attack
@@ -33,7 +29,7 @@ require_once 'BMDie.php';
  * @property-read array $capturedDieArrayArray   Captured dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/T/L for all players
- * @property-read array $lastWinnerIdxArray      Indices of the winners of the last round
+ * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
@@ -70,7 +66,7 @@ class BMGame {
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
     private $gameScoreArrayArray;   // number of games W/T/L for all players
-    private $lastWinnerIdxArray;    // indices of the winners of the last round
+    private $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
@@ -165,7 +161,7 @@ class BMGame {
                 // load clean version of the buttons from their recipes
                 // if the player has not just won a round
 //                foreach ($this->buttonArray as $playerIdx => $tempButton) {
-//                    if (!$this->lastWinnerIdxArray[$playerIdx]) {
+//                    if (!$this->isPrevRoundWinnerArray[$playerIdx]) {
 //                        $tempButton->reload();
 //                    }
 //                }
@@ -214,7 +210,7 @@ class BMGame {
                     } else {
                         // apply swing values
                         foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                            if ($die instanceof BMSwingDie) {
+                            if ($die instanceof BMDieSwing) {
                                 $isSetSuccessful = $die->set_swingValue(
                                     $this->swingValueArrayArray[$playerIdx]);
                                 // act appropriately if the swing values are invalid
@@ -232,7 +228,7 @@ class BMGame {
                 // roll dice
                 foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => $die) {
-                        if ($die instanceof BMSwingDie) {
+                        if ($die instanceof BMDieSwing) {
                             if ($die->needsValue) {
                                 // swing value has not yet been set
                                 continue;
@@ -719,12 +715,12 @@ class BMGame {
         foreach ($buttonRecipeArray as $buttonIdx => $tempRecipe) {
             if (strlen($tempRecipe) > 0) {
                 $tempButton = new BMButton;
-                $tempButton->load_from_recipe($tempRecipe);
+                $tempButton->load($tempRecipe);
                 $this->buttonArray[$buttonIdx] = $tempButton;
             }
         }
         $this->maxWins = $maxWins;
-        $this->lastWinnerIdxArray = array_pad(array(), $nPlayers, FALSE);
+        $this->isPrevRoundWinnerArray = array_pad(array(), $nPlayers, FALSE);
     }
 
     private function get_roundNumber() {
@@ -1104,54 +1100,6 @@ class BMGame {
                   'gameScoreArrayArray'     => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
-    }
-}
-
-class BMGameState {
-    // pre-game
-    const startGame = 10;
-    const applyHandicaps = 13;
-    const chooseAuxiliaryDice = 16;
-
-    // pre-round
-    const loadDiceIntoButtons = 20;
-    const addAvailableDiceToGame = 22;
-    const specifyDice = 24;
-    const determineInitiative = 26;
-
-    // start round
-    const startRound = 30;
-
-    // turn
-    const startTurn = 40;
-    const endTurn = 48;
-
-    // end round
-    const endRound = 50;
-
-    // end game
-    const endGame = 60;
-
-    public static function validate_game_state($value) {
-        if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
-            throw new InvalidArgumentException(
-                'Game state must be an integer.');
-        }
-        if (!in_array($value, array(BMGameState::startGame,
-                                    BMGameState::applyHandicaps,
-                                    BMGameState::chooseAuxiliaryDice,
-                                    BMGameState::loadDiceIntoButtons,
-                                    BMGameState::addAvailableDiceToGame,
-                                    BMGameState::specifyDice,
-                                    BMGameState::determineInitiative,
-                                    BMGameState::startRound,
-                                    BMGameState::startTurn,
-                                    BMGameState::endTurn,
-                                    BMGameState::endRound,
-                                    BMGameState::endGame))) {
-            throw new InvalidArgumentException(
-                'Invalid game state.');
-        }
     }
 }
 
