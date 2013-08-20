@@ -8,6 +8,7 @@ web1:
   - "chmod a+x deploy-includes/phpunit.phar"
   before_deploy:
   - "php deploy/pagodabox/audit_php_files.php /var/www"
+  - "php deploy/pagodabox/init_test_db.php"
   - "php deploy/pagodabox/phpunit.php /var/www/test"
   shared_writable_dirs:
   - /bmgame
@@ -19,3 +20,4 @@ db1:
 db2:
   name: buttonmen_test
   type: mysql
+
