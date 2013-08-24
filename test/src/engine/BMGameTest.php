@@ -391,7 +391,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_do_next_step_end_round() {
         // test for end turn with one player without dice
         $this->object->playerIdArray = array(12345, 54321);
-        $this->object->gameState = BMGame::endRound;
+        $this->object->gameState = BMGameState::endRound;
         $die = BMDie::create_from_string('12');
         $this->object->activeDieArrayArray = array(array(), array($die));
         $this->object->swingValueArrayArray = array(array('X' => 5), array('Y' => 2));
@@ -402,14 +402,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->passStatusArray = array(FALSE, FALSE);
         $this->object->do_next_step();
         $this->assertFalse(isset($this->object->activePlayerIdx));
-        $this->assertFalse(isset($this->object->playerWithInitiativeIdx))
-        $this->assertEquals(array(array(1,4,1), array(4,1,1)),
+        $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
+        $this->assertEquals(array(array('W' => 4, 'L' => 3, 'D' => 1),
+                                  array('W' => 3, 'L' => 4, 'D' => 1)),
                             $this->object->gameScoreArrayArray);
-        $this->assertEquals(array(array(), array('Y' => 2)));
-        
+//        $this->assertEquals(array(array(), array('Y' => 2)));
+
         // test for draw
-        
-    
+
+
         // test for all pass at end of round
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->playerWithInitiativeIdx = 1;
@@ -425,12 +426,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::endRound;
         $this->object->do_next_step();
         $this->assertFalse(isset($this->object->activePlayerIdx));
-        $this->assertFalse(isset($this->object->playerWithInitiativeIdx))
+        $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
         $this->assertFalse(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
         $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
         $this->assertFalse(isset($this->object->roundScoreArray));
-        $this->assertEquals(array(array(1,3,1), array(3,1,1)),
+        $this->assertEquals(array(array('W' => 1, 'L' => 3, 'D' => 1),
+                                  array('W' => 3, 'L' => 1, 'D' => 1)),
                             $this->object->gameScoreArrayArray);
     }
 

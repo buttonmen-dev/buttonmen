@@ -374,22 +374,23 @@ class BMGame {
                 break;
 
             case BMGameState::endRound:
-                $roundScoreArray = $this->get_roundScoreArray;
-                
+                $roundScoreArray = $this->get_roundScoreArray();
+
                 // check for draw currently assumes only two players
                 $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
-                
+
                 if ($isDraw) {
-                    foreach ($this->gameScoreArrayArray as $gameScoreArray) {
-                        $gameScoreArray['D'] = $gameScoreArray['D'] + 1;
+                    foreach ($gameScoreArrayArray as $playerIdx => $gameScoreArray) {
+                        $gameScoreArrayArray[$playerIdx]['D']++;
                     }
                 } else {
-                    $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray); 
-                    foreach ($this->gameScoreArrayArray as $playerIdx => $gameScoreArray) {
+                    $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+
+                    for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                         if ($playerIdx == $winnerIdx) {
-                            $gameScoreArray['W'] += 1;
+                            $this->gameScoreArrayArray[$playerIdx]['W']++;
                         } else {
-                            $gameScoreArray['L'] += 1;
+                            $this->gameScoreArrayArray[$playerIdx]['L']++;
                         }
                     }
                 }
@@ -748,6 +749,8 @@ class BMGame {
     private function get_roundScoreArray() {
         $roundScoreArray = array();
 
+//        var_dump('test1');
+
         foreach ((array)$this->activeDieArrayArray as $activeDieArray) {
             $activeDieScore = 0;
             foreach ($activeDieArray as $activeDie) {
@@ -755,6 +758,10 @@ class BMGame {
             }
             $roundScoreArray[] = $activeDieScore;
         }
+
+//        var_dump('test2');
+
+//        var_dump($roundScoreArray);
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
             $capturedDieScore = 0;
