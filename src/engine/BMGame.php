@@ -380,8 +380,9 @@ class BMGame {
                 $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
 
                 if ($isDraw) {
-                    foreach ($gameScoreArrayArray as $playerIdx => $gameScoreArray) {
-                        $gameScoreArrayArray[$playerIdx]['D']++;
+                    for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                        $this->gameScoreArrayArray[$playerIdx]['D']++;
+                        // james: currently there is no code for three draws in a row
                     }
                 } else {
                     $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
@@ -391,10 +392,10 @@ class BMGame {
                             $this->gameScoreArrayArray[$playerIdx]['W']++;
                         } else {
                             $this->gameScoreArrayArray[$playerIdx]['L']++;
+                            $this->swingValueArrayArray[$playerIdx] = array();
                         }
                     }
                 }
-                // clear swing values for loser swingValueArrayArray
                 $this->reset_play_state();
                 $this->save_game_to_database();
                 break;

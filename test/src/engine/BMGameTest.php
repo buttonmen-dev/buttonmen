@@ -406,10 +406,29 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('W' => 4, 'L' => 3, 'D' => 1),
                                   array('W' => 3, 'L' => 4, 'D' => 1)),
                             $this->object->gameScoreArrayArray);
-//        $this->assertEquals(array(array(), array('Y' => 2)));
+        $this->assertEquals(array(array(), array('Y' => 2)),
+                            $this->object->swingValueArrayArray);
 
         // test for draw
-
+        $this->object->playerIdArray = array(12345, 54321);
+        $this->object->gameState = BMGameState::endRound;
+        $die1 = BMDie::create_from_string('12');
+        $die2 = BMDie::create_from_string('12');
+        $this->object->activeDieArrayArray = array(array($die1), array($die2));
+        $this->object->swingValueArrayArray = array(array('X' => 5), array('Y' => 2));
+        $this->object->maxWins = 6;
+        $this->object->gameScoreArrayArray = array(array(4,2,1), array(2,4,1));
+        $this->object->playerWithInitiativeIdx = 1;
+        $this->object->activePlayerIdx = 1;
+        $this->object->passStatusArray = array(FALSE, FALSE);
+        $this->object->do_next_step();
+        $this->assertFalse(isset($this->object->activePlayerIdx));
+        $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
+        $this->assertEquals(array(array('W' => 4, 'L' => 2, 'D' => 2),
+                                  array('W' => 2, 'L' => 4, 'D' => 2)),
+                            $this->object->gameScoreArrayArray);
+        $this->assertEquals(array(array('X' => 5), array('Y' => 2)),
+                            $this->object->swingValueArrayArray);
 
         // test for all pass at end of round
         $this->object->playerIdArray = array(12345, 54321);
