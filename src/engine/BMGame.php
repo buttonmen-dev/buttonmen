@@ -374,8 +374,26 @@ class BMGame {
                 break;
 
             case BMGameState::endRound:
-                // score dice using BMDie->scoreValue()
-                // update game score
+                $roundScoreArray = $this->get_roundScoreArray;
+                
+                // check for draw currently assumes only two players
+                $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+                
+                if ($isDraw) {
+                    foreach ($this->gameScoreArrayArray as $gameScoreArray) {
+                        $gameScoreArray['D'] = $gameScoreArray['D'] + 1;
+                    }
+                } else {
+                    $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray); 
+                    foreach ($this->gameScoreArrayArray as $playerIdx => $gameScoreArray) {
+                        if ($playerIdx == $winnerIdx) {
+                            $gameScoreArray['W'] += 1;
+                        } else {
+                            $gameScoreArray['L'] += 1;
+                        }
+                    }
+                }
+                // clear swing values for loser swingValueArrayArray
                 $this->reset_play_state();
                 $this->save_game_to_database();
                 break;
