@@ -26,7 +26,7 @@
                 <td>Opponent</td>
                 <td>Your button</td>
                 <td>Opponent's button</td>
-                <td>Score</td>
+                <td>Score (W/L/D)</td>
                 <td>Action</td>
                 </tr>
             </thead>
@@ -67,8 +67,8 @@
                                $tr.append($('<td/>').text(rs.myButtonNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.opponentButtonNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.nWinsArray[gameIdx]       + ' / ' +
-                                                          rs.nDrawsArray[gameIdx]      + ' / ' +
-                                                          rs.nLossesArray[gameIdx]     + ' ('  +
+                                                          rs.nLossesArray[gameIdx]     + ' / ' +
+                                                          rs.nDrawsArray[gameIdx]      + ' ('  +
                                                           rs.nTargetWinsArray[gameIdx] + ')'));
                                var $td6 = $('<td/>').appendTo($tr);
 

@@ -28,7 +28,7 @@
  * @property-read array $passStatusArray         Boolean array whether each player passed
  * @property-read array $capturedDieArrayArray   Captured dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
- * @property-read array $gameScoreArrayArray     Number of games W/T/L for all players
+ * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
@@ -65,7 +65,7 @@ class BMGame {
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
-    private $gameScoreArrayArray;   // number of games W/T/L for all players
+    private $gameScoreArrayArray;   // number of games W/L/D for all players
     private $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
