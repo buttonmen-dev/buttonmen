@@ -57,8 +57,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::applyHandicaps;
         $this->object->do_next_step();
         $this->assertEquals($this->object->gameScoreArrayArray,
-                            array(array('W' => 0, 'L' => 0, 'T' => 0),
-                                  array('W' => 0, 'L' => 0, 'T' => 0)));
+                            array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)));
     }
 
     /**

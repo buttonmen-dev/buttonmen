@@ -253,19 +253,21 @@ class BMInterface {
                                       ':game_id' => $game->gameId));
 
             // set round scores
-            foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                $query = 'UPDATE game_player_map '.
-                         'SET n_rounds_won = :n_rounds_won,'.
-                         '    n_rounds_lost = :n_rounds_lost,'.
-                         '    n_rounds_drawn = :n_rounds_drawn '.
-                         'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':n_rounds_won' => $game->gameScoreArrayArray[$playerIdx]['W'],
-                                          ':n_rounds_lost' => $game->gameScoreArrayArray[$playerIdx]['L'],
-                                          ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
-                                          ':game_id' => $game->gameId,
-                                          ':player_id' => $playerId));
+            if (isset($game->gameScoreArrayArray)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    $query = 'UPDATE game_player_map '.
+                             'SET n_rounds_won = :n_rounds_won,'.
+                             '    n_rounds_lost = :n_rounds_lost,'.
+                             '    n_rounds_drawn = :n_rounds_drawn '.
+                             'WHERE game_id = :game_id '.
+                             'AND player_id = :player_id;';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':n_rounds_won' => $game->gameScoreArrayArray[$playerIdx]['W'],
+                                              ':n_rounds_lost' => $game->gameScoreArrayArray[$playerIdx]['L'],
+                                              ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
+                                              ':game_id' => $game->gameId,
+                                              ':player_id' => $playerId));
+                }
             }
 
             // set player that won initiative

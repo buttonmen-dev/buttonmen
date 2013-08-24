@@ -125,7 +125,7 @@ class BMGame {
                 $this->gameScoreArrayArray =
                     array_pad(array(),
                               count($this->playerIdArray),
-                              array('W' => 0, 'L' => 0, 'T' => 0));
+                              array('W' => 0, 'L' => 0, 'D' => 0));
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
@@ -750,8 +750,6 @@ class BMGame {
     private function get_roundScoreArray() {
         $roundScoreArray = array();
 
-//        var_dump('test1');
-
         foreach ((array)$this->activeDieArrayArray as $activeDieArray) {
             $activeDieScore = 0;
             foreach ($activeDieArray as $activeDie) {
@@ -759,10 +757,6 @@ class BMGame {
             }
             $roundScoreArray[] = $activeDieScore;
         }
-
-//        var_dump('test2');
-
-//        var_dump($roundScoreArray);
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
             $capturedDieScore = 0;
@@ -971,10 +965,10 @@ class BMGame {
                 }
 
                 $this->$property = array('attackerPlayerIdx' => $value[0],
-                                      'defenderPlayerIdx' => $value[1],
-                                      'attackerAttackDieIdxArray' => $value[2],
-                                      'defenderAttackDieIdxArray' => $value[3],
-                                      'attackType' => $value[4]);
+                                         'defenderPlayerIdx' => $value[1],
+                                         'attackerAttackDieIdxArray' => $value[2],
+                                         'defenderAttackDieIdxArray' => $value[3],
+                                         'attackType' => $value[4]);
                 break;
             case 'attackerAttackDieArray':
                 throw new LogicException('
