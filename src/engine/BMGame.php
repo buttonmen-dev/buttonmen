@@ -153,7 +153,6 @@ class BMGame {
                         $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
                     }
                 }
-                $this->save_game_to_database();
                 break;
 
             case BMGameState::loadDiceIntoButtons:
@@ -238,8 +237,6 @@ class BMGame {
                             $die->make_play_die(FALSE);
                     }
                 }
-
-                $this->save_game_to_database();
                 break;
 
             case BMGameState::determineInitiative:
@@ -299,7 +296,6 @@ class BMGame {
                 if (FALSE) {
                     // if so, then ask player to make decisions
                     $this->activate_GUI('ask_player_about_focus_dice');
-                    $this->save_game_to_database();
                     break;
                 }
 
@@ -324,7 +320,6 @@ class BMGame {
                 while (!$this->is_valid_attack()) {
                     $this->activate_GUI('wait_for_attack');
                     $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    $this->save_game_to_database();
                     return;
                 }
 
@@ -397,7 +392,6 @@ class BMGame {
                     }
                 }
                 $this->reset_play_state();
-                $this->save_game_to_database();
                 break;
 
             case BMGameState::endGame:
@@ -676,11 +670,6 @@ class BMGame {
         // currently acts as a placeholder
         $this->message = $this->message.'\n'.
                          $activation_type.' '.$input_parameters;
-        $this->save_game_to_database();
-    }
-
-    private function save_game_to_database() {
-        // currently acts as a placeholder
     }
 
     private function is_valid_attack() {
