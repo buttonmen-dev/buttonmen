@@ -81,28 +81,27 @@
                                }
                                var gameId = rs.gameIdArray[gameIdx];
                                
-                               // if true then window.location = "http..."
-                               
-                               
-                               $td6.append($('<a/>', {
-                                   text: action,
-                                   //href: 	'',
-                                   click: function () {
-                                              $.post('responder.php',
-                                                     {type: 'chooseActiveGame',
-                                                      input: gameId},
-                                                     function(rs2){
-                                                         $('#message').text('Game ' + rs2.data + ' loaded.');
-                                                         window.location = href;
-                                                     } // end function
-                                              ); // end post
-                                          } // end click function
-                               })); // end append
+                               $td6.append($('<a/>',
+                                           {text: action,
+                                            data: {game_id: gameId},
+                                            //href: 	'',
+                                            click: function () {
+                                                       $.post('responder.php',
+                                                              {type: 'chooseActiveGame',
+                                                               input: $(this).data('game_id')},
+                                                              function(rs2){
+                                                                  $('#message').text('Game ' + rs2.data + ' loaded.');
+                                                                  window.location = href;
+                                                              } // end function
+                                                       ); // end post properties
+                                                   } // end click function
+                                           }) // end anchor properties
+                               ); // end append
                            } // end for
                            message = rs.message;
                        } // end function
-                ); // end post
-            }; // end function
+                ); // end post properties
+            }; // end function loadActiveGames
 
             // code to run when page is ready
             loadActiveGames();
