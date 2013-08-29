@@ -68,48 +68,6 @@
                             'timestamp' => $interface->timestamp->format(DATE_RSS));
             break;
 
-        case 'loadMockGameDataDeterminingInitiative':
-            // load game
-            require_once 'loadMockGameData.php';
-            $game = loadMockGameDataDeterminingInitiative();
-
-            // save game to create a real file
-            $interface->save_game($game);
-
-            // reload game
-            $gameId = $game->gameId;
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
-            break;
-
-        case 'loadMockGameDataRoundStart':
-            // load game
-            require_once 'loadMockGameData.php';
-            $game = loadMockGameDataRoundStart();
-
-            // save game to create a real file
-            $interface->save_game($game);
-
-            // reload game
-            $gameId = $game->gameId;
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
-            break;
-
-        case 'loadMockGameDataWaitingForSwing':
-            // load game
-            require_once 'loadMockGameData.php';
-            $game = loadMockGameDataWaitingForSwing();
-
-            // save game to create a real file
-            $interface->save_game($game);
-
-            // reload game
-            $gameId = $game->gameId;
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
-            break;
-
         case 'loadPlayerName':
             $output = array('status' => 'ok',
                             'data' => $_SESSION['user_name']);
