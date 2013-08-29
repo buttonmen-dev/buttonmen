@@ -14,6 +14,7 @@ $login_success = login($_POST['username'], $_POST['password']);
 if ($login_success) {
     // create display string
     $display_block = '<p>Authorised!</p>';
+    header('Location: overview.html');
 } else {
     $display_block = '<p>Failed.</p>';
     // redirect back to login form if not authorised
