@@ -1085,7 +1085,11 @@ class BMGame {
             $valueArrayArray[] = array();
             $sidesArrayArray[] = array();
             $dieRecipeArrayArray[] = array();
-            $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
+            if (empty($this->swingRequestArrayArray[$playerIdx])) {
+                $swingRequestArrayArray[] = array();
+            } else {
+                $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
+            }
             foreach ($activeDieArray as $die) {
                 $valueArrayArray[$playerIdx][] = $die->value;
                 $sidesArrayArray[$playerIdx][] = $die->max;
