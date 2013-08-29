@@ -1042,7 +1042,7 @@ class BMGame {
                 break;
             case 'gameState':
                 BMGameState::validate_game_state($value);
-                $this->gameState = $value;
+                $this->gameState = (int) $value;
                 break;
             case 'waitingOnActionArray':
                 if (!is_array($value) ||

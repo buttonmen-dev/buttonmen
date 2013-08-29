@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<!--
+    This document should be written in polyglot HTML5/XHTML5, and therefore
+    should run when served either as text/html or application/xhtml+xml.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>View turn</title>
+    <link rel="stylesheet" href="gui.css" />
+</head>
+
+<body>
+    <div>Game #<span id="game_id">?</span></div>
+    <div>Round #<span id="round_number">?</span></div>
+    <br />
+    <!-- player 1 -->
+    <div>Player: <span id="player_1_name">?</span></div>
+    <div>Button: <span id="player_1_button"'>?</span></div>
+    <div>W/L/T: <span id="player_1_game_score">?</span></div>
+    <br />
+    <div><span id="winner_name">?</span> won!</div>
+	<br />
+    <!-- player 2 -->
+    <div>W/L/T: <span id="player_2_game_score">?</span></div>
+    <div>Button: <span id="player_2_button">?</span></div>
+    <div>Player: <span id="player_2_name">?</span></div>
+    <br />
+    <div>Game completed at: <span id="timestamp">?</span></div>
+
+    <!--
+    james: eventually, we will want to use the hosted version of the JQuery library
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+    -->
+    <script src="jquery-1.9.0.min.js"></script>
+    <script>
+
+    $(document).ready(function() {
+        // functions
+
+        function loadGameInfo() {
+            $.post('responder.php',
+                   {type: 'loadGameData'},
+                   function(rs) {
+                       if (rs.status == 'ok') {
+                           $('#player_1_name').text(rs.playerNameArray[0]);
+                           $('#player_2_name').text(rs.playerNameArray[1]);
+
+                           var player1gameScoreArray = rs.gameData.data.gameScoreArrayArray[0];
+                           var player1gameScore = player1gameScoreArray.W + '/' +
+                                                  player1gameScoreArray.L + '/' +
+                                                  player1gameScoreArray.D;
+                           $('#player_1_game_score').text(player1gameScore);
+                           var player2gameScoreArray = rs.gameData.data.gameScoreArrayArray[1];
+                           var player2gameScore = player2gameScoreArray.W + '/' +
+                                                  player2gameScoreArray.L + '/' +
+                                                  player2gameScoreArray.D;
+                           $('#player_2_game_score').text(player2gameScore);
+
+                           $('#player_1_button').text(rs.gameData.data.buttonNameArray[0]);
+                           $('#player_2_button').text(rs.gameData.data.buttonNameArray[1]);
+                           $('#game_id').text(rs.gameData.data.gameId);
+                           $('#round_number').text(rs.gameData.data.roundNumber);
+                           $('#timestamp').text(rs.timestamp);
+
+						   if (player1gameScoreArray.W > player2gameScoreArray.W) {
+                               $('#winner_name').text(rs.playerNameArray[0]);
+						   } else if (player1gameScoreArray.W < player2gameScoreArray.W) {
+                               $('#winner_name').text(rs.playerNameArray[1]);
+						   } else {
+                               $('#winner_name').text('No one');
+						   }
+                       } else {
+                           // We got some JSON we didn't expect
+                           // (the network fetch succeeded, but the engine had an error)
+                           $('#result').html('JSON fetch failed\n'+
+                                             JSON.stringify(rs.gameData.data));                       }
+                   });
+        }
+
+        // code to run when page is ready
+        loadGameInfo();
+    });
+
+    </script>
+</body>
+</html>
