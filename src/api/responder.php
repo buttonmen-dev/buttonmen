@@ -25,9 +25,9 @@
             $_SESSION['active_game'] = $_POST['input'];
 
             $output = array('status' => 'ok',
-                            'data' => $_SESSION['active_game'],
+                            'data' => $_SESSION['active_game']);
                             // currently, we simply bounce the href back
-                            'href' => $_POST['href']);
+                            //'href' => $_POST['href']);
             break;
 
         case 'chooseButtons':
@@ -145,7 +145,6 @@
 
             require_once '../engine/BMAttack.php';
 
-            $game = $interface->load_game($_SESSION['active_game']);
             // load dieSelectStatus, which should contain boolean values of whether each
             // die is selected, starting with attacker dice and concluding with
             // defender dice

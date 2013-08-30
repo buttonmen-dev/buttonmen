@@ -49,6 +49,16 @@
             var message = '';
 
             // functions
+            // The redirect function returns a function pointer, as required by
+            // the post function. It was necessary to do things this way because
+            // we need to be able to pass the redirection URL in.
+            function redirect(href) {
+                return function (rs) {
+                    $('#message').text('Game ' + rs.data + ' loaded.');
+                    window.location = href;
+                }
+            }
+
             function loadActiveGames() {
                 $.post('responder.php',
                        {type: 'loadActiveGames'},
@@ -85,15 +95,14 @@
                                             data: {game_id: gameId,
                                                    href: href},
                                             click: function () {
+                                                       // Note that the async click event must use
+                                                       // the values stored in data, as opposed
+                                                       // to the values of game_id and href set
+                                                       // in the last time through the loop.
                                                        $.post('responder.php',
                                                               {type: 'chooseActiveGame',
-                                                               input: $(this).data('game_id'),
-                                                               // currently, the href is being bounced back from the server
-                                                               href: $(this).data('href')},
-                                                              function(rs2){
-                                                                  $('#message').text('Game ' + rs2.data + ' loaded.');
-                                                                  window.location = rs2.href;
-                                                              } // end function
+                                                               input: $(this).data('game_id')},
+                                                              redirect($(this).data('href'))
                                                        ); // end post properties
                                                    } // end click function
                                            }) // end anchor properties
