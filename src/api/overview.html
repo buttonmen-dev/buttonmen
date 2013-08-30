@@ -61,7 +61,6 @@
                                var $tr = $('<tr/>').appendTo($('#active_games'));
 
                                // add columns
-                               //var $td1 = $('<td/>').appendTo($tr);
                                $tr.append($('<td/>')).text(rs.gameIdArray[gameIdx]);
                                $tr.append($('<td/>').text(rs.opponentNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.myButtonNameArray[gameIdx]));
@@ -80,18 +79,20 @@
                                    href = 'play_turn.html';
                                }
                                var gameId = rs.gameIdArray[gameIdx];
-                               
+
                                $td6.append($('<a/>',
                                            {text: action,
-                                            data: {game_id: gameId},
-                                            //href: 	'',
+                                            data: {game_id: gameId,
+                                                   href: href},
                                             click: function () {
                                                        $.post('responder.php',
                                                               {type: 'chooseActiveGame',
-                                                               input: $(this).data('game_id')},
+                                                               input: $(this).data('game_id'),
+                                                               // currently, the href is being bounced back from the server
+                                                               href: $(this).data('href')},
                                                               function(rs2){
                                                                   $('#message').text('Game ' + rs2.data + ' loaded.');
-                                                                  window.location = href;
+                                                                  window.location = rs2.href;
                                                               } // end function
                                                        ); // end post properties
                                                    } // end click function

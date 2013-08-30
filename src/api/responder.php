@@ -23,8 +23,11 @@
 
         case 'chooseActiveGame':
             $_SESSION['active_game'] = $_POST['input'];
+
             $output = array('status' => 'ok',
-                            'data' => $_SESSION['active_game']);
+                            'data' => $_SESSION['active_game'],
+                            // currently, we simply bounce the href back
+                            'href' => $_POST['href']);
             break;
 
         case 'chooseButtons':
