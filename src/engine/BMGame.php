@@ -737,14 +737,14 @@ class BMGame {
     }
 
     private function get_roundScoreArray() {
-        $roundScoreArray = array();
+        $roundScoreArray = array_pad(array(), $this->nPlayers, 0);
 
-        foreach ((array)$this->activeDieArrayArray as $activeDieArray) {
+        foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             $activeDieScore = 0;
             foreach ($activeDieArray as $activeDie) {
                 $activeDieScore += $activeDie->get_scoreValue();
             }
-            $roundScoreArray[] = $activeDieScore;
+            $roundScoreArray[$playerIdx] = $activeDieScore;
         }
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
