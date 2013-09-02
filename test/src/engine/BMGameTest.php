@@ -1939,7 +1939,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // round 1, turn 4
         // player 1: [12 20 19] showing [10 15 16], captured [8]
         // player 2: [4 6 4 4] showing [2 1 3 2], captured [10 8]
-        // player 2 takes player 1's d4 showing 3 with a power attack
+        // player 1 takes player 2's d4 showing 3 with a power attack
 
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
@@ -1994,6 +1994,39 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
         $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->max);
         $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->value);
+
+        // round 1, turn 6
+        // player 1: [12 20 19] showing [10 9 16], captured [8 4]
+        // player 2: [4 6 4] showing [2 1 2], captured [10 8]
+        // player 1 takes player 2's d6 with a power attack
+
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(1), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'power'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(3, count($game->activeDieArrayArray[0]));
+        $this->assertEquals(2, count($game->activeDieArrayArray[1]));
+        $this->assertEquals(3, count($game->capturedDieArrayArray[0]));
+        $this->assertEquals(2, count($game->capturedDieArrayArray[1]));
+        $this->assertEquals(8, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(5, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(4, $game->capturedDieArrayArray[0][1]->max);
+        $this->assertEquals(3, $game->capturedDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->capturedDieArrayArray[0][2]->max);
+        $this->assertEquals(1, $game->capturedDieArrayArray[0][2]->value);
+        $this->assertEquals(10, $game->capturedDieArrayArray[1][0]->max);
+        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+        $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->max);
+        $this->assertEquals(8, $game->capturedDieArrayArray[1][1]->value);
+
+        // artificially set value of rolled die
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][1]->value = 18;
 
         // perform end of round scoring
 
