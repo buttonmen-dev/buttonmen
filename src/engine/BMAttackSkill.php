@@ -16,9 +16,7 @@ class BMAttackSkill extends BMAttack {
     protected $hit_table = NULL;
 
     public function find_attack($game) {
-        if (!$this->hit_table) {
-            $this->hit_table = new BMUtilityHitTable($this->validDice);
-        }
+        $this->hit_table = new BMUtilityHitTable($this->validDice);
 
         $targets = $game->defenderAllDieArray;
 
