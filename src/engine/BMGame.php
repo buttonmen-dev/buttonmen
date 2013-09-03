@@ -525,9 +525,9 @@ class BMGame {
                     $this->activeDieArrayArray = NULL;
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    $this->attack = NULL;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;                  
                 }
+                $this->attack = NULL;
                 break;
 
             case BMGameState::endRound:
