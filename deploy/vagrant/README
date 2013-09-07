@@ -1,0 +1,62 @@
+Configuration of the "vagrant" automated VM deployment tool to
+create a runnable test instance of the buttonmen site.
+
+------------------------------------------------------------------------
+How to start an instance:
+
+ 1. (one-time) Install vagrant: download a recent version of vagrant from
+      http://www.vagrantup.com/
+    and install it.  (So far, this has been successfully tested
+    using Vagrant 1.2.7 on Mac OS X 10.8.)
+
+ 2. In your shell, cd into this directory in your checked out repo:
+      cd .../deploy/vagrant
+
+ 3. Initialize the repo:
+      vagrant up
+    This will take some time, probably several minutes.  The file
+    README.vagrant-up-example is an example of what you might see
+    on your screen during a successful invocation.
+
+    The very first time you run this, it will take longer, because
+    it needs to download a copy of the Ubuntu VM which it will
+    customize to make your test VM.
+
+ 4. Use the site: using a web browser, go to:
+
+      http://localhost:8080/
+
+    You should see an instance of the buttonmen site with a clean
+    database.
+
+------------------------------------------------------------------------
+Things you might want to do after you have a running instance:
+
+ * Tear down your instance entirely, e.g. to start over:
+
+     vagrant destroy
+
+ * Reboot the VM and resynchronize the buttonmen code from your
+   working directory:
+
+     vagrant reload
+
+ * Shut down the VM so it can be booted again later:
+
+     vagrant halt
+
+ * Find out other options:
+
+     vagrant help
+
+ * Login to your instance and edit buttonmen code by hand:
+
+     vagrant ssh
+     cd /var/www
+     # edit code by hand using your favorite Unix text editor
+     sudo service apache2 reload   # just to make sure no old code is cached
+
+------------------------------------------------------------------------
+Things this doesn't do yet:
+
+ * Run the test suites that run on pagodabox
