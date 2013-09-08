@@ -522,7 +522,6 @@ class BMGame {
                 if ((0 === min($nDice)) ||
                     !in_array(FALSE, $this->passStatusArray, TRUE)) {
                     $this->gameState = BMGameState::endRound;
-                    $this->activeDieArrayArray = NULL;
                 } else {
                     $this->gameState = BMGameState::startTurn;
                     $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;                  
