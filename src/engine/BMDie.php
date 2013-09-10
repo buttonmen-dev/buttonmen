@@ -281,7 +281,7 @@ class BMDie {
 //
 // We use a multiplier and divisor so various skills can manipulate them
 // without stepping on each others' toes
-    public function get_scoreValue()
+    public function get_scoreValueTimesTen()
     {
         $mult = 1;
         if ($this->captured) {

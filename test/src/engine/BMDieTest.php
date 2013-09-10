@@ -481,14 +481,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends testInit
      */
-    public function testGet_scoreValue() {
+    public function testGet_scoreValueTimesTen() {
         $this->object->init(7, array());
 
-        $this->assertEquals(35, $this->object->get_scoreValue());
+        $this->assertEquals(35, $this->object->get_scoreValueTimesTen());
 
         $this->object->captured = TRUE;
 
-        $this->assertEquals(70, $this->object->get_scoreValue());
+        $this->assertEquals(70, $this->object->get_scoreValueTimesTen());
 
     }
 

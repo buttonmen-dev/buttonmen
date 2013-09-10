@@ -524,7 +524,7 @@ class BMGame {
                     $this->gameState = BMGameState::endRound;
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;                  
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
                 }
                 $this->attack = NULL;
                 break;
@@ -756,26 +756,27 @@ class BMGame {
     }
 
     private function get_roundScoreArray() {
+        $roundScoreTimesTenArray = array_pad(array(), $this->nPlayers, 0);
         $roundScoreArray = array_pad(array(), $this->nPlayers, 0);
 
         foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            $activeDieScore = 0;
+            $activeDieScoreTimesTen = 0;
             foreach ($activeDieArray as $activeDie) {
-                $activeDieScore += $activeDie->get_scoreValue();
+                $activeDieScoreTimesTen += $activeDie->get_scoreValueTimesTen();
             }
-            $roundScoreArray[$playerIdx] = $activeDieScore;
+            $roundScoreTimesTenArray[$playerIdx] = $activeDieScoreTimesTen;
         }
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-            $capturedDieScore = 0;
+            $capturedDieScoreTimesTen = 0;
             foreach ($capturedDieArray as $capturedDie) {
-                $capturedDieScore += $capturedDie->get_scoreValue();
+                $capturedDieScoreTimesTen += $capturedDie->get_scoreValueTimesTen();
             }
-            $roundScoreArray[$playerIdx] += $capturedDieScore;
+            $roundScoreTimesTenArray[$playerIdx] += $capturedDieScoreTimesTen;
         }
 
-        foreach ($roundScoreArray as $playerIdx => $roundScore) {
-            $roundScoreArray[$playerIdx] = $roundScore/10;
+        foreach ($roundScoreTimesTenArray as $playerIdx => $roundScoreTimesTen) {
+            $roundScoreArray[$playerIdx] = $roundScoreTimesTen/10;
         }
 
         return $roundScoreArray;
