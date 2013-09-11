@@ -83,13 +83,29 @@
 
                                // deal with the contents of the last column
                                var action = 'View';
-                               var href = 'view_turn.html';
-                               if (1 == rs.isAwaitingActionArray[gameIdx]) {
-                                   action = 'Play';
-                                   href = 'play_turn.html';
+                               var href = '';
+                               
+                               switch (parseInt(rs.gameStateArray[gameIdx])) {
+                                   case 24:
+                                       if (1 == rs.isAwaitingActionArray[gameIdx]) {
+                                           action = 'Choose swing';
+                                           href = 'choose_swing.html';
+                                       } else {
+                                           href = 'view_finished_game.html';
+                                       }
+                                       break;
+                                   case 40:
+                                       href = 'view_turn.html';
+                                       if (1 == rs.isAwaitingActionArray[gameIdx]) {
+                                           action = 'Play';
+                                           href = 'play_turn.html';
+                                       }
+                                       break;
+                                   default:
+                                       href = 'view_finished_game.html';
                                }
                                var gameId = rs.gameIdArray[gameIdx];
-
+                               
                                $td6.append($('<a/>',
                                            {text: action,
                                             data: {game_id: gameId,
