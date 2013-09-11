@@ -397,7 +397,6 @@ class BMDie {
             $valid = FALSE;
         }
 
-
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
@@ -482,30 +481,19 @@ class BMDie {
         return $dice;
     }
 
-    public function start_turn($player)
-    {
-        $this->run_hooks(__FUNCTION__, array($player));
-    }
-
-    public function end_turn($player)
-    {
-        if ($player === $this->owner) {
-            $this->inactive = "";
+    public function run_hooks_at_game_state($gameState, $activePlayerIdx) {
+        switch ($gameState) {
+            case BMGameState::endTurn:
+                if ($this->playerIdx === $activePlayerIdx) {
+                    $this->inactive = "";
+                }
+                $this->hasAttacked = FALSE;
+                break;
+            default:
+                // do nothing special
         }
 
-        $this->run_hooks(__FUNCTION__, array($player));
-
-        $this->hasAttacked = FALSE;
-    }
-
-    public function start_round()
-    {
-        $this->run_hooks(__FUNCTION__, array());
-    }
-
-    public function end_round()
-    {
-        $this->run_hooks(__FUNCTION__, array());
+        $this->run_hooks(__FUNCTION__, array($activePlayerIdx));
     }
 
 
