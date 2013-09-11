@@ -40,6 +40,7 @@ class BMAttack {
         if (!isset(static::$instance[$class])) {
             static::$instance[$class] = new $class;
         }
+        static::$instance[$class]->validDice = array();
         return static::$instance[$class];
     }
 
