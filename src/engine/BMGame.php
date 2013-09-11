@@ -92,6 +92,8 @@ class BMGame {
 
         $this->message = 'ok';
 
+        $this->run_die_hooks($this->gameState);
+
         switch ($this->gameState) {
             case BMGameState::startGame:
                 // first player must always be specified
@@ -520,12 +522,11 @@ class BMGame {
                 if ((0 === min($nDice)) ||
                     !in_array(FALSE, $this->passStatusArray, TRUE)) {
                     $this->gameState = BMGameState::endRound;
-                    $this->activeDieArrayArray = NULL;
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    $this->attack = NULL;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;                  
                 }
+                $this->attack = NULL;
                 break;
 
             case BMGameState::endRound:
@@ -568,6 +569,24 @@ class BMGame {
             if ($repeatCount >= 100) {
                 throw new LogicException(
                     'Infinite loop detected when advancing game state.');
+            }
+        }
+    }
+
+    protected function run_die_hooks($gameState) {
+        if (!empty($this->activeDieArrayArray)) {
+            foreach ($this->activeDieArrayArray as $activeDieArray) {
+                foreach ($activeDieArray as $activeDie) {
+                    $activeDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                }
+            }
+        }
+
+        if (!empty($this->capturedDieArrayArray)) {
+            foreach ($this->capturedDieArrayArray as $capturedDieArray) {
+                foreach ($capturedDieArray as $capturedDie) {
+                    $capturedDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                }
             }
         }
     }
