@@ -142,7 +142,6 @@
 
             require_once '../engine/BMAttack.php';
 
-            $game = $interface->load_game($_SESSION['active_game']);
             // load dieSelectStatus, which should contain boolean values of whether each
             // die is selected, starting with attacker dice and concluding with
             // defender dice
