@@ -503,16 +503,28 @@ class BMDie {
         $this->run_hooks(__FUNCTION__, array($activePlayerIdx));
     }
 
+    protected function get_recipe() {
+        $recipe = '';
+        foreach ($this->skillList as $skill) {
+            
+        }
+        $recipe .= '('.$this->max.')';
+
+        return $recipe;
+    }
+
 
     // utility methods
 
     public function __get($property)
     {
         if (property_exists($this, $property)) {
-//            switch ($property) {
-//                default:
+            switch ($property) {
+//                case 'recipe':
+//                    return $this->get_recipe();
+                default:
                     return $this->$property;
-//            }
+            }
         }
     }
 
@@ -526,7 +538,7 @@ class BMDie {
 
     public function __toString()
     {
-        print($this->mRecipe);
+//        print($this->mRecipe);
     }
 
     public function __clone() {

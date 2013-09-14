@@ -11,15 +11,11 @@ class BMSkillPoison extends BMSkill {
         assert(array_key_exists('mult', $args));
         $args['mult'] = -$args['mult'];
 
-        
-
         if ($args['captured']) {
             $args['div'] = 2;
         } else {
             $args['div'] = 1;
         }
-
-        var_dump($args);
     }
 }
 
