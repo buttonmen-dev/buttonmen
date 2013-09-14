@@ -1702,9 +1702,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $out = $game->getJsonData();
-
-//        var_dump($out);
-
     }
 
     /**
@@ -2499,7 +2496,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($button1->dieArray[4]->max));
         $this->assertTrue($button1->dieArray[4] instanceof BMDieSwing);
         $this->assertTrue($button1->dieArray[4]->needsValue);
-//        $this->assertEquals(array('scoreValue'), array_keys($button1->dieArray[0]->hookList));
+        $this->assertEquals(array('scoreValue'), 
+                            array_keys($button1->dieArray[0]->hookList));
+        $this->assertEquals(array('BMSkillPoison'), 
+                            $button1->dieArray[0]->hookList['scoreValue']);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($button1->dieArray[1]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $button1->dieArray[1]->hookList['scoreValue']);
 
         $button2 = new BMButton;
         $button2->load('p(4) (12) p(20) (20) (V)', 'Coil');
@@ -2513,6 +2517,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($button2->dieArray[4]->max));
         $this->assertTrue($button2->dieArray[4] instanceof BMDieSwing);
         $this->assertTrue($button2->dieArray[4]->needsValue);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($button2->dieArray[0]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $button2->dieArray[0]->hookList['scoreValue']);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($button2->dieArray[2]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $button2->dieArray[2]->hookList['scoreValue']);
 
         // load game
         $game = new BMGame(535353, array(234, 567), array('', ''), 2);
@@ -2575,5 +2587,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($game->activeDieArrayArray[0][0]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $game->activeDieArrayArray[0][0]->hookList['scoreValue']);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($game->activeDieArrayArray[0][1]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $game->activeDieArrayArray[0][1]->hookList['scoreValue']);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($game->activeDieArrayArray[1][0]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $game->activeDieArrayArray[1][0]->hookList['scoreValue']);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($game->activeDieArrayArray[1][2]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $game->activeDieArrayArray[1][2]->hookList['scoreValue']);
+
+        var_dump('test');
+        $this->assertEquals(array(9.5, -2.5), $game->roundScoreArray);
     }
 }

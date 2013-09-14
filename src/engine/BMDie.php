@@ -137,7 +137,6 @@ class BMDie {
         $this->max = $sides;
 
         if ($skills) {
-            var_dump($skills);
             foreach ($skills as $skillClass => $skill) {
                 if (is_string($skillClass)) {
                     $this->add_skill($skill, $skillClass);
