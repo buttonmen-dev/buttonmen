@@ -101,8 +101,6 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
                               $this->object->dieArray[$dieIdx]->max);
-//          $this->assertEquals($dieSkills[$dieIdx],
-//                              $this->object->dieArray[$dieIdx]->mSkills);
         }
 
         // twin dice, option dice
@@ -261,15 +259,19 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
 
         $skills = $method->invoke(new BMButton, '(4) (8) (20) (20)');
         $this->assertEquals(4, count($skills));
-        $this->assertEquals(array('', '', '', ''), $skills);
+        $this->assertEquals(array(array(), array(), array(), array()), $skills);
 
         $skills = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
         $this->assertEquals(4, count($skills));
-        $this->assertEquals(array('p', 's', 'ps', ''), $skills);
+        $this->assertEquals(array(array('Poison'),
+                                  array('Shadow'),
+                                  array('Poison', 'Shadow'),
+                                  array()),
+                            $skills);
 
         $skills = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
         $this->assertEquals(5, count($skills));
-        $this->assertEquals(array('', '', '', '', ''), $skills);
+        $this->assertEquals(array(array(), array(), array(), array(), array()), $skills);
     }
 
     /**

@@ -38,16 +38,8 @@ class BMButton {
 
         // set die sides and skills, one die at a time
         foreach ($dieSidesArray as $dieIdx => $tempDieSides) {
-            // james: this will probably be replaced by a call to
-            // BMDie::create_from_string
-//            $tempDie = new BMDie;
-//            $tempBMDie->mSides = $tempDieSides;
-//            if (!empty($tempDieSides)) {
-//                $tempBMDie->mSkills = $dieSkillsArray[$dieIdx];
-//            }
-            // james: mock up the function call so that it passes
-            $tempDie = BMDie::create_from_string($tempDieSides, array());
-//                                                 array($dieSkillsArray[$dieIdx]));
+            $tempDie = BMDie::create_from_string($tempDieSides,
+                                                 $dieSkillsArray[$dieIdx]);
             $this->dieArray[] = $tempDie;
         }
     }
@@ -119,10 +111,11 @@ class BMButton {
     private function parse_recipe_for_skills($recipe) {
         // split by spaces
         $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
-
+        
         // remove everything within parentheses
-        foreach ($dieSkillArray as $dieIdx => $tempDieSkill) {
-            $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '', $tempDieSkill);
+        foreach ($dieSkillArray as $dieIdx => $tempDieSkills) {
+            $dieSkillArray[$dieIdx] = BMSkill::expand_skill_string(
+                                          preg_replace('/\(.+\).*/', '', $tempDieSkills));
         }
 
         return $dieSkillArray;

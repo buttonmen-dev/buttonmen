@@ -76,6 +76,10 @@ class BMDie {
     // to add skills (currently, it's used for unit testing).
     public function add_skill($skill, $skillClass = False)
     {
+        if (!$skill) {
+            return;
+        }
+
         if (!$skillClass) {
             $skillClass = "BMSkill$skill";
         }
@@ -133,6 +137,7 @@ class BMDie {
         $this->max = $sides;
 
         if ($skills) {
+            var_dump($skills);
             foreach ($skills as $skillClass => $skill) {
                 if (is_string($skillClass)) {
                     $this->add_skill($skill, $skillClass);
