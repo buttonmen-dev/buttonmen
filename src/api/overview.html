@@ -63,6 +63,10 @@
                 $.post('responder.php',
                        {type: 'loadActiveGames'},
                        function(rs){
+                           if (null === rs.gameIdArray) {
+                               return;
+                           }
+
                            // add game details
                            for (var gameIdx = 0;
                                 gameIdx < rs.gameIdArray.length;
