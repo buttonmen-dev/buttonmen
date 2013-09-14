@@ -96,30 +96,7 @@ class BMGame {
 
         switch ($this->gameState) {
             case BMGameState::startGame:
-                // first player must always be specified
-                if (0 === $this->playerIdArray[0]) {
-                    throw new UnexpectedValueException(
-                        'First player must be specified before game can be advanced.');
-                }
-
-                // if other players are unspecified, resolve this first
-                if (in_array(0, array_slice($this->playerIdArray, 1))) {
-                    $this->activate_GUI('Prompt for player ID');
-                    return;
-                }
-
-                $this->reset_play_state();
-
-                // if buttons are unspecified, allow players to choose buttons
-                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
-                     $playerIdx <= $nPlayers - 1;
-                     $playerIdx++) {
-                    if (!isset($this->buttonArray[$playerIdx])) {
-                        $this->waitingOnActionArray[$playerIdx] = TRUE;
-                        $this->activate_GUI('Prompt for button ID', $playerIdx);
-                    }
-                }
-
+                // do_next_step is normally never run for BMGameState::startGame
                 break;
 
             case BMGameState::applyHandicaps:
@@ -414,6 +391,18 @@ class BMGame {
 
         switch ($this->gameState) {
             case BMGameState::startGame:
+                $this->reset_play_state();
+
+                // if buttons are unspecified, allow players to choose buttons
+                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+                     $playerIdx <= $nPlayers - 1;
+                     $playerIdx++) {
+                    if (!isset($this->buttonArray[$playerIdx])) {
+                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        $this->activate_GUI('Prompt for button ID', $playerIdx);
+                    }
+                }
+
                 // require both players and buttons to be specified
                 $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
 
