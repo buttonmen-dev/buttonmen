@@ -24,10 +24,15 @@ class BMSkillPoisonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     *
+     * @covers BMSkillPoison::value
      */
-    public function testDummy() {
-        
+    public function testValue() {
+        $die = BMDie::create(4);
+        $die->add_skill('Poison');
+        $this->assertEquals(1, count($die->hookList));
+        $this->assertEquals(array('scoreValue'), array_keys($die->hookList));
+        $this->assertEquals(array('BMSkillPoison'), $die->hookList['scoreValue']);
+        $this->assertEquals(-20, $die->get_scoreValueTimesTen());
     }
 }
 
