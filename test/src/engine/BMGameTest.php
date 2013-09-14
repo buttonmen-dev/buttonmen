@@ -2605,7 +2605,45 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array('BMSkillPoison'),
                             $game->activeDieArrayArray[1][2]->hookList['scoreValue']);
 
-        var_dump('test');
         $this->assertEquals(array(9.5, -2.5), $game->roundScoreArray);
+
+        // artificially set player 1 as winning initiative
+        $game->playerWithInitiativeIdx = 0;
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 12;
+        $dieArrayArray[0][3]->value = 12;
+        $dieArrayArray[0][4]->value = 5;
+        $dieArrayArray[1][0]->value = 4;
+        $dieArrayArray[1][1]->value = 12;
+        $dieArrayArray[1][2]->value = 5;
+        $dieArrayArray[1][3]->value = 6;
+        $dieArrayArray[1][4]->value = 7;
+
+        // perform attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(4), // attackerAttackDieIdxArray
+                              array(2), // defenderAttackDieIdxArray
+                              'power'); // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(20, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(5, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(array('scoreValue'),
+                            array_keys($game->capturedDieArrayArray[0][0]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $game->capturedDieArrayArray[0][0]->hookList['scoreValue']);
+        $this->assertEquals(array(-0.5, 17.5), $game->roundScoreArray);
     }
 }
