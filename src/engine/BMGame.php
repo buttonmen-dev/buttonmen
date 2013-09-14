@@ -1108,6 +1108,7 @@ class BMGame {
 
         $dataArray =
             array('gameId'                  => $this->gameId,
+                  'gameState'               => $this->gameState,
                   'roundNumber'             => $this->get_roundNumber(),
                   'activePlayerIdx'         => $this->activePlayerIdx,
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
