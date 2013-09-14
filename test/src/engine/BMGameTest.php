@@ -2376,7 +2376,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // artificially set value of rolled dice
         $dieArrayArray = $game->activeDieArrayArray;
-        $dieArrayArray[0][1]->value = 8;
+        $dieArrayArray[0][0]->value = 8;
 
         // perform attack
         $game->attack = array(1,        // attackerPlayerIdx
@@ -2457,6 +2457,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray = $game->activeDieArrayArray;
         $dieArrayArray[1][0]->value = 3;
 
+        $this->assertEquals(8, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(18, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(3, $game->activeDieArrayArray[1][0]->value);
+
         // perform attack
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
@@ -2469,6 +2473,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->proceed_to_next_user_action();
 
+        if ($game->gameScoreArrayArray[0]['W'] != 2) {
+            var_dump($game);
+        }
 
         // check that we have correctly reached the end of the game
         $this->assertEquals(array(array('W' => 2, 'L' => 0, 'D' => 0),
