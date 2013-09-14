@@ -32,6 +32,9 @@ class BMSkillPoisonTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $die->hookList);
         $this->assertEquals(array('scoreValue'), array_keys($die->hookList));
         $this->assertEquals(array('BMSkillPoison'), $die->hookList['scoreValue']);
+        $this->assertEquals(-40, $die->get_scoreValueTimesTen());
+
+        $die->captured = TRUE;
         $this->assertEquals(-20, $die->get_scoreValueTimesTen());
     }
 }
