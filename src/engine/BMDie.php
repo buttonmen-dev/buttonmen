@@ -27,8 +27,6 @@ class BMDie {
     public $ownerObject;
     public $playerIdx;
 
-    protected $scoreValue;
-
     protected $doesReroll = true;
     public $captured = false;
 
@@ -133,8 +131,6 @@ class BMDie {
     {
         $this->min = 1;
         $this->max = $sides;
-
-        $this->scoreValue = $sides;
 
         if ($skills) {
             foreach ($skills as $skillClass => $skill) {
@@ -283,6 +279,8 @@ class BMDie {
 // without stepping on each others' toes
     public function get_scoreValueTimesTen()
     {
+        $scoreValue = $this->max;
+
         $mult = 1;
         if ($this->captured) {
             $div = 1;
@@ -291,9 +289,14 @@ class BMDie {
             $div = 2;
         }
 
-        $this->run_hooks('scoreValue', array(&$this->scoreValue, &$mult, &$div, $this->captured));
+        $this->run_hooks('scoreValue', 
+                         array('scoreValue' => &$scoreValue,
+                               'value'      => $this->value,
+                               'mult'       => &$mult,
+                               'div'        => &$div,
+                               'captured'   => $this->captured));
 
-        return (10 * $this->scoreValue * $mult) / $div;
+        return (10 * $scoreValue * $mult) / $div;
     }
 
     // Return an array of the die's possible initiative values. 0

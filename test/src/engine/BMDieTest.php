@@ -177,20 +177,12 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->object->min, 1);
         $this->assertEquals($this->object->max, 6);
 
-        // scoreValue is protected, and its test requires init to function
-        $sv = PHPUnit_Framework_Assert::readAttribute($this->object, "scoreValue");
-        $this->assertEquals($sv, 6);
-
         $this->assertTrue($this->object->has_skill("Testing"));
 
         $this->object->init(14, array("TestDummyBMSkillTesting2" => "Testing2"));
 
         $this->assertEquals($this->object->min, 1);
         $this->assertEquals($this->object->max, 14);
-
-
-        $sv = PHPUnit_Framework_Assert::readAttribute($this->object, "scoreValue");
-        $this->assertEquals($sv, 14);
 
         $this->assertTrue($this->object->has_skill("Testing2"));
 
