@@ -115,7 +115,7 @@ class BMButton {
         // remove everything within parentheses
         foreach ($dieSkillArray as $dieIdx => $tempDieSkills) {
             $dieSkillArray[$dieIdx] = BMSkill::expand_skill_string(
-                                          preg_replace('/\(.+\).*/', '', $tempDieSkills));
+                                          preg_replace('/\(.+\)/', '', $tempDieSkills));
         }
 
         return $dieSkillArray;
