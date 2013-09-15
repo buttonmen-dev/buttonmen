@@ -24,7 +24,7 @@ class BMSkillPoisonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillPoison::value
+     * @covers BMSkillPoison::scoreValue
      */
     public function testValue() {
         $die = BMDie::create(4);
