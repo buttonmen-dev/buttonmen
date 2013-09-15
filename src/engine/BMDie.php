@@ -161,14 +161,14 @@ class BMDie {
 
             // Option dice divide on a |, can contain any die type
             if (count($opt_list) > 1) {
-                $die = BMOptionDie::create_from_list($opt_list, $skills);
+                $die = BMDieOption::create_from_list($opt_list, $skills);
             }
             // Twin dice divide on a comma, can contain any type but option
             elseif (count($twin_list = explode(",", $recipe)) > 1) {
-                $die = BMTwinDie::create_from_list($twin_list, $skills);
+                $die = BMDieTwin::create_from_list($twin_list, $skills);
             }
             elseif ($recipe == "C") {
-                $die = BMWildcardDie::create($recipe, $skills);
+                $die = BMDieWildcard::create($recipe, $skills);
             }
             // Integers are normal dice
             elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
@@ -508,7 +508,27 @@ class BMDie {
         foreach ($this->skillList as $skill) {
             $recipe .= BMSkill::abbreviate_skill_name($skill);
         }
-        $recipe .= '('.$this->max.')';
+        $recipe .= '(';
+
+        // Option dice divide on a |, can contain any die type
+        if ($this instanceof BMDieOption) {
+
+        }
+        // Twin dice divide on a comma, can contain any type but option
+        elseif ($this instanceof BMDieTwin) {
+
+        }
+        elseif ($this instanceof BMDieWildcard) {
+            $recipe .= 'C';
+        }
+        elseif ($this instanceof BMDieSwing) {
+            $recipe .= $this->swingType;
+        }
+        else {
+            $recipe .= $this->max;
+        }
+
+        $recipe .= ')';
 
         return $recipe;
     }
