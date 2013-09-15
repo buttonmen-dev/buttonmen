@@ -763,9 +763,25 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @covers BMDie::get_recipe
      */
     public function testGet_recipe() {
-        $this->object->init(6, array('Poison'));
-        $this->assertEquals('p(6)', $this->object->get_recipe());
+        $die0 = new BMDie;
+        $die0->init(51, array());
+        $this->assertEquals('(51)', $die0->get_recipe());
 
+        $die1 = new BMDie;
+        $die1->init(6, array('Poison'));
+        $this->assertEquals('p(6)', $die1->get_recipe());
+
+        $die2 = new BMDie;
+        $die2->init(5, array('Shadow'));
+        $this->assertEquals('s(5)', $die2->get_recipe());
+
+        $die3 = new BMDie;
+        $die3->init(13, array('Poison', 'Shadow'));
+        $this->assertEquals('ps(13)', $die3->get_recipe());
+
+        $die4 = new BMDie;
+        $die4->init(25, array('Shadow', 'Poison'));
+        $this->assertEquals('sp(25)', $die4->get_recipe());
     }
 
     public function test__get() {
