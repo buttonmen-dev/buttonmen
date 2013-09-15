@@ -293,7 +293,7 @@ class BMDie {
             $div = 2;
         }
 
-        $this->run_hooks('scoreValue', 
+        $this->run_hooks('scoreValue',
                          array('scoreValue' => &$scoreValue,
                                'value'      => $this->value,
                                'mult'       => &$mult,
@@ -503,10 +503,10 @@ class BMDie {
         $this->run_hooks(__FUNCTION__, array($activePlayerIdx));
     }
 
-    protected function get_recipe() {
+    public function get_recipe() {
         $recipe = '';
         foreach ($this->skillList as $skill) {
-            
+            $recipe .= BMSkill::abbreviate_skill_name($skill);
         }
         $recipe .= '('.$this->max.')';
 

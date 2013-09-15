@@ -759,6 +759,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("", $this->object->inactive);
     }
 
+    /*
+     * @covers BMDie::get_recipe
+     */
+    public function testGet_recipe() {
+        $this->object->init(6, array('Poison'));
+        $this->assertEquals('p(6)', $this->object->get_recipe());
+
+    }
+
     public function test__get() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(

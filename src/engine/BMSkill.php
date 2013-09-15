@@ -35,6 +35,23 @@ class BMSkill {
                 return '';
         }
     }
+
+    public static function abbreviate_skill_name($fullSkillName) {
+        if (0 === strpos($fullSkillName, 'BMSkill')) {
+            $skillName = substr($fullSkillName, 7);
+        } else {
+            $skillName = $fullSkillName;
+        }
+
+        switch ($skillName) {
+            case 'Poison':
+                return 'p';
+            case 'Shadow':
+                return 's';
+            default:
+                return '';
+        }
+    }
 }
 
 ?>
