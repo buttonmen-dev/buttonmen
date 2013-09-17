@@ -58,8 +58,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
-        $expectedRecipes = array(array('8', '10', '12', '20', 'X'),
-                                 array('4', '6', '8', 'X', 'X'));
+        $expectedRecipes = array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
+                                 array('(4)', '(6)', '(8)', '(X)', '(X)'));
         $expectedSizes = array(array(8, 10, 12, 20, NAN),
                                array(4, 6, 8, NAN, NAN));
         foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
@@ -170,8 +170,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->activeDieArrayArray));
         $this->assertCount(2, $game->activeDieArrayArray);
 
-        $expectedRecipes = array(array('8', '10', '12', '20', 'X'),
-                                 array('4', '6', '8', 'X', 'X'));
+        $expectedRecipes = array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
+                                 array('(4)', '(6)', '(8)', '(X)', '(X)'));
         $expectedSizes = array(array(8, 10, 12, 20, 19),
                                array(4, 6, 8, 5, 5));
 

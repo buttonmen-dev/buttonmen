@@ -392,7 +392,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test for end turn with one player without dice
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::endRound;
-        $die = BMDie::create_from_string('12');
+        $die = BMDie::create_from_string_components('12');
         $this->object->activeDieArrayArray = array(array(), array($die));
         $this->object->swingValueArrayArray = array(array('X' => 5), array('Y' => 2));
         $this->object->maxWins = 6;
@@ -412,8 +412,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test for draw
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::endRound;
-        $die1 = BMDie::create_from_string('12');
-        $die2 = BMDie::create_from_string('12');
+        $die1 = BMDie::create_from_string_components('12');
+        $die2 = BMDie::create_from_string_components('12');
         $this->object->activeDieArrayArray = array(array($die1), array($die2));
         $this->object->swingValueArrayArray = array(array('X' => 5), array('Y' => 2));
         $this->object->maxWins = 6;
@@ -2140,7 +2140,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // perform end of round scoring
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
-                                  array('W' => 0, 'L' => 1, 'D' => 0)), 
+                                  array('W' => 0, 'L' => 1, 'D' => 0)),
                             $game->gameScoreArrayArray);
 
         // reset dice
@@ -2178,7 +2178,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(array(array('X' => 19), array('X' => 7)),
                             $game->swingValueArrayArray);
-        
+
         $this->assertEquals(8,  $game->activeDieArrayArray[0][0]->max);
         $this->assertEquals(10, $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
@@ -2254,7 +2254,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[0][2]->value = 12;
         $dieArrayArray[0][3]->value = 17;
         $dieArrayArray[0][4]->value = 18;
-        
+
         // perform attack
         $game->attack = array(1,        // attackerPlayerIdx
                               0,        // defenderPlayerIdx
@@ -2496,9 +2496,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($button1->dieArray[4]->max));
         $this->assertTrue($button1->dieArray[4] instanceof BMDieSwing);
         $this->assertTrue($button1->dieArray[4]->needsValue);
-        $this->assertEquals(array('scoreValue'), 
+        $this->assertEquals(array('scoreValue'),
                             array_keys($button1->dieArray[0]->hookList));
-        $this->assertEquals(array('BMSkillPoison'), 
+        $this->assertEquals(array('BMSkillPoison'),
                             $button1->dieArray[0]->hookList['scoreValue']);
         $this->assertEquals(array('scoreValue'),
                             array_keys($button1->dieArray[1]->hookList));

@@ -185,12 +185,12 @@ class BMInterface {
 
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
-                $die = BMDie::create_from_string($row['recipe']);
+                $die = BMDie::create_from_recipe($row['recipe']);
                 $die->value = $row['value'];
 
                 if ($die instanceof BMDieSwing) {
-                    $game->swingRequestArrayArray[$playerIdx][$row['recipe']][] = $die;
-                    $game->swingValueArrayArray[$playerIdx][$row['recipe']] = $row['swing_value'];
+                    $game->swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
+                    $game->swingValueArrayArray[$playerIdx][$die->swingType] = $row['swing_value'];
 
                     if (isset($row['swing_value'])) {
                         $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$playerIdx]);

@@ -38,8 +38,8 @@ class BMButton {
 
         // set die sides and skills, one die at a time
         foreach ($dieSidesArray as $dieIdx => $tempDieSides) {
-            $tempDie = BMDie::create_from_string($tempDieSides,
-                                                 $dieSkillsArray[$dieIdx]);
+            $tempDie = BMDie::create_from_string_components($tempDieSides,
+                                                            $dieSkillsArray[$dieIdx]);
             $this->dieArray[] = $tempDie;
         }
     }

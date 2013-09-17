@@ -289,30 +289,51 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
     }
 
+    /*
+     * @covers BMDie::parse_recipe_for_sides
+     */
+    public function testParse_recipe_for_sides() {
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)'));
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)'));
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)+'));
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)+'));
+    }
+
+    /*
+     * @covers BMDie::parse_recipe_for_skills
+     */
+    public function testParse_recipe_for_skills() {
+        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(4)'));
+        $this->assertEquals(array('Poison', 'Shadow'),
+                            BMDie::parse_recipe_for_skills('ps(4)'));
+        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(4)p'));
+        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(4)s'));
+    }
+
     /**
      * @depends testCreate
      */
-    public function testCreate_from_string() {
+    public function testCreate_from_string_components() {
         // We only test creation of standard die types here.
         // (and errors)
         //
         // The complex types can work this function out in their own
         // test suites
 
-        $die = BMDie::create_from_string("72", array());
+        $die = BMDie::create_from_string_components("72");
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(72, $die->max);
 
-        $die = BMDie::create_from_string("himom!", array());
+        $die = BMDie::create_from_string_components("himom!");
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string("75.3", array());
+        $die = BMDie::create_from_string_components("75.3");
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string("trombones76", array());
+        $die = BMDie::create_from_string_components("trombones76");
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string("76trombones", array());
+        $die = BMDie::create_from_string_components("76trombones");
         $this->assertNull($die);
 
     }
