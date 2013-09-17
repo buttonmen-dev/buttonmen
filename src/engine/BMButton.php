@@ -33,14 +33,12 @@ class BMButton {
             return;
         }
 
-        $dieSidesArray = $this->parse_recipe_for_sides($recipe);
-        $dieSkillsArray = $this->parse_recipe_for_skills($recipe);
+        // split by spaces
+        $dieRecipeArray = preg_split('/[[:space:]]+/', $recipe);
 
         // set die sides and skills, one die at a time
-        foreach ($dieSidesArray as $dieIdx => $tempDieSides) {
-            $tempDie = BMDie::create_from_string_components($tempDieSides,
-                                                            $dieSkillsArray[$dieIdx]);
-            $this->dieArray[] = $tempDie;
+        foreach ($dieRecipeArray as $dieIdx => $dieRecipe) {
+            $this->dieArray[] = BMDie::create_from_recipe($dieRecipe);
         }
     }
 
@@ -88,37 +86,6 @@ class BMButton {
         foreach ($this->dieArray as $die) {
             $die->activate();
         }
-    }
-
-    private function parse_recipe_for_sides($recipe) {
-        // split by spaces
-        $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
-
-        foreach ($dieSizeArray as $dieIdx => $tempDieSize) {
-            // remove everything before the opening parenthesis
-            $tempDieSize = preg_replace('/^.*\(/', '', $tempDieSize);
-            // remove everything after the closing parenthesis
-            $tempDieSize = preg_replace('/\).*$/', '', $tempDieSize);
-            $tempDieSizeInt = intval($tempDieSize);
-            $dieSizeArray[$dieIdx] = ($tempDieSizeInt > 0 ?
-                                          $tempDieSizeInt :
-                                          $tempDieSize);
-        }
-
-        return $dieSizeArray;
-    }
-
-    private function parse_recipe_for_skills($recipe) {
-        // split by spaces
-        $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
-        
-        // remove everything within parentheses
-        foreach ($dieSkillArray as $dieIdx => $tempDieSkills) {
-            $dieSkillArray[$dieIdx] = BMSkill::expand_skill_string(
-                                          preg_replace('/\(.+\)/', '', $tempDieSkills));
-        }
-
-        return $dieSkillArray;
     }
 
     // utility methods

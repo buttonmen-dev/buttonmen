@@ -297,6 +297,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)'));
         $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)+'));
         $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)+'));
+
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)'));
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)'));
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)+'));
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)+'));
     }
 
     /*
@@ -308,6 +313,12 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
                             BMDie::parse_recipe_for_skills('ps(4)'));
         $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(4)p'));
         $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(4)s'));
+
+        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(X)'));
+        $this->assertEquals(array('Poison', 'Shadow'),
+                            BMDie::parse_recipe_for_skills('ps(X)'));
+        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(X)p'));
+        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(X)s'));
     }
 
     /**

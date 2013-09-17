@@ -186,7 +186,7 @@ class BMDie {
             }
             // Integers are normal dice
             elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
-                $die = BMDie::create($recipe, $skills);
+                $die = BMDie::create((int)$recipe, $skills);
             }
             // Single character that's not a number is a swing die
             elseif (strlen($recipe) == 1) {
