@@ -205,6 +205,7 @@ class BMInterface {
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
                     case 'CAPTURED':
+                        $die->captured = TRUE;
                         $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
                 }
