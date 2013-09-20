@@ -3,7 +3,7 @@
     This document should be written in polyglot HTML5/XHTML5, and therefore
     should run when served either as text/html or application/xhtml+xml.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html lang="en">
 <head>
 
     <meta charset="utf-8" />
@@ -26,8 +26,8 @@
                 <td>Opponent</td>
                 <td>Your button</td>
                 <td>Opponent's button</td>
-                <td>Score</td>
-                <td>Status</td>
+                <td>Score (W/L/D)</td>
+                <td>Action</td>
                 </tr>
             </thead>
             <tbody id="active_games">
@@ -49,10 +49,24 @@
             var message = '';
 
             // functions
+            // The redirect function returns a function pointer, as required by
+            // the post function. It was necessary to do things this way because
+            // we need to be able to pass the redirection URL in.
+            function redirect(href) {
+                return function (rs) {
+                    $('#message').text('Game ' + rs.data + ' loaded.');
+                    window.location = href;
+                }
+            }
+
             function loadActiveGames() {
                 $.post('responder.php',
                        {type: 'loadActiveGames'},
                        function(rs){
+                           if (null === rs.gameIdArray) {
+                               return;
+                           }
+
                            // add game details
                            for (var gameIdx = 0;
                                 gameIdx < rs.gameIdArray.length;
@@ -61,35 +75,63 @@
                                var $tr = $('<tr/>').appendTo($('#active_games'));
 
                                // add columns
-                               var $td1 = $('<td/>').appendTo($tr);
+                               $tr.append($('<td/>')).text(rs.gameIdArray[gameIdx]);
                                $tr.append($('<td/>').text(rs.opponentNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.myButtonNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.opponentButtonNameArray[gameIdx]));
                                $tr.append($('<td/>').text(rs.nWinsArray[gameIdx]       + ' / ' +
-                                                          rs.nDrawsArray[gameIdx]      + ' / ' +
-                                                          rs.nLossesArray[gameIdx]     + ' ('  +
+                                                          rs.nLossesArray[gameIdx]     + ' / ' +
+                                                          rs.nDrawsArray[gameIdx]      + ' ('  +
                                                           rs.nTargetWinsArray[gameIdx] + ')'));
-                               $tr.append($('<td/>').text(rs.statusArray[gameIdx]));
+                               var $td6 = $('<td/>').appendTo($tr);
 
-                               // deal with the contents of the first column
+                               // deal with the contents of the last column
+                               var action = 'View';
+                               var href = '';
+                               
+                               switch (parseInt(rs.gameStateArray[gameIdx])) {
+                                   case 24:
+                                       if (1 == rs.isAwaitingActionArray[gameIdx]) {
+                                           action = 'Choose swing';
+                                           href = 'choose_swing.html';
+                                       } else {
+                                           href = 'view_finished_game.html';
+                                       }
+                                       break;
+                                   case 40:
+                                       href = 'view_turn.html';
+                                       if (1 == rs.isAwaitingActionArray[gameIdx]) {
+                                           action = 'Play';
+                                           href = 'play_turn.html';
+                                       }
+                                       break;
+                                   default:
+                                       href = 'view_finished_game.html';
+                               }
                                var gameId = rs.gameIdArray[gameIdx];
-                               $td1.append($('<a/>', {
-                                   text: gameId,
-                                   click: function () {
-                                              $.post('responder.php',
-                                                     {type: 'chooseActiveGame',
-                                                      input: gameId},
-                                                     function(rs2){
-                                                         $('#message').text('Game ' + gameId + ' loaded.');
-                                                     } // end function
-                                              ); // end post
-                                          } // end click function
-                               })); // end append
+                               
+                               $td6.append($('<a/>',
+                                           {text: action,
+                                            data: {game_id: gameId,
+                                                   href: href},
+                                            click: function () {
+                                                       // Note that the async click event must use
+                                                       // the values stored in data, as opposed
+                                                       // to the values of game_id and href set
+                                                       // in the last time through the loop.
+                                                       $.post('responder.php',
+                                                              {type: 'chooseActiveGame',
+                                                               input: $(this).data('game_id')},
+                                                              redirect($(this).data('href'))
+                                                       ); // end post properties
+                                                   } // end click function
+                                           }) // end anchor properties
+                               ); // end append
                            } // end for
                            message = rs.message;
                        } // end function
-                ); // end post
-            }; // end function
+                ); // end post properties
+            }; // end function loadActiveGames
 
             // code to run when page is ready
             loadActiveGames();

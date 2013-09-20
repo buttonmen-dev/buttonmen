@@ -33,22 +33,12 @@ class BMButton {
             return;
         }
 
-        $dieSidesArray = $this->parse_recipe_for_sides($recipe);
-        $dieSkillsArray = $this->parse_recipe_for_skills($recipe);
+        // split by spaces
+        $dieRecipeArray = preg_split('/[[:space:]]+/', $recipe);
 
         // set die sides and skills, one die at a time
-        foreach ($dieSidesArray as $dieIdx => $tempDieSides) {
-            // james: this will probably be replaced by a call to
-            // BMDie::create_from_string
-//            $tempDie = new BMDie;
-//            $tempBMDie->mSides = $tempDieSides;
-//            if (!empty($tempDieSides)) {
-//                $tempBMDie->mSkills = $dieSkillsArray[$dieIdx];
-//            }
-            // james: mock up the function call so that it passes
-            $tempDie = BMDie::create_from_string($tempDieSides, array());
-//                                                 array($dieSkillsArray[$dieIdx]));
-            $this->dieArray[] = $tempDie;
+        foreach ($dieRecipeArray as $dieIdx => $dieRecipe) {
+            $this->dieArray[] = BMDie::create_from_recipe($dieRecipe);
         }
     }
 
@@ -96,36 +86,6 @@ class BMButton {
         foreach ($this->dieArray as $die) {
             $die->activate();
         }
-    }
-
-    private function parse_recipe_for_sides($recipe) {
-        // split by spaces
-        $dieSizeArray = preg_split('/[[:space:]]+/', $recipe);
-
-        foreach ($dieSizeArray as $dieIdx => $tempDieSize) {
-            // remove everything before the opening parenthesis
-            $tempDieSize = preg_replace('/^.*\(/', '', $tempDieSize);
-            // remove everything after the closing parenthesis
-            $tempDieSize = preg_replace('/\).*$/', '', $tempDieSize);
-            $tempDieSizeInt = intval($tempDieSize);
-            $dieSizeArray[$dieIdx] = ($tempDieSizeInt > 0 ?
-                                          $tempDieSizeInt :
-                                          $tempDieSize);
-        }
-
-        return $dieSizeArray;
-    }
-
-    private function parse_recipe_for_skills($recipe) {
-        // split by spaces
-        $dieSkillArray = preg_split('/[[:space:]]+/', $recipe);
-
-        // remove everything within parentheses
-        foreach ($dieSkillArray as $dieIdx => $tempDieSkill) {
-            $dieSkillArray[$dieIdx] = preg_replace('/\(.+\)/', '', $tempDieSkill);
-        }
-
-        return $dieSkillArray;
     }
 
     // utility methods

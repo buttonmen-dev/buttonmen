@@ -1,5 +1,7 @@
 <?php
 
+require_once('BMSkill.php');
+
 /*
  * BMDie: the fundamental unit of game mechanics
  *
@@ -21,13 +23,11 @@ class BMDie {
     public $min;
     public $max;
     public $value;
-    public $recipe;
+    protected $recipe;
 
 // references back to the owner
     public $ownerObject;
     public $playerIdx;
-
-    protected $scoreValue;
 
     protected $doesReroll = true;
     public $captured = false;
@@ -78,6 +78,10 @@ class BMDie {
     // to add skills (currently, it's used for unit testing).
     public function add_skill($skill, $skillClass = False)
     {
+        if (!$skill) {
+            return;
+        }
+
         if (!$skillClass) {
             $skillClass = "BMSkill$skill";
         }
@@ -129,12 +133,10 @@ class BMDie {
     // This is only for use by callers outside of engine (e.g.
     // testing), and should never be used for the default BMSkill<skill>
     // set of skills.
-    public function init($sides, $skills = array())
+    public function init($sides, array $skills = NULL)
     {
         $this->min = 1;
         $this->max = $sides;
-
-        $this->scoreValue = $sides;
 
         if ($skills) {
             foreach ($skills as $skillClass => $skill) {
@@ -147,32 +149,44 @@ class BMDie {
         }
     }
 
+    public static function parse_recipe_for_sides($recipe) {
+        if (preg_match('/\((.*)\)/', $recipe, $match)) {
+            return $match[1];
+        } else {
+            return '';
+        }
+    }
+
+    public static function parse_recipe_for_skills($recipe) {
+        return BMSkill::expand_skill_string(preg_replace('/\(.*\)/', '', $recipe));
+    }
+
     // given a string describing a die and a list of skills, return a
     // new BMDie or appropriate subclass thereof
 
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
 
-    public static function create_from_string($recipe, $skills = NULL) {
+    public static function create_from_string_components($recipe, array $skills = NULL) {
         $die = NULL;
 
         try {
-            $opt_list = explode("|", $recipe);
+            $opt_list = explode('|', $recipe);
 
             // Option dice divide on a |, can contain any die type
             if (count($opt_list) > 1) {
-                $die = BMOptionDie::create_from_list($opt_list, $skills);
+                $die = BMDieOption::create_from_list($opt_list, $skills);
             }
             // Twin dice divide on a comma, can contain any type but option
-            elseif (count($twin_list = explode(",", $recipe)) > 1) {
-                $die = BMTwinDie::create_from_list($twin_list, $skills);
+            elseif (count($twin_list = explode(',', $recipe)) > 1) {
+                $die = BMDieTwin::create_from_list($twin_list, $skills);
             }
-            elseif ($recipe == "C") {
-                $die = BMWildcardDie::create($recipe, $skills);
+            elseif ('C' == $recipe) {
+                $die = BMDieWildcard::create($recipe, $skills);
             }
             // Integers are normal dice
             elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
-                $die = BMDie::create($recipe, $skills);
+                $die = BMDie::create((int)$recipe, $skills);
             }
             // Single character that's not a number is a swing die
             elseif (strlen($recipe) == 1) {
@@ -187,11 +201,16 @@ class BMDie {
             return NULL;
         }
 
-        $die->recipe = $recipe;
         return $die;
     }
 
-    public static function create($size, $skills = NULL) {
+    public static function create_from_recipe($recipe) {
+        $sides = BMDie::parse_recipe_for_sides($recipe);
+        $skills = BMDie::parse_recipe_for_skills($recipe);
+        return BMDie::create_from_string_components($sides, $skills);
+    }
+
+    public static function create($size, array $skills = NULL) {
         if (!is_numeric($size) || ($size != (int)$size) ||
             $size < 1 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
@@ -281,8 +300,10 @@ class BMDie {
 //
 // We use a multiplier and divisor so various skills can manipulate them
 // without stepping on each others' toes
-    public function get_scoreValue()
+    public function get_scoreValueTimesTen()
     {
+        $scoreValue = $this->max;
+
         $mult = 1;
         if ($this->captured) {
             $div = 1;
@@ -291,9 +312,14 @@ class BMDie {
             $div = 2;
         }
 
-        $this->run_hooks(__FUNCTION__, array(&$this->scoreValue, &$mult, &$div, $this->captured));
+        $this->run_hooks('scoreValue',
+                         array('scoreValue' => &$scoreValue,
+                               'value'      => $this->value,
+                               'mult'       => &$mult,
+                               'div'        => &$div,
+                               'captured'   => $this->captured));
 
-        return (10 * $this->scoreValue * $mult) / $div;
+        return (10 * $scoreValue * $mult) / $div;
     }
 
     // Return an array of the die's possible initiative values. 0
@@ -397,7 +423,6 @@ class BMDie {
             $valid = FALSE;
         }
 
-
         $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
 
         return $valid;
@@ -482,30 +507,49 @@ class BMDie {
         return $dice;
     }
 
-    public function start_turn($player)
-    {
-        $this->run_hooks(__FUNCTION__, array($player));
-    }
-
-    public function end_turn($player)
-    {
-        if ($player === $this->owner) {
-            $this->inactive = "";
+    public function run_hooks_at_game_state($gameState, $activePlayerIdx) {
+        switch ($gameState) {
+            case BMGameState::endTurn:
+                if ($this->playerIdx === $activePlayerIdx) {
+                    $this->inactive = "";
+                }
+                $this->hasAttacked = FALSE;
+                break;
+            default:
+                // do nothing special
         }
 
-        $this->run_hooks(__FUNCTION__, array($player));
-
-        $this->hasAttacked = FALSE;
+        $this->run_hooks(__FUNCTION__, array($activePlayerIdx));
     }
 
-    public function start_round()
-    {
-        $this->run_hooks(__FUNCTION__, array());
-    }
+    public function get_recipe() {
+        $recipe = '';
+        foreach ($this->skillList as $skill) {
+            $recipe .= BMSkill::abbreviate_skill_name($skill);
+        }
+        $recipe .= '(';
 
-    public function end_round()
-    {
-        $this->run_hooks(__FUNCTION__, array());
+        // Option dice divide on a |, can contain any die type
+        if ($this instanceof BMDieOption) {
+
+        }
+        // Twin dice divide on a comma, can contain any type but option
+        elseif ($this instanceof BMDieTwin) {
+
+        }
+        elseif ($this instanceof BMDieWildcard) {
+            $recipe .= 'C';
+        }
+        elseif ($this instanceof BMDieSwing) {
+            $recipe .= $this->swingType;
+        }
+        else {
+            $recipe .= $this->max;
+        }
+
+        $recipe .= ')';
+
+        return $recipe;
     }
 
 
@@ -514,10 +558,12 @@ class BMDie {
     public function __get($property)
     {
         if (property_exists($this, $property)) {
-//            switch ($property) {
-//                default:
+            switch ($property) {
+                case 'recipe':
+                    return $this->get_recipe();
+                default:
                     return $this->$property;
-//            }
+            }
         }
     }
 
@@ -531,7 +577,7 @@ class BMDie {
 
     public function __toString()
     {
-        print($this->mRecipe);
+//        print($this->mRecipe);
     }
 
     public function __clone() {

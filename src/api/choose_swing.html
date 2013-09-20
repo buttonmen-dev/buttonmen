@@ -3,7 +3,7 @@
     This document should be written in polyglot HTML5/XHTML5, and therefore
     should run when served either as text/html or application/xhtml+xml.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<html lang="en">
 <head>
     <meta charset="utf-8" />
     <title>Choose swing values</title>
@@ -43,6 +43,9 @@
 
     <br />
     <div ><button id="submit">Submit</button></div>
+
+    <br />
+    <div>Last action time: <span id="timestamp">?</span></div>
 
     <!--
     james: eventually, we will want to use the hosted version of the JQuery library
@@ -94,6 +97,7 @@
 
                            $('#game_id').text(gameId);
                            $('#round_number').text(roundNumber);
+                           $('#timestamp').text(rs.timestamp);
                            $('#header_current_player').text(rs.playerNameArray[currentPlayerIdx]);
                            $('#header_opponent').text(rs.playerNameArray[opponentPlayerIdx]);
 
@@ -123,10 +127,9 @@
                 $.post('responder.php',
                        {
                            type: 'submitSwingValues',
-                           gameId: gameId,
                            roundNumber: roundNumber,
-                           currentPlayerIdx: currentPlayerIdx,
-                           swingValueArray: swingValueArray
+                           swingValueArray: swingValueArray,
+                           timestamp: $('#timestamp').text()
                        },
                        function(rs){
                            if ('ok' == rs.status) {
