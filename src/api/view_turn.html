@@ -45,15 +45,18 @@
         var dieDefendValues;
         var dieAttackSides;
         var dieDefendSides;
+        var dieAttackRecipes;
+        var dieDefendRecipes;
 
         // functions
-        function addDie(id, rolledNumber, recipe, parent) {
+        function addDie(id, rolledNumber, recipe, sides, parent) {
             if (document.createElement){
                 $('#'+parent).append(
                     $('<div id="' + id + '" class="die_img unselected"' +
-                      'style="background-image: url(images/Circle.png)">' +
+                      'style="background-image: url(images/Circle.png);' + 
+                             'height:70px;width:70px;background-size:100%;">' +
                           '<span id="' + id + '_span" class="die_overlay">' +
-                              rolledNumber + ' ' + recipe +
+                              rolledNumber + ' ' + recipe + ' max: ' + sides +
                           '</span>' +
                       '</div>'));
             }
@@ -70,6 +73,7 @@
                        '_dieIdx_' + dieAttackIdx,
                        dieAttackValues[dieAttackIdx],
                        dieAttackRecipes[dieAttackIdx],
+                       dieAttackSides[dieAttackIdx],
                        'div_attack');
             }
 
@@ -80,6 +84,7 @@
                        '_dieIdx_' + dieDefendIdx,
                        dieDefendValues[dieDefendIdx],
                        dieDefendRecipes[dieDefendIdx],
+                       dieDefendSides[dieDefendIdx],
                        'div_defend');
             }
         }
@@ -96,8 +101,8 @@
 
                            dieAttackValues  = rs.gameData.data.valueArrayArray[attackerIdx];
                            dieDefendValues  = rs.gameData.data.valueArrayArray[defenderIdx];
-                           // dieAttackSides   = rs.gameData.data.sidesArrayArray[attackerIdx];
-                           // dieDefendSides   = rs.gameData.data.sidesArrayArray[defenderIdx];
+                           dieAttackSides   = rs.gameData.data.sidesArrayArray[attackerIdx];
+                           dieDefendSides   = rs.gameData.data.sidesArrayArray[defenderIdx];
                            dieAttackRecipes = rs.gameData.data.dieRecipeArrayArray[attackerIdx];
                            dieDefendRecipes = rs.gameData.data.dieRecipeArrayArray[defenderIdx];
                            $('#attacker_name').text(rs.playerNameArray[attackerIdx]);
