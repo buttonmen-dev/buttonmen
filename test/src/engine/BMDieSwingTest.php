@@ -703,4 +703,29 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /*
+     * @covers BMDie::get_recipe
+     */
+    public function testGet_recipe() {
+        $die0 = new BMDieSwing;
+        $die0->init('X', array());
+        $this->assertEquals('(X)', $die0->get_recipe());
+
+        $die1 = new BMDieSwing;
+        $die1->init('Y', array('Poison'));
+        $this->assertEquals('p(Y)', $die1->get_recipe());
+
+        $die2 = new BMDieSwing;
+        $die2->init('V', array('Shadow'));
+        $this->assertEquals('s(V)', $die2->get_recipe());
+
+        $die3 = new BMDie;
+        $die3->init('S', array('Poison', 'Shadow'));
+        $this->assertEquals('ps(S)', $die3->get_recipe());
+
+        $die4 = new BMDie;
+        $die4->init('R', array('Shadow', 'Poison'));
+        $this->assertEquals('sp(R)', $die4->get_recipe());
+    }
+
 }

@@ -37,7 +37,7 @@ class BMDieSwing extends BMDie {
         return NULL;
     }
 
-    public function init($type, $skills = array()) {
+    public function init($type, array $skills = NULL) {
         $this->min = 1;
 
         $this->divisor = 1;
@@ -66,7 +66,7 @@ class BMDieSwing extends BMDie {
         }
     }
 
-    public static function create($recipe, $skills = array()) {
+    public static function create($recipe, array $skills = NULL) {
 
         if (!is_string($recipe) || strlen($recipe) != 1 ||
             ord("R") > ord($recipe) || ord($recipe) > ord("Z")) {
