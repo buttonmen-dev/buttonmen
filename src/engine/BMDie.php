@@ -319,7 +319,11 @@ class BMDie {
                                'div'        => &$div,
                                'captured'   => $this->captured));
 
-        return (10 * $scoreValue * $mult) / $div;
+        if (is_null($scoreValue)) {
+            return NULL;
+        } else {
+            return (10 * $scoreValue * $mult) / $div;
+        }
     }
 
     // Return an array of the die's possible initiative values. 0

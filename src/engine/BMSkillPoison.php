@@ -9,6 +9,8 @@ class BMSkillPoison extends BMSkill {
 
     public static function scoreValue($args) {
         assert(array_key_exists('mult', $args));
+        assert(array_key_exists('div', $args));
+        assert(array_key_exists('captured', $args));
         $args['mult'] = -$args['mult'];
 
         if ($args['captured']) {
