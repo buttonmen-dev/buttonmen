@@ -31,9 +31,10 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
         $die->add_skill('Value');
         $this->assertNull($die->value);
 
-        $this->assertCount(1, $die->hookList);
-        $this->assertEquals(array('scoreValue'), array_keys($die->hookList));
+        $this->assertCount(2, $die->hookList);
+        $this->assertEquals(array('scoreValue', 'capture'), array_keys($die->hookList));
         $this->assertEquals(array('BMSkillValue'), $die->hookList['scoreValue']);
+        $this->assertEquals(array('BMSkillValue'), $die->hookList['capture']);
         $this->assertNull($die->get_scoreValueTimesTen());
         $die->captured = TRUE;
         $this->assertNull($die->get_scoreValueTimesTen());
