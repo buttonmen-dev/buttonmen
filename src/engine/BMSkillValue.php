@@ -5,9 +5,9 @@ class BMSkillValue extends BMSkill {
     public static $name = "Value";
     public static $abbrev = "v";
 
-    public static $hooked_methods = array("scoreValue", "capture");
+    public static $hooked_methods = array("score_value", "capture");
 
-    public static function scoreValue($args) {
+    public static function score_value($args) {
         assert(array_key_exists('scoreValue', $args));
         assert(array_key_exists('value', $args));
 

@@ -24,7 +24,7 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillValue::scoreValue
+     * @covers BMSkillValue::score_value
      */
     public function testValue() {
         $die = BMDie::create(4);
@@ -32,8 +32,8 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($die->value);
 
         $this->assertCount(2, $die->hookList);
-        $this->assertEquals(array('scoreValue', 'capture'), array_keys($die->hookList));
-        $this->assertEquals(array('BMSkillValue'), $die->hookList['scoreValue']);
+        $this->assertEquals(array('score_value', 'capture'), array_keys($die->hookList));
+        $this->assertEquals(array('BMSkillValue'), $die->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'), $die->hookList['capture']);
         $this->assertNull($die->get_scoreValueTimesTen());
         $die->captured = TRUE;

@@ -5,9 +5,9 @@ class BMSkillPoison extends BMSkill {
     public static $name = "Poison";
     public static $abbrev = "p";
 
-    public static $hooked_methods = array("scoreValue");
+    public static $hooked_methods = array("score_value");
 
-    public static function scoreValue($args) {
+    public static function score_value($args) {
         assert(array_key_exists('mult', $args));
         assert(array_key_exists('div', $args));
         assert(array_key_exists('captured', $args));

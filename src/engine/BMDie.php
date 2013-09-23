@@ -312,7 +312,7 @@ class BMDie {
             $div = 2;
         }
 
-        $this->run_hooks('scoreValue',
+        $this->run_hooks('score_value',
                          array('scoreValue' => &$scoreValue,
                                'value'      => $this->value,
                                'mult'       => &$mult,
