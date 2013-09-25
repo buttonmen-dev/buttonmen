@@ -83,7 +83,6 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][1]->value = 5;
         $game->playerWithInitiativeIdx = 0;
         $game->activePlayerIdx = 0;
-        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         $this->assertEquals(array(0.5, 5), $game->roundScoreArray);
 
