@@ -47,6 +47,9 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(30, $die->get_scoreValueTimesTen());
     }
 
+    /**
+     * @covers BMSkillValue::capture
+     */
     public function testCapture() {
         // load buttons
         $button1 = new BMButton;
