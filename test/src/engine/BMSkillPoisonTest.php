@@ -26,7 +26,7 @@ class BMSkillPoisonTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMSkillPoison::score_value
      */
-    public function testValue() {
+    public function testScore_value() {
         $die = BMDie::create(4);
         $die->add_skill('Poison');
         $this->assertCount(1, $die->hookList);
