@@ -177,20 +177,12 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->object->min, 1);
         $this->assertEquals($this->object->max, 6);
 
-        // scoreValue is protected, and its test requires init to function
-        $sv = PHPUnit_Framework_Assert::readAttribute($this->object, "scoreValue");
-        $this->assertEquals($sv, 6);
-
         $this->assertTrue($this->object->has_skill("Testing"));
 
         $this->object->init(14, array("TestDummyBMSkillTesting2" => "Testing2"));
 
         $this->assertEquals($this->object->min, 1);
         $this->assertEquals($this->object->max, 14);
-
-
-        $sv = PHPUnit_Framework_Assert::readAttribute($this->object, "scoreValue");
-        $this->assertEquals($sv, 14);
 
         $this->assertTrue($this->object->has_skill("Testing2"));
 
@@ -297,30 +289,62 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
     }
 
+    /*
+     * @covers BMDie::parse_recipe_for_sides
+     */
+    public function testParse_recipe_for_sides() {
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)'));
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)'));
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)+'));
+        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)+'));
+
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)'));
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)'));
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)+'));
+        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)+'));
+    }
+
+    /*
+     * @covers BMDie::parse_recipe_for_skills
+     */
+    public function testParse_recipe_for_skills() {
+        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(4)'));
+        $this->assertEquals(array('Poison', 'Shadow'),
+                            BMDie::parse_recipe_for_skills('ps(4)'));
+        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(4)p'));
+        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(4)s'));
+
+        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(X)'));
+        $this->assertEquals(array('Poison', 'Shadow'),
+                            BMDie::parse_recipe_for_skills('ps(X)'));
+        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(X)p'));
+        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(X)s'));
+    }
+
     /**
      * @depends testCreate
      */
-    public function testCreate_from_string() {
+    public function testCreate_from_string_components() {
         // We only test creation of standard die types here.
         // (and errors)
         //
         // The complex types can work this function out in their own
         // test suites
 
-        $die = BMDie::create_from_string("72", array());
+        $die = BMDie::create_from_string_components("72");
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(72, $die->max);
 
-        $die = BMDie::create_from_string("himom!", array());
+        $die = BMDie::create_from_string_components("himom!");
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string("75.3", array());
+        $die = BMDie::create_from_string_components("75.3");
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string("trombones76", array());
+        $die = BMDie::create_from_string_components("trombones76");
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string("76trombones", array());
+        $die = BMDie::create_from_string_components("76trombones");
         $this->assertNull($die);
 
     }
@@ -481,14 +505,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends testInit
      */
-    public function testGet_scoreValue() {
+    public function testGet_scoreValueTimesTen() {
         $this->object->init(7, array());
 
-        $this->assertEquals(35, $this->object->get_scoreValue());
+        $this->assertEquals(35, $this->object->get_scoreValueTimesTen());
 
         $this->object->captured = TRUE;
 
-        $this->assertEquals(70, $this->object->get_scoreValue());
+        $this->assertEquals(70, $this->object->get_scoreValueTimesTen());
 
     }
 
@@ -765,6 +789,31 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
         $this->assertFalse($this->object->hasAttacked);
         $this->assertEquals("", $this->object->inactive);
+    }
+
+    /*
+     * @covers BMDie::get_recipe
+     */
+    public function testGet_recipe() {
+        $die0 = new BMDie;
+        $die0->init(51, array());
+        $this->assertEquals('(51)', $die0->get_recipe());
+
+        $die1 = new BMDie;
+        $die1->init(6, array('Poison'));
+        $this->assertEquals('p(6)', $die1->get_recipe());
+
+        $die2 = new BMDie;
+        $die2->init(5, array('Shadow'));
+        $this->assertEquals('s(5)', $die2->get_recipe());
+
+        $die3 = new BMDie;
+        $die3->init(13, array('Poison', 'Shadow'));
+        $this->assertEquals('ps(13)', $die3->get_recipe());
+
+        $die4 = new BMDie;
+        $die4->init(25, array('Shadow', 'Poison'));
+        $this->assertEquals('sp(25)', $die4->get_recipe());
     }
 
     public function test__get() {

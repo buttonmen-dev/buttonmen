@@ -2,7 +2,8 @@
 
 DROP VIEW IF EXISTS button_view;
 CREATE VIEW button_view
-AS SELECT d.name, d.recipe, d.tourn_legal, d.image_path, s.name AS set_name
-FROM button AS d
+AS SELECT b.name, b.recipe, b.tourn_legal, b.image_path, s.name AS set_name
+FROM button AS b
 LEFT JOIN buttonset AS s
-ON d.set_id = s.id;
+ON b.set_id = s.id
+ORDER BY b.set_id, b.id;
