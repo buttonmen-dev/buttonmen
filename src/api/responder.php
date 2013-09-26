@@ -23,7 +23,8 @@
 
         case 'chooseActiveGame':
             $_SESSION['active_game'] = $_POST['input'];
-            $output = array('status' => 'ok');
+            $output = array('status' => 'ok',
+                            'data' => $_SESSION['active_game']);
             break;
 
         case 'chooseButtons':
@@ -65,48 +66,6 @@
                             'gameData' => $game->getJsonData(),
                             'playerNameArray' => $playerNameArray,
                             'timestamp' => $interface->timestamp->format(DATE_RSS));
-            break;
-
-        case 'loadMockGameDataDeterminingInitiative':
-            // load game
-            require_once 'loadMockGameData.php';
-            $game = loadMockGameDataDeterminingInitiative();
-
-            // save game to create a real file
-            $interface->save_game($game);
-
-            // reload game
-            $gameId = $game->gameId;
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
-            break;
-
-        case 'loadMockGameDataRoundStart':
-            // load game
-            require_once 'loadMockGameData.php';
-            $game = loadMockGameDataRoundStart();
-
-            // save game to create a real file
-            $interface->save_game($game);
-
-            // reload game
-            $gameId = $game->gameId;
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
-            break;
-
-        case 'loadMockGameDataWaitingForSwing':
-            // load game
-            require_once 'loadMockGameData.php';
-            $game = loadMockGameDataWaitingForSwing();
-
-            // save game to create a real file
-            $interface->save_game($game);
-
-            // reload game
-            $gameId = $game->gameId;
-            $game = $interface->load_game($gameId);
-            $output = $game->getJsonData();
             break;
 
         case 'loadPlayerName':
@@ -183,7 +142,6 @@
 
             require_once '../engine/BMAttack.php';
 
-            $game = $interface->load_game($_SESSION['active_game']);
             // load dieSelectStatus, which should contain boolean values of whether each
             // die is selected, starting with attacker dice and concluding with
             // defender dice
@@ -262,6 +220,11 @@
                         $success = FALSE;
                         break;
                     }
+                }
+
+                if ($success) {
+                    // pass attack is the only other one left
+                    $game->attack = array($attackerIdx, $defenderIdx, $attackerDieIdx, $defenderDieIdx, 'pass');
                 }
             }
 

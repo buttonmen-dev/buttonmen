@@ -729,60 +729,43 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
-    public function testStart_turn() {
-        // Doesn't currently do anything save exist as a platform for hooks
-        $this->object->start_turn("player");
-    }
-
-    public function testEnd_turn() {
-        $this->object->owner = "player1";
+    public function testRun_hooks_at_game_state() {
+        $this->object->playerIdx = 0;
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
-        $this->object->end_turn("player1");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->end_turn("player1");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->end_turn("player2");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->object->inactive = "Yes";
-        $this->object->end_turn("player2");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
         $this->assertNotEquals("", $this->object->inactive);
-        $this->object->end_turn("player1");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
         $this->assertEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->end_turn("player2");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
         $this->assertFalse($this->object->hasAttacked);
         $this->assertNotEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->end_turn("player1");
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
         $this->assertFalse($this->object->hasAttacked);
         $this->assertEquals("", $this->object->inactive);
     }
-
-    public function testStart_round() {
-        // Doesn't currently do anything save exist as a platform for hooks
-        $this->object->start_round();
-    }
-
-
-    public function testEnd_round() {
-        // Doesn't currently do anything save exist as a platform for hooks
-        $this->object->end_round();
-    }
-
 
     public function test__get() {
         // Remove the following lines when you implement this test.

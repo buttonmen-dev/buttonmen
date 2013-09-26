@@ -28,7 +28,7 @@
  * @property-read array $passStatusArray         Boolean array whether each player passed
  * @property-read array $capturedDieArrayArray   Captured dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
- * @property-read array $gameScoreArrayArray     Number of games W/T/L for all players
+ * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
  * @property-read array $isPrevRoundWinnerArray  Boolean array whether each player won the previous round
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
@@ -65,7 +65,7 @@ class BMGame {
     private $passStatusArray;       // boolean array whether each player passed
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
-    private $gameScoreArrayArray;   // number of games W/T/L for all players
+    private $gameScoreArrayArray;   // number of games W/L/D for all players
     private $isPrevRoundWinnerArray;// boolean array whether each player won the previous round
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
@@ -91,6 +91,8 @@ class BMGame {
         }
 
         $this->message = 'ok';
+
+        $this->run_die_hooks($this->gameState);
 
         switch ($this->gameState) {
             case BMGameState::startGame:
@@ -125,7 +127,7 @@ class BMGame {
                 $this->gameScoreArrayArray =
                     array_pad(array(),
                               count($this->playerIdArray),
-                              array('W' => 0, 'L' => 0, 'T' => 0));
+                              array('W' => 0, 'L' => 0, 'D' => 0));
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
@@ -153,7 +155,6 @@ class BMGame {
                         $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
                     }
                 }
-                $this->save_game_to_database();
                 break;
 
             case BMGameState::loadDiceIntoButtons:
@@ -238,8 +239,6 @@ class BMGame {
                             $die->make_play_die(FALSE);
                     }
                 }
-
-                $this->save_game_to_database();
                 break;
 
             case BMGameState::determineInitiative:
@@ -299,7 +298,6 @@ class BMGame {
                 if (FALSE) {
                     // if so, then ask player to make decisions
                     $this->activate_GUI('ask_player_about_focus_dice');
-                    $this->save_game_to_database();
                     break;
                 }
 
@@ -324,7 +322,6 @@ class BMGame {
                 while (!$this->is_valid_attack()) {
                     $this->activate_GUI('wait_for_attack');
                     $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    $this->save_game_to_database();
                     return;
                 }
 
@@ -374,10 +371,29 @@ class BMGame {
                 break;
 
             case BMGameState::endRound:
-                // score dice using BMDie->scoreValue()
-                // update game score
+                $roundScoreArray = $this->get_roundScoreArray();
+
+                // check for draw currently assumes only two players
+                $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+
+                if ($isDraw) {
+                    for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                        $this->gameScoreArrayArray[$playerIdx]['D']++;
+                        // james: currently there is no code for three draws in a row
+                    }
+                } else {
+                    $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+
+                    for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                        if ($playerIdx == $winnerIdx) {
+                            $this->gameScoreArrayArray[$playerIdx]['W']++;
+                        } else {
+                            $this->gameScoreArrayArray[$playerIdx]['L']++;
+                            $this->swingValueArrayArray[$playerIdx] = array();
+                        }
+                    }
+                }
                 $this->reset_play_state();
-                $this->save_game_to_database();
                 break;
 
             case BMGameState::endGame:
@@ -506,12 +522,11 @@ class BMGame {
                 if ((0 === min($nDice)) ||
                     !in_array(FALSE, $this->passStatusArray, TRUE)) {
                     $this->gameState = BMGameState::endRound;
-                    $this->activeDieArrayArray = NULL;
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    $this->attack = NULL;
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;                  
                 }
+                $this->attack = NULL;
                 break;
 
             case BMGameState::endRound:
@@ -554,6 +569,24 @@ class BMGame {
             if ($repeatCount >= 100) {
                 throw new LogicException(
                     'Infinite loop detected when advancing game state.');
+            }
+        }
+    }
+
+    protected function run_die_hooks($gameState) {
+        if (!empty($this->activeDieArrayArray)) {
+            foreach ($this->activeDieArrayArray as $activeDieArray) {
+                foreach ($activeDieArray as $activeDie) {
+                    $activeDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                }
+            }
+        }
+
+        if (!empty($this->capturedDieArrayArray)) {
+            foreach ($this->capturedDieArrayArray as $capturedDieArray) {
+                foreach ($capturedDieArray as $capturedDie) {
+                    $capturedDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                }
             }
         }
     }
@@ -656,11 +689,6 @@ class BMGame {
         // currently acts as a placeholder
         $this->message = $this->message.'\n'.
                          $activation_type.' '.$input_parameters;
-        $this->save_game_to_database();
-    }
-
-    private function save_game_to_database() {
-        // currently acts as a placeholder
     }
 
     private function is_valid_attack() {
@@ -728,14 +756,14 @@ class BMGame {
     }
 
     private function get_roundScoreArray() {
-        $roundScoreArray = array();
+        $roundScoreArray = array_pad(array(), $this->nPlayers, 0);
 
-        foreach ((array)$this->activeDieArrayArray as $activeDieArray) {
+        foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             $activeDieScore = 0;
             foreach ($activeDieArray as $activeDie) {
                 $activeDieScore += $activeDie->get_scoreValue();
             }
-            $roundScoreArray[] = $activeDieScore;
+            $roundScoreArray[$playerIdx] = $activeDieScore;
         }
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
@@ -945,10 +973,10 @@ class BMGame {
                 }
 
                 $this->$property = array('attackerPlayerIdx' => $value[0],
-                                      'defenderPlayerIdx' => $value[1],
-                                      'attackerAttackDieIdxArray' => $value[2],
-                                      'defenderAttackDieIdxArray' => $value[3],
-                                      'attackType' => $value[4]);
+                                         'defenderPlayerIdx' => $value[1],
+                                         'attackerAttackDieIdxArray' => $value[2],
+                                         'defenderAttackDieIdxArray' => $value[3],
+                                         'attackType' => $value[4]);
                 break;
             case 'attackerAttackDieArray':
                 throw new LogicException('
@@ -1033,7 +1061,7 @@ class BMGame {
                 break;
             case 'gameState':
                 BMGameState::validate_game_state($value);
-                $this->gameState = $value;
+                $this->gameState = (int) $value;
                 break;
             case 'waitingOnActionArray':
                 if (!is_array($value) ||
@@ -1076,7 +1104,11 @@ class BMGame {
             $valueArrayArray[] = array();
             $sidesArrayArray[] = array();
             $dieRecipeArrayArray[] = array();
-            $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
+            if (empty($this->swingRequestArrayArray[$playerIdx])) {
+                $swingRequestArrayArray[] = array();
+            } else {
+                $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
+            }
             foreach ($activeDieArray as $die) {
                 $valueArrayArray[$playerIdx][] = $die->value;
                 $sidesArrayArray[$playerIdx][] = $die->max;
@@ -1086,6 +1118,7 @@ class BMGame {
 
         $dataArray =
             array('gameId'                  => $this->gameId,
+                  'gameState'               => $this->gameState,
                   'roundNumber'             => $this->get_roundNumber(),
                   'activePlayerIdx'         => $this->activePlayerIdx,
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
