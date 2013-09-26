@@ -9,6 +9,10 @@ div {
     text-align: center;
 }
 
+div#login_header {
+    text-align: left;
+}
+
 table {
     table-layout: auto;
     border: thin;
