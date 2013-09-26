@@ -3,11 +3,10 @@
 /*
  * BMSkill: Used to modify the operation of BMDie
  *
- * @author: Julian Lighton
+ * @author: James Ong
  */
 
 class BMSkill {
-
     public static function expand_skill_string($skillString) {
         if ('' === $skillString) {
             return array();
@@ -25,6 +24,8 @@ class BMSkill {
 
     private static function expand_skill_letter($skillLetter) {
         switch ($skillLetter) {
+            case 'n':
+                return 'Null';
             case 'p':
                 return 'Poison';
             case 's':
@@ -46,6 +47,8 @@ class BMSkill {
         }
 
         switch ($skillName) {
+            case 'Null':
+                return 'n';
             case 'Poison':
                 return 'p';
             case 'Shadow':
