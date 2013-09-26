@@ -52,7 +52,7 @@
             break;
 
         case 'loadGameData':
-            $game = $interface->load_game($_SESSION['active_game']);
+            $game = $interface->load_game($_POST['game']);
 
             $currentPlayerId = $_SESSION['user_id'];
             $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
@@ -69,8 +69,13 @@
             break;
 
         case 'loadPlayerName':
-            $output = array('status' => 'ok',
-                            'data' => $_SESSION['user_name']);
+            if (array_key_exists('user_name', $_SESSION)) {
+                $output = array('status' => 'ok',
+                                'data' => $_SESSION['user_name']);
+            } else {
+                $output = array('status' => 'failed',
+                                'data' => 'not logged in');
+            }
             break;
 
         case 'loadPlayerNames':
@@ -83,7 +88,7 @@
             break;
 
         case 'submitSwingValues':
-            $game = $interface->load_game($_SESSION['active_game']);
+            $game = $interface->load_game($_POST['game']);
             $currentPlayerIdx = array_search($_SESSION['user_id'], $game->playerIdArray);
             $roundNumber = $_POST['roundNumber'];
 
@@ -129,7 +134,7 @@
 
             break;
         case 'submitTurn':
-            $game = $interface->load_game($_SESSION['active_game']);
+            $game = $interface->load_game($_POST['game']);
             if (!is_page_current($interface,
                                  $game,
                                  BMGameState::startTurn,
@@ -236,6 +241,21 @@
                 $output = array('status' => 'attack invalid');
             }
             break;
+
+        case 'login':
+            $login_success = login($_POST['username'], $_POST['password']);
+            if ($login_success) {
+                $output = array('status' => 'ok');
+            } else {
+                $output = array('status' => 'failed');
+            }
+            break;
+
+        case 'logout':
+            logout();
+            $output = array('status' => 'ok');
+            break;
+
         default:
             $output = FALSE;
     }

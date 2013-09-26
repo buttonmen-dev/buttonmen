@@ -4,7 +4,7 @@ web1:
   apache_log_level: debug
   after_build:
   - "mkdir deploy-includes"
-  - "wget --no-verbose -O deploy-includes/phpunit.phar http://pear.phpunit.de/get/phpunit.phar"
+  - "wget --no-verbose -O deploy-includes/phpunit.phar http://phar.phpunit.de/phpunit.phar"
   - "chmod a+x deploy-includes/phpunit.phar"
   before_deploy:
   - "php deploy/pagodabox/audit_php_files.php /var/www"
