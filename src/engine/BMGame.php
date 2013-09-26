@@ -159,44 +159,46 @@ class BMGame {
                 $this->waitingOnActionArray =
                     array_pad(array(), count($this->playerIdArray), FALSE);
 
-                foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
-                    $keyArray = array_keys($swingRequestArray);
+                if (isset($this->swingRequestArrayArray)) {
+                    foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
+                        $keyArray = array_keys($swingRequestArray);
 
-                    // initialise swingValueArrayArray if necessary
-                    if (!isset($this->swingValueArrayArray[$playerIdx])) {
-                        $this->swingValueArrayArray[$playerIdx] = array();
-                    }
-
-                    foreach ($keyArray as $key) {
-                        // copy swing request keys to swing value keys if they
-                        // do not already exist
-                        if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
-                            $this->swingValueArrayArray[$playerIdx][$key] = NULL;
+                        // initialise swingValueArrayArray if necessary
+                        if (!isset($this->swingValueArrayArray[$playerIdx])) {
+                            $this->swingValueArrayArray[$playerIdx] = array();
                         }
 
-                        // set waitingOnActionArray based on if there are
-                        // unspecified swing dice for that player
-                        if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
-                            $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        foreach ($keyArray as $key) {
+                            // copy swing request keys to swing value keys if they
+                            // do not already exist
+                            if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
+                                $this->swingValueArrayArray[$playerIdx][$key] = NULL;
+                            }
+
+                            // set waitingOnActionArray based on if there are
+                            // unspecified swing dice for that player
+                            if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
+                                $this->waitingOnActionArray[$playerIdx] = TRUE;
+                            }
                         }
                     }
-                }
 
-                foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                    if ($waitingOnAction) {
-                        $this->activate_GUI('Waiting on player action.', $playerIdx);
-                    } else {
-                        // apply swing values
-                        foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                            if ($die instanceof BMDieSwing) {
-                                $isSetSuccessful = $die->set_swingValue(
-                                    $this->swingValueArrayArray[$playerIdx]);
-                                // act appropriately if the swing values are invalid
-                                if (!$isSetSuccessful) {
-                                    $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
-                                    $this->swingValueArrayArray[$playerIdx] = array();
-                                    $this->waitingOnActionArray[$playerIdx] = TRUE;
-                                    break 3;
+                    foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+                        if ($waitingOnAction) {
+                            $this->activate_GUI('Waiting on player action.', $playerIdx);
+                        } else {
+                            // apply swing values
+                            foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
+                                if ($die instanceof BMDieSwing) {
+                                    $isSetSuccessful = $die->set_swingValue(
+                                        $this->swingValueArrayArray[$playerIdx]);
+                                    // act appropriately if the swing values are invalid
+                                    if (!$isSetSuccessful) {
+                                        $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
+                                        $this->swingValueArrayArray[$playerIdx] = array();
+                                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                                        break 3;
+                                    }
                                 }
                             }
                         }
