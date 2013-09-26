@@ -312,14 +312,18 @@ class BMDie {
             $div = 2;
         }
 
-        $this->run_hooks('scoreValue',
+        $this->run_hooks('score_value',
                          array('scoreValue' => &$scoreValue,
                                'value'      => $this->value,
                                'mult'       => &$mult,
                                'div'        => &$div,
                                'captured'   => $this->captured));
 
-        return (10 * $scoreValue * $mult) / $div;
+        if (is_null($scoreValue)) {
+            return NULL;
+        } else {
+            return (10 * $scoreValue * $mult) / $div;
+        }
     }
 
     // Return an array of the die's possible initiative values. 0
@@ -458,7 +462,7 @@ class BMDie {
 
     public function capture($type, array $attackers, array $victims)
     {
-        $this->run_hooks(__FUNCTION__, array());
+        $this->run_hooks(__FUNCTION__, array('victims' => $victims));
     }
 
 

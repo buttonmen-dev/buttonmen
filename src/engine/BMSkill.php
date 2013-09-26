@@ -29,6 +29,8 @@ class BMSkill {
                 return 'Poison';
             case 's':
                 return 'Shadow';
+            case 'v':
+                return 'Value';
             case '':
                 return '';
             default:
@@ -48,6 +50,8 @@ class BMSkill {
                 return 'p';
             case 'Shadow':
                 return 's';
+            case 'Value':
+                return 'v';
             default:
                 return '';
         }
