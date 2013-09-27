@@ -26,7 +26,7 @@ class BMAttack {
         // You can't instantiate me; I'm a Singleton!
     }
 
-    static function get_instance($type = NULL) {
+    public static function get_instance($type = NULL) {
         if ($type) {
             $cname = "BMAttack" . ucfirst(strtolower($type));
             if (class_exists($cname)) {
@@ -44,11 +44,15 @@ class BMAttack {
         return static::$instance[$class];
     }
 
+    public static function possible_attack_types(array $attackers) {
+        $attackTypeArray = array('Power', 'Skill');
+        return $attackTypeArray;
+    }
+
     // Dice that effect or affect this attack
     protected $validDice = array();
 
-    public function add_die($die) {
-        if (!is_a($die, "BMDie")) { return; }
+    public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
         // objects matching
         if (!in_array($die, $this->validDice, TRUE)) {

@@ -176,15 +176,14 @@
             }
 
             // validate attack
-            $attackArray = array(BMAttackPower::get_instance(),
-                                 BMAttackSkill::get_instance());
             $attackTypeArray = array('power', 'skill');
 
             $success = FALSE;
 
-            foreach ($attackArray as $idx => $attack) {
+            foreach ($attackTypeArray as $idx => $attackType) {
                 // find out if the chosen dice form a valid attack
                 $game->attack = array($attackerIdx, $defenderIdx, $attackerDieIdx, $defenderDieIdx, $attackTypeArray[$idx]);
+                $attack = BMAttack::get_instance($attackType);
 
                 foreach ($attackers as $attackDie) {
                     $attack->add_die($attackDie);
@@ -206,12 +205,13 @@
 
                 // find out if there are any possible attacks with any combination of
                 // the attacker's and defender's dice
-                foreach ($attackArray as $idx => $attack) {
+                foreach ($attackTypeArray as $idx => $attackType) {
                     $game->attack = array($attackerIdx,
                                           $defenderIdx,
                                           range(0, count($game->attackerAllDieArray) - 1),
                                           range(0, count($game->defenderAllDieArray) - 1),
                                           $attackTypeArray[$idx]);
+                    $attack = BMAttack::get_instance($attackType);
                     foreach ($game->attackerAllDieArray as $attackDie) {
                         $attack->add_die($attackDie);
                     }

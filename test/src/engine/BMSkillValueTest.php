@@ -91,7 +91,7 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(0), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);

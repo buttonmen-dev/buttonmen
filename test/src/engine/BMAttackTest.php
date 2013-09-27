@@ -53,6 +53,20 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMAttack::possible_attack_types
+     */
+    public function testPossible_attack_types()
+    {
+        $die = new BMDie;
+        $die->init(4);
+
+        $attackArray = BMAttack::possible_attack_types(array($die));
+        $this->assertTrue(is_array($attackArray));
+        $this->assertEquals(2, count($attackArray));
+        $this->assertEquals(array('Power', 'Skill'), $attackArray);
+    }
+
+    /**
      * @covers BMAttack::add_die
      */
     public function testAdd_die()
@@ -606,7 +620,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1), array($die2));
-        $game->attack = array(0, 1, array(0), array(0), 'pass');
+        $game->attack = array(0, 1, array(0), array(0), 'Pass');
 
         $att = array($die1);
         $def = array($die2);
@@ -687,7 +701,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1, $die3), array($die2, $die4));
-        $game->attack = array(0, 1, array(0, 1), array(0, 1), 'pass');
+        $game->attack = array(0, 1, array(0, 1), array(0, 1), 'Pass');
 
         $att = array($die1, $die3);
         $def = array($die2, $die4);
@@ -1070,7 +1084,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         // provide a die that always gives help
         $game->activeDieArrayArray = array(array($die1), array());
-        $game->attack = array(0, 1, array(), array(), 'pass');
+        $game->attack = array(0, 1, array(), array(), 'Pass');
 
         $help = $this->object->test_collect_helpers($game, array(), array());
         $this->assertNotEmpty($help);

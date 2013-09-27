@@ -345,7 +345,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $die4->value = 1;
             $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                        array($die3, $die4));
-            $this->object->attack = array(0, 1, array(1), array(0), 'power');
+            $this->object->attack = array(0, 1, array(1), array(0), 'Power');
             $this->object->do_next_step();
             $die1ValueStore[] = $die1->value;
             $die2ValueStore[] = $die2->value;
@@ -367,7 +367,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $this->object->activeDieArrayArray[0][1]->value);
         $this->assertEquals(4, $this->object->activeDieArrayArray[1][0]->value);
 
-        $this->object->attack = array(0, 1, array(0), array(0), "power");
+        $this->object->attack = array(0, 1, array(0), array(0), "Power");
         $this->object->gameState = BMGameState::startTurn;
         $this->object->do_next_step();
 
@@ -693,7 +693,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
 
         $this->object->gameState = BMGameState::startTurn;
-        $this->object->attack = array(0, 1, array(), array(), 'pass');
+        $this->object->attack = array(0, 1, array(), array(), 'Pass');
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endTurn, $this->object->gameState);
         //james: need to check that the attack has been carried out
@@ -952,7 +952,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($method->invoke($this->object));
 
         // check with a pass attack
-        $this->object->attack = array(0, 1, array(), array(), 'pass');
+        $this->object->attack = array(0, 1, array(), array(), 'Pass');
         $this->assertTrue($method->invoke($this->object));
 
         // james: need to add test cases for invalid attacks
@@ -1065,7 +1065,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test__get_attacker_player_idx() {
         $this->assertNull($this->object->attackerPlayerIdx);
 
-        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->object->attack = array(1, 0, array(), array(), 'Pass');
         $this->assertEquals(1, $this->object->attackerPlayerIdx);
     }
 
@@ -1075,7 +1075,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test__get_defender_player_idx() {
         $this->assertNull($this->object->defenderPlayerIdx);
 
-        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->object->attack = array(1, 0, array(), array(), 'Pass');
         $this->assertEquals(0, $this->object->defenderPlayerIdx);
     }
 
@@ -1091,7 +1091,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDie;
         $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                    array($die3, $die4));
-        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->object->attack = array(1, 0, array(), array(), 'Pass');
         $this->assertEquals(array($die3, $die4), $this->object->attackerAllDieArray);
     }
 
@@ -1107,7 +1107,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDie;
         $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                    array($die3, $die4));
-        $this->object->attack = array(1, 0, array(), array(), 'pass');
+        $this->object->attack = array(1, 0, array(), array(), 'Pass');
         $this->assertEquals(array($die1, $die2), $this->object->defenderAllDieArray);
     }
 
@@ -1118,7 +1118,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(NULL, $this->object->attackerAttackDieArray);
 
         $this->object->activeDieArrayArray = array(array(), array());
-        $this->object->attack = array(0, 1, array(), array(), 'pass');
+        $this->object->attack = array(0, 1, array(), array(), 'Pass');
         $this->assertEquals(array(), $this->object->attackerAttackDieArray);
 
         $die1 = new BMDie;
@@ -1128,7 +1128,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                    array($die3, $die4));
-        $this->object->attack = array(1, 0, array(1), array(0), 'power');
+        $this->object->attack = array(1, 0, array(1), array(0), 'Power');
         $this->assertEquals(array($die4), $this->object->attackerAttackDieArray);
     }
 
@@ -1138,7 +1138,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test__get_defender_attack_die_array() {
         $this->assertEquals(NULL, $this->object->defenderAttackDieArray);
 
-        $this->object->attack = array(0, 1, array(), array(), 'pass');
+        $this->object->attack = array(0, 1, array(), array(), 'Pass');
         $this->assertEquals(array(), $this->object->defenderAttackDieArray);
 
         $die1 = new BMDie;
@@ -1148,7 +1148,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                    array($die3, $die4));
-        $this->object->attack = array(1, 0, array(1), array(0), 'power');
+        $this->object->attack = array(1, 0, array(1), array(0), 'Power');
         $this->assertEquals(array($die2), $this->object->defenderAttackDieArray);
     }
 
@@ -1454,7 +1454,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray =
             array(array(new BMDie), array(new BMDie));
         try {
-            $this->object->attack = array(0, 1, array(2), array(0), 'pass');
+            $this->object->attack = array(0, 1, array(2), array(0), 'Pass');
             $this->fail('Invalid attacker die indices.');
         }
         catch (LogicException $expected) {
@@ -1464,19 +1464,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray =
             array(array(new BMDie), array(new BMDie));
         try {
-            $this->object->attack = array(0, 1, array(0), array(2), 'pass');
+            $this->object->attack = array(0, 1, array(0), array(2), 'Pass');
             $this->fail('Invalid defender die indices.');
         }
         catch (LogicException $expected) {
         }
 
         // check that a pass attack is valid
-        $this->object->attack = array(0, 1, array(), array(), 'pass');
+        $this->object->attack = array(0, 1, array(), array(), 'Pass');
 
         // check that a skill attack is valid
         $this->object->activeDieArrayArray =
             array(array(new BMDie, new BMDie), array(new BMDie));
-        $this->object->attack = array(0, 1, array(0, 1), array(0), 'skill');
+        $this->object->attack = array(0, 1, array(0, 1), array(0), 'Skill');
 
         // check that an invalid attack is invalid
         try {
@@ -1847,7 +1847,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(2), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -1886,7 +1886,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(3), // attackerAttackDieIdxArray
                               array(2), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(1, $game->activePlayerIdx);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -1912,7 +1912,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(1, 2, 3), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'skill'); // attackType
+                              'Skill'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -1943,7 +1943,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(1), // attackerAttackDieIdxArray
                               array(2), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(1, $game->activePlayerIdx);
@@ -1975,7 +1975,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(), // attackerAttackDieIdxArray
                               array(), // defenderAttackDieIdxArray
-                              'pass'); // attackType
+                              'Pass'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2002,7 +2002,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(1), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(1, $game->activePlayerIdx);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2035,7 +2035,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(), // attackerAttackDieIdxArray
                               array(), // defenderAttackDieIdxArray
-                              'pass'); // attackType
+                              'Pass'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2064,7 +2064,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(2), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(1, $game->activePlayerIdx);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2099,7 +2099,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(), // attackerAttackDieIdxArray
                               array(), // defenderAttackDieIdxArray
-                              'pass'); // attackType
+                              'Pass'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2130,7 +2130,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(2), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
         $game->proceed_to_next_user_action();
 
         // round 2
@@ -2237,7 +2237,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(2, 3, 4), // attackerAttackDieIdxArray
                               array(2), // defenderAttackDieIdxArray
-                              'skill'); // attackType
+                              'Skill'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2260,7 +2260,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(0, 1, 3), // attackerAttackDieIdxArray
                               array(2), // defenderAttackDieIdxArray
-                              'skill'); // attackType
+                              'Skill'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2285,7 +2285,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(1), // attackerAttackDieIdxArray
                               array(3), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2310,7 +2310,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(1), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'skill'); // attackType
+                              'Skill'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2351,7 +2351,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(0), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2380,7 +2380,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(), // attackerAttackDieIdxArray
                               array(), // defenderAttackDieIdxArray
-                              'pass'); // attackType
+                              'Pass'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2395,7 +2395,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(1), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2426,7 +2426,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(0), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2463,7 +2463,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(0), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $this->assertEquals(2, $game->maxWins);
         $this->assertEquals(array(39.5, 45), $game->roundScoreArray);
@@ -2629,7 +2629,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(4), // attackerAttackDieIdxArray
                               array(2), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2836,7 +2836,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(1, 2, 3), // attackerAttackDieIdxArray
                               array(3), // defenderAttackDieIdxArray
-                              'skill'); // attackType
+                              'Skill'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -3052,7 +3052,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(1, 2, 3), // attackerAttackDieIdxArray
                               array(3), // defenderAttackDieIdxArray
-                              'skill'); // attackType
+                              'Skill'); // attackType
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);

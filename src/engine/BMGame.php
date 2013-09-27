@@ -940,10 +940,12 @@ class BMGame {
                 }
 
                 if (!preg_match('/'.
-                                'power'.'|'.
-                                'skill'.'|'.
-                                'shadow'.'|'.
-                                'pass'.'/', $value[4])) {
+                                'Null'.'|'.
+                                'Power'.'|'.
+                                'Skill'.'|'.
+                                'Shadow'.'|'.
+                                'Value'.'|'.
+                                'Pass'.'/', $value[4])) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.');
                 }
