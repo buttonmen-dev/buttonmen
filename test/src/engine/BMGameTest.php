@@ -942,6 +942,38 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::valid_attack_types
+     */
+    public function testValid_attack_types()
+    {
+        $die1 = new BMDie;
+        $die1->init(4);
+        $die1->value = 4;
+
+        $die2 = new BMDie;
+        $die2->init(20);
+        $die2->value = 3;
+
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+        $game->activePlayerIdx = 0;
+
+        $attackArray = $game->valid_attack_types();
+        $this->assertTrue(is_array($attackArray));
+        $this->assertEquals(1, count($attackArray));
+        $this->assertTrue(in_array('Power', $attackArray));
+
+        $die2->value = 4;
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+
+        $attackArray = $game->valid_attack_types();
+        $this->assertTrue(is_array($attackArray));
+        $this->assertEquals(2, count($attackArray));
+        $this->assertTrue(in_array('Power', $attackArray));
+        $this->assertTrue(in_array('Skill', $attackArray));
+    }
+
+    /**
      * @covers BMGame::is_valid_attack
      */
     public function test_is_valid_attack() {

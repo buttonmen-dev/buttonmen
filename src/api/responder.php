@@ -176,7 +176,11 @@
             }
 
             // validate attack
-            $attackTypeArray = BMAttack::valid_attack_types($attackers);
+            // james: eventually, we expect the attack type to be passed from
+            // the front-end to responder.php, meaning that the following code
+            // can be even more streamlined, since we will then not need to
+            // work out all the possible attack types
+            $attackTypeArray = $game->valid_attack_types();
             $success = FALSE;
 
             foreach ($attackTypeArray as $idx => $attackType) {

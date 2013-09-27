@@ -59,35 +59,6 @@ class BMAttack {
         return $attackTypeArray;
     }
 
-    public static function valid_attack_types(array $attackers, array $defenders) {
-        $attackTypeArray = BMAttack::possible_attack_types($attackers);
-
-        $validAttackTypeArray = array();
-
-        // find out if there are any possible attacks with any combination of
-        // the attacker's and defender's dice
-        foreach ($attackTypeArray as $idx => $attackType) {
-            $game->attack = array($attackerIdx,
-                                  $defenderIdx,
-                                  range(0, count($game->attackerAllDieArray) - 1),
-                                  range(0, count($game->defenderAllDieArray) - 1),
-                                  $attackTypeArray[$idx]);
-            $attack = BMAttack::get_instance($attackType);
-            foreach ($game->attackerAllDieArray as $attackDie) {
-                $attack->add_die($attackDie);
-            }
-            if ($attack->find_attack($game)) {
-                $validAttackTypeArray[$attackType] = $attackType;
-            }
-        }
-
-        if (empty($validAttackTypeArray)) {
-            $validAttackTypeArray['Pass'] = 'Pass';
-        }
-
-        return $validAttackTypeArray;
-    }
-
     // Dice that effect or affect this attack
     protected $validDice = array();
 
