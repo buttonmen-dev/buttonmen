@@ -948,11 +948,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     {
         $die1 = new BMDie;
         $die1->init(4);
-        $die1->value = 4;
+        $die1->value = 3;
 
         $die2 = new BMDie;
         $die2->init(20);
-        $die2->value = 3;
+        $die2->value = 2;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1), array($die2));
@@ -963,13 +963,31 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($attackArray));
         $this->assertTrue(in_array('Power', $attackArray));
 
-        $die2->value = 4;
+        $die2->value = 3;
         $game->activeDieArrayArray = array(array($die1), array($die2));
 
         $attackArray = $game->valid_attack_types();
         $this->assertTrue(is_array($attackArray));
         $this->assertEquals(2, count($attackArray));
         $this->assertTrue(in_array('Power', $attackArray));
+        $this->assertTrue(in_array('Skill', $attackArray));
+
+        $die1->add_skill('Shadow');
+        $die2->value = 4;
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+
+        $attackArray = $game->valid_attack_types();
+        $this->assertTrue(is_array($attackArray));
+        $this->assertEquals(1, count($attackArray));
+        $this->assertTrue(in_array('Shadow', $attackArray));
+
+        $die2->value = 3;
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+
+        $attackArray = $game->valid_attack_types();
+        $this->assertTrue(is_array($attackArray));
+        $this->assertEquals(2, count($attackArray));
+        $this->assertTrue(in_array('Shadow', $attackArray));
         $this->assertTrue(in_array('Skill', $attackArray));
     }
 
