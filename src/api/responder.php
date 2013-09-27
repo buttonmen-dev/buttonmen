@@ -176,7 +176,7 @@
             }
 
             // validate attack
-            $attackTypeArray = array('power', 'skill');
+            $attackTypeArray = BMAttack::possible_attack_types($attackers);
 
             $success = FALSE;
 

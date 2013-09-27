@@ -45,7 +45,17 @@ class BMAttack {
     }
 
     public static function possible_attack_types(array $attackers) {
-        $attackTypeArray = array('Power', 'Skill');
+        $attackTypeArray = array();
+
+        foreach ($attackers as $attacker) {
+            if (in_array('BMSkillShadow', $attacker->skillList)) {
+                $attackTypeArray['Shadow'] = 'Shadow';
+            } else {
+                $attackTypeArray['Power'] = 'Power';
+            }
+            $attackTypeArray['Skill'] = 'Skill';
+        }
+
         return $attackTypeArray;
     }
 
