@@ -176,13 +176,14 @@
             }
 
             // validate attack
-            $attackTypeArray = BMAttack::possible_attack_types($attackers);
-
+            $attackTypeArray = BMAttack::valid_attack_types($attackers);
             $success = FALSE;
 
             foreach ($attackTypeArray as $idx => $attackType) {
                 // find out if the chosen dice form a valid attack
-                $game->attack = array($attackerIdx, $defenderIdx, $attackerDieIdx, $defenderDieIdx, $attackTypeArray[$idx]);
+                $game->attack = array($attackerIdx, $defenderIdx,
+                                      $attackerDieIdx, $defenderDieIdx,
+                                      $attackTypeArray[$idx]);
                 $attack = BMAttack::get_instance($attackType);
 
                 foreach ($attackers as $attackDie) {
@@ -193,38 +194,6 @@
                         $success = TRUE;
                         break;
                     }
-                }
-            }
-
-            // james: maybe the following code needs to be in the logic for the pass
-            //        attack validation
-            if (!$success &&
-                (0 == count($attackerDieIdx)) &&
-                (0 == count($defenderDieIdx))) {
-                $success = TRUE;
-
-                // find out if there are any possible attacks with any combination of
-                // the attacker's and defender's dice
-                foreach ($attackTypeArray as $idx => $attackType) {
-                    $game->attack = array($attackerIdx,
-                                          $defenderIdx,
-                                          range(0, count($game->attackerAllDieArray) - 1),
-                                          range(0, count($game->defenderAllDieArray) - 1),
-                                          $attackTypeArray[$idx]);
-                    $attack = BMAttack::get_instance($attackType);
-                    foreach ($game->attackerAllDieArray as $attackDie) {
-                        $attack->add_die($attackDie);
-                    }
-                    if ($attack->find_attack($game)) {
-                        // a pass attack is invalid
-                        $success = FALSE;
-                        break;
-                    }
-                }
-
-                if ($success) {
-                    // pass attack is the only other one left
-                    $game->attack = array($attackerIdx, $defenderIdx, $attackerDieIdx, $defenderDieIdx, 'pass');
                 }
             }
 
