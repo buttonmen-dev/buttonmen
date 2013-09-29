@@ -52,3 +52,8 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Kublai',      '(4) (8) (12) (20) (X)',         1, (SELECT id FROM buttonset WHERE name="Soldiers")),
 ('Changeling',  '(X) (X) (X) (X) (X)',           0, (SELECT id FROM buttonset WHERE name="Soldiers")),
 ('Angel',       's(4) (6) s(12) (12) (X)',       1, (SELECT id FROM buttonset WHERE name="Vampires")),
+('Buddy',       's(6) (10) s(20) (20) (X)',      1, (SELECT id FROM buttonset WHERE name="Vampires")),
+('Dunkirk',     '(6) (6) (10) (20) s(X)',        1, (SELECT id FROM buttonset WHERE name="Vampires")),
+('McGinty',     '(4) s(10) (12) (12) (X)',       1, (SELECT id FROM buttonset WHERE name="Vampires")),
+('Starchylde',  's(6) (8) s(10) (12) (X)',       1, (SELECT id FROM buttonset WHERE name="Vampires")),
+('Tiffany',     '(4) s(8) (8) (10) s(X)',        1, (SELECT id FROM buttonset WHERE name="Vampires"));
