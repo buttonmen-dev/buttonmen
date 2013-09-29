@@ -24,6 +24,19 @@ INSERT INTO buttonset (name) VALUES
 
 DELETE FROM button;
 INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
+('Adam Spam',   'F(4) F(6) (6) (12) (X)',        1, (SELECT id FROM buttonset WHERE name="1999")),
+('Brigid',      '(8) (8) (X) (X) (X)',           1, (SELECT id FROM buttonset WHERE name="1999")),
+('Bunnies',     '(1) (1) (1) (1) (X)',           1, (SELECT id FROM buttonset WHERE name="1999")),
+# ('Buzzing Weasel','(Fudge) (Regular) (Prestige) (Gamer) (Screw)',         1, (SELECT id FROM buttonset WHERE name="1999")),
+('Dirgo',       '(20) (20) (20) (X)',            1, (SELECT id FROM buttonset WHERE name="1999")),
+('Eiko',        '(4) (6) (6) (12) (X)',          1, (SELECT id FROM buttonset WHERE name="1999")),
+('Flaire',      '(6) (10) (10) (12) (X)',        1, (SELECT id FROM buttonset WHERE name="1999")),
+# ('James Ernest','(pi) (inf) (sqrt(-2)) (X)',       1, (SELECT id FROM buttonset WHERE name="1999")),
+('Lab Rat',     '(2) (2) (2) (2) (X)',           1, (SELECT id FROM buttonset WHERE name="1999")),
+('O-Lass',      '(6) (12) (X) (X) (X)',          1, (SELECT id FROM buttonset WHERE name="1999")),
+('Poly',        '(4) (6) F(8) (20) (X)',         1, (SELECT id FROM buttonset WHERE name="1999")),
+('Wu Lan',      '(4) (10) (20) (20) (X)',        1, (SELECT id FROM buttonset WHERE name="1999")),
+('Zeppo',       '(4) (12) (20) (X)!',            1, (SELECT id FROM buttonset WHERE name="1999")),
 ('Bane',        'p(2) p(4) (12) (12) (V)',       1, (SELECT id FROM buttonset WHERE name="Brom")),
 ('Bluff',       'ps(6) ps(12) (16) (20) (X)',    1, (SELECT id FROM buttonset WHERE name="Brom")),
 ('Coil',        'p(4) (12) p(20) (20) (V)',      1, (SELECT id FROM buttonset WHERE name="Brom")),
