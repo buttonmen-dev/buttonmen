@@ -22,6 +22,26 @@ INSERT INTO buttonset (name) VALUES
 ('2001'),
 ('Diceland');
 
+# Anime Expo 2002
+# Balticon 34
+# Bar Mitzvah
+# Bridge and Tunnel
+# Button Brains
+# Chicagoland Gamers Conclave
+# Everything to Gain
+# Fightball
+# Gaming Guardians
+# Metamorphers
+# Nodwick
+# Origins 2004
+# Renaissance
+# SFR
+# ShoreCon 2000
+# Space Girlz
+# SydCon 10
+# Yoyodyne
+
+
 DELETE FROM button;
 INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Bunnies',     '(1) (1) (1) (1) (X)',           0, (SELECT id FROM buttonset WHERE name="1999")),
@@ -57,6 +77,7 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 # ('The Japanese Beetle', '(6) (8) (12) (X)',                   1, (SELECT id FROM buttonset WHERE name="2000")),
 ('Howling Wolf',        'd(4) (8) (12) (20) d(20)',           1, (SELECT id FROM buttonset WHERE name="2000")),
 ('White Tiger',         '(6) d(6) (10) (12) d(12)',           1, (SELECT id FROM buttonset WHERE name="2000")),
+('Rikachu',             '(1) (1) (1) (1) (Y)',                0, (SELECT id FROM buttonset WHERE name="2000")),
 ('Nickie',              'z(4) (10) (10) (12) z(12)',          1, (SELECT id FROM buttonset WHERE name="2001")),
 ('Sonia',               '(6) (6) z(12) (20) (20)',            1, (SELECT id FROM buttonset WHERE name="2001")),
 ('Tamiya',              '(4) (8) (8) (12) z(20)',             1, (SELECT id FROM buttonset WHERE name="2001")),
@@ -122,7 +143,7 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Vincent',     '(30) (30) (30) (6|30)',         1, (SELECT id FROM buttonset WHERE name="Fantasy")),
 ('Nightmare',   '(4) (8) (10) (20) (20)',        1, (SELECT id FROM buttonset WHERE name="Fantasy")),
 # ('Socrates',    '(4) (10) (12) (Y)',             1, (SELECT id FROM buttonset WHERE name="Fantasy")),
-# ('Dead Guy',    '(0) (0) (0) (0) (0)',           0, (SELECT id FROM buttonset WHERE name="Fantasy")),
+# ('Dead Guy',    '(0) (0) (0) (0) (0)',           1, (SELECT id FROM buttonset WHERE name="Fantasy")),
 ('Max',         'p(12) p(12) p(20) p(20) p(30) p(30) p(X) p(X)', 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Mister Peach','(6) z(8,8) ps(12,12) (V,V)!',   1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Simon',       'q(4) q(6) q(12) q(20) q(X)',    1, (SELECT id FROM buttonset WHERE name="Freaks")),
