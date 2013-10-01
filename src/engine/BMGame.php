@@ -153,6 +153,23 @@ class BMGame {
                 foreach ($this->buttonArray as $buttonIdx => $tempButton) {
                     $tempButton->activate();
                 }
+
+                // load swing values that are carried across from a previous round
+                if (!isset($this->swingValueArrayArray)) {
+                    break;
+                }
+
+                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $activeDie) {
+                        if ($activeDie instanceof BMDieSwing) {
+                            if (array_key_exists($activeDie->swingType,
+                                                 $this->swingValueArrayArray[$playerIdx])) {
+                                $activeDie->swingValue = $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
+                            }
+                        }
+                    }
+                }
+
                 break;
 
             case BMGameState::specifyDice:
@@ -209,7 +226,7 @@ class BMGame {
                 foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => $die) {
                         if ($die instanceof BMDieSwing) {
-                            if ($die->needsValue) {
+                            if ($die->needsSwingValue) {
                                 // swing value has not yet been set
                                 continue;
                             }
@@ -1070,9 +1087,9 @@ class BMGame {
                         throw new InvalidArgumentException(
                             'Invalid W/L/T array provided.');
                     }
-                    $tempArray[$playerIdx] = array('W' => $value[$playerIdx][0],
-                                                   'L' => $value[$playerIdx][1],
-                                                   'D' => $value[$playerIdx][2]);
+                    $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
+                                                   'L' => (int)$value[$playerIdx][1],
+                                                   'D' => (int)$value[$playerIdx][2]);
                 }
                 $this->gameScoreArrayArray = $tempArray;
                 break;

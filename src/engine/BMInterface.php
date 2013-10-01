@@ -77,7 +77,6 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
-//            var_dump($game->capturedDieArrayArray);
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
