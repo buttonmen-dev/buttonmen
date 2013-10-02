@@ -148,8 +148,8 @@
             $dieSelectStatus = $_POST['dieSelectStatus'];
 
             // determine attacker and defender indices from POST
-            $attackerIdx = intval($_POST['attackerIdx']);
-            $defenderIdx = intval($_POST['defenderIdx']);
+            $attackerIdx = (int)$_POST['attackerIdx'];
+            $defenderIdx = (int)$_POST['defenderIdx'];
             $attackers = array();
             $defenders = array();
             $attackerDieIdx = array();
@@ -203,7 +203,10 @@
 
             // output the result of the attack
             if ($success) {
-                $output = array('status' => 'attack valid');
+                $game->proceed_to_next_user_action();
+                $output = array('status' => 'game message:'.$game->message.
+                                            'interface message:'.$interface->message);
+//                $output = array('status' => 'attack valid');
                 $interface->save_game($game);
             } else {
                 $output = array('status' => 'attack invalid');

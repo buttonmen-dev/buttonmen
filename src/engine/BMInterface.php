@@ -215,7 +215,7 @@ class BMInterface {
 
             $game->proceed_to_next_user_action();
 
-            $this->message = "Loaded data for game $gameId.";
+            $this->message = $this->message."Loaded data for game $gameId.";
             return $game;
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
@@ -226,6 +226,14 @@ class BMInterface {
     public function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
+
+        if ((count($game->activeDieArrayArray[0]) == 5) &&
+            (count($game->activeDieArrayArray[1]) == 5)) {
+            $this->message = $game->message.
+                             'before save'.
+                             'swingvalue1:'.$game->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$game->activeDieArrayArray[1][4]->swingValue;
+        }
 
         try {
             if (is_null($game->activePlayerIdx)) {
@@ -355,7 +363,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-            $this->message = "Saved game $game->gameId.";
+            $this->message = $this->message."Saved game $game->gameId.";
         } catch (Exception $e) {
             $this->message = "Game save failed: $e";
             var_dump($this->message);

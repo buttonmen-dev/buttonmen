@@ -90,7 +90,8 @@ class BMGame {
             throw new LogicException('Game state must be set.');
         }
 
-        $this->message = 'ok';
+//james: commented out for debugging
+//        $this->message = 'ok';
 
         $this->run_die_hooks($this->gameState);
 
@@ -159,16 +160,25 @@ class BMGame {
                     break;
                 }
 
+                $this->activate_GUI('set_previous_swing', implode('|', $this->swingValueArrayArray[0]).' and '.
+                                                          implode('|', $this->swingValueArrayArray[1]));
+
+                $activeDieArrayArray = $this->activeDieArrayArray;
                 foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                    foreach ($activeDieArray as $activeDie) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
                         if ($activeDie instanceof BMDieSwing) {
                             if (array_key_exists($activeDie->swingType,
                                                  $this->swingValueArrayArray[$playerIdx])) {
-                                $activeDie->swingValue = $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
+                                $activeDieArrayArray[$playerIdx][$dieIdx]->swingValue =
+                                    $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
                             }
                         }
                     }
                 }
+                $this->activeDieArrayArray = $activeDieArrayArray;
+
+                $this->activate_GUI('after_set_previous_swing', $this->activeDieArrayArray[0][4]->swingValue.' and '.
+                                                                $this->activeDieArrayArray[1][4]->swingValue);
 
                 break;
 
@@ -384,6 +394,7 @@ class BMGame {
                         if ($playerIdx == $winnerIdx) {
                             $this->gameScoreArrayArray[$playerIdx]['W']++;
                         } else {
+                            $this->activate_GUI('reset swing dice for player', $playerIdx);
                             $this->gameScoreArrayArray[$playerIdx]['L']++;
                             $this->swingValueArrayArray[$playerIdx] = array();
                         }
@@ -541,7 +552,7 @@ class BMGame {
                 if (isset($this->activePlayerIdx)) {
                     break;
                 }
-                // deal with reserve dice
+                // james: still need to deal with reserve dice
                 $this->gameState = BMGameState::loadDiceIntoButtons;
                 foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
                     if ($tempGameScoreArray['W'] >= $this->maxWins) {
@@ -558,13 +569,64 @@ class BMGame {
 
     public function proceed_to_next_user_action() {
         $repeatCount = 0;
+
+        if ((count($this->activeDieArrayArray[0]) == 5) &&
+            (count($this->activeDieArrayArray[1]) == 5)) {
+            $this->message = $this->message.
+                             'init '.
+                             'swingvalue1:'.$this->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$this->activeDieArrayArray[1][4]->swingValue;
+        }
+
         $this->update_game_state();
+
+        if ((count($this->activeDieArrayArray[0]) == 5) &&
+            (count($this->activeDieArrayArray[1]) == 5)) {
+            $this->message = 'after update'.
+                             'gamestate'.
+                             $this->gameState.
+                             'swingvalue1:'.$this->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$this->activeDieArrayArray[1][4]->swingValue;
+        }
+
         $this->do_next_step();
+
+        if ((count($this->activeDieArrayArray[0]) == 5) &&
+            (count($this->activeDieArrayArray[1]) == 5)) {
+            $this->message = $this->message.
+                             'gamestate'.
+                             $this->gameState.
+                             'after do next step'.
+                             'swingvalue1:'.$this->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$this->activeDieArrayArray[1][4]->swingValue;
+        }
 
         while (0 === array_sum($this->waitingOnActionArray)) {
             $startGameState = $this->gameState;
             $this->update_game_state();
+
+        if ((count($this->activeDieArrayArray[0]) == 5) &&
+            (count($this->activeDieArrayArray[1]) == 5)) {
+            $this->message = $this->message.
+                             'gamestate'.
+                             $this->gameState.
+                             'after update'.
+                             'swingvalue1:'.$this->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$this->activeDieArrayArray[1][4]->swingValue;
+        }
+
             $this->do_next_step();
+
+        if ((count($this->activeDieArrayArray[0]) == 5) &&
+            (count($this->activeDieArrayArray[1]) == 5)) {
+            $this->message = $this->message.
+                             'gamestate'.
+                             $this->gameState.
+                             'after do next step'.
+                             'swingvalue1:'.$this->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$this->activeDieArrayArray[1][4]->swingValue;
+        }
+
             if (BMGameState::endGame === $this->gameState) {
                 break;
             }
@@ -1105,7 +1167,7 @@ class BMGame {
                 break;
             case 'gameState':
                 BMGameState::validate_game_state($value);
-                $this->gameState = (int) $value;
+                $this->gameState = (int)$value;
                 break;
             case 'waitingOnActionArray':
                 if (!is_array($value) ||

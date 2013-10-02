@@ -479,7 +479,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
                                   array('W' => 1, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
-        var_dump($game->activeDieArrayArray);
         $this->assertTrue(isset($game->activeDieArrayArray[1][4]->swingValue));
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
     }
