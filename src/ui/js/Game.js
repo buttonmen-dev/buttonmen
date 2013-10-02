@@ -134,6 +134,8 @@ Game.showStatePage = function() {
       } else {
         Game.actionPlayTurnInactive();
       }
+    } else if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
+      Game.actionShowFinishedGame();
     } else {
       Game.page
         = $('<p>', {'text': "Can't figure out what action to take next", });
@@ -357,6 +359,27 @@ Game.actionPlayTurnInactive = function() {
   Game.layoutPage();
 }
 
+Game.actionShowFinishedGame = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader();
+  Game.page.append($('<br>'));
+  Game.pageAddGamePlayerStatus('player', false, false);
+  Game.page.append($('<br>'));
+  Game.pageAddGameWinner();
+  Game.page.append($('<br>'));
+  Game.pageAddGamePlayerStatus('opponent', true, false);
+
+  Game.pageAddTimestampFooter();
+
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+}
+
+////////////////////////////////////////////////////////////////////////
+// Form submission functions
+
 // Form submission action for choosing swing dice
 Game.formChooseSwingActive = function() {
   var textFieldsFilled = true;
@@ -472,9 +495,17 @@ Game.pageAddGameHeader = function() {
 
 // Display a footer-style message with the last action timestamp
 Game.pageAddTimestampFooter = function() {
+
+  // Timestamp has a different meaning if the game is over
+  if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
+    var timestamptext = 'Game completed at';
+  } else {
+    var timestamptext = 'Last action time';
+  }
+
   Game.page.append($('<br>'));
   Game.page.append($('<div>', {
-                      'text': 'Last action time: ' + Game.api.timestamp,
+                      'text': timestamptext + ': ' + Game.api.timestamp,
                      }));
   return true;
 }
@@ -522,16 +553,16 @@ Game.pageAddDieRecipeTable = function() {
 // Display each player's dice in "battle" layout
 Game.pageAddDieBattleTable = function(clickable) {
 
-  Game.pageAddGamePlayerStatus('player', false);
+  Game.pageAddGamePlayerStatus('player', false, true);
   Game.pageAddGamePlayerDice('player', clickable);
   Game.page.append($('<br>'));
   Game.pageAddGamePlayerDice('opponent', clickable);
-  Game.pageAddGamePlayerStatus('opponent', true);
+  Game.pageAddGamePlayerStatus('opponent', true, true);
   return true;
 }
 
 // Add a brief mid-game status listing for the requested player
-Game.pageAddGamePlayerStatus = function(player, reversed) {
+Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
 
   // Player name
   var playerDiv = $('<div>');
@@ -550,14 +581,18 @@ Game.pageAddGamePlayerStatus = function(player, reversed) {
             "/" + Game.api[player].gameScoreDict['L'] + 
             "/" + Game.api[player].gameScoreDict['D'], }));
 
-  // Round score
-  var roundScoreDiv = $('<div>');
-  roundScoreDiv.append($('<span>', {
-    'text': "Score: " + Game.api[player].roundScore, }));
+  // Round score, only applicable in active games
+  if (game_active) {
+    var roundScoreDiv = $('<div>');
+    roundScoreDiv.append($('<span>', {
+      'text': "Score: " + Game.api[player].roundScore, }));
+  }
 
   // Order the elements depending on the "reversed" flag
   if (reversed == true) {
-    Game.page.append(roundScoreDiv);
+    if (game_active) {
+      Game.page.append(roundScoreDiv);
+    }
     Game.page.append(gameScoreDiv);
     Game.page.append(buttonDiv);
     Game.page.append(playerDiv);
@@ -565,7 +600,9 @@ Game.pageAddGamePlayerStatus = function(player, reversed) {
     Game.page.append(playerDiv);
     Game.page.append(buttonDiv);
     Game.page.append(gameScoreDiv);
-    Game.page.append(roundScoreDiv);
+    if (game_active) {
+      Game.page.append(roundScoreDiv);
+    }
   }
 
   return true;
@@ -592,6 +629,31 @@ Game.pageAddGamePlayerDice = function(player, clickable) {
     Game.page.append(dieDiv);
     i += 1;
   }
+}
+
+// Show the winner of a completed game
+Game.pageAddGameWinner = function() {
+
+  var playerWins = Game.api.player.gameScoreDict['W'];
+  var opponentWins = Game.api.opponent.gameScoreDict['W'];
+  if (playerWins > opponentWins) {
+    var winnerName = Game.api.player.playerName;
+  } else if (playerWins < opponentWins) {
+    var winnerName = Game.api.opponent.playerName;
+  } else {
+    var winnerName = false;
+  }
+  if (winnerName) {
+    var winnerText = winnerName + ' won!';
+  } else {
+    var winnerText = 'TIE';
+  }
+
+  var winnerDiv = $('<div>');
+  winnerDiv.append($('<span>', {
+                       'id': 'winner_name',
+                       'text': winnerText, }));
+  Game.page.append(winnerDiv);
 }
 
 Game.dieIndexId = function(player, dieidx) {
