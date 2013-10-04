@@ -204,9 +204,7 @@
             // output the result of the attack
             if ($success) {
                 $game->proceed_to_next_user_action();
-                $output = array('status' => 'game message:'.$game->message.
-                                            'interface message:'.$interface->message);
-//                $output = array('status' => 'attack valid');
+                $output = array('status' => 'attack valid');
                 $interface->save_game($game);
             } else {
                 $output = array('status' => 'attack invalid');
