@@ -351,14 +351,14 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      */
     public function test_swing_value_reset() {
         // create a dummy game that will be overwritten
-        $gameId = $this->object->create_game(array(1, 2), array('Coil', 'Bane'), 4);
+        $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
 
         // start as if we were close to the end of Round 1
 
         // load buttons
         $button1 = new BMButton;
-        $button1->load('(1) (V)', 'Test1');
-        $this->assertEquals('(1) (V)', $button1->recipe);
+        $button1->load('(1) (X)', 'Test1');
+        $this->assertEquals('(1) (X)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertCount(2, $button1->dieArray);
         $this->assertEquals(1, $button1->dieArray[0]->max);
@@ -397,11 +397,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
-        $this->assertEquals(array(array('V' => NULL), array('V' => NULL)),
+        $this->assertEquals(array(array('X' => NULL), array('V' => NULL)),
                             $game->swingValueArrayArray);
 
         // specify swing dice correctly
-        $game->swingValueArrayArray = array(array('V' => 7), array('V' => 11));
+        $game->swingValueArrayArray = array(array('X' => 7), array('V' => 11));
         $game->proceed_to_next_user_action();
         $this->assertTrue($game->activeDieArrayArray[0][1] instanceof BMDieSwing);
         $this->assertTrue($game->activeDieArrayArray[1][1] instanceof BMDieSwing);
@@ -410,7 +410,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, array_sum($game->waitingOnActionArray));
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
-        $this->assertEquals(array(array('V' => 7), array('V' => 11)),
+        $this->assertEquals(array(array('X' => 7), array('V' => 11)),
                             $game->swingValueArrayArray);
         $this->assertEquals(7,  $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals(11, $game->activeDieArrayArray[1][1]->max);
@@ -443,8 +443,18 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
+        $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
+        $this->assertEquals(7, $game->swingValueArrayArray[0]['X']);
+        $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
+        $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
+
         $this->object->save_game($game);
         $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
+        $this->assertEquals(7, $game->swingValueArrayArray[0]['X']);
+        $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
+        $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
 
         $this->assertEquals(1, count($game->activeDieArrayArray[1]));
 
@@ -473,12 +483,22 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
+        $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
+        $this->assertEquals(7, $game->swingValueArrayArray[0]['X']);
+        $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
+        $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
+
         $this->object->save_game($game);
         $game = $this->object->load_game($gameId);
 
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
                                   array('W' => 1, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
+
+        $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
+        $this->assertFalse(isset($game->swingValueArrayArray[0]['X']));
+        $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
+        $this->assertTrue(isset($game->swingValueArrayArray[1]['V']));
         $this->assertTrue(isset($game->activeDieArrayArray[1][4]->swingValue));
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
     }

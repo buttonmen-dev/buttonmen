@@ -162,23 +162,40 @@ class BMGame {
 
                 $this->activate_GUI('set_previous_swing', implode('|', $this->swingValueArrayArray[0]).' and '.
                                                           implode('|', $this->swingValueArrayArray[1]));
+//                $this->activate_GUI('countPlayer1', count($this->activeDieArrayArray[0]));
+//                $this->activate_GUI('countPlayer2', count($this->activeDieArrayArray[1]));
 
-                $activeDieArrayArray = $this->activeDieArrayArray;
-                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => &$activeDie) {
                         if ($activeDie instanceof BMDieSwing) {
+                            $this->activate_GUI('dieSwingIdx:', $dieIdx);
+                            $this->activate_GUI('swingType:', $activeDie->swingType);
+                            $this->activate_GUI('swingValueArray', implode('|', array_keys($this->swingValueArrayArray[$playerIdx])));
                             if (array_key_exists($activeDie->swingType,
                                                  $this->swingValueArrayArray[$playerIdx])) {
-                                $activeDieArrayArray[$playerIdx][$dieIdx]->swingValue =
+                                $activeDie->swingValue =
                                     $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
+if ((count($this->activeDieArrayArray[0]) == 5) &&
+    (count($this->activeDieArrayArray[1]) == 5)) {
+$this->activate_GUI('playerIdx:', $playerIdx);
+$this->activate_GUI('dieIdx:', $dieIdx);
+$this->activate_GUI('activeDieSwingValue:', $activeDie->swingvalue);
+$this->activate_GUI('activeDieArraySwingValue:', $this->activeDieArrayArray[$playerIdx][$dieIdx]->swingvalue);
+} else {
+$this->activate_GUI('countPlayer1', count($this->activeDieArrayArray[0]));
+$this->activate_GUI('countPlayer1', count($this->activeDieArrayArray[1]));
+}
+
                             }
                         }
                     }
                 }
-                $this->activeDieArrayArray = $activeDieArrayArray;
+if ((count($this->activeDieArrayArray[0]) == 5) &&
+    (count($this->activeDieArrayArray[1]) == 5)) {
+$this->activate_GUI('after_set_previous_swing', $this->activeDieArrayArray[0][4]->swingValue.' and '.
+                                                        $this->activeDieArrayArray[1][4]->swingValue);
+}
 
-                $this->activate_GUI('after_set_previous_swing', $this->activeDieArrayArray[0][4]->swingValue.' and '.
-                                                                $this->activeDieArrayArray[1][4]->swingValue);
 
                 break;
 
@@ -394,9 +411,14 @@ class BMGame {
                         if ($playerIdx == $winnerIdx) {
                             $this->gameScoreArrayArray[$playerIdx]['W']++;
                         } else {
-                            $this->activate_GUI('reset swing dice for player', $playerIdx);
+                            $this->activate_GUI('before reset swing dice for player', $playerIdx);
+                            $this->activate_GUI('swingValueArray1', implode('|', array_keys($this->swingValueArrayArray[0])));
+                            $this->activate_GUI('swingValueArray2', implode('|', array_keys($this->swingValueArrayArray[1])));
                             $this->gameScoreArrayArray[$playerIdx]['L']++;
                             $this->swingValueArrayArray[$playerIdx] = array();
+                            $this->activate_GUI('reset swing dice for player', $playerIdx);
+                            $this->activate_GUI('swingValueArray1', implode('|', array_keys($this->swingValueArrayArray[0])));
+                            $this->activate_GUI('swingValueArray2', implode('|', array_keys($this->swingValueArrayArray[1])));
                         }
                     }
                 }

@@ -184,15 +184,19 @@ class BMInterface {
 
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
+
                 $die = BMDie::create_from_recipe($row['recipe']);
                 $die->value = $row['value'];
+                $originalPlayerIdx = array_search($row['original_owner_id'],
+                                                  $game->playerIdArray);
+                $die->originalPlayerIdx = $originalPlayerIdx;
 
                 if ($die instanceof BMDieSwing) {
-                    $game->swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
-                    $game->swingValueArrayArray[$playerIdx][$die->swingType] = $row['swing_value'];
+                    $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
+                    $game->swingValueArrayArray[$originalPlayerIdx][$die->swingType] = $row['swing_value'];
 
                     if (isset($row['swing_value'])) {
-                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$playerIdx]);
+                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
                         if (!$swingSetSuccess) {
                             throw new LogicException('Swing value set failed.');
                         }
@@ -323,10 +327,11 @@ class BMInterface {
                     $status = 'NORMAL';
 
                     $query = 'INSERT INTO die '.
-                             '(owner_id, game_id, status, recipe, swing_value, position, value) '.
-                             'VALUES (:owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                             '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
+                             'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
                     $statement = self::$conn->prepare($query);
                     $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                              ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
                                               ':game_id' => $game->gameId,
                                               ':status' => $status,
                                               ':recipe' => $activeDie->recipe,
@@ -343,10 +348,11 @@ class BMInterface {
                     $status = 'CAPTURED';
 
                     $query = 'INSERT INTO die '.
-                             '(owner_id, game_id, status, recipe, swing_value, position, value) '.
-                             'VALUES (:owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                             '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
+                             'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
                     $statement = self::$conn->prepare($query);
                     $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                              ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
                                               ':game_id' => $game->gameId,
                                               ':status' => $status,
                                               ':recipe' => $activeDie->recipe,

@@ -113,6 +113,7 @@ class BMButton {
                     }
                     if (isset($this->playerIdx)) {
                         $die->playerIdx = $this->playerIdx;
+                        $die->originalPlayerIdx = $this->playerIdx;
                     }
                 }
                 break;
@@ -131,6 +132,7 @@ class BMButton {
                 if (isset($this->dieArray)) {
                     foreach ($this->dieArray as $die) {
                         $die->playerIdx = $this->playerIdx;
+                        $die->originalPlayerIdx = $this->playerIdx;
                     }
                 }
                 break;
