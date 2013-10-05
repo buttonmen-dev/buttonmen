@@ -110,21 +110,20 @@
                                }
                                var gameId = rs.gameIdArray[gameIdx];
 
-                               // james: this currently fails!
                                $td6.append($('<a/>',
                                            {text: action,
                                             data: {gameId: gameId,
                                                    href: href},
                                             click: function () {
-                                                // Note that the async click event must use the values
-                                                // stored in data, as opposed to the values of gameId and
-                                                // href set in the last time through the loop.
-                                                $.post('responder.php',
-                                                       {type: 'chooseActiveGame',
-                                                        input: $(this).data('gameId')},
-                                                       redirect($(this).data('href'))
-                                                ); // end post properties
-                                            } // end onclick function
+                                                       // Note that the async click event must use the values
+                                                       // stored in data, as opposed to the values of gameId and
+                                                       // href set in the last time through the loop.
+                                                       $.post('responder.php',
+                                                              {type: 'chooseActiveGame',
+                                                               input: $(this).data('gameId')},
+                                                              redirect($(this).data('href'))
+                                                       ); // end post properties
+                                                   } // end onclick function
                                            }) // end anchor properties
                                ); // end append
                            } // end for
