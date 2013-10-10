@@ -225,12 +225,7 @@ class BMAttack {
 
         $oneIt = new BMUtilityXCYIterator($one, 1);
 
-        $checkedSizes = array();
-
-        for ($i = 1; $i <= $count; $i++) {
-            $checkedSizes[$i] = FALSE;
-        }
-
+        $checkedSizes = array_fill(1, $count, FALSE);
 
         for ($i = 1; $i <= $count; $i++) {
             if ($checkedSizes[$i]) {
