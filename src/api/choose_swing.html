@@ -54,6 +54,13 @@
     <script src="jquery-1.9.0.min.js"></script>
     <script>
     $(document).ready(function() {
+        // define global variables
+        var currentPlayerDieRecipeArray;
+        var opponentPlayerDieRecipeArray;
+        var swingRequestArray;
+        var roundNumber;
+        var swingValueArray;
+
         function displayDieDetails() {
             $.each(currentPlayerDieRecipeArray, function(index, value) {
                 $('#div_current_player').append('<p>' + value + '</p>');
@@ -86,10 +93,10 @@
                    function(rs) {
                        if (rs.status == 'ok') {
                            var gameData = rs.gameData.data;
-                           gameId = gameData.gameId;
-                           playerIdArray = gameData.playerIdArray;
-                           currentPlayerIdx = rs.currentPlayerIdx;
-                           opponentPlayerIdx = (currentPlayerIdx + 1)%2;
+                           var gameId = gameData.gameId;
+                           //var playerIdArray = gameData.playerIdArray;
+                           var currentPlayerIdx = rs.currentPlayerIdx;
+                           var opponentPlayerIdx = (currentPlayerIdx + 1)%2;
                            currentPlayerDieRecipeArray = gameData.dieRecipeArrayArray[currentPlayerIdx];
                            opponentPlayerDieRecipeArray = gameData.dieRecipeArrayArray[opponentPlayerIdx];
                            swingRequestArray = gameData.swingRequestArrayArray[currentPlayerIdx];
@@ -140,9 +147,6 @@
                        });
             }
         });
-
-        // code to initialise game variables
-        currentPlayerIdx = 1;
 
         // code to run when page is ready
         loadGameInfo();

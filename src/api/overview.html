@@ -56,7 +56,7 @@
                 return function (rs) {
                     $('#message').text('Game ' + rs.data + ' loaded.');
                     window.location = href;
-                }
+                };
             }
 
             function loadActiveGames() {
@@ -88,8 +88,8 @@
                                // deal with the contents of the last column
                                var action = 'View';
                                var href = '';
-                               
-                               switch (parseInt(rs.gameStateArray[gameIdx])) {
+
+                               switch (parseInt(rs.gameStateArray[gameIdx], 10)) {
                                    case 24:
                                        if (1 == rs.isAwaitingActionArray[gameIdx]) {
                                            action = 'Choose swing';
@@ -109,29 +109,28 @@
                                        href = 'view_finished_game.html';
                                }
                                var gameId = rs.gameIdArray[gameIdx];
-                               
+
                                $td6.append($('<a/>',
                                            {text: action,
-                                            data: {game_id: gameId,
+                                            data: {gameId: gameId,
                                                    href: href},
                                             click: function () {
-                                                       // Note that the async click event must use
-                                                       // the values stored in data, as opposed
-                                                       // to the values of game_id and href set
-                                                       // in the last time through the loop.
+                                                       // Note that the async click event must use the values
+                                                       // stored in data, as opposed to the values of gameId and
+                                                       // href set in the last time through the loop.
                                                        $.post('responder.php',
                                                               {type: 'chooseActiveGame',
-                                                               input: $(this).data('game_id')},
+                                                               input: $(this).data('gameId')},
                                                               redirect($(this).data('href'))
                                                        ); // end post properties
-                                                   } // end click function
+                                                   } // end onclick function
                                            }) // end anchor properties
                                ); // end append
                            } // end for
                            message = rs.message;
                        } // end function
                 ); // end post properties
-            }; // end function loadActiveGames
+            } // end function loadActiveGames
 
             // code to run when page is ready
             loadActiveGames();
