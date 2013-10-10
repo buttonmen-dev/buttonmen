@@ -63,13 +63,13 @@
                            $('#round_number').text(rs.gameData.data.roundNumber);
                            $('#timestamp').text(rs.timestamp);
 
-						   if (player1gameScoreArray.W > player2gameScoreArray.W) {
+                           if (player1gameScoreArray.W > player2gameScoreArray.W) {
                                $('#winner_name').text(rs.playerNameArray[0]);
-						   } else if (player1gameScoreArray.W < player2gameScoreArray.W) {
+                           } else if (player1gameScoreArray.W < player2gameScoreArray.W) {
                                $('#winner_name').text(rs.playerNameArray[1]);
-						   } else {
+                           } else {
                                $('#winner_name').text('No one');
-						   }
+                           }
                        } else {
                            // We got some JSON we didn't expect
                            // (the network fetch succeeded, but the engine had an error)

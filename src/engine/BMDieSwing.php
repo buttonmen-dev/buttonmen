@@ -5,7 +5,7 @@ class BMDieSwing extends BMDie {
     public $swingValue;
     public $swingMax;
     public $swingMin;
-    protected $needsValue = TRUE;
+    protected $needsSwingValue = TRUE;
     protected $valueRequested = FALSE;
 
     // To allow correct behavior for turbo and mood swings that get
@@ -43,7 +43,7 @@ class BMDieSwing extends BMDie {
         $this->divisor = 1;
         $this->remainder = 0;
 
-        $this->needsValue = TRUE;
+        $this->needsSwingValue = TRUE;
         $this->valueRequested = FALSE;
 
         $this->swingType = $type;
@@ -99,7 +99,7 @@ class BMDieSwing extends BMDie {
     {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
-        if ($this->needsValue) {
+        if ($this->needsSwingValue) {
             $this->ownerObject->require_values();
         }
 
@@ -108,7 +108,7 @@ class BMDieSwing extends BMDie {
 
     public function roll($successfulAttack = FALSE)
     {
-        if ($this->needsValue) {
+        if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values($this, $this->swingType);
                 $this->valueRequested = TRUE;
@@ -158,7 +158,7 @@ class BMDieSwing extends BMDie {
             $this->swingValue = $sides;
 
             // Don't need to ask for a swing value any more
-            $this->needsValue = FALSE;
+            $this->needsSwingValue = FALSE;
             $this->valueRequested = FALSE;
 
             // correctly handle cut-in-half swing dice, however many

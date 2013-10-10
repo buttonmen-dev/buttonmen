@@ -61,7 +61,7 @@
             if (document.createElement){
                 $('#'+parent).append(
                     $('<div id="' + id + '" class="die_img unselected"' +
-                      'style="background-image: url(images/Circle.png);' + 
+                      'style="background-image: url(images/Circle.png);' +
                              'height:70px;width:70px;background-size:100%">' +
                           '<span id="' + id + '_span" class="die_overlay">' +
                               rolledNumber + ' ' + recipe + ' max: ' + sides +
@@ -111,7 +111,7 @@
                        if (rs.status == 'ok') {
                            // need to explicitly convert the activePlayerIdx to
                            // an integer, so that I can perform integer addition
-                           playerIdx = parseInt(rs.gameData.data.activePlayerIdx, 10);
+                           var playerIdx = parseInt(rs.gameData.data.activePlayerIdx, 10);
                            attackerIdx = playerIdx;
                            defenderIdx = (attackerIdx + 1)%2;
 
