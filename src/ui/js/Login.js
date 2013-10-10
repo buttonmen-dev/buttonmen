@@ -23,7 +23,6 @@ Login.getLoginHeader = function() {
 };
 
 Login.showLoginHeader = function(callbackfunc) {
-
   // Save the callback function
   Login.callback = callbackfunc;
 
@@ -120,7 +119,7 @@ Login.postToResponder = function(responder_args) {
          responder_args,
          function(rs) {
            if (rs.status == 'ok') {
-             Game.message = {
+             Env.message = {
                'type': 'success',
                'text': responder_args['type'] + ' succeeded',
              };

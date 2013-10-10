@@ -15,12 +15,6 @@ Game.GAME_STATE_END_TURN = 48;
 Game.GAME_STATE_END_ROUND = 50;
 Game.GAME_STATE_END_GAME = 60;
 
-Game.messageTypeColors = {
-  'none': 'black',
-  'error': 'red',
-  'success': 'green',
-};
-
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -40,11 +34,11 @@ Game.messageTypeColors = {
 
 Game.showGamePage = function() {
 
-  // Make sure a couple of div elements that we will need exist in the
-  // page body
-  if ($('#game_message').length == 0) {
-    $('body').append($('<div>', {'id': 'game_message', }));
-  }
+  // Setup necessary elements for displaying status messages
+  $.getScript('js/Env.js');
+  Env.setupEnvStub();
+
+  // Make sure the div element that we will need exists in the page body
   if ($('#game_page').length == 0) {
     $('body').append($('<div>', {'id': 'game_page', }));
   }
@@ -56,26 +50,25 @@ Game.showGamePage = function() {
 
 // the current game should be provided as a GET parameter to the page
 Game.getCurrentGame = function(callbackfunc) {
-  $.getScript('js/Env.js');
   Game.api = {
     'load_status': 'failed',
   }
   Game.game = Env.getParameterByName('game');
   if (Game.game == null) {
-    Game.message = {
+    Env.message = {
       'type': 'error', 'text': 'No game specified.  Nothing to do.'
     };
     return callbackfunc();
   }
   if ($.isNumeric(Game.game) == false) {
-    Game.message = {
+    Env.message = {
       'type': 'error',
       'text': 'Specified game is not a valid number.  Nothing to do.'
     };
     return callbackfunc();
   }
   if (Login.logged_in == false) {
-    Game.message = {
+    Env.message = {
       'type': 'error',
       'text': 'Not logged in.  Nothing to do.'
     };
@@ -91,13 +84,13 @@ Game.getCurrentGame = function(callbackfunc) {
              if (Game.parseGameData(rs.currentPlayerIdx, rs.playerNameArray)) {
                Game.api.load_status = 'ok';
              } else {
-               Game.message = {
+               Env.message = {
                  'type': 'error',
                  'text': 'Game data received from server could not be parsed!',
                };
              }
            } else {
-             Game.message = {
+             Env.message = {
                'type': 'error',
                'text': 'Failed to lookup status of game ' + Game.game,
              };
@@ -105,7 +98,7 @@ Game.getCurrentGame = function(callbackfunc) {
            return callbackfunc();
          }
   ).fail(function() {
-    Game.message = {
+    Env.message = {
       'type': 'error',
       'text': 'Internal error when looking up game',
     };
@@ -118,7 +111,7 @@ Game.showStatePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
-  Game.showStatusMessage();
+  Env.showStatusMessage();
 
   // Figure out what to do next based on the game state
   if (Game.api.load_status == 'ok') {
@@ -134,6 +127,8 @@ Game.showStatePage = function() {
       } else {
         Game.actionPlayTurnInactive();
       }
+    } else if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
+      Game.actionShowFinishedGame();
     } else {
       Game.page
         = $('<p>', {'text': "Can't figure out what action to take next", });
@@ -161,20 +156,6 @@ Game.layoutPage = function() {
 
 /////
 // HELPERS for generic functions
-
-// Show a status message based on a static list of options
-Game.showStatusMessage = function() {
-  $('#game_message').empty();
-  if (Game.message) {
-    var msgobj = $('<p>');
-    msgobj.append($('<font>',
-                  {
-                    'color': Game.messageTypeColors[Game.message.type],
-                    'text': Game.message.text,
-                  }));
-    $('#game_message').append(msgobj);
-  }
-}
 
 // Utility routine to parse the game data returned by the server
 // Adds three types of game data:
@@ -357,6 +338,27 @@ Game.actionPlayTurnInactive = function() {
   Game.layoutPage();
 }
 
+Game.actionShowFinishedGame = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader();
+  Game.page.append($('<br>'));
+  Game.pageAddGamePlayerStatus('player', false, false);
+  Game.page.append($('<br>'));
+  Game.pageAddGameWinner();
+  Game.page.append($('<br>'));
+  Game.pageAddGamePlayerStatus('opponent', true, false);
+
+  Game.pageAddTimestampFooter();
+
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+}
+
+////////////////////////////////////////////////////////////////////////
+// Form submission functions
+
 // Form submission action for choosing swing dice
 Game.formChooseSwingActive = function() {
   var textFieldsFilled = true;
@@ -381,12 +383,12 @@ Game.formChooseSwingActive = function() {
            },
            function(rs) {
              if ('ok' == rs.status) {
-               Game.message = {
+               Env.message = {
                  'type': 'success',
                  'text': 'Successfully set swing values',
                };
              } else {
-               Game.message = {
+               Env.message = {
                  'type': 'error',
                  'text': 'Failed to set swing values',
                };
@@ -394,14 +396,14 @@ Game.formChooseSwingActive = function() {
              Game.showGamePage();
            }
     ).fail(function() {
-             Game.message = { 
+             Env.message = { 
                'type': 'error',
                'text': 'Received internal error while submitting swing values',
              };
              Game.showGamePage();
            });
   } else {
-    Game.message = { 
+    Env.message = { 
       'type': 'error',
       'text': 'Not enough swing values specified',
     };
@@ -437,12 +439,12 @@ Game.formPlayTurnActive = function() {
          },
          function(rs) {
            if ('attack valid' == rs.status) {
-             Game.message = {
+             Env.message = {
                'type': 'success',
                'text': 'Attack succeeded: ' + rs.message,
              };
            } else {
-             Game.message = {
+             Env.message = {
                'type': 'error',
                'text': 'Attack invalid',
              };
@@ -450,7 +452,7 @@ Game.formPlayTurnActive = function() {
            Game.showGamePage();
          }
     ).fail(function() {
-             Game.message = { 
+             Env.message = { 
                'type': 'error',
                'text': 'Received internal error while attacking',
              };
@@ -472,9 +474,17 @@ Game.pageAddGameHeader = function() {
 
 // Display a footer-style message with the last action timestamp
 Game.pageAddTimestampFooter = function() {
+
+  // Timestamp has a different meaning if the game is over
+  if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
+    var timestamptext = 'Game completed at';
+  } else {
+    var timestamptext = 'Last action time';
+  }
+
   Game.page.append($('<br>'));
   Game.page.append($('<div>', {
-                      'text': 'Last action time: ' + Game.api.timestamp,
+                      'text': timestamptext + ': ' + Game.api.timestamp,
                      }));
   return true;
 }
@@ -499,7 +509,7 @@ Game.pageAddDieRecipeTable = function() {
     if (i < Game.api.player.nDie) {
       var dieval = Game.api.player.dieRecipeArray[i];
       if ((Game.api.player.sidesArray[i] != null) &&
-          (Game.api.player.sidesArray[i] != dieval)) {
+          (dieval.indexOf('(' + Game.api.player.sidesArray[i] + ')') == -1)) {
         dieval += '=' + Game.api.player.sidesArray[i]
       }
       dierow.append($('<td>', {'text': dieval, }));
@@ -522,16 +532,16 @@ Game.pageAddDieRecipeTable = function() {
 // Display each player's dice in "battle" layout
 Game.pageAddDieBattleTable = function(clickable) {
 
-  Game.pageAddGamePlayerStatus('player', false);
+  Game.pageAddGamePlayerStatus('player', false, true);
   Game.pageAddGamePlayerDice('player', clickable);
   Game.page.append($('<br>'));
   Game.pageAddGamePlayerDice('opponent', clickable);
-  Game.pageAddGamePlayerStatus('opponent', true);
+  Game.pageAddGamePlayerStatus('opponent', true, true);
   return true;
 }
 
 // Add a brief mid-game status listing for the requested player
-Game.pageAddGamePlayerStatus = function(player, reversed) {
+Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
 
   // Player name
   var playerDiv = $('<div>');
@@ -550,14 +560,18 @@ Game.pageAddGamePlayerStatus = function(player, reversed) {
             "/" + Game.api[player].gameScoreDict['L'] + 
             "/" + Game.api[player].gameScoreDict['D'], }));
 
-  // Round score
-  var roundScoreDiv = $('<div>');
-  roundScoreDiv.append($('<span>', {
-    'text': "Score: " + Game.api[player].roundScore, }));
+  // Round score, only applicable in active games
+  if (game_active) {
+    var roundScoreDiv = $('<div>');
+    roundScoreDiv.append($('<span>', {
+      'text': "Score: " + Game.api[player].roundScore, }));
+  }
 
   // Order the elements depending on the "reversed" flag
   if (reversed == true) {
-    Game.page.append(roundScoreDiv);
+    if (game_active) {
+      Game.page.append(roundScoreDiv);
+    }
     Game.page.append(gameScoreDiv);
     Game.page.append(buttonDiv);
     Game.page.append(playerDiv);
@@ -565,7 +579,9 @@ Game.pageAddGamePlayerStatus = function(player, reversed) {
     Game.page.append(playerDiv);
     Game.page.append(buttonDiv);
     Game.page.append(gameScoreDiv);
-    Game.page.append(roundScoreDiv);
+    if (game_active) {
+      Game.page.append(roundScoreDiv);
+    }
   }
 
   return true;
@@ -579,12 +595,29 @@ Game.pageAddGamePlayerDice = function(player, clickable) {
     var dieDiv = $('<div>', {
                     'id': Game.dieIndexId(player, i),
                     'class': 'die_img unselected',
-                    'style': 'background-image: url(../api/images/Circle.png)',
+                    'style':
+                      'background-image: url(images/Circle.png);' +
+                      'height:70px;width:70px;background-size:100%',
                    });
     dieDiv.append($('<span>', {
                       'class': 'die_overlay',
-                      'text': Game.api[player].valueArray[i] +
-                              ' d' + Game.api[player].sidesArray[i],
+                      'text': Game.api[player].valueArray[i],
+                    }));
+    dieDiv.append($('<br>'));
+
+    // If the recipe doesn't contain (sides), assume there are swing
+    // dice in the recipe, so we need to specify the current number
+    // of sides
+    var dieSides =  '(' + Game.api[player].sidesArray[i] + ')';
+    var dieRecipeText = Game.api[player].dieRecipeArray[i];
+    if (dieRecipeText.indexOf(dieSides) === -1) {
+      dieRecipeText = dieRecipeText.replace(
+                        ')',
+                        '=' + Game.api[player].sidesArray[i] + ')');
+    }
+    dieDiv.append($('<span>', {
+                      'class': 'die_recipe',
+                      'text': dieRecipeText,
                     }));
     if (clickable) {
       dieDiv.click(Game.dieBorderToggleHandler);
@@ -592,6 +625,31 @@ Game.pageAddGamePlayerDice = function(player, clickable) {
     Game.page.append(dieDiv);
     i += 1;
   }
+}
+
+// Show the winner of a completed game
+Game.pageAddGameWinner = function() {
+
+  var playerWins = Game.api.player.gameScoreDict['W'];
+  var opponentWins = Game.api.opponent.gameScoreDict['W'];
+  if (playerWins > opponentWins) {
+    var winnerName = Game.api.player.playerName;
+  } else if (playerWins < opponentWins) {
+    var winnerName = Game.api.opponent.playerName;
+  } else {
+    var winnerName = false;
+  }
+  if (winnerName) {
+    var winnerText = winnerName + ' won!';
+  } else {
+    var winnerText = 'TIE';
+  }
+
+  var winnerDiv = $('<div>');
+  winnerDiv.append($('<span>', {
+                       'id': 'winner_name',
+                       'text': winnerText, }));
+  Game.page.append(winnerDiv);
 }
 
 Game.dieIndexId = function(player, dieidx) {

@@ -54,6 +54,12 @@ input.text {
     top:16px
 }
 
+.die_recipe {
+    position:relative;
+    top:20px;
+    color:black;
+}
+
 .selected {
     border: 2px solid red;
 }
