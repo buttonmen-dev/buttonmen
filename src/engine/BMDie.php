@@ -28,6 +28,7 @@ class BMDie {
 // references back to the owner
     public $ownerObject;
     public $playerIdx;
+    public $originalPlayerIdx;
 
     protected $doesReroll = true;
     public $captured = false;

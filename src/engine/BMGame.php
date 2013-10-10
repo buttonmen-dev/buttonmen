@@ -153,6 +153,23 @@ class BMGame {
                 foreach ($this->buttonArray as $buttonIdx => $tempButton) {
                     $tempButton->activate();
                 }
+
+                // load swing values that are carried across from a previous round
+                if (!isset($this->swingValueArrayArray)) {
+                    break;
+                }
+
+                foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => &$activeDie) {
+                        if ($activeDie instanceof BMDieSwing) {
+                            if (array_key_exists($activeDie->swingType,
+                                                 $this->swingValueArrayArray[$playerIdx])) {
+                                $activeDie->swingValue =
+                                    $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
+                            }
+                        }
+                    }
+                }
                 break;
 
             case BMGameState::specifyDice:
@@ -209,7 +226,7 @@ class BMGame {
                 foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => $die) {
                         if ($die instanceof BMDieSwing) {
-                            if ($die->needsValue) {
+                            if ($die->needsSwingValue) {
                                 // swing value has not yet been set
                                 continue;
                             }
@@ -524,7 +541,7 @@ class BMGame {
                 if (isset($this->activePlayerIdx)) {
                     break;
                 }
-                // deal with reserve dice
+                // james: still need to deal with reserve dice
                 $this->gameState = BMGameState::loadDiceIntoButtons;
                 foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
                     if ($tempGameScoreArray['W'] >= $this->maxWins) {
@@ -541,6 +558,7 @@ class BMGame {
 
     public function proceed_to_next_user_action() {
         $repeatCount = 0;
+
         $this->update_game_state();
         $this->do_next_step();
 
@@ -548,6 +566,7 @@ class BMGame {
             $startGameState = $this->gameState;
             $this->update_game_state();
             $this->do_next_step();
+
             if (BMGameState::endGame === $this->gameState) {
                 break;
             }
@@ -674,6 +693,39 @@ class BMGame {
         // james: not written yet
 
         return (isset($die->max));
+    }
+
+    public function valid_attack_types() {
+        // james: assume two players at the moment
+        $attackerIdx = $this->activePlayerIdx;
+        $defenderIdx = ($attackerIdx + 1) % 2;
+
+        $attackTypeArray = BMAttack::possible_attack_types($this->activeDieArrayArray[$attackerIdx]);
+
+        $validAttackTypeArray = array();
+
+        // find out if there are any possible attacks with any combination of
+        // the attacker's and defender's dice
+        foreach ($attackTypeArray as $idx => $attackType) {
+            $this->attack = array('attackerPlayerIdx' => $attackerIdx,
+                                  'defenderPlayerIdx' => $defenderIdx,
+                                  'attackerAttackDieIdxArray' => range(0, count($this->activeDieArrayArray[$attackerIdx]) - 1),
+                                  'defenderAttackDieIdxArray' => range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
+                                  'attackType' => $attackTypeArray[$idx]);
+            $attack = BMAttack::get_instance($attackType);
+            foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
+                $attack->add_die($attackDie);
+            }
+            if ($attack->find_attack($this)) {
+                $validAttackTypeArray[$attackType] = $attackType;
+            }
+        }
+
+        if (empty($validAttackTypeArray)) {
+            $validAttackTypeArray['Pass'] = 'Pass';
+        }
+
+        return $validAttackTypeArray;
     }
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {
@@ -940,10 +992,12 @@ class BMGame {
                 }
 
                 if (!preg_match('/'.
-                                'power'.'|'.
-                                'skill'.'|'.
-                                'shadow'.'|'.
-                                'pass'.'/', $value[4])) {
+                                'Null'.'|'.
+                                'Power'.'|'.
+                                'Skill'.'|'.
+                                'Shadow'.'|'.
+                                'Value'.'|'.
+                                'Pass'.'/', $value[4])) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.');
                 }
@@ -1035,9 +1089,9 @@ class BMGame {
                         throw new InvalidArgumentException(
                             'Invalid W/L/T array provided.');
                     }
-                    $tempArray[$playerIdx] = array('W' => $value[$playerIdx][0],
-                                                   'L' => $value[$playerIdx][1],
-                                                   'D' => $value[$playerIdx][2]);
+                    $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
+                                                   'L' => (int)$value[$playerIdx][1],
+                                                   'D' => (int)$value[$playerIdx][2]);
                 }
                 $this->gameScoreArrayArray = $tempArray;
                 break;
@@ -1053,7 +1107,7 @@ class BMGame {
                 break;
             case 'gameState':
                 BMGameState::validate_game_state($value);
-                $this->gameState = (int) $value;
+                $this->gameState = (int)$value;
                 break;
             case 'waitingOnActionArray':
                 if (!is_array($value) ||
