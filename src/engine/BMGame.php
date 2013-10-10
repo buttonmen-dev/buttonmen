@@ -96,30 +96,7 @@ class BMGame {
 
         switch ($this->gameState) {
             case BMGameState::startGame:
-                // first player must always be specified
-                if (0 === $this->playerIdArray[0]) {
-                    throw new UnexpectedValueException(
-                        'First player must be specified before game can be advanced.');
-                }
-
-                // if other players are unspecified, resolve this first
-                if (in_array(0, array_slice($this->playerIdArray, 1))) {
-                    $this->activate_GUI('Prompt for player ID');
-                    return;
-                }
-
-                $this->reset_play_state();
-
-                // if buttons are unspecified, allow players to choose buttons
-                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
-                     $playerIdx <= $nPlayers - 1;
-                     $playerIdx++) {
-                    if (!isset($this->buttonArray[$playerIdx])) {
-                        $this->waitingOnActionArray[$playerIdx] = TRUE;
-                        $this->activate_GUI('Prompt for button ID', $playerIdx);
-                    }
-                }
-
+                // do_next_step is normally never run for BMGameState::startGame
                 break;
 
             case BMGameState::applyHandicaps:
@@ -182,44 +159,46 @@ class BMGame {
                 $this->waitingOnActionArray =
                     array_pad(array(), count($this->playerIdArray), FALSE);
 
-                foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
-                    $keyArray = array_keys($swingRequestArray);
+                if (isset($this->swingRequestArrayArray)) {
+                    foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
+                        $keyArray = array_keys($swingRequestArray);
 
-                    // initialise swingValueArrayArray if necessary
-                    if (!isset($this->swingValueArrayArray[$playerIdx])) {
-                        $this->swingValueArrayArray[$playerIdx] = array();
-                    }
-
-                    foreach ($keyArray as $key) {
-                        // copy swing request keys to swing value keys if they
-                        // do not already exist
-                        if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
-                            $this->swingValueArrayArray[$playerIdx][$key] = NULL;
+                        // initialise swingValueArrayArray if necessary
+                        if (!isset($this->swingValueArrayArray[$playerIdx])) {
+                            $this->swingValueArrayArray[$playerIdx] = array();
                         }
 
-                        // set waitingOnActionArray based on if there are
-                        // unspecified swing dice for that player
-                        if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
-                            $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        foreach ($keyArray as $key) {
+                            // copy swing request keys to swing value keys if they
+                            // do not already exist
+                            if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
+                                $this->swingValueArrayArray[$playerIdx][$key] = NULL;
+                            }
+
+                            // set waitingOnActionArray based on if there are
+                            // unspecified swing dice for that player
+                            if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
+                                $this->waitingOnActionArray[$playerIdx] = TRUE;
+                            }
                         }
                     }
-                }
 
-                foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                    if ($waitingOnAction) {
-                        $this->activate_GUI('Waiting on player action.', $playerIdx);
-                    } else {
-                        // apply swing values
-                        foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                            if ($die instanceof BMDieSwing) {
-                                $isSetSuccessful = $die->set_swingValue(
-                                    $this->swingValueArrayArray[$playerIdx]);
-                                // act appropriately if the swing values are invalid
-                                if (!$isSetSuccessful) {
-                                    $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
-                                    $this->swingValueArrayArray[$playerIdx] = array();
-                                    $this->waitingOnActionArray[$playerIdx] = TRUE;
-                                    break 3;
+                    foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+                        if ($waitingOnAction) {
+                            $this->activate_GUI('Waiting on player action.', $playerIdx);
+                        } else {
+                            // apply swing values
+                            foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
+                                if ($die instanceof BMDieSwing) {
+                                    $isSetSuccessful = $die->set_swingValue(
+                                        $this->swingValueArrayArray[$playerIdx]);
+                                    // act appropriately if the swing values are invalid
+                                    if (!$isSetSuccessful) {
+                                        $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
+                                        $this->swingValueArrayArray[$playerIdx] = array();
+                                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                                        break 3;
+                                    }
                                 }
                             }
                         }
@@ -414,6 +393,18 @@ class BMGame {
 
         switch ($this->gameState) {
             case BMGameState::startGame:
+                $this->reset_play_state();
+
+                // if buttons are unspecified, allow players to choose buttons
+                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+                     $playerIdx <= $nPlayers - 1;
+                     $playerIdx++) {
+                    if (!isset($this->buttonArray[$playerIdx])) {
+                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        $this->activate_GUI('Prompt for button ID', $playerIdx);
+                    }
+                }
+
                 // require both players and buttons to be specified
                 $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
 
@@ -524,7 +515,7 @@ class BMGame {
                     $this->gameState = BMGameState::endRound;
                 } else {
                     $this->gameState = BMGameState::startTurn;
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;                  
+                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
                 }
                 $this->attack = NULL;
                 break;
@@ -756,26 +747,27 @@ class BMGame {
     }
 
     private function get_roundScoreArray() {
+        $roundScoreTimesTenArray = array_pad(array(), $this->nPlayers, 0);
         $roundScoreArray = array_pad(array(), $this->nPlayers, 0);
 
         foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            $activeDieScore = 0;
+            $activeDieScoreTimesTen = 0;
             foreach ($activeDieArray as $activeDie) {
-                $activeDieScore += $activeDie->get_scoreValue();
+                $activeDieScoreTimesTen += $activeDie->get_scoreValueTimesTen();
             }
-            $roundScoreArray[$playerIdx] = $activeDieScore;
+            $roundScoreTimesTenArray[$playerIdx] = $activeDieScoreTimesTen;
         }
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-            $capturedDieScore = 0;
+            $capturedDieScoreTimesTen = 0;
             foreach ($capturedDieArray as $capturedDie) {
-                $capturedDieScore += $capturedDie->get_scoreValue();
+                $capturedDieScoreTimesTen += $capturedDie->get_scoreValueTimesTen();
             }
-            $roundScoreArray[$playerIdx] += $capturedDieScore;
+            $roundScoreTimesTenArray[$playerIdx] += $capturedDieScoreTimesTen;
         }
 
-        foreach ($roundScoreArray as $playerIdx => $roundScore) {
-            $roundScoreArray[$playerIdx] = $roundScore/10;
+        foreach ($roundScoreTimesTenArray as $playerIdx => $roundScoreTimesTen) {
+            $roundScoreArray[$playerIdx] = $roundScoreTimesTen/10;
         }
 
         return $roundScoreArray;

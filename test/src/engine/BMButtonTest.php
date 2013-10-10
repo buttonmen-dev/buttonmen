@@ -101,8 +101,6 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
           $this->assertTrue($this->object->dieArray[$dieIdx] instanceof BMDie);
           $this->assertEquals($dieSides[$dieIdx],
                               $this->object->dieArray[$dieIdx]->max);
-//          $this->assertEquals($dieSkills[$dieIdx],
-//                              $this->object->dieArray[$dieIdx]->mSkills);
         }
 
         // twin dice, option dice
@@ -219,23 +217,6 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMButton::parse_recipe_for_sides
-     */
-    public function test_parse_recipe_for_sides() {
-        $method = new ReflectionMethod('BMButton', 'parse_recipe_for_sides');
-        $method->setAccessible(TRUE);
-
-        $sides = $method->invoke(new BMButton, '(4) (8) (20) (20)');
-        $this->assertEquals(array(4, 8, 20, 20), $sides);
-
-        $sides = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
-        $this->assertEquals(array(4, 10, 30, 8), $sides);
-
-        $sides = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
-        $this->assertEquals(array(8, 10, 12, 20, 'X'), $sides);
-    }
-
-    /**
      * @covers BMButton::activate
      */
     public function test_activate() {
@@ -250,26 +231,6 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, count($game->activeDieArrayArray[1]));
         $this->assertEquals($die1, $game->activeDieArrayArray[1][0]); // clone
         $this->assertEquals($die2, $game->activeDieArrayArray[1][1]); // clone
-    }
-
-    /**
-     * @covers BMButton::parse_recipe_for_skills
-     */
-    public function test_parse_recipe_for_skills() {
-        $method = new ReflectionMethod('BMButton', 'parse_recipe_for_skills');
-        $method->setAccessible(TRUE);
-
-        $skills = $method->invoke(new BMButton, '(4) (8) (20) (20)');
-        $this->assertEquals(4, count($skills));
-        $this->assertEquals(array('', '', '', ''), $skills);
-
-        $skills = $method->invoke(new BMButton, 'p(4) s(10) ps(30) (8)');
-        $this->assertEquals(4, count($skills));
-        $this->assertEquals(array('p', 's', 'ps', ''), $skills);
-
-        $skills = $method->invoke(new BMButton, '(8) (10) (12) (20) (X)');
-        $this->assertEquals(5, count($skills));
-        $this->assertEquals(array('', '', '', '', ''), $skills);
     }
 
     /**
