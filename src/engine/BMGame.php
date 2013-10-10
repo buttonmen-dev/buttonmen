@@ -1170,6 +1170,7 @@ class BMGame {
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
                   'playerIdArray'           => $this->playerIdArray,
                   'buttonNameArray'         => $buttonNameArray,
+                  'waitingOnActionArray'    => $this->waitingOnActionArray,
                   'nDieArray'               => array_map('count', $this->activeDieArrayArray),
                   'valueArrayArray'         => $valueArrayArray,
                   'sidesArrayArray'         => $sidesArrayArray,

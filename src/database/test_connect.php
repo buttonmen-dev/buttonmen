@@ -9,7 +9,7 @@
 
     <meta charset="utf-8" />
     <title>Retrieve button data from database</title>
-    <link rel="stylesheet" href="gui.css" />
+    <link rel="stylesheet" href="../ui/gui.css" />
 
 </head>
 
