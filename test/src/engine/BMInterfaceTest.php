@@ -280,7 +280,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(2), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $this->object->save_game($game);
         $game = $this->object->load_game($gameId);
@@ -331,7 +331,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               1,        // defenderPlayerIdx
                               array(0), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
-                              'power'); // attackType
+                              'Power'); // attackType
 
         $this->object->save_game($game);
         $game = $this->object->load_game($gameId);

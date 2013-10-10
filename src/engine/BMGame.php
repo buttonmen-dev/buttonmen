@@ -676,6 +676,39 @@ class BMGame {
         return (isset($die->max));
     }
 
+    public function valid_attack_types() {
+        // james: assume two players at the moment
+        $attackerIdx = $this->activePlayerIdx;
+        $defenderIdx = ($attackerIdx + 1) % 2;
+
+        $attackTypeArray = BMAttack::possible_attack_types($this->activeDieArrayArray[$attackerIdx]);
+
+        $validAttackTypeArray = array();
+
+        // find out if there are any possible attacks with any combination of
+        // the attacker's and defender's dice
+        foreach ($attackTypeArray as $idx => $attackType) {
+            $this->attack = array('attackerPlayerIdx' => $attackerIdx,
+                                  'defenderPlayerIdx' => $defenderIdx,
+                                  'attackerAttackDieIdxArray' => range(0, count($this->activeDieArrayArray[$attackerIdx]) - 1),
+                                  'defenderAttackDieIdxArray' => range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
+                                  'attackType' => $attackTypeArray[$idx]);
+            $attack = BMAttack::get_instance($attackType);
+            foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
+                $attack->add_die($attackDie);
+            }
+            if ($attack->find_attack($this)) {
+                $validAttackTypeArray[$attackType] = $attackType;
+            }
+        }
+
+        if (empty($validAttackTypeArray)) {
+            $validAttackTypeArray['Pass'] = 'Pass';
+        }
+
+        return $validAttackTypeArray;
+    }
+
     private function activate_GUI($activation_type, $input_parameters = NULL) {
         // currently acts as a placeholder
         $this->message = $this->message.'\n'.
@@ -940,10 +973,12 @@ class BMGame {
                 }
 
                 if (!preg_match('/'.
-                                'power'.'|'.
-                                'skill'.'|'.
-                                'shadow'.'|'.
-                                'pass'.'/', $value[4])) {
+                                'Null'.'|'.
+                                'Power'.'|'.
+                                'Skill'.'|'.
+                                'Shadow'.'|'.
+                                'Value'.'|'.
+                                'Pass'.'/', $value[4])) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.');
                 }
