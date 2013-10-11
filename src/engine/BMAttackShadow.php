@@ -1,8 +1,8 @@
 <?php
 
 class BMAttackShadow extends BMAttackPower {
-    public $name = "Shadow";
-    public $type = "Shadow";
+    public $name = 'Shadow';
+    public $type = 'Shadow';
 
     public function validate_attack($game, array $attackers, array $defenders) {
         return (1 == count($attackers) &&
