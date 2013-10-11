@@ -5,34 +5,11 @@ class BMAttackShadow extends BMAttackPower {
     public $type = "Shadow";
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) != 1 || count($defenders) != 1) {
-            return FALSE;
-        }
-
-
-        $helpers = $this->collect_helpers($game, $attackers, $defenders);
-
-        $bounds = $this->help_bounds($helpers);
-
-        foreach ($attackers[0]->attack_values($this->type) as $aVal) {
-
-            if ($defenders[0]->defense_value($this->type) <= $attackers[0]->max &&
-                ($defenders[0]->defense_value($this->type) >= $aVal ||
-                 $defenders[0]->defense_value($this->type) >= $aVal + $bounds[0])) {
-
-                if ($attackers[0]->valid_attack($this->type, $attackers, $defenders) &&
-                    $defenders[0]->valid_target($this->type, $attackers, $defenders))
-                {
-                    return TRUE;
-                }
-            }
-        }
-
-        return FALSE;
-    }
-
-    // return how much help is needed and who can contribute
-    public function calculate_contributions($game, array $attackers, array $defenders) {
-        return array(0, array());
+        return (1 == count($attackers) &&
+                1 == count($defenders) &&
+                $attackers[0]->max >= $defenders[0]->defense_value($this->type) &&
+                $attackers[0]->attack_values($this->type)[0] <= $defenders[0]->defense_value($this->type) &&
+                $attackers[0]->valid_attack($this->type, $attackers, $defenders) &&
+                $defenders[0]->valid_target($this->type, $attackers, $defenders));
     }
 }

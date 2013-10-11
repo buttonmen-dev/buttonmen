@@ -285,12 +285,11 @@ class BMAttack {
 
     // returns a list of possible values that can aid an attack
     protected function collect_helpers($game, array $attackers, array $defenders) {
-        $helpers = array();
-
         if (is_null($game->attackerAllDieArray)) {
-            return $helpers;
+            return array();
         }
 
+        $helpers = array();
         foreach ($game->attackerAllDieArray as $die) {
             $helpVals = $die->assist_values($this->type, $attackers, $defenders);
             if ($helpVals[0] != 0) {
