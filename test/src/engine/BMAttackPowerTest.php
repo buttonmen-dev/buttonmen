@@ -168,6 +168,18 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($die3, $die5, $die6, $die7, $die8), array());
 
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
+
+        // Check that a shadow die cannot perform a power attack
+        $die9 = new BMDie;
+        $die9->init(6);
+        $die9->add_skill('Shadow');
+        $die9->value = 6;
+
+        $die10 = new BMDie;
+        $die10->init(6);
+        $die10->value = 5;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die9), array($die10)));
     }
 
     /**

@@ -1008,23 +1008,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::is_valid_attack
-     */
-    public function test_is_valid_attack() {
-        $method = new ReflectionMethod('BMGame', 'is_valid_attack');
-        $method->setAccessible(TRUE);
-
-        // check when there is no attack set
-        $this->assertFalse($method->invoke($this->object));
-
-        // check with a pass attack
-        $this->object->attack = array(0, 1, array(), array(), 'Pass');
-        $this->assertTrue($method->invoke($this->object));
-
-        // james: need to add test cases for invalid attacks
-    }
-
-    /**
      * @covers BMGame::reset_play_state
      */
     public function test_reset_game_state() {
@@ -3283,8 +3266,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[0][0]->value = 1;
         $dieArrayArray[0][1]->value = 2;
         $dieArrayArray[0][2]->value = 2;
-        $dieArrayArray[0][3]->value = 2;
-        $dieArrayArray[0][4]->value = 2;
+        $dieArrayArray[0][3]->value = 13;
+        $dieArrayArray[0][4]->value = 13;
         $dieArrayArray[1][0]->value = 4;
         $dieArrayArray[1][1]->value = 12;
         $dieArrayArray[1][2]->value = 5;
@@ -3293,10 +3276,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(array(34, -2.5), $game->roundScoreArray);
 
-        // perform attack
+        // attempt invalid attack
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
                               array(3), // attackerAttackDieIdxArray
+                              array(3), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // perform attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
                               array(3), // defenderAttackDieIdxArray
                               'Shadow'); // attackType
 

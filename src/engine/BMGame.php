@@ -314,8 +314,8 @@ class BMGame {
                 // display dice
                 $this->activate_GUI('show_active_dice');
 
-                // while invalid attack {ask player to select attack}
-                while (!$this->is_valid_attack()) {
+                // while attack has not been set {ask player to select attack}
+                while (!isset($this->attack)) {
                     $this->activate_GUI('wait_for_attack');
                     $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
                     return;
@@ -518,7 +518,7 @@ class BMGame {
                 break;
 
             case BMGameState::startTurn:
-                if ($this->is_valid_attack() &&
+                if ((isset($this->attack)) &&
                     FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
                     $this->gameState = BMGameState::endTurn;
                 }
@@ -732,14 +732,6 @@ class BMGame {
         // currently acts as a placeholder
         $this->message = $this->message.'\n'.
                          $activation_type.' '.$input_parameters;
-    }
-
-    private function is_valid_attack() {
-        if (isset($this->attack)) {
-            return TRUE;
-        } else {
-            return FALSE;
-        }
     }
 
     private function reset_play_state() {

@@ -15,6 +15,10 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
+        if (array_key_exists('Shadow', $attackers[0]->skillList)) {
+            return FALSE;
+        }
+
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
 
         $bounds = $this->help_bounds($helpers);
