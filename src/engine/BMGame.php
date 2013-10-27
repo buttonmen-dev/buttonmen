@@ -988,6 +988,7 @@ class BMGame {
                                 'Power'.'|'.
                                 'Skill'.'|'.
                                 'Shadow'.'|'.
+                                'Speed'.'|'.
                                 'Value'.'|'.
                                 'Pass'.'/', $value[4])) {
                     throw new InvalidArgumentException(

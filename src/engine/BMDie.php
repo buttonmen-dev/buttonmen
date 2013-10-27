@@ -59,7 +59,7 @@ class BMDie {
 // --AND--
 // Take it out as a reference: $thing = &$args[0]
 
-    protected function run_hooks($func, $args)
+    public function run_hooks($func, $args)
     {
         // get the hooks for the calling function
 
@@ -266,9 +266,9 @@ class BMDie {
 
     public function attack_list()
     {
-        $list = array("Power", "Skill");
+        $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
-        $this->run_hooks(__FUNCTION__, array(&$list));
+        $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list));
 
         return $list;
     }

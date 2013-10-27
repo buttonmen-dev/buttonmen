@@ -32,6 +32,8 @@ class BMSkill {
                 return 'Shadow';
             case 'v':
                 return 'Value';
+            case 'z':
+                return 'Speed';
             case '':
                 return '';
             default:
@@ -53,6 +55,8 @@ class BMSkill {
                 return 'p';
             case 'Shadow':
                 return 's';
+            case 'Speed':
+                return 'z';
             case 'Value':
                 return 'v';
             default:

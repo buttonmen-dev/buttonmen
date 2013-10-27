@@ -8,22 +8,21 @@ class BMSkillShadow extends BMSkill {
     public static $hooked_methods = array('attack_list');
 
     public static function attack_list($args) {
-        $list = &$args[0];
-
-        $redundant = FALSE;
-
-        foreach ($list as $i => $att) {
-            if ($att == 'Power') {
-                unset($list[$i]);
-            }
-            if ($att == 'Shadow') {
-                $redundant = TRUE;
-            }
+        if (!is_array($args)) {
+            return;
         }
 
-        if (!$redundant) {
-            $list[] = 'Shadow';
+        if (count($args) < 1) {
+            return;
         }
+
+        $attackTypeArray = &$args['attackTypeArray'];
+
+        if (array_key_exists('Power', $attackTypeArray)) {
+            unset($attackTypeArray['Power']);
+        }
+
+        $attackTypeArray['Shadow'] = 'Shadow';
     }
 }
 

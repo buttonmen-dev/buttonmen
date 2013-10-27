@@ -45,18 +45,21 @@ class BMAttack {
     }
 
     public static function possible_attack_types(array $attackers) {
-        $attackTypeArray = array();
+        $allAttackTypesArray = array();
 
         foreach ($attackers as $attacker) {
-            if (in_array('BMSkillShadow', $attacker->skillList)) {
-                $attackTypeArray['Shadow'] = 'Shadow';
-            } else {
-                $attackTypeArray['Power'] = 'Power';
+            $individualAttackTypeArray = array();
+            $individualAttackTypeArray['Power'] = 'Power';
+            $individualAttackTypeArray['Skill'] = 'Skill';
+            $attacker->run_hooks('attack_list', array('attackTypeArray' => 
+                                                      &$individualAttackTypeArray));
+
+            foreach ($individualAttackTypeArray as $attackType) {
+                $allAttackTypesArray[$attackType] = $attackType;
             }
-            $attackTypeArray['Skill'] = 'Skill';
         }
 
-        return $attackTypeArray;
+        return $allAttackTypesArray;
     }
 
     // Dice that effect or affect this attack
