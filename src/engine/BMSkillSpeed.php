@@ -8,22 +8,12 @@ class BMSkillSpeed extends BMSkill {
     public static $hooked_methods = array('attack_list');
 
     public static function attack_list($args) {
-        $list = &$args[0];
-
-        $redundant = FALSE;
-
-        foreach ($list as $i => $att) {
-            if ($att == 'Power') {
-                unset($list[$i]);
-            }
-            if ($att == 'Shadow') {
-                $redundant = TRUE;
-            }
+        if (!is_array($args)) {
+            return;
         }
 
-        if (!$redundant) {
-            $list[] = 'Shadow';
-        }
+        $attackTypeArray = &$args['attackTypeArray'];
+        $attackTypeArray['Speed'] = 'Speed';
     }
 }
 
