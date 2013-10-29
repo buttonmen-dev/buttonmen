@@ -3134,8 +3134,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_shadow_round() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('s(10) s(12) s(20) s(X) s(X)', 'Peace');
-        $this->assertEquals('s(10) s(12) s(20) s(X) s(X)', $button1->recipe);
+        $button1->load('s(10) (12) s(20) s(X) s(X)', 'PeaceAltered');
+        $this->assertEquals('s(10) (12) s(20) s(X) s(X)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertCount(5, $button1->dieArray);
         $this->assertEquals(10, $button1->dieArray[0]->max);
@@ -3147,6 +3147,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($button1->dieArray[4]->max));
         $this->assertTrue($button1->dieArray[4] instanceof BMDieSwing);
         $this->assertTrue($button1->dieArray[4]->needsSwingValue);
+        $this->assertEquals(array('attack_list'),
+                            array_keys($button1->dieArray[0]->hookList));
+        $this->assertEquals(array('BMSkillShadow'),
+                            $button1->dieArray[0]->hookList['attack_list']);
+        $this->assertEquals(array('attack_list'),
+                            array_keys($button1->dieArray[2]->hookList));
+        $this->assertEquals(array('BMSkillShadow'),
+                            $button1->dieArray[2]->hookList['attack_list']);
         $this->assertEquals(array('attack_list'),
                             array_keys($button1->dieArray[3]->hookList));
         $this->assertEquals(array('BMSkillShadow'),
@@ -3241,6 +3249,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
 
         $this->assertEquals(array('attack_list'),
+                            array_keys($game->activeDieArrayArray[0][0]->hookList));
+        $this->assertEquals(array('BMSkillShadow'),
+                            $game->activeDieArrayArray[0][0]->hookList['attack_list']);
+        $this->assertEquals(array('attack_list'),
+                            array_keys($game->activeDieArrayArray[0][2]->hookList));
+        $this->assertEquals(array('BMSkillShadow'),
+                            $game->activeDieArrayArray[0][2]->hookList['attack_list']);
+        $this->assertEquals(array('attack_list'),
                             array_keys($game->activeDieArrayArray[0][3]->hookList));
         $this->assertEquals(array('BMSkillShadow'),
                             $game->activeDieArrayArray[0][3]->hookList['attack_list']);
@@ -3282,6 +3298,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(3), // attackerAttackDieIdxArray
                               array(3), // defenderAttackDieIdxArray
                               'Power'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // check that normal dice cannot perform shadow attacks
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(1), // attackerAttackDieIdxArray
+                              array(3), // defenderAttackDieIdxArray
+                              'Shadow'); // attackType
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::startTurn, $game->gameState);

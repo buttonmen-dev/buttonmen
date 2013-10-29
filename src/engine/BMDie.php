@@ -414,7 +414,7 @@ class BMDie {
 // situation I can come up with off the top of my head
 //
 // These methods cannot act, they may only check: they're called a lot
-    public function valid_attack($type, array $attackers, array $defenders)
+    public function is_valid_attacker($type, array $attackers, array $defenders)
     {
         $valid = TRUE;
 
@@ -437,15 +437,14 @@ class BMDie {
         }
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders,
+                                             'die' => $this,
                                              'isValid' => &$valid));
 
         return $valid;
     }
 
 
-    public function valid_target($type, array $attackers, array $defenders)
+    public function is_valid_target($type, array $attackers, array $defenders)
     {
         $valid = TRUE;
 
@@ -468,8 +467,7 @@ class BMDie {
 
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders,
+                                             'die' => $this,
                                              'isValid' => &$valid));
 
         return $valid;
