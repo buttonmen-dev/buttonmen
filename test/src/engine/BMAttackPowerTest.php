@@ -145,7 +145,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
         $die4->value = 2;
 
         $game->activeDieArrayArray = array(array($die3), array());
-        $game->attack = array(0, 1, array(), array(), 'power');
+        $game->attack = array(0, 1, array(), array(), 'Power');
 
         // 1 + 1 ! >= 6
         $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
@@ -273,7 +273,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
 
         $game->activeDieArrayArray = array(array(), array($die3));
-        $game->attack = array(0, 1, array(), array(), 'power');
+        $game->attack = array(0, 1, array(), array(), 'Power');
 
         $this->assertTrue($this->object->find_attack($game));
 
