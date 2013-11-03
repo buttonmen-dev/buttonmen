@@ -37,7 +37,6 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
         $die1->value = 6;
 
         $game->attackerAllDieArray[] = $die1;
-//        $game->defenderAllDieArray[] = array($die2, $die3, $die4, $die5);
 
         // Basic error testing
         $this->assertFalse($sk->validate_attack($game, array(), array()));
@@ -96,13 +95,13 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
                                                 array($target1, $target2)));
     }
 
-//    /**
-//     * @covers BMAttackSkill::find_attack
-//     * @depends testValidate_attack
-//     * @todo   Implement testFind_attack().
-//     */
-//    public function testFind_attack()
-//    {
+    /**
+     * @covers BMAttackSpeed::find_attack
+     * @depends testValidate_attack
+     * @todo   Implement testFind_attack().
+     */
+    public function testFind_attack()
+    {
 //        $game = new TestDummyGame;
 //
 //        $sk = $this->object;
@@ -208,8 +207,6 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
 //            $die3->value = $i+10;
 //            $this->assertTrue($sk->find_attack($game));
 //        }
-//
-//
-//    }
+    }
 }
 

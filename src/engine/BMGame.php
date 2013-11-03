@@ -343,14 +343,9 @@ class BMGame {
                     $attack->add_die($attackDie);
                 }
 
-                $possible = $attack->find_attack($this);
-                if ($possible) {
-                    $valid = $attack->validate_attack($this,
-                                                      $attackerAttackDieArray,
-                                                      $defenderAttackDieArray);
-                } else {
-                    $valid = FALSE;
-                }
+                $valid = $attack->validate_attack($this,
+                                                  $attackerAttackDieArray,
+                                                  $defenderAttackDieArray);
 
                 if (!$valid) {
                     $this->activate_GUI('Invalid attack');
