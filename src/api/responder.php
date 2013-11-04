@@ -198,11 +198,10 @@
                 foreach ($attackers as $attackDie) {
                     $attack->add_die($attackDie);
                 }
-                if ($attack->find_attack($game)) {
-                    if ($attack->validate_attack($game, $attackers, $defenders)) {
-                        $success = TRUE;
-                        break;
-                    }
+                
+                if ($attack->validate_attack($game, $attackers, $defenders)) {
+                    $success = TRUE;
+                    break;
                 }
             }
 
