@@ -21,7 +21,22 @@ class BMSkillBerserk extends BMSkill {
         $attackTypeArray['Berserk'] = 'Berserk';
     }
 
-    // what else? something to do with changing the originial die to half the size
+    public static function capture($args) {
+        if (!is_array($args)) {
+            return;
+        }
+
+        if (!array_key_exists('attackers', $args)) {
+            return;
+        }
+
+        $attackers = &$args['attackers'];
+
+        foreach ($attackers as &$attacker) {
+            $attacker->max = round($attacker->max / 2);
+            $attacker->roll(TRUE);
+        }
+    }
 }
 
 ?>

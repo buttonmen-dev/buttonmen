@@ -475,7 +475,8 @@ class BMDie {
 
     public function capture($type, array $attackers, array $victims)
     {
-        $this->run_hooks(__FUNCTION__, array('victims' => $victims));
+        $this->run_hooks(__FUNCTION__, array('attackers' => $attackers,
+                                             'victims' => $victims));
     }
 
 

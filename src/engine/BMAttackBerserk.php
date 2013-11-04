@@ -1,7 +1,8 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+class BMAttackBerserk extends BMAttackSpeed {
+    public $name = 'Berserk';
+    public $type = 'Berserk';
+}
+
 ?>
