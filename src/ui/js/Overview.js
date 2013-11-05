@@ -42,6 +42,14 @@ Overview.getOverview = function(callbackfunc) {
     'load_status': 'failed',
   }
 
+  if (Login.player == null) {
+    Env.message = {
+      'type': 'none',
+      'text': 'Nothing to display - you are not logged in',
+    };
+    return callbackfunc();
+  }
+    
   $.post('../api/responder.php',
          { type: 'loadActiveGames', },
          function(rs) {
