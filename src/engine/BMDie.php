@@ -475,7 +475,8 @@ class BMDie {
 
     public function capture($type, array $attackers, array $victims)
     {
-        $this->run_hooks(__FUNCTION__, array('attackers' => $attackers,
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => $attackers,
                                              'victims' => $victims));
     }
 
@@ -484,7 +485,9 @@ class BMDie {
     {
         $this->captured = TRUE;
 
-        $this->run_hooks(__FUNCTION__, array());
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => $attackers,
+                                             'victims' => $victims));
     }
 
 // Print long description

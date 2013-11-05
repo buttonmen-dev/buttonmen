@@ -26,14 +26,27 @@ class BMSkillBerserk extends BMSkill {
             return;
         }
 
+        if (!array_key_exists('type', $args)) {
+            return;
+        }
+
+        if ('Berserk' != $args['type']) {
+            return;
+        }
+
         if (!array_key_exists('attackers', $args)) {
             return;
         }
 
-        $attackers = &$args['attackers'];
+        assert(1 == count($args['attackers']));
+
+        $attacker = &$args['attackers'][0];
 
         foreach ($attackers as &$attacker) {
             $attacker->max = round($attacker->max / 2);
+            $attacker->remove_skill('Berserk');
+            $attacker->remove_skill('Swing');
+            // james: which other skills need to be lost after a Berserk attack?
             $attacker->roll(TRUE);
         }
     }
