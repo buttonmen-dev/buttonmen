@@ -55,6 +55,18 @@ class BMSkill {
                      'Speed'   => 'z',
                      'Value'   => 'v');
     }
+
+    public static function attack_types() {
+        return array(// skill related attack types
+                     'Berserk',
+                     'Null',
+                     'Shadow',
+                     'Speed',
+                     // standard attack types
+                     'Power',
+                     'Skill',
+                     'Pass');
+    }
 }
 
 ?>

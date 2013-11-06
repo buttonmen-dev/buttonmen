@@ -10,7 +10,7 @@ class BMAttackSpeed extends BMAttack {
         }
 
         $attacker = $attackers[0];
-        $doesAttackerHaveSpeed = array_key_exists('Speed', $attacker->skillList);
+        $doesAttackerHaveSkill = array_key_exists($this->type, $attacker->skillList);
 
         $defenderSum = 0;
         foreach ($defenders as $defender) {
@@ -28,7 +28,7 @@ class BMAttackSpeed extends BMAttack {
                 }
         }
 
-        return ($doesAttackerHaveSpeed &&
+        return ($doesAttackerHaveSkill &&
                 $areValuesEqual &&
                 $canAttackerPerformThisAttack &&
                 $areDefendersValidTargetsForThisAttack);

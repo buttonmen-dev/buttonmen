@@ -62,7 +62,6 @@ class BMDie {
     public function run_hooks($func, $args)
     {
         // get the hooks for the calling function
-
         if (!array_key_exists($func, $this->hookList)) {
             return;
         }
