@@ -21,7 +21,7 @@ class BMSkillBerserk extends BMSkill {
         $attackTypeArray['Berserk'] = 'Berserk';
     }
 
-    public static function capture($args) {
+    public static function capture(&$args) {
         if (!is_array($args)) {
             return;
         }
@@ -40,12 +40,18 @@ class BMSkillBerserk extends BMSkill {
 
         assert(1 == count($args['attackers']));
 
-        $attacker = &$args['attackers'][0];
-        $attacker->max = round($attacker->max / 2);
-        $attacker->remove_skill('Berserk');
-        $attacker->remove_skill('Swing');
+        $attacker = $args['attackers'][0];
+        $skillList = $attacker->skillList;
+
         // james: which other skills need to be lost after a Berserk attack?
-        $attacker->roll(TRUE);
+        unset($skillList['Berserk']);
+
+        // force removal of swing status
+        $newAttacker = new BMDie();
+        $newAttacker->init(round($attacker->max / 2),
+                           array_keys($skillList));
+        $newAttacker->roll(TRUE);
+        $args['attackers'][0] = $newAttacker;
     }
 }
 

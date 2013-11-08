@@ -329,14 +329,14 @@ class BMGame {
                 $attackerAttackDieArray = array();
                 foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
                     $attackerAttackDieArray[] =
-                        $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                                  [$attackerAttackDieIdx];
+                        &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                   [$attackerAttackDieIdx];
                 }
                 $defenderAttackDieArray = array();
                 foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
                     $defenderAttackDieArray[] =
-                        $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
-                                                  [$defenderAttackDieIdx];
+                        &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                   [$defenderAttackDieIdx];
                 }
 
                 foreach ($attackerAttackDieArray as $attackDie) {

@@ -472,7 +472,7 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array $attackers, array $victims)
+    public function capture($type, array &$attackers, array &$victims)
     {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
@@ -480,7 +480,7 @@ class BMDie {
     }
 
 
-    public function be_captured($type, array $attackers, array $victims)
+    public function be_captured($type, array &$attackers, array &$victims)
     {
         $this->captured = TRUE;
 

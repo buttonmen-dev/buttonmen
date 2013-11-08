@@ -3684,8 +3684,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $button1->dieArray[3]->hookList['attack_list']);
 
         $button2 = new BMButton;
-        $button2->load('p(4) (12) p(20) (20) (V)', 'Coil');
-        $this->assertEquals('p(4) (12) p(20) (20) (V)', $button2->recipe);
+        $button2->load('p(4) (12) p(20) (20) B(V)', 'CoilAltered');
+        $this->assertEquals('p(4) (12) p(20) (20) B(V)', $button2->recipe);
         // check dice in $button2->dieArray are correct
         $this->assertCount(5, $button2->dieArray);
         $this->assertEquals(4, $button2->dieArray[0]->max);
@@ -3703,6 +3703,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             array_keys($button2->dieArray[2]->hookList));
         $this->assertEquals(array('BMSkillPoison'),
                             $button2->dieArray[2]->hookList['score_value']);
+        $this->assertEquals(array('attack_list', 'capture'),
+                            array_keys($button2->dieArray[4]->hookList));
+        $this->assertEquals(array('BMSkillBerserk'),
+                            $button2->dieArray[4]->hookList['attack_list']);
 
         // load game
         $game = new BMGame(535353, array(234, 567), array('', ''), 2);
@@ -3778,6 +3782,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             array_keys($game->activeDieArrayArray[1][2]->hookList));
         $this->assertEquals(array('BMSkillPoison'),
                             $game->activeDieArrayArray[1][2]->hookList['score_value']);
+        $this->assertEquals(array('attack_list', 'capture'),
+                            array_keys($game->activeDieArrayArray[1][4]->hookList));
+        $this->assertEquals(array('BMSkillBerserk'),
+                            $game->activeDieArrayArray[1][4]->hookList['attack_list']);
+
 
         // artificially set player 1 as winning initiative
         $game->playerWithInitiativeIdx = 0;
@@ -3791,7 +3800,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[0][3]->value = 13;
         $dieArrayArray[0][4]->value = 7;
         $dieArrayArray[1][0]->value = 4;
-        $dieArrayArray[1][1]->value = 12;
+        $dieArrayArray[1][1]->value = 7;
         $dieArrayArray[1][2]->value = 3;
         $dieArrayArray[1][3]->value = 6;
         $dieArrayArray[1][4]->value = 7;
@@ -3830,7 +3839,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
                               array(3), // attackerAttackDieIdxArray
-                              array(3, 4), // defenderAttackDieIdxArray
+                              array(1, 3), // defenderAttackDieIdxArray
                               'Berserk'); // attackType
 
         $skillList = $game->activeDieArrayArray[0][3]->skillList;
@@ -3844,15 +3853,56 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(3, $game->activeDieArrayArray[1]);
         $this->assertCount(2, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
-        $this->assertEquals(20, $game->capturedDieArrayArray[0][0]->max);
-        $this->assertEquals(6, $game->capturedDieArrayArray[0][0]->value);
-        $this->assertEquals(11, $game->capturedDieArrayArray[0][1]->max);
-        $this->assertEquals(7, $game->capturedDieArrayArray[0][1]->value);
+        $this->assertEquals(12, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(7, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(20, $game->capturedDieArrayArray[0][1]->max);
+        $this->assertEquals(6, $game->capturedDieArrayArray[0][1]->value);
 
         $skillList = $game->activeDieArrayArray[0][3]->skillList;
         $this->assertArrayNotHasKey('Berserk', $skillList);
         $this->assertEquals(10, $game->activeDieArrayArray[0][3]->max);
 
-        $this->assertEquals(array(51.5, -18), $game->roundScoreArray);
+        $this->assertEquals(array(52.5, -18.5), $game->roundScoreArray);
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][3]->value = 3;
+
+        // perform attack
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(2), // attackerAttackDieIdxArray
+                              array(1, 2, 3), // defenderAttackDieIdxArray
+                              'Berserk'); // attackType
+
+        $skillList = $game->activeDieArrayArray[1][2]->skillList;
+        $this->assertArrayHasKey('Berserk', $skillList);
+        $this->assertEquals('BMSkillBerserk', $skillList['Berserk']);
+        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(3, $game->activeDieArrayArray[1]);
+        $this->assertCount(2, $game->capturedDieArrayArray[0]);
+        $this->assertCount(3, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(12, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(7, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(20, $game->capturedDieArrayArray[0][1]->max);
+        $this->assertEquals(6, $game->capturedDieArrayArray[0][1]->value);
+        $this->assertEquals(4, $game->capturedDieArrayArray[1][0]->max);
+        $this->assertEquals(2, $game->capturedDieArrayArray[1][0]->value);
+        $this->assertEquals(10, $game->capturedDieArrayArray[1][1]->max);
+        $this->assertEquals(2, $game->capturedDieArrayArray[1][1]->value);
+        $this->assertEquals(10, $game->capturedDieArrayArray[1][2]->max);
+        $this->assertEquals(3, $game->capturedDieArrayArray[1][2]->value);
+
+        $skillList = $game->activeDieArrayArray[1][2]->skillList;
+        $this->assertArrayNotHasKey('Berserk', $skillList);
+        $this->assertNotInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
+        $this->assertEquals(6, $game->activeDieArrayArray[1][2]->max);
+
+        $this->assertEquals(array(40.5, 3.0), $game->roundScoreArray);
     }
 }

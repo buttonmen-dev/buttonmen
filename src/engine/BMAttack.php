@@ -51,7 +51,7 @@ class BMAttack {
             $individualAttackTypeArray = array();
             $individualAttackTypeArray['Power'] = 'Power';
             $individualAttackTypeArray['Skill'] = 'Skill';
-            $attacker->run_hooks('attack_list', array('attackTypeArray' => 
+            $attacker->run_hooks('attack_list', array('attackTypeArray' =>
                                                       &$individualAttackTypeArray));
 
             foreach ($individualAttackTypeArray as $attackType) {
@@ -150,7 +150,7 @@ class BMAttack {
 
     // actually make the attack
     // Some of this should perhaps be in the game, rather than here.
-    public function commit_attack($game, array $attackers, array $defenders) {
+    public function commit_attack($game, array &$attackers, array &$defenders) {
         // Paranoia
         if (!$this->validate_attack($game, $attackers, $defenders)) {
             return FALSE;
