@@ -87,6 +87,12 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        foreach ($attackers as $attacker) {
+            if (array_key_exists('Berserk', $attacker->skillList)) {
+                return FALSE;
+            }
+        }
+
         // array_intersect tries to convert to strings, so we
         // use array_uintersect, which needs a comparison
         // function
