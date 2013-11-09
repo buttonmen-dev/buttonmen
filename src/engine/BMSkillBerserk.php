@@ -50,6 +50,9 @@ class BMSkillBerserk extends BMSkill {
         $newAttacker = new BMDie();
         $newAttacker->init(round($attacker->max / 2),
                            array_keys($skillList));
+        $newAttacker->ownerObject = $attacker->ownerObject;
+        $newAttacker->playerIdx = $attacker->playerIdx;
+        $newAttacker->originalPlayerIdx = $attacker->originalPlayerIdx;
         $newAttacker->roll(TRUE);
         $args['attackers'][0] = $newAttacker;
     }
