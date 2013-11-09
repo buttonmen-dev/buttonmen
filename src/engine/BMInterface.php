@@ -171,18 +171,29 @@ class BMInterface {
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
 
-            // add die attributes
+            // add swing values
             $query = 'SELECT * '.
-                     'FROM die AS d '.
-                     'WHERE game_id = :game_id '.
-                     'ORDER BY id;';
+                     'FROM game_swing_map '.
+                     'WHERE game_id = :game_id ';
             $statement2 = self::$conn->prepare($query);
             $statement2->execute(array(':game_id' => $gameId));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            }
+
+            // add die attributes
+            $query = 'SELECT * '.
+                     'FROM die '.
+                     'WHERE game_id = :game_id '.
+                     'ORDER BY id;';
+            $statement3 = self::$conn->prepare($query);
+            $statement3->execute(array(':game_id' => $gameId));
 
             $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
             $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
 
-            while ($row = $statement2->fetch()) {
+            while ($row = $statement3->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
 
                 $die = BMDie::create_from_recipe($row['recipe']);
@@ -193,7 +204,6 @@ class BMInterface {
 
                 if ($die instanceof BMDieSwing) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
-                    $game->swingValueArrayArray[$originalPlayerIdx][$die->swingType] = $row['swing_value'];
 
                     if (isset($row['swing_value'])) {
                         $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
@@ -279,6 +289,32 @@ class BMInterface {
                                               ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
                                               ':game_id' => $game->gameId,
                                               ':player_id' => $playerId));
+                }
+            }
+
+            // set swing values
+            $query = 'DELETE FROM game_swing_map '.
+                     'WHERE game_id = :game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+
+            if (isset($game->swingValueArrayArray)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    $swingValueArray = $game->swingValueArrayArray[$playerIdx];
+                    if (isset($swingValueArray)) {
+                        foreach ($swingValueArray as $swingType => $swingValue) {
+                            $query = 'INSERT INTO game_swing_map '.
+                                     '(game_id, player_id, swing_type, swing_value) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :swing_type, :swing_value)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'     => $game->gameId,
+                                                      ':player_id'   => $playerId,
+                                                      ':swing_type'  => $swingType,
+                                                      ':swing_value' => $swingValue));
+                        }
+                    }
+
                 }
             }
 
