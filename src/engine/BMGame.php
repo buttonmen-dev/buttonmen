@@ -388,11 +388,11 @@ class BMGame {
                 break;
 
             case BMGameState::endGame:
-                if (isset($this->activePlayerIdx)) {
-                    // write stats to overall stats table
-                    // i.e. update win/loss records for players and buttons
-                    $this->reset_play_state();
-                }
+                $this->reset_play_state();
+                // swingValueArrayArray must be reset to clear entries in the
+                // database table game_swing_map
+                $this->swingValueArrayArray = NULL;
+                
                 $this->activate_GUI('Show end-of-game screen.');
                 break;
         }

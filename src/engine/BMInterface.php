@@ -357,44 +357,48 @@ class BMInterface {
             $statement->execute(array(':game_id' => $game->gameId));
 
             // add active dice to table 'die'
-            foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'NORMAL';
+            if (isset($game->activeDieArrayArray)) {
+                foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                        // james: set status, this is currently INCOMPLETE
+                        $status = 'NORMAL';
 
-                    $query = 'INSERT INTO die '.
-                             '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
-                             'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
-                                              ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                              ':game_id' => $game->gameId,
-                                              ':status' => $status,
-                                              ':recipe' => $activeDie->recipe,
-                                              ':swing_value' => $activeDie->swingValue,
-                                              ':position' => $dieIdx,
-                                              ':value' => $activeDie->value));
+                        $query = 'INSERT INTO die '.
+                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
+                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
+                                                  ':game_id' => $game->gameId,
+                                                  ':status' => $status,
+                                                  ':recipe' => $activeDie->recipe,
+                                                  ':swing_value' => $activeDie->swingValue,
+                                                  ':position' => $dieIdx,
+                                                  ':value' => $activeDie->value));
+                    }
                 }
             }
 
             // add captured dice to table 'die'
-            foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'CAPTURED';
+            if (isset($game->capturedDieArrayArray)) {
+                foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                        // james: set status, this is currently INCOMPLETE
+                        $status = 'CAPTURED';
 
-                    $query = 'INSERT INTO die '.
-                             '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
-                             'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
-                                              ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                              ':game_id' => $game->gameId,
-                                              ':status' => $status,
-                                              ':recipe' => $activeDie->recipe,
-                                              ':swing_value' => $activeDie->swingValue,
-                                              ':position' => $dieIdx,
-                                              ':value' => $activeDie->value));
+                        $query = 'INSERT INTO die '.
+                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
+                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
+                                                  ':game_id' => $game->gameId,
+                                                  ':status' => $status,
+                                                  ':recipe' => $activeDie->recipe,
+                                                  ':swing_value' => $activeDie->swingValue,
+                                                  ':position' => $dieIdx,
+                                                  ':value' => $activeDie->value));
+                    }
                 }
             }
 
