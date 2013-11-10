@@ -1,10 +1,6 @@
 <?php
 
 class BMSkillNull extends BMSkill {
-
-    public static $name = "Null";
-    public static $abbrev = "n";
-
     public static $hooked_methods = array("score_value", "capture");
 
     public static function score_value($args) {

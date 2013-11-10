@@ -53,6 +53,7 @@ class BMSkill {
                      'Poison'  => 'p',
                      'Shadow'  => 's',
                      'Speed'   => 'z',
+                     'Trip'    => 't',
                      'Value'   => 'v');
     }
 
@@ -62,6 +63,7 @@ class BMSkill {
                      'Null',
                      'Shadow',
                      'Speed',
+                     'Trip',
                      // standard attack types
                      'Power',
                      'Skill',

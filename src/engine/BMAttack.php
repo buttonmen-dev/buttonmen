@@ -14,13 +14,10 @@ class BMAttack {
     // side effects
     public $sideEffect = FALSE;
 
-    public $name;
-    // The attack's type, which is usually the same as its name.
-    //
-    // This is used for attacks like Socrates' special attack, which
-    // is a skill attack, so can work on Stealth dice and use Fire
-    // dice, but needs its own class.
     public $type;
+
+    // Dice that effect or affect this attack
+    protected $validDice = array();
 
     private function __construct() {
         // You can't instantiate me; I'm a Singleton!
@@ -61,9 +58,6 @@ class BMAttack {
 
         return $allAttackTypesArray;
     }
-
-    // Dice that effect or affect this attack
-    protected $validDice = array();
 
     public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued

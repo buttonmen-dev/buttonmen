@@ -1,7 +1,6 @@
 <?php
 
 class BMAttackSpeed extends BMAttack {
-    public $name = 'Speed';
     public $type = 'Speed';
 
     public function validate_attack($game, array $attackers, array $defenders) {

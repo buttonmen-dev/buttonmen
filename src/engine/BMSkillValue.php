@@ -1,10 +1,6 @@
 <?php
 
 class BMSkillValue extends BMSkill {
-
-    public static $name = "Value";
-    public static $abbrev = "v";
-
     public static $hooked_methods = array("score_value", "capture");
 
     public static function score_value($args) {

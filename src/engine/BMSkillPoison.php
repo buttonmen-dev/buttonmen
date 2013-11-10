@@ -1,10 +1,6 @@
 <?php
 
 class BMSkillPoison extends BMSkill {
-
-    public static $name = "Poison";
-    public static $abbrev = "p";
-
     public static $hooked_methods = array("score_value");
 
     public static function score_value($args) {

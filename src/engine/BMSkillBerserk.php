@@ -1,10 +1,6 @@
 <?php
 
 class BMSkillBerserk extends BMSkill {
-    public static $name = 'Berserk';
-    public static $type = 'Berserk';
-    public static $abbrev = 'B';
-
     public static $hooked_methods = array('attack_list', 'capture');
 
     public static function attack_list($args) {
