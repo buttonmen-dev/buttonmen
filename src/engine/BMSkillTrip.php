@@ -17,7 +17,7 @@ class BMSkillTrip extends BMSkill {
             return;
         }
 
-        $args['possibleInitiativeValues'] = 0;
+        $args['initiativeValue'] = 0;
     }
 }
 
