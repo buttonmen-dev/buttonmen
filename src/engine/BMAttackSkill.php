@@ -141,3 +141,5 @@ class BMAttackSkill extends BMAttack {
         return array(0, array());
     }
 }
+
+?>

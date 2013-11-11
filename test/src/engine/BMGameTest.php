@@ -3973,3 +3973,5 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(40.5, 3.0), $game->roundScoreArray);
     }
 }
+
+?>

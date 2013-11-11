@@ -322,3 +322,4 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
     }
 }
 
+?>

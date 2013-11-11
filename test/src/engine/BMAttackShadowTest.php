@@ -71,3 +71,4 @@ class BMAttackShadowTest extends PHPUnit_Framework_TestCase {
     }
 }
 
+?>

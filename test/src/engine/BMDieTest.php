@@ -843,4 +843,4 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
 }
 
-
+?>
