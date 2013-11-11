@@ -17,6 +17,7 @@ class BMSkillTrip extends BMSkill {
             return;
         }
 
+        // trip dice don't contribute to initiative
         $args['initiativeValue'] = 0;
     }
 }

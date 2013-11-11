@@ -23,57 +23,48 @@ class BMSkillTripTest extends PHPUnit_Framework_TestCase {
     {
     }
 
-//    /**
-//     * @covers BMSkillTrip::attack_list
-//     */
-//    public function testAttack_list()
-//    {
-//        $a = array();
-//        $b = array('attackTypeArray' => &$a);
-//
-//        $this->object->attack_list($b);
-//        // Test adding Shadow
-//        $this->assertNotEmpty($a);
-//        $this->assertContains('Shadow', $a);
-//        // Only once
-//        $this->assertEquals(1, count($a));
-//
-//        // Test adding Shadow to a non-empty array
-//        $a = array('Skill' => 'Skill');
-//        $this->object->attack_list($b);
-//        $this->assertNotEmpty($a);
-//        $this->assertEquals(2, count($a));
-//        $this->assertContains('Shadow', $a);
-//        // Confirm other contents intact
-//        $this->assertContains('Skill', $a);
-//
-//        // Test Power removal
-//        $a = array('Power' => 'Power', 'Skill' => 'Skill');
-//        $this->object->attack_list($b);
-//        $this->assertNotEmpty($a);
-//        $this->assertNotContains('Power', $a);
-//        // Check proper behavior not disrupted when removing Power
-//        $this->assertEquals(2, count($a));
-//        $this->assertContains('Shadow', $a);
-//        $this->assertContains('Skill', $a);
-//
-//        // Check removing Power from the middle of longer lists
-//        $a = array('Speed' => 'Speed',
-//                   'Trip'  => 'Trip',
-//                   'Power' => 'Power',
-//                   'Skill' => 'Skill');
-//        $this->object->attack_list($b);
-//        $this->assertNotEmpty($a);
-//        $this->assertNotContains('Power', $a);
-//        $this->assertEquals(4, count($a));
-//
-//        // Check adding Shadow to an array already containing Shadow
-//        $a = array('Shadow' => 'Shadow', 'Skill' => 'Skill');
-//        $this->object->attack_list($b);
-//        $this->assertNotEmpty($a);
-//        $this->assertContains('Shadow', $a);
-//        $this->assertEquals(2, count($a));
-//    }
+    /**
+     * @covers BMSkillTrip::attack_list
+     */
+    public function testAttack_list()
+    {
+        $a = array();
+        $b = array('attackTypeArray' => &$a);
+
+        $this->object->attack_list($b);
+        // Test adding Trip
+        $this->assertNotEmpty($a);
+        $this->assertContains('Trip', $a);
+        // Only once
+        $this->assertEquals(1, count($a));
+
+        // Test adding Trip to a non-empty array
+        $a = array('Skill' => 'Skill');
+        $this->object->attack_list($b);
+        $this->assertNotEmpty($a);
+        $this->assertEquals(2, count($a));
+        $this->assertContains('Trip', $a);
+        // Confirm other contents intact
+        $this->assertContains('Skill', $a);
+
+        // Check adding Trip to an array already containing Trip
+        $a = array('Trip' => 'Trip', 'Skill' => 'Skill');
+        $this->object->attack_list($b);
+        $this->assertNotEmpty($a);
+        $this->assertContains('Trip', $a);
+        $this->assertEquals(2, count($a));
+    }
+
+    /**
+     * @covers BMSkillTrip::initiative_value
+     */
+    public function testInitiative_value()
+    {
+        $a = 15;
+        $b = array('initiativeValue' => &$a);
+        $this->object->initiative_value($b);
+        $this->assertEquals(0, $a);
+    }
 }
 
 ?>
