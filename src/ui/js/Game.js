@@ -420,7 +420,7 @@ Game.formChooseSwingActive = function() {
   } else {
     Env.message = { 
       'type': 'error',
-      'text': 'Not enough swing values specified',
+      'text': 'Some swing values missing or nonnumeric',
     };
     Game.showGamePage();
   }
