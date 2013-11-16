@@ -223,7 +223,6 @@ class BMAttack {
             return FALSE;
         }
 
-
         $count = count($many);
 
         $oneIt = new BMUtilityXCYIterator($one, 1);
@@ -235,26 +234,11 @@ class BMAttack {
                 continue;
             }
 
-            // We only need to iterate over about half the space, since we
-            // can search the complement of the set at the same time.
-            $checkedSizes[$count - $i] = TRUE;
-
             $manyIt = new BMUtilityXCYIterator($many, $i);
 
             foreach ($manyIt as $m) {
                 foreach ($oneIt as $o) {
                     if ($compare($game, $o, $m)) {
-                        return TRUE;
-                    }
-                    // Don't search the complement when we're halfway
-                    // through an even-sized list
-                    if ($i == $count - $i) { continue; }
-
-                    // Or if the complement is empty
-                    if (count($many) == count($m)) { continue; }
-
-                    $complement =  array_diff($many, $m);
-                    if ($compare($game, $o, $complement)) {
                         return TRUE;
                     }
                 }

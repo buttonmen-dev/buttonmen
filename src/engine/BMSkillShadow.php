@@ -12,10 +12,6 @@ class BMSkillShadow extends BMSkill {
             return;
         }
 
-        if (count($args) < 1) {
-            return;
-        }
-
         $attackTypeArray = &$args['attackTypeArray'];
 
         if (array_key_exists('Power', $attackTypeArray)) {

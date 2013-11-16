@@ -15,7 +15,10 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        if (array_key_exists('Shadow', $attackers[0]->skillList)) {
+        $attacker = $attackers[0];
+        $defender = $defenders[0];
+
+        if (array_key_exists('Shadow', $attacker->skillList)) {
             return FALSE;
         }
 
@@ -23,12 +26,12 @@ class BMAttackPower extends BMAttack {
 
         $bounds = $this->help_bounds($helpers);
 
-        foreach ($attackers[0]->attack_values($this->type) as $aVal) {
+        foreach ($attacker->attack_values($this->type) as $aVal) {
 
-            if ($aVal + $bounds[1] >= $defenders[0]->defense_value($this->type)) {
+            if ($aVal + $bounds[1] >= $defender->defense_value($this->type)) {
 
-                if ($attackers[0]->valid_attack($this->type, $attackers, $defenders) &&
-                    $defenders[0]->valid_target($this->type, $attackers, $defenders))
+                if ($attacker->is_valid_attacker($this->type, $attackers, $defenders) &&
+                    $defender->is_valid_target($this->type, $attackers, $defenders))
                 {
                     return TRUE;
                 }
