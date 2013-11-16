@@ -114,7 +114,7 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Mordred',     's(6) (10) (10) s(20) s(X) +(4)',1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
 ('Lancelot',    '(10) (12) (20) (20) (X) +(X)',  1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
 ('Gawaine',     '(4) (4) (12) (20) (X) +(6)',    1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Morgan',      's(4) (12) s(12) (20) (X) +(12)',1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Morgan Le Fay','s(4) (12) s(12) (20) (X) +(12)',1,(SELECT id FROM buttonset WHERE name="Buttonlords")),
 ('Guenever',    '(6) s(8) (10) (12) (X) +(8)',   1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
 ('Nimue',       '(4) (6) s(12) (20) (X) +s(10)', 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
 ('Merlin',      '(2) (4) s(10) s(20) (X) +s(X)', 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
