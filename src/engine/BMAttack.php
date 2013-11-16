@@ -45,18 +45,21 @@ class BMAttack {
     }
 
     public static function possible_attack_types(array $attackers) {
-        $attackTypeArray = array();
+        $allAttackTypesArray = array();
 
         foreach ($attackers as $attacker) {
-            if (in_array('BMSkillShadow', $attacker->skillList)) {
-                $attackTypeArray['Shadow'] = 'Shadow';
-            } else {
-                $attackTypeArray['Power'] = 'Power';
+            $individualAttackTypeArray = array();
+            $individualAttackTypeArray['Power'] = 'Power';
+            $individualAttackTypeArray['Skill'] = 'Skill';
+            $attacker->run_hooks('attack_list', array('attackTypeArray' => 
+                                                      &$individualAttackTypeArray));
+
+            foreach ($individualAttackTypeArray as $attackType) {
+                $allAttackTypesArray[$attackType] = $attackType;
             }
-            $attackTypeArray['Skill'] = 'Skill';
         }
 
-        return $attackTypeArray;
+        return $allAttackTypesArray;
     }
 
     // Dice that effect or affect this attack
@@ -225,12 +228,7 @@ class BMAttack {
 
         $oneIt = new BMUtilityXCYIterator($one, 1);
 
-        $checkedSizes = array();
-
-        for ($i = 1; $i <= $count; $i++) {
-            $checkedSizes[$i] = FALSE;
-        }
-
+        $checkedSizes = array_fill(1, $count, FALSE);
 
         for ($i = 1; $i <= $count; $i++) {
             if ($checkedSizes[$i]) {
@@ -290,12 +288,11 @@ class BMAttack {
 
     // returns a list of possible values that can aid an attack
     protected function collect_helpers($game, array $attackers, array $defenders) {
-        $helpers = array();
-
         if (is_null($game->attackerAllDieArray)) {
-            return $helpers;
+            return array();
         }
 
+        $helpers = array();
         foreach ($game->attackerAllDieArray as $die) {
             $helpVals = $die->assist_values($this->type, $attackers, $defenders);
             if ($helpVals[0] != 0) {

@@ -33,21 +33,21 @@ class BMSkillShadowTest extends PHPUnit_Framework_TestCase {
     {
         $a = array();
 
-        $b = array(&$a);
+        $b = array('attackTypeArray' => &$a);
 
         $this->object->attack_list($b);
 
         // Test adding Shadow
         $this->assertNotEmpty($a);
 
-        $this->assertContains("Shadow", $a);
+        $this->assertContains('Shadow', $a);
 
         // Only once
         $this->assertEquals(1, count($a));
 
         // Test adding Shadow to a non-empty array
 
-        $a = array("Skill");
+        $a = array('Skill' => 'Skill');
 
         $this->object->attack_list($b);
 
@@ -56,52 +56,55 @@ class BMSkillShadowTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(2, count($a));
 
-        $this->assertContains("Shadow", $a);
+        $this->assertContains('Shadow', $a);
 
         // Confirm other contents intact
 
-        $this->assertContains("Skill", $a);
+        $this->assertContains('Skill', $a);
 
         // Test Power removal
 
-        $a = array("Power", "Skill");
+        $a = array('Power' => 'Power', 'Skill' => 'Skill');
 
         $this->object->attack_list($b);
 
         $this->assertNotEmpty($a);
 
-        $this->assertNotContains("Power", $a);
+        $this->assertNotContains('Power', $a);
 
         // Check proper behavior not disrupted when removing Power
 
         $this->assertEquals(2, count($a));
 
-        $this->assertContains("Shadow", $a);
+        $this->assertContains('Shadow', $a);
 
-        $this->assertContains("Skill", $a);
+        $this->assertContains('Skill', $a);
 
 
         // Check removing Power from the middle of longer lists
 
-        $a = array("Speed", "Trip", "Power", "Skill");
+        $a = array('Speed' => 'Speed',
+                   'Trip'  => 'Trip',
+                   'Power' => 'Power',
+                   'Skill' => 'Skill');
 
         $this->object->attack_list($b);
 
         $this->assertNotEmpty($a);
 
-        $this->assertNotContains("Power", $a);
+        $this->assertNotContains('Power', $a);
 
         $this->assertEquals(4, count($a));
 
         // Check adding Shadow to an array already containing Shadow
 
-        $a = array("Shadow", "Skill");
+        $a = array('Shadow' => 'Shadow', 'Skill' => 'Skill');
 
         $this->object->attack_list($b);
 
         $this->assertNotEmpty($a);
 
-        $this->assertContains("Shadow", $a);
+        $this->assertContains('Shadow', $a);
 
         $this->assertEquals(2, count($a));
 

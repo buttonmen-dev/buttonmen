@@ -84,7 +84,7 @@ class BMDieSwing extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array($newDie));
+        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
@@ -152,7 +152,8 @@ class BMDieSwing extends BMDie {
             return FALSE;
         }
 
-        $this->run_hooks(__FUNCTION__, array(&$valid, $swingList));
+        $this->run_hooks(__FUNCTION__, array('isValid'   => &$valid,
+                                             'swingList' => $swingList));
 
         if ($valid) {
             $this->swingValue = $sides;

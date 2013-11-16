@@ -23,19 +23,12 @@ class BMSkill {
     }
 
     private static function expand_skill_letter($skillLetter) {
-        switch ($skillLetter) {
-            case 'n':
-                return 'Null';
-            case 'p':
-                return 'Poison';
-            case 's':
-                return 'Shadow';
-            case 'v':
-                return 'Value';
-            case '':
-                return '';
-            default:
-                return '';
+        $skillLetter = array_search($skillLetter, 
+                                    BMSkill::skill_name_abbreviation_mapping());
+        if ($skillLetter) {
+            return $skillLetter;
+        } else {
+            return '';
         }
     }
 
@@ -46,18 +39,20 @@ class BMSkill {
             $skillName = $fullSkillName;
         }
 
-        switch ($skillName) {
-            case 'Null':
-                return 'n';
-            case 'Poison':
-                return 'p';
-            case 'Shadow':
-                return 's';
-            case 'Value':
-                return 'v';
-            default:
-                return '';
+        $skill_mapping = BMSkill::skill_name_abbreviation_mapping();
+        if (array_key_exists($skillName, $skill_mapping)) {
+            return $skill_mapping[$skillName];
+        } else {
+            return '';
         }
+    }
+
+    protected static function skill_name_abbreviation_mapping() {
+        return array('Null'   => 'n',
+                     'Poison' => 'p',
+                     'Shadow' => 's',
+                     'Speed'  => 'z',
+                     'Value'  => 'v');
     }
 }
 

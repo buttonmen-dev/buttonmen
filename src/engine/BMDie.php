@@ -59,7 +59,7 @@ class BMDie {
 // --AND--
 // Take it out as a reference: $thing = &$args[0]
 
-    protected function run_hooks($func, $args)
+    public function run_hooks($func, $args)
     {
         // get the hooks for the calling function
 
@@ -236,7 +236,7 @@ class BMDie {
     {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array($newDie));
+        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
 
         $this->ownerObject->add_die($newDie);
     }
@@ -248,7 +248,7 @@ class BMDie {
 
         $newDie->roll(FALSE);
 
-        $this->run_hooks(__FUNCTION__, array($newDie));
+        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
 
         return $newDie;
     }
@@ -261,14 +261,14 @@ class BMDie {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        $this->run_hooks(__FUNCTION__, array($successfulAttack));
+        $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
     }
 
     public function attack_list()
     {
-        $list = array("Power", "Skill");
+        $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
-        $this->run_hooks(__FUNCTION__, array(&$list));
+        $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list));
 
         return $list;
     }
@@ -280,7 +280,8 @@ class BMDie {
     {
         $list = array($this->value);
 
-        $this->run_hooks(__FUNCTION__, array($type, &$list));
+        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+                                             'attackValues' => &$list));
 
         return $list;
     }
@@ -289,7 +290,8 @@ class BMDie {
     {
         $val = $this->value;
 
-        $this->run_hooks(__FUNCTION__, array($type, &$val));
+        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+                                             'defenceValue' => &$val));
 
         return $val;
     }
@@ -335,7 +337,7 @@ class BMDie {
     {
         $vals = array($this->value);
 
-        $this->run_hooks(__FUNCTION__, array(&$vals));
+        $this->run_hooks(__FUNCTION__, array('possibleInitiativeValues' => &$vals));
 
         return $vals;
     }
@@ -365,7 +367,10 @@ class BMDie {
             return $vals;
         }
 
-        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$vals));
+        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+                                             'attackers' => $attackers,
+                                             'defenders' => $defenders,
+                                             'possibleAssistValues' => &$vals));
 
         return $vals;
     }
@@ -395,7 +400,10 @@ class BMDie {
 
         // Hooks are where the die gets adjusted if need be.
         if ($valid) {
-            $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, $amount));
+            $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+                                                 'attackers' => $attackers,
+                                                 'defenders' => $defenders,
+                                                 'amount' => $amount));
         }
         return $valid;
 
@@ -428,7 +436,10 @@ class BMDie {
             $valid = FALSE;
         }
 
-        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
+        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+                                             'attackers' => $attackers,
+                                             'defenders' => $defenders,
+                                             'isValid' => &$valid));
 
         return $valid;
     }
@@ -456,7 +467,10 @@ class BMDie {
         }
 
 
-        $this->run_hooks(__FUNCTION__, array($type, $attackers, $defenders, &$valid));
+        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+                                             'attackers' => $attackers,
+                                             'defenders' => $defenders,
+                                             'isValid' => &$valid));
 
         return $valid;
     }
@@ -507,7 +521,7 @@ class BMDie {
 
         $dice = array($this, $newdie);
 
-        $this->run_hooks(__FUNCTION__, array(&$dice));
+        $this->run_hooks(__FUNCTION__, array('dice' => &$dice));
 
         return $dice;
     }
@@ -524,7 +538,7 @@ class BMDie {
                 // do nothing special
         }
 
-        $this->run_hooks(__FUNCTION__, array($activePlayerIdx));
+        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' => $activePlayerIdx));
     }
 
     public function get_recipe() {

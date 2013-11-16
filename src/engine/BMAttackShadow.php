@@ -1,38 +1,34 @@
 <?php
 
 class BMAttackShadow extends BMAttackPower {
-    public $name = "Shadow";
-    public $type = "Shadow";
+    public $name = 'Shadow';
+    public $type = 'Shadow';
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) != 1 || count($defenders) != 1) {
+        if (1 != count($attackers) || 1 != count($defenders)) {
             return FALSE;
         }
 
+        $attacker = $attackers[0];
+        $defender = $defenders[0];
 
-        $helpers = $this->collect_helpers($game, $attackers, $defenders);
+        $isDieLargeEnough = $attacker->max >=
+                            $defender->defense_value($this->type);
 
-        $bounds = $this->help_bounds($helpers);
+        $attackValueArray = $attacker->attack_values($this->type);
+        assert(1 == count($attackValueArray));
+        $attackValue = $attackValueArray[0];
+        $defenseValue = $defender->defense_value($this->type);
+        $isValueSmallEnough = $attackValue <= $defenseValue;
 
-        foreach ($attackers[0]->attack_values($this->type) as $aVal) {
+        $canAttackerPerformThisAttack =
+            $attacker->valid_attack($this->type, $attackers, $defenders);
+        $isDefenderValidTargetForThisAttack =
+            $defender->valid_target($this->type, $attackers, $defenders);
 
-            if ($defenders[0]->defense_value($this->type) <= $attackers[0]->max &&
-                ($defenders[0]->defense_value($this->type) >= $aVal ||
-                 $defenders[0]->defense_value($this->type) >= $aVal + $bounds[0])) {
-
-                if ($attackers[0]->valid_attack($this->type, $attackers, $defenders) &&
-                    $defenders[0]->valid_target($this->type, $attackers, $defenders))
-                {
-                    return TRUE;
-                }
-            }
-        }
-
-        return FALSE;
-    }
-
-    // return how much help is needed and who can contribute
-    public function calculate_contributions($game, array $attackers, array $defenders) {
-        return array(0, array());
+        return ($isDieLargeEnough &&
+                $isValueSmallEnough &&
+                $canAttackerPerformThisAttack &&
+                $isDefenderValidTargetForThisAttack);
     }
 }

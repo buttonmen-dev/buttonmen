@@ -1,7 +1,7 @@
 <?php
 
 class BMAttackPower extends BMAttack {
-    public $name = "Power";
+    public $name = 'Power';
     public $type = 'Power';
 
     public function find_attack($game) {
@@ -12,6 +12,10 @@ class BMAttackPower extends BMAttack {
 
     public function validate_attack($game, array $attackers, array $defenders) {
         if (count($attackers) != 1 || count($defenders) != 1) {
+            return FALSE;
+        }
+
+        if (array_key_exists('Shadow', $attackers[0]->skillList)) {
             return FALSE;
         }
 
