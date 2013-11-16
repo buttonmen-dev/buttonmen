@@ -39,6 +39,10 @@ input.text {
     margin: 0.2em;
 }
 
+input.swing {
+    width: 20px;
+}
+
 .die_img {
     background-size: 50px 50px;
     width:50px;

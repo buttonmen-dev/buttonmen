@@ -236,10 +236,13 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
 Game.actionChooseSwingActive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader();
-  Game.pageAddDieRecipeTable();
 
-  // Display a form for submitting swing values
   var swingdiv = $('<div>');
+
+  // Get a table containing the existing die recipes
+  dietable = Game.dieRecipeTable();
+
+  // Create a form for submitting swing values
   var swingform = $('<form>', {
                       'id': 'game_action_form',
                       'action': "javascript:void(0);",
@@ -252,7 +255,7 @@ Game.actionChooseSwingActive = function() {
             var swinginput = $('<td>', {});
             swinginput.append($('<input>', {
                                'type': 'text',
-                               'class': 'text',
+                               'class': 'swing',
                                'id': 'swing_' + index,
                                'size': '2',
                                'maxlength': '2',
@@ -266,9 +269,18 @@ Game.actionChooseSwingActive = function() {
                                   'id': 'game_action_button',
                                   'text': 'Submit',
                                  }));
-  swingdiv.append(swingform);
-  Game.page.append(swingform);
 
+  // Add the swing die form to the left column of the die table
+  var formtd = $('<td>', {});
+  formtd.append($('<br>'));
+  formtd.append(swingform);
+  var formrow = $('<tr>', {});
+  formrow.append(formtd);
+  formrow.append($('<td>', {}));
+  dietable.append(formrow);
+
+  // Add the die table to the page
+  Game.page.append(dietable);
   Game.pageAddTimestampFooter();
 
   // Function to invoke on button click
@@ -281,7 +293,10 @@ Game.actionChooseSwingActive = function() {
 Game.actionChooseSwingInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader();
-  Game.pageAddDieRecipeTable();
+
+  dietable = Game.dieRecipeTable();
+  Game.page.append(dietable);
+  Game.page.append($('<br>'));
 
   Game.page.append($('<p>', {'text':
     'Your swing dice are already set.  Please wait patiently for your opponent to set swing dice.' }));
@@ -405,7 +420,7 @@ Game.formChooseSwingActive = function() {
   } else {
     Env.message = { 
       'type': 'error',
-      'text': 'Not enough swing values specified',
+      'text': 'Some swing values missing or nonnumeric',
     };
     Game.showGamePage();
   }
@@ -489,8 +504,8 @@ Game.pageAddTimestampFooter = function() {
   return true;
 }
 
-// Display a table of dice in each player's recipe
-Game.pageAddDieRecipeTable = function() {
+// Generate and return a two-column table of the dice in each player's recipe
+Game.dieRecipeTable = function() {
 
   var dietable = $('<table>', {'id': 'die_description_table', });
   var headerrow = $('<tr>', {});
@@ -523,10 +538,7 @@ Game.pageAddDieRecipeTable = function() {
     }
     dietable.append(dierow);
   }
-  Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  return true;
+  return dietable;
 }
 
 // Display each player's dice in "battle" layout

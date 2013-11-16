@@ -443,6 +443,20 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':player_id' => $playerId));
 
+            // Initialize the arrays
+            $gameIdArray = array();
+            $opponentIdArray = array();
+            $opponentNameArray = array();
+            $myButtonNameArray = array();
+            $opponentButtonNameArray = array();
+            $nWinsArray = array();
+            $nDrawsArray = array();
+            $nLossesArray = array();
+            $nTargetWinsArray = array();
+            $isAwaitingActionArray = array();
+            $gameStateArray = array();
+            $statusArray = array();
+
             while ($row = $statement->fetch()) {
                 $gameIdArray[]             = $row['game_id'];
                 $opponentIdArray[]         = $row['opponent_id'];
