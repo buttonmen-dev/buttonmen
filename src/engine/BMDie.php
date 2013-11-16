@@ -66,8 +66,7 @@ class BMDie {
             return;
         }
 
-        foreach ($this->hookList[$func] as $skillClass)
-        {
+        foreach ($this->hookList[$func] as $skillClass) {
             $skillClass::$func($args);
         }
     }
@@ -472,21 +471,19 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array &$attackers, array &$victims)
+    public function capture($type, array &$attackers, array &$defenders)
     {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
-                                             'victims' => $victims));
+                                             'defenders' => $defenders));
     }
 
 
-    public function be_captured($type, array &$attackers, array &$victims)
+    public function be_captured($type, array &$attackers, array &$defenders)
     {
-        $this->captured = TRUE;
-
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
-                                             'victims' => $victims));
+                                             'defenders' => $defenders));
     }
 
 // Print long description

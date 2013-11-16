@@ -156,24 +156,31 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
-        foreach ($attackers as $att) {
-            $att->capture($this->type, $attackers, $defenders);
-        }
-
-        foreach ($defenders as $def) {
-            $def->be_captured($this->type, $attackers, $defenders);
-        }
-
-        // Yes, the separation is important for a number of skills
-
-        foreach ($attackers as $att) {
+        // set attack defaults
+        foreach ($attackers as &$att) {
             $att->hasAttacked = TRUE;
             $att->roll(TRUE);
         }
 
-        foreach ($defenders as $def) {
+        foreach ($defenders as &$def) {
             $def->captured = TRUE;
-            $game->capture_die($def);
+        }
+
+        // allow attack type to modify default behaviour
+        foreach ($attackers as &$att) {
+            $att->capture($this->type, $attackers, $defenders);
+        }
+
+        foreach ($defenders as &$def) {
+            $def->be_captured($this->type, $attackers, $defenders);
+        }
+
+        // process captured dice
+        // james: currently only defenders, but could conceivably also include attackers
+        foreach ($defenders as &$def) {
+            if ($def->captured) {
+                $game->capture_die($def);
+            }
         }
 
         return TRUE;

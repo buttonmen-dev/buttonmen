@@ -695,9 +695,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
             $this->object->be_captured($att, $attackers, $defenders);
-            $this->assertTrue($this->object->captured);
-
-            $this->object->captured = FALSE;
         }
     }
 

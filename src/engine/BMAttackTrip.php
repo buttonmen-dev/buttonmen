@@ -25,11 +25,6 @@ class BMAttackTrip extends BMAttack {
         return ($doesAttackerHaveTrip &&
                 $isDieLargeEnough);
     }
-//
-//    // return how much help is needed and who can contribute
-//    public function calculate_contributions($game, array $attackers, array $defenders) {
-//        return array(0, array());
-//    }
 }
 
 ?>
