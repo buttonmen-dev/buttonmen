@@ -23,7 +23,7 @@ class BMSkill {
     }
 
     private static function expand_skill_letter($skillLetter) {
-        $skillLetter = array_search($skillLetter, 
+        $skillLetter = array_search($skillLetter,
                                     BMSkill::skill_name_abbreviation_mapping());
         if ($skillLetter) {
             return $skillLetter;
@@ -48,11 +48,24 @@ class BMSkill {
     }
 
     protected static function skill_name_abbreviation_mapping() {
-        return array('Null'   => 'n',
-                     'Poison' => 'p',
-                     'Shadow' => 's',
-                     'Speed'  => 'z',
-                     'Value'  => 'v');
+        return array('Berserk' => 'B',
+                     'Null'    => 'n',
+                     'Poison'  => 'p',
+                     'Shadow'  => 's',
+                     'Speed'   => 'z',
+                     'Value'   => 'v');
+    }
+
+    public static function attack_types() {
+        return array(// skill related attack types
+                     'Berserk',
+                     'Null',
+                     'Shadow',
+                     'Speed',
+                     // standard attack types
+                     'Power',
+                     'Skill',
+                     'Pass');
     }
 }
 

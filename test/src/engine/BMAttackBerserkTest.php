@@ -1,8 +1,8 @@
 <?php
 
-class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
+class BMAttackBerserkTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMAttackSpeed
+     * @var BMAttackBerserk
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackSpeed::get_instance();
+        $this->object = BMAttackBerserk::get_instance();
     }
 
     /**
@@ -33,7 +33,7 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
         $sk = $this->object;
 
         $die1 = BMDie::create(6);
-        $die1->add_skill('Speed');
+        $die1->add_skill('Berserk');
         $die1->value = 6;
 
         $game->attackerAllDieArray[] = $die1;
@@ -96,7 +96,7 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttackSpeed::find_attack
+     * @covers BMAttackBerserk::find_attack
      * @depends testValidate_attack
      */
     public function testFind_attack()
@@ -111,7 +111,7 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
         // Load some dice into the attack.
         $die1 = BMDie::create(20);
         $die1->value = 6;
-        $die1->add_skill('Speed');
+        $die1->add_skill('Berserk');
 
         $die2 = BMDie::create(6);
         $die2->value = 2;
@@ -147,4 +147,4 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($sk->find_attack($game));
     }
 }
-
+?>

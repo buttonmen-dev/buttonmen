@@ -62,7 +62,6 @@ class BMDie {
     public function run_hooks($func, $args)
     {
         // get the hooks for the calling function
-
         if (!array_key_exists($func, $this->hookList)) {
             return;
         }
@@ -473,17 +472,21 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array $attackers, array $victims)
+    public function capture($type, array &$attackers, array &$victims)
     {
-        $this->run_hooks(__FUNCTION__, array('victims' => $victims));
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => $attackers,
+                                             'victims' => $victims));
     }
 
 
-    public function be_captured($type, array $attackers, array $victims)
+    public function be_captured($type, array &$attackers, array &$victims)
     {
         $this->captured = TRUE;
 
-        $this->run_hooks(__FUNCTION__, array());
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => $attackers,
+                                             'victims' => $victims));
     }
 
 // Print long description

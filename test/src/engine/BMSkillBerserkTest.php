@@ -1,8 +1,8 @@
 <?php
 
-class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
+class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillSpeed
+     * @var BMSkillBerserk
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMSkillSpeed;
+        $this->object = new BMSkillBerserk;
     }
 
     /**
@@ -24,7 +24,7 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillSpeed::attack_list
+     * @covers BMSkillBerserk::attack_list
      */
     public function testAttack_list()
     {
@@ -32,29 +32,30 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
         $b = array('attackTypeArray' => &$a);
 
         $this->object->attack_list($b);
-        // Test adding Speed
+        // Test adding Berserk
         $this->assertNotEmpty($a);
-        $this->assertContains('Speed', $a);
+        $this->assertContains('Berserk', $a);
         // Only once
         $this->assertEquals(1, count($a));
 
-        // Test adding Speed to a non-empty array
+        // Test adding Berserk to a non-empty array
         $a = array('Power' => 'Power', 'Skill' => 'Skill');
         $this->object->attack_list($b);
         $this->assertNotEmpty($a);
-        $this->assertEquals(3, count($a));
-        $this->assertContains('Speed', $a);
+        $this->assertEquals(2, count($a));
+        $this->assertContains('Berserk', $a);
         // Confirm other contents intact
         $this->assertContains('Power', $a);
-        $this->assertContains('Skill', $a);
+        $this->assertNotContains('Skill', $a);
 
-        // Check adding Speed to an array already containing Speed
-        $a = array('Speed' => 'Speed', 'Skill' => 'Skill');
+        // Check adding Berserk to an array already containing Berserk
+        $a = array('Power' => 'Power', 'Berserk' => 'Berserk');
         $this->object->attack_list($b);
         $this->assertNotEmpty($a);
-        $this->assertContains('Speed', $a);
+        $this->assertContains('Berserk', $a);
         $this->assertEquals(2, count($a));
 
     }
 }
+
 ?>

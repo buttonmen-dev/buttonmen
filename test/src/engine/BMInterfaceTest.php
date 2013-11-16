@@ -349,7 +349,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMInterface::save_game
      */
-    public function test_swing_value_reset() {
+    public function test_swing_value_reset_at_end_of_round() {
         // create a dummy game that will be overwritten
         $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
 
@@ -501,5 +501,127 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->swingValueArrayArray[1]['V']));
         $this->assertTrue(isset($game->activeDieArrayArray[1][4]->swingValue));
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+    }
+
+    /**
+     * @covers BMInterface::save_game
+     */
+    public function test_swing_value_reset_at_end_of_game() {
+        // create a dummy game that will be overwritten
+        $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 1);
+
+        // start as if we were close to the end of the game
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(X)', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('(V)', 'Test2');
+
+        // load game
+        $game = new BMGame($gameId, array(234, 567), array('', ''), 1);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // specify swing dice correctly
+        $game->swingValueArrayArray = array(array('X' => 7), array('V' => 11));
+        $game->proceed_to_next_user_action();
+
+        // artificially set player 1 as winning initiative
+        $game->playerWithInitiativeIdx = 0;
+
+        // artificially set player 2 as being active
+        $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 2;
+
+        // perform attack
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($gameId);
+        
+        $this->assertEquals(BMGameState::endGame, $game->gameState);
+        $this->assertNull($game->swingValueArrayArray);
+    }
+
+
+    /**
+     * The following unit tests ensure that the swing values are persistent,
+     * even when the swing dice have been changed to normal dice,
+     *   e.g., by a berserk attack.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_swing_value_persistence() {
+        // create a dummy game that will be overwritten
+        $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
+
+        // start as if we were close to the end of Round 1
+
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1) (X)', 'Test1');
+        $this->assertFalse(isset($button1->dieArray[1]->max));
+        $this->assertTrue($button1->dieArray[1] instanceof BMDieSwing);
+        $this->assertTrue($button1->dieArray[1]->needsSwingValue);
+
+        $button2 = new BMButton;
+        $button2->load('(2) p(V)', 'Test2');
+        $this->assertEquals('(2) p(V)', $button2->recipe);
+        $this->assertFalse(isset($button2->dieArray[1]->max));
+        $this->assertTrue($button2->dieArray[1] instanceof BMDieSwing);
+        $this->assertTrue($button2->dieArray[1]->needsSwingValue);
+
+        // load game
+        $game = new BMGame($gameId, array(1, 2), array('', ''), 2);
+        $this->assertEquals(BMGameState::startGame, $game->gameState);
+        $this->assertEquals(2, $game->maxWins);
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // specify swing dice correctly
+        $game->swingValueArrayArray = array(array('X' => 7), array('V' => 11));
+        $game->proceed_to_next_user_action();
+        $this->assertTrue($game->activeDieArrayArray[0][1] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[1][1] instanceof BMDieSwing);
+        $this->assertFalse($game->activeDieArrayArray[0][1]->needsSwingValue);
+        $this->assertFalse($game->activeDieArrayArray[1][1]->needsSwingValue);
+
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(array('X' => 7), array('V' => 11)),
+                            $game->swingValueArrayArray);
+        $this->assertEquals(7,  $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals(11, $game->activeDieArrayArray[1][1]->max);
+        $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][1]->value);
+
+        $newDie = new BMDie;
+        $newDie->init(4);
+        $newDie->ownerObject = $game->activeDieArrayArray[0][1]->ownerObject;
+        $newDie->playerIdx = $game->activeDieArrayArray[0][1]->playerIdx;
+        $newDie->originalPlayerIdx = $game->activeDieArrayArray[0][1]->originalPlayerIdx;
+
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][1] = $newDie;
+        $game->activeDieArrayArray = $dieArrayArray;
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(array('X' => 7), array('V' => 11)),
+                            $game->swingValueArrayArray);
     }
 }

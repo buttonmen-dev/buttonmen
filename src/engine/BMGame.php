@@ -329,14 +329,14 @@ class BMGame {
                 $attackerAttackDieArray = array();
                 foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
                     $attackerAttackDieArray[] =
-                        $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                                  [$attackerAttackDieIdx];
+                        &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                   [$attackerAttackDieIdx];
                 }
                 $defenderAttackDieArray = array();
                 foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
                     $defenderAttackDieArray[] =
-                        $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
-                                                  [$defenderAttackDieIdx];
+                        &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                   [$defenderAttackDieIdx];
                 }
 
                 foreach ($attackerAttackDieArray as $attackDie) {
@@ -388,11 +388,11 @@ class BMGame {
                 break;
 
             case BMGameState::endGame:
-                if (isset($this->activePlayerIdx)) {
-                    // write stats to overall stats table
-                    // i.e. update win/loss records for players and buttons
-                    $this->reset_play_state();
-                }
+                $this->reset_play_state();
+                // swingValueArrayArray must be reset to clear entries in the
+                // database table game_swing_map
+                $this->swingValueArrayArray = NULL;
+                
                 $this->activate_GUI('Show end-of-game screen.');
                 break;
         }
@@ -979,13 +979,8 @@ class BMGame {
                 }
 
                 if (!preg_match('/'.
-                                'Null'.'|'.
-                                'Power'.'|'.
-                                'Skill'.'|'.
-                                'Shadow'.'|'.
-                                'Speed'.'|'.
-                                'Value'.'|'.
-                                'Pass'.'/', $value[4])) {
+                                implode('|', BMSkill::attack_types()).
+                                '/', $value[4])) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.');
                 }

@@ -680,9 +680,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         // How does one test a function that doesn't do anything, but
         // exists solely to be modified?
         $defDie = new BMDie;
+        $attackers = array($this->object);
+        $defenders = array($defDie);
 
         foreach ($this->object->attack_list() as $att) {
-            $this->object->capture($att, array($this->object), array($defDie));
+            $this->object->capture($att, $attackers, $defenders);
         }
     }
 
@@ -693,9 +695,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $attDie = new BMDie;
 
         $this->assertFalse($this->object->captured);
+        $attackers = array($attDie);
+        $defenders = array($this->object);
 
         foreach ($this->object->attack_list() as $att) {
-            $this->object->be_captured($att, array($attDie), array($this->object));
+            $this->object->be_captured($att, $attackers, $defenders);
             $this->assertTrue($this->object->captured);
 
             $this->object->captured = FALSE;
