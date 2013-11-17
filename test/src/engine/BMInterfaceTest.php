@@ -625,3 +625,5 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->swingValueArrayArray);
     }
 }
+
+?>

@@ -291,3 +291,5 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($this->object->name));
     }
 }
+
+?>

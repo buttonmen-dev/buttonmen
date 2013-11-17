@@ -66,8 +66,7 @@ class BMDie {
             return;
         }
 
-        foreach ($this->hookList[$func] as $skillClass)
-        {
+        foreach ($this->hookList[$func] as $skillClass) {
             $skillClass::$func($args);
         }
     }
@@ -328,17 +327,17 @@ class BMDie {
         }
     }
 
-    // Return an array of the die's possible initiative values. 0
-    // means it doesn't count for initiative. "?" means it's a chance
-    // die.
+    // Return die's initiative value.
+    // 0 means it doesn't count for initiative.
+    // "?" means it's a chance die.
 
     public function initiative_value()
     {
-        $vals = array($this->value);
+        $val = $this->value;
 
-        $this->run_hooks(__FUNCTION__, array('possibleInitiativeValues' => &$vals));
+        $this->run_hooks(__FUNCTION__, array('initiativeValue' => &$val));
 
-        return $vals;
+        return $val;
     }
 
 
@@ -472,21 +471,19 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array &$attackers, array &$victims)
+    public function capture($type, array &$attackers, array &$defenders)
     {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
-                                             'victims' => $victims));
+                                             'defenders' => $defenders));
     }
 
 
-    public function be_captured($type, array &$attackers, array &$victims)
+    public function be_captured($type, array &$attackers, array &$defenders)
     {
-        $this->captured = TRUE;
-
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
-                                             'victims' => $victims));
+                                             'defenders' => $defenders));
     }
 
 // Print long description

@@ -52,3 +52,4 @@ class BMSkillIntegrationTest extends PHPUnit_Framework_TestCase {
     }
 }
 
+?>

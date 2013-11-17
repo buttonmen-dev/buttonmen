@@ -525,13 +525,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->object->init(6, array());
         $this->object->roll(FALSE);
 
-        $vals = $this->object->initiative_value();
-
-        $this->assertNotEmpty($vals);
-        $this->assertEquals(1, count($vals));
-
-        $this->assertEquals($vals[0], $this->object->value);
-
+        $val = $this->object->initiative_value();
+        $this->assertEquals($val, $this->object->value);
     }
 
     /**
@@ -700,9 +695,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
             $this->object->be_captured($att, $attackers, $defenders);
-            $this->assertTrue($this->object->captured);
-
-            $this->object->captured = FALSE;
         }
     }
 
@@ -848,4 +840,4 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
 }
 
-
+?>

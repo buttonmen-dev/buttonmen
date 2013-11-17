@@ -1,7 +1,6 @@
 <?php
 
 class BMAttackPass extends BMAttack {
-    public $name = "Pass";
     public $type = "Pass";
 
     public function find_attack($game) {

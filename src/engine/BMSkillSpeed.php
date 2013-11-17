@@ -1,10 +1,6 @@
 <?php
 
 class BMSkillSpeed extends BMSkill {
-    public static $name = 'Speed';
-    public static $type = 'Speed';
-    public static $abbrev = 'z';
-
     public static $hooked_methods = array('attack_list');
 
     public static function attack_list($args) {

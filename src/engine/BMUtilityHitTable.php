@@ -84,3 +84,5 @@ class BMUtilityHitTable {
         return array_keys($this->hits);
     }
 }
+
+?>

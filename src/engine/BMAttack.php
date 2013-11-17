@@ -14,13 +14,10 @@ class BMAttack {
     // side effects
     public $sideEffect = FALSE;
 
-    public $name;
-    // The attack's type, which is usually the same as its name.
-    //
-    // This is used for attacks like Socrates' special attack, which
-    // is a skill attack, so can work on Stealth dice and use Fire
-    // dice, but needs its own class.
     public $type;
+
+    // Dice that effect or affect this attack
+    protected $validDice = array();
 
     private function __construct() {
         // You can't instantiate me; I'm a Singleton!
@@ -61,9 +58,6 @@ class BMAttack {
 
         return $allAttackTypesArray;
     }
-
-    // Dice that effect or affect this attack
-    protected $validDice = array();
 
     public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
@@ -162,24 +156,31 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
-        foreach ($attackers as $att) {
-            $att->capture($this->type, $attackers, $defenders);
-        }
-
-        foreach ($defenders as $def) {
-            $def->be_captured($this->type, $attackers, $defenders);
-        }
-
-        // Yes, the separation is important for a number of skills
-
-        foreach ($attackers as $att) {
+        // set attack defaults
+        foreach ($attackers as &$att) {
             $att->hasAttacked = TRUE;
             $att->roll(TRUE);
         }
 
-        foreach ($defenders as $def) {
+        foreach ($defenders as &$def) {
             $def->captured = TRUE;
-            $game->capture_die($def);
+        }
+
+        // allow attack type to modify default behaviour
+        foreach ($attackers as &$att) {
+            $att->capture($this->type, $attackers, $defenders);
+        }
+
+        foreach ($defenders as &$def) {
+            $def->be_captured($this->type, $attackers, $defenders);
+        }
+
+        // process captured dice
+        // james: currently only defenders, but could conceivably also include attackers
+        foreach ($defenders as &$def) {
+            if ($def->captured) {
+                $game->capture_die($def);
+            }
         }
 
         return TRUE;

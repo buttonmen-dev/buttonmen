@@ -1,7 +1,6 @@
 <?php
 
 class BMAttackPower extends BMAttack {
-    public $name = 'Power';
     public $type = 'Power';
 
     public function find_attack($game) {
@@ -47,3 +46,5 @@ class BMAttackPower extends BMAttack {
         return array(0, array());
     }
 }
+
+?>

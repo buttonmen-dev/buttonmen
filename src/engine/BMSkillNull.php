@@ -1,10 +1,6 @@
 <?php
 
 class BMSkillNull extends BMSkill {
-
-    public static $name = "Null";
-    public static $abbrev = "n";
-
     public static $hooked_methods = array("score_value", "capture");
 
     public static function score_value($args) {
@@ -14,10 +10,10 @@ class BMSkillNull extends BMSkill {
     }
 
     public static function capture($args) {
-        assert(array_key_exists('victims', $args));
+        assert(array_key_exists('defenders', $args));
 
-        foreach($args['victims'] as $victim) {
-            $victim->add_skill('Null');
+        foreach($args['defenders'] as $defender) {
+            $defender->add_skill('Null');
         }
     }
 }

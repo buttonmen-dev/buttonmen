@@ -33,8 +33,8 @@ class TestDummyGame {
 
     public $captures = array();
 
-    public function capture_die($victim, $player = NULL) {
-        $this->captures[] = $victim;
+    public function capture_die($defender, $player = NULL) {
+        $this->captures[] = $defender;
     }
 
     public function active_player() {

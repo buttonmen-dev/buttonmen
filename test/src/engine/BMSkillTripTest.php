@@ -1,8 +1,8 @@
 <?php
 
-class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
+class BMSkillTripTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillSpeed
+     * @var BMSkillTrip
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMSkillSpeed;
+        $this->object = new BMSkillTrip;
     }
 
     /**
@@ -24,7 +24,7 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillSpeed::attack_list
+     * @covers BMSkillTrip::attack_list
      */
     public function testAttack_list()
     {
@@ -32,29 +32,38 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
         $b = array('attackTypeArray' => &$a);
 
         $this->object->attack_list($b);
-        // Test adding Speed
+        // Test adding Trip
         $this->assertNotEmpty($a);
-        $this->assertContains('Speed', $a);
+        $this->assertContains('Trip', $a);
         // Only once
         $this->assertEquals(1, count($a));
 
-        // Test adding Speed to a non-empty array
-        $a = array('Power' => 'Power', 'Skill' => 'Skill');
+        // Test adding Trip to a non-empty array
+        $a = array('Skill' => 'Skill');
         $this->object->attack_list($b);
         $this->assertNotEmpty($a);
-        $this->assertEquals(3, count($a));
-        $this->assertContains('Speed', $a);
+        $this->assertEquals(2, count($a));
+        $this->assertContains('Trip', $a);
         // Confirm other contents intact
-        $this->assertContains('Power', $a);
         $this->assertContains('Skill', $a);
 
-        // Check adding Speed to an array already containing Speed
-        $a = array('Speed' => 'Speed', 'Skill' => 'Skill');
+        // Check adding Trip to an array already containing Trip
+        $a = array('Trip' => 'Trip', 'Skill' => 'Skill');
         $this->object->attack_list($b);
         $this->assertNotEmpty($a);
-        $this->assertContains('Speed', $a);
+        $this->assertContains('Trip', $a);
         $this->assertEquals(2, count($a));
+    }
 
+    /**
+     * @covers BMSkillTrip::initiative_value
+     */
+    public function testInitiative_value()
+    {
+        $a = 15;
+        $b = array('initiativeValue' => &$a);
+        $this->object->initiative_value($b);
+        $this->assertEquals(0, $a);
     }
 }
 

@@ -1138,4 +1138,4 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 }
 
-
+?>

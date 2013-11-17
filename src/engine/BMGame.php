@@ -392,7 +392,7 @@ class BMGame {
                 // swingValueArrayArray must be reset to clear entries in the
                 // database table game_swing_map
                 $this->swingValueArrayArray = NULL;
-                
+
                 $this->activate_GUI('Show end-of-game screen.');
                 break;
         }

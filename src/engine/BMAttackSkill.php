@@ -1,7 +1,6 @@
 <?php
 
 class BMAttackSkill extends BMAttack {
-    public $name = "Skill";
     public $type = "Skill";
 
     // Especially once you take stinger and constant into account,
@@ -18,7 +17,7 @@ class BMAttackSkill extends BMAttack {
     protected function generate_hit_table($game) {
         $this->hit_table = new BMUtilityHitTable($this->validDice);
     }
-    
+
     public function find_attack($game) {
         $this->generate_hit_table($game);
 
@@ -142,3 +141,5 @@ class BMAttackSkill extends BMAttack {
         return array(0, array());
     }
 }
+
+?>
