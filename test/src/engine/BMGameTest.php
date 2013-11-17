@@ -1750,7 +1750,33 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->proceed_to_next_user_action();
 
-        $out = $game->getJsonData();
+        // beginning of game
+        // one player has specified the swing value, the other not
+        $game->swingValueArrayArray = array(array('X' => 5), array());
+        $game->proceed_to_next_user_action();
+
+        $out1 = $game->getJsonData(123);
+        $this->assertEquals(5, $out1['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
+
+        $out2 = $game->getJsonData(456);
+        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
+
+        // beginning of game
+        // both players have specified the swing value
+        $game->swingValueArrayArray = array(array('X' => 5), array('X' => 7));
+        var_dump('BMGameTest::test_start');
+        $game->proceed_to_next_user_action();
+        var_dump('BMGameTest::test_end');
+
+        $out3 = $game->getJsonData(123);
+        $this->assertEquals(5, $out3['data']['sidesArrayArray'][0][4]);
+        $this->assertEquals(7, $out3['data']['sidesArrayArray'][1][4]);
+
+        $out4 = $game->getJsonData(456);
+        $this->assertEquals(5, $out4['data']['sidesArrayArray'][0][4]);
+        $this->assertEquals(7, $out4['data']['sidesArrayArray'][1][4]);
     }
 
     /**

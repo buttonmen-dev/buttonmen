@@ -1124,7 +1124,18 @@ class BMGame {
         }
     }
 
-    public function getJsonData() {
+    public function getJsonData($requestingPlayerId) {
+        $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
+
+        $wereBothSwingValuesReset = TRUE;
+        // james: need to also consider the case of many multiple draws in a row
+        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
+            if ($gameScoreArray['W'] > 0) {
+                $wereBothSwingValuesReset = FALSE;
+                break;
+            }
+        }
+
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
         }
@@ -1139,6 +1150,20 @@ class BMGame {
                 $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
             }
             foreach ($activeDieArray as $die) {
+                // hide swing information if appropriate
+
+                var_dump('loop in');
+                var_dump($wereBothSwingValuesReset);
+                var_dump($this->gameState <= BMGameState::specifyDice);
+                var_dump($playerIdx !== $requestingPlayerIdx);
+                var_dump('loop out');
+
+                if ($wereBothSwingValuesReset &&
+                    ($this->gameState <= BMGameState::specifyDice) &&
+                    ($playerIdx !== $requestingPlayerIdx)) {
+                    $die->value = NULL;
+                    $die->max = NULL;
+                }
                 $valueArrayArray[$playerIdx][] = $die->value;
                 $sidesArrayArray[$playerIdx][] = $die->max;
                 $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
