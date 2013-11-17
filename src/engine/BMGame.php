@@ -205,7 +205,7 @@ class BMGame {
                             $this->activate_GUI('Waiting on player action.', $playerIdx);
                         } else {
                             // apply swing values
-                            foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
+                            foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
                                 if ($die instanceof BMDieSwing) {
                                     $isSetSuccessful = $die->set_swingValue(
                                         $this->swingValueArrayArray[$playerIdx]);
@@ -1151,21 +1151,17 @@ class BMGame {
             }
             foreach ($activeDieArray as $die) {
                 // hide swing information if appropriate
-
-                var_dump('loop in');
-                var_dump($wereBothSwingValuesReset);
-                var_dump($this->gameState <= BMGameState::specifyDice);
-                var_dump($playerIdx !== $requestingPlayerIdx);
-                var_dump('loop out');
+                $dieValue = $die->value;
+                $dieMax = $die->max;
 
                 if ($wereBothSwingValuesReset &&
                     ($this->gameState <= BMGameState::specifyDice) &&
                     ($playerIdx !== $requestingPlayerIdx)) {
-                    $die->value = NULL;
-                    $die->max = NULL;
+                    $dieValue = NULL;
+                    $dieMax = NULL;
                 }
-                $valueArrayArray[$playerIdx][] = $die->value;
-                $sidesArrayArray[$playerIdx][] = $die->max;
+                $valueArrayArray[$playerIdx][] = $dieValue;
+                $sidesArrayArray[$playerIdx][] = $dieMax;
                 $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
             }
         }

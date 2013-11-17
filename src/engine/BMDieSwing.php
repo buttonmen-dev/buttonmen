@@ -140,7 +140,6 @@ class BMDieSwing extends BMDie {
     }
 
     public function set_swingValue($swingList) {
-        var_dump('BMDieSwing::set_swingValue');
         $valid = TRUE;
 
         if (!array_key_exists($this->swingType, $swingList)) {
@@ -148,7 +147,6 @@ class BMDieSwing extends BMDie {
         }
 
         $sides = $swingList[$this->swingType];
-//        var_dump($sides);
 
         if ($sides < $this->swingMin || $sides > $this->swingMax) {
             return FALSE;
@@ -178,7 +176,6 @@ class BMDieSwing extends BMDie {
             }
 
             $this->max = $sides;
-            var_dump($this->max);
             $this->scoreValue = $sides;
         }
 

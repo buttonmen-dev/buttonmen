@@ -1766,9 +1766,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // beginning of game
         // both players have specified the swing value
         $game->swingValueArrayArray = array(array('X' => 5), array('X' => 7));
-        var_dump('BMGameTest::test_start');
         $game->proceed_to_next_user_action();
-        var_dump('BMGameTest::test_end');
 
         $out3 = $game->getJsonData(123);
         $this->assertEquals(5, $out3['data']['sidesArrayArray'][0][4]);
