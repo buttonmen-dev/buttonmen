@@ -183,8 +183,8 @@ Overview.addGameTable = function(gameType, sectionHeader) {
   var table = $('<table>');
   headerRow = $('<tr>');
   headerRow.append($('<th>', {'text': 'Game #', }));
-  headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
+  headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': "Opponent's Button", }));
   headerRow.append($('<th>', {'text': 'Score (W/L/T)', }));
   table.append(headerRow);
@@ -196,8 +196,8 @@ Overview.addGameTable = function(gameType, sectionHeader) {
     gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                 'text': gameInfo.gameId,}));
     gameRow.append(gameLinkTd);
-    gameRow.append($('<td>', {'text': gameInfo.playerButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.opponentName, }));
+    gameRow.append($('<td>', {'text': gameInfo.playerButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.opponentButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.gameScoreDict['W'] + '/' +
                                       gameInfo.gameScoreDict['L'] + '/' +
