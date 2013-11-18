@@ -2294,7 +2294,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->activeDieArrayArray[1][3]->needsSwingValue);
         $this->assertTrue($game->activeDieArrayArray[1][4]->needsSwingValue);
 
-        // specify swing dice partially
         $out3 = $game->getJsonData(123);
         $this->assertEquals(19, $out3['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out3['data']['sidesArrayArray'][1][4]);
