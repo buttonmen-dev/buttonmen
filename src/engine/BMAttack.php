@@ -156,6 +156,19 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
+        if ('Pass' == $game->attack['attackType']) {
+            if (isset($game->passStatusArray)) {
+                $passStatusArray = $game->passStatusArray;
+            } else {
+                $passStatusArray = array_fill(0, $game->nPlayers, FALSE);
+            }
+
+            $passStatusArray[$game->attack['attackerPlayerIdx']] = TRUE;
+            $game->passStatusArray = $passStatusArray;
+        } else {
+            $game->passStatusArray = array_fill(0, $game->nPlayers, FALSE);
+        }
+
         // set attack defaults
         foreach ($attackers as &$att) {
             $att->hasAttacked = TRUE;

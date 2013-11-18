@@ -4328,6 +4328,54 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
 
     }
+
+    /**
+     * @coversNothing
+     */
+    public function test_all_pass() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1)', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('s(20)', 'Test2');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 20;
+
+        // artificially guarantee that the active player is player 1
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // player 1 passes
+        $game->attack = array(0, 1, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(array(TRUE, FALSE), $game->passStatusArray);
+
+        // player 2 passes
+        $game->attack = array(1, 0, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                  array('W' => 1, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(array(FALSE, FALSE), $game->passStatusArray);
+    }
 }
 
 ?>
