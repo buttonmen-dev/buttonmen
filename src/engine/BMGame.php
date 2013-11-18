@@ -1130,7 +1130,7 @@ class BMGame {
         $wereBothSwingValuesReset = TRUE;
         // james: need to also consider the case of many multiple draws in a row
         foreach ($this->gameScoreArrayArray as $gameScoreArray) {
-            if ($gameScoreArray['W'] > 0) {
+            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
                 $wereBothSwingValuesReset = FALSE;
                 break;
             }

@@ -1745,36 +1745,90 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load('(4) (6) (8) (X) (X)', 'Stark');
 
         // load game
-        $game = new BMGame(424242, array(123, 456));
-        $game->buttonArray = array($button1, $button2);
-        $game->waitingOnActionArray = array(FALSE, FALSE);
-        $game->proceed_to_next_user_action();
+        $game1 = new BMGame(424242, array(123, 456));
+        $game1->buttonArray = array($button1, $button2);
+        $game1->waitingOnActionArray = array(FALSE, FALSE);
+        $game1->proceed_to_next_user_action();
 
         // beginning of game
         // one player has specified the swing value, the other not
-        $game->swingValueArrayArray = array(array('X' => 5), array());
-        $game->proceed_to_next_user_action();
+        $game1->swingValueArrayArray = array(array('X' => 5), array());
+        $game1->proceed_to_next_user_action();
 
-        $out1 = $game->getJsonData(123);
+        $out1 = $game1->getJsonData(123);
         $this->assertEquals(5, $out1['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
 
-        $out2 = $game->getJsonData(456);
+        $out2 = $game1->getJsonData(456);
         $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
 
         // beginning of game
         // both players have specified the swing value
-        $game->swingValueArrayArray = array(array('X' => 5), array('X' => 7));
-        $game->proceed_to_next_user_action();
+        $game1->swingValueArrayArray = array(array('X' => 5), array('X' => 7));
+        $game1->proceed_to_next_user_action();
 
-        $out3 = $game->getJsonData(123);
+        $out3 = $game1->getJsonData(123);
         $this->assertEquals(5, $out3['data']['sidesArrayArray'][0][4]);
         $this->assertEquals(7, $out3['data']['sidesArrayArray'][1][4]);
 
-        $out4 = $game->getJsonData(456);
+        $out4 = $game1->getJsonData(456);
         $this->assertEquals(5, $out4['data']['sidesArrayArray'][0][4]);
         $this->assertEquals(7, $out4['data']['sidesArrayArray'][1][4]);
+
+        // after one round has been played and tied
+        // one player has specified the swing value, the other not
+        $game2 = new BMGame(424242, array(123, 456));
+        $game2->buttonArray = array($button1, $button2);
+        $game2->waitingOnActionArray = array(FALSE, FALSE);
+        $game2->proceed_to_next_user_action();
+        $game2->gameScoreArrayArray = array(array(0, 0, 1), array(0, 0, 1));
+        $game2->swingValueArrayArray = array(array('X' => 5), array());
+        $game2->proceed_to_next_user_action();
+
+        $out5 = $game2->getJsonData(123);
+        $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
+
+        $out6 = $game2->getJsonData(456);
+        $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
+
+        // after one round has been played and won
+        // one player has specified the swing value, the other not
+        $game2 = new BMGame(424242, array(123, 456));
+        $game2->buttonArray = array($button1, $button2);
+        $game2->waitingOnActionArray = array(FALSE, FALSE);
+        $game2->proceed_to_next_user_action();
+        $game2->gameScoreArrayArray = array(array(1, 0, 0), array(0, 1, 0));
+        $game2->swingValueArrayArray = array(array('X' => 5), array());
+        $game2->proceed_to_next_user_action();
+
+        $out5 = $game2->getJsonData(123);
+        $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
+
+        $out6 = $game2->getJsonData(456);
+        $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
+
+        // after one round has been played and lost
+        // one player has specified the swing value, the other not
+        $game3 = new BMGame(424242, array(123, 456));
+        $game3->buttonArray = array($button1, $button2);
+        $game3->waitingOnActionArray = array(FALSE, FALSE);
+        $game3->proceed_to_next_user_action();
+        $game3->gameScoreArrayArray = array(array(0, 1, 0), array(1, 0, 0));
+        $game3->swingValueArrayArray = array(array('X' => 5), array());
+        $game3->proceed_to_next_user_action();
+
+        $out5 = $game3->getJsonData(123);
+        $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
+
+        $out6 = $game3->getJsonData(456);
+        $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
     }
 
     /**
@@ -1847,6 +1901,16 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
         $this->assertEquals(array(array(), array('X' => 4)),
                             $game->swingValueArrayArray);
+
+        // specify swing dice partially
+        $game->swingValueArrayArray = array(array('X' => 19), array());
+        $game->proceed_to_next_user_action();
+        $out1 = $game->getJsonData(123);
+        $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
+        $out2 = $game->getJsonData(456);
+        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
@@ -2229,6 +2293,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($game->activeDieArrayArray[0][4]->needsSwingValue);
         $this->assertTrue($game->activeDieArrayArray[1][3]->needsSwingValue);
         $this->assertTrue($game->activeDieArrayArray[1][4]->needsSwingValue);
+
+        // specify swing dice partially
+        $out3 = $game->getJsonData(123);
+        $this->assertEquals(19, $out3['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out3['data']['sidesArrayArray'][1][4]);
+        $out4 = $game->getJsonData(456);
+        $this->assertEquals(19, $out4['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out4['data']['sidesArrayArray'][1][4]);
 
         // set swing die for player 2
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 7));
