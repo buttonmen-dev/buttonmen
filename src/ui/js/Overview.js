@@ -79,7 +79,7 @@ Overview.getOverview = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when looking up game list',
+      'text': 'Internal error when calling loadActiveGames',
     };
     return callbackfunc();
   });

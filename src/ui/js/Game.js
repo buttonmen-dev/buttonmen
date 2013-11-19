@@ -413,7 +413,7 @@ Game.formChooseSwingActive = function() {
     ).fail(function() {
              Env.message = { 
                'type': 'error',
-               'text': 'Received internal error while submitting swing values',
+               'text': 'Internal error when calling submitSwingValues',
              };
              Game.showGamePage();
            });
@@ -469,7 +469,7 @@ Game.formPlayTurnActive = function() {
     ).fail(function() {
              Env.message = { 
                'type': 'error',
-               'text': 'Received internal error while attacking',
+               'text': 'Internal error when calling submitTurn',
              };
              Game.showGamePage();
            });

@@ -241,7 +241,7 @@ Newgame.formCreateGame = function() {
     ).fail(function() {
              Env.message = { 
                'type': 'error',
-               'text': 'Received internal error while creating game',
+               'text': 'Internal error when calling createGame',
              };
              Newgame.showNewgamePage();
            });

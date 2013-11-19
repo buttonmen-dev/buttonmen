@@ -107,7 +107,7 @@ Api.getPlayerData = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when loading player list from server',
+      'text': 'Internal error when calling loadPlayerNames',
     };
     return callbackfunc();
   });
