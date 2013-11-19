@@ -210,20 +210,14 @@
             $data = NULL;
     }
 
-    if (isset($output)) {
-        if (is_array($output) && !array_key_exists('message', $output)) {
-            $output['message'] = $interface->message;
-        }
+    $output = array(
+        'data' => $data,
+        'message' => $interface->message,
+    );
+    if ($data) {
+        $output['status'] = 'ok';
     } else {
-        $output = array(
-            'data' => $data,
-            'message' => $interface->message,
-        );
-        if ($data) {
-            $output['status'] = 'ok';
-        } else {
-            $output['status'] = 'failed';
-        }
+        $output['status'] = 'failed';
     }
 
     echo json_encode($output);
