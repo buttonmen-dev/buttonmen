@@ -1124,25 +1124,59 @@ class BMGame {
         }
     }
 
-    public function getJsonData() {
+    public function getJsonData($requestingPlayerId) {
+        $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
+
+        $wereBothSwingValuesReset = TRUE;
+        // james: need to also consider the case of many multiple draws in a row
+        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
+            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
+                $wereBothSwingValuesReset = FALSE;
+                break;
+            }
+        }
+
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
         }
 
+        $swingValuesAllSpecified = TRUE;
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             $valueArrayArray[] = array();
             $sidesArrayArray[] = array();
             $dieRecipeArrayArray[] = array();
+
             if (empty($this->swingRequestArrayArray[$playerIdx])) {
                 $swingRequestArrayArray[] = array();
             } else {
                 $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
             }
             foreach ($activeDieArray as $die) {
-                $valueArrayArray[$playerIdx][] = $die->value;
-                $sidesArrayArray[$playerIdx][] = $die->max;
+                // hide swing information if appropriate
+                $dieValue = $die->value;
+                $dieMax = $die->max;
+                if (is_null($dieMax)) {
+                    $swingValuesAllSpecified = FALSE;  
+                }
+
+                if ($wereBothSwingValuesReset &&
+                    ($this->gameState <= BMGameState::specifyDice) &&
+                    ($playerIdx !== $requestingPlayerIdx)) {
+                    $dieValue = NULL;
+                    $dieMax = NULL;
+                }
+                $valueArrayArray[$playerIdx][] = $dieValue;
+                $sidesArrayArray[$playerIdx][] = $dieMax;
                 $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
             }
+        }
+        
+        if (!$swingValuesAllSpecified) {
+	        foreach($valueArrayArray as &$valueArray) {
+		        foreach($valueArray as &$value) {
+			        $value = NULL;
+		        }
+	        }
         }
 
         $dataArray =

@@ -174,6 +174,7 @@ class BMDieSwing extends BMDie {
                     }
                 }
             }
+
             $this->max = $sides;
             $this->scoreValue = $sides;
         }
