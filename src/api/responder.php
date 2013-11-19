@@ -8,13 +8,6 @@
 
     $interface = new BMInterface;
 
-    $output = array(
-        'data' => array(),
-        'debug' => array(),
-        'message' => NULL,
-        'status' => NULL,
-    );
-
     switch ($_POST['type']) {
 
         case 'createGame':
@@ -27,19 +20,11 @@
             $buttonNameArray = $_POST['buttonNameArray'];
             $maxWins = $_POST['maxWins'];
 
-            $gameId = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
-
-            if ($gameId) {
-                $output['status'] = 'ok';
-                $output['data']['gameId'] = $gameId;
-            } else {
-                $output['status'] = 'failed';
-            }
-            $output['message'] = $interface->message;
+            $data = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
             break;
 
         case 'loadActiveGames':
-            $output = $interface->get_all_active_games($_SESSION['user_id']);
+            $data = $interface->get_all_active_games($_SESSION['user_id']);
             break;
 
         case 'loadButtonNames':
@@ -224,8 +209,20 @@
             $output = FALSE;
     }
 
-    if (is_array($output) && !array_key_exists('message', $output)) {
-        $output['message'] = $interface->message;
+    if (isset($output)) {
+        if (is_array($output) && !array_key_exists('message', $output)) {
+            $output['message'] = $interface->message;
+        }
+    } else {
+        $output = array(
+            'data' => $data,
+            'message' => $interface->message,
+        );
+        if ($data) {
+            $output['status'] = 'ok';
+        } else {
+            $output['status'] = 'failed';
+        }
     }
 
     echo json_encode($output);

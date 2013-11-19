@@ -53,8 +53,8 @@ Overview.getOverview = function(callbackfunc) {
   $.post('../api/responder.php',
          { type: 'loadActiveGames', },
          function(rs) {
-           if (rs.message == 'All game details retrieved successfully.') {
-             if (Overview.parseActiveGames(rs)) {
+           if (rs.status == 'ok') {
+             if (Overview.parseActiveGames(rs.data)) {
                Overview.api.load_status = 'ok';
              } else if (Overview.api.load_status == 'nogames') {
                Env.message = {
@@ -71,7 +71,7 @@ Overview.getOverview = function(callbackfunc) {
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Something is wrong with game list from server',
+               'text': rs.message,
              };
            }
            return callbackfunc();
@@ -85,8 +85,8 @@ Overview.getOverview = function(callbackfunc) {
   });
 }
 
-Overview.parseActiveGames = function(rs) {
-  if (rs.gameIdArray == null) {
+Overview.parseActiveGames = function(data) {
+  if (data.gameIdArray == null) {
     Overview.api.load_status = 'nogames';
     return false;
   }
@@ -96,23 +96,23 @@ Overview.parseActiveGames = function(rs) {
     'awaitingOpponent': [],
     'finished': [],
   };
-  Overview.api.nGames = rs.gameIdArray.length;
+  Overview.api.nGames = data.gameIdArray.length;
   i = 0;
   while (i < Overview.api.nGames) {
     var gameInfo = {
-      'gameId': rs.gameIdArray[i],
-      'opponentId': rs.opponentIdArray[i],
-      'opponentName': rs.opponentNameArray[i],
-      'playerButtonName': rs.myButtonNameArray[i],
-      'opponentButtonName': rs.opponentButtonNameArray[i],
+      'gameId': data.gameIdArray[i],
+      'opponentId': data.opponentIdArray[i],
+      'opponentName': data.opponentNameArray[i],
+      'playerButtonName': data.myButtonNameArray[i],
+      'opponentButtonName': data.opponentButtonNameArray[i],
       'gameScoreDict': {
-        'W': rs.nWinsArray[i],
-        'L': rs.nLossesArray[i],
-        'D': rs.nDrawsArray[i],
+        'W': data.nWinsArray[i],
+        'L': data.nLossesArray[i],
+        'D': data.nDrawsArray[i],
       },
-      'isAwaitingAction': rs.isAwaitingActionArray[i],
-      'gameState': rs.gameStateArray[i],
-      'status': rs.statusArray[i],
+      'isAwaitingAction': data.isAwaitingActionArray[i],
+      'gameState': data.gameStateArray[i],
+      'status': data.statusArray[i],
     };
     if (gameInfo.isAwaitingAction == "1") {
       Overview.api.games['awaitingPlayer'].push(gameInfo);

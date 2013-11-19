@@ -80,7 +80,7 @@ class BMInterface {
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
-            return $gameId;
+            return array('gameId' => $gameId);
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
             $this->message = 'Game create failed: '.$errorData[2];
@@ -487,6 +487,7 @@ class BMInterface {
                          'statusArray'             => $statusArray);
         } catch (Exception $e) {
             $this->message = 'Game detail get failed.';
+            return NULL;
         }
     }
 
