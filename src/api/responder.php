@@ -76,7 +76,7 @@
                                  $_POST['timestamp'],
                                  $roundNumber,
                                  $_SESSION['user_id'])) {
-                $output = FALSE;
+                $data = NULL;
                 break;
             }
 
@@ -85,7 +85,7 @@
             $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
 
             if (count($swingRequestArray) != count($swingValueArray)) {
-                $output = FALSE;
+                $data = NULL;
                 break;
             }
 
@@ -102,10 +102,10 @@
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::specifyDice) ||
                 ($game->roundNumber > $roundNumber)) {
-                $output = array('status' => 'ok');
                 $interface->save_game($game);
+                $data = True;
             } else {
-                $output = array('status' => $game->message);
+                $data = NULL;
             }
 
             break;
@@ -118,7 +118,7 @@
                                  $_POST['timestamp'],
                                  $_POST['roundNumber'],
                                  $_SESSION['user_id'])) {
-                $output = FALSE;
+                $data = NULL;
                 break;
             }
 
@@ -185,10 +185,10 @@
             // output the result of the attack
             if ($success) {
                 $game->proceed_to_next_user_action();
-                $output = array('status' => 'attack valid');
                 $interface->save_game($game);
+                $data = True;
             } else {
-                $output = array('status' => 'attack invalid');
+                $data = NULL;
             }
             break;
 

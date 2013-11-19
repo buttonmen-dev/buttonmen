@@ -453,7 +453,7 @@ Game.formPlayTurnActive = function() {
            timestamp: Game.api.timestamp,
          },
          function(rs) {
-           if ('attack valid' == rs.status) {
+           if (rs.status == 'ok') {
              Env.message = {
                'type': 'success',
                'text': 'Attack succeeded: ' + rs.message,
