@@ -53,11 +53,9 @@
 
         case 'loadPlayerName':
             if (array_key_exists('user_name', $_SESSION)) {
-                $output = array('status' => 'ok',
-                                'data' => $_SESSION['user_name']);
+                $data = array('userName' => $_SESSION['user_name']);
             } else {
-                $output = array('status' => 'failed',
-                                'data' => 'not logged in');
+                $data = NULL;
             }
             break;
 

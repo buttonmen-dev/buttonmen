@@ -9,7 +9,7 @@ Login.getLoginHeader = function() {
          function(rs) {
            var player_name = null;
            if (rs.status == 'ok') {
-             player_name = rs.data;
+             player_name = rs.data.userName;
            }
            Login.player = player_name;
            if (Login.player == null) {
