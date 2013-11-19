@@ -1156,7 +1156,7 @@ class BMGame {
                 $dieValue = $die->value;
                 $dieMax = $die->max;
                 if (is_null($dieMax)) {
-	              $swingValuesAllSpecified = FALSE;  
+                    $swingValuesAllSpecified = FALSE;  
                 }
 
                 if ($wereBothSwingValuesReset &&
