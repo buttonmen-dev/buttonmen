@@ -32,7 +32,6 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMAttackSkill::validate_attack
-     * @todo   Implement testValidate_attack().
      */
     public function testValidate_attack()
     {
@@ -172,7 +171,6 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMAttackSkill::find_attack
      * @depends testValidate_attack
-     * @todo   Implement testFind_attack().
      */
     public function testFind_attack()
     {
@@ -298,3 +296,4 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
     }
 }
 
+?>

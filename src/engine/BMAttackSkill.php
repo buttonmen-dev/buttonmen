@@ -1,7 +1,6 @@
 <?php
 
 class BMAttackSkill extends BMAttack {
-    public $name = "Skill";
     public $type = "Skill";
 
     // Especially once you take stinger and constant into account,
@@ -15,8 +14,12 @@ class BMAttackSkill extends BMAttack {
     // "Premature optimization is the root of all evil." -- Knuth
     protected $hit_table = NULL;
 
-    public function find_attack($game) {
+    protected function generate_hit_table($game) {
         $this->hit_table = new BMUtilityHitTable($this->validDice);
+    }
+
+    public function find_attack($game) {
+        $this->generate_hit_table($game);
 
         $targets = $game->defenderAllDieArray;
 
@@ -83,6 +86,12 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        foreach ($attackers as $attacker) {
+            if (array_key_exists('Berserk', $attacker->skillList)) {
+                return FALSE;
+            }
+        }
+
         // array_intersect tries to convert to strings, so we
         // use array_uintersect, which needs a comparison
         // function
@@ -93,6 +102,8 @@ class BMAttackSkill extends BMAttack {
         };
 
         $dval = $defenders[0]->defense_value($this->type);
+
+        $this->generate_hit_table($game);
 
         // exact hits
         $combos = $this->hit_table->find_hit($dval);
@@ -130,3 +141,5 @@ class BMAttackSkill extends BMAttack {
         return array(0, array());
     }
 }
+
+?>

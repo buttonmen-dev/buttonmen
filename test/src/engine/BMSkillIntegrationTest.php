@@ -27,19 +27,29 @@ class BMSkillIntegrationTest extends PHPUnit_Framework_TestCase {
 
     public function testShadow()
     {
-        $this->object->add_skill("Shadow");
+        $this->object->add_skill('Shadow');
 
         $arr = $this->object->attack_list();
 
         $this->assertNotEmpty($arr);
-
         $this->assertEquals(2, count($arr));
+        $this->assertNotContains('Power', $arr);
+        $this->assertEquals('Shadow', $arr['Shadow']);
+        $this->assertEquals('Skill', $arr['Skill']);
+    }
 
-        $this->assertNotContains("Power", $arr);
+        public function testSpeed()
+    {
+        $this->object->add_skill('Speed');
 
-        $this->assertContains("Shadow", $arr);
+        $arr = $this->object->attack_list();
 
-        $this->assertContains("Skill", $arr);
+        $this->assertNotEmpty($arr);
+        $this->assertEquals(3, count($arr));
+        $this->assertEquals('Power', $arr['Power']);
+        $this->assertEquals('Skill', $arr['Skill']);
+        $this->assertEquals('Speed', $arr['Speed']);
     }
 }
 
+?>

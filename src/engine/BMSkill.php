@@ -3,11 +3,10 @@
 /*
  * BMSkill: Used to modify the operation of BMDie
  *
- * @author: Julian Lighton
+ * @author: James Ong
  */
 
 class BMSkill {
-
     public static function expand_skill_string($skillString) {
         if ('' === $skillString) {
             return array();
@@ -24,15 +23,12 @@ class BMSkill {
     }
 
     private static function expand_skill_letter($skillLetter) {
-        switch ($skillLetter) {
-            case 'p':
-                return 'Poison';
-            case 's':
-                return 'Shadow';
-            case '':
-                return '';
-            default:
-                return '';
+        $skillLetter = array_search($skillLetter,
+                                    BMSkill::skill_name_abbreviation_mapping());
+        if ($skillLetter) {
+            return $skillLetter;
+        } else {
+            return '';
         }
     }
 
@@ -43,14 +39,35 @@ class BMSkill {
             $skillName = $fullSkillName;
         }
 
-        switch ($skillName) {
-            case 'Poison':
-                return 'p';
-            case 'Shadow':
-                return 's';
-            default:
-                return '';
+        $skill_mapping = BMSkill::skill_name_abbreviation_mapping();
+        if (array_key_exists($skillName, $skill_mapping)) {
+            return $skill_mapping[$skillName];
+        } else {
+            return '';
         }
+    }
+
+    protected static function skill_name_abbreviation_mapping() {
+        return array('Berserk' => 'B',
+                     'Null'    => 'n',
+                     'Poison'  => 'p',
+                     'Shadow'  => 's',
+                     'Speed'   => 'z',
+                     'Trip'    => 't',
+                     'Value'   => 'v');
+    }
+
+    public static function attack_types() {
+        return array(// skill related attack types
+                     'Berserk',
+                     'Null',
+                     'Shadow',
+                     'Speed',
+                     'Trip',
+                     // standard attack types
+                     'Power',
+                     'Skill',
+                     'Pass');
     }
 }
 

@@ -14,19 +14,16 @@ class BMAttack {
     // side effects
     public $sideEffect = FALSE;
 
-    public $name;
-    // The attack's type, which is usually the same as its name.
-    //
-    // This is used for attacks like Socrates' special attack, which
-    // is a skill attack, so can work on Stealth dice and use Fire
-    // dice, but needs its own class.
     public $type;
+
+    // Dice that effect or affect this attack
+    protected $validDice = array();
 
     private function __construct() {
         // You can't instantiate me; I'm a Singleton!
     }
 
-    static function get_instance($type = NULL) {
+    public static function get_instance($type = NULL) {
         if ($type) {
             $cname = "BMAttack" . ucfirst(strtolower($type));
             if (class_exists($cname)) {
@@ -44,11 +41,25 @@ class BMAttack {
         return static::$instance[$class];
     }
 
-    // Dice that effect or affect this attack
-    protected $validDice = array();
+    public static function possible_attack_types(array $attackers) {
+        $allAttackTypesArray = array();
 
-    public function add_die($die) {
-        if (!is_a($die, "BMDie")) { return; }
+        foreach ($attackers as $attacker) {
+            $individualAttackTypeArray = array();
+            $individualAttackTypeArray['Power'] = 'Power';
+            $individualAttackTypeArray['Skill'] = 'Skill';
+            $attacker->run_hooks('attack_list', array('attackTypeArray' =>
+                                                      &$individualAttackTypeArray));
+
+            foreach ($individualAttackTypeArray as $attackType) {
+                $allAttackTypesArray[$attackType] = $attackType;
+            }
+        }
+
+        return $allAttackTypesArray;
+    }
+
+    public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
         // objects matching
         if (!in_array($die, $this->validDice, TRUE)) {
@@ -133,7 +144,7 @@ class BMAttack {
 
     // actually make the attack
     // Some of this should perhaps be in the game, rather than here.
-    public function commit_attack($game, array $attackers, array $defenders) {
+    public function commit_attack($game, array &$attackers, array &$defenders) {
         // Paranoia
         if (!$this->validate_attack($game, $attackers, $defenders)) {
             return FALSE;
@@ -145,24 +156,31 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
-        foreach ($attackers as $att) {
-            $att->capture($this->type, $attackers, $defenders);
-        }
-
-        foreach ($defenders as $def) {
-            $def->be_captured($this->type, $attackers, $defenders);
-        }
-
-        // Yes, the separation is important for a number of skills
-
-        foreach ($attackers as $att) {
+        // set attack defaults
+        foreach ($attackers as &$att) {
             $att->hasAttacked = TRUE;
             $att->roll(TRUE);
         }
 
-        foreach ($defenders as $def) {
+        foreach ($defenders as &$def) {
             $def->captured = TRUE;
-            $game->capture_die($def);
+        }
+
+        // allow attack type to modify default behaviour
+        foreach ($attackers as &$att) {
+            $att->capture($this->type, $attackers, $defenders);
+        }
+
+        foreach ($defenders as &$def) {
+            $def->be_captured($this->type, $attackers, $defenders);
+        }
+
+        // process captured dice
+        // james: currently only defenders, but could conceivably also include attackers
+        foreach ($defenders as &$def) {
+            if ($def->captured) {
+                $game->capture_die($def);
+            }
         }
 
         return TRUE;
@@ -206,43 +224,22 @@ class BMAttack {
             return FALSE;
         }
 
-
         $count = count($many);
 
         $oneIt = new BMUtilityXCYIterator($one, 1);
 
-        $checkedSizes = array();
-
-        for ($i = 1; $i <= $count; $i++) {
-            $checkedSizes[$i] = FALSE;
-        }
-
+        $checkedSizes = array_fill(1, $count, FALSE);
 
         for ($i = 1; $i <= $count; $i++) {
             if ($checkedSizes[$i]) {
                 continue;
             }
 
-            // We only need to iterate over about half the space, since we
-            // can search the complement of the set at the same time.
-            $checkedSizes[$count - $i] = TRUE;
-
             $manyIt = new BMUtilityXCYIterator($many, $i);
 
             foreach ($manyIt as $m) {
                 foreach ($oneIt as $o) {
                     if ($compare($game, $o, $m)) {
-                        return TRUE;
-                    }
-                    // Don't search the complement when we're halfway
-                    // through an even-sized list
-                    if ($i == $count - $i) { continue; }
-
-                    // Or if the complement is empty
-                    if (count($many) == count($m)) { continue; }
-
-                    $complement =  array_diff($many, $m);
-                    if ($compare($game, $o, $complement)) {
                         return TRUE;
                     }
                 }
@@ -276,12 +273,11 @@ class BMAttack {
 
     // returns a list of possible values that can aid an attack
     protected function collect_helpers($game, array $attackers, array $defenders) {
-        $helpers = array();
-
         if (is_null($game->attackerAllDieArray)) {
-            return $helpers;
+            return array();
         }
 
+        $helpers = array();
         foreach ($game->attackerAllDieArray as $die) {
             $helpVals = $die->assist_values($this->type, $attackers, $defenders);
             if ($helpVals[0] != 0) {

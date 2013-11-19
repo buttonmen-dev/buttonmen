@@ -77,7 +77,6 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
-//            var_dump($game->capturedDieArrayArray);
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
@@ -172,28 +171,42 @@ class BMInterface {
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
 
-            // add die attributes
+            // add swing values
             $query = 'SELECT * '.
-                     'FROM die AS d '.
-                     'WHERE game_id = :game_id '.
-                     'ORDER BY id;';
+                     'FROM game_swing_map '.
+                     'WHERE game_id = :game_id ';
             $statement2 = self::$conn->prepare($query);
             $statement2->execute(array(':game_id' => $gameId));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            }
+
+            // add die attributes
+            $query = 'SELECT * '.
+                     'FROM die '.
+                     'WHERE game_id = :game_id '.
+                     'ORDER BY id;';
+            $statement3 = self::$conn->prepare($query);
+            $statement3->execute(array(':game_id' => $gameId));
 
             $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
             $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
 
-            while ($row = $statement2->fetch()) {
+            while ($row = $statement3->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
+
                 $die = BMDie::create_from_recipe($row['recipe']);
                 $die->value = $row['value'];
+                $originalPlayerIdx = array_search($row['original_owner_id'],
+                                                  $game->playerIdArray);
+                $die->originalPlayerIdx = $originalPlayerIdx;
 
                 if ($die instanceof BMDieSwing) {
-                    $game->swingRequestArrayArray[$playerIdx][$die->swingType][] = $die;
-                    $game->swingValueArrayArray[$playerIdx][$die->swingType] = $row['swing_value'];
+                    $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
 
                     if (isset($row['swing_value'])) {
-                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$playerIdx]);
+                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
                         if (!$swingSetSuccess) {
                             throw new LogicException('Swing value set failed.');
                         }
@@ -216,7 +229,7 @@ class BMInterface {
 
             $game->proceed_to_next_user_action();
 
-            $this->message = "Loaded data for game $gameId.";
+            $this->message = $this->message."Loaded data for game $gameId.";
             return $game;
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
@@ -227,6 +240,14 @@ class BMInterface {
     public function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
+
+        if ((count($game->activeDieArrayArray[0]) == 5) &&
+            (count($game->activeDieArrayArray[1]) == 5)) {
+            $this->message = $game->message.
+                             'before save'.
+                             'swingvalue1:'.$game->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$game->activeDieArrayArray[1][4]->swingValue;
+        }
 
         try {
             if (is_null($game->activePlayerIdx)) {
@@ -271,6 +292,32 @@ class BMInterface {
                 }
             }
 
+            // set swing values
+            $query = 'DELETE FROM game_swing_map '.
+                     'WHERE game_id = :game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+
+            if (isset($game->swingValueArrayArray)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    $swingValueArray = $game->swingValueArrayArray[$playerIdx];
+                    if (isset($swingValueArray)) {
+                        foreach ($swingValueArray as $swingType => $swingValue) {
+                            $query = 'INSERT INTO game_swing_map '.
+                                     '(game_id, player_id, swing_type, swing_value) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :swing_type, :swing_value)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'     => $game->gameId,
+                                                      ':player_id'   => $playerId,
+                                                      ':swing_type'  => $swingType,
+                                                      ':swing_value' => $swingValue));
+                        }
+                    }
+
+                }
+            }
+
             // set player that won initiative
             if (isset($game->playerWithInitiativeIdx)) {
                 $query = 'UPDATE game_player_map '.
@@ -310,42 +357,48 @@ class BMInterface {
             $statement->execute(array(':game_id' => $game->gameId));
 
             // add active dice to table 'die'
-            foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'NORMAL';
+            if (isset($game->activeDieArrayArray)) {
+                foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                        // james: set status, this is currently INCOMPLETE
+                        $status = 'NORMAL';
 
-                    $query = 'INSERT INTO die '.
-                             '(owner_id, game_id, status, recipe, swing_value, position, value) '.
-                             'VALUES (:owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
-                                              ':game_id' => $game->gameId,
-                                              ':status' => $status,
-                                              ':recipe' => $activeDie->recipe,
-                                              ':swing_value' => $activeDie->swingValue,
-                                              ':position' => $dieIdx,
-                                              ':value' => $activeDie->value));
+                        $query = 'INSERT INTO die '.
+                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
+                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
+                                                  ':game_id' => $game->gameId,
+                                                  ':status' => $status,
+                                                  ':recipe' => $activeDie->recipe,
+                                                  ':swing_value' => $activeDie->swingValue,
+                                                  ':position' => $dieIdx,
+                                                  ':value' => $activeDie->value));
+                    }
                 }
             }
 
             // add captured dice to table 'die'
-            foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    // james: set status, this is currently INCOMPLETE
-                    $status = 'CAPTURED';
+            if (isset($game->capturedDieArrayArray)) {
+                foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                        // james: set status, this is currently INCOMPLETE
+                        $status = 'CAPTURED';
 
-                    $query = 'INSERT INTO die '.
-                             '(owner_id, game_id, status, recipe, swing_value, position, value) '.
-                             'VALUES (:owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
-                                              ':game_id' => $game->gameId,
-                                              ':status' => $status,
-                                              ':recipe' => $activeDie->recipe,
-                                              ':swing_value' => $activeDie->swingValue,
-                                              ':position' => $dieIdx,
-                                              ':value' => $activeDie->value));
+                        $query = 'INSERT INTO die '.
+                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
+                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
+                                                  ':game_id' => $game->gameId,
+                                                  ':status' => $status,
+                                                  ':recipe' => $activeDie->recipe,
+                                                  ':swing_value' => $activeDie->swingValue,
+                                                  ':position' => $dieIdx,
+                                                  ':value' => $activeDie->value));
+                    }
                 }
             }
 
@@ -356,7 +409,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-            $this->message = "Saved game $game->gameId.";
+            $this->message = $this->message."Saved game $game->gameId.";
         } catch (Exception $e) {
             $this->message = "Game save failed: $e";
             var_dump($this->message);
@@ -389,6 +442,20 @@ class BMInterface {
                      'ORDER BY v1.game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':player_id' => $playerId));
+
+            // Initialize the arrays
+            $gameIdArray = array();
+            $opponentIdArray = array();
+            $opponentNameArray = array();
+            $myButtonNameArray = array();
+            $opponentButtonNameArray = array();
+            $nWinsArray = array();
+            $nDrawsArray = array();
+            $nLossesArray = array();
+            $nTargetWinsArray = array();
+            $isAwaitingActionArray = array();
+            $gameStateArray = array();
+            $statusArray = array();
 
             while ($row = $statement->fetch()) {
                 $gameIdArray[]             = $row['game_id'];

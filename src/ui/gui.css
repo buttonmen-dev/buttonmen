@@ -9,6 +9,10 @@ div {
     text-align: center;
 }
 
+div#login_header {
+    text-align: left;
+}
+
 table {
     table-layout: auto;
     border: thin;
@@ -35,6 +39,10 @@ input.text {
     margin: 0.2em;
 }
 
+input.swing {
+    width: 20px;
+}
+
 .die_img {
     background-size: 50px 50px;
     width:50px;
@@ -48,6 +56,12 @@ input.text {
 .die_overlay {
     position:relative;
     top:16px
+}
+
+.die_recipe {
+    position:relative;
+    top:20px;
+    color:black;
 }
 
 .selected {
