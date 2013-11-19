@@ -505,6 +505,7 @@ class BMInterface {
                          'recipeArray'     => $recipeArray);
         } catch (Exception $e) {
             $this->message = 'Button name get failed.';
+            return NULL;
         }
     }
 

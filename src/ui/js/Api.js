@@ -36,8 +36,8 @@ Api.getButtonData = function(callbackfunc) {
   $.post('../api/responder.php',
          { type: 'loadButtonNames', },
          function(rs) {
-           if (rs.message == 'All button names retrieved successfully.') {
-             if (Api.parseButtonData(rs)) {
+           if (rs.status == 'ok') {
+             if (Api.parseButtonData(rs.data)) {
                Api.button.load_status = 'ok';
              } else {
                Env.message = {
@@ -48,7 +48,7 @@ Api.getButtonData = function(callbackfunc) {
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Could not load button list from server',
+               'text': rs.message,
              };
            }
            return callbackfunc();
@@ -56,21 +56,21 @@ Api.getButtonData = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when loading button list from server',
+      'text': 'Internal error when calling loadButtonNames',
     };
     return callbackfunc();
   });
 }
 
-Api.parseButtonData = function(rs) {
+Api.parseButtonData = function(data) {
   Api.button.list = {};
-  if ((rs.buttonNameArray == null) || (rs.recipeArray == null)) {
+  if ((data.buttonNameArray == null) || (data.recipeArray == null)) {
     return false;
   }
   var i = 0;
-  while (i < rs.buttonNameArray.length) {
-    Api.button.list[rs.buttonNameArray[i]] = {
-      'recipe': rs.recipeArray[i],
+  while (i < data.buttonNameArray.length) {
+    Api.button.list[data.buttonNameArray[i]] = {
+      'recipe': data.recipeArray[i],
     };
     i++;
   }
