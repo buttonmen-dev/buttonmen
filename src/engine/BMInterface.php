@@ -540,6 +540,7 @@ class BMInterface {
             return array('nameArray' => $nameArray);
         } catch (Exception $e) {
             $this->message = 'Player name get failed.';
+            return NULL;
         }
     }
 

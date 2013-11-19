@@ -60,7 +60,7 @@
             break;
 
         case 'loadPlayerNames':
-            $output = $interface->get_player_names_like('');
+            $data = $interface->get_player_names_like('');
             break;
 
         case 'submitSwingValues':

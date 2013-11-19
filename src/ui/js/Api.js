@@ -87,8 +87,8 @@ Api.getPlayerData = function(callbackfunc) {
   $.post('../api/responder.php',
          { type: 'loadPlayerNames', },
          function(rs) {
-           if (rs.message == 'Names retrieved successfully.') {
-             if (Api.parsePlayerData(rs)) {
+           if (rs.status == 'ok') {
+             if (Api.parsePlayerData(rs.data)) {
                Api.player.load_status = 'ok';
              } else {
                Env.message = {
@@ -99,7 +99,7 @@ Api.getPlayerData = function(callbackfunc) {
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Could not load player list from server',
+               'text': rs.message,
              };
            }
            return callbackfunc();
@@ -115,14 +115,14 @@ Api.getPlayerData = function(callbackfunc) {
 
 // Right now, we only get a list of names, but make a dict in case
 // there's more data available later
-Api.parsePlayerData = function(rs) {
+Api.parsePlayerData = function(data) {
   Api.player.list = {};
-  if (rs.nameArray == null) {
+  if (data.nameArray == null) {
     return false;
   }
   var i = 0;
-  while (i < rs.nameArray.length) {
-    Api.player.list[rs.nameArray[i]] = {
+  while (i < data.nameArray.length) {
+    Api.player.list[data.nameArray[i]] = {
     };
     i++;
   }
