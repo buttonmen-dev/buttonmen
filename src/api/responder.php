@@ -63,7 +63,7 @@
 
             $output = array('status' => 'ok',
                             'currentPlayerIdx' => $currentPlayerIdx,
-                            'gameData' => $game->getJsonData(),
+                            'gameData' => $game->getJsonData($currentPlayerId),
                             'playerNameArray' => $playerNameArray,
                             'timestamp' => $interface->timestamp->format(DATE_RSS));
             break;
@@ -198,7 +198,7 @@
                 foreach ($attackers as $attackDie) {
                     $attack->add_die($attackDie);
                 }
-                
+
                 if ($attack->validate_attack($game, $attackers, $defenders)) {
                     $success = TRUE;
                     break;
