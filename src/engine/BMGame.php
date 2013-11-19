@@ -1140,10 +1140,12 @@ class BMGame {
             $buttonNameArray[] = $button->name;
         }
 
+        $swingValuesAllSpecified = TRUE;
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             $valueArrayArray[] = array();
             $sidesArrayArray[] = array();
             $dieRecipeArrayArray[] = array();
+
             if (empty($this->swingRequestArrayArray[$playerIdx])) {
                 $swingRequestArrayArray[] = array();
             } else {
@@ -1153,6 +1155,9 @@ class BMGame {
                 // hide swing information if appropriate
                 $dieValue = $die->value;
                 $dieMax = $die->max;
+                if (is_null($dieMax)) {
+	              $swingValuesAllSpecified = FALSE;  
+                }
 
                 if ($wereBothSwingValuesReset &&
                     ($this->gameState <= BMGameState::specifyDice) &&
@@ -1164,6 +1169,14 @@ class BMGame {
                 $sidesArrayArray[$playerIdx][] = $dieMax;
                 $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
             }
+        }
+        
+        if (!$swingValuesAllSpecified) {
+	        foreach($valueArrayArray as $valueArray) {
+		        foreach($valueArray as &$value) {
+			        $value = NULL;
+		        }
+	        }
         }
 
         $dataArray =

@@ -1908,9 +1908,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $out1 = $game->getJsonData(123);
         $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
+                                  array(NULL, NULL, NULL, NULL, NULL)), 
+                            $out1['data']['valueArrayArray']);
         $out2 = $game->getJsonData(456);
         $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
+                                  array(NULL, NULL, NULL, NULL, NULL)), 
+                            $out2['data']['valueArrayArray']);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
@@ -2297,9 +2303,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $out3 = $game->getJsonData(123);
         $this->assertEquals(19, $out3['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out3['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
+                                  array(NULL, NULL, NULL, NULL, NULL)), 
+                            $out3['data']['valueArrayArray']);
         $out4 = $game->getJsonData(456);
         $this->assertEquals(19, $out4['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out4['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
+                                  array(NULL, NULL, NULL, NULL, NULL)), 
+                            $out4['data']['valueArrayArray']);
 
         // set swing die for player 2
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 7));
