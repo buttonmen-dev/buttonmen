@@ -32,20 +32,23 @@
             break;
 
         case 'loadGameData':
+            $data = NULL;
             $game = $interface->load_game($_POST['game']);
+            if ($game) {
+                $currentPlayerId = $_SESSION['user_id'];
+                $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
 
-            $currentPlayerId = $_SESSION['user_id'];
-            $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+                foreach ($game->playerIdArray as $playerId) {
+                    $playerNameArray[] = $interface->get_player_name_from_id($playerId);
+                }
 
-            foreach ($game->playerIdArray as $playerId) {
-                $playerNameArray[] = $interface->get_player_name_from_id($playerId);
+                $data = array(
+                    'currentPlayerIdx' => $currentPlayerIdx,
+                    'gameData' => $game->getJsonData(),
+                    'playerNameArray' => $playerNameArray,
+                    'timestamp' => $interface->timestamp->format(DATE_RSS),
+                );
             }
-
-            $output = array('status' => 'ok',
-                            'currentPlayerIdx' => $currentPlayerIdx,
-                            'gameData' => $game->getJsonData(),
-                            'playerNameArray' => $playerNameArray,
-                            'timestamp' => $interface->timestamp->format(DATE_RSS));
             break;
 
         case 'loadPlayerName':

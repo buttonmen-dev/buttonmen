@@ -79,9 +79,9 @@ Game.getCurrentGame = function(callbackfunc) {
          { type: 'loadGameData', game: Game.game, },
          function(rs) {
            if (rs.status == 'ok') {
-             Game.api.gameData = rs.gameData;
-             Game.api.timestamp = rs.timestamp;
-             if (Game.parseGameData(rs.currentPlayerIdx, rs.playerNameArray)) {
+             Game.api.gameData = rs.data.gameData;
+             Game.api.timestamp = rs.data.timestamp;
+             if (Game.parseGameData(rs.data.currentPlayerIdx, rs.data.playerNameArray)) {
                Game.api.load_status = 'ok';
              } else {
                Env.message = {
@@ -92,7 +92,7 @@ Game.getCurrentGame = function(callbackfunc) {
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Failed to lookup status of game ' + Game.game,
+               'text': rs.message,
              };
            }
            return callbackfunc();
@@ -100,7 +100,7 @@ Game.getCurrentGame = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when looking up game',
+      'text': 'Internal error when calling loadGameData',
     };
     return callbackfunc();
   });

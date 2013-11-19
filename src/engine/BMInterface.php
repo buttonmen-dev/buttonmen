@@ -235,6 +235,7 @@ class BMInterface {
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
             var_dump($this->message);
+            return NULL;
         }
     }
 
