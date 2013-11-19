@@ -195,19 +195,19 @@
         case 'login':
             $login_success = login($_POST['username'], $_POST['password']);
             if ($login_success) {
-                $output = array('status' => 'ok');
+                $data = array('userName' => $_POST['username']);
             } else {
-                $output = array('status' => 'failed');
+                $data = NULL;
             }
             break;
 
         case 'logout':
             logout();
-            $output = array('status' => 'ok');
+            $data = array('userName' => False);
             break;
 
         default:
-            $output = FALSE;
+            $data = NULL;
     }
 
     if (isset($output)) {
