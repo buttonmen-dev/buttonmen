@@ -84,6 +84,7 @@ class BMInterface {
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
             $this->message = 'Game create failed: '.$errorData[2];
+            return NULL;
         }
     }
 

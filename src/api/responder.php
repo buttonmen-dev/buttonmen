@@ -8,26 +8,16 @@
 
     $interface = new BMInterface;
 
+    $output = array(
+        'data' => array(),
+        'debug' => array(),
+        'message' => NULL,
+        'status' => NULL,
+    );
+
     switch ($_POST['type']) {
 
-        case 'checkPlayerNames':
-            $arePlayerNamesValid = TRUE;
-            foreach ($_POST['playerNameArray'] as $playerName) {
-                if ('' == $interface->get_player_id_from_name($playerName)) {
-                    $arePlayerNamesValid = FALSE;
-                }
-            }
-            $output = array('status' => 'ok',
-                            'data' => $arePlayerNamesValid);
-            break;
-
-        case 'chooseActiveGame':
-            $_SESSION['active_game'] = $_POST['input'];
-            $output = array('status' => 'ok',
-                            'data' => $_SESSION['active_game']);
-            break;
-
-        case 'chooseButtons':
+        case 'createGame':
             $playerNameArray = $_POST['playerNameArray'];
             $playerIdArray = array();
             foreach ($playerNameArray as $playerName) {
@@ -39,8 +29,13 @@
 
             $gameId = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
 
-            $output = array('status' => 'ok',
-                            'data' => $gameId);
+            if ($gameId) {
+                $output['status'] = 'ok';
+                $output['data']['gameId'] = $gameId;
+            } else {
+                $output['status'] = 'failed';
+            }
+            $output['message'] = $interface->message;
             break;
 
         case 'loadActiveGames':
@@ -80,11 +75,6 @@
 
         case 'loadPlayerNames':
             $output = $interface->get_player_names_like('');
-            break;
-
-        case 'loadPlayerNamesLike':
-            $input = $_POST['input'];
-            $output = $interface->get_player_names_like($input);
             break;
 
         case 'submitSwingValues':
@@ -133,6 +123,7 @@
             }
 
             break;
+
         case 'submitTurn':
             $game = $interface->load_game($_POST['game']);
             if (!is_page_current($interface,
