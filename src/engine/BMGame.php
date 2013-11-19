@@ -1172,7 +1172,7 @@ class BMGame {
         }
         
         if (!$swingValuesAllSpecified) {
-	        foreach($valueArrayArray as $valueArray) {
+	        foreach($valueArrayArray as &$valueArray) {
 		        foreach($valueArray as &$value) {
 			        $value = NULL;
 		        }
