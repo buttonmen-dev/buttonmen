@@ -21,7 +21,11 @@ class BMInterface {
     // constructor
     public function __construct($isTest = FALSE) {
         if ($isTest) {
-            require 'test/src/database/mysql.test.inc.php';
+            if (file_exists('../test/src/database/mysql.test.inc.php')) {
+                require '../test/src/database/mysql.test.inc.php';
+            } else {
+                require 'test/src/database/mysql.test.inc.php';
+            }
         } else {
             require '../database/mysql.inc.php';
         }
@@ -35,12 +39,13 @@ class BMInterface {
         try {
             // create basic game details
             $query = 'INSERT INTO game '.
-                     '(n_players, n_target_wins, creator_id) '.
+                     '(n_players, n_target_wins, n_recent_passes, creator_id) '.
                      'VALUES '.
-                     '(:n_players, :n_target_wins, :creator_id)';
+                     '(:n_players, :n_target_wins, :n_recent_passes, :creator_id)';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':n_players'     => count($playerIdArray),
+            $statement->execute(array(':n_players'     => count($playerIdArray),                                      
                                       ':n_target_wins' => $maxWins,
+                                      ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0]));
 
             $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
@@ -111,6 +116,7 @@ class BMInterface {
                     $game->gameId    = $gameId;
                     $game->gameState = $row['game_state'];
                     $game->maxWins   = $row['n_target_wins'];
+                    $game->nRecentPasses = $row['n_recent_passes'];
                     $this->timestamp = new DateTime($row['last_action_time']);
                 }
 
@@ -153,10 +159,6 @@ class BMInterface {
                 if ($row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
                 }
-
-                // james: currently, mock passStatusArray
-                $game->passStatusArray = array(FALSE, FALSE);
-
             }
 
             // check whether the game exists
@@ -226,10 +228,11 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
-
+            
             $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
+            
             return $game;
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
@@ -261,7 +264,7 @@ class BMInterface {
                      'SET game_state = :game_state,'.
                      '    round_number = :round_number,'.
             //:n_recent_draws
-            //:n_recent_passes
+                     '    n_recent_passes = :n_recent_passes,'.
                      '    current_player_id = :current_player_id '.
             //:last_winner_id
             //:tournament_id
@@ -271,6 +274,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_state' => $game->gameState,
                                       ':round_number' => $game->roundNumber,
+                                      ':n_recent_passes' => $game->nRecentPasses,
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
 
@@ -596,6 +600,5 @@ class BMInterface {
         }
     }
 }
-
 
 ?>

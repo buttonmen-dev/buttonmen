@@ -156,6 +156,12 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
+        if ('Pass' == $game->attack['attackType']) {
+            $game->nRecentPasses += 1;
+        } else {
+            $game->nRecentPasses = 0;
+        }
+
         // set attack defaults
         foreach ($attackers as &$att) {
             $att->hasAttacked = TRUE;

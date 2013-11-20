@@ -12,7 +12,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        require 'test/src/database/mysql.test.inc.php';
+        if (file_exists('../test/src/database/mysql.test.inc.php')) {
+            require '../test/src/database/mysql.test.inc.php';
+        } else {
+            require 'test/src/database/mysql.test.inc.php';
+        }
         $this->object = new BMInterface(TRUE);
     }
 
@@ -117,7 +121,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check action info
         $this->assertFalse(isset($game->attack));
-        $this->assertEquals(array(FALSE, FALSE), $game->passStatusArray);
+        $this->assertEquals(0, $game->nRecentPasses);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
 
         // check score
@@ -231,7 +235,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check action info
         $this->assertFalse(isset($game->attack));
-        $this->assertEquals(array(FALSE, FALSE), $game->passStatusArray);
+        $this->assertEquals(0, $game->nRecentPasses);
         $this->assertEquals(TRUE, $game->waitingOnActionArray[$game->activePlayerIdx]);
 
 
@@ -623,6 +627,81 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
                             $game->swingValueArrayArray);
+    }
+    
+    /**
+     * The following unit tests ensure that the number of passes is updated
+     * correctly.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_all_pass() {
+        // create a dummy game that will be overwritten
+        $gameId = $this->object->create_game(array(1, 2), array('Wiseman', 'Wiseman'), 4); 
+       
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1)', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('s(20)', 'Test2');
+
+        // load game
+        $game = new BMGame($gameId, array(1, 2), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 20;
+
+        // artificially guarantee that the active player is player 1
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // player 1 passes
+        $game->attack = array(0, 1, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+        
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, $game->nRecentPasses);
+        
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, $game->nRecentPasses);
+
+        // player 2 passes
+        $game->attack = array(1, 0, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+        
+        $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                  array('W' => 1, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(0, $game->nRecentPasses);
+        
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                  array('W' => 1, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(0, $game->nRecentPasses);
     }
 }
 
