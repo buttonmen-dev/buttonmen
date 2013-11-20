@@ -456,12 +456,12 @@ Game.formPlayTurnActive = function() {
            if (rs.status == 'ok') {
              Env.message = {
                'type': 'success',
-               'text': 'Attack succeeded: ' + rs.message,
+               'text': rs.message,
              };
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Attack invalid',
+               'text': rs.message,
              };
            }
            Game.showGamePage();

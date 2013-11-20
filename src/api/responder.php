@@ -64,93 +64,21 @@
             break;
 
         case 'submitSwingValues':
-	    $data = $interface->submit_swing_values($_SESSION['user_id'],
-						    $_POST['game'],
-						    $_POST['roundNumber'],
-						    $_POST['timestamp'],
-						    $_POST['swingValueArray']);
+            $data = $interface->submit_swing_values($_SESSION['user_id'],
+                                                    $_POST['game'],
+                                                    $_POST['roundNumber'],
+                                                    $_POST['timestamp'],
+                                                    $_POST['swingValueArray']);
             break;
 
         case 'submitTurn':
-            $game = $interface->load_game($_POST['game']);
-            if (!is_page_current($interface,
-                                 $game,
-                                 BMGameState::startTurn,
-                                 $_POST['timestamp'],
-                                 $_POST['roundNumber'],
-                                 $_SESSION['user_id'])) {
-                $data = NULL;
-                break;
-            }
-
-            require_once '../engine/BMAttack.php';
-
-            // load dieSelectStatus, which should contain boolean values of whether each
-            // die is selected, starting with attacker dice and concluding with
-            // defender dice
-            $dieSelectStatus = $_POST['dieSelectStatus'];
-
-            // determine attacker and defender indices from POST
-            $attackerIdx = (int)$_POST['attackerIdx'];
-            $defenderIdx = (int)$_POST['defenderIdx'];
-            $attackers = array();
-            $defenders = array();
-            $attackerDieIdx = array();
-            $defenderDieIdx = array();
-
-            // divide selected dice up into attackers and defenders
-            $nAttackerDice = count($game->activeDieArrayArray[$attackerIdx]);
-            $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
-
-            for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
-                    FILTER_VALIDATE_BOOLEAN)) {
-                    $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
-                    $attackerDieIdx[] = $dieIdx;
-                }
-            }
-
-            for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
-                    FILTER_VALIDATE_BOOLEAN)) {
-                    $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
-                    $defenderDieIdx[] = $dieIdx;
-                }
-            }
-
-            // validate attack
-            // james: eventually, we expect the attack type to be passed from
-            // the front-end to responder.php, meaning that the following code
-            // can be even more streamlined, since we will then not need to
-            // work out all the possible attack types
-            $attackTypeArray = $game->valid_attack_types();
-            $success = FALSE;
-
-            foreach ($attackTypeArray as $idx => $attackType) {
-                // find out if the chosen dice form a valid attack
-                $game->attack = array($attackerIdx, $defenderIdx,
-                                      $attackerDieIdx, $defenderDieIdx,
-                                      $attackTypeArray[$idx]);
-                $attack = BMAttack::get_instance($attackType);
-
-                foreach ($attackers as $attackDie) {
-                    $attack->add_die($attackDie);
-                }
-
-                if ($attack->validate_attack($game, $attackers, $defenders)) {
-                    $success = TRUE;
-                    break;
-                }
-            }
-
-            // output the result of the attack
-            if ($success) {
-                $game->proceed_to_next_user_action();
-                $interface->save_game($game);
-                $data = True;
-            } else {
-                $data = NULL;
-            }
+            $data = $interface->submit_turn($_SESSION['user_id'],
+                                            $_POST['game'],
+                                            $_POST['roundNumber'],
+                                            $_POST['timestamp'],
+                                            $_POST['dieSelectStatus'],
+                                            (int)$_POST['attackerIdx'],
+                                            (int)$_POST['defenderIdx']);
             break;
 
         case 'login':

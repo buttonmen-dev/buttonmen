@@ -90,7 +90,7 @@ class BMGame {
             throw new LogicException('Game state must be set.');
         }
 
-        $this->message = 'ok';
+        $this->debug_message = 'ok';
 
         $this->run_die_hooks($this->gameState);
 
@@ -355,6 +355,13 @@ class BMGame {
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
+                $this->message = $this->attack['attackType'] . " attack succeeded";
+                if (count($attackerAttackDieArray) > 0) {
+		    $this->message .= ": attackers=[" . implode(",",
+		                      $attackerAttackDieArray) . "], ";
+		    $this->message .= "defenders=[" . implode(",",
+		                      $defenderAttackDieArray) . "]";
+                }
                 $this->update_active_player();
                 break;
 
@@ -725,7 +732,7 @@ class BMGame {
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {
         // currently acts as a placeholder
-        $this->message = $this->message.'\n'.
+        $this->debug_message = $this->debug_message.'\n'.
                          $activation_type.' '.$input_parameters;
     }
 
