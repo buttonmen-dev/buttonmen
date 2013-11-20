@@ -12,7 +12,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        require '../test/src/database/mysql.test.inc.php';
+        if (file_exists('../test/src/database/mysql.test.inc.php')) {
+            require '../test/src/database/mysql.test.inc.php';
+        } else {
+            require 'test/src/database/mysql.test.inc.php';
+        }
         $this->object = new BMInterface(TRUE);
     }
 
