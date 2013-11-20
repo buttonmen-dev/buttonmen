@@ -21,7 +21,7 @@ class BMInterface {
     // constructor
     public function __construct($isTest = FALSE) {
         if ($isTest) {
-            require 'test/src/database/mysql.test.inc.php';
+            require '../test/src/database/mysql.test.inc.php';
         } else {
             require '../database/mysql.inc.php';
         }
@@ -154,8 +154,8 @@ class BMInterface {
                     $game->playerWithInitiativeIdx = $pos;
                 }
 
-                // james: currently, mock passStatusArray
-                $game->passStatusArray = array(FALSE, FALSE);
+                // james: currently, mock nRecentPasses
+                $game->nRecentPasses = 0;
 
             }
 

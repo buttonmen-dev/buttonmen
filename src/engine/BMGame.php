@@ -25,7 +25,7 @@
  * @property-read array $attackerAttackDieArray  Array of attacker's dice used in attack
  * @property-read array $defenderAttackDieArray  Array of defender's dice used in attack
  * @property      array $auxiliaryDieDecisionArrayArray Array storing player decisions about auxiliary dice
- * @property-read array $passStatusArray         Boolean array whether each player passed
+ * @property-read int   $nRecentPasses           Number of consecutive passes
  * @property-read array $capturedDieArrayArray   Captured dice for all players
  * @property-read array $roundScoreArray         Current points score in this round
  * @property-read array $gameScoreArrayArray     Number of games W/L/D for all players
@@ -62,7 +62,7 @@ class BMGame {
     private $attackerAttackDieArray; // array of attacker's dice used in attack
     private $defenderAttackDieArray; // array of defender's dice used in attack
     private $auxiliaryDieDecisionArrayArray; // array storing player decisions about auxiliary dice
-    private $passStatusArray;       // boolean array whether each player passed
+    private $nRecentPasses;         // number of consecutive passes
     private $capturedDieArrayArray; // captured dice for all players
     private $roundScoreArray;       // current points score in this round
     private $gameScoreArrayArray;   // number of games W/L/D for all players
@@ -423,7 +423,7 @@ class BMGame {
                 if (!in_array(0, $this->playerIdArray) &&
                     $allButtonsSet) {
                     $this->gameState = BMGameState::applyHandicaps;
-                    $this->passStatusArray = array(FALSE, FALSE);
+                    $this->nRecentPasses = 0;
                     $this->gameScoreArrayArray = array(array(0, 0, 0), array(0, 0, 0));
                 }
                 break;
@@ -523,7 +523,7 @@ class BMGame {
                 $nDice = array_map("count", $this->activeDieArrayArray);
                 // check if any player has no dice, or if everyone has passed
                 if ((0 === min($nDice)) ||
-                    !in_array(FALSE, $this->passStatusArray, TRUE)) {
+                    ($this->nPlayers == $this->nRecentPasses)) {
                     $this->gameState = BMGameState::endRound;
                 } else {
                     $this->gameState = BMGameState::startTurn;
@@ -735,7 +735,7 @@ class BMGame {
         $this->activeDieArrayArray = NULL;
 
         $nPlayers = count($this->playerIdArray);
-        $this->passStatusArray = array_fill(0, $nPlayers, FALSE);
+        $this->nRecentPasses = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
     }
@@ -1015,20 +1015,16 @@ class BMGame {
                 throw new LogicException('
                     BMGame->defenderAttackDieArray is derived from BMGame->attack.');
                 break;
-            case 'passStatusArray':
-                if ((!is_array($value)) ||
-                    (count($this->playerIdArray) !== count($value))) {
+            case 'nRecentPasses':
+                if (FALSE === filter_var($value,
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0,
+                                                     "max_range"=>$this->nPlayers)))) {
                     throw new InvalidArgumentException(
-                        'The number of elements in passStatusArray must be the number of players.');
+                        'nRecentPasses must be an integer between zero and the number of players.');
                 }
-                // require boolean pass statuses
-                foreach ($value as $tempValueElement) {
-                    if (!is_bool($tempValueElement)) {
-                        throw new InvalidArgumentException(
-                            'Pass statuses must be booleans.');
-                    }
-                }
-                $this->passStatusArray = $value;
+                $this->nRecentPasses = $value;
                 break;
             case 'capturedDieArrayArray':
                 if (!is_array($value)) {
