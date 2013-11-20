@@ -1,7 +1,15 @@
 <?php
 
 class TestDummyGame {
+    public $nPlayers = 2;
+
     public $dice = array();
+
+    public $attack = array('attackerPlayerIdx' => 0,
+                           'defenderPlayerIdx' => 1,
+                           'attackerAttackDieIdxArray' => array(),
+                           'defenderAttackDieIdxArray' => array(),
+                           'attackType' => '');
 
     public function add_die($die) {
         $this->dice[] = array($die->playerIdx, $die);

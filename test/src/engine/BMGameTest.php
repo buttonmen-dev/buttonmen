@@ -399,7 +399,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameScoreArrayArray = array(array(4,2,1), array(2,4,1));
         $this->object->playerWithInitiativeIdx = 1;
         $this->object->activePlayerIdx = 1;
-        $this->object->passStatusArray = array(FALSE, FALSE);
+        $this->object->nRecentPasses = 0;
         $this->object->do_next_step();
         $this->assertFalse(isset($this->object->activePlayerIdx));
         $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
@@ -420,7 +420,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameScoreArrayArray = array(array(4,2,1), array(2,4,1));
         $this->object->playerWithInitiativeIdx = 1;
         $this->object->activePlayerIdx = 1;
-        $this->object->passStatusArray = array(FALSE, FALSE);
+        $this->object->nRecentPasses = 0;
         $this->object->do_next_step();
         $this->assertFalse(isset($this->object->activePlayerIdx));
         $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
@@ -438,7 +438,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $die2 = BMDie::create(15);
         $this->object->activeDieArrayArray = array(array($die1), array($die2));
         $this->object->capturedDieArrayArray = array(array(), array());
-        $this->object->passStatusArray = array(TRUE, TRUE);
+        $this->object->nRecentPasses = 2;
 //        $this->object->roundScoreArray = array(26.5, -26.5);
         $this->object->maxWins = 3;
         $this->object->gameScoreArrayArray = array(array(1,2,1), array(2,1,1));
@@ -448,7 +448,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
         $this->assertFalse(isset($this->object->activeDieArrayArray));
         $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
-        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(0, $this->object->nRecentPasses);
         $this->assertFalse(isset($this->object->roundScoreArray));
         $this->assertEquals(array(array('W' => 1, 'L' => 3, 'D' => 1),
                                   array('W' => 3, 'L' => 1, 'D' => 1)),
@@ -503,7 +503,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::applyHandicaps, $this->object->gameState);
-        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(0, $this->object->nRecentPasses);
         $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
                             $this->object->gameScoreArrayArray);
     }
@@ -710,37 +710,37 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
-        $this->object->passStatusArray = array(FALSE, FALSE);
+        $this->object->nRecentPasses = 0;
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
-        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(0, $this->object->nRecentPasses);
 
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
-        $this->object->passStatusArray = array(TRUE, FALSE);
+        $this->object->nRecentPasses = 1;
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
-        $this->assertEquals(array(TRUE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(1, $this->object->nRecentPasses);
 
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
-        $this->object->passStatusArray = array(FALSE, TRUE);
+        $this->object->nRecentPasses = 1;
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $this->object->gameState);
         $this->assertTrue(isset($this->object->activeDieArrayArray));
-        $this->assertEquals(array(FALSE, TRUE), $this->object->passStatusArray);
+        $this->assertEquals(1, $this->object->nRecentPasses);
 
         // both players have passed
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array($die2));
-        $this->object->passStatusArray = array(TRUE, TRUE);
+        $this->object->nRecentPasses = 2;
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endRound, $this->object->gameState);
@@ -748,7 +748,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // the first player has no dice
         $this->object->activeDieArrayArray = array(array($die1),
                                                    array());
-        $this->object->passStatusArray = array(FALSE, FALSE);
+        $this->object->nRecentPasses = 0;
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endRound, $this->object->gameState);
@@ -756,7 +756,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // the second player has no dice
         $this->object->activeDieArrayArray = array(array(),
                                                    array($die2));
-        $this->object->passStatusArray = array(FALSE, FALSE);
+        $this->object->nRecentPasses = 0;
         $this->object->gameState = BMGameState::endTurn;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::endRound, $this->object->gameState);
@@ -1024,7 +1024,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $BMDie4 = BMDie::create(6);
 
         $this->object->activeDieArrayArray = array(array($die1), array($die2));
-        $this->object->passStatusArray = array(TRUE, TRUE);
+        $this->object->nRecentPasses = 2;
         $this->object->capturedDieArrayArray = array(array($BMDie3), array($BMDie4));
 //        $this->object->roundScoreArray = array(40, -25);
         $this->object->waitingOnActionArray = array(FALSE, TRUE);
@@ -1033,7 +1033,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($this->object->activePlayerIdx));
         $this->assertFalse(isset($this->object->playerWithInitiativeIdx));
         $this->assertFalse(isset($this->object->activeDieArrayArray));
-        $this->assertEquals(array(FALSE, FALSE), $this->object->passStatusArray);
+        $this->assertEquals(0, $this->object->nRecentPasses);
         $this->assertEquals(array(array(), array()), $this->object->capturedDieArrayArray);
         $this->assertFalse(isset($this->object->roundScoreArray));
         $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
@@ -1563,29 +1563,28 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__set
      */
-    public function test__set_pass_status_array() {
+    public function test__set_nRecentPasses() {
         // valid set
-        $this->object->passStatusArray = array(TRUE, FALSE);
+        $this->object->nRecentPasses = 1;
 
         // invalid set
         try {
-            $this->object->passStatusArray = TRUE;
-            $this->fail('Pass status array must be an array.');
+            $this->object->nRecentPasses = -1;
+            $this->fail('Pass status array must be non-negative.');
+        }
+        catch (InvalidArgumentException $expected) {
+        }
+        
+        try {
+            $this->object->nRecentPasses = 5;
+            $this->fail('Pass status array must be no more than the number of players.');
         }
         catch (InvalidArgumentException $expected) {
         }
 
         try {
-            $this->object->passStatusArray = array(TRUE, TRUE, TRUE);
-            $this->fail('Pass status array must have the same number of elements '.
-                        'as the number of players.');
-        }
-        catch (InvalidArgumentException $expected) {
-        }
-
-        try {
-            $this->object->passStatusArray = array(1, 2);
-            $this->fail('Pass statuses must be booleans.');
+            $this->object->nRecentPasses = array(TRUE, TRUE, TRUE);
+            $this->fail('Pass status array must be an integer.');
         }
         catch (InvalidArgumentException $expected) {
         }
@@ -4339,6 +4338,54 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         }
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
 
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function test_all_pass() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1)', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('s(20)', 'Test2');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 20;
+
+        // artificially guarantee that the active player is player 1
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // player 1 passes
+        $game->attack = array(0, 1, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, $game->nRecentPasses);
+
+        // player 2 passes
+        $game->attack = array(1, 0, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                  array('W' => 1, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(0, $game->nRecentPasses);
     }
 }
 
