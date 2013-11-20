@@ -582,6 +582,76 @@ class BMInterface {
         }
     }
 
+    // Check whether a requested action still needs to be taken
+    // Note: it might be possible for this to be a protected function
+    public function is_action_current(BMGame $game,
+                                      $expectedGameState,
+                                      $postedTimestamp,
+                                      $roundNumber,
+                                      $currentPlayerId) {
+        $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+        return (($postedTimestamp == $this->timestamp->format(DATE_RSS)) &&
+                ($roundNumber == $game->roundNumber) &&
+                ($expectedGameState == $game->gameState) &&
+                (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
+    }
+
+
+    public function submit_swing_values($userId, $gameNumber,
+					$roundNumber, $submitTimestamp,
+					$swingValueArray) {
+        try {
+            $game = $this->load_game($gameNumber);
+            $currentPlayerIdx = array_search($userId, $game->playerIdArray);
+    
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!$this->is_action_current($game,
+                                          BMGameState::specifyDice,
+                                          $submitTimestamp,
+                                          $roundNumber,
+                                          $userId)) {
+                $this->message = 'Swing dice no longer need to be set';
+                return NULL;
+            }
+    
+            // try to set swing values
+            $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+    
+            if (count($swingRequestArray) != count($swingValueArray)) {
+                $this->message = 'Wrong number of swing values submitted';
+                return NULL;
+            }
+
+            $swingValueArrayWithKeys = array();
+            foreach ($swingRequestArray as $swingIdx => $swingRequest) {
+                $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
+            }
+    
+            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
+    
+            $game->proceed_to_next_user_action();
+    
+            // check for successful swing value set
+            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+                ($game->gameState > BMGameState::specifyDice) ||
+                ($game->roundNumber > $roundNumber)) {
+                $this->save_game($game);
+                $this->message = 'Successfully set swing values';
+                return True;
+            } else {
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Failed to set swing values';
+                }
+                return NULL;
+            }
+        } catch (Exception $e) {
+            $this->message = 'Internal error while setting swing values';
+        }
+    }
+    
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {

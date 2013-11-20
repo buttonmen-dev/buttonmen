@@ -64,50 +64,11 @@
             break;
 
         case 'submitSwingValues':
-            $game = $interface->load_game($_POST['game']);
-            $currentPlayerIdx = array_search($_SESSION['user_id'], $game->playerIdArray);
-            $roundNumber = $_POST['roundNumber'];
-
-            // check that the timestamp and the game state are correct, and that
-            // the swing values still need to be set
-            if (!is_page_current($interface,
-                                 $game,
-                                 BMGameState::specifyDice,
-                                 $_POST['timestamp'],
-                                 $roundNumber,
-                                 $_SESSION['user_id'])) {
-                $data = NULL;
-                break;
-            }
-
-            // try to set swing values
-            $swingValueArray = $_POST['swingValueArray'];
-            $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-
-            if (count($swingRequestArray) != count($swingValueArray)) {
-                $data = NULL;
-                break;
-            }
-
-            $swingValueArrayWithKeys = array();
-            foreach ($swingRequestArray as $swingIdx => $swingRequest) {
-                $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
-            }
-
-            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
-
-            $game->proceed_to_next_user_action();
-
-            // check for successful swing value set
-            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
-                ($game->gameState > BMGameState::specifyDice) ||
-                ($game->roundNumber > $roundNumber)) {
-                $interface->save_game($game);
-                $data = True;
-            } else {
-                $data = NULL;
-            }
-
+	    $data = $interface->submit_swing_values($_SESSION['user_id'],
+						    $_POST['game'],
+						    $_POST['roundNumber'],
+						    $_POST['timestamp'],
+						    $_POST['swingValueArray']);
             break;
 
         case 'submitTurn':

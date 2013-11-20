@@ -211,7 +211,7 @@ class BMGame {
                                         $this->swingValueArrayArray[$playerIdx]);
                                     // act appropriately if the swing values are invalid
                                     if (!$isSetSuccessful) {
-                                        $this->activate_GUI('Incorrect swing values chosen.', $playerIdx);
+                                        $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
                                         $this->swingValueArrayArray[$playerIdx] = array();
                                         $this->waitingOnActionArray[$playerIdx] = TRUE;
                                         break 3;

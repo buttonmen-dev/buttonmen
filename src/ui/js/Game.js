@@ -299,7 +299,7 @@ Game.actionChooseSwingInactive = function() {
   Game.page.append($('<br>'));
 
   Game.page.append($('<p>', {'text':
-    'Your swing dice are already set.  Please wait patiently for your opponent to set swing dice.' }));
+    'Your swing dice are set.  Please wait patiently for your opponent to set swing dice.' }));
 
   Game.pageAddTimestampFooter();
 
@@ -405,7 +405,7 @@ Game.formChooseSwingActive = function() {
              } else {
                Env.message = {
                  'type': 'error',
-                 'text': 'Failed to set swing values',
+                 'text': rs.message,
                };
              }
              Game.showGamePage();
