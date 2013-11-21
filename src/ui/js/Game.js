@@ -79,9 +79,9 @@ Game.getCurrentGame = function(callbackfunc) {
          { type: 'loadGameData', game: Game.game, },
          function(rs) {
            if (rs.status == 'ok') {
-             Game.api.gameData = rs.gameData;
-             Game.api.timestamp = rs.timestamp;
-             if (Game.parseGameData(rs.currentPlayerIdx, rs.playerNameArray)) {
+             Game.api.gameData = rs.data.gameData;
+             Game.api.timestamp = rs.data.timestamp;
+             if (Game.parseGameData(rs.data.currentPlayerIdx, rs.data.playerNameArray)) {
                Game.api.load_status = 'ok';
              } else {
                Env.message = {
@@ -92,7 +92,7 @@ Game.getCurrentGame = function(callbackfunc) {
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Failed to lookup status of game ' + Game.game,
+               'text': rs.message,
              };
            }
            return callbackfunc();
@@ -100,7 +100,7 @@ Game.getCurrentGame = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when looking up game',
+      'text': 'Internal error when calling loadGameData',
     };
     return callbackfunc();
   });
@@ -299,7 +299,7 @@ Game.actionChooseSwingInactive = function() {
   Game.page.append($('<br>'));
 
   Game.page.append($('<p>', {'text':
-    'Your swing dice are already set.  Please wait patiently for your opponent to set swing dice.' }));
+    'Your swing dice are set.  Please wait patiently for your opponent to set swing dice.' }));
 
   Game.pageAddTimestampFooter();
 
@@ -405,7 +405,7 @@ Game.formChooseSwingActive = function() {
              } else {
                Env.message = {
                  'type': 'error',
-                 'text': 'Failed to set swing values',
+                 'text': rs.message,
                };
              }
              Game.showGamePage();
@@ -413,7 +413,7 @@ Game.formChooseSwingActive = function() {
     ).fail(function() {
              Env.message = { 
                'type': 'error',
-               'text': 'Received internal error while submitting swing values',
+               'text': 'Internal error when calling submitSwingValues',
              };
              Game.showGamePage();
            });
@@ -453,15 +453,15 @@ Game.formPlayTurnActive = function() {
            timestamp: Game.api.timestamp,
          },
          function(rs) {
-           if ('attack valid' == rs.status) {
+           if (rs.status == 'ok') {
              Env.message = {
                'type': 'success',
-               'text': 'Attack succeeded: ' + rs.message,
+               'text': rs.message,
              };
            } else {
              Env.message = {
                'type': 'error',
-               'text': 'Attack invalid',
+               'text': rs.message,
              };
            }
            Game.showGamePage();
@@ -469,7 +469,7 @@ Game.formPlayTurnActive = function() {
     ).fail(function() {
              Env.message = { 
                'type': 'error',
-               'text': 'Received internal error while attacking',
+               'text': 'Internal error when calling submitTurn',
              };
              Game.showGamePage();
            });

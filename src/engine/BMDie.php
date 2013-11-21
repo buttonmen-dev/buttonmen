@@ -593,9 +593,8 @@ class BMDie {
 //        }
     }
 
-    public function __toString()
-    {
-//        print($this->mRecipe);
+    public function __toString() {
+        return $this->get_recipe();
     }
 
     public function __clone() {

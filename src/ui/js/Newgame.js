@@ -209,19 +209,20 @@ Newgame.formCreateGame = function() {
     var maxWins = $('#n_rounds').val();
 
     $.post('../api/responder.php', {
-             type: 'chooseButtons',
+             type: 'createGame',
              playerNameArray: playerNameArray,
              buttonNameArray: buttonNameArray,
              maxWins: maxWins,
            },
            function(rs) {
              if ('ok' == rs.status) {
+               var gameId = rs.data.gameId;
                var gameLink = $('<a>', {
-                                  'href': 'game.html?game=' + rs.data,
+                                  'href': 'game.html?game=' + gameId,
                                   'text': 'Go to game page',
                                 });
                var gamePar = $('<p>',
-                                {'text': 'Game ' + rs.data + ' created. ', });
+                                {'text': rs.message + ' ', });
                gamePar.append(gameLink);
                Env.message = {
                  'type': 'success',
@@ -232,7 +233,7 @@ Newgame.formCreateGame = function() {
              } else {
                Env.message = {
                  'type': 'error',
-                 'text': 'Failed to create game',
+                 'text': rs.message,
                };
                Newgame.showNewgamePage();
              }
@@ -240,7 +241,7 @@ Newgame.formCreateGame = function() {
     ).fail(function() {
              Env.message = { 
                'type': 'error',
-               'text': 'Received internal error while creating game',
+               'text': 'Internal error when calling createGame',
              };
              Newgame.showNewgamePage();
            });

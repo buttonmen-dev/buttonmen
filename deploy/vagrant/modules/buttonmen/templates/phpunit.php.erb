@@ -1,0 +1,14 @@
+<?php
+/* 
+ * Run all unit tests on a vagrant system
+ * Modelled on /usr/bin/phpunit CLI utility
+ */
+
+// Include /etc/php5/deploy-includes for phpunit itself.
+// Include /buttonmen/src for now, so the individual unit tests can find the base classes
+set_include_path( "/etc/php5/deploy-includes:/buttonmen/src:" . ini_get( "include_path" ) );
+
+// Unit tests use the same bootstrap file as the code itself
+require_once( "/buttonmen/src/lib/bootstrap.php" );
+
+include "phpunit.phar";

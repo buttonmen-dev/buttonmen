@@ -1,0 +1,45 @@
+Interfaces between responder.php and other system components:
+
+This documents two interfaces:
+
+ 1. The outward-facing interface between responder.php and system
+    end-users (including the web UI) which implements the public
+    API of the system
+
+ 2. The inward-facing interface between responder.php and BMInterface,
+    which is used to implement message-passing and state changes
+    within the system.
+
+------------------------------------------------------------------------
+1. Outward-facing interface:
+
+* Callers should always invoke responder.php using a POST request
+
+* The POST request must define the 'type' element, and the value
+  of 'type' must be one of the actions known to responder.php.
+
+* Other arguments vary by action.  See notes/api/responder_api.txt
+  for a detailed list.
+
+* The response to the query must be a JSON-encoded associative
+  array, with the contents:
+  * status: 'ok' or 'failed', indicating whether the action succeeded
+  * message: human-readable text describing the success or failure
+             of the action in more detail
+  * data: machine-parseable buttonmen state data
+
+------------------------------------------------------------------------
+2. Inward-facing interface:
+
+* responder.php may invoke only:
+  * src/api/api_core.php, for session login/logout handling functions only
+  * BMInterface.php, for all other game functions
+
+* functions in BMInterface.php must return:
+  * on success: machine-parseable buttonmen state data suitable
+    for returning to the caller as the 'data' array entry
+  * on failure: NULL
+
+* functions in BMInterface.php may set $interface->message
+  * If they do, the value set must be a human-readable string
+    relevant to the action which the user took

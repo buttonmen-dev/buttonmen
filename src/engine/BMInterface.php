@@ -85,10 +85,11 @@ class BMInterface {
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
-            return $gameId;
+            return array('gameId' => $gameId);
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
             $this->message = 'Game create failed: '.$errorData[2];
+            return NULL;
         }
     }
 
@@ -237,6 +238,7 @@ class BMInterface {
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
             var_dump($this->message);
+            return NULL;
         }
     }
 
@@ -490,6 +492,7 @@ class BMInterface {
                          'statusArray'             => $statusArray);
         } catch (Exception $e) {
             $this->message = 'Game detail get failed.';
+            return NULL;
         }
     }
 
@@ -507,6 +510,7 @@ class BMInterface {
                          'recipeArray'     => $recipeArray);
         } catch (Exception $e) {
             $this->message = 'Button name get failed.';
+            return NULL;
         }
     }
 
@@ -540,6 +544,7 @@ class BMInterface {
             return array('nameArray' => $nameArray);
         } catch (Exception $e) {
             $this->message = 'Player name get failed.';
+            return NULL;
         }
     }
 
@@ -581,6 +586,166 @@ class BMInterface {
         }
     }
 
+    // Check whether a requested action still needs to be taken
+    // Note: it might be possible for this to be a protected function
+    public function is_action_current(BMGame $game,
+                                      $expectedGameState,
+                                      $postedTimestamp,
+                                      $roundNumber,
+                                      $currentPlayerId) {
+        $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+        return (($postedTimestamp == $this->timestamp->format(DATE_RSS)) &&
+                ($roundNumber == $game->roundNumber) &&
+                ($expectedGameState == $game->gameState) &&
+                (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
+    }
+
+
+    public function submit_swing_values($userId, $gameNumber,
+                                        $roundNumber, $submitTimestamp,
+                                        $swingValueArray) {
+        try {
+            $game = $this->load_game($gameNumber);
+            $currentPlayerIdx = array_search($userId, $game->playerIdArray);
+    
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!$this->is_action_current($game,
+                                          BMGameState::specifyDice,
+                                          $submitTimestamp,
+                                          $roundNumber,
+                                          $userId)) {
+                $this->message = 'Swing dice no longer need to be set';
+                return NULL;
+            }
+    
+            // try to set swing values
+            $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+    
+            if (count($swingRequestArray) != count($swingValueArray)) {
+                $this->message = 'Wrong number of swing values submitted';
+                return NULL;
+            }
+
+            $swingValueArrayWithKeys = array();
+            foreach ($swingRequestArray as $swingIdx => $swingRequest) {
+                $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
+            }
+    
+            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
+    
+            $game->proceed_to_next_user_action();
+    
+            // check for successful swing value set
+            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+                ($game->gameState > BMGameState::specifyDice) ||
+                ($game->roundNumber > $roundNumber)) {
+                $this->save_game($game);
+                $this->message = 'Successfully set swing values';
+                return True;
+            } else {
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Failed to set swing values';
+                }
+                return NULL;
+            }
+        } catch (Exception $e) {
+            $this->message = 'Internal error while setting swing values';
+        }
+    }
+
+    public function submit_turn($userId, $gameNumber, $roundNumber,
+                                $submitTimestamp, $dieSelectStatus,
+                                $attackerIdx, $defenderIdx) {
+        try {
+            $game = $this->load_game($gameNumber);
+            if (!$this->is_action_current($game,
+                                          BMGameState::startTurn,
+                                          $submitTimestamp,
+                                          $roundNumber,
+                                          $userId)) {
+                $this->message = 'It is not your turn to attack right now';
+                return NULL;
+            }
+
+            // N.B. dieSelectStatus should contain boolean values of whether each
+            // die is selected, starting with attacker dice and concluding with
+            // defender dice
+
+            // attacker and defender indices are provided in POST
+            $attackers = array();
+            $defenders = array();
+            $attackerDieIdx = array();
+            $defenderDieIdx = array();
+
+            // divide selected dice up into attackers and defenders
+            $nAttackerDice = count($game->activeDieArrayArray[$attackerIdx]);
+            $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
+
+            for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
+                if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
+                    FILTER_VALIDATE_BOOLEAN)) {
+                    $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
+                    $attackerDieIdx[] = $dieIdx;
+                }
+            }
+
+            for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
+                if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
+                    FILTER_VALIDATE_BOOLEAN)) {
+                    $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
+                    $defenderDieIdx[] = $dieIdx;
+                }
+            }
+
+            // validate attack
+            // james: eventually, we expect the attack type to be passed from
+            // the front-end to responder.php, meaning that the following code
+            // can be even more streamlined, since we will then not need to
+            // work out all the possible attack types
+            $attackTypeArray = $game->valid_attack_types();
+            $success = FALSE;
+
+            foreach ($attackTypeArray as $idx => $attackType) {
+                // find out if the chosen dice form a valid attack
+                $game->attack = array($attackerIdx, $defenderIdx,
+                                      $attackerDieIdx, $defenderDieIdx,
+                                      $attackTypeArray[$idx]);
+                $attack = BMAttack::get_instance($attackType);
+
+                foreach ($attackers as $attackDie) {
+                    $attack->add_die($attackDie);
+                }
+
+                if ($attack->validate_attack($game, $attackers, $defenders)) {
+                    $success = TRUE;
+                    break;
+                }
+            }
+
+            // output the result of the attack
+            if ($success) {
+                $game->proceed_to_next_user_action();
+                $this->save_game($game);
+
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Attack succeeded';
+                }
+                return True;
+            } else {
+                $this->message = 'Requested attack is not valid';
+                return NULL;
+            }
+            break;
+        } catch (Exception $e) {
+            $this->message = 'Internal error while submitting turn';
+        }
+    }
+    
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
