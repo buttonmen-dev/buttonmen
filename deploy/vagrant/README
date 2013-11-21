@@ -56,7 +56,8 @@ Things you might want to do after you have a running instance:
      # edit code by hand using your favorite Unix text editor
      sudo service apache2 reload   # just to make sure no old code is cached
 
-------------------------------------------------------------------------
-Things this doesn't do yet:
+ * Run the test suites that run on pagodabox:
 
- * Run the test suites that run on pagodabox
+     cd /buttonmen/src
+     php /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
+

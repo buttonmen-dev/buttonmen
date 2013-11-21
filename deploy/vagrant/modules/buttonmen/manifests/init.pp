@@ -5,8 +5,8 @@ class buttonmen::server {
   $buttonmen_db1_user = "bmuser1"
   $buttonmen_db1_pass = "79eWZGs2RohkIZMVElU6"
   $buttonmen_db2_name = "buttonmen_test"
-  $buttonmen_db2_user = "bmuser2"
-  $buttonmen_db2_pass = "79eWZGs2RohkIZMVElU6"
+  $buttonmen_db2_user = "root"
+  $buttonmen_db2_pass = "root"
 
   file {
 
@@ -21,6 +21,10 @@ class buttonmen::server {
       ensure => file,
       content => template("buttonmen/create_databases.erb"),
       mode => 0555;
+
+    "/usr/local/etc/buttonmen_phpunit.php":
+      ensure => file,
+      content => template("buttonmen/phpunit.php.erb");
   }
 
   exec {
@@ -30,6 +34,7 @@ class buttonmen::server {
 
     "buttonmen_create_databases":
       command => "/usr/local/bin/create_buttonmen_databases",
-      require => Package["mysql-server"];
+      require => [ Package["mysql-server"],
+                   Exec["buttonmen_src_rsync"] ];
   }
 }
