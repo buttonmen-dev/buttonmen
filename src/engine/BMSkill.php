@@ -51,6 +51,7 @@ class BMSkill {
         return array('Berserk' => 'B',
                      'Null'    => 'n',
                      'Poison'  => 'p',
+                     'Queer'   => 'q',
                      'Shadow'  => 's',
                      'Speed'   => 'z',
                      'Trip'    => 't',

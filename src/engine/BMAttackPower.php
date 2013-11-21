@@ -21,6 +21,11 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
+        if (array_key_exists('Queer', $attacker->skillList) &&
+            (1 == $attacker->value % 2)) {
+            return FALSE;
+        }
+
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
 
         $bounds = $this->help_bounds($helpers);
