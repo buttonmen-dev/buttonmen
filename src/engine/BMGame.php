@@ -355,7 +355,7 @@ class BMGame {
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
-                $this->message = $this->attack['attackType'] . " attack succeeded";
+                $this->message = $this->attack['attackType'] . " attack completed";
                 if (count($attackerAttackDieArray) > 0) {
 		    $this->message .= ": attackers=[" . implode(",",
 		                      $attackerAttackDieArray) . "], ";
