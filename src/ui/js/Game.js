@@ -521,24 +521,30 @@ Game.dieRecipeTable = function() {
   var maxDice = Math.max(Game.api.player.nDie, Game.api.opponent.nDie);
   for (var i = 0; i < maxDice; i++) {
     var dierow = $('<tr>', {});
-    if (i < Game.api.player.nDie) {
-      var dieval = Game.api.player.dieRecipeArray[i];
-      if ((Game.api.player.sidesArray[i] != null) &&
-          (dieval.indexOf('(' + Game.api.player.sidesArray[i] + ')') == -1)) {
-        dieval += '=' + Game.api.player.sidesArray[i]
-      }
-      dierow.append($('<td>', {'text': dieval, }));
-    } else {
-      dierow.append($('<td>', {}));
-    }
-    if (i < Game.api.opponent.nDie) {
-      dierow.append($('<td>', {'text': Game.api.opponent.dieRecipeArray[i], }));
-    } else {
-      dierow.append($('<td>', {}));
-    }
+    dierow.append(
+      Game.dieTableEntry(i, Game.api.player.nDie,
+                         Game.api.player.dieRecipeArray,
+                         Game.api.player.sidesArray));
+    dierow.append(
+      Game.dieTableEntry(i, Game.api.opponent.nDie,
+                         Game.api.opponent.dieRecipeArray,
+                         Game.api.opponent.sidesArray));
     dietable.append(dierow);
   }
   return dietable;
+}
+
+Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
+  if (i < nDie) {
+    var dieval = dieRecipeArray[i];
+    var diesides = dieSidesArray[i];
+    if ((diesides != null) &&
+        (dieval.indexOf('(' + diesides + ')') == -1)) {
+      dieval += '=' + diesides;
+    }
+    return $('<td>', {'text': dieval, });
+  }
+    return $('<td>', {});
 }
 
 // Display each player's dice in "battle" layout
