@@ -312,14 +312,14 @@ class BMGame {
                 }
                 // set BMGame activePlayerIdx
                 $this->activePlayerIdx = $this->playerWithInitiativeIdx;
-                $this->turnInRoundNumber = 0;
+                $this->turnInRoundNumber = 1;
                 break;
 
             case BMGameState::startTurn:
                 // deal with autopass
                 if (!isset($this->attack) &&
                     $this->autopassArray[$this->activePlayerIdx] &&
-                    $this->turnInRoundNumber > 0) {
+                    $this->turnInRoundNumber > 1) {
                     $validAttackTypes = $this->valid_attack_types();
                     if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
@@ -766,6 +766,7 @@ class BMGame {
 
         $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
+        $this->turnInRoundNumber = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
     }
@@ -907,6 +908,9 @@ class BMGame {
             case 'nPlayers':
                 throw new LogicException(
                     'nPlayers is derived from BMGame->playerIdArray');
+            case 'turnInRoundNumber':
+                throw new LogicException(
+                    'turnInRoundNumber is calculated within BMGame');
             case 'gameId':
                 if (FALSE === filter_var($value,
                                          FILTER_VALIDATE_INT,

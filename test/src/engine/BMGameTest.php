@@ -1237,6 +1237,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__set
      */
+    public function test__set_turnInRoundNumber() {
+        // set is always invalid
+        try {
+            $this->object->turnInRoundNumber = 5;
+            $this->fail('The round number is set internally.');
+        }
+        catch (LogicException $expected) {
+        }
+    }
+
+    /**
+     * @covers BMGame::__set
+     */
     public function test__set_game_id() {
         // valid set
         $this->object->gameId = 235;
