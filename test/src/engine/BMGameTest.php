@@ -4329,7 +4329,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load('s(20)', 'Test2');
 
         // load game
-        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game = new BMGame(535353, array(234, 567), array('', ''), 3);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
@@ -4362,6 +4362,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
                                   array('W' => 1, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
+        $this->assertEquals(0, $game->nRecentPasses);
+
+        // test autopass
+        $game->autopassArray = array(TRUE, TRUE);
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 20;
+
+        $game->proceed_to_next_user_action();
+        $this->assertGreaterThanOrEqual(2, $game->gameScoreArrayArray[0]['L']);
+        $this->assertGreaterThanOrEqual(2, $game->gameScoreArrayArray[1]['W']);
         $this->assertEquals(0, $game->nRecentPasses);
     }
 

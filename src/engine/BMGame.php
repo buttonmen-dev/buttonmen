@@ -313,6 +313,19 @@ class BMGame {
                 break;
 
             case BMGameState::startTurn:
+                // deal with autopass
+                if ($this->autopassArray[$this->activePlayerIdx]) {
+                    $validAttackTypes = $this->valid_attack_types();
+                    if (array_key_exists('Pass', $validAttackTypes) &&
+                        (1 == count($validAttackTypes))) {
+                        $this->attack = array('attackerPlayerIdx' => $this->attackerPlayerIdx,
+                                              'defenderPlayerIdx' => $this->defenderPlayerIdx,
+                                              'attackerAttackDieIdxArray' => array(),
+                                              'defenderAttackDieIdxArray' => array(),
+                                              'attackType' => 'Pass');
+                    }
+                }
+
                 // display dice
                 $this->activate_GUI('show_active_dice');
 
