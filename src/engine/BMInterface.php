@@ -303,9 +303,12 @@ class BMInterface {
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
-
+                   
             if (isset($game->swingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
+                        continue;
+                    }
                     $swingValueArray = $game->swingValueArrayArray[$playerIdx];
                     if (isset($swingValueArray)) {
                         foreach ($swingValueArray as $swingType => $swingValue) {
