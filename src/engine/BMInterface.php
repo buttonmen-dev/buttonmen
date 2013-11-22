@@ -36,6 +36,12 @@ class BMInterface {
     public function create_game(array $playerIdArray,
                                 array $buttonNameArray,
                                 $maxWins = 3) {
+        // check for nonunique player ids
+        if (count(array_flip($playerIdArray)) < count($playerIdArray)) {
+            $this->message = 'Game create failed because a player has been selected more than once.';
+            return NULL;
+        }
+
         try {
             // create basic game details
             $query = 'INSERT INTO game '.
@@ -43,7 +49,7 @@ class BMInterface {
                      'VALUES '.
                      '(:n_players, :n_target_wins, :n_recent_passes, :creator_id)';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':n_players'     => count($playerIdArray),                                      
+            $statement->execute(array(':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0]));
@@ -229,11 +235,11 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
-            
+
             $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
-            
+
             return $game;
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
@@ -303,7 +309,7 @@ class BMInterface {
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
-                   
+
             if (isset($game->swingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
                     if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
@@ -610,7 +616,7 @@ class BMInterface {
         try {
             $game = $this->load_game($gameNumber);
             $currentPlayerIdx = array_search($userId, $game->playerIdArray);
-    
+
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
             if (!$this->is_action_current($game,
@@ -621,10 +627,10 @@ class BMInterface {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
-    
+
             // try to set swing values
             $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-    
+
             if (count($swingRequestArray) != count($swingValueArray)) {
                 $this->message = 'Wrong number of swing values submitted';
                 return NULL;
@@ -634,11 +640,11 @@ class BMInterface {
             foreach ($swingRequestArray as $swingIdx => $swingRequest) {
                 $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
             }
-    
+
             $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
-    
+
             $game->proceed_to_next_user_action();
-    
+
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::specifyDice) ||
@@ -748,7 +754,7 @@ class BMInterface {
             $this->message = 'Internal error while submitting turn';
         }
     }
-    
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
