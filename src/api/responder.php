@@ -77,6 +77,7 @@
                                             $_POST['roundNumber'],
                                             $_POST['timestamp'],
                                             $_POST['dieSelectStatus'],
+                                            $_POST['attackType'],
                                             (int)$_POST['attackerIdx'],
                                             (int)$_POST['defenderIdx']);
             break;

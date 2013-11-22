@@ -666,8 +666,9 @@ class BMInterface {
     }
 
     public function submit_turn($userId, $gameNumber, $roundNumber,
-                                $submitTimestamp, $dieSelectStatus,
-                                $attackerIdx, $defenderIdx) {
+                                $submitTimestamp,
+				$dieSelectStatus, $attackType,
+				$attackerIdx, $defenderIdx) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
@@ -709,33 +710,18 @@ class BMInterface {
                 }
             }
 
-            // validate attack
-            // james: eventually, we expect the attack type to be passed from
-            // the front-end to responder.php, meaning that the following code
-            // can be even more streamlined, since we will then not need to
-            // work out all the possible attack types
-            $attackTypeArray = $game->valid_attack_types();
-            $success = FALSE;
+            // populate BMAttack object for the specified attack
+            $game->attack = array($attackerIdx, $defenderIdx,
+                                  $attackerDieIdx, $defenderDieIdx,
+                                  $attackType);
+            $attack = BMAttack::get_instance($attackType);
 
-            foreach ($attackTypeArray as $idx => $attackType) {
-                // find out if the chosen dice form a valid attack
-                $game->attack = array($attackerIdx, $defenderIdx,
-                                      $attackerDieIdx, $defenderDieIdx,
-                                      $attackTypeArray[$idx]);
-                $attack = BMAttack::get_instance($attackType);
-
-                foreach ($attackers as $attackDie) {
-                    $attack->add_die($attackDie);
-                }
-
-                if ($attack->validate_attack($game, $attackers, $defenders)) {
-                    $success = TRUE;
-                    break;
-                }
+            foreach ($attackers as $attackDie) {
+                $attack->add_die($attackDie);
             }
 
-            // output the result of the attack
-            if ($success) {
+            // validate the attack and output the result
+            if ($attack->validate_attack($game, $attackers, $defenders)) {
                 $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
