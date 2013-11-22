@@ -2,7 +2,9 @@
 
 DROP VIEW IF EXISTS game_player_view;
 CREATE VIEW game_player_view
-AS SELECT m.*, p.name_ingame AS player_name, b.name AS button_name,
+AS SELECT m.*,
+          p.name_ingame AS player_name, p.autopass,
+          b.name AS button_name,
           g.n_target_wins
 FROM game_player_map AS m
 LEFT JOIN player AS p

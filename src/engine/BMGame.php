@@ -314,9 +314,10 @@ class BMGame {
 
             case BMGameState::startTurn:
                 // deal with autopass
-                if ($this->autopassArray[$this->activePlayerIdx]) {
+                if (!isset($this->attack) &&
+                    $this->autopassArray[$this->activePlayerIdx]) {
                     $validAttackTypes = $this->valid_attack_types();
-                    if (array_key_exists('Pass', $validAttackTypes) &&
+                    if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
                         $this->attack = array('attackerPlayerIdx' => $this->attackerPlayerIdx,
                                               'defenderPlayerIdx' => $this->defenderPlayerIdx,
@@ -370,12 +371,13 @@ class BMGame {
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
+
                 $this->message = $this->attack['attackType'] . " attack completed";
                 if (count($attackerAttackDieArray) > 0) {
-		    $this->message .= ": attackers=[" . implode(",",
-		                      $attackerAttackDieArray) . "], ";
-		    $this->message .= "defenders=[" . implode(",",
-		                      $defenderAttackDieArray) . "]";
+                    $this->message .= ": attackers=[" . implode(",",
+                                      $attackerAttackDieArray) . "], ";
+                    $this->message .= "defenders=[" . implode(",",
+                                      $defenderAttackDieArray) . "]";
                 }
                 $this->update_active_player();
                 break;

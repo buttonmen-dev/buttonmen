@@ -43,7 +43,7 @@ class BMInterface {
                      'VALUES '.
                      '(:n_players, :n_target_wins, :n_recent_passes, :creator_id)';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':n_players'     => count($playerIdArray),                                      
+            $statement->execute(array(':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0]));
@@ -93,11 +93,12 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId) {
+    // The optional argument $autopassOverride is for testing purposes only!
+    public function load_game($gameId, $autopassOverride = NULL) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
-                     'v.player_id, v.position,'.
+                     'v.player_id, v.position, v.autopass,'.
                      'v.button_name,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
@@ -123,6 +124,15 @@ class BMInterface {
 
                 $pos = $row['position'];
                 $playerIdArray[$pos] = $row['player_id'];
+
+                if (is_null($autopassOverride)) {
+                    $autopassArray[$pos] = (bool)$row['autopass'];
+                } else {
+                    assert(is_array($autopassOverride));
+                    assert(array_key_exists($pos, $autopassOverride));
+                    $autopassArray[$pos] = $autopassOverride[$pos];
+                }
+
                 if (1 == $row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
                 }
@@ -173,6 +183,7 @@ class BMInterface {
             $game->gameScoreArrayArray = $gameScoreArrayArray;
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
+            $game->autopassArray = $autopassArray;
 
             // add swing values
             $query = 'SELECT * '.
@@ -229,11 +240,11 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
-            
+
             $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
-            
+
             return $game;
         } catch (Exception $e) {
             $this->message = "Game load failed: $e";
@@ -242,17 +253,13 @@ class BMInterface {
         }
     }
 
+    public function load_game_without_autopass($gameId) {
+        return $this->load_game($gameId, array(FALSE, FALSE));
+    }
+
     public function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
-
-        if ((count($game->activeDieArrayArray[0]) == 5) &&
-            (count($game->activeDieArrayArray[1]) == 5)) {
-            $this->message = $game->message.
-                             'before save'.
-                             'swingvalue1:'.$game->activeDieArrayArray[0][4]->swingValue.
-                             'swingvalue2:'.$game->activeDieArrayArray[1][4]->swingValue;
-        }
 
         try {
             if (is_null($game->activePlayerIdx)) {
@@ -303,7 +310,7 @@ class BMInterface {
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
-                   
+
             if (isset($game->swingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
                     if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
@@ -610,7 +617,7 @@ class BMInterface {
         try {
             $game = $this->load_game($gameNumber);
             $currentPlayerIdx = array_search($userId, $game->playerIdArray);
-    
+
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
             if (!$this->is_action_current($game,
@@ -621,10 +628,10 @@ class BMInterface {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
-    
+
             // try to set swing values
             $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-    
+
             if (count($swingRequestArray) != count($swingValueArray)) {
                 $this->message = 'Wrong number of swing values submitted';
                 return NULL;
@@ -634,11 +641,11 @@ class BMInterface {
             foreach ($swingRequestArray as $swingIdx => $swingRequest) {
                 $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
             }
-    
+
             $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
-    
+
             $game->proceed_to_next_user_action();
-    
+
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::specifyDice) ||
@@ -743,12 +750,11 @@ class BMInterface {
                 $this->message = 'Requested attack is not valid';
                 return NULL;
             }
-            break;
         } catch (Exception $e) {
             $this->message = 'Internal error while submitting turn';
         }
     }
-    
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
