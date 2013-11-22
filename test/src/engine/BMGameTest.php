@@ -4318,7 +4318,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @coversNothing
+     * @covers BMGame::proceed_to_next_user_action
      */
     public function test_all_pass() {
         // load buttons
@@ -4329,7 +4329,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load('s(20)', 'Test2');
 
         // load game
-        $game = new BMGame(535353, array(234, 567), array('', ''), 3);
+        $game = new BMGame(987654, array(234, 567), array('', ''), 3);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
@@ -4373,8 +4373,32 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][0]->value = 20;
 
         $game->proceed_to_next_user_action();
-        $this->assertGreaterThanOrEqual(2, $game->gameScoreArrayArray[0]['L']);
-        $this->assertGreaterThanOrEqual(2, $game->gameScoreArrayArray[1]['W']);
+
+        // $game->proceed_to_next_user_action() stops at the first turn of a round
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                  array('W' => 1, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 20;
+
+        // artificially guarantee that the active player is player 1
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // player 1 passes
+        $game->attack = array(0, 1, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(array('W' => 0, 'L' => 2, 'D' => 0),
+                                  array('W' => 2, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, count($game->activeDieArrayArray[0]));
+        $this->assertEquals(1, count($game->activeDieArrayArray[1]));
         $this->assertEquals(0, $game->nRecentPasses);
     }
 

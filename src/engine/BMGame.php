@@ -9,6 +9,7 @@
  * @property      array $playerIdArray           Array of player IDs
  * @property-read array $nPlayers                Number of players in the game
  * @property-read int   $roundNumber;            Current round number
+ * @property-read int   $turnInRoundNumber;      Current turn number in current round
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
  * @property      array $buttonArray             Buttons for all players
@@ -47,6 +48,7 @@ class BMGame {
     private $playerIdArray;         // array of player IDs
     private $nPlayers;              // number of players in the game
     private $roundNumber;           // current round number
+    private $turnInRoundNumber;     // current turn number in current round
     private $activePlayerIdx;       // index of the active player in playerIdxArray
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
@@ -310,12 +312,14 @@ class BMGame {
                 }
                 // set BMGame activePlayerIdx
                 $this->activePlayerIdx = $this->playerWithInitiativeIdx;
+                $this->turnInRoundNumber = 0;
                 break;
 
             case BMGameState::startTurn:
                 // deal with autopass
                 if (!isset($this->attack) &&
-                    $this->autopassArray[$this->activePlayerIdx]) {
+                    $this->autopassArray[$this->activePlayerIdx] &&
+                    $this->turnInRoundNumber > 0) {
                     $validAttackTypes = $this->valid_attack_types();
                     if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
@@ -371,6 +375,7 @@ class BMGame {
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
+                $this->turnInRoundNumber += 1;
 
                 $this->message = $this->attack['attackType'] . " attack completed";
                 if (count($attackerAttackDieArray) > 0) {
@@ -583,7 +588,7 @@ class BMGame {
         $this->do_next_step();
 
         while (0 === array_sum($this->waitingOnActionArray)) {
-            $startGameState = $this->gameState;
+            $intermediateGameState = $this->gameState;
             $this->update_game_state();
             $this->do_next_step();
 
@@ -591,7 +596,7 @@ class BMGame {
                 break;
             }
 
-            if ($startGameState === $this->gameState) {
+            if ($intermediateGameState === $this->gameState) {
                 $repeatCount++;
             } else {
                 $repeatCount = 0;
