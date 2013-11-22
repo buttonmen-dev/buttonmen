@@ -33,6 +33,7 @@
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
+ * @property      array $autopassArray           Boolean array whether each player has enabled autopass
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -70,6 +71,7 @@ class BMGame {
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
+    private $autopassArray;         // boolean array whether each player has enabled autopass
     private $message;               // message to be passed to the GUI
 
     public $swingRequestArrayArray;
@@ -102,9 +104,9 @@ class BMGame {
             case BMGameState::applyHandicaps:
                 // ignore for the moment
                 $this->gameScoreArrayArray =
-                    array_pad(array(),
-                              count($this->playerIdArray),
-                              array('W' => 0, 'L' => 0, 'D' => 0));
+                    array_fill(0,
+                               count($this->playerIdArray),
+                               array('W' => 0, 'L' => 0, 'D' => 0));
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
@@ -431,7 +433,8 @@ class BMGame {
                     $allButtonsSet) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->nRecentPasses = 0;
-                    $this->gameScoreArrayArray = array(array(0, 0, 0), array(0, 0, 0));
+                    $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+                    $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
                 }
                 break;
 
@@ -1109,6 +1112,20 @@ class BMGame {
                 }
                 $this->waitingOnActionArray = $value;
                 break;
+            case 'autopassArray':
+                if (!is_array($value) ||
+                    count($value) !== count($this->playerIdArray)) {
+                    throw new InvalidArgumentException(
+                        'Number of settings must equal the number of players.');
+                }
+                foreach ($value as $tempValueElement) {
+                    if (!is_bool($tempValueElement)) {
+                        throw new InvalidArgumentException(
+                            'Input must be an array of booleans.');
+                    }
+                }
+                $this->autopassArray = $value;
+                break;
             default:
                 $this->$property = $value;
         }
@@ -1159,7 +1176,7 @@ class BMGame {
                 $dieValue = $die->value;
                 $dieMax = $die->max;
                 if (is_null($dieMax)) {
-                    $swingValuesAllSpecified = FALSE;  
+                    $swingValuesAllSpecified = FALSE;
                 }
 
                 if ($wereBothSwingValuesReset &&
@@ -1173,7 +1190,7 @@ class BMGame {
                 $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
             }
         }
-        
+
         if (!$swingValuesAllSpecified) {
 	        foreach($valueArrayArray as &$valueArray) {
 		        foreach($valueArray as &$value) {

@@ -29,30 +29,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step
      */
-    public function test_do_next_step_start_game() {
-        // the first player always has to be set before advancing the game
-        $this->object->gameState = BMGameState::startGame;
-        try {
-            $this->object->do_next_step();
-        }
-        catch (UnexpectedValueException $expected) {
-        }
-
-        // players other than the first can be unspecified
-        $this->object->gameState = BMGameState::startGame;
-        $this->object->playerIdArray = array(123, 0);
-        $this->object->do_next_step();
-
-        // buttons can be unspecified
-        $this->object->gameState = BMGameState::startGame;
-        $this->object->playerIdArray = array(123, 456);
-        $this->object->do_next_step();
-
-    }
-
-    /**
-     * @covers BMGame::do_next_step
-     */
     public function test_do_next_step_apply_handicaps() {
         $this->object->gameState = BMGameState::applyHandicaps;
         $this->object->do_next_step();
@@ -486,7 +462,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::startGame, $this->object->gameState);
 
-        // default unspecified playerIdArray
+        // both players must be set before advancing the game
         $this->object->gameState = BMGameState::startGame;
         $Button1 = new BMButton;
         $Button2 = new BMButton;
@@ -506,6 +482,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $this->object->nRecentPasses);
         $this->assertEquals(array(array(0, 0, 0), array(0, 0, 0)),
                             $this->object->gameScoreArrayArray);
+        $this->assertEquals(array(FALSE, FALSE), $this->object->autopassArray);
     }
 
     /**
@@ -1907,14 +1884,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $out1 = $game->getJsonData(123);
         $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
-                                  array(NULL, NULL, NULL, NULL, NULL)), 
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+                                  array(NULL, NULL, NULL, NULL, NULL)),
                             $out1['data']['valueArrayArray']);
         $out2 = $game->getJsonData(456);
         $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
-                                  array(NULL, NULL, NULL, NULL, NULL)), 
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+                                  array(NULL, NULL, NULL, NULL, NULL)),
                             $out2['data']['valueArrayArray']);
 
         // specify swing dice correctly
@@ -2302,14 +2279,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $out3 = $game->getJsonData(123);
         $this->assertEquals(19, $out3['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out3['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
-                                  array(NULL, NULL, NULL, NULL, NULL)), 
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+                                  array(NULL, NULL, NULL, NULL, NULL)),
                             $out3['data']['valueArrayArray']);
         $out4 = $game->getJsonData(456);
         $this->assertEquals(19, $out4['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out4['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL), 
-                                  array(NULL, NULL, NULL, NULL, NULL)), 
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+                                  array(NULL, NULL, NULL, NULL, NULL)),
                             $out4['data']['valueArrayArray']);
 
         // set swing die for player 2
