@@ -33,7 +33,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::load_game
      */
     public function test_create_and_load_new_game() {
-        $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
+        $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
+        $gameId = $retval['gameId'];
         $game = $this->object->load_game($gameId);
 
         // check player info
@@ -136,11 +137,23 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMInterface::create_game
+     */
+    public function test_create_self_game() {
+        // attempt to create a game with the same player on both sides
+        $retval = $this->object->create_game(array(1, 1), array('Bauer', 'Stark'), 4);
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because a player has been selected more than once.',
+                            $this->object->message);
+    }
+
+    /**
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
     public function test_load_game_after_setting_swing_values() {
-        $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
+        $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
+        $gameId = $retval['gameId'];
         $game = $this->object->load_game($gameId);
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
         // specify swing dice correctly
@@ -255,7 +268,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::load_game
      */
     public function test_play_turn() {
-        $gameId = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
+        $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
+        $gameId = $retval['gameId'];
         $game = $this->object->load_game($gameId);
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
 
@@ -304,7 +318,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     public function test_load_poison() {
         // Coil: p4 12 p20 20 V
         // Bane: p2 p4 12 12 V
-        $gameId = $this->object->create_game(array(1, 2), array('Coil', 'Bane'), 4);
+        $retval = $this->object->create_game(array(1, 2), array('Coil', 'Bane'), 4);
+        $gameId = $retval['gameId'];
         $game = $this->object->load_game($gameId);
         $this->assertEquals(BMGameState::specifyDice, $game->gameState);
 
@@ -355,7 +370,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      */
     public function test_swing_value_reset_at_end_of_round() {
         // create a dummy game that will be overwritten
-        $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
+        $retval = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
+        $gameId = $retval['gameId'];
 
         // start as if we were close to the end of Round 1
 
@@ -512,7 +528,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      */
     public function test_swing_value_reset_at_end_of_game() {
         // create a dummy game that will be overwritten
-        $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 1);
+        $retval = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 1);
+        $gameId = $retval['gameId'];
 
         // start as if we were close to the end of the game
         // load buttons
@@ -553,7 +570,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->object->save_game($game);
         $game = $this->object->load_game($gameId);
-        
+
         $this->assertEquals(BMGameState::endGame, $game->gameState);
         $this->assertNull($game->swingValueArrayArray);
     }
@@ -569,7 +586,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      */
     public function test_swing_value_persistence() {
         // create a dummy game that will be overwritten
-        $gameId = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
+        $retval = $this->object->create_game(array(1, 2), array('Tess', 'Coil'), 4);
+        $gameId = $retval['gameId'];
 
         // start as if we were close to the end of Round 1
 
@@ -628,7 +646,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
                             $game->swingValueArrayArray);
     }
-    
+
     /**
      * The following unit tests ensure that the number of passes is updated
      * correctly.
@@ -638,8 +656,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      */
     public function test_all_pass() {
         // create a dummy game that will be overwritten
-        $gameId = $this->object->create_game(array(1, 2), array('Wiseman', 'Wiseman'), 4); 
-       
+        $retval = $this->object->create_game(array(1, 2), array('Wiseman', 'Wiseman'), 4);
+        $gameId = $retval['gameId'];
+
         // load buttons
         $button1 = new BMButton;
         $button1->load('(1)', 'Test1');
@@ -666,7 +685,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // player 1 passes
         $game->attack = array(0, 1, array(), array(), 'Pass');
         $game->proceed_to_next_user_action();
-        
+
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(1, $game->activePlayerIdx);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -674,7 +693,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                   array('W' => 0, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
         $this->assertEquals(1, $game->nRecentPasses);
-        
+
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
 
@@ -689,12 +708,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // player 2 passes
         $game->attack = array(1, 0, array(), array(), 'Pass');
         $game->proceed_to_next_user_action();
-        
+
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
                                   array('W' => 1, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
         $this->assertEquals(0, $game->nRecentPasses);
-        
+
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
 

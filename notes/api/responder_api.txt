@@ -1,0 +1,2 @@
+FIXME: document the responder.php API.  This documentation is for
+the benefit of anyone who wants to write their own client.
