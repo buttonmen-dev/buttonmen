@@ -1,0 +1,39 @@
+#!/bin/sh
+##### Script to install Chaos's shell .rc configuration
+
+HOMEDIR="/home/chaos"
+ARCHDIR="$HOMEDIR/src/archives"
+SRCFILE="rcfiles.tar.bz2"
+SRCPATH="http://www.glassonion.org/misc/${SRCFILE}"
+
+TARGPARENT="$HOMEDIR/src"
+TARGDIR="${TARGPARENT}/rcfiles"
+
+mkdir -p $ARCHDIR
+if [ ! -d "$ARCHDIR" ]; then
+  echo "Failed to create file archive directory $ARCHDIR"
+  exit 1
+fi
+
+cd $ARCHDIR
+wget $SRCPATH
+if [ ! -f "$SRCFILE" ]; then
+  echo "Failed to retrieve source from $SRCPATH"
+  exit 1
+fi
+
+cd $TARGPARENT
+tar xjf "$ARCHDIR/$SRCFILE"
+if [ ! -d "$TARGDIR" ]; then
+  echo "Failed to extract expected directory $TARGDIR from tarball"
+  exit 1
+fi
+
+cd $TARGDIR
+. ./install_files.sh
+if [ ! -d "$HOMEDIR/share/bashrc" ]; then
+  echo "Unknown failure in rcfile installation"
+  exit 1
+fi
+
+exit 0

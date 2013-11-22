@@ -1,0 +1,48 @@
+#!/bin/sh
+##### Configure Vagrantfile to work with an AWS config
+
+CONFIGFILE=~/.vagrant.d/buttonmen.conf
+VAGRANTFILE=Vagrantfile
+
+# Read variables from the config file
+if [ ! -f $CONFIGFILE ]; then
+  echo "Create a shell-style config file in $CONFIGFILE defining"
+  echo "all BUTTONMEN variables listed in $VAGRANTFILE and try again"
+  exit 1
+fi
+. $CONFIGFILE
+
+# Make sure the config file defines all variables we'll need
+if [ -z "$BUTTONMEN_ACCESS_KEY_ID" ]; then
+  echo "Mandatory variable BUTTONMEN_ACCESS_KEY_ID is not defined in $CONFIGFILE"
+  exit 1
+fi
+if [ -z "$BUTTONMEN_SECRET_ACCESS_KEY" ]; then
+  echo "Mandatory variable BUTTONMEN_SECRET_ACCESS_KEY is not defined in $CONFIGFILE"
+  exit 1
+fi
+if [ -z "$BUTTONMEN_SSH_KEYPAIR_NAME" ]; then
+  echo "Mandatory variable BUTTONMEN_SSH_KEYPAIR_NAME is not defined in $CONFIGFILE"
+  exit 1
+fi
+if [ -z "$BUTTONMEN_SSH_PRIVATE_KEY_PATH" ]; then
+  echo "Mandatory variable BUTTONMEN_SSH_PRIVATE_KEY_PATH is not defined in $CONFIGFILE"
+  exit 1
+fi
+
+# Substitute variables into config file, and also comment out network
+# port setting that we don't use with AWS
+sed -i .orig \
+    -e "s,BUTTONMEN_ACCESS_KEY_ID,$BUTTONMEN_ACCESS_KEY_ID," \
+    -e "s,BUTTONMEN_SECRET_ACCESS_KEY,$BUTTONMEN_SECRET_ACCESS_KEY," \
+    -e "s,BUTTONMEN_SSH_KEYPAIR_NAME,$BUTTONMEN_SSH_KEYPAIR_NAME," \
+    -e "s,BUTTONMEN_SSH_PRIVATE_KEY_PATH,$BUTTONMEN_SSH_PRIVATE_KEY_PATH," \
+    -e "/:forwarded_port/s/^/#/" \
+    $VAGRANTFILE
+if [ "$?" != "0" ]; then
+  echo "sed failed - debug what went wrong"
+  exit 1
+fi
+
+echo "Substituted buttonmen AWS variables into $VAGRANTFILE"
+echo "DO NOT COMMIT this modified file to git - it contains passwords now!"
