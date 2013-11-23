@@ -78,7 +78,7 @@ class user::username::james {
       ensure => file,
       owner => "james",
       group => "james",
-      content => "# SSH keys for james - managed by puppet\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArqF2kpbSQUTn3nboWn7hjtMq/TufXpVvY3unKb65bJiguT/OnG0zpyU7/q+ebJVNjaku0XWbVhtGflLTqLKhcwFkfZDOuNN79hkTzptJLyZYj/KTgasMGGHvkK9SKNvYzP0wvSzQNOrTWgiowr5ytFFif1QlhQfj4YBrFWiULKTXeHdZd/WdOgjux7rIn5jfSMW7lpNOkThV9YBVaMCD7JgA/4EL5NZLbf+LhPs0TLSzZVmztZ4wF1C/PYdSQ1AaFHNoys+ylSImSQGBSlE3uuxbBHvqhL0bk43FytytgfoDMHJHPwm3k5V6sYrQcKqAyfcGXlDD4Trx6bDDlJ6X0Q== james\n",
+      content => "# SSH keys for james - managed by puppet\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArqF2kpbSQUTn3nboWn7hjtMq/TufXpVvY3unKb65bJiguT/OnG0zpyU7/q+ebJVNjaku0XWbVhtGflLTqLKhcwFkfZDOuNN79hkTzptJLyZYj/KTgasMGGHvkK9SKNvYzP0wvSzQNOrTWgiowr5ytFFif1QlhQfj4YBrFWiULKTXeHdZd/WdOgjux7rIn5jfSMW7lpNOkThV9YBVaMCD7JgA/4EL5NZLbf+LhPs0TLSzZVmztZ4wF1C/PYdSQ1AaFHNoys+ylSImSQGBSlE3uuxbBHvqhL0bk43FytytgfoDMHJHPwm3k5V6sYrQcKqAyfcGXlDD4Trx6bDDlJ6X0Q== james\nssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAwF4MmUw/AmGaiZIfnlW36pkHVkM1DwTuOrdx712qgWnGV9wS+7HmHu9aBdCWkTzSdnAaAKxvpyRdnTKLz12lbDhs2AqV3WkPqYwl/D3wFlLgW9o8o0yQwmgEmSUIxEWPk7mx5MysrdzmMiqbcCSjau5QHzPYwMqpyA7L//dO82H9tj4R3YeNuMvw2IImE3xGHrU+H+MONFLGCjFFawal8GOlvKziuVui6F3WVFQfWyp3hPeGbmWmhUP4tET05++ISQKFMOy4TqIM1m9b1OjW/lgIxDmrwwL6K3T2fNb9dXVJKlvHxUKvvnwEB22MG7sclkKWaJ1t/VhBV8wOaKD4fQ== james@wombat\n",
       require => User["james"];
   }
 }
