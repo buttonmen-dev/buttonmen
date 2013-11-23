@@ -9,6 +9,8 @@ node default {
 
   # Generic node configuration
   include "apt::client"
+  include "user::buttonmen-devs"
+  include "sudo::buttonmen-devs"
 
   # Node configuration needed for the buttonmen server
   include "apache::server"  

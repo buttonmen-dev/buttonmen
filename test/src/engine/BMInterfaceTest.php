@@ -30,7 +30,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMInterface::create_game
-     * @covers BMInterface::load_game_without_autopass
+     * @covers BMInterface::load_game
      */
     public function test_create_and_load_new_game() {
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
@@ -137,8 +137,19 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMInterface::create_game
+     */
+    public function test_create_self_game() {
+        // attempt to create a game with the same player on both sides
+        $retval = $this->object->create_game(array(1, 1), array('Bauer', 'Stark'), 4);
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because a player has been selected more than once.',
+                            $this->object->message);
+    }
+
+    /**
      * @covers BMInterface::save_game
-     * @covers BMInterface::load_game_without_autopass
+     * @covers BMInterface::load_game
      */
     public function test_load_game_after_setting_swing_values() {
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
@@ -254,7 +265,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMInterface::save_game
-     * @covers BMInterface::load_game_without_autopass
+     * @covers BMInterface::load_game
      */
     public function test_play_turn() {
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4);
@@ -302,7 +313,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMInterface::load_game_without_autopass
+     * @covers BMInterface::load_game
      */
     public function test_load_poison() {
         // Coil: p4 12 p20 20 V
@@ -571,7 +582,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      *   e.g., by a berserk attack.
      *
      * @covers BMInterface::save_game
-     * @covers BMInterface::load_game_without_autopass
+     * @covers BMInterface::load_game
      */
     public function test_swing_value_persistence() {
         // create a dummy game that will be overwritten
@@ -641,7 +652,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * correctly.
      *
      * @covers BMInterface::save_game
-     * @covers BMInterface::load_game_without_autopass
+     * @covers BMInterface::load_game
      */
     public function test_all_pass() {
         // create a dummy game that will be overwritten
