@@ -142,27 +142,36 @@ Newgame.actionCreateGame = function() {
     playerNames[playerName] = playerName;
   }
   createtable.append(
-    Newgame.getSelectRow('Opponent', 'opponent_name', playerNames, null));
+    Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
+                         null, null));
                     
   // Load buttons and recipes into a dict for use in selects
   var buttonRecipe = {}
+  var buttonGreyed = {}
   $.each(Api.button.list, function(button, buttoninfo) {
     buttonRecipe[button] = button + ": " + buttoninfo.recipe;
+    if (buttoninfo.hasUnimplementedSkill) {
+      buttonGreyed[button] = true;
+    } else {
+      buttonGreyed[button] = false;
+    }
   });
 
   // Player button selection
   createtable.append(
-    Newgame.getSelectRow('Your button', 'player_button', buttonRecipe, null));
+    Newgame.getSelectRow('Your button', 'player_button', buttonRecipe,
+                         buttonGreyed, null));
 
   // Opponent button selection
   createtable.append(
     Newgame.getSelectRow("Opponent's button", 'opponent_button',
-                         buttonRecipe, null));
+			 buttonRecipe, buttonGreyed, null));
 
   // Round selection
   createtable.append(
     Newgame.getSelectRow("Number of rounds", 'n_rounds',
-      {'1': '1', '2': '2', '3': '3', '4': '4', '5': '5', }, '3'))
+      {'1': '1', '2': '2', '3': '3', '4': '4', '5': '5', },
+      null, '3'))
 
   // Form submission button
   createform.append(createtable);
@@ -174,6 +183,11 @@ Newgame.actionCreateGame = function() {
   creatediv.append(createform);
 
   Newgame.page.append(creatediv);
+
+  warningpar = $('<p>');
+  warningpar.append($('<i>', {
+    'text': 'Note to testers: buttons with grey backgrounds contain unimplemented skills.  Selecting these buttons is not recommended.'}));
+  Newgame.page.append(warningpar);
 
   // Function to invoke on button click
   Newgame.form = Newgame.formCreateGame;
@@ -271,7 +285,8 @@ Newgame.addInternalErrorPage = function() {
 ////////////////////////////////////////////////////////////////////////
 // These functions generate and return pieces of HTML
 
-Newgame.getSelectRow = function(rowname, selectname, valuedict, selectedval) {
+Newgame.getSelectRow = function(rowname, selectname, valuedict,
+                                greydict, selectedval) {
   var selectRow = $('<tr>');
   selectRow.append($('<th>', {'text': rowname + ':', }));
 
@@ -280,20 +295,18 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict, selectedval) {
                    'name': selectname,
                  });
   $.each(valuedict, function(key, value) {
+    var selectopts = {
+      'value': key,
+      'label': value,
+      'text': value,
+    };
     if (selectedval == key) {
-      select.append($('<option>', {
-                      'value': key,
-                      'label': value,
-                      'selected': "selected",
-                      'text': value,
-                    }));
-    } else {
-      select.append($('<option>', {
-                      'value': key,
-                      'label': value,
-                      'text': value,
-                    }));
+      selectopts['selected'] = "selected";
     }
+    if ((greydict != null) && (greydict[key])) {
+      selectopts['class'] = "greyed";
+    }
+    select.append($('<option>', selectopts));
   });
   var selectTd = $('<td>');
   selectTd.append(select);

@@ -64,13 +64,15 @@ Api.getButtonData = function(callbackfunc) {
 
 Api.parseButtonData = function(data) {
   Api.button.list = {};
-  if ((data.buttonNameArray == null) || (data.recipeArray == null)) {
+  if ((data.buttonNameArray == null) || (data.recipeArray == null)
+      || (data.hasUnimplementedSkillArray == null)) {
     return false;
   }
   var i = 0;
   while (i < data.buttonNameArray.length) {
     Api.button.list[data.buttonNameArray[i]] = {
       'recipe': data.recipeArray[i],
+      'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
     };
     i++;
   }

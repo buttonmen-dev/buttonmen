@@ -43,6 +43,10 @@ input.swing {
     width: 20px;
 }
 
+select option.greyed {
+    background-color: #808080;
+}
+
 .die_img {
     background-size: 50px 50px;
     width:50px;
