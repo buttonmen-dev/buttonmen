@@ -149,10 +149,11 @@ Newgame.actionCreateGame = function() {
   var buttonRecipe = {}
   var buttonGreyed = {}
   $.each(Api.button.list, function(button, buttoninfo) {
-    buttonRecipe[button] = button + ": " + buttoninfo.recipe;
     if (buttoninfo.hasUnimplementedSkill) {
+      buttonRecipe[button] = '-- ' + button + ": " + buttoninfo.recipe;
       buttonGreyed[button] = true;
     } else {
+      buttonRecipe[button] = button + ": " + buttoninfo.recipe;
       buttonGreyed[button] = false;
     }
   });
@@ -186,7 +187,7 @@ Newgame.actionCreateGame = function() {
 
   warningpar = $('<p>');
   warningpar.append($('<i>', {
-    'text': 'Note to testers: buttons with grey backgrounds contain unimplemented skills.  Selecting these buttons is not recommended.'}));
+    'text': 'Note to testers: buttons whose names are prefixed with "--" contain unimplemented skills.  Selecting these buttons is not recommended.'}));
   Newgame.page.append(warningpar);
 
   // Function to invoke on button click
