@@ -10,6 +10,11 @@
 
     switch ($_POST['type']) {
 
+        case 'createUser':
+	    $data = $interface->create_user($_POST['username'],
+	                                    $_POST['password']);
+            break;
+
         case 'createGame':
             $playerNameArray = $_POST['playerNameArray'];
             $playerIdArray = array();
