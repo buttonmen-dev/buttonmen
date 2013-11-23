@@ -6,7 +6,7 @@ CREATE TABLE player (
     name_irl            VARCHAR(40) NOT NULL,
     email               VARCHAR(254),
     dob                 DATE,
-    autopass            BOOLEAN DEFAULT 1,
+    autopass            BOOLEAN DEFAULT 0,
     image_path          VARCHAR(100),
     comment             VARCHAR(255),
     last_action_time    TIMESTAMP DEFAULT 0,
