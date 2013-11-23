@@ -5,13 +5,13 @@ class user::buttonmen-devs {
 
 class user::username::chaos {
   group {
-    "chaos": ensure => present, gid => 1001;
+    "chaos": ensure => present, gid => 1101;
   }
 
   user {
     "chaos":
       ensure => present,
-      uid => 1001,
+      uid => 1101,
       comment => "Chaos Golubitsky",
       gid => "chaos",
       groups => [ "adm", "admin", ],
@@ -52,13 +52,13 @@ class user::username::chaos {
 
 class user::username::james {
   group {
-    "james": ensure => present, gid => 1002;
+    "james": ensure => present, gid => 1102;
   }
 
   user {
     "james":
       ensure => present,
-      uid => 1002,
+      uid => 1102,
       comment => "James Ong",
       gid => "james",
       groups => [ "adm", "admin", ],
