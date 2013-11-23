@@ -88,13 +88,25 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
+            if ($game == null) {
+                throw new Exception(
+                    "Could not load newly-created game $gameId");
+            }
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
             return array('gameId' => $gameId);
         } catch (Exception $e) {
+            // Failure might occur on DB insert or on the subsequent load
             $errorData = $statement->errorInfo();
-            $this->message = 'Game create failed: '.$errorData[2];
+            if ($errorData[2]) {
+                $this->message = 'Game create failed: ' . $errorData[2];
+            } else {
+                $this->message = 'Game create failed: ' . $e->getMessage();
+            }
+            error_log(
+                "Caught exception in BMInterface::create_game: " .
+                $e->getMessage());
             return NULL;
         }
     }
@@ -242,8 +254,10 @@ class BMInterface {
 
             return $game;
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::load_game: " .
+                $e->getMessage());
             $this->message = "Game load failed: $e";
-            var_dump($this->message);
             return NULL;
         }
     }
@@ -426,8 +440,10 @@ class BMInterface {
 
             $this->message = $this->message."Saved game $game->gameId.";
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::save_game: " .
+                $e->getMessage());
             $this->message = "Game save failed: $e";
-            var_dump($this->message);
         }
     }
 
@@ -500,6 +516,9 @@ class BMInterface {
                          'gameStateArray'          => $gameStateArray,
                          'statusArray'             => $statusArray);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_all_active_games: " .
+                $e->getMessage());
             $this->message = 'Game detail get failed.';
             return NULL;
         }
@@ -518,6 +537,9 @@ class BMInterface {
             return array('buttonNameArray' => $buttonNameArray,
                          'recipeArray'     => $recipeArray);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_all_button_names: " .
+                $e->getMessage());
             $this->message = 'Button name get failed.';
             return NULL;
         }
@@ -533,6 +555,9 @@ class BMInterface {
             $row = $statement->fetch();
             return($row['recipe']);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_button_recipe_from_name: "
+                . $e->getMessage());
             $this->message = 'Button recipe get failed.';
         }
     }
@@ -552,6 +577,9 @@ class BMInterface {
             $this->message = 'Names retrieved successfully.';
             return array('nameArray' => $nameArray);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_player_names_like: " .
+                $e->getMessage());
             $this->message = 'Player name get failed.';
             return NULL;
         }
@@ -572,6 +600,9 @@ class BMInterface {
                 return($result[0]);
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_player_id_from_name: " .
+                $e->getMessage());
             $this->message = 'Player ID get failed.';
         }
     }
@@ -591,6 +622,9 @@ class BMInterface {
                 return($result[0]);
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_player_name_from_id: " .
+                $e->getMessage());
             $this->message = 'Player name get failed.';
         }
     }
@@ -661,6 +695,9 @@ class BMInterface {
                 return NULL;
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_swing_values: " .
+                $e->getMessage());
             $this->message = 'Internal error while setting swing values';
         }
     }
@@ -737,6 +774,9 @@ class BMInterface {
             }
             break;
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_turn: " .
+                $e->getMessage());
             $this->message = 'Internal error while submitting turn';
         }
     }
