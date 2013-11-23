@@ -72,7 +72,6 @@ function login($username, $password) {
 }
 
 function logout() {
-    session_start();
     require '../database/mysql.inc.php';
 
     $sql = 'DELETE FROM player_auth
