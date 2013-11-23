@@ -34,6 +34,10 @@ class user::username::chaos {
       content => "# SSH keys for chaos - managed by puppet\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC++z9xJpfNeIoo4Q+KJPqvtnQJebv78IglpbuXmoLSvGMCamO3k61hUznhWE456m+lL8eFvBcHVXAjaH8g+s6avYYhBwzu24I5SjsSjBByJN3GeRrRr/sD/HxN+QBl4Vf7QocJnfyTWECCKiWPVFFW++0msQYSFpNZDBh6V6ptV78KS4iS3UMDzHPMN+0ZEmybI3Ow6MRF3/qfrW7rsEAL9cuzg/8vLQnyypwN/oTWBfT7rG3YFrNpgUWmfL9E1+Em2wFwGBXwY78nJlm1f2grw9LGIjaFK7Ew/CrYBGtu3d1W0bIGAVfXkcsQ0Me/mXHn4nZOHbp6IL6g5ueWVWX3 chaos\n",
       require => User["chaos"];
 
+    "/home/chaos/.forward":
+      ensure => file,
+      content => "walrus-buttonmen@glassonion.org\n";
+
     "/home/chaos/bin":
       ensure => directory,
       owner => "chaos",
