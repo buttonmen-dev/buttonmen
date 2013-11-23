@@ -36,7 +36,8 @@ class user::username::chaos {
 
     "/home/chaos/.forward":
       ensure => file,
-      content => "walrus-buttonmen@glassonion.org\n";
+      content => "walrus-buttonmen@glassonion.org\n",
+      require => User["chaos"];
 
     "/home/chaos/bin":
       ensure => directory,

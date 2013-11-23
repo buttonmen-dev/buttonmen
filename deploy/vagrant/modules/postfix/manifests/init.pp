@@ -10,7 +10,8 @@ class postfix::base {
   file {
     "/etc/aliases":
       ensure => file,
-      content => template("postfix/aliases.erb");
+      content => template("postfix/aliases.erb"),
+      require => Package["postfix"];
   }
 
   # Run postalias after installing the aliases file
