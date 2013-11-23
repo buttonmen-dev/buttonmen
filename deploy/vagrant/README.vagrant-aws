@@ -1,0 +1,62 @@
+Using vagrant with the Amazon Web Services (aws) provider
+
+In order to use vagrant to stand up a buttonmen provider on AWS,
+you must do the following steps.  These only need to be done once
+--- you won't need to repeat them in order to recreate the instance:
+
+ * Configure Amazon AWS:
+   * Create an AWS account
+   * Create an AWS IAM user:
+     * Give the user permissions to stand up EC2 instances for your
+       account - i haven't yet tested what the minimum permissions
+       are which are needed, but the "Amazon EC2 Full Access"
+       permissions template is certainly sufficient.  If you're
+       sharing the user with anyone else, you'll want to research
+       more limited permissions
+     * Download the user's access key ID and access key
+   * Configure the EC2 prerequisites for this Vagrantfile:
+     * Create an SSH keypair.  Remember what name you give it in
+       AWS, and download the private key
+     * Create an EC2 security group (firewall ruleset) named
+       "buttonmen-dev", which contains firewall rules to permit
+       access to your VM.  You'll need at least:
+       * SSH access from the machine from which you're running
+	 vagrant (and any other machines from which you'd like to
+	 be able to login)
+       * HTTP access from any machines which should be able to
+         access the website
+ * Configure your machine:
+   * Install the vagrant AWS plugin:
+vagrant plugin install vagrant-aws
+   * Download a vagrant box for Ubuntu 12.04, and give it the same
+     name as is used for Virtualbox's 12.04 instance:
+vagrant box add precise32 https://github.com/mitchellh/vagrant-aws/raw/master/dummy.box
+   * Create a config file for the setup_aws_vagrantfile script, named:
+       ~/vagrant.d/buttonmen.conf
+     Fill in these variables for your accounts:
+BUTTONMEN_ACCESS_KEY_ID="access key ID for your IAM user"
+BUTTONMEN_SECRET_ACCESS_KEY="access key for your IAM user"
+BUTTONMEN_SSH_KEYPAIR_NAME="AWS name of the SSH keypair you created"
+BUTTONMEN_SSH_PRIVATE_KEY_PATH="/path/to/ssh/private/key/on/your/machine.pem"
+
+Whew.  Okay, your environment should be all set now.
+
+We don't store AWS variables in git, because they're credentials.
+So every time you download new git code which you want to push to
+AWS, you need to do this:
+ * Run setup_aws_vagrantfile, which makes substitutions in the
+   Vagrantfile to prepare it for use with AWS:
+cd deploy/vagrant
+./setup_aws_vagrantfile
+   Reminder: once you've done this, DO NOT commit the resulting
+   Vagrantfile to git.  (The previous Vagrantfile can be found in
+   Vagrantfile.orig if you need it).
+
+Now you're ready to actually run vagrant up.
+ * Use the aws provider:
+vagrant up --provider=aws
+ * Reload the instance to get new configuration:
+vagrant reload
+   WARNING: if you have an Elastic IP associated with the instance,
+   reloading it will cause the IP to become dissociated, and you'll
+   have to use the web UI to fix that.  So have the web UI handy when you reload
