@@ -181,6 +181,7 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
   Game.api.gameState = Game.api.gameData['data']['gameState'];
   Game.api.playerIdx = currentPlayerIdx;
   Game.api.opponentIdx = 1 - currentPlayerIdx;
+  Game.api.validAttackTypeArray = Game.api.gameData['data']['validAttackTypeArray'];
 
   // Set defaults for both players
   Game.api.player = Game.parsePlayerData(
@@ -321,6 +322,26 @@ Game.actionPlayTurnActive = function() {
                        'id': 'game_action_form',
                        'action': "javascript:void(0);",
                      });
+
+  var attacktypeselect = $('<select>', {
+                             'id': 'attack_type_select',
+                             'name': 'attack_type_select',
+                           });
+  $.each(Game.api.validAttackTypeArray, function(typename, typevalue) {
+    if (typename == 'Pass') {
+      typetext = typename;
+    } else {
+      typetext = typename + ' Attack';
+    }
+    attacktypeselect.append(
+      $('<option>', {
+          'value': typevalue,
+          'label': typename,
+          'text': typetext,
+        }));
+  });
+  attackform.append(attacktypeselect);
+
   attackform.append($('<button>', {
                         'id': 'game_action_button',
                         'text': 'Submit',
@@ -442,6 +463,9 @@ Game.formPlayTurnActive = function() {
     dieSelectStatus[$(element).attr('id')] = true;
   });
 
+  // Get the specified attack type
+  var attackType = $('#attack_type_select').val();
+
   // Now try submitting the result
   $.post('../api/responder.php', {
            type: 'submitTurn',
@@ -449,6 +473,7 @@ Game.formPlayTurnActive = function() {
            attackerIdx: Game.api.playerIdx,
            defenderIdx: Game.api.opponentIdx,
            dieSelectStatus: dieSelectStatus,
+           attackType: attackType,
            roundNumber: Game.api.roundNumber,
            timestamp: Game.api.timestamp,
          },

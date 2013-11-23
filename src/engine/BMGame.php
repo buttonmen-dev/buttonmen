@@ -1182,6 +1182,14 @@ class BMGame {
 	        }
         }
 
+	// If it's someone's turn to attack, report the valid attack
+	// types as part of the game data
+        if ($this->gameState == BMGameState::startTurn) {
+            $validAttackTypeArray = $this->valid_attack_types();
+        } else {
+            $validAttackTypeArray = array();
+        }
+
         $dataArray =
             array('gameId'                  => $this->gameId,
                   'gameState'               => $this->gameState,
@@ -1196,6 +1204,7 @@ class BMGame {
                   'sidesArrayArray'         => $sidesArrayArray,
                   'dieRecipeArrayArray'     => $dieRecipeArrayArray,
                   'swingRequestArrayArray'  => $swingRequestArrayArray,
+                  'validAttackTypeArray'    => $validAttackTypeArray,
                   'roundScoreArray'         => $this->get_roundScoreArray(),
                   'gameScoreArrayArray'     => $this->gameScoreArrayArray);
 
