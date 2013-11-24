@@ -510,13 +510,24 @@ class BMInterface {
             $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
             $statement->execute();
 
+	    // Look for unimplemented skills in each button definition.
+	    // If we get an exception while checking, assume there's
+	    // an unimplemented skill
             while ($row = $statement->fetch()) {
                 $buttonNameArray[] = $row['name'];
                 $recipeArray[] = $row['recipe'];
+                try {
+                    $button = new BMButton();
+                    $button->load($row['recipe'], $row['name']);
+                    $hasUnimplementedSkillArray[] = $button->hasUnimplementedSkill;
+                } catch (Exception $e) {
+                    $hasUnimplementedSkillArray[] = True;
+                }
             }
             $this->message = 'All button names retrieved successfully.';
-            return array('buttonNameArray' => $buttonNameArray,
-                         'recipeArray'     => $recipeArray);
+            return array('buttonNameArray'            => $buttonNameArray,
+                         'recipeArray'                => $recipeArray,
+                         'hasUnimplementedSkillArray' => $hasUnimplementedSkillArray);
         } catch (Exception $e) {
             $this->message = 'Button name get failed.';
             return NULL;
