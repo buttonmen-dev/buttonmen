@@ -21,10 +21,14 @@ table {
     margin: auto;
 }
 
-td{
+td {
     text-align: center;
     /*border: 1px solid black;*/
     padding: 0.2em 0.2em;
+}
+
+td.left {
+    text-align: left;
 }
 
 th {

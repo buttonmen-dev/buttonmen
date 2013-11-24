@@ -35,7 +35,7 @@ class BMInterface {
     // methods
 
     public function create_user($username, $password) {
-        try {
+	try {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
@@ -469,7 +469,13 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-            $this->message = $this->message."Saved game $game->gameId.";
+	    // If any game action entries were generated, load them
+	    // into the message so the calling player can see them,
+	    // then save them to the historical log
+            if (count($game->actionLog) > 0) {
+                $this->load_message_from_game_actions($game);
+                $this->log_game_actions($game);
+            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::save_game: " .
@@ -660,7 +666,6 @@ class BMInterface {
                 $this->message = 'Player ID does not exist.';
                 return('');
             } else {
-                $this->message = 'Player name retrieved successfully.';
                 return($result[0]);
             }
         } catch (Exception $e) {
@@ -685,6 +690,74 @@ class BMInterface {
                 (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
     }
 
+    // Enter recent game actions into the action log
+    // Note: it might be possible for this to be a protected function
+    public function log_game_actions(BMGame $game) {
+        $query = 'INSERT INTO game_action_log ' .
+                 '(game_id, game_state, action_type, acting_player, message) ' .
+                 'VALUES ' .
+                 '(:game_id, :game_state, :action_type, :acting_player, :message)';
+        foreach ($game->actionLog as $idx => $gameAction) {
+            $statement = self::$conn->prepare($query);
+            $statement->execute(
+                array(':game_id'     => $game->gameId,
+                      ':game_state' => $gameAction['gameState'],
+                      ':action_type' => $gameAction['actionType'],
+                      ':acting_player' => $gameAction['actingPlayerIdx'],
+                      ':message'    => $gameAction['message']));
+        }
+        $game->empty_action_log();
+    }
+
+    public function load_game_action_log(BMGame $game, $n_entries = 5) {
+        try {
+            $query = 'SELECT action_time,action_type,acting_player,message FROM game_action_log ' .
+                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+            $logEntries = array();
+            while ($row = $statement->fetch()) {
+                $gameAction = array(
+                    'actionType' => $row['action_type'],
+                    'actingPlayerIdx' => $row['acting_player'],
+                    'message' => $row['message'],
+                );
+                $logEntries[] = array(
+                    'timestamp' => $row['action_time'],
+                    'message' => $this->friendly_game_action_log_message($gameAction)
+                );
+            }
+            return $logEntries;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::load_game_action_log: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reading log entries';
+            return NULL;
+        }
+    }
+
+    private function friendly_game_action_log_message($gameAction) {
+        if ($gameAction['actingPlayerIdx'] != 0) {
+            $actingPlayerName = $this->get_player_name_from_id($gameAction['actingPlayerIdx']);
+        }
+        if ($gameAction['actionType'] == 'attack') {
+            $msgstr = $gameAction['message'];
+            return (str_replace('completed', 'by ' . $actingPlayerName, $gameAction['message'], $count));
+        }
+        if ($gameAction['actionType'] == 'end_winner') {
+            return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
+        }
+        return($gameAction['message']);
+    }
+
+    // Create a status message based on recent game actions
+    private function load_message_from_game_actions(BMGame $game) {
+        $this->message = '';
+        foreach ($game->actionLog as $idx => $gameAction) {
+            $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
+        }
+    }
 
     public function submit_swing_values($userId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
@@ -804,11 +877,7 @@ class BMInterface {
                 $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
-                if ($game->message) {
-                    $this->message = $game->message;
-                } else {
-                    $this->message = 'Attack succeeded';
-                }
+                // On success, don't set a message, because one will be set from the action log
                 return True;
             } else {
                 $this->message = 'Requested attack is not valid';
