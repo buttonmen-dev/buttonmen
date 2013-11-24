@@ -33,6 +33,37 @@ class BMInterface {
     }
 
     // methods
+
+    public function create_user($username, $password) {
+        try {
+            // check to see whether this username already exists
+            $query = 'SELECT id FROM player WHERE name_ingame = :username';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':username' => $_POST['username']));
+            $result = $statement->fetchAll();
+
+            if (count($result) > 0) {
+                $user_id = $result[0]['id'];
+                $this->message = $username . ' already exists (id=' .
+                                 $user_id . ')';
+                return NULL;
+            }
+
+            // create user
+            $query = 'INSERT INTO player (name_ingame, password_hashed)
+                      VALUES (:username, :password)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':username' => $username,
+                                      ':password' => crypt($password)));
+            $this->message = 'User ' . $username . ' created successfully';
+            return array('userName' => $username);
+        } catch (Exception $e) {
+            $errorData = $statement->errorInfo();
+            $this->message = 'User create failed: ' . $errorData[2];
+            return NULL;
+        }
+    }
+
     public function create_game(array $playerIdArray,
                                 array $buttonNameArray,
                                 $maxWins = 3) {

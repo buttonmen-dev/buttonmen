@@ -125,6 +125,12 @@ Login.stateLoggedOut = function() {
                        'id': 'login_action_button',
                        'text': 'Login',
                      }));
+  var createoption = $('<font>', { 'text': ' or ', });
+  createoption.append($('<a>', {
+                       'href': 'create_user.html',
+                       'text': 'Create an account',
+                     }));
+  loginform.append(createoption);
 
   Login.message.append(loginform);
   Login.form = Login.formLogin;
