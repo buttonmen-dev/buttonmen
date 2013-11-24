@@ -829,7 +829,7 @@ class BMGame {
         return $roundScoreArray;
     }
 
-    // record a game action in the history log 
+    // record a game action in the history log
     private function log_action($actionType, $actingPlayerIdx, $message) {
         $this->actionLog[] = array(
             'gameState'  => $this->gameState,
@@ -1170,36 +1170,45 @@ class BMGame {
         }
 
         $swingValuesAllSpecified = TRUE;
-        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            $valueArrayArray[] = array();
-            $sidesArrayArray[] = array();
-            $dieRecipeArrayArray[] = array();
+        if (isset($this->activeDieArrayArray)) {
+            $nDieArray = array_map('count', $this->activeDieArrayArray);
+            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                $valueArrayArray[] = array();
+                $sidesArrayArray[] = array();
+                $dieRecipeArrayArray[] = array();
 
-            if (empty($this->swingRequestArrayArray[$playerIdx])) {
-                $swingRequestArrayArray[] = array();
-            } else {
-                $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
-            }
-            foreach ($activeDieArray as $die) {
-                // hide swing information if appropriate
-                $dieValue = $die->value;
-                $dieMax = $die->max;
-                if (is_null($dieMax)) {
-                    $swingValuesAllSpecified = FALSE;  
+                if (empty($this->swingRequestArrayArray[$playerIdx])) {
+                    $swingRequestArrayArray[] = array();
+                } else {
+                    $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
                 }
+                foreach ($activeDieArray as $die) {
+                    // hide swing information if appropriate
+                    $dieValue = $die->value;
+                    $dieMax = $die->max;
+                    if (is_null($dieMax)) {
+                        $swingValuesAllSpecified = FALSE;
+                    }
 
-                if ($wereBothSwingValuesReset &&
-                    ($this->gameState <= BMGameState::specifyDice) &&
-                    ($playerIdx !== $requestingPlayerIdx)) {
-                    $dieValue = NULL;
-                    $dieMax = NULL;
+                    if ($wereBothSwingValuesReset &&
+                        ($this->gameState <= BMGameState::specifyDice) &&
+                        ($playerIdx !== $requestingPlayerIdx)) {
+                        $dieValue = NULL;
+                        $dieMax = NULL;
+                    }
+                    $valueArrayArray[$playerIdx][] = $dieValue;
+                    $sidesArrayArray[$playerIdx][] = $dieMax;
+                    $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
                 }
-                $valueArrayArray[$playerIdx][] = $dieValue;
-                $sidesArrayArray[$playerIdx][] = $dieMax;
-                $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
             }
+        } else {
+            $nDieArray = array_fill(0, $this->nPlayers, 0);
+            $valueArrayArray = array_fill(0, $this->nPlayers, array());
+            $sidesArrayArray = array_fill(0, $this->nPlayers, array());
+            $dieRecipeArrayArray = array_fill(0, $this->nPlayers, array());
+            $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
         }
-        
+
         if (!$swingValuesAllSpecified) {
                 foreach($valueArrayArray as &$valueArray) {
                         foreach($valueArray as &$value) {
@@ -1225,7 +1234,7 @@ class BMGame {
                   'playerIdArray'           => $this->playerIdArray,
                   'buttonNameArray'         => $buttonNameArray,
                   'waitingOnActionArray'    => $this->waitingOnActionArray,
-                  'nDieArray'               => array_map('count', $this->activeDieArrayArray),
+                  'nDieArray'               => $nDieArray,
                   'valueArrayArray'         => $valueArrayArray,
                   'sidesArrayArray'         => $sidesArrayArray,
                   'dieRecipeArrayArray'     => $dieRecipeArrayArray,
