@@ -209,6 +209,9 @@ class BMDie {
             }
         }
         catch (UnexpectedValueException $e) {
+            error_log(
+                "Caught exception in BMDie::create_from_string_components: " .
+                $e->getMessage());
             return NULL;
         }
 

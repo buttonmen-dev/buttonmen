@@ -23,6 +23,7 @@
         $statement = $conn->prepare('SET AUTO_INCREMENT_INCREMENT=1');
         $statement->execute();
     } catch(PDOException $e) {
+        error_log('Caught exception in mysql.inc.php: ' . $e->getMessage());
         echo 'ERROR: ' . $e->getMessage();
     }
 ?>
