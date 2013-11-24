@@ -35,7 +35,7 @@ class BMInterface {
     // methods
 
     public function create_user($username, $password) {
-        try {
+	try {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
@@ -279,7 +279,7 @@ class BMInterface {
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
 
-            $this->game_to_next_user_action($game);
+            $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -295,16 +295,15 @@ class BMInterface {
 
     public function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
-        $this->game_to_next_user_action($game);
+        $game->proceed_to_next_user_action();
 
-// ECG: commented out this debug message
-//        if ((count($game->activeDieArrayArray[0]) == 5) &&
-//            (count($game->activeDieArrayArray[1]) == 5)) {
-//            $this->message = $game->message.
-//                             'before save'.
-//                             'swingvalue1:'.$game->activeDieArrayArray[0][4]->swingValue.
-//                             'swingvalue2:'.$game->activeDieArrayArray[1][4]->swingValue;
-//        }
+        if ((count($game->activeDieArrayArray[0]) == 5) &&
+            (count($game->activeDieArrayArray[1]) == 5)) {
+            $this->message = $game->message.
+                             'before save'.
+                             'swingvalue1:'.$game->activeDieArrayArray[0][4]->swingValue.
+                             'swingvalue2:'.$game->activeDieArrayArray[1][4]->swingValue;
+        }
 
         try {
             if (is_null($game->activePlayerIdx)) {
@@ -469,6 +468,14 @@ class BMInterface {
                      'AND game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
+
+	    // If any game action entries were generated, load them
+	    // into the message so the calling player can see them,
+	    // then save them to the historical log
+            if (count($game->actionLog) > 0) {
+                $this->load_message_from_game_actions($game);
+                $this->log_game_actions($game);
+            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::save_game: " .
@@ -736,7 +743,7 @@ class BMInterface {
         }
         if ($gameAction['actionType'] == 'attack') {
             $msgstr = $gameAction['message'];
-            return (str_replace(':', ' by ' . $actingPlayerName . ':', $gameAction['message'], $count));
+            return (str_replace('completed', 'by ' . $actingPlayerName, $gameAction['message'], $count));
         }
         if ($gameAction['actionType'] == 'end_winner') {
             return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
@@ -749,17 +756,6 @@ class BMInterface {
         $this->message = '';
         foreach ($game->actionLog as $idx => $gameAction) {
             $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
-        }
-    }
-
-    // Convenience wrapper to go to the next user action for a game
-    // and log any actions which happened in the process
-    // Note: it might be possible for this to be a protected function
-    public function game_to_next_user_action(BMGame $game) {
-        $game->proceed_to_next_user_action();
-        if (count($game->actionLog) > 0) {
-            $this->load_message_from_game_actions($game);
-            $this->log_game_actions($game);
         }
     }
 
@@ -796,7 +792,7 @@ class BMInterface {
 
             $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
 
-            $this->game_to_next_user_action($game);
+            $game->proceed_to_next_user_action();
 
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
@@ -878,7 +874,7 @@ class BMInterface {
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
-                $this->game_to_next_user_action($game);
+                $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
                 // On success, don't set a message, because one will be set from the action log
