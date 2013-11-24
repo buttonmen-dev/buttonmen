@@ -78,23 +78,9 @@ CREATE TABLE open_game_possible_buttonsets (
     set_id             SMALLINT UNSIGNED NOT NULL
 );
 
+# remove legacy tables that have been replaced by game_action_log
 DROP TABLE IF EXISTS last_attack;
-CREATE TABLE last_attack (
-    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
-    attacker_id        SMALLINT UNSIGNED NOT NULL,
-    defender_id        SMALLINT UNSIGNED,
-    /* "Japanese Beetle" has 15 characters */
-    attack_type        VARCHAR(20) NOT NULL
-);
-
 DROP TABLE IF EXISTS last_attack_die_map;
-CREATE TABLE last_attack_die_map (
-   game_id             MEDIUMINT UNSIGNED PRIMARY KEY,
-   die_id              INT UNSIGNED NOT NULL,
-   is_attacker         BOOLEAN NOT NULL,
-   did_reroll          BOOLEAN NOT NULL,
-   was_captured        BOOLEAN NOT NULL
-);
 
 DROP TABLE IF EXISTS tournament;
 CREATE TABLE tournament (
