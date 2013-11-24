@@ -45,7 +45,7 @@ Overview.getOverview = function(callbackfunc) {
   if (Login.player == null) {
     Env.message = {
       'type': 'none',
-      'text': 'Nothing to display - you are not logged in',
+      'text': 'Please login to start beating people up',
     };
     return callbackfunc();
   }

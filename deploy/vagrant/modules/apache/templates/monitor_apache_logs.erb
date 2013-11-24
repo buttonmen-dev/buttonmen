@@ -1,0 +1,5 @@
+#!/bin/sh
+##### Script to monitor apache logs using logtail
+
+/usr/sbin/logtail2 -o /var/spool/logtail/apache2_error.log \
+  /var/log/apache2/error.log

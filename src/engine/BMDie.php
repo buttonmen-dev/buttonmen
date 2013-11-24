@@ -160,6 +160,10 @@ class BMDie {
         return BMSkill::expand_skill_string(preg_replace('/\(.*\)/', '', $recipe));
     }
 
+    public static function unimplemented_skill_in_recipe($recipe) {
+        return BMSkill::unimplemented_skill_in_string(preg_replace('/\(.*\)/', '', $recipe));
+    }
+
     // given a string describing a die and a list of skills, return a
     // new BMDie or appropriate subclass thereof
 
@@ -174,11 +178,19 @@ class BMDie {
 
             // Option dice divide on a |, can contain any die type
             if (count($opt_list) > 1) {
-                $die = BMDieOption::create_from_list($opt_list, $skills);
+                if (function_exists('BMDieOption::create_from_list')) {
+                    $die = BMDieOption::create_from_list($opt_list, $skills);
+                } else {
+                    throw new Exception("Option skill not implemented");
+                }
             }
             // Twin dice divide on a comma, can contain any type but option
             elseif (count($twin_list = explode(',', $recipe)) > 1) {
-                $die = BMDieTwin::create_from_list($twin_list, $skills);
+                if (function_exists('BMDieTwin::create_from_list')) {
+                    $die = BMDieTwin::create_from_list($twin_list, $skills);
+                } else {
+                    throw new Exception("Twin skill not implemented");
+                }
             }
             elseif ('C' == $recipe) {
                 $die = BMDieWildcard::create($recipe, $skills);
@@ -197,6 +209,9 @@ class BMDie {
             }
         }
         catch (UnexpectedValueException $e) {
+            error_log(
+                "Caught exception in BMDie::create_from_string_components: " .
+                $e->getMessage());
             return NULL;
         }
 
