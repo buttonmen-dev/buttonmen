@@ -42,6 +42,17 @@ CREATE TABLE game_swing_map (
     swing_value        TINYINT UNSIGNED
 );
 
+DROP TABLE IF EXISTS game_action_log;
+CREATE TABLE game_action_log (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
+    action_time        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    game_state         TINYINT UNSIGNED DEFAULT 10,
+    action_type        VARCHAR(20),
+    acting_player      SMALLINT UNSIGNED NOT NULL,
+    message            VARCHAR(512)
+);
+
 DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
