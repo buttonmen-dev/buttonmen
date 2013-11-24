@@ -47,6 +47,7 @@
                     'gameData' => $game->getJsonData($currentPlayerId),
                     'playerNameArray' => $playerNameArray,
                     'timestamp' => $interface->timestamp->format(DATE_RSS),
+                    'gameActionLog' => $interface->load_game_action_log($game),
                 );
             }
             break;
