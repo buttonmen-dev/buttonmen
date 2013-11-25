@@ -24,6 +24,10 @@ class BMSkillTrip extends BMSkill {
     }
 
     public static function capture(&$args) {
+        if ($args['type'] != 'Trip') {
+            return;
+        }
+
         assert(1 == count($args['attackers']));
         assert(1 == count($args['defenders']));
 
