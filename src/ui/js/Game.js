@@ -546,6 +546,7 @@ Game.pageAddActionLogFooter = function() {
       var logrow = $('<tr>');
       logrow.append($('<td>', {
         'class': 'left', 
+        'nowrap': 'nowrap', 
         'text': '(' + logentry.timestamp + ')', }));
       logrow.append($('<td>', {
         'class': 'left', 
