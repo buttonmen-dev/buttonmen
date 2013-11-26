@@ -167,6 +167,7 @@ class BMInterface {
                     $game->gameId    = $gameId;
                     $game->gameState = $row['game_state'];
                     $game->maxWins   = $row['n_target_wins'];
+                    $game->turnNumberInRound = $row['turn_number_in_round'];
                     $game->nRecentPasses = $row['n_recent_passes'];
                     $this->timestamp = new DateTime($row['last_action_time']);
                 }
@@ -323,6 +324,7 @@ class BMInterface {
             $query = 'UPDATE game '.
                      'SET game_state = :game_state,'.
                      '    round_number = :round_number,'.
+                     '    turn_number_in_round = :turn_number_in_round,'.
             //:n_recent_draws
                      '    n_recent_passes = :n_recent_passes,'.
                      '    current_player_id = :current_player_id '.
@@ -334,6 +336,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_state' => $game->gameState,
                                       ':round_number' => $game->roundNumber,
+                                      ':turn_number_in_round' => $game->turnNumberInRound,
                                       ':n_recent_passes' => $game->nRecentPasses,
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));

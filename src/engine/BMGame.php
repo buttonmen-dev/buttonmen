@@ -9,7 +9,7 @@
  * @property      array $playerIdArray           Array of player IDs
  * @property-read array $nPlayers                Number of players in the game
  * @property-read int   $roundNumber;            Current round number
- * @property-read int   $turnInRoundNumber;      Current turn number in current round
+ * @property      int   $turnNumberInRound;      Current turn number in current round
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
  * @property      array $buttonArray             Buttons for all players
@@ -49,7 +49,7 @@ class BMGame {
     private $playerIdArray;         // array of player IDs
     private $nPlayers;              // number of players in the game
     private $roundNumber;           // current round number
-    private $turnInRoundNumber;     // current turn number in current round
+    private $turnNumberInRound;     // current turn number in current round
     private $activePlayerIdx;       // index of the active player in playerIdxArray
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
@@ -314,14 +314,14 @@ class BMGame {
                 }
                 // set BMGame activePlayerIdx
                 $this->activePlayerIdx = $this->playerWithInitiativeIdx;
-                $this->turnInRoundNumber = 1;
+                $this->turnNumberInRound = 1;
                 break;
 
             case BMGameState::startTurn:
                 // deal with autopass
                 if (!isset($this->attack) &&
                     $this->autopassArray[$this->activePlayerIdx] &&
-                    $this->turnInRoundNumber > 1) {
+                    $this->turnNumberInRound > 1) {
                     $validAttackTypes = $this->valid_attack_types();
                     if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
@@ -377,7 +377,8 @@ class BMGame {
                 }
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
-                $this->turnInRoundNumber += 1;
+                $this->turnNumberInRound += 1;
+//                var_dump($this->turnNumberInRound);
 
                 $this->message = $this->attack['attackType'] . " attack completed";
                 if (count($attackerAttackDieArray) > 0) {
@@ -775,7 +776,7 @@ class BMGame {
 
         $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
-        $this->turnInRoundNumber = 0;
+        $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
     }
@@ -934,9 +935,16 @@ class BMGame {
             case 'nPlayers':
                 throw new LogicException(
                     'nPlayers is derived from BMGame->playerIdArray');
-            case 'turnInRoundNumber':
-                throw new LogicException(
-                    'turnInRoundNumber is calculated within BMGame');
+            case 'turnNumberInRound':
+                if (FALSE === filter_var($value,
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0)))) {
+                    throw new InvalidArgumentException(
+                        'Invalid turn number.');
+                }
+                $this->turnNumberInRound = $value;
+                break;
             case 'gameId':
                 if (FALSE === filter_var($value,
                                          FILTER_VALIDATE_INT,

@@ -1237,14 +1237,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::__set
      */
-    public function test__set_turnInRoundNumber() {
-        // set is always invalid
+    public function test__set_turnNumberInRound() {
+        // set requires a non-negative integer
         try {
-            $this->object->turnInRoundNumber = 5;
-            $this->fail('The round number is set internally.');
+            $this->object->turnNumberInRound = 4.5;
+            $this->fail('The round number must be an integer.');
         }
         catch (LogicException $expected) {
         }
+
+        $this->object->turnNumberInRound = 5;
+        $this->assertEquals(5, $this->object->turnNumberInRound);
     }
 
     /**
@@ -4389,7 +4392,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load('s(20)', 'Test2');
 
         // load game
-        $game = new BMGame(987654, array(234, 567), array('', ''), 3);
+        $game = new BMGame(987654, array(234, 567), array('', ''), 4);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
@@ -4460,6 +4463,46 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($game->activeDieArrayArray[0]));
         $this->assertEquals(1, count($game->activeDieArrayArray[1]));
         $this->assertEquals(0, $game->nRecentPasses);
+        if ($game->activeDieArrayArray[1][0]->value >= 2) {
+            $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        }
+
+        // check behaviour with only player 2 with autopass
+        $game->autopassArray = array(FALSE, TRUE);
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[1][0]->value = 20;
+
+        // artificially guarantee that the active player is player 1
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(array('W' => 0, 'L' => 2, 'D' => 0),
+                                  array('W' => 2, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, count($game->activeDieArrayArray[0]));
+        $this->assertEquals(1, count($game->activeDieArrayArray[1]));
+        $this->assertEquals(0, $game->nRecentPasses);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        // player 1 passes
+        $game->attack = array(0, 1, array(), array(), 'Pass');
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(array('W' => 0, 'L' => 3, 'D' => 0),
+                                  array('W' => 3, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, count($game->activeDieArrayArray[0]));
+        $this->assertEquals(1, count($game->activeDieArrayArray[1]));
+        $this->assertEquals(0, $game->nRecentPasses);
+        if ($game->activeDieArrayArray[1][0]->value >= 2) {
+            $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        }
     }
 
     /**
