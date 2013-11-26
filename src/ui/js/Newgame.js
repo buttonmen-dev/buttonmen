@@ -206,7 +206,19 @@ Newgame.formCreateGame = function() {
   playerNameArray.push(Login.player);
 
   var opponentName = $('#opponent_name').val();
-  if (!(opponentName in Api.player.list)) {
+  var buttonNameArray = [
+    $('#player_button').val(),
+    $('#opponent_button').val(),
+  ];
+
+  if ((!opponentName) || (!buttonNameArray[0]) || (!buttonNameArray[1])) {
+    Env.message = {
+      'type': 'error',
+      'text':
+        "Please select an opponent, your button, and your opponent's button",
+    };
+    Newgame.showNewgamePage(); 
+  } else if (!(opponentName in Api.player.list)) {
     Env.message = {
       'type': 'error',
       'text': 'Specified opponent ' + opponentName + ' is not recognized',
@@ -215,11 +227,6 @@ Newgame.formCreateGame = function() {
 
   } else {
     playerNameArray.push(opponentName);
-
-    var buttonNameArray = [
-      $('#player_button').val(),
-      $('#opponent_button').val(),
-    ];
 
     var maxWins = $('#n_rounds').val();
 
@@ -295,6 +302,16 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
                    'id': selectname,
                    'name': selectname,
                  });
+
+  // If there's no default, put an invalid default value first
+  if (selectedval == null) {
+    select.append($('<option>', {
+      'value': '',
+      'class': "yellowed",
+      'text': 'Choose ' + rowname.toLowerCase(),
+    }));
+  }
+
   $.each(valuedict, function(key, value) {
     var selectopts = {
       'value': key,
