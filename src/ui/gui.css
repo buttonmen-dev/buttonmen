@@ -51,6 +51,10 @@ select option.greyed {
     background-color: #aaaaaa;
 }
 
+select option.yellowed {
+    background-color: #ffff00;
+}
+
 .die_img {
     background-size: 50px 50px;
     width:50px;
