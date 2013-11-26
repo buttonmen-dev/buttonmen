@@ -378,7 +378,6 @@ class BMGame {
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
                 $this->turnNumberInRound += 1;
-//                var_dump($this->turnNumberInRound);
 
                 $this->message = $this->attack['attackType'] . " attack completed";
                 if (count($attackerAttackDieArray) > 0) {

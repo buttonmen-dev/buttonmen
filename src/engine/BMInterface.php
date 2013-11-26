@@ -39,7 +39,7 @@ class BMInterface {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':username' => $_POST['username']));
+            $statement->execute(array(':username' => $username));
             $result = $statement->fetchAll();
 
             if (count($result) > 0) {
