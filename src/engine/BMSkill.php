@@ -22,6 +22,22 @@ class BMSkill {
         return $skillArray;
     }
 
+    public static function unimplemented_skill_in_string($skillString) {
+        if ('' === $skillString) {
+            return False;
+        }
+
+        $skillLetterArray = str_split($skillString);
+
+        foreach ($skillLetterArray as $skillLetter) {
+            $lookupSkillLetter = BMSkill::expand_skill_letter($skillLetter);
+            if ($lookupSkillLetter == '') {
+                return True;
+            }
+        }
+        return False;
+    }
+
     private static function expand_skill_letter($skillLetter) {
         $skillLetter = array_search($skillLetter,
                                     BMSkill::skill_name_abbreviation_mapping());

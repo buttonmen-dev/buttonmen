@@ -42,6 +42,17 @@ CREATE TABLE game_swing_map (
     swing_value        TINYINT UNSIGNED
 );
 
+DROP TABLE IF EXISTS game_action_log;
+CREATE TABLE game_action_log (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
+    action_time        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    game_state         TINYINT UNSIGNED DEFAULT 10,
+    action_type        VARCHAR(20),
+    acting_player      SMALLINT UNSIGNED NOT NULL,
+    message            VARCHAR(512)
+);
+
 DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -67,23 +78,9 @@ CREATE TABLE open_game_possible_buttonsets (
     set_id             SMALLINT UNSIGNED NOT NULL
 );
 
+# remove legacy tables that have been replaced by game_action_log
 DROP TABLE IF EXISTS last_attack;
-CREATE TABLE last_attack (
-    game_id            MEDIUMINT UNSIGNED PRIMARY KEY,
-    attacker_id        SMALLINT UNSIGNED NOT NULL,
-    defender_id        SMALLINT UNSIGNED,
-    /* "Japanese Beetle" has 15 characters */
-    attack_type        VARCHAR(20) NOT NULL
-);
-
 DROP TABLE IF EXISTS last_attack_die_map;
-CREATE TABLE last_attack_die_map (
-   game_id             MEDIUMINT UNSIGNED PRIMARY KEY,
-   die_id              INT UNSIGNED NOT NULL,
-   is_attacker         BOOLEAN NOT NULL,
-   did_reroll          BOOLEAN NOT NULL,
-   was_captured        BOOLEAN NOT NULL
-);
 
 DROP TABLE IF EXISTS tournament;
 CREATE TABLE tournament (

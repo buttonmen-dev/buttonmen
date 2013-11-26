@@ -1,34 +1,4 @@
 <?php
-function initiate() {
-    require '../database/mysql.inc.php';
-
-    $logged_in = FALSE;
-    if (isset($_SESSION['user_name'])) {
-        $logged_in = TRUE;
-    }
-
-    if (isset($_COOKIE['auth_key'])) {
-        if (!$logged_in) {
-            $sql = 'SELECT name_ingame, password_hashed FROM player_view
-                    WHERE auth_key = :auth_key
-                    LIMIT 1';
-            $query = $conn->prepare($sql);
-            $query->execute(array(':auth_key' => $_COOKIE['auth_key']));
-            $result = $query->fetch();
-
-            if (!$result) {
-                setcookie('auth_key', '', time()-3600);
-            } else {
-                login($result['name_ingame'], $result['password_hashed']);
-            }
-        } else {
-            // james: I don't know why this should be here, but it was in the
-            //        sample code
-//            setcookie('auth_key', '', time()-3600);
-        }
-    }
-}
-
 function login($username, $password) {
     require '../database/mysql.inc.php';
 
@@ -72,7 +42,6 @@ function login($username, $password) {
 }
 
 function logout() {
-    session_start();
     require '../database/mysql.inc.php';
 
     $sql = 'DELETE FROM player_auth

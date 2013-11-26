@@ -33,6 +33,37 @@ class BMInterface {
     }
 
     // methods
+
+    public function create_user($username, $password) {
+	try {
+            // check to see whether this username already exists
+            $query = 'SELECT id FROM player WHERE name_ingame = :username';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':username' => $_POST['username']));
+            $result = $statement->fetchAll();
+
+            if (count($result) > 0) {
+                $user_id = $result[0]['id'];
+                $this->message = $username . ' already exists (id=' .
+                                 $user_id . ')';
+                return NULL;
+            }
+
+            // create user
+            $query = 'INSERT INTO player (name_ingame, password_hashed)
+                      VALUES (:username, :password)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':username' => $username,
+                                      ':password' => crypt($password)));
+            $this->message = 'User ' . $username . ' created successfully';
+            return array('userName' => $username);
+        } catch (Exception $e) {
+            $errorData = $statement->errorInfo();
+            $this->message = 'User create failed: ' . $errorData[2];
+            return NULL;
+        }
+    }
+
     public function create_game(array $playerIdArray,
                                 array $buttonNameArray,
                                 $maxWins = 3) {
@@ -88,13 +119,25 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
+            if ($game == null) {
+                throw new Exception(
+                    "Could not load newly-created game $gameId");
+            }
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";
             return array('gameId' => $gameId);
         } catch (Exception $e) {
+            // Failure might occur on DB insert or on the subsequent load
             $errorData = $statement->errorInfo();
-            $this->message = 'Game create failed: '.$errorData[2];
+            if ($errorData[2]) {
+                $this->message = 'Game create failed: ' . $errorData[2];
+            } else {
+                $this->message = 'Game create failed: ' . $e->getMessage();
+            }
+            error_log(
+                "Caught exception in BMInterface::create_game: " .
+                $e->getMessage());
             return NULL;
         }
     }
@@ -253,8 +296,10 @@ class BMInterface {
 
             return $game;
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::load_game: " .
+                $e->getMessage());
             $this->message = "Game load failed: $e";
-            var_dump($this->message);
             return NULL;
         }
     }
@@ -431,10 +476,18 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-            $this->message = $this->message."Saved game $game->gameId.";
+	    // If any game action entries were generated, load them
+	    // into the message so the calling player can see them,
+	    // then save them to the historical log
+            if (count($game->actionLog) > 0) {
+                $this->load_message_from_game_actions($game);
+                $this->log_game_actions($game);
+            }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::save_game: " .
+                $e->getMessage());
             $this->message = "Game save failed: $e";
-            var_dump($this->message);
         }
     }
 
@@ -507,6 +560,9 @@ class BMInterface {
                          'gameStateArray'          => $gameStateArray,
                          'statusArray'             => $statusArray);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_all_active_games: " .
+                $e->getMessage());
             $this->message = 'Game detail get failed.';
             return NULL;
         }
@@ -517,14 +573,28 @@ class BMInterface {
             $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
             $statement->execute();
 
+	    // Look for unimplemented skills in each button definition.
+	    // If we get an exception while checking, assume there's
+	    // an unimplemented skill
             while ($row = $statement->fetch()) {
                 $buttonNameArray[] = $row['name'];
                 $recipeArray[] = $row['recipe'];
+                try {
+                    $button = new BMButton();
+                    $button->load($row['recipe'], $row['name']);
+                    $hasUnimplementedSkillArray[] = $button->hasUnimplementedSkill;
+                } catch (Exception $e) {
+                    $hasUnimplementedSkillArray[] = True;
+                }
             }
             $this->message = 'All button names retrieved successfully.';
-            return array('buttonNameArray' => $buttonNameArray,
-                         'recipeArray'     => $recipeArray);
+            return array('buttonNameArray'            => $buttonNameArray,
+                         'recipeArray'                => $recipeArray,
+                         'hasUnimplementedSkillArray' => $hasUnimplementedSkillArray);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_all_button_names: " .
+                $e->getMessage());
             $this->message = 'Button name get failed.';
             return NULL;
         }
@@ -540,6 +610,9 @@ class BMInterface {
             $row = $statement->fetch();
             return($row['recipe']);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_button_recipe_from_name: "
+                . $e->getMessage());
             $this->message = 'Button recipe get failed.';
         }
     }
@@ -559,6 +632,9 @@ class BMInterface {
             $this->message = 'Names retrieved successfully.';
             return array('nameArray' => $nameArray);
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_player_names_like: " .
+                $e->getMessage());
             $this->message = 'Player name get failed.';
             return NULL;
         }
@@ -579,6 +655,9 @@ class BMInterface {
                 return($result[0]);
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_player_id_from_name: " .
+                $e->getMessage());
             $this->message = 'Player ID get failed.';
         }
     }
@@ -594,10 +673,12 @@ class BMInterface {
                 $this->message = 'Player ID does not exist.';
                 return('');
             } else {
-                $this->message = 'Player name retrieved successfully.';
                 return($result[0]);
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_player_name_from_id: " .
+                $e->getMessage());
             $this->message = 'Player name get failed.';
         }
     }
@@ -616,6 +697,74 @@ class BMInterface {
                 (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
     }
 
+    // Enter recent game actions into the action log
+    // Note: it might be possible for this to be a protected function
+    public function log_game_actions(BMGame $game) {
+        $query = 'INSERT INTO game_action_log ' .
+                 '(game_id, game_state, action_type, acting_player, message) ' .
+                 'VALUES ' .
+                 '(:game_id, :game_state, :action_type, :acting_player, :message)';
+        foreach ($game->actionLog as $idx => $gameAction) {
+            $statement = self::$conn->prepare($query);
+            $statement->execute(
+                array(':game_id'     => $game->gameId,
+                      ':game_state' => $gameAction['gameState'],
+                      ':action_type' => $gameAction['actionType'],
+                      ':acting_player' => $gameAction['actingPlayerIdx'],
+                      ':message'    => $gameAction['message']));
+        }
+        $game->empty_action_log();
+    }
+
+    public function load_game_action_log(BMGame $game, $n_entries = 5) {
+        try {
+            $query = 'SELECT action_time,action_type,acting_player,message FROM game_action_log ' .
+                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+            $logEntries = array();
+            while ($row = $statement->fetch()) {
+                $gameAction = array(
+                    'actionType' => $row['action_type'],
+                    'actingPlayerIdx' => $row['acting_player'],
+                    'message' => $row['message'],
+                );
+                $logEntries[] = array(
+                    'timestamp' => $row['action_time'],
+                    'message' => $this->friendly_game_action_log_message($gameAction)
+                );
+            }
+            return $logEntries;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::load_game_action_log: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reading log entries';
+            return NULL;
+        }
+    }
+
+    private function friendly_game_action_log_message($gameAction) {
+        if ($gameAction['actingPlayerIdx'] != 0) {
+            $actingPlayerName = $this->get_player_name_from_id($gameAction['actingPlayerIdx']);
+        }
+        if ($gameAction['actionType'] == 'attack') {
+            $msgstr = $gameAction['message'];
+            return (str_replace('completed', 'by ' . $actingPlayerName, $gameAction['message'], $count));
+        }
+        if ($gameAction['actionType'] == 'end_winner') {
+            return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
+        }
+        return($gameAction['message']);
+    }
+
+    // Create a status message based on recent game actions
+    private function load_message_from_game_actions(BMGame $game) {
+        $this->message = '';
+        foreach ($game->actionLog as $idx => $gameAction) {
+            $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
+        }
+    }
 
     public function submit_swing_values($userId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
@@ -668,6 +817,9 @@ class BMInterface {
                 return NULL;
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_swing_values: " .
+                $e->getMessage());
             $this->message = 'Internal error while setting swing values';
         }
     }
@@ -732,17 +884,16 @@ class BMInterface {
                 $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
-                if ($game->message) {
-                    $this->message = $game->message;
-                } else {
-                    $this->message = 'Attack succeeded';
-                }
+                // On success, don't set a message, because one will be set from the action log
                 return True;
             } else {
                 $this->message = 'Requested attack is not valid';
                 return NULL;
             }
         } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_turn: " .
+                $e->getMessage());
             $this->message = 'Internal error while submitting turn';
         }
     }

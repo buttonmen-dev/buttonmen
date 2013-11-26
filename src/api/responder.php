@@ -10,6 +10,11 @@
 
     switch ($_POST['type']) {
 
+        case 'createUser':
+	    $data = $interface->create_user($_POST['username'],
+	                                    $_POST['password']);
+            break;
+
         case 'createGame':
             $playerNameArray = $_POST['playerNameArray'];
             $playerIdArray = array();
@@ -47,6 +52,7 @@
                     'gameData' => $game->getJsonData($currentPlayerId),
                     'playerNameArray' => $playerNameArray,
                     'timestamp' => $interface->timestamp->format(DATE_RSS),
+                    'gameActionLog' => $interface->load_game_action_log($game),
                 );
             }
             break;

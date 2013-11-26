@@ -5,13 +5,13 @@ class user::buttonmen-devs {
 
 class user::username::chaos {
   group {
-    "chaos": ensure => present, gid => 1001;
+    "chaos": ensure => present, gid => 1101;
   }
 
   user {
     "chaos":
       ensure => present,
-      uid => 1001,
+      uid => 1101,
       comment => "Chaos Golubitsky",
       gid => "chaos",
       groups => [ "adm", "admin", ],
@@ -34,6 +34,11 @@ class user::username::chaos {
       content => "# SSH keys for chaos - managed by puppet\nssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC++z9xJpfNeIoo4Q+KJPqvtnQJebv78IglpbuXmoLSvGMCamO3k61hUznhWE456m+lL8eFvBcHVXAjaH8g+s6avYYhBwzu24I5SjsSjBByJN3GeRrRr/sD/HxN+QBl4Vf7QocJnfyTWECCKiWPVFFW++0msQYSFpNZDBh6V6ptV78KS4iS3UMDzHPMN+0ZEmybI3Ow6MRF3/qfrW7rsEAL9cuzg/8vLQnyypwN/oTWBfT7rG3YFrNpgUWmfL9E1+Em2wFwGBXwY78nJlm1f2grw9LGIjaFK7Ew/CrYBGtu3d1W0bIGAVfXkcsQ0Me/mXHn4nZOHbp6IL6g5ueWVWX3 chaos\n",
       require => User["chaos"];
 
+    "/home/chaos/.forward":
+      ensure => file,
+      content => "walrus-buttonmen@glassonion.org\n",
+      require => User["chaos"];
+
     "/home/chaos/bin":
       ensure => directory,
       owner => "chaos",
@@ -52,13 +57,13 @@ class user::username::chaos {
 
 class user::username::james {
   group {
-    "james": ensure => present, gid => 1002;
+    "james": ensure => present, gid => 1102;
   }
 
   user {
     "james":
       ensure => present,
-      uid => 1002,
+      uid => 1102,
       comment => "James Ong",
       gid => "james",
       groups => [ "adm", "admin", ],

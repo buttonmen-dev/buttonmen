@@ -81,6 +81,7 @@ Game.getCurrentGame = function(callbackfunc) {
            if (rs.status == 'ok') {
              Game.api.gameData = rs.data.gameData;
              Game.api.timestamp = rs.data.timestamp;
+             Game.api.actionLog = rs.data.gameActionLog;
              if (Game.parseGameData(rs.data.currentPlayerIdx, rs.data.playerNameArray)) {
                Game.api.load_status = 'ok';
              } else {
@@ -282,7 +283,7 @@ Game.actionChooseSwingActive = function() {
 
   // Add the die table to the page
   Game.page.append(dietable);
-  Game.pageAddTimestampFooter();
+  Game.pageAddFooter();
 
   // Function to invoke on button click
   Game.form = Game.formChooseSwingActive;
@@ -302,7 +303,7 @@ Game.actionChooseSwingInactive = function() {
   Game.page.append($('<p>', {'text':
     'Your swing dice are set.  Please wait patiently for your opponent to set swing dice.' }));
 
-  Game.pageAddTimestampFooter();
+  Game.pageAddFooter();
 
   Game.form = null;
 
@@ -349,7 +350,7 @@ Game.actionPlayTurnActive = function() {
   attackdiv.append(attackform);
   Game.page.append(attackdiv);
 
-  Game.pageAddTimestampFooter();
+  Game.pageAddFooter();
 
   // Function to invoke on button click
   Game.form = Game.formPlayTurnActive;
@@ -366,7 +367,7 @@ Game.actionPlayTurnInactive = function() {
   Game.page.append($('<p>', {'text':
     "It is your opponent's turn to attack right now." }));
 
-  Game.pageAddTimestampFooter();
+  Game.pageAddFooter();
 
   Game.form = null;
 
@@ -384,7 +385,7 @@ Game.actionShowFinishedGame = function() {
   Game.page.append($('<br>'));
   Game.pageAddGamePlayerStatus('opponent', true, false);
 
-  Game.pageAddTimestampFooter();
+  Game.pageAddFooter();
 
   Game.form = null;
 
@@ -512,6 +513,12 @@ Game.pageAddGameHeader = function() {
   return true;
 }
 
+// Display common page footer data
+Game.pageAddFooter = function() {
+  Game.pageAddTimestampFooter();
+  Game.pageAddActionLogFooter();
+}
+
 // Display a footer-style message with the last action timestamp
 Game.pageAddTimestampFooter = function() {
 
@@ -528,6 +535,30 @@ Game.pageAddTimestampFooter = function() {
                      }));
   return true;
 }
+
+// Display recent game data from the action log at the foot of the page
+Game.pageAddActionLogFooter = function() {
+  if (Game.api.actionLog.length > 0) {
+    var logdiv = $('<div>');
+    logdiv.append($('<p>', {'text': 'Recent game activity', }));
+    var logtable = $('<table>');
+    $.each(Game.api.actionLog, function(logindex, logentry) {
+      var logrow = $('<tr>');
+      logrow.append($('<td>', {
+        'class': 'left', 
+        'text': '(' + logentry.timestamp + ')', }));
+      logrow.append($('<td>', {
+        'class': 'left', 
+        'text': logentry.message, }));
+      logtable.append(logrow);
+    });
+    logdiv.append(logtable);
+
+    Game.page.append($('<hr>'));
+    Game.page.append(logdiv);
+  }
+}
+
 
 // Generate and return a two-column table of the dice in each player's recipe
 Game.dieRecipeTable = function() {

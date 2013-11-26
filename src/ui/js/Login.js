@@ -1,9 +1,21 @@
 // namespace for this "module"
-var Login = {};
+var Login = {
+  'status_type': 0,
+};
+
+// Login states
+// N.B. These states cannot be used to determine whether the player
+// is logged in.  They're only for deciding what status message to display.
+Login.STATUS_NO_ACTIVITY      = 1;
+Login.STATUS_ACTION_SUCCEEDED = 2;
+Login.STATUS_ACTION_FAILED    = 3;
 
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
+  if (Login.status_type == 0) {
+    Login.status_type = Login.STATUS_NO_ACTIVITY;
+  }
   $.post('../api/responder.php',
          {type: 'loadPlayerName'},
          function(rs) {
@@ -77,9 +89,23 @@ Login.stateLoggedIn = function() {
 }
 
 Login.stateLoggedOut = function() {
-  Login.message = $('<p>', {
-    'text': 'Welcome to ButtonMen: You are not logged in. ',
-  });
+  Login.message = $('<p>');
+  Login.message.append('Welcome to ButtonMen: ');
+  if (Login.status_type == Login.STATUS_ACTION_FAILED) {
+    Login.message.append(
+      $('<font>', {
+          'color': Env.messageTypeColors['error'],
+          'text': 'Login failed - username or password invalid',
+        }));
+  } else if (Login.status_type == Login.STATUS_ACTION_SUCCEEDED) {
+    Login.message.append(
+      $('<font>', {
+          'color': Env.messageTypeColors['success'],
+          'text': 'Logout succeeded - login again?',
+        }));
+  } else {
+    Login.message.append('You are not logged in. ');
+  }
 
   var loginform = Login.getLoginForm();
   loginform.append('Username: ');
@@ -99,6 +125,12 @@ Login.stateLoggedOut = function() {
                        'id': 'login_action_button',
                        'text': 'Login',
                      }));
+  var createoption = $('<font>', { 'text': ' or ', });
+  createoption.append($('<a>', {
+                       'href': 'create_user.html',
+                       'text': 'Create an account',
+                     }));
+  loginform.append(createoption);
 
   Login.message.append(loginform);
   Login.form = Login.formLogin;
@@ -119,14 +151,15 @@ Login.postToResponder = function(responder_args) {
          responder_args,
          function(rs) {
            if (rs.status == 'ok') {
-             Env.message = {
-               'type': 'success',
-               'text': responder_args['type'] + ' succeeded',
-             };
+             Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
+             Env.message = null;
+           } else {
+             Login.status_type = Login.STATUS_ACTION_FAILED;
            }
            Login.showLoginHeader(Login.callback);
          }
   ).fail(function() {
+           Login.status_type = Login.STATUS_ACTION_FAILED;
            Login.showLoginHeader(Login.callback);
          });
 }

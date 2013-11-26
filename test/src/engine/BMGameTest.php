@@ -4327,7 +4327,54 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                 break;
         }
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
+    }
 
+    /**
+     * @coversNothing
+     */
+    public function test_trip_capture_not_triggered_on_non_trip_attack() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('t(1) t(1) t(1) t(1) t(4)', 'Test');
+
+        $button2 = new BMButton;
+        $button2->load('(99) (98) (97)', 'TestTarget');
+
+        $game = new BMGame(234567, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        // artificially change active player to player 1
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+        // Artificially set die values.
+        //
+        // Note that the target die is artificially set to a value of zero so
+        // that we can test for reroll if it is not taken
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 1;
+        $dieArrayArray[0][3]->value = 1;
+        $dieArrayArray[0][4]->value = 1;
+        $dieArrayArray[1][0]->value = 2;
+        $dieArrayArray[1][1]->value = 80;
+        $dieArrayArray[1][2]->value = 80;
+
+        // attempt skill attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0, 1), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+
+        $game->proceed_to_next_user_action();
+
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertEquals(99, $game->capturedDieArrayArray[0][0]->max);
     }
 
     /**
