@@ -585,6 +585,24 @@ class BMDie {
         return $recipe;
     }
 
+    // Return all information about a die which is useful when
+    // constructing an action log entry, in the form of an array.
+    // This function exists so that BMGame can easily compare the
+    // die state before the attack to the die state after the attack.
+    public function get_action_log_data() {
+       $recipe = $this->get_recipe();
+       return(array(
+           'recipe' => $recipe,
+           'min' => $this->min,
+           'max' => $this->max,
+           'value' => $this->value,
+           'doesReroll' => $this->doesReroll,
+           'captured' => $this->captured,
+           'recipeStatus' => $recipe . ':' . $this->value,
+       ));
+    }
+
+
 
     // utility methods
 
