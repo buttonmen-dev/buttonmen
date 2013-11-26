@@ -742,8 +742,7 @@ class BMInterface {
             $actingPlayerName = $this->get_player_name_from_id($gameAction['actingPlayerIdx']);
         }
         if ($gameAction['actionType'] == 'attack') {
-            $msgstr = $gameAction['message'];
-            return (str_replace('completed', 'by ' . $actingPlayerName, $gameAction['message'], $count));
+            return $actingPlayerName . ' ' . $gameAction['message'];
         }
         if ($gameAction['actionType'] == 'end_winner') {
             return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
