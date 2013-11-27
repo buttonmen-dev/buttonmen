@@ -170,8 +170,9 @@ Newgame.actionCreateGame = function() {
 
   // Round selection
   createtable.append(
-    Newgame.getSelectRow("Number of rounds", 'n_rounds',
-      {'1': '1', '2': '2', '3': '3', '4': '4', '5': '5', },
+    Newgame.getSelectRow("Winner is first player to win", 'n_rounds',
+      {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
+       '4': '4 rounds', '5': '5 rounds', },
       null, '3'))
 
   // Form submission button
