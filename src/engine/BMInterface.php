@@ -72,6 +72,43 @@ class BMInterface {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
+        
+        // validate all inputs
+        foreach ($playerIdArray as $playerId) {
+            if (!(is_null($playerId) || is_int($playerId))) {
+                $this->message = 'Game create failed because player ID is not valid.';
+                return NULL;
+            }
+        }
+        
+        if (FALSE === filter_var($maxWins, 
+                                 FILTER_VALIDATE_INT,
+                                 array('options'=>
+                                       array('min_range' => 1, 
+                                             'max_range' => 5)))) {
+            $this->message = 'Game create failed because the maximum number of wins was invalid.';
+            return NULL;
+        }
+        
+        $buttonIdArray = array();
+        foreach ($playerIdArray as $position => $playerId) {
+            // get button ID
+            $buttonName = $buttonNameArray[$position];
+            if (!is_null($buttonName)) {
+                $query = 'SELECT id FROM button '.
+                         'WHERE name = :button_name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':button_name' => $buttonName));
+                $fetchData = $statement->fetch();
+                if (FALSE === $fetchData) {
+                    $this->message = 'Game create failed because a button name was not valid.';
+                    return NULL;
+                }
+                $buttonIdArray[] = $fetchData[0];
+            } else {
+                $buttonIdArray[] = NULL;
+            }
+        }
 
         try {
             // create basic game details
@@ -91,19 +128,6 @@ class BMInterface {
             $gameId = $fetchData[0];
 
             foreach ($playerIdArray as $position => $playerId) {
-                // get button ID
-                $buttonName = $buttonNameArray[$position];
-                if (!is_null($buttonName)) {
-                    $query = 'SELECT id FROM button '.
-                             'WHERE name = :button_name';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':button_name' => $buttonName));
-                    $fetchData = $statement->fetch();
-                    $buttonId = $fetchData[0];
-                } else {
-                    $buttonId = NULL;
-                }
-
                 // add info to game_player_map
                 $query = 'INSERT INTO game_player_map '.
                          '(game_id, player_id, button_id, position) '.
@@ -113,7 +137,7 @@ class BMInterface {
 
                 $statement->execute(array(':game_id'   => $gameId,
                                           ':player_id' => $playerId,
-                                          ':button_id' => $buttonId,
+                                          ':button_id' => $buttonIdArray[$position],
                                           ':position'  => $position));
             }
 
@@ -655,7 +679,7 @@ class BMInterface {
                 return('');
             } else {
                 $this->message = 'Player ID retrieved successfully.';
-                return($result[0]);
+                return(intval($result[0]));
             }
         } catch (Exception $e) {
             error_log(

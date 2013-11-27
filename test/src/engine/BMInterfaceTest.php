@@ -149,6 +149,35 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Game create failed because a player has been selected more than once.',
                             $this->object->message);
     }
+    
+    /**
+     * @covers BMInterface::create_game
+     */
+    public function test_create_game_with_invalid_parameters() {
+        // attempt to create a game with a non-integer number of max wins
+        $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 4.5);
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
+                            $this->object->message);
+        
+        // attempt to create a game with a zero number of max wins
+        $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 0);
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
+                            $this->object->message);
+        
+        // attempt to create a game with a large number of max wins
+        $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 6);
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
+                            $this->object->message);
+        
+        // attempt to create a game with an invalid button name
+        $retval = $this->object->create_game(array(1, 2), array('KJQOERUCHC', 'Stark'), 3);
+        $this->assertNull($retval);
+        $this->assertEquals('Game create failed because a button name was not valid.',
+                            $this->object->message);
+    }
 
     /**
      * @covers BMInterface::save_game
