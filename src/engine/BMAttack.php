@@ -48,7 +48,7 @@ class BMAttack {
             $individualAttackTypeArray = array();
             $individualAttackTypeArray['Power'] = 'Power';
             $individualAttackTypeArray['Skill'] = 'Skill';
-            $attacker->run_hooks('attack_list', 
+            $attacker->run_hooks('attack_list',
                                  array('attackTypeArray' => &$individualAttackTypeArray,
                                        'value' => intval($attacker->value)));
 

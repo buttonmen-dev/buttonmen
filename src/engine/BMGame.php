@@ -9,6 +9,7 @@
  * @property      array $playerIdArray           Array of player IDs
  * @property-read array $nPlayers                Number of players in the game
  * @property-read int   $roundNumber;            Current round number
+ * @property      int   $turnNumberInRound;      Current turn number in current round
  * @property      int   $activePlayerIdx         Index of the active player in playerIdxArray
  * @property      int   $playerWithInitiativeIdx Index of the player who won initiative
  * @property      array $buttonArray             Buttons for all players
@@ -33,6 +34,7 @@
  * @property      int   $maxWins                 The game ends when a player has this many wins
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
+ * @property      array $autopassArray           Boolean array whether each player has enabled autopass
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
@@ -47,6 +49,7 @@ class BMGame {
     private $playerIdArray;         // array of player IDs
     private $nPlayers;              // number of players in the game
     private $roundNumber;           // current round number
+    private $turnNumberInRound;     // current turn number in current round
     private $activePlayerIdx;       // index of the active player in playerIdxArray
     private $playerWithInitiativeIdx; // index of the player who won initiative
     private $buttonArray;           // buttons for all players
@@ -71,6 +74,7 @@ class BMGame {
     private $maxWins;               // the game ends when a player has this many wins
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
+    private $autopassArray;         // boolean array whether each player has enabled autopass
     private $actionLog;             // game actions taken by this BMGame instance
     private $message;               // message to be passed to the GUI
 
@@ -104,9 +108,9 @@ class BMGame {
             case BMGameState::applyHandicaps:
                 // ignore for the moment
                 $this->gameScoreArrayArray =
-                    array_pad(array(),
-                              count($this->playerIdArray),
-                              array('W' => 0, 'L' => 0, 'D' => 0));
+                    array_fill(0,
+                               count($this->playerIdArray),
+                               array('W' => 0, 'L' => 0, 'D' => 0));
                 break;
 
             case BMGameState::chooseAuxiliaryDice:
@@ -310,9 +314,25 @@ class BMGame {
                 }
                 // set BMGame activePlayerIdx
                 $this->activePlayerIdx = $this->playerWithInitiativeIdx;
+                $this->turnNumberInRound = 1;
                 break;
 
             case BMGameState::startTurn:
+                // deal with autopass
+                if (!isset($this->attack) &&
+                    $this->autopassArray[$this->activePlayerIdx] &&
+                    $this->turnNumberInRound > 1) {
+                    $validAttackTypes = $this->valid_attack_types();
+                    if (array_search('Pass', $validAttackTypes) &&
+                        (1 == count($validAttackTypes))) {
+                        $this->attack = array('attackerPlayerIdx' => $this->attackerPlayerIdx,
+                                              'defenderPlayerIdx' => $this->defenderPlayerIdx,
+                                              'attackerAttackDieIdxArray' => array(),
+                                              'defenderAttackDieIdxArray' => array(),
+                                              'attackType' => 'Pass');
+                    }
+                }
+
                 // display dice
                 $this->activate_GUI('show_active_dice');
 
@@ -361,6 +381,7 @@ class BMGame {
                 );
 
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
+                $this->turnNumberInRound += 1;
 
                 $postAttackDice = $this->get_action_log_data(
                   $attackerAttackDieArray, $defenderAttackDieArray 
@@ -442,7 +463,8 @@ class BMGame {
                     $allButtonsSet) {
                     $this->gameState = BMGameState::applyHandicaps;
                     $this->nRecentPasses = 0;
-                    $this->gameScoreArrayArray = array(array(0, 0, 0), array(0, 0, 0));
+                    $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+                    $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
                 }
                 break;
 
@@ -576,7 +598,7 @@ class BMGame {
         $this->do_next_step();
 
         while (0 === array_sum($this->waitingOnActionArray)) {
-            $startGameState = $this->gameState;
+            $intermediateGameState = $this->gameState;
             $this->update_game_state();
             $this->do_next_step();
 
@@ -584,7 +606,7 @@ class BMGame {
                 break;
             }
 
-            if ($startGameState === $this->gameState) {
+            if ($intermediateGameState === $this->gameState) {
                 $repeatCount++;
             } else {
                 $repeatCount = 0;
@@ -754,6 +776,7 @@ class BMGame {
 
         $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
+        $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
     }
@@ -995,6 +1018,16 @@ class BMGame {
             case 'nPlayers':
                 throw new LogicException(
                     'nPlayers is derived from BMGame->playerIdArray');
+            case 'turnNumberInRound':
+                if (FALSE === filter_var($value,
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0)))) {
+                    throw new InvalidArgumentException(
+                        'Invalid turn number.');
+                }
+                $this->turnNumberInRound = $value;
+                break;
             case 'gameId':
                 if (FALSE === filter_var($value,
                                          FILTER_VALIDATE_INT,
@@ -1219,6 +1252,20 @@ class BMGame {
                     }
                 }
                 $this->waitingOnActionArray = $value;
+                break;
+            case 'autopassArray':
+                if (!is_array($value) ||
+                    count($value) !== count($this->playerIdArray)) {
+                    throw new InvalidArgumentException(
+                        'Number of settings must equal the number of players.');
+                }
+                foreach ($value as $tempValueElement) {
+                    if (!is_bool($tempValueElement)) {
+                        throw new InvalidArgumentException(
+                            'Input must be an array of booleans.');
+                    }
+                }
+                $this->autopassArray = $value;
                 break;
             default:
                 $this->$property = $value;

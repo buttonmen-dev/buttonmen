@@ -8,6 +8,7 @@ CREATE TABLE game (
     game_state         TINYINT UNSIGNED DEFAULT 10,
     n_players          TINYINT UNSIGNED DEFAULT 2,
     round_number       TINYINT UNSIGNED DEFAULT 0,
+    turn_number_in_round TINYINT UNSIGNED DEFAULT 0,
     n_target_wins      TINYINT UNSIGNED NOT NULL,
     n_recent_draws     TINYINT UNSIGNED DEFAULT 0,
     n_recent_passes    TINYINT UNSIGNED DEFAULT 0,

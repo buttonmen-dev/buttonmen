@@ -39,7 +39,7 @@ class BMInterface {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':username' => $_POST['username']));
+            $statement->execute(array(':username' => $username));
             $result = $statement->fetchAll();
 
             if (count($result) > 0) {
@@ -142,11 +142,12 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId) {
+    // The optional argument $autopassOverride is for testing purposes only!
+    public function load_game($gameId, $autopassOverride = NULL) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
-                     'v.player_id, v.position,'.
+                     'v.player_id, v.position, v.autopass,'.
                      'v.button_name,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
@@ -166,12 +167,22 @@ class BMInterface {
                     $game->gameId    = $gameId;
                     $game->gameState = $row['game_state'];
                     $game->maxWins   = $row['n_target_wins'];
+                    $game->turnNumberInRound = $row['turn_number_in_round'];
                     $game->nRecentPasses = $row['n_recent_passes'];
                     $this->timestamp = new DateTime($row['last_action_time']);
                 }
 
                 $pos = $row['position'];
                 $playerIdArray[$pos] = $row['player_id'];
+
+                if (is_null($autopassOverride)) {
+                    $autopassArray[$pos] = (bool)$row['autopass'];
+                } else {
+                    assert(is_array($autopassOverride));
+                    assert(array_key_exists($pos, $autopassOverride));
+                    $autopassArray[$pos] = $autopassOverride[$pos];
+                }
+
                 if (1 == $row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
                 }
@@ -222,6 +233,7 @@ class BMInterface {
             $game->gameScoreArrayArray = $gameScoreArrayArray;
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
+            $game->autopassArray = $autopassArray;
 
             // add swing values
             $query = 'SELECT * '.
@@ -293,17 +305,13 @@ class BMInterface {
         }
     }
 
+    public function load_game_without_autopass($gameId) {
+        return $this->load_game($gameId, array(FALSE, FALSE));
+    }
+
     public function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
-
-        if ((count($game->activeDieArrayArray[0]) == 5) &&
-            (count($game->activeDieArrayArray[1]) == 5)) {
-            $this->message = $game->message.
-                             'before save'.
-                             'swingvalue1:'.$game->activeDieArrayArray[0][4]->swingValue.
-                             'swingvalue2:'.$game->activeDieArrayArray[1][4]->swingValue;
-        }
 
         try {
             if (is_null($game->activePlayerIdx)) {
@@ -316,6 +324,7 @@ class BMInterface {
             $query = 'UPDATE game '.
                      'SET game_state = :game_state,'.
                      '    round_number = :round_number,'.
+                     '    turn_number_in_round = :turn_number_in_round,'.
             //:n_recent_draws
                      '    n_recent_passes = :n_recent_passes,'.
                      '    current_player_id = :current_player_id '.
@@ -327,6 +336,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_state' => $game->gameState,
                                       ':round_number' => $game->roundNumber,
+                                      ':turn_number_in_round' => $game->turnNumberInRound,
                                       ':n_recent_passes' => $game->nRecentPasses,
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
@@ -882,7 +892,6 @@ class BMInterface {
                 $this->message = 'Requested attack is not valid';
                 return NULL;
             }
-            break;
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::submit_turn: " .
