@@ -669,7 +669,7 @@ class BMInterface {
                 return('');
             } else {
                 $this->message = 'Player ID retrieved successfully.';
-                return($result[0]);
+                return(intval($result[0]));
             }
         } catch (Exception $e) {
             error_log(

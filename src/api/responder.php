@@ -19,7 +19,12 @@
             $playerNameArray = $_POST['playerNameArray'];
             $playerIdArray = array();
             foreach ($playerNameArray as $playerName) {
-                $playerIdArray[] = $interface->get_player_id_from_name($playerName);
+                $playerId = $interface->get_player_id_from_name($playerName);
+                if (is_int($playerId)) {
+                    $playerIdArray[] = $playerId;
+                } else {
+                    $playerIdArray[] = NULL;
+                }
             }
 
             $buttonNameArray = $_POST['buttonNameArray'];
