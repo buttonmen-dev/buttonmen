@@ -179,6 +179,7 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
  
   Game.api.gameId =  Game.api.gameData['data']['gameId'];
   Game.api.roundNumber = Game.api.gameData['data']['roundNumber'];
+  Game.api.maxWins = Game.api.gameData['data']['maxWins'];
   Game.api.gameState = Game.api.gameData['data']['gameState'];
   Game.api.playerIdx = currentPlayerIdx;
   Game.api.opponentIdx = 1 - currentPlayerIdx;
@@ -633,7 +634,8 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
   gameScoreDiv.append($('<span>', {
     'text': "W/L/T: " + Game.api[player].gameScoreDict['W'] +
             "/" + Game.api[player].gameScoreDict['L'] + 
-            "/" + Game.api[player].gameScoreDict['D'], }));
+            "/" + Game.api[player].gameScoreDict['D'] +
+            " (" + Game.api.maxWins + ")", }));
 
   // Round score, only applicable in active games
   if (game_active) {
