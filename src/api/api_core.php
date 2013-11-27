@@ -2,7 +2,7 @@
 function login($username, $password) {
     require '../database/mysql.inc.php';
 
-    $sql = 'SELECT id, password_hashed FROM player
+    $sql = 'SELECT id, name_ingame, password_hashed FROM player
             WHERE name_ingame = :username';
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $username));
@@ -32,7 +32,7 @@ function login($username, $password) {
             setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
             session_regenerate_id(true);
             $_SESSION['user_id'] = $result['id'];
-            $_SESSION['user_name'] = $username;
+            $_SESSION['user_name'] = $result['name_ingame'];
             $_SESSION['user_lastactive'] = time();
             $returnValue = TRUE;
         }
