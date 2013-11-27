@@ -18,9 +18,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             require 'test/src/database/mysql.test.inc.php';
         }
         $this->object = new BMInterface(TRUE);
-
-        $this->object->create_user('test3', 't');
-        $this->object->create_user('test4', 't');
     }
 
     /**
@@ -32,6 +29,16 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMInterface::create_game
+     */
+    public function testCreate() {
+        $this->object->create_user('test3', 't');
+        $this->object->create_user('test4', 't');
+    }
+
+    /**
+     * @depends testCreate
+     *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
@@ -140,6 +147,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::create_game
      */
     public function test_create_self_game() {
@@ -151,6 +160,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::create_game
      */
     public function test_create_game_with_invalid_parameters() {
@@ -180,6 +191,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -296,6 +309,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -345,6 +360,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::load_game
      */
     public function test_load_poison() {
@@ -398,6 +415,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::save_game
      */
     public function test_swing_value_reset_at_end_of_round() {
@@ -556,6 +575,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends testCreate
+     *
      * @covers BMInterface::save_game
      */
     public function test_swing_value_reset_at_end_of_game() {
@@ -612,6 +633,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * The following unit tests ensure that the swing values are persistent,
      * even when the swing dice have been changed to normal dice,
      *   e.g., by a berserk attack.
+     *
+     * @depends testCreate
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -682,6 +705,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that the number of passes is updated
      * correctly.
+     *
+     * @depends testCreate
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -759,6 +784,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * The following unit tests ensure that autopass works correctly.
+     *
+     * @depends testCreate
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game

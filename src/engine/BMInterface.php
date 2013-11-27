@@ -924,6 +924,10 @@ class BMInterface {
         }
     }
 
+    public function update_player_info($infoArray) {
+        
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
