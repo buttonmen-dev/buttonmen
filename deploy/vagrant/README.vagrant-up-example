@@ -19,18 +19,46 @@ Bringing machine 'default' up with 'virtualbox' provider...
 [default] -- /buttonmen
 [default] -- /tmp/vagrant-puppet/manifests
 [default] -- /tmp/vagrant-puppet/modules-0
+[default] Running provisioner: shell...
+[default] Running: /var/folders/2b/3fppx_3s60575kzfpv670n5h0000gq/T/vagrant-shell20131127-35918-y7v256
+stdin: is not a tty
+Puppet is already installed
 [default] Running provisioner: puppet...
 Running Puppet with init.pp...
 stdin: is not a tty
-notice: /Stage[main]/Buttonmen::Server/File[/usr/local/bin/create_buttonmen_databases]/ensure: defined content as '{md5}06f05e6a168e55062731e5d4b53084db'
+notice: /Stage[main]/Buttonmen::Server/File[/usr/local/bin/create_buttonmen_databases]/ensure: defined content as '{md5}77cc6c1bb1c5db2b8ff6add0b13689bf'
+notice: /Stage[main]/Apache::Server::Feature::Monitor-logs/File[/usr/local/sbin/monitor_apache_logs]/ensure: defined content as '{md5}36b306bc81f7db6af39572e693be36ab'
+notice: /Stage[main]/Apache::Server::Feature::Monitor-logs/File[/var/spool/logtail]/ensure: created
 notice: /Stage[main]/Apt::Client/Exec[apt_client_update]/returns: executed successfully
 notice: /Stage[main]/Mysql::Server/Package[php5-mysql]/ensure: ensure changed 'purged' to 'present'
 notice: /Stage[main]/Php::Base/Package[php5]/ensure: ensure changed 'purged' to 'present'
 notice: /Stage[main]/Mysql::Server/Package[mysql-server]/ensure: ensure changed 'purged' to 'present'
+notice: /Stage[main]/Apache::Server::Feature::Monitor-logs/Cron[apache_monitor_logs]/ensure: created
+notice: /Stage[main]/Apache::Server::Feature::Monitor-logs/Package[logtail]/ensure: ensure changed 'purged' to 'present'
+notice: /Stage[main]/Postfix::Base/Package[postfix]/ensure: ensure changed 'purged' to 'present'
+notice: /Stage[main]/Postfix::Base/File[/etc/aliases]/content: content changed '{md5}52417f6dfdf4444dd00691e149e0f7ea' to '{md5}7b72ba08ff0fde9cd9edd53077702f3e'
+notice: /Stage[main]/Postfix::Base/Exec[postfix_postalias]: Triggered 'refresh' from 1 events
+notice: /Stage[main]/Sudo::Buttonmen-devs/File[/etc/sudoers.d/99-buttonmen-dev]/ensure: defined content as '{md5}381beab4ffd1810dc53e2f458d4b5eb1'
+notice: /Stage[main]/User::Username::James/Group[james]/ensure: created
+notice: /Stage[main]/User::Username::James/User[james]/ensure: created
+notice: /Stage[main]/User::Username::James/File[/home/james/.ssh/]/ensure: created
+notice: /Stage[main]/User::Username::James/File[/home/james/.ssh/authorized_keys]/ensure: defined content as '{md5}ce3167844266591118eca1a8414229cd'
 notice: /Stage[main]/Php::Base/Package[libapache2-mod-php5]/ensure: ensure changed 'purged' to 'present'
-notice: /Stage[main]/Buttonmen::Server/Exec[buttonmen_create_databases]/returns: executed successfully
+notice: /Stage[main]/Php::Base/File[/etc/php5/deploy-includes]/ensure: created
+notice: /Stage[main]/Php::Base/Exec[php_wget_phpunit]/returns: executed successfully
+notice: /Stage[main]/Buttonmen::Server/File[/usr/local/etc/buttonmen_phpunit.php]/ensure: defined content as '{md5}a56452c9c07e9db03105b04cbbfef282'
 notice: /Stage[main]/Apache::Server/Package[apache2]/ensure: ensure changed 'purged' to 'present'
-notice: /Stage[main]/Buttonmen::Server/File[/etc/apache2/conf.d/buttonmen]/ensure: defined content as '{md5}40776771a7e3732f2df2b0803272a2ce'
+notice: /Stage[main]/Buttonmen::Server/File[/etc/apache2/conf.d/buttonmen]/ensure: defined content as '{md5}c4f239bbd754a0a73fb57bb1410a29b1'
 notice: /Stage[main]/Buttonmen::Server/Exec[buttonmen_src_rsync]/returns: executed successfully
-notice: /Stage[main]/Apache::Server/Service[apache2]: Triggered 'refresh' from 1 events
-notice: Finished catalog run in 337.20 seconds
+notice: /Stage[main]/Buttonmen::Server/Exec[buttonmen_create_databases]/returns: executed successfully
+notice: /Stage[main]/User::Username::Chaos/Group[chaos]/ensure: created
+notice: /Stage[main]/User::Username::Chaos/User[chaos]/ensure: created
+notice: /Stage[main]/User::Username::Chaos/File[/home/chaos/.forward]/ensure: defined content as '{md5}452aeaa69d6574a0fb925f72ae889ab5'
+notice: /Stage[main]/User::Username::Chaos/File[/home/chaos/.ssh/]/ensure: created
+notice: /Stage[main]/User::Username::Chaos/File[/home/chaos/.ssh/authorized_keys]/ensure: defined content as '{md5}f2ec5760be23517991be8fca35e346c1'
+notice: /Stage[main]/User::Username::Chaos/File[/home/chaos/bin]/ensure: created
+notice: /Stage[main]/User::Username::Chaos/File[/home/chaos/bin/install_rcfiles]/ensure: defined content as '{md5}619973d0238a652cf2a1b1741fad1476'
+notice: /Stage[main]/Php::Base/File[/etc/php5/apache2/conf.d/buttonmen.ini]/ensure: defined content as '{md5}0341af171795b4c225e1c9d55c0074db'
+notice: /Stage[main]/Apache::Server/Service[apache2]: Triggered 'refresh' from 2 events
+notice: Finished catalog run in 89.36 seconds
+
