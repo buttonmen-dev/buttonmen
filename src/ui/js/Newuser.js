@@ -99,6 +99,10 @@ Newuser.actionCreateUser = function() {
       'text': 'Password',
       'type': 'password',
     },
+    'password_confirm': {
+      'text': 'Password (again)',
+      'type': 'password',
+    },
   }
 
   $.each(entries, function(entryid, entryinfo) {
@@ -148,10 +152,17 @@ Newuser.formCreateUser = function() {
 
   } else {
     var password = $('#newuser_password').val();
+    var password_confirm = $('#newuser_password_confirm').val();
     if (password.length == 0) {
       Env.message = {
         'type': 'error',
         'text': 'Password may not be null',
+      };
+      Newuser.showNewuserPage();
+    } else if (password != password_confirm) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Passwords do not match',
       };
       Newuser.showNewuserPage();
     } else {
