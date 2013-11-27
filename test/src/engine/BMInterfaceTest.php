@@ -39,6 +39,57 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_create_user
      *
+     * @covers BMInterface::get_player_info
+     */
+    public function test_get_player_info() {
+        $resultArray = $this->object->get_player_info(1, array('autopass'));
+        $this->assertTrue(is_array($resultArray));
+        
+        $this->assertArrayHasKey('id', $resultArray);
+        $this->assertArrayHasKey('name_ingame', $resultArray);
+        $this->assertArrayNotHasKey('password_hashed', $resultArray);
+        $this->assertArrayHasKey('name_irl', $resultArray);
+        $this->assertArrayHasKey('email', $resultArray);
+        $this->assertArrayHasKey('dob', $resultArray);
+        $this->assertArrayHasKey('autopass', $resultArray);
+        $this->assertArrayHasKey('image_path', $resultArray);
+        $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('last_action_time', $resultArray);
+        $this->assertArrayHasKey('creation_time', $resultArray);
+        $this->assertArrayHasKey('fanatic_button_id', $resultArray);
+        $this->assertArrayHasKey('n_games_won', $resultArray);
+        $this->assertArrayHasKey('n_games_lost', $resultArray);
+
+        $this->assertTrue(is_int($resultArray['id']));
+        $this->assertEquals(1, $resultArray['id']);
+
+        $this->assertTrue(is_bool($resultArray['autopass']));
+
+        $this->assertTrue(is_int($resultArray['fanatic_button_id']));
+        $this->assertEquals(0, $resultArray['fanatic_button_id']);
+        $this->assertTrue(is_int($resultArray['n_games_won']));
+        $this->assertTrue(is_int($resultArray['n_games_lost']));
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::get_player_info
+     * @covers BMInterface::update_player_info
+     */
+    public function test_update_player_info() {
+        $this->object->update_player_info(1, array('autopass' => 1));
+        $playerInfoArray = $this->object->get_player_info(1);
+        $this->assertEquals(TRUE, $playerInfoArray['autopass']);
+
+        $this->object->update_player_info(1, array('autopass' => 0));
+        $playerInfoArray = $this->object->get_player_info(1);
+        $this->assertEquals(FALSE, $playerInfoArray['autopass']);
+    }
+
+    /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
