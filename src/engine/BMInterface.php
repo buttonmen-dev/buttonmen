@@ -97,13 +97,13 @@ class BMInterface {
         return $playerInfoArray;
     }
 
-    public function update_player_info($playerId, array $infoArray) {
+    public function set_player_info($playerId, array $infoArray) {
         foreach ($infoArray as $infoType => $info) {
             try {
                 $query = 'UPDATE player '.
                          "SET $infoType = :info ".
                          'WHERE id = :player_id;';
-                
+
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
@@ -124,7 +124,7 @@ class BMInterface {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
-        
+
         // validate all inputs
         foreach ($playerIdArray as $playerId) {
             if (!(is_null($playerId) || is_int($playerId))) {
@@ -132,16 +132,16 @@ class BMInterface {
                 return NULL;
             }
         }
-        
-        if (FALSE === filter_var($maxWins, 
+
+        if (FALSE === filter_var($maxWins,
                                  FILTER_VALIDATE_INT,
                                  array('options'=>
-                                       array('min_range' => 1, 
+                                       array('min_range' => 1,
                                              'max_range' => 5)))) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
-        
+
         $buttonIdArray = array();
         foreach ($playerIdArray as $position => $playerId) {
             // get button ID

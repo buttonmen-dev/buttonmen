@@ -56,7 +56,7 @@ Newuser.layoutPage = function() {
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newuser.js.
 // Each function should start by populating Newuser.page and Newuser.form
-// ane end by invoking Newuser.layoutPage();
+// and dend by invoking Newuser.layoutPage();
 
 Newuser.actionLoggedIn = function() {
 

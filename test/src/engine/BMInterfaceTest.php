@@ -44,7 +44,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     public function test_get_player_info() {
         $resultArray = $this->object->get_player_info(1, array('autopass'));
         $this->assertTrue(is_array($resultArray));
-        
+
         $this->assertArrayHasKey('id', $resultArray);
         $this->assertArrayHasKey('name_ingame', $resultArray);
         $this->assertArrayNotHasKey('password_hashed', $resultArray);
@@ -75,14 +75,14 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @depends test_create_user
      *
      * @covers BMInterface::get_player_info
-     * @covers BMInterface::update_player_info
+     * @covers BMInterface::set_player_info
      */
-    public function test_update_player_info() {
-        $this->object->update_player_info(1, array('autopass' => 1));
+    public function test_set_player_info() {
+        $this->object->set_player_info(1, array('autopass' => 1));
         $playerInfoArray = $this->object->get_player_info(1);
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
 
-        $this->object->update_player_info(1, array('autopass' => 0));
+        $this->object->set_player_info(1, array('autopass' => 0));
         $playerInfoArray = $this->object->get_player_info(1);
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
     }
@@ -209,7 +209,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Game create failed because a player has been selected more than once.',
                             $this->object->message);
     }
-    
+
     /**
      * @depends test_create_user
      *
@@ -221,19 +221,19 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with a zero number of max wins
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 0);
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with a large number of max wins
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 6);
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with an invalid button name
         $retval = $this->object->create_game(array(1, 2), array('KJQOERUCHC', 'Stark'), 3);
         $this->assertNull($retval);
