@@ -8,7 +8,7 @@ class buttonmen::server {
   $buttonmen_db2_user = "root"
   $buttonmen_db2_pass = "root"
 
-  $buttonmen_code_githash = generate("/usr/bin/cut", "-f", "1", "/buttonmen/.git/FETCH_HEAD")
+  $buttonmen_code_githash = file("/etc/buttonmen_version")
 
   file {
 
