@@ -26,6 +26,19 @@ How to start an instance:
     it needs to download a copy of the Ubuntu VM which it will
     customize to make your test VM.
 
+ 4b. IF you are running vagrant on Windows, puppet may fail (see
+     README.vagrant-up-windows-example for an example of what this
+     may look like).  In that case, SSH into the new VM:
+
+       vagrant ssh
+
+     Once logged into the VM, run puppet by hand:
+
+       sudo puppet apply --modulepath /tmp/vagrant-puppet/modules-0 /buttonmen/deploy/vagrant/manifests/init.pp
+
+     This should produce output similar to the second part of
+     README.vagrant-up-example
+
  5. Use the site: using a web browser, go to:
 
       http://localhost:8080/
