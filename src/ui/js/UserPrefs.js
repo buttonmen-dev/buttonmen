@@ -28,9 +28,9 @@ UserPrefs.showUserPrefsPage = function() {
 
   // Only allow logged-in users to view and change preferences
   if (Login.logged_in) {
-    UserPrefs.actionLoadPrefs();
-  } else {
-    UserPrefs.actionLogin();
+    UserPrefs.actionShowPrefs();
+//  } else {
+//    UserPrefs.actionLogin();
   }
 }
 
@@ -44,7 +44,7 @@ UserPrefs.layoutPage = function() {
   $('#userprefs_page').empty();
   $('#userprefs_page').append(UserPrefs.page);
 
-  if (UserPrefs.form) {
+  if (UserPrefs.form == true) {
     $('#userprefs_action_button').click(UserPrefs.form);
   }
 }
@@ -55,24 +55,24 @@ UserPrefs.layoutPage = function() {
 // Each function should start by populating UserPrefs.page and UserPrefs.form
 // and end by invoking UserPrefs.layoutPage();
 
-UserPrefs.actionLoadPrefs = function() {
+//UserPrefs.actionLoadPrefs = function() {
+//
+//  // Create empty page and undefined form objects to be filled later
+//  UserPrefs.page = $('<div>');
+//  UserPrefs.form = null;
+//
+////  // Add the "player preferences" HTML contents
+////  UserPrefs.addPrefsPage();
+//
+//  // Lay out the page
+//  UserPrefs.layoutPage();
+//}
+//
+UserPrefs.actionShowPrefs = function() {
 
   // Create empty page and undefined form objects to be filled later
   UserPrefs.page = $('<div>');
   UserPrefs.form = null;
-
-  // Add the "player preferences" HTML contents
-  UserPrefs.addPrefsPage();
-
-  // Lay out the page
-  UserPrefs.layoutPage();
-}
-
-Newuser.actionShowPrefs = function() {
-
-  // Create empty page and undefined form objects to be filled later
-  Newuser.page = $('<div>');
-  Newuser.form = null;
 
   var creatediv = $('<div>');
   creatediv.append($('<div>', {
@@ -85,13 +85,13 @@ Newuser.actionShowPrefs = function() {
                      });
 
   // Table of user creation options
-//  var createtable = $('<table>', {'id': 'newuser_create_table' });
-//
-//  var entries = {
-//    'username': {
-//      'text': 'Username',
-//      'type': 'text'
-//    },
+  var createtable = $('<table>', {'id': 'userprefs_create_table' });
+
+  var entries = {
+    'autopass': {
+      'text': 'Autopass on?',
+      'type': 'checkbox'
+    }
 //    'password': {
 //      'text': 'Password',
 //      'type': 'password'
@@ -100,45 +100,45 @@ Newuser.actionShowPrefs = function() {
 //      'text': 'Password (again)',
 //      'type': 'password'
 //    }
-//  }
-//
-//  $.each(entries, function(entryid, entryinfo) {
-//    var entryrow = $('<tr>');
-//    entryrow.append($('<td>', { 'text': entryinfo['text'] + ':' }));
-//    entryinput = $('<td>');
-//    entryinput.append($('<input>', {
-//                          'type': entryinfo['type'],
-//                          'name': entryid,
-//                          'id': 'newuser_' + entryid
-//                        }));
-//    entryrow.append(entryinput);
-//    createtable.append(entryrow);
-//  });
-//  createform.append(createtable);
-//
-//  // Form submission button
-//  createform.append($('<br>'));
-//  createform.append($('<button>', {
-//                        'id': 'newuser_action_button',
-//                        'text': 'Create user!'
-//                      }));
-//  creatediv.append(createform);
-//
-//  Newuser.page.append(creatediv);
-//
-//  // Function to invoke on button click
-//  Newuser.form = Newuser.formCreateUser;
-//
-//  // Lay out the page
-//  Newuser.layoutPage();
+  }
+
+  $.each(entries, function(entryid, entryinfo) {
+    var entryrow = $('<tr>');
+    entryrow.append($('<td>', { 'text': entryinfo['text'] + ':' }));
+    entryinput = $('<td>');
+    entryinput.append($('<input>', {
+                          'type': entryinfo['type'],
+                          'name': entryid,
+                          'id': 'userprefs_' + entryid
+                        }));
+    entryrow.append(entryinput);
+    createtable.append(entryrow);
+  });
+  createform.append(createtable);
+
+  // Form submission button
+  createform.append($('<br>'));
+  createform.append($('<button>', {
+                        'id': 'userprefs_action_button',
+                        'text': 'Submit'
+                      }));
+  creatediv.append(createform);
+
+  UserPrefs.page.append(creatediv);
+
+  // Function to invoke on button click
+  UserPrefs.form = UserPrefs.formSetPrefs;
+
+  // Lay out the page
+  UserPrefs.layoutPage();
 }
 
 
 ////////////////////////////////////////////////////////////////////////
 // These functions define form submissions, one per action type
 
-Newuser.formCreateUser = function() {
-//  var username = $('#newuser_username').val();
+UserPrefs.formSetPrefs = function() {
+  var autopass = $('#userprefs_autopass').val();
 //
 //  if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
 //    Env.message = {
@@ -204,22 +204,12 @@ Newuser.formCreateUser = function() {
 //    }
 //  }
 }
-
-////////////////////////////////////////////////////////////////////////
-// These functions add pieces of HTML to Newuser.page
-
-Newuser.addLoggedInPage = function() {
-//  var errorDiv = $('<div>');
-//  errorDiv.append($('<p>', {
-//    'text': "Can't create a user because you are already logged in"
-//  }))
-//  errorDiv.append($('<a>', {
-//    'href': 'index.html',
-//    'text': 'Go back to the homepage and beat some people up'
-//  }));
-//  Newuser.page.append(errorDiv);
-}
-
-////////////////////////////////////////////////////////////////////////
-// These functions generate and return pieces of HTML
-
+//
+//////////////////////////////////////////////////////////////////////////
+//// These functions add pieces of HTML to UserPrefs.page
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////
+//// These functions generate and return pieces of HTML
+//
