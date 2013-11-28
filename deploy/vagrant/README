@@ -69,7 +69,7 @@ Things you might want to do after you have a running instance:
  * Quickly update your vagrant instance's webserver with code changes
    you've made in your git working directory:
 
-     vagrant ssh -c 'sudo /usr/bin/rsync -av --delete /buttonmen/src/ /var/www/'
+     vagrant ssh -c 'sudo /usr/bin/rsync -av --exclude=test-ui --delete /buttonmen/src/ /var/www/; sudo /usr/bin/rsync -av --delete /buttonmen/test/src/ui/ /var/www/test-ui/'
 
  * Login to your instance:
 
