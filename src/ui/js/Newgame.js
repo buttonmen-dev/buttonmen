@@ -28,7 +28,7 @@ Newgame.showNewgamePage = function() {
 
   // Make sure the div element that we will need exists in the page body
   if ($('#newgame_page').length == 0) {
-    $('body').append($('<div>', {'id': 'newgame_page', }));
+    $('body').append($('<div>', {'id': 'newgame_page' }));
   }
 
   if (Login.logged_in == false) {
@@ -45,7 +45,7 @@ Newgame.showNewgamePage = function() {
 // This function is called after Api.button has been loaded with new data
 Newgame.showNewgamePageLoadedButtons = function() {
   if (Api.button.load_status == 'ok') {
- 
+
     // Ask the API for information about players, then continue page layout
     return Api.getPlayerData(Newgame.showNewgamePageLoadedPlayers);
   }
@@ -119,19 +119,19 @@ Newgame.actionCreateGame = function() {
   var creatediv = $('<div>');
   creatediv.append($('<div>', {
                       'class': 'title2',
-                      'text': 'Create a new game',
+                      'text': 'Create a new game'
                     }));
   var createform = $('<form>', {
                        'id': 'newgame_action_form',
-                       'action': "javascript:void(0);",
+                       'action': "javascript:void(0);"
                      });
 
   // Table of game creation options
-  var createtable = $('<table>', {'id': 'newgame_create_table', });
+  var createtable = $('<table>', {'id': 'newgame_create_table' });
 
   var playerRow = $('<tr>');
-  playerRow.append($('<th>', {'text': 'You:', }));
-  playerRow.append($('<td>', {'text': Login.player, }));
+  playerRow.append($('<th>', {'text': 'You:' }));
+  playerRow.append($('<td>', {'text': Login.player }));
   createtable.append(playerRow);
 
   // Setup opponent choice, including autocomplete from a dropdown
@@ -144,7 +144,7 @@ Newgame.actionCreateGame = function() {
   createtable.append(
     Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
                          null, null));
-                    
+
   // Load buttons and recipes into a dict for use in selects
   var buttonRecipe = {}
   var buttonGreyed = {}
@@ -172,7 +172,7 @@ Newgame.actionCreateGame = function() {
   createtable.append(
     Newgame.getSelectRow("Winner is first player to win", 'n_rounds',
       {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
-       '4': '4 rounds', '5': '5 rounds', },
+       '4': '4 rounds', '5': '5 rounds' },
       null, '3'))
 
   // Form submission button
@@ -180,7 +180,7 @@ Newgame.actionCreateGame = function() {
   createform.append($('<br>'));
   createform.append($('<button>', {
                                     'id': 'newgame_action_button',
-                                    'text': 'Start game!',
+                                    'text': 'Start game!'
                                    }));
   creatediv.append(createform);
 
@@ -216,15 +216,15 @@ Newgame.formCreateGame = function() {
     Env.message = {
       'type': 'error',
       'text':
-        "Please select an opponent, your button, and your opponent's button",
+        "Please select an opponent, your button, and your opponent's button"
     };
-    Newgame.showNewgamePage(); 
+    Newgame.showNewgamePage();
   } else if (!(opponentName in Api.player.list)) {
     Env.message = {
       'type': 'error',
-      'text': 'Specified opponent ' + opponentName + ' is not recognized',
+      'text': 'Specified opponent ' + opponentName + ' is not recognized'
     };
-    Newgame.showNewgamePage(); 
+    Newgame.showNewgamePage();
 
   } else {
     playerNameArray.push(opponentName);
@@ -235,36 +235,36 @@ Newgame.formCreateGame = function() {
              type: 'createGame',
              playerNameArray: playerNameArray,
              buttonNameArray: buttonNameArray,
-             maxWins: maxWins,
+             maxWins: maxWins
            },
            function(rs) {
              if ('ok' == rs.status) {
                var gameId = rs.data.gameId;
                var gameLink = $('<a>', {
                                   'href': 'game.html?game=' + gameId,
-                                  'text': 'Go to game page',
+                                  'text': 'Go to game page'
                                 });
                var gamePar = $('<p>',
-                                {'text': rs.message + ' ', });
+                                {'text': rs.message + ' ' });
                gamePar.append(gameLink);
                Env.message = {
                  'type': 'success',
                  'text': '',
-                 'obj': gamePar,
+                 'obj': gamePar
                };
                Newgame.showNewgamePage();
              } else {
                Env.message = {
                  'type': 'error',
-                 'text': rs.message,
+                 'text': rs.message
                };
                Newgame.showNewgamePage();
              }
            }
     ).fail(function() {
-             Env.message = { 
+             Env.message = {
                'type': 'error',
-               'text': 'Internal error when calling createGame',
+               'text': 'Internal error when calling createGame'
              };
              Newgame.showNewgamePage();
            });
@@ -277,7 +277,7 @@ Newgame.formCreateGame = function() {
 Newgame.addLoggedOutPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
-    'text': "Can't create a game because you are not logged in",
+    'text': "Can't create a game because you are not logged in"
   }))
   Newgame.page.append(errorDiv);
 }
@@ -286,7 +286,7 @@ Newgame.addInternalErrorPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
     'text': "Can't create a game.  Something went wrong when " +
-            "loading data from server.",
+            "loading data from server."
   }))
   Newgame.page.append(errorDiv);
 }
@@ -297,11 +297,11 @@ Newgame.addInternalErrorPage = function() {
 Newgame.getSelectRow = function(rowname, selectname, valuedict,
                                 greydict, selectedval) {
   var selectRow = $('<tr>');
-  selectRow.append($('<th>', {'text': rowname + ':', }));
+  selectRow.append($('<th>', {'text': rowname + ':' }));
 
   var select = $('<select>', {
                    'id': selectname,
-                   'name': selectname,
+                   'name': selectname
                  });
 
   // If there's no default, put an invalid default value first
@@ -309,7 +309,7 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
     select.append($('<option>', {
       'value': '',
       'class': "yellowed",
-      'text': 'Choose ' + rowname.toLowerCase(),
+      'text': 'Choose ' + rowname.toLowerCase()
     }));
   }
 
@@ -317,7 +317,7 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
     var selectopts = {
       'value': key,
       'label': value,
-      'text': value,
+      'text': value
     };
     if (selectedval == key) {
       selectopts['selected'] = "selected";

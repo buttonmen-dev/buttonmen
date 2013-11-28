@@ -1,6 +1,6 @@
 // namespace for this "module"
 var Api = {
-  'data': {},
+  'data': {}
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ var Api = {
 //   and populate Api.x in whatever way is desired
 // * call the requested callback function no matter what happened with
 //   the data load
-// 
+//
 // Notes:
 // * these routines may assume that the login header has already been
 //   loaded, and therefore that the contents of Login.logged_in and
@@ -31,10 +31,10 @@ var Api = {
 
 Api.getButtonData = function(callbackfunc) {
   Api.button = {
-    'load_status': 'failed',
+    'load_status': 'failed'
   };
   $.post('../api/responder.php',
-         { type: 'loadButtonNames', },
+         { type: 'loadButtonNames' },
          function(rs) {
            if (rs.status == 'ok') {
              if (Api.parseButtonData(rs.data)) {
@@ -42,13 +42,13 @@ Api.getButtonData = function(callbackfunc) {
              } else {
                Env.message = {
                  'type': 'error',
-                 'text': 'Could not parse button list from server',
+                 'text': 'Could not parse button list from server'
                };
              }
            } else {
              Env.message = {
                'type': 'error',
-               'text': rs.message,
+               'text': rs.message
              };
            }
            return callbackfunc();
@@ -56,7 +56,7 @@ Api.getButtonData = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when calling loadButtonNames',
+      'text': 'Internal error when calling loadButtonNames'
     };
     return callbackfunc();
   });
@@ -72,7 +72,7 @@ Api.parseButtonData = function(data) {
   while (i < data.buttonNameArray.length) {
     Api.button.list[data.buttonNameArray[i]] = {
       'recipe': data.recipeArray[i],
-      'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
+      'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i]
     };
     i++;
   }
@@ -84,10 +84,10 @@ Api.parseButtonData = function(data) {
 
 Api.getPlayerData = function(callbackfunc) {
   Api.player = {
-    'load_status': 'failed',
+    'load_status': 'failed'
   };
   $.post('../api/responder.php',
-         { type: 'loadPlayerNames', },
+         { type: 'loadPlayerNames' },
          function(rs) {
            if (rs.status == 'ok') {
              if (Api.parsePlayerData(rs.data)) {
@@ -95,13 +95,13 @@ Api.getPlayerData = function(callbackfunc) {
              } else {
                Env.message = {
                  'type': 'error',
-                 'text': 'Could not parse player list from server',
+                 'text': 'Could not parse player list from server'
                };
              }
            } else {
              Env.message = {
                'type': 'error',
-               'text': rs.message,
+               'text': rs.message
              };
            }
            return callbackfunc();
@@ -109,7 +109,7 @@ Api.getPlayerData = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when calling loadPlayerNames',
+      'text': 'Internal error when calling loadPlayerNames'
     };
     return callbackfunc();
   });
