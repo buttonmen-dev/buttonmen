@@ -1361,6 +1361,7 @@ class BMGame {
             array('gameId'                  => $this->gameId,
                   'gameState'               => $this->gameState,
                   'roundNumber'             => $this->get_roundNumber(),
+                  'maxWins'                 => $this->maxWins,
                   'activePlayerIdx'         => $this->activePlayerIdx,
                   'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
                   'playerIdArray'           => $this->playerIdArray,
