@@ -325,12 +325,15 @@ class BMGame {
                     $validAttackTypes = $this->valid_attack_types();
                     if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
-                        $this->attack = array('attackerPlayerIdx' => $this->attackerPlayerIdx,
-                                              'defenderPlayerIdx' => $this->defenderPlayerIdx,
+                        var_dump('start autopass');
+                        $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
+                                              'defenderPlayerIdx' => NULL,
                                               'attackerAttackDieIdxArray' => array(),
                                               'defenderAttackDieIdxArray' => array(),
                                               'attackType' => 'Pass');
                     }
+                } else {
+                    var_dump('not autopass');
                 }
 
                 // display dice
@@ -384,7 +387,7 @@ class BMGame {
                 $this->turnNumberInRound += 1;
 
                 $postAttackDice = $this->get_action_log_data(
-                  $attackerAttackDieArray, $defenderAttackDieArray 
+                  $attackerAttackDieArray, $defenderAttackDieArray
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
@@ -593,7 +596,6 @@ class BMGame {
 
     public function proceed_to_next_user_action() {
         $repeatCount = 0;
-
         $this->update_game_state();
         $this->do_next_step();
 
@@ -880,7 +882,7 @@ class BMGame {
         } else {
             $this->message = 'performed ' . $attackType . ' attack';
 
-            // Add the pre-attack status of all participating dice 
+            // Add the pre-attack status of all participating dice
             $preAttackAttackers = array();
             $preAttackDefenders = array();
             $attackerOutcomes = array();
@@ -1115,9 +1117,13 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'There must be exactly five elements in attack.');
                 }
-                if (!is_integer($value[0]) || !is_integer($value[1])) {
+                if (!is_integer($value[0])) {
                     throw new InvalidArgumentException(
-                        'The first and second elements in attack must be integers.');
+                        'The first element in attack must be an integer.');
+                }
+                if (!is_integer($value[1]) && !is_null($value[1])) {
+                    throw new InvalidArgumentException(
+                        'The first element in attack must be an integer or a NULL.');
                 }
                 if (!is_array($value[2]) || !is_array($value[3])) {
                     throw new InvalidArgumentException(
