@@ -8,10 +8,14 @@ test("test_Api_is_loaded", function() {
 asyncTest("test_Api.getButtonData", function() {
   Api.getButtonData(function() {
     equal(Api.button.load_status, "ok", "Api.button.load_status should be ok");
-    deepEqual(
-      Api.button.list["Avis"],
-      {'hasUnimplementedSkill': false, 'recipe': '(4) (4) (10) (12) (X)',},
-      "Avis button in list should have correct contents");
+    equal(typeof Api.button.list, "object",
+          "Api.button.list should be an object");
+    if (Api.button.list) {
+      deepEqual(
+        Api.button.list["Avis"],
+        {'hasUnimplementedSkill': false, 'recipe': '(4) (4) (10) (12) (X)',},
+        "Button Avis should have correct contents");
+    }
     deepEqual(Env.message, undefined,
               "Api.getButtonData should not set Env.message");
     start();
@@ -22,10 +26,14 @@ asyncTest("test_Api.getButtonData", function() {
 asyncTest("test_Api.getPlayerData", function() {
   Api.getPlayerData(function() {
     equal(Api.player.load_status, "ok", "Api.player.load_status should be ok");
-    deepEqual(
-      Api.player.list,
-      {},
-      "Player in list should have correct contents");
+    equal(typeof Api.player.list, "object",
+          "Api.player.list should be an object");
+    if (Api.player.list) {
+      deepEqual(
+        Api.player.list["tester2"],
+        {},
+        "Player tester2 should have correct contents");
+    }
     deepEqual(Env.message, undefined,
               "Api.getPlayerData should not set Env.message");
     start();
