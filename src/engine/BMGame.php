@@ -1120,7 +1120,7 @@ class BMGame {
                 }
                 if (!is_integer($value[1]) && !is_null($value[1])) {
                     throw new InvalidArgumentException(
-                        'The first element in attack must be an integer or a NULL.');
+                        'The second element in attack must be an integer or a NULL.');
                 }
                 if (!is_array($value[2]) || !is_array($value[3])) {
                     throw new InvalidArgumentException(
