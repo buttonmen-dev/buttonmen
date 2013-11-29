@@ -278,6 +278,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step
      */
+    public function test_do_next_step_react_to_initiative() {
+
+    }
+
+    /**
+     * @covers BMGame::do_next_step
+     */
     public function test_do_next_step_start_round() {
         $this->object->gameState = BMGameState::startRound;
         try {
@@ -4516,6 +4523,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
         $game->do_next_step();
         $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::startRound, $game->gameState);

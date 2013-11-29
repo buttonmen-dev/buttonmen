@@ -295,19 +295,32 @@ class BMGame {
                         array_search(TRUE, $doesPlayerHaveInitiative, TRUE);
                 }
 
-                // james: not yet programmed
-                // if there are focus or chance dice, determine if they might make a difference
-                if (FALSE) {
-                    // if so, then ask player to make decisions
-                    $this->activate_GUI('ask_player_about_focus_dice');
-                    break;
-                }
-
-                // if no more decisions, then set BMGame->playerWithInitiativeIdx
                 $this->playerWithInitiativeIdx = $tempPlayerWithInitiativeIdx;
                 break;
 
             case BMGameState::reactToInitiative:
+                $canReactArray = array_fill(0, $this->nPlayers, FALSE);
+
+                // this only takes effect if a player not won initiative
+                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    if ($this->playerWithInitiativeIdx == $playerIdx) {
+                        continue;
+                    }
+
+                    foreach ($activeDieArray as $activeDie) {
+                        if ($activeDie->run_hooks('react_to_initiative', array())) {
+                            $canReactArray[$playerIdx] = TRUE;
+                            continue;
+                        }
+                    }
+                }
+
+// if there are focus or chance dice, determine if they might make a difference
+
+
+
+
+
                 break;
 
             case BMGameState::startRound:

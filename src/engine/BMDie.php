@@ -59,7 +59,7 @@ class BMDie {
 // --AND--
 // Take it out as a reference: $thing = &$args[0]
 
-    public function run_hooks($func, $args)
+    public function run_hooks($func, array $args)
     {
         // get the hooks for the calling function
         if (!array_key_exists($func, $this->hookList)) {
@@ -542,6 +542,8 @@ class BMDie {
 
     public function run_hooks_at_game_state($gameState, $activePlayerIdx) {
         switch ($gameState) {
+            case BMGameState::reactToInitiative:
+                return $this->run_hooks('react_to_initiative', array());
             case BMGameState::endTurn:
                 if ($this->playerIdx === $activePlayerIdx) {
                     $this->inactive = "";
