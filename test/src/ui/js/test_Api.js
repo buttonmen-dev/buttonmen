@@ -22,7 +22,6 @@ asyncTest("test_Api.getButtonData", function() {
   });
 });
 
-// FIXME: the second test will fail when players exist in the DB
 asyncTest("test_Api.getPlayerData", function() {
   Api.getPlayerData(function() {
     equal(Api.player.load_status, "ok", "Api.player.load_status should be ok");

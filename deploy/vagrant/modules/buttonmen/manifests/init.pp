@@ -22,6 +22,11 @@ class buttonmen::server {
       content => template("buttonmen/create_databases.erb"),
       mode => 0555;
 
+    "/usr/local/bin/audit_js_unit_test_coverage":
+      ensure => file,
+      content => template("buttonmen/audit_js_unit_test_coverage.erb"),
+      mode => 0555;
+
     "/usr/local/etc/buttonmen_phpunit.php":
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
