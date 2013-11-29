@@ -8,8 +8,6 @@ class buttonmen::server {
   $buttonmen_db2_user = "root"
   $buttonmen_db2_pass = "root"
 
-  $buttonmen_code_githash = generate("/usr/bin/cut", "-f", "1", "/buttonmen/.git/FETCH_HEAD")
-
   file {
 
     # Install a .htaccess file containing buttonmen variables
@@ -27,11 +25,6 @@ class buttonmen::server {
     "/usr/local/etc/buttonmen_phpunit.php":
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
-
-    "/var/www/version.html":
-      ensure => file,
-      content => template("buttonmen/version.html.erb"),
-      require => Exec["buttonmen_src_rsync"];
   }
 
   exec {
