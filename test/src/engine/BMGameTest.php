@@ -644,7 +644,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::determineInitiative;
         $this->object->playerWithInitiativeIdx = 0;
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::startRound, $this->object->gameState);
+        $this->assertEquals(BMGameState::reactToInitiative, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::update_game_state
+     */
+    public function test_update_game_state_react_to_initiative() {
+        $this->object->gameState = BMGameState::reactToInitiative;
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::startRound,
+                            $this->object->gameState);
     }
 
     /**

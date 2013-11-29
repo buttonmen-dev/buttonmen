@@ -307,6 +307,9 @@ class BMGame {
                 $this->playerWithInitiativeIdx = $tempPlayerWithInitiativeIdx;
                 break;
 
+            case BMGameState::reactToInitiative:
+                break;
+
             case BMGameState::startRound:
                 if (!isset($this->playerWithInitiativeIdx)) {
                     throw new LogicException(
@@ -384,7 +387,7 @@ class BMGame {
                 $this->turnNumberInRound += 1;
 
                 $postAttackDice = $this->get_action_log_data(
-                  $attackerAttackDieArray, $defenderAttackDieArray 
+                  $attackerAttackDieArray, $defenderAttackDieArray
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
@@ -542,8 +545,12 @@ class BMGame {
 
             case BMGameState::determineInitiative:
                 if (isset($this->playerWithInitiativeIdx)) {
-                    $this->gameState = BMGameState::startRound;
+                    $this->gameState = BMGameState::reactToInitiative;
                 }
+                break;
+
+            case BMGameState::reactToInitiative:
+                $this->gameState = BMGameState::startRound;
                 break;
 
             case BMGameState::startRound:
@@ -880,7 +887,7 @@ class BMGame {
         } else {
             $this->message = 'performed ' . $attackType . ' attack';
 
-            // Add the pre-attack status of all participating dice 
+            // Add the pre-attack status of all participating dice
             $preAttackAttackers = array();
             $preAttackDefenders = array();
             $attackerOutcomes = array();
