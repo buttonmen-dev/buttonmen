@@ -325,15 +325,12 @@ class BMGame {
                     $validAttackTypes = $this->valid_attack_types();
                     if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
-                        var_dump('start autopass');
                         $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
                                               'defenderPlayerIdx' => NULL,
                                               'attackerAttackDieIdxArray' => array(),
                                               'defenderAttackDieIdxArray' => array(),
                                               'attackType' => 'Pass');
                     }
-                } else {
-                    var_dump('not autopass');
                 }
 
                 // display dice
