@@ -38,3 +38,11 @@ asyncTest("test_Api.getPlayerData", function() {
     start();
   });
 });
+
+test("test_Api.parseButtonData", function() {
+  ok(null, "Test of Api.parseButtonData not implemented");
+});
+
+test("test_Api.parsePlayerData", function() {
+  ok(null, "Test of Api.parsePlayerData not implemented");
+});
