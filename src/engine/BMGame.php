@@ -328,8 +328,8 @@ class BMGame {
                     $validAttackTypes = $this->valid_attack_types();
                     if (array_search('Pass', $validAttackTypes) &&
                         (1 == count($validAttackTypes))) {
-                        $this->attack = array('attackerPlayerIdx' => $this->attackerPlayerIdx,
-                                              'defenderPlayerIdx' => $this->defenderPlayerIdx,
+                        $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
+                                              'defenderPlayerIdx' => NULL,
                                               'attackerAttackDieIdxArray' => array(),
                                               'defenderAttackDieIdxArray' => array(),
                                               'attackType' => 'Pass');
@@ -600,7 +600,6 @@ class BMGame {
 
     public function proceed_to_next_user_action() {
         $repeatCount = 0;
-
         $this->update_game_state();
         $this->do_next_step();
 
@@ -1122,9 +1121,13 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'There must be exactly five elements in attack.');
                 }
-                if (!is_integer($value[0]) || !is_integer($value[1])) {
+                if (!is_integer($value[0])) {
                     throw new InvalidArgumentException(
-                        'The first and second elements in attack must be integers.');
+                        'The first element in attack must be an integer.');
+                }
+                if (!is_integer($value[1]) && !is_null($value[1])) {
+                    throw new InvalidArgumentException(
+                        'The second element in attack must be an integer or a NULL.');
                 }
                 if (!is_array($value[2]) || !is_array($value[3])) {
                     throw new InvalidArgumentException(
