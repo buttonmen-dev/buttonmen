@@ -4453,10 +4453,71 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->waitingOnActionArray = array(TRUE, FALSE);
 
         // player 1 passes
-        $game->attack = array(0, 1, array(), array(), 'Pass');
-        $game->proceed_to_next_user_action();
-
+        $game->attack = array(0, NULL, array(), array(), 'Pass');
+        $game->update_game_state();
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::endTurn, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::endTurn, $game->gameState);
+
+        // player 2 autopasses
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $this->assertEquals(array('attackerPlayerIdx' => 1,
+                                  'defenderPlayerIdx' => NULL,
+                                  'attackerAttackDieIdxArray' => array(),
+                                  'defenderAttackDieIdxArray' => array(),
+                                  'attackType' => 'Pass'),
+                            $game->attack);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::endTurn, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::endTurn, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::endRound, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::endRound, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::loadDiceIntoButtons, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::loadDiceIntoButtons, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::addAvailableDiceToGame, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::addAvailableDiceToGame, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::startRound, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::startRound, $game->gameState);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+
         $this->assertEquals(array(array('W' => 0, 'L' => 2, 'D' => 0),
                                   array('W' => 2, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
