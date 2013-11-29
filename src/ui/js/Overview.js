@@ -50,7 +50,7 @@ Overview.getOverview = function(callbackfunc) {
     return callbackfunc();
   }
     
-  $.post('../api/responder.php',
+  $.post(Env.api_location,
          { type: 'loadActiveGames', },
          function(rs) {
            if (rs.status == 'ok') {

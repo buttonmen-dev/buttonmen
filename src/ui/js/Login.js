@@ -16,7 +16,7 @@ Login.getLoginHeader = function() {
   if (Login.status_type == 0) {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
-  $.post('../api/responder.php',
+  $.post(Env.api_location, 
          {type: 'loadPlayerName'},
          function(rs) {
            var player_name = null;
@@ -147,7 +147,7 @@ Login.stateLoggedOut = function() {
 // of attempts to contact responder, so, for now, don't give the user
 // any feedback, just redisplay the header no matter what.  (Fix this later.)
 Login.postToResponder = function(responder_args) {
-  $.post('../api/responder.php',
+  $.post(Env.api_location,
          responder_args,
          function(rs) {
            if (rs.status == 'ok') {
