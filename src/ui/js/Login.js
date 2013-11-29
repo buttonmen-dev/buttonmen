@@ -1,6 +1,6 @@
 // namespace for this "module"
 var Login = {
-  'status_type': 0,
+  'status_type': 0
 };
 
 // Login states
@@ -40,7 +40,7 @@ Login.showLoginHeader = function(callbackfunc) {
 
   // Make sure div elements that we will need exist in the page body
   if ($('#login_header').length == 0) {
-    $('body').append($('<div>', {'id': 'login_header', }));
+    $('body').append($('<div>', {'id': 'login_header' }));
     $('body').append($('<hr>'));
   }
 
@@ -63,7 +63,7 @@ Login.layoutHeader = function() {
 Login.getLoginForm = function() {
   var loginform = $('<form>', {
                       'id': 'login_action_form',
-                      'action': "javascript:void(0);",
+                      'action': "javascript:void(0);"
                     });
   return loginform;
 }
@@ -74,13 +74,13 @@ Login.getLoginForm = function() {
 
 Login.stateLoggedIn = function() {
   Login.message = $('<p>', {
-    'text': 'Welcome to ButtonMen: You are logged in as ' + Login.player + '. ',
+    'text': 'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
   });
 
   var loginform = Login.getLoginForm();
   loginform.append($('<button>', {
                        'id': 'login_action_button',
-                       'text': 'Logout?',
+                       'text': 'Logout?'
                      }));
   Login.form = Login.formLogout;
 
@@ -95,13 +95,13 @@ Login.stateLoggedOut = function() {
     Login.message.append(
       $('<font>', {
           'color': Env.messageTypeColors['error'],
-          'text': 'Login failed - username or password invalid',
+          'text': 'Login failed - username or password invalid'
         }));
   } else if (Login.status_type == Login.STATUS_ACTION_SUCCEEDED) {
     Login.message.append(
       $('<font>', {
           'color': Env.messageTypeColors['success'],
-          'text': 'Logout succeeded - login again?',
+          'text': 'Logout succeeded - login again?'
         }));
   } else {
     Login.message.append('You are not logged in. ');
@@ -112,23 +112,23 @@ Login.stateLoggedOut = function() {
   loginform.append($('<input>', {
                        'type': 'text',
                        'id': 'login_name',
-                       'name': 'login_name',
+                       'name': 'login_name'
                      }));
   loginform.append(' Password: ');
   loginform.append($('<input>', {
                        'type': 'password',
                        'id': 'login_pass',
-                       'name': 'login_pass',
+                       'name': 'login_pass'
                      }));
   loginform.append(' ');
   loginform.append($('<button>', {
                        'id': 'login_action_button',
-                       'text': 'Login',
+                       'text': 'Login'
                      }));
-  var createoption = $('<font>', { 'text': ' or ', });
+  var createoption = $('<font>', { 'text': ' or ' });
   createoption.append($('<a>', {
                        'href': 'create_user.html',
-                       'text': 'Create an account',
+                       'text': 'Create an account'
                      }));
   loginform.append(createoption);
 
@@ -166,7 +166,7 @@ Login.postToResponder = function(responder_args) {
 
 Login.formLogout = function() {
   var logoutargs = {
-    'type': 'logout',
+    'type': 'logout'
   };
   Login.postToResponder(logoutargs);
 }
@@ -184,7 +184,7 @@ Login.formLogin = function() {
   var loginargs = {
     'type': 'login',
     'username': username,
-    'password': password,
+    'password': password
   };
   Login.postToResponder(loginargs);
 }

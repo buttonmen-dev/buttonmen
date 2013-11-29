@@ -18,9 +18,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             require 'test/src/database/mysql.test.inc.php';
         }
         $this->object = new BMInterface(TRUE);
-
-        $this->object->create_user('test3', 't');
-        $this->object->create_user('test4', 't');
     }
 
     /**
@@ -32,6 +29,67 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMInterface::create_user
+     */
+    public function test_create_user() {
+        $this->object->create_user('test3', 't');
+        $this->object->create_user('test4', 't');
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::get_player_info
+     */
+    public function test_get_player_info() {
+        $resultArray = $this->object->get_player_info(1, array('autopass'));
+        $this->assertTrue(is_array($resultArray));
+
+        $this->assertArrayHasKey('id', $resultArray);
+        $this->assertArrayHasKey('name_ingame', $resultArray);
+        $this->assertArrayNotHasKey('password_hashed', $resultArray);
+        $this->assertArrayHasKey('name_irl', $resultArray);
+        $this->assertArrayHasKey('email', $resultArray);
+        $this->assertArrayHasKey('dob', $resultArray);
+        $this->assertArrayHasKey('autopass', $resultArray);
+        $this->assertArrayHasKey('image_path', $resultArray);
+        $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('last_action_time', $resultArray);
+        $this->assertArrayHasKey('creation_time', $resultArray);
+        $this->assertArrayHasKey('fanatic_button_id', $resultArray);
+        $this->assertArrayHasKey('n_games_won', $resultArray);
+        $this->assertArrayHasKey('n_games_lost', $resultArray);
+
+        $this->assertTrue(is_int($resultArray['id']));
+        $this->assertEquals(1, $resultArray['id']);
+
+        $this->assertTrue(is_bool($resultArray['autopass']));
+
+        $this->assertTrue(is_int($resultArray['fanatic_button_id']));
+        $this->assertEquals(0, $resultArray['fanatic_button_id']);
+        $this->assertTrue(is_int($resultArray['n_games_won']));
+        $this->assertTrue(is_int($resultArray['n_games_lost']));
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::get_player_info
+     * @covers BMInterface::set_player_info
+     */
+    public function test_set_player_info() {
+        $this->object->set_player_info(1, array('autopass' => 1));
+        $playerInfoArray = $this->object->get_player_info(1);
+        $this->assertEquals(TRUE, $playerInfoArray['autopass']);
+
+        $this->object->set_player_info(1, array('autopass' => 0));
+        $playerInfoArray = $this->object->get_player_info(1);
+        $this->assertEquals(FALSE, $playerInfoArray['autopass']);
+    }
+
+    /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
@@ -140,6 +198,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      */
     public function test_create_self_game() {
@@ -149,8 +209,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Game create failed because a player has been selected more than once.',
                             $this->object->message);
     }
-    
+
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      */
     public function test_create_game_with_invalid_parameters() {
@@ -159,19 +221,19 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with a zero number of max wins
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 0);
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with a large number of max wins
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 6);
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with an invalid button name
         $retval = $this->object->create_game(array(1, 2), array('KJQOERUCHC', 'Stark'), 3);
         $this->assertNull($retval);
@@ -180,6 +242,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -296,6 +360,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -345,6 +411,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::load_game
      */
     public function test_load_poison() {
@@ -398,6 +466,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      */
     public function test_swing_value_reset_at_end_of_round() {
@@ -556,6 +626,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      */
     public function test_swing_value_reset_at_end_of_game() {
@@ -612,6 +684,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * The following unit tests ensure that the swing values are persistent,
      * even when the swing dice have been changed to normal dice,
      *   e.g., by a berserk attack.
+     *
+     * @depends test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -682,6 +756,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that the number of passes is updated
      * correctly.
+     *
+     * @depends test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -759,6 +835,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * The following unit tests ensure that autopass works correctly.
+     *
+     * @depends test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game

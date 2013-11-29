@@ -35,7 +35,7 @@ class BMInterface {
     // methods
 
     public function create_user($username, $password) {
-	try {
+        try {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
@@ -64,6 +64,58 @@ class BMInterface {
         }
     }
 
+    public function get_player_info($playerId) {
+        try {
+            $query = 'SELECT * FROM player WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+            $result = $statement->fetchAll();
+
+            if (0 == count($result)) {
+                return NULL;
+            }
+        } catch (Exception $e) {
+            $errorData = $statement->errorInfo();
+            $this->message = 'Player info get failed: ' . $errorData[2];
+            return NULL;
+        }
+
+        $playerInfoArray = $result[0];
+
+        // make sure that the password hash is not accessed this way
+        unset($playerInfoArray['password_hashed']);
+
+        $playerInfoArray['id'] = (int)$playerInfoArray['id'];
+//        $playerInfoArray['dob']
+        $playerInfoArray['autopass'] = (bool)$playerInfoArray['autopass'];
+//        $playerInfoArray['last_action_time']
+//        $playerInfoArray['creation_time']
+        $playerInfoArray['fanatic_button_id'] = (int)$playerInfoArray['fanatic_button_id'];
+        $playerInfoArray['n_games_won'] = (int)$playerInfoArray['n_games_won'];
+        $playerInfoArray['n_games_lost'] = (int)$playerInfoArray['n_games_lost'];
+
+        return $playerInfoArray;
+    }
+
+    public function set_player_info($playerId, array $infoArray) {
+        foreach ($infoArray as $infoType => $info) {
+            try {
+                $query = 'UPDATE player '.
+                         "SET $infoType = :info ".
+                         'WHERE id = :player_id;';
+
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':info' => $info,
+                                          ':player_id' => $playerId));
+
+            } catch (Exception $e) {
+                var_dump($e->getMessage());
+                $this->message = 'Player info update failed: '.$e->getMessage();
+            }
+        }
+
+    }
+
     public function create_game(array $playerIdArray,
                                 array $buttonNameArray,
                                 $maxWins = 3) {
@@ -72,7 +124,7 @@ class BMInterface {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
-        
+
         // validate all inputs
         foreach ($playerIdArray as $playerId) {
             if (!(is_null($playerId) || is_int($playerId))) {
@@ -80,16 +132,16 @@ class BMInterface {
                 return NULL;
             }
         }
-        
-        if (FALSE === filter_var($maxWins, 
+
+        if (FALSE === filter_var($maxWins,
                                  FILTER_VALIDATE_INT,
                                  array('options'=>
-                                       array('min_range' => 1, 
+                                       array('min_range' => 1,
                                              'max_range' => 5)))) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
-        
+
         $buttonIdArray = array();
         foreach ($playerIdArray as $position => $playerId) {
             // get button ID
@@ -792,12 +844,12 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values($userId, $gameNumber,
+    public function submit_swing_values($playerId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
                                         $swingValueArray) {
         try {
             $game = $this->load_game($gameNumber);
-            $currentPlayerIdx = array_search($userId, $game->playerIdArray);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
@@ -805,7 +857,7 @@ class BMInterface {
                                           BMGameState::specifyDice,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
@@ -850,17 +902,17 @@ class BMInterface {
         }
     }
 
-    public function submit_turn($userId, $gameNumber, $roundNumber,
+    public function submit_turn($playerId, $gameNumber, $roundNumber,
                                 $submitTimestamp,
-				$dieSelectStatus, $attackType,
-				$attackerIdx, $defenderIdx) {
+                                $dieSelectStatus, $attackType,
+                                $attackerIdx, $defenderIdx) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
                                           BMGameState::startTurn,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }
