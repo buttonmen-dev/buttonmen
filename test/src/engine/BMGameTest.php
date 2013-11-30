@@ -4889,9 +4889,41 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array(), array('V' => 11));
-        $game->proceed_to_next_user_action();
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+
+        $game->update_game_state();
         $this->assertTrue($game->activeDieArrayArray[1][4] instanceof BMDieSwing);
         $this->assertFalse($game->activeDieArrayArray[1][4]->needsSwingValue);
+        $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+
+        // manually set die values
+        // 6 6 10 12 20 vs 4 12 20 20 11
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[0][0]->value = 6;
+        $activeDieArrayArray[0][1]->value = 6;
+        $activeDieArrayArray[0][2]->value = 6;
+        $activeDieArrayArray[0][3]->value = 6;
+        $activeDieArrayArray[0][4]->value = 6;
+        $activeDieArrayArray[1][0]->value = 4;
+        $activeDieArrayArray[1][1]->value = 4;
+        $activeDieArrayArray[1][2]->value = 4;
+        $activeDieArrayArray[1][3]->value = 4;
+        $activeDieArrayArray[1][4]->value = 4;
+
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+        $this->assertEquals(1, $game->playerWithInitiativeIdx);
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
+        $game->do_next_step();
+        $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
 //
 //        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
 //        $this->assertEquals(BMGameState::startTurn, $game->gameState);
