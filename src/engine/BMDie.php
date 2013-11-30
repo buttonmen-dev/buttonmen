@@ -544,12 +544,10 @@ class BMDie {
         return $dice;
     }
 
-    public function run_hooks_at_game_state($gameState, $activePlayerIdx) {
+    public function run_hooks_at_game_state($gameState, $args) {
         switch ($gameState) {
-            case BMGameState::reactToInitiative:
-                return $this->run_hooks('react_to_initiative', array());
             case BMGameState::endTurn:
-                if ($this->playerIdx === $activePlayerIdx) {
+                if ($this->playerIdx === $args['activePlayerIdx']) {
                     $this->inactive = "";
                 }
                 $this->hasAttacked = FALSE;
@@ -558,7 +556,8 @@ class BMDie {
                 // do nothing special
         }
 
-        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' => $activePlayerIdx));
+        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' =>
+                                             $args['activePlayerIdx']));
     }
 
     public function get_recipe() {

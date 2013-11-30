@@ -755,34 +755,41 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 1));
         $this->assertNotEquals("", $this->object->inactive);
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
         $this->assertEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertNotEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertEquals("", $this->object->inactive);
     }

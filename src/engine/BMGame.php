@@ -614,11 +614,13 @@ class BMGame {
         }
     }
 
-    protected function run_die_hooks($gameState) {
+    protected function run_die_hooks($gameState, array $args = array()) {
+        $args['activePlayerIdx'] = $this->activePlayerIdx;
+
         if (!empty($this->activeDieArrayArray)) {
             foreach ($this->activeDieArrayArray as $activeDieArray) {
                 foreach ($activeDieArray as $activeDie) {
-                    $activeDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                    $activeDie->run_hooks_at_game_state($gameState, $args);
                 }
             }
         }
@@ -626,7 +628,7 @@ class BMGame {
         if (!empty($this->capturedDieArrayArray)) {
             foreach ($this->capturedDieArrayArray as $capturedDieArray) {
                 foreach ($capturedDieArray as $capturedDie) {
-                    $capturedDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                    $capturedDie->run_hooks_at_game_state($gameState, $args);
                 }
             }
         }
