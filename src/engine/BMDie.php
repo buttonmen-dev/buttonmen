@@ -66,9 +66,13 @@ class BMDie {
             return;
         }
 
+        $resultArray = array();
+
         foreach ($this->hookList[$func] as $skillClass) {
-            $skillClass::$func($args);
+            $resultArray[$skillClass] = $skillClass::$func($args);
         }
+
+        return $resultArray;
     }
 
     // Other code inside engine must never set $skillClass, but
