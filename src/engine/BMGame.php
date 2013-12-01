@@ -616,6 +616,74 @@ class BMGame {
         }
     }
 
+    public function react_to_initiative(array $args) {
+        if (BMGameState::reactToInitiative != $this->gameState) {
+            return;
+        }
+
+        if (!array_key_exists('action', $args) ||
+            !array_key_exists('playerIdx', $args)) {
+            return;
+        }
+
+        $playerIdx = $args['playerIdx'];
+        $waitingOnActionArray = &$this->waitingOnActionArray;
+        $waitingOnActionArray[$args['playerIdx']] = FALSE;
+
+        switch ($args['action']) {
+            case 'chance':
+                $this->activeDieArrayArray[$playerIdx][$args['rerolledDieIdx']]->roll();
+                $this->gameState = BMGameState::determineInitiative;
+                break;
+            case 'decline':
+                if (0 == array_sum($this->waitingOnActionArray)) {
+                    $this->gameState = BMGameState::startRound;
+                }
+                break;
+            case 'focus':
+                if (!array_key_exists('focusValueArray', $args)) {
+                    throw new LogicException('focusValueArray must exist.');
+                }
+
+                // check new die values
+                $focusValueArray = $args['focusValueArray'];
+
+                if (!is_array($focusValueArray) || (0 == count($focusValueArray))) {
+                    throw new LogicException('focusValueArray must be a non-empty array.');
+                }
+
+                // focusValueArray should have the form array('dieIdx' => 'dieValue', ...)
+                foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
+
+                    if (FALSE === filter_var($value,
+                                             FILTER_VALIDATE_INT,
+                                             array("options"=>
+                                                   array("min_range"=>$die->min,
+                                                         "max_range"=>$die->value)))) {
+                        throw new LogicException('Invalid value for focus die.');
+                    }
+
+
+                    if (FALSE === array_search('BMSkillFocus', $die->skillList)) {
+                        throw new LogicException('Can only apply focus action to focus die.');
+                    }
+                }
+
+                // change specified die values
+                foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
+                }
+
+                $this->gameState = BMGameState::determineInitiative;
+                break;
+            default:
+                throw new LogicException('Invalid reaction to initiative.');
+                break;
+        }
+
+    }
+
     protected function run_die_hooks($gameState, array $args = array()) {
         $args['activePlayerIdx'] = $this->activePlayerIdx;
 
