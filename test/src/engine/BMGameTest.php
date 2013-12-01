@@ -4924,6 +4924,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
+
 //
 //        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
 //        $this->assertEquals(BMGameState::startTurn, $game->gameState);

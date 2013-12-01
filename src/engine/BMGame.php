@@ -540,7 +540,9 @@ class BMGame {
                 break;
 
             case BMGameState::reactToInitiative:
-                $this->gameState = BMGameState::startRound;
+                if (0 == array_sum($this->waitingOnActionArray)) {
+                    $this->gameState = BMGameState::startRound;
+                }
                 break;
 
             case BMGameState::startRound:
