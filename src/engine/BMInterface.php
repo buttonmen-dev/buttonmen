@@ -72,7 +72,7 @@ class BMInterface {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
-        
+
         // validate all inputs
         foreach ($playerIdArray as $playerId) {
             if (!(is_null($playerId) || is_int($playerId))) {
@@ -80,16 +80,16 @@ class BMInterface {
                 return NULL;
             }
         }
-        
-        if (FALSE === filter_var($maxWins, 
+
+        if (FALSE === filter_var($maxWins,
                                  FILTER_VALIDATE_INT,
                                  array('options'=>
-                                       array('min_range' => 1, 
+                                       array('min_range' => 1,
                                              'max_range' => 5)))) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
-        
+
         $buttonIdArray = array();
         foreach ($playerIdArray as $position => $playerId) {
             // get button ID
@@ -679,7 +679,7 @@ class BMInterface {
                 return('');
             } else {
                 $this->message = 'Player ID retrieved successfully.';
-                return(intval($result[0]));
+                return((int)$result[0]);
             }
         } catch (Exception $e) {
             error_log(
@@ -907,7 +907,6 @@ class BMInterface {
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
-                $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
                 // On success, don't set a message, because one will be set from the action log
@@ -921,6 +920,62 @@ class BMInterface {
                 "Caught exception in BMInterface::submit_turn: " .
                 $e->getMessage());
             $this->message = 'Internal error while submitting turn';
+        }
+    }
+
+    public function react_to_initiative($userId, $gameNumber, $action,
+                                        $dieIdxArray, $dieValueArray = NULL) {
+        try {
+            $game = $this->load_game($gameNumber);
+            if (!$this->is_action_current($game,
+                                          BMGameState::react_to_initiative,
+                                          $submitTimestamp,
+                                          $roundNumber,
+                                          $userId)) {
+                $this->message = 'You cannot react to initiative at the moment';
+                return NULL;
+            }
+
+            $playerIdx = array_search($userId, $game->playerIdArray);
+
+            if (FALSE === $playerIdx) {
+                $this->message = 'You are not a participant in this game';
+                return NULL;
+            }
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'chance':
+                    if (1 != count($dieIdxArray)) {
+                        $this->message = 'Only one chance die can be rerolled';
+                        return NULL;
+                    }
+                    $argArray['rerolledDieIdx'] = (int)$dieIdxArray[0];
+                    break;
+                case 'focus':
+                    if (count($dieIdxArray) != count($dieValueArray)) {
+                        $this->message = 'Mismatch in number of indices and values';
+                        return NULL;
+                    }
+                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+                        $argArray[$dieIdx] = $dieValueArray[$tempIdx];
+                    }
+            }
+
+
+            if ($game->react_to_initiative($argArray)) {
+                $this->save_game($game);
+                return TRUE;
+            } else {
+                return NULL;
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::react_to_initiative: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reacting to initiative';
         }
     }
 

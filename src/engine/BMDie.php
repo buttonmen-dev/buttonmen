@@ -286,7 +286,7 @@ class BMDie {
         $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
         $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list,
-                                             'value' => intval($this->value)));
+                                             'value' => (int)$this->value));
 
         return $list;
     }
