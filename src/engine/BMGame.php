@@ -664,7 +664,27 @@ class BMGame {
 
         switch ($args['action']) {
             case 'chance':
-                $this->activeDieArrayArray[$playerIdx][$args['rerolledDieIdx']]->roll();
+                if (!array_key_exists('rerolledDieIdx', $args)) {
+                    $this->message = 'rerolledDieIdx must exist.';
+                    return FALSE;
+                }
+
+                if (FALSE === filter_var($args['rerolledDieIdx'],
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0,
+                                                     "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1)))) {
+                    $this->message = 'Invalid die index.';
+                    return FALSE;
+                }
+
+                $die = $this->activeDieArrayArray[$playerIdx][$args['rerolledDieIdx']];
+                if (FALSE === array_search('BMSkillChance', $die->skillList)) {
+                    $this->message = 'Can only apply chance action to chance die.';
+                    return FALSE;
+                }
+
+                $die->roll();
                 $this->gameState = BMGameState::determineInitiative;
                 break;
             case 'decline':
@@ -688,6 +708,15 @@ class BMGame {
 
                 // focusValueArray should have the form array($dieIdx1 => $dieValue1, ...)
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    if (FALSE === filter_var($dieIdx,
+                                             FILTER_VALIDATE_INT,
+                                             array("options"=>
+                                                   array("min_range"=>0,
+                                                         "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1)))) {
+                        $this->message = 'Invalid die index.';
+                        return FALSE;
+                    }
+
                     $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
 
                     if (FALSE === filter_var($newDieValue,
@@ -698,7 +727,6 @@ class BMGame {
                         $this->message = 'Invalid value for focus die.';
                         return FALSE;
                     }
-
 
                     if (FALSE === array_search('BMSkillFocus', $die->skillList)) {
                         $this->message = 'Can only apply focus action to focus die.';
