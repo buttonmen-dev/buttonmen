@@ -616,6 +616,22 @@ class BMGame {
         }
     }
 
+    // react_to_initiative expects one of the following three input arrays:
+    //
+    //   1.  array('action' => 'chance',
+    //             'playerIdx => $playerIdx,
+    //             'rerolledDieIdx' => $rerolledDieIdx)
+    //       where the index of the rerolled chance die is in $rerolledDieIdx
+    //
+    //   2.  array('action' => 'decline',
+    //             'playerIdx' => $playerIdx)
+    //
+    //   3.  array('action' => 'focus',
+    //             'playerIdx' => $playerIdx,
+    //             'focusValueArray' => array($dieIdx1 => $dieValue1,
+    //                                        $dieIdx2 => $dieValue2))
+    //       where the details of ALL focus dice are in $focusValueArray
+    //
     public function react_to_initiative(array $args) {
         if (BMGameState::reactToInitiative != $this->gameState) {
             return;
@@ -652,7 +668,7 @@ class BMGame {
                     throw new LogicException('focusValueArray must be a non-empty array.');
                 }
 
-                // focusValueArray should have the form array('dieIdx' => 'dieValue', ...)
+                // focusValueArray should have the form array('dieIdx1' => 'dieValue1', ...)
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
                     $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
 
