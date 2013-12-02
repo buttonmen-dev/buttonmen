@@ -201,7 +201,9 @@ class BMInterface {
 
                 if (is_null($autopassOverride)) {
                     $autopassArray[$pos] = (bool)$row['autopass'];
-                } else {
+                } elseif ('all_false' == $autopassOverride) {
+                    $autopassArray[$pos] = FALSE;
+                }  else {
                     assert(is_array($autopassOverride));
                     assert(array_key_exists($pos, $autopassOverride));
                     $autopassArray[$pos] = $autopassOverride[$pos];
@@ -330,7 +332,7 @@ class BMInterface {
     }
 
     public function load_game_without_autopass($gameId) {
-        return $this->load_game($gameId, array(FALSE, FALSE));
+        return $this->load_game($gameId, 'all_false');
     }
 
     public function save_game(BMGame $game) {
