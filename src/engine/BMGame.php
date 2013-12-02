@@ -590,12 +590,17 @@ class BMGame {
         }
     }
 
-    public function proceed_to_next_user_action() {
+    // the variable $gameStateBreakpoint is used for debugging purposes only
+    public function proceed_to_next_user_action($gameStateBreakpoint = NULL) {
         $repeatCount = 0;
         $this->update_game_state();
         $this->do_next_step();
 
         while (0 === array_sum($this->waitingOnActionArray)) {
+            if (isset($gameStateBreakpoint) &&
+                $gameStateBreakpoint == $this->gameState) {
+                break;
+            }
             $intermediateGameState = $this->gameState;
             $this->update_game_state();
             $this->do_next_step();
