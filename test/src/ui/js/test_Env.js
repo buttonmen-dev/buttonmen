@@ -1,4 +1,10 @@
-module("Env");
+module("Env", {
+  'teardown': function() {
+    delete Env.message;
+    $('#env_message').remove();
+    $('#env_message').empty();
+  }
+});
 
 // pre-flight test of whether the Env module has been loaded
 test("test_Env_is_loaded", function() {
