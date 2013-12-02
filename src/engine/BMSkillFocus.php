@@ -23,7 +23,7 @@ class BMSkillFocus extends BMSkill {
 
         // reset die values
         foreach ($activeDieArray as $dieIdx => &$activeDie) {
-            if (array_search('Focus', $activeDie->skillList)) {
+            if (array_search('BMSkillFocus', $activeDie->skillList)) {
                 $activeDie->value = $valueCacheArray[$dieIdx];
             }
         }
