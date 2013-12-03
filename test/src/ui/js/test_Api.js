@@ -56,11 +56,51 @@ asyncTest("test_Api.getPlayerData", function() {
 });
 
 test("test_Api.parseButtonData", function() {
-  expect(2); // number of tests plus 1 for the teardown test
-  ok(null, "Test of Api.parseButtonData not implemented");
+  expect(4); // number of tests plus 1 for the teardown test
+
+  Api.button = {};
+  var retval = Api.parseButtonData({
+    'buttonNameArray': ['Avis', 'Adam Spam', 'Jellybean' ],
+    'recipeArray': ['(4) (4) (10) (12) (X)',
+                    'F(4) F(6) (6) (12) (X)',
+                    'p(20) s(20) (V) (X)' ],
+    'hasUnimplementedSkillArray': [ false, true, false ]
+  });
+  equal(retval, true, "Api.parseButtonData() returns true");
+  deepEqual(
+    Api.button.list,
+    { 'Adam Spam': {
+        'hasUnimplementedSkill': true,
+        'recipe': 'F(4) F(6) (6) (12) (X)',
+      },
+      'Avis': {
+        'hasUnimplementedSkill': false,
+        'recipe': '(4) (4) (10) (12) (X)',
+      },
+      'Jellybean': {
+        'hasUnimplementedSkill': false,
+        'recipe': 'p(20) s(20) (V) (X)'
+      }
+  });
+  deepEqual(Env.message, undefined,
+            "Api.parseButtonData should not set Env.message");
 });
 
 test("test_Api.parsePlayerData", function() {
-  expect(2); // number of tests plus 1 for the teardown test
-  ok(null, "Test of Api.parsePlayerData not implemented");
+  expect(4); // number of tests plus 1 for the teardown test
+
+  Api.player = {};
+  var retval = Api.parsePlayerData({
+    'nameArray': ['tester1', 'tester2', 'tester3' ]
+  });
+  equal(retval, true, "Api.parsePlayerData() returns true");
+  deepEqual(
+    Api.player.list,
+    { 'tester1': {},
+      'tester2': {},
+      'tester3': {}
+    }
+  );
+  deepEqual(Env.message, undefined,
+            "Api.parseButtonData should not set Env.message");
 });
