@@ -1,24 +1,34 @@
 module("Env", {
+  'setup': function() {
+    Env.qunitPreElementStrings = BMTestUtils.getAllElements();
+  },
   'teardown': function() {
+
+    // Delete all elements we expect this module to create
     delete Env.message;
     $('#env_message').remove();
     $('#env_message').empty();
+
+    // Fail if any other elements were added or removed
+    Env.qunitPostElementStrings = BMTestUtils.getAllElements();
+    deepEqual(Env.qunitPreElementStrings, Env.qunitPostElementStrings,
+              "After testing, the page should have no unexpected new elements");
   }
 });
 
 // pre-flight test of whether the Env module has been loaded
 test("test_Env_is_loaded", function() {
-  expect(1); // number of tests
+  expect(2); // number of tests plus 1 for the teardown test
   ok(Env, "The Env namespace exists");
 });
 
 // WARNING: we're not actually testing this routine, exercise caution
 test("test_Env.getParameterByName", function() {
-  expect(0);
+  expect(1); // number of tests plus 1 for the teardown test
 });
 
 test("test_Env.setupEnvStub", function() {
-  expect(3);
+  expect(4); // number of tests plus 1 for the teardown test
 
   var item = document.getElementById('env_message');
   equal(item, null, "#env_message is null before setupEnvStub is called");
@@ -33,7 +43,7 @@ test("test_Env.setupEnvStub", function() {
 });
 
 test("test_Env.showStatusMessage", function() {
-  expect(4); // number of tests
+  expect(5); // number of tests plus 1 for the teardown test
 
   // Setup the env stub, display the message, and verify that it is empty
   Env.setupEnvStub();
