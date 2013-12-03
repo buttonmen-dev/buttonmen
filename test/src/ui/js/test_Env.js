@@ -1,18 +1,17 @@
 module("Env", {
   'setup': function() {
-    Env.qunitPreElementStrings = BMTestUtils.getAllElements();
+    BMTestUtils.EnvPre = BMTestUtils.getAllElements();
   },
   'teardown': function() {
 
     // Delete all elements we expect this module to create
-    delete Env.message;
-    $('#env_message').remove();
-    $('#env_message').empty();
+    BMTestUtils.deleteEnvMessage();
 
     // Fail if any other elements were added or removed
-    Env.qunitPostElementStrings = BMTestUtils.getAllElements();
-    deepEqual(Env.qunitPreElementStrings, Env.qunitPostElementStrings,
-              "After testing, the page should have no unexpected new elements");
+    BMTestUtils.EnvPost = BMTestUtils.getAllElements();
+    deepEqual(
+      BMTestUtils.EnvPre, BMTestUtils.EnvPost,
+      "After testing, the page should have no unexpected element changes");
   }
 });
 
