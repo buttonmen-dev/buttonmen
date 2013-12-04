@@ -297,8 +297,8 @@ class BMDie {
     public function defense_value($type) {
         $val = $this->value;
 
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'defenceValue' => &$val));
+//        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+//                                             'defenceValue' => &$val));
 
         return $val;
     }

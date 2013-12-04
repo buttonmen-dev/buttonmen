@@ -127,14 +127,29 @@ class BMDieSwing extends BMDie {
 
     public function split()
     {
-        $this->divisor *= 2;
-        $this->remainder = 0;
+//        $newAttacker = new BMDie();
+//        $newAttacker->init(round($attacker->max / 2),
+//                           array_keys($skillList));
+//        $newAttacker->ownerObject = $attacker->ownerObject;
+//        $newAttacker->playerIdx = $attacker->playerIdx;
+//        $newAttacker->originalPlayerIdx = $attacker->originalPlayerIdx;
+//        $newAttacker->roll(TRUE);
 
-        $dice = parent::split();
-
-        if ($this->max > $dice[1]->max) {
-            $this->remainder = 1;
-        }
+        $normalDie = new BMDie();
+        $normalDie->init($this->max, $this->skillList);
+        $normalDie->ownerObject = $this->ownerObject;
+        $normalDie->playerIdx = $this->playerIdx;
+        $normalDie->originalPlayerIdx = $this->originalPlayerIdx;
+        $dice = $normalDie->split();
+//
+//        $this->divisor *= 2;
+//        $this->remainder = 0;
+//
+//        $dice = parent::split();
+//
+//        if ($this->max > $dice[1]->max) {
+//            $this->remainder = 1;
+//        }
 
         return $dice;
     }

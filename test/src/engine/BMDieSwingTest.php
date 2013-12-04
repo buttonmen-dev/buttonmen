@@ -231,92 +231,28 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
 
         $dice = $this->object->split();
 
-        $this->assertTrue($this->object === $dice[0]);
+        $this->assertFalse($this->object === $dice[0]);
         $this->assertFalse($this->object === $dice[1]);
+        $this->assertFalse($dice[0] instanceof BMDieSwing);
+        $this->assertFalse($dice[1] instanceof BMDieSwing);
 
-        $this->assertEquals($dice[0]->swingValue, 20);
-        $this->assertEquals($dice[1]->swingValue, 20);
         $this->assertEquals($dice[0]->max, 10);
         $this->assertEquals($dice[1]->max, 10);
 
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[0], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[0], "remainder");
-        $this->assertEquals(2, $div);
-        $this->assertEquals(0, $rem);
-
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[1], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[1], "remainder");
-
-        $this->assertEquals(2, $div);
-        $this->assertEquals(0, $rem);
-
         // split again
-        $dice = $this->object->split();
-
-        $this->assertTrue($this->object === $dice[0]);
-        $this->assertFalse($this->object === $dice[1]);
-
-        $this->assertEquals($dice[0]->swingValue, 20);
-        $this->assertEquals($dice[1]->swingValue, 20);
+        $dice = $dice[0]->split();
         $this->assertEquals($dice[0]->max, 5);
         $this->assertEquals($dice[1]->max, 5);
 
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[0], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[0], "remainder");
-        $this->assertEquals(4, $div);
-        $this->assertEquals(0, $rem);
-
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[1], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[1], "remainder");
-
-        $this->assertEquals(4, $div);
-        $this->assertEquals(0, $rem);
-
         // and again
-        $dice = $this->object->split();
-
-        $this->assertTrue($this->object === $dice[0]);
-        $this->assertFalse($this->object === $dice[1]);
-
-        $this->assertEquals($dice[0]->swingValue, 20);
-        $this->assertEquals($dice[1]->swingValue, 20);
+        $dice = $dice[0]->split();
         $this->assertEquals($dice[0]->max, 3);
         $this->assertEquals($dice[1]->max, 2);
 
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[0], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[0], "remainder");
-        $this->assertEquals(8, $div);
-        $this->assertEquals(1, $rem);
-
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[1], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[1], "remainder");
-
-        $this->assertEquals(8, $div);
-        $this->assertEquals(0, $rem);
-
         // keep going
-        $dice = $this->object->split();
-
-        $this->assertTrue($this->object === $dice[0]);
-        $this->assertFalse($this->object === $dice[1]);
-
-        $this->assertEquals($dice[0]->swingValue, 20);
-        $this->assertEquals($dice[1]->swingValue, 20);
+        $dice = $dice[0]->split();
         $this->assertEquals($dice[0]->max, 2);
         $this->assertEquals($dice[1]->max, 1);
-
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[0], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[0], "remainder");
-        $this->assertEquals(16, $div);
-        $this->assertEquals(1, $rem);
-
-        $div = PHPUnit_Framework_Assert::readAttribute($dice[1], "divisor");
-        $rem = PHPUnit_Framework_Assert::readAttribute($dice[1], "remainder");
-
-        // remainder is not preserved across splits
-        $this->assertEquals(16, $div);
-        $this->assertEquals(0, $rem);
-
     }
 
     /**
@@ -374,57 +310,6 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->set_swingValue($swingList));
         $this->assertEquals($this->object->swingValue, 15);
         $this->assertEquals($this->object->max, 15);
-
-        // correct behavior as dice split in half
-        $this->object->split();
-        $this->assertEquals($this->object->swingValue, 15);
-        $this->assertEquals($this->object->max, 8);
-
-        // persist across value change
-        $swingList = array("X" => 20);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 20);
-        $this->assertEquals($this->object->max, 10);
-
-        $swingList = array("X" => 5);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 5);
-        $this->assertEquals($this->object->max, 3);
-
-        // remainder preservation?
-        $swingList = array("X" => 13);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 13);
-        $this->assertEquals($this->object->max, 7);
-
-        // multiple splits
-        $this->object->split();
-        $swingList = array("X" => 20);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 20);
-        $this->assertEquals($this->object->max, 5);
-
-        $swingList = array("X" => 19);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 19);
-        $this->assertEquals($this->object->max, 5);
-
-        $swingList = array("X" => 4);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 4);
-        $this->assertEquals($this->object->max, 1);
-
-        $swingList = array("X" => 5);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 5);
-        $this->assertEquals($this->object->max, 2);
-
-        // Do we proprly lose the remainder now?
-        $this->object->split();
-        $swingList = array("X" => 20);
-        $this->assertTrue($this->object->set_swingValue($swingList));
-        $this->assertEquals($this->object->swingValue, 20);
-        $this->assertEquals($this->object->max, 2);
     }
 
     /**
