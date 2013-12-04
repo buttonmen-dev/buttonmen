@@ -86,7 +86,7 @@ class BMDie {
         }
 
         // Don't add skills that are already added
-        if (!array_key_exists($skill, $this->skillList)) {
+        if (!$this->has_skill($skill)) {
             $this->skillList[$skill] = $skillClass;
 
             foreach ($skillClass::$hooked_methods as $func) {
