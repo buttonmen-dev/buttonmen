@@ -4,18 +4,29 @@ class BMDieTwin extends BMDie {
     public $dice;
 
     // james: done
-    public function init(array $sidesArray, array $skills = NULL)
+    public function init($sidesArray, array $skills = NULL)
     {
+        if (!is_array($sidesArray)) {
+            throw new InvalidArgumentException('sidesArray must be an array.');
+        }
+
         if (2 != count($sidesArray)) {
-            throw new LogicException('There must be exactly two dice in a BMDieTwin.');
+            throw new InvalidArgumentException('sidesArray must have exactly two elements.');
         }
 
         $this->min = 0;
         $this->max = 0;
+        $this->add_multiple_skills($skills);
 
         foreach($sidesArray as $dieIdx => $sides) {
             $this->dice[$dieIdx] =
                 BMDie::create_from_string_components($sides, $skills);
+            if (is_null($this->dice[$dieIdx]->min) ||
+                is_null($this->dice[$dieIdx]->max)) {
+                $this->min = NULL;
+                $this->max = NULL;
+                break;
+            }
             $this->min += $this->dice[$dieIdx]->min;
             $this->max += $this->dice[$dieIdx]->max;
         }
@@ -40,17 +51,21 @@ class BMDieTwin extends BMDie {
     }
 
     // james: done
-    public static function create(array $sizeArray, array $skills = NULL) {
-        foreach ($sizeArray as $size) {
-            if (!is_numeric($size) || ($size != (int)$size) ||
-                $size < 1 || $size > 99) {
-                throw new UnexpectedValueException("Illegal die size in twin die recipe: $size");
+    public static function create($sidesArray, array $skills = NULL) {
+        if (!is_array($sidesArray)) {
+            throw new LogicException('$sidesArray must be an array.');
+        }
+
+        foreach ($sidesArray as $sides) {
+            if (!is_numeric($sides) || ($sides != (int)$sides) ||
+                $sides < 1 || $sides > 99) {
+                throw new UnexpectedValueException("Illegal die size in twin die recipe: $sides");
             }
         }
 
         $die = new BMDieTwin;
 
-        $die->init($sizeArray, $skills);
+        $die->init($sidesArray, $skills);
 
         return $die;
     }

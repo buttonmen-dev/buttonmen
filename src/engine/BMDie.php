@@ -173,23 +173,14 @@ class BMDie {
         $die = NULL;
 
         try {
-            $opt_list = explode('|', $recipe);
-
             // Option dice divide on a |, can contain any die type
-            if (count($opt_list) > 1) {
-                if (function_exists('BMDieOption::create_from_list')) {
-                    $die = BMDieOption::create_from_list($opt_list, $skills);
-                } else {
-                    throw new Exception("Option skill not implemented");
-                }
+            if (count($opt_array = explode('|', $recipe)) > 1) {
+//                $die = BMDieOption::create($opt_array, $skills);
+                throw new Exception("Option skill not implemented");
             }
             // Twin dice divide on a comma, can contain any type but option
-            elseif (count($twin_list = explode(',', $recipe)) > 1) {
-                if (function_exists('BMDieTwin::create_from_list')) {
-                    $die = BMDieTwin::create_from_list($twin_list, $skills);
-                } else {
-                    throw new Exception("Twin skill not implemented");
-                }
+            elseif (count($twin_array = explode(',', $recipe)) > 1) {
+                $die = BMDieTwin::create($twin_array, $skills);
             }
             elseif ('C' == $recipe) {
                 $die = BMDieWildcard::create($recipe, $skills);
