@@ -200,93 +200,65 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(6, $die->max);
 
-        // expectedException aborts function execution when the
-        // exception is thrown, so doesn't work as part of a large
-        // blob of tests.
-
-        $fail = FALSE;
-
         try {
             $die = BMDie::create(-15, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
 
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-
         $this->assertEquals(6, $die->max);
-        $fail = FALSE;
 
         // try some more bad values
         try {
             $die = BMDie::create(1023, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create(0, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create(100, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-        $fail = FALSE;
 
         // downright illegal values
         try {
             $die = BMDie::create("thing", array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create("4score", array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create(2.718, array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create("thing8", array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
     }
 
     /*

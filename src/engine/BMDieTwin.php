@@ -3,7 +3,6 @@
 class BMDieTwin extends BMDie {
     public $dice;
 
-    // james: done
     public function init($sidesArray, array $skills = NULL)
     {
         if (!is_array($sidesArray)) {
@@ -32,7 +31,6 @@ class BMDieTwin extends BMDie {
         }
     }
 
-    // james: done
     public static function parse_recipe_for_sides($recipe) {
         $sidesArray = array();
         if (preg_match('/\((.*),(.*)\)/', $recipe, $match)) {
@@ -43,14 +41,12 @@ class BMDieTwin extends BMDie {
         }
     }
 
-    // james: done
     public static function create_from_recipe($recipe) {
         $sidesArray = BMDieTwin::parse_recipe_for_sides($recipe);
         $skills = BMDie::parse_recipe_for_skills($recipe);
         return BMDieTwin::create_from_string_components($sidesArray, $skills);
     }
 
-    // james: done
     public static function create($sidesArray, array $skills = NULL) {
         if (!is_array($sidesArray)) {
             throw new LogicException('$sidesArray must be an array.');
@@ -70,7 +66,6 @@ class BMDieTwin extends BMDie {
         return $die;
     }
 
-    // james : done
     public function roll($successfulAttack = FALSE) {
         $this->value = 0;
         foreach ($dice as &$die) {
@@ -86,7 +81,6 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array());
     }
 
-    // james : done
     public function split() {
         $newdie = clone $this;
 
