@@ -153,24 +153,8 @@ class BMDieSwing extends BMDie {
 
         if ($valid) {
             $this->swingValue = $sides;
-
-            // Don't need to ask for a swing value any more
             $this->needsSwingValue = FALSE;
             $this->valueRequested = FALSE;
-
-            // correctly handle cut-in-half swing dice, however many
-            // times they may have been cut
-            for($i = $this->divisor; $i > 1; $i /= 2) {
-                if ($sides > 1) {
-                    $rem = $sides % 2;
-                    $sides -= $rem;
-                    $sides /= 2;
-                    if ($rem && $this->remainder) {
-                        $sides += 1;
-                    }
-                }
-            }
-
             $this->max = $sides;
             $this->scoreValue = $sides;
         }

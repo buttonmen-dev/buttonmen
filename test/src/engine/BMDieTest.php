@@ -357,10 +357,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      */
     public function testRoll() {
         $this->object->init(6, array());
-
-        for($i = 1; $i <= 6; $i++) {
-            $rolls[$i] = 0;
-        }
+        $rolls = array_fill(1, 6, 0);
 
         for ($i = 0; $i < 300; $i++) {
             $this->object->roll(FALSE);
@@ -389,7 +386,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         }
 
         // test locked-out rerolls
-
         $val = $this->object->value;
 
         $this->object->doesReroll = FALSE;

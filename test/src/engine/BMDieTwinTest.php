@@ -350,55 +350,45 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, $die->min);
         $this->assertEquals(10, $die->max);
     }
-//
-//    /**
-//     * @depends testInit
-//     */
-//    public function testRoll() {
-//        $this->object->init(6, array());
-//
-//        for($i = 1; $i <= 6; $i++) {
-//            $rolls[$i] = 0;
-//        }
-//
-//        for ($i = 0; $i < 300; $i++) {
-//            $this->object->roll(FALSE);
-//            if ($this->object->value < 1 || $this->object->value > 6) {
-//                $this->assertFalse(TRUE, "Die rolled out of bounds during FALSE.");
-//            }
-//
-//            $rolls[$this->object->value]++;
-//        }
-//
-//        for ($i = 0; $i < 300; $i++) {
-//            $this->object->roll(TRUE);
-//            if ($this->object->value < 1 || $this->object->value > 6) {
-//                $this->assertFalse(TRUE, "Die rolled out of bounds during TRUE.");
-//            }
-//
-//            $rolls[$this->object->value]++;
-//        }
-//
-//        // How's our randomness?
-//        //
-//        // We're only testing for "terrible" here.
-//        for($i = 1; $i <= 6; $i++) {
-//            $this->assertGreaterThan(25, $rolls[$i], "randomness dubious for $i");
-//            $this->assertLessThan(175, $rolls[$i], "randomness dubious for $i");
-//        }
-//
-//        // test locked-out rerolls
-//
-//        $val = $this->object->value;
-//
-//        $this->object->doesReroll = FALSE;
-//
-//        for ($i = 0; $i<20; $i++) {
-//            // Test both on successful attack and not
-//            $this->object->roll($i % 2);
-//            $this->assertEquals($val, $this->object->value, "Die value changed.");
-//        }
-//    }
+
+    /**
+     * @depends testInit
+     */
+    public function testRoll() {
+        $this->object->init(array('X', 4), array());
+        $this->object->roll();
+        $this->assertNull($this->object->value);
+
+        $this->object->init(array(4, 2), array());
+        // check value distribution between 2 and 6
+        $rolls = array_fill(2, 5, 0);
+
+
+        for ($i = 0; $i < 300; $i++) {
+            $this->object->roll(FALSE);
+            if ($this->object->value < 2 || $this->object->value > 6) {
+                $this->assertFalse(TRUE, "Die rolled out of bounds during FALSE.");
+            }
+
+            $rolls[$this->object->value]++;
+        }
+
+        for ($i = 0; $i < 300; $i++) {
+            $this->object->roll(TRUE);
+            if ($this->object->value < 2 || $this->object->value > 6) {
+                $this->assertFalse(TRUE, "Die rolled out of bounds during TRUE.");
+            }
+
+            $rolls[$this->object->value]++;
+        }
+
+        $this->assertGreaterThan($rolls[2], $rolls[3]);
+        $this->assertGreaterThan($rolls[2], $rolls[4]);
+        $this->assertGreaterThan($rolls[2], $rolls[5]);
+        $this->assertGreaterThan($rolls[6], $rolls[3]);
+        $this->assertGreaterThan($rolls[6], $rolls[4]);
+        $this->assertGreaterThan($rolls[6], $rolls[5]);
+    }
 //
 //
 //    /**

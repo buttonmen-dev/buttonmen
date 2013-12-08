@@ -68,7 +68,7 @@ class BMDieTwin extends BMDie {
         }
 
         $this->value = 0;
-        foreach ($dice as &$die) {
+        foreach ($this->dice as &$die) {
             $die->roll();
             $this->value += $die->value;
         }
