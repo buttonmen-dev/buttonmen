@@ -24,15 +24,6 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
     }
 
 
-
-
-
-
-
-
-
-
-
 //    public function testAdd_skill() {
 //        // Check that the skill list is indeed empty
 //        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
@@ -283,16 +274,19 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals( 2, $die->min);
         $this->assertEquals(11, $die->max);
 
-        $die = BMDieTwin::create(array('X', 7), array());
+        $die = BMDieTwin::create(array('X', 7), array('Shadow'));
 
         $this->assertInstanceOf('BMDieTwin', $die);
         $this->assertCount(2, $die->dice);
+        $this->assertTrue($die->has_skill('Shadow'));
         $this->assertInstanceOf('BMDieSwing', $die->dice[0]);
         $this->assertInstanceOf('BMDie', $die->dice[1]);
         $this->assertEquals( 1, $die->dice[0]->min);
         $this->assertNull($die->dice[0]->max);
         $this->assertEquals( 1, $die->dice[1]->min);
         $this->assertEquals( 7, $die->dice[1]->max);
+        $this->assertTrue($die->dice[0]->has_skill('Shadow'));
+        $this->assertTrue($die->dice[1]->has_skill('Shadow'));
         $this->assertNull($die->min);
         $this->assertNull($die->max);
 
@@ -310,65 +304,52 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($die->max);
     }
 
-//    /*
-//     * @covers BMDie::parse_recipe_for_sides
-//     */
-//    public function testParse_recipe_for_sides() {
-//        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)'));
-//        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)'));
-//        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)+'));
-//        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)+'));
-//
-//        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)'));
-//        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)'));
-//        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)+'));
-//        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)+'));
-//    }
-//
-//    /*
-//     * @covers BMDie::parse_recipe_for_skills
-//     */
-//    public function testParse_recipe_for_skills() {
-//        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(4)'));
-//        $this->assertEquals(array('Poison', 'Shadow'),
-//                            BMDie::parse_recipe_for_skills('ps(4)'));
-//        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(4)p'));
-//        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(4)s'));
-//
-//        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(X)'));
-//        $this->assertEquals(array('Poison', 'Shadow'),
-//                            BMDie::parse_recipe_for_skills('ps(X)'));
-//        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(X)p'));
-//        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(X)s'));
-//    }
-//
-//    /**
-//     * @depends testCreate
-//     */
-//    public function testCreate_from_string_components() {
-//        // We only test creation of standard die types here.
-//        // (and errors)
-//        //
-//        // The complex types can work this function out in their own
-//        // test suites
-//
-//        $die = BMDie::create_from_string_components("72");
-//        $this->assertInstanceOf('BMDie', $die);
-//        $this->assertEquals(72, $die->max);
-//
-//        $die = BMDie::create_from_string_components("himom!");
-//        $this->assertNull($die);
-//
-//        $die = BMDie::create_from_string_components("75.3");
-//        $this->assertNull($die);
-//
-//        $die = BMDie::create_from_string_components("trombones76");
-//        $this->assertNull($die);
-//
-//        $die = BMDie::create_from_string_components("76trombones");
-//        $this->assertNull($die);
-//
-//    }
+    /*
+     * @covers BMDie::parse_recipe_for_sides
+     */
+    public function testParse_recipe_for_sides() {
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(4)'));
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(4)'));
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(4)+'));
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(4)+'));
+
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(X)'));
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(X)'));
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(X)+'));
+        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(X)+'));
+
+        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('(4,6)'));
+        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('ps(4,6)'));
+        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('(4,6)+'));
+        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('ps(4,6)+'));
+
+        $this->assertEquals(array(4, 'R'), BMDieTwin::parse_recipe_for_sides('(4,R)'));
+        $this->assertEquals(array('R', 6), BMDieTwin::parse_recipe_for_sides('ps(R,6)'));
+        $this->assertEquals(array('R', 'S'), BMDieTwin::parse_recipe_for_sides('(R,S)+'));
+        $this->assertEquals(array('R', 'S'), BMDieTwin::parse_recipe_for_sides('ps(R,S)+'));
+    }
+
+    /**
+     * @covers BMDie::create_from_string_components
+     *
+     * @depends testCreate
+     */
+    public function testCreate_from_string_components() {
+        $die = BMDie::create_from_string_components('4,6', array('Shadow'));
+        $this->assertInstanceOf('BMDieTwin', $die);
+        $this->assertCount(2, $die->dice);
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertInstanceOf('BMDie', $die->dice[0]);
+        $this->assertInstanceOf('BMDie', $die->dice[1]);
+        $this->assertEquals(1, $die->dice[0]->min);
+        $this->assertEquals(4, $die->dice[0]->max);
+        $this->assertEquals(1, $die->dice[1]->min);
+        $this->assertEquals(6, $die->dice[1]->max);
+        $this->assertTrue($die->dice[0]->has_skill('Shadow'));
+        $this->assertTrue($die->dice[0]->has_skill('Shadow'));
+        $this->assertEquals(2, $die->min);
+        $this->assertEquals(10, $die->max);
+    }
 //
 //    /**
 //     * @depends testInit
