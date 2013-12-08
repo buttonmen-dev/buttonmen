@@ -35,10 +35,11 @@ class BMDieTwin extends BMDie {
     }
 
     public static function parse_recipe_for_sides($recipe) {
-        $sidesArray = array();
         if (preg_match('/\((.*),(.*)\)/', $recipe, $match)) {
+            $sidesArray = array();
             $sidesArray[0] = $match[1];
             $sidesArray[1] = $match[2];
+            return $sidesArray;
         } else {
             return '';
         }
@@ -62,6 +63,10 @@ class BMDieTwin extends BMDie {
     }
 
     public function roll($successfulAttack = FALSE) {
+        if (is_null($this->max)) {
+            return;
+        }
+
         $this->value = 0;
         foreach ($dice as &$die) {
             $die->roll();
@@ -90,6 +95,20 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array('dice' => &$dice));
 
         return $dice;
+    }
+
+    public function set_swingValue($swingList) {
+        $valid = TRUE;
+        $hasSwing = FALSE;
+
+        foreach ($this->dice as &$die) {
+            if ($die instanceof BMDieSwing) {
+                $hasSwing = TRUE;
+                $valid &= $die->set_swingValue($swingList);
+            }
+        }
+
+        return $valid && $hasSwing;
     }
 
     // Return all information about a die which is useful when
