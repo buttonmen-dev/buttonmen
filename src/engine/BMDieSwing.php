@@ -8,12 +8,6 @@ class BMDieSwing extends BMDie {
     protected $needsSwingValue = TRUE;
     protected $valueRequested = FALSE;
 
-    // To allow correct behavior for turbo and mood swings that get
-    // cut in half.
-    protected $divisor = 1;
-    protected $remainder = 0;
-
-
     // Don't really like putting data in the code, but where else
     // should it go?
     //
