@@ -495,6 +495,60 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 //        $this->assertEquals('sp(25)', $die4->get_recipe());
 //    }
 
+    /**
+     * @depends testInit
+     * @covers BMDieTwin::set_swingValue
+     */
+    public function testSet_swingValue() {
+        foreach (str_split("RSTUVWXYZ") as $swing) {
+            $this->object->init(array($swing, 4));
+            $range = $this->object->dice[0]->swing_range($swing);
+            $swingMin = $range[0];
+            $swingMax = $range[1];
+            for ($i = $swingMin; $i <= $swingMax; $i++) {
+                $swingList = array($swing => $i);
+                $this->assertTrue($this->object->set_swingValue($swingList));
+                $this->assertEquals($i, $this->object->dice[0]->swingValue);
+                $this->assertEquals($i + 4, $this->object->max);
+
+            }
+        }
+//
+//
+//        $this->object->init("X");
+//
+//        // check error checking
+//        $swingList = array();
+//        $this->assertFalse($this->object->set_swingValue($swingList));
+//
+//        $swingList = array("R" => 12);
+//        $this->assertFalse($this->object->set_swingValue($swingList));
+//
+//        $swingList = array("R" => 12,
+//                           "S" => 10,
+//                           "U" => 15,
+//                           "Y" => 1,
+//                           "Z" => 30);
+//        $this->assertFalse($this->object->set_swingValue($swingList));
+//
+//        $swingList = array("X" => 3);
+//        $this->assertFalse($this->object->set_swingValue($swingList));
+//
+//        $swingList = array("X" => 21);
+//        $this->assertFalse($this->object->set_swingValue($swingList));
+//
+//        // needle in a haystack
+//        $swingList = array("R" => 12,
+//                           "S" => 10,
+//                           "X" => 15,
+//                           "Y" => 1,
+//                           "Z" => 30);
+//
+//        $this->assertTrue($this->object->set_swingValue($swingList));
+//        $this->assertEquals($this->object->swingValue, 15);
+//        $this->assertEquals($this->object->max, 15);
+    }
+
 }
 
 ?>

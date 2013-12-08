@@ -13,8 +13,6 @@ class BMDieTwin extends BMDie {
             throw new InvalidArgumentException('sidesArray must have exactly two elements.');
         }
 
-        $this->min = 0;
-        $this->max = 0;
         $this->add_multiple_skills($skills);
 
         foreach($sidesArray as $dieIdx => $sides) {
@@ -22,16 +20,7 @@ class BMDieTwin extends BMDie {
                 BMDie::create_from_string_components($sides, $skills);
         }
 
-        foreach($this->dice as $die) {
-            if (is_null($die->min) ||
-                is_null($die->max)) {
-                $this->min = NULL;
-                $this->max = NULL;
-                break;
-            }
-            $this->min += $die->min;
-            $this->max += $die->max;
-        }
+        $this->recalc_max_min();
     }
 
     public static function parse_recipe_for_sides($recipe) {
@@ -108,6 +97,8 @@ class BMDieTwin extends BMDie {
             }
         }
 
+        $this->recalc_max_min();
+
         return $valid && $hasSwing;
     }
 
@@ -127,6 +118,22 @@ class BMDieTwin extends BMDie {
 //           'recipeStatus' => $recipe . ':' . $this->value,
 //       ));
 //    }
+
+    protected function recalc_max_min() {
+        $this->min = 0;
+        $this->max = 0;
+
+        foreach($this->dice as $die) {
+            if (is_null($die->min) ||
+                is_null($die->max)) {
+                $this->min = NULL;
+                $this->max = NULL;
+                break;
+            }
+            $this->min += $die->min;
+            $this->max += $die->max;
+        }
+    }
 }
 
 ?>
