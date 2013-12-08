@@ -196,8 +196,8 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->has_skill("Testing"));
         $this->assertCount(2, $this->object->dice);
-        $this->assertTrue($this->object->dice[0] instanceof BMDie);
-        $this->assertTrue($this->object->dice[1] instanceof BMDie);
+        $this->assertInstanceOf('BMDie', $this->object->dice[0]);
+        $this->assertInstanceOf('BMDie', $this->object->dice[1]);
         $this->assertEquals(1, $this->object->dice[0]->min);
         $this->assertEquals(6, $this->object->dice[0]->max);
         $this->assertEquals(1, $this->object->dice[1]->min);
@@ -210,8 +210,8 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->has_skill("Testing2"));
         $this->assertCount(2, $this->object->dice);
-        $this->assertTrue($this->object->dice[0] instanceof BMDie);
-        $this->assertTrue($this->object->dice[1] instanceof BMDieSwing);
+        $this->assertInstanceOf('BMDie', $this->object->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $this->object->dice[1]);
         $this->assertEquals(1, $this->object->dice[0]->min);
         $this->assertEquals(2, $this->object->dice[0]->max);
         $this->assertEquals(1, $this->object->dice[1]->min);
@@ -222,6 +222,32 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         // init does not remove old skills, or otherwise reset variables
         // at the moment. It's for working on brand-new dice
         $this->assertTrue($this->object->has_skill("Testing"));
+
+        $this->object->init(array('X', 2),
+                            array("TestDummyBMSkillTesting2" => "Testing2"));
+
+        $this->assertTrue($this->object->has_skill("Testing2"));
+        $this->assertCount(2, $this->object->dice);
+        $this->assertInstanceOf('BMDieSwing', $this->object->dice[0]);
+        $this->assertInstanceOf('BMDie', $this->object->dice[1]);
+        $this->assertEquals(1, $this->object->dice[0]->min);
+        $this->assertNull($this->object->dice[0]->max);
+        $this->assertEquals(1, $this->object->dice[1]->min);
+        $this->assertEquals(2, $this->object->dice[1]->max);
+        $this->assertNull($this->object->min);
+        $this->assertNull($this->object->max);
+
+        $this->object->init(array('R', 'S'), array());
+
+        $this->assertCount(2, $this->object->dice);
+        $this->assertInstanceOf('BMDieSwing', $this->object->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $this->object->dice[1]);
+        $this->assertEquals(1, $this->object->dice[0]->min);
+        $this->assertNull($this->object->dice[0]->max);
+        $this->assertEquals(1, $this->object->dice[1]->min);
+        $this->assertNull($this->object->dice[1]->max);
+        $this->assertNull($this->object->min);
+        $this->assertNull($this->object->max);
     }
 
     /**
@@ -230,71 +256,58 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
      * @depends testInit
      */
     public function testCreate() {
+        try {
+            $die = BMDieTwin::create(9, array());
+            $this->fail('sidesArray must be an array');
+        }
+        catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $die = BMDieTwin::create(array(9), array());
+            $this->fail('A twin die must be created with two values.');
+        }
+        catch (InvalidArgumentException $e) {
+        }
+
         $die = BMDieTwin::create(array(4, 7), array());
 
         $this->assertInstanceOf('BMDieTwin', $die);
+        $this->assertCount(2, $die->dice);
+        $this->assertInstanceOf('BMDie', $die->dice[0]);
+        $this->assertInstanceOf('BMDie', $die->dice[1]);
+        $this->assertEquals( 1, $die->dice[0]->min);
+        $this->assertEquals( 4, $die->dice[0]->max);
+        $this->assertEquals( 1, $die->dice[1]->min);
+        $this->assertEquals( 7, $die->dice[1]->max);
         $this->assertEquals( 2, $die->min);
         $this->assertEquals(11, $die->max);
-        
-//        try {
-//            $die = BMDie::create(-15, array());
-//            $this->fail('Creating out-of-range die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        $this->assertEquals(6, $die->max);
-//
-//        // try some more bad values
-//        try {
-//            $die = BMDie::create(1023, array());
-//            $this->fail('Creating out-of-range die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDie::create(0, array());
-//            $this->fail('Creating out-of-range die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDie::create(100, array());
-//            $this->fail('Creating out-of-range die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        // downright illegal values
-//        try {
-//            $die = BMDie::create("thing", array());
-//            $this->fail('Creating non-numeric die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDie::create("4score", array());
-//            $this->fail('Creating non-numeric die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDie::create(2.718, array());
-//            $this->fail('Creating non-numeric die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDie::create("thing8", array());
-//            $this->fail('Creating non-numeric die did not throw an exception.');
-//        }
-//        catch (UnexpectedValueException $e) {
-//        }
+
+        $die = BMDieTwin::create(array('X', 7), array());
+
+        $this->assertInstanceOf('BMDieTwin', $die);
+        $this->assertCount(2, $die->dice);
+        $this->assertInstanceOf('BMDieSwing', $die->dice[0]);
+        $this->assertInstanceOf('BMDie', $die->dice[1]);
+        $this->assertEquals( 1, $die->dice[0]->min);
+        $this->assertNull($die->dice[0]->max);
+        $this->assertEquals( 1, $die->dice[1]->min);
+        $this->assertEquals( 7, $die->dice[1]->max);
+        $this->assertNull($die->min);
+        $this->assertNull($die->max);
+
+        $die = BMDieTwin::create(array('R', 'S'), array());
+
+        $this->assertInstanceOf('BMDieTwin', $die);
+        $this->assertCount(2, $die->dice);
+        $this->assertInstanceOf('BMDieSwing', $die->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $die->dice[1]);
+        $this->assertEquals(1, $die->dice[0]->min);
+        $this->assertNull($die->dice[0]->max);
+        $this->assertEquals(1, $die->dice[1]->min);
+        $this->assertNull($die->dice[1]->max);
+        $this->assertNull($die->min);
+        $this->assertNull($die->max);
     }
 
 //    /*

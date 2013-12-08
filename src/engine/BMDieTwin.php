@@ -20,14 +20,17 @@ class BMDieTwin extends BMDie {
         foreach($sidesArray as $dieIdx => $sides) {
             $this->dice[$dieIdx] =
                 BMDie::create_from_string_components($sides, $skills);
-            if (is_null($this->dice[$dieIdx]->min) ||
-                is_null($this->dice[$dieIdx]->max)) {
+        }
+
+        foreach($this->dice as $die) {
+            if (is_null($die->min) ||
+                is_null($die->max)) {
                 $this->min = NULL;
                 $this->max = NULL;
                 break;
             }
-            $this->min += $this->dice[$dieIdx]->min;
-            $this->max += $this->dice[$dieIdx]->max;
+            $this->min += $die->min;
+            $this->max += $die->max;
         }
     }
 
@@ -49,18 +52,10 @@ class BMDieTwin extends BMDie {
 
     public static function create($sidesArray, array $skills = NULL) {
         if (!is_array($sidesArray)) {
-            throw new LogicException('$sidesArray must be an array.');
-        }
-
-        foreach ($sidesArray as $sides) {
-            if (!is_numeric($sides) || ($sides != (int)$sides) ||
-                $sides < 1 || $sides > 99) {
-                throw new UnexpectedValueException("Illegal die size in twin die recipe: $sides");
-            }
+            throw new InvalidArgumentException('sidesArray must be an array.');
         }
 
         $die = new BMDieTwin;
-
         $die->init($sidesArray, $skills);
 
         return $die;
