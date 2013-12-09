@@ -34,6 +34,24 @@ class BMDieTwin extends BMDie {
         return $die;
     }
 
+    public function add_skill($skill, $skillClass = FALSE) {
+        parent::add_skill($skill, $skillClass);
+        if (is_array($this->dice)) {
+            foreach ($this->dice as &$die) {
+                $die->add_skill($skill, $skillClass);
+            }
+        }
+    }
+
+    public function remove_skill($skill) {
+        parent::remove_skill($skill);
+        if (is_array($this->dice)) {
+            foreach ($this->dice as &$die) {
+                $die->remove_skill($skill, $skillClass);
+            }
+        }
+    }
+
     public function roll($successfulAttack = FALSE) {
         if (is_null($this->max)) {
             return;
@@ -48,10 +66,10 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
     }
 
-// Print long description
-    public function describe() {
-        $this->run_hooks(__FUNCTION__, array());
-    }
+//// Print long description
+//    public function describe() {
+//        $this->run_hooks(__FUNCTION__, array());
+//    }
 
     public function split() {
         $newdie = clone $this;
