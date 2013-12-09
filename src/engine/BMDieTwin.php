@@ -23,23 +23,6 @@ class BMDieTwin extends BMDie {
         $this->recalc_max_min();
     }
 
-    public static function parse_recipe_for_sides($recipe) {
-        if (preg_match('/\((.*),(.*)\)/', $recipe, $match)) {
-            $sidesArray = array();
-            $sidesArray[0] = $match[1];
-            $sidesArray[1] = $match[2];
-            return $sidesArray;
-        } else {
-            return '';
-        }
-    }
-
-    public static function create_from_recipe($recipe) {
-        $sidesArray = BMDieTwin::parse_recipe_for_sides($recipe);
-        $skills = BMDie::parse_recipe_for_skills($recipe);
-        return BMDieTwin::create_from_string_components($sidesArray, $skills);
-    }
-
     public static function create($sidesArray, array $skills = NULL) {
         if (!is_array($sidesArray)) {
             throw new InvalidArgumentException('sidesArray must be an array.');

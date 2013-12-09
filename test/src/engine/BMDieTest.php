@@ -262,6 +262,16 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDie::create_from_recipe
+     */
+    public function testCreate_from_recipe() {
+        $die = BMDie::create_from_recipe('ps(6)');
+        $this->assertTrue($die->has_skill('Poison'));
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertEquals(6, $die->max);
+    }
+
+    /*
      * @covers BMDie::parse_recipe_for_sides
      */
     public function testParse_recipe_for_sides() {

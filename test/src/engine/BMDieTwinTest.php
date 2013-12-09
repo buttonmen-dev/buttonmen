@@ -305,28 +305,28 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
-     * @covers BMDie::parse_recipe_for_sides
+     * @covers BMDie::create_from_recipe
      */
-    public function testParse_recipe_for_sides() {
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(4)'));
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(4)'));
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(4)+'));
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(4)+'));
+    public function testCreate_from_recipe() {
+        $die = BMDieTwin::create_from_recipe('ps(6,8)');
+        $this->assertTrue($die->has_skill('Poison'));
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertEquals(6, $die->dice[0]->max);
+        $this->assertEquals(8, $die->dice[1]->max);
+        $this->assertEquals(14, $die->max);
 
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(X)'));
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(X)'));
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('(X)+'));
-        $this->assertEquals('', BMDieTwin::parse_recipe_for_sides('ps(X)+'));
-
-        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('(4,6)'));
-        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('ps(4,6)'));
-        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('(4,6)+'));
-        $this->assertEquals(array(4, 6), BMDieTwin::parse_recipe_for_sides('ps(4,6)+'));
-
-        $this->assertEquals(array(4, 'R'), BMDieTwin::parse_recipe_for_sides('(4,R)'));
-        $this->assertEquals(array('R', 6), BMDieTwin::parse_recipe_for_sides('ps(R,6)'));
-        $this->assertEquals(array('R', 'S'), BMDieTwin::parse_recipe_for_sides('(R,S)+'));
-        $this->assertEquals(array('R', 'S'), BMDieTwin::parse_recipe_for_sides('ps(R,S)+'));
+        $die = BMDie::create_from_recipe('ps(X,X)');
+        $this->assertInstanceOf('BMDieSwing', $die->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $die->dice[1]);
+        $this->assertTrue($die->has_skill('Poison'));
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertNull($die->max);
+        $this->assertTrue($die->dice[0]->has_skill('Poison'));
+        $this->assertTrue($die->dice[0]->has_skill('Shadow'));
+        $this->assertTrue($die->dice[1]->has_skill('Poison'));
+        $this->assertTrue($die->dice[1]->has_skill('Shadow'));
+        $this->assertEquals('X', $die->dice[0]->swingType);
+        $this->assertEquals('X', $die->dice[1]->swingType);
     }
 
     /**
@@ -431,6 +431,7 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMDieTwin::split
+     * @covers BMDieTwin::recalc_max_min
      *
      * @depends testInit
      * @depends testRoll
@@ -533,8 +534,10 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 //    }
 
     /**
-     * @depends testInit
      * @covers BMDieTwin::set_swingValue
+     * @covers BMDieTwin::recalc_max_min
+     *
+     * @depends testInit
      */
     public function testSet_swingValue() {
         foreach (str_split("RSTUVWXYZ") as $swing) {

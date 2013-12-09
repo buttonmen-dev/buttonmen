@@ -144,6 +144,18 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /*
+     * @covers BMDie::create_from_recipe
+     */
+    public function testCreate_from_recipe() {
+        $die = BMDie::create_from_recipe('ps(X)');
+        $this->assertInstanceOf('BMDieSwing', $die);
+        $this->assertTrue($die->has_skill('Poison'));
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertNull($die->max);
+        $this->assertEquals('X', $die->swingType);
+    }
+
     /**
      * @depends testInit
      * @covers BMDieSwing::activate
