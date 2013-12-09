@@ -73,17 +73,20 @@ class BMDieTwin extends BMDie {
     public function split() {
         $newdie = clone $this;
 
-        foreach ($this->dice as $dieIdx => $die) {
+        foreach ($this->dice as $dieIdx => &$die) {
             $splitDieArray = $die->split();
             $this->dice[$dieIdx] = $splitDieArray[0];
             $newdie->dice[$dieIdx] = $splitDieArray[1];
         }
 
-        $dice = array($this, $newdie);
+        $this->recalc_max_min();
+        $newdie->recalc_max_min();
 
-        $this->run_hooks(__FUNCTION__, array('dice' => &$dice));
+        $splitDice = array($this, $newdie);
 
-        return $dice;
+        $this->run_hooks(__FUNCTION__, array('dice' => &$splitDice));
+
+        return $splitDice;
     }
 
     public function set_swingValue($swingList) {

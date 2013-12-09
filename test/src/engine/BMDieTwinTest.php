@@ -352,6 +352,8 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDieTwin::roll
+     *
      * @depends testInit
      */
     public function testRoll() {
@@ -389,87 +391,122 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThan($rolls[6], $rolls[4]);
         $this->assertGreaterThan($rolls[6], $rolls[5]);
     }
-//
-//
-//    /**
-//     * @depends testInit
-//     */
-//    public function testGet_scoreValueTimesTen() {
-//        $this->object->init(7, array());
-//
-//        $this->assertEquals(35, $this->object->get_scoreValueTimesTen());
-//
-//        $this->object->captured = TRUE;
-//
-//        $this->assertEquals(70, $this->object->get_scoreValueTimesTen());
-//
-//    }
-//
-//
-//    /**
-//     * @depends testInit
-//     * @depends testRoll
-//     */
-//    public function testInitiative_value() {
-//        $this->object->init(6, array());
-//        $this->object->roll(FALSE);
-//
-//        $val = $this->object->initiative_value();
-//        $this->assertEquals($val, $this->object->value);
-//    }
-//
-//
-//    public function testDescribe() {
-//        // Remove the following lines when you implement this test.
-//        $this->markTestIncomplete(
-//                'This test has not been implemented yet.'
-//        );
-//    }
-//
-//    /**
-//     * @depends testInit
-//     * @depends testRoll
-//     */
-//    public function testSplit() {
-//        // 1-siders split into two 1-siders
-//        $this->object->init(1, array());
-//        $this->object->roll(FALSE);
-//
-//        $dice = $this->object->split();
-//
-//        $this->assertFalse($dice[0] === $dice[1]);
-//        $this->assertTrue($this->object === $dice[0]);
-//        $this->assertEquals($dice[0]->max, $dice[1]->max);
-//        $this->assertEquals(1, $dice[0]->max);
-//
-//        // even-sided split
-//        $this->object->init(12, array());
-//        $this->object->roll(FALSE);
-//
-//        $dice = $this->object->split();
-//
-//        $this->assertFalse($dice[0] === $dice[1]);
-//        $this->assertTrue($this->object === $dice[0]);
-//        $this->assertEquals($dice[0]->max, $dice[1]->max);
-//        $this->assertEquals(6, $dice[0]->max);
-//
-//        // odd-sided split
-//        $this->object->init(7, array());
-//        $this->object->roll(FALSE);
-//
-//        $dice = $this->object->split();
-//
-//        $this->assertFalse($dice[0] === $dice[1]);
-//        $this->assertTrue($this->object === $dice[0]);
-//        $this->assertNotEquals($dice[0]->max, $dice[1]->max);
-//
-//        // The order of arguments for assertGreaterThan is screwy.
-//        $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
-//        $this->assertEquals(4, $dice[0]->max);
-//        $this->assertEquals(3, $dice[1]->max);
-//
-//    }
-//
+
+    /**
+     * @covers BMDie::get_scoreValueTimesTen
+     *
+     * @depends testInit
+     */
+    public function testGet_scoreValueTimesTen() {
+        $this->object->init(array(5, 7), array());
+
+        $this->assertEquals(60, $this->object->get_scoreValueTimesTen());
+
+        $this->object->captured = TRUE;
+
+        $this->assertEquals(120, $this->object->get_scoreValueTimesTen());
+
+    }
+
+    /**
+     * @covers BMDie::initiative_value
+     *
+     * @depends testInit
+     * @depends testRoll
+     */
+    public function testInitiative_value() {
+        $this->object->init(array(3, 8), array());
+        $this->object->roll(FALSE);
+
+        $val = $this->object->initiative_value();
+        $this->assertEquals($val, $this->object->value);
+    }
+
+    public function testDescribe() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @covers BMDieTwin::split
+     *
+     * @depends testInit
+     * @depends testRoll
+     */
+    public function testSplit() {
+        // 1-siders split into two 1-siders
+        $this->object->init(array(1, 1), array());
+        $this->object->roll(FALSE);
+
+        $splitDice = $this->object->split();
+
+        $this->assertFalse($splitDice[0] === $splitDice[1]);
+        $this->assertEquals(1, $splitDice[0]->dice[0]->max);
+        $this->assertEquals(1, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(1, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(1, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[0]->min);
+        $this->assertEquals(2, $splitDice[0]->max);
+        $this->assertEquals(2, $splitDice[1]->min);
+        $this->assertEquals(2, $splitDice[1]->max);
+
+        // even-sided split
+        $this->object->init(array(12, 16), array());
+        $this->object->roll(FALSE);
+
+        $splitDice = $this->object->split();
+
+        $this->assertFalse($splitDice[0] === $splitDice[1]);
+        $this->assertTrue($this->object === $splitDice[0]);
+        $this->assertEquals(6, $splitDice[0]->dice[0]->max);
+        $this->assertEquals(8, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(6, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(8, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[0]->min);
+        $this->assertEquals(14, $splitDice[0]->max);
+        $this->assertEquals(2, $splitDice[1]->min);
+        $this->assertEquals(14, $splitDice[1]->max);
+
+        // odd-sided split
+        $this->object->init(array(5, 9), array());
+        $this->object->roll(FALSE);
+
+        $splitDice = $this->object->split();
+
+        $this->assertFalse($splitDice[0] === $splitDice[1]);
+        $this->assertTrue($this->object === $splitDice[0]);
+        $this->assertEquals(3, $splitDice[0]->dice[0]->max);
+        $this->assertEquals(5, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(4, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[0]->min);
+        $this->assertEquals(8, $splitDice[0]->max);
+        $this->assertEquals(2, $splitDice[1]->min);
+        $this->assertEquals(6, $splitDice[1]->max);
+
+        // swing split
+        $this->object->init(array('X', 'X'));
+        $this->object->set_swingValue(array('X' => 5));
+        $splitDice = $this->object->split();
+
+        $this->assertFalse($splitDice[0] === $splitDice[1]);
+        $this->assertTrue($this->object === $splitDice[0]);
+        $this->assertNotInstanceOf('BMDieSwing', $splitDice[0]->dice[0]);
+        $this->assertNotInstanceOf('BMDieSwing', $splitDice[0]->dice[1]);
+        $this->assertNotInstanceOf('BMDieSwing', $splitDice[1]->dice[0]);
+        $this->assertNotInstanceOf('BMDieSwing', $splitDice[1]->dice[1]);
+        $this->assertEquals(3, $splitDice[0]->dice[0]->max);
+        $this->assertEquals(3, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(2, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[0]->min);
+        $this->assertEquals(6, $splitDice[0]->max);
+        $this->assertEquals(2, $splitDice[1]->min);
+        $this->assertEquals(4, $splitDice[1]->max);
+    }
+
 //    /*
 //     * @covers BMDie::get_recipe
 //     */
