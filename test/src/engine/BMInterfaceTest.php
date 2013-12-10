@@ -149,7 +149,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Game create failed because a player has been selected more than once.',
                             $this->object->message);
     }
-    
+
     /**
      * @covers BMInterface::create_game
      */
@@ -159,19 +159,19 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with a zero number of max wins
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 0);
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with a large number of max wins
         $retval = $this->object->create_game(array(1, 2), array('Bauer', 'Stark'), 6);
         $this->assertNull($retval);
         $this->assertEquals('Game create failed because the maximum number of wins was invalid.',
                             $this->object->message);
-        
+
         // attempt to create a game with an invalid button name
         $retval = $this->object->create_game(array(1, 2), array('KJQOERUCHC', 'Stark'), 3);
         $this->assertNull($retval);
@@ -826,6 +826,27 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->gameScoreArrayArray);
         $this->assertCount(5, $game->activeDieArrayArray[0]);
         $this->assertCount(5, $game->activeDieArrayArray[1]);
+    }
+
+    /**
+     * The following unit tests ensure that autopass works correctly.
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    function test_twin_die() {
+//        var_dump('test_start');
+//        $this->object->load_game(20);
+//        var_dump($this->object->message);
+//        var_dump('test_end');
+//        var_dump($this->object->message);
+//        $retval = $this->object->create_game(array(1, 2), array('Cthulhu', 'Bill'), 4);
+//        var_dump($this->object->message);
+
+//        $gameId = $retval['gameId'];
+//        $game = $this->object->load_game($gameId, array(FALSE, TRUE));
+
     }
 }
 

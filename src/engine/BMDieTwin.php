@@ -34,6 +34,23 @@ class BMDieTwin extends BMDie {
         return $die;
     }
 
+    public function activate() {
+        $newDie = clone $this;
+
+        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
+
+        foreach ($this->dice as $die) {
+            if ($die instanceof BMSwingDie) {
+                $this->ownerObject->request_swing_values($newDie,
+                                                         $die->swingType,
+                                                         $newDie->playerIdx);
+            }
+            $newDie->valueRequested = TRUE;
+        }
+
+        $this->ownerObject->add_die($newDie);
+    }
+
     public function roll($successfulAttack = FALSE) {
         if (is_null($this->max)) {
             return;

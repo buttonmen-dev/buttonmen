@@ -466,6 +466,7 @@ class BMGame {
                     $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
                     $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
                 }
+
                 break;
 
             case BMGameState::applyHandicaps:
