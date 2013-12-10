@@ -544,7 +544,17 @@ class BMDie {
         }
         // Twin dice divide on a comma, can contain any type but option
         elseif ($this instanceof BMDieTwin) {
-
+            if ($this->dice[0] instanceof BMDieSwing) {
+                $recipe .= $this->dice[0]->swingType;
+            } else {
+                $recipe .= $this->dice[0]->max;
+            }
+            $recipe .= ',';
+            if ($this->dice[1] instanceof BMDieSwing) {
+                $recipe .= $this->dice[1]->swingType;
+            } else {
+                $recipe .= $this->dice[1]->max;
+            }
         }
         elseif ($this instanceof BMDieWildcard) {
             $recipe .= 'C';

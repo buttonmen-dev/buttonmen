@@ -23,147 +23,6 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
     }
 
-
-//    public function testAdd_skill() {
-//        // Check that the skill list is indeed empty
-//        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-//        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-//
-//        $this->assertEmpty($sl, "Skill list not initially empty.");
-//        $this->assertFalse(array_key_exists("test", $hl), "Hook list not initially empty.");
-//
-//        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-//
-//        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-//        $this->assertNotEmpty($sl, "Skill list should not be empty.");
-//        $this->assertEquals(count($sl), 1, "Skill list contains more than it should.");
-//        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-//        $this->assertEquals($sl["Testing"], "TestDummyBMSkillTesting", "Incorrect stored classname for 'Testing'");
-//
-//        // Proper maintenance of the hook lists
-//        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-//        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-//
-//        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-//
-//        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-//        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-//
-//
-//
-//        // Another skill
-//
-//        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-//
-//        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-//        $this->assertNotEmpty($sl, "Skill list should not be empty.");
-//        $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-//        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-//        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-//        $this->assertEquals($sl["Testing2"], "TestDummyBMSkillTesting2", "Incorrect stored classname for 'Testing2'");
-//
-//
-//        // Redundancy
-//
-//        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-//
-//        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-//        $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-//        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-//        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-//
-//        // Proper maintenance of the hook lists
-//        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-//        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-//
-//        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-//        $this->assertContains("TestDummyBMSkillTesting2", $hl["test"], "Hook list missing 'Testing2' hook.");
-//
-//        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-//        $this->assertEquals(2, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-//
-//
-//
-//    }
-//
-//    /**
-//     * @depends testAdd_skill
-//     */
-//    public function testHas_skill() {
-//        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-//        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-//        $this->assertTrue($this->object->has_skill("Testing"));
-//        $this->assertTrue($this->object->has_skill("Testing2"));
-//        $this->assertFalse($this->object->has_skill("Testing3"));
-//    }
-//
-//    /**
-//     * @depends testAdd_skill
-//     * @depends testHas_skill
-//     */
-//    public function testRemove_skill() {
-//
-//        // simple
-//        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-//        $this->assertTrue($this->object->remove_skill("Testing"));
-//        $this->assertFalse($this->object->has_skill("Testing"));
-//
-//        // multiple skills
-//        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-//        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-//        $this->assertTrue($this->object->remove_skill("Testing"));
-//        $this->assertFalse($this->object->has_skill("Testing"));
-//        $this->assertTrue($this->object->has_skill("Testing2"));
-//
-//        // fail to remove non-existent skills
-//        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-//        $this->assertFalse($this->object->remove_skill("Testing3"));
-//        $this->assertTrue($this->object->has_skill("Testing"));
-//        $this->assertTrue($this->object->has_skill("Testing2"));
-//
-//        // examine the hook list for proper editing
-//        $this->assertTrue($this->object->remove_skill("Testing2"));
-//        $this->assertTrue($this->object->has_skill("Testing"));
-//        $this->assertFalse($this->object->has_skill("Testing2"));
-//
-//        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-//        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-//
-//        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-//        $this->assertNotContains("TestDummyBMSkillTesting2", $hl["test"], "Hook list _not_ missing 'Testing2' hook.");
-//
-//        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-//        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-//    }
-//
-//    /**
-//     * @depends testAdd_skill
-//     * @depends testHas_skill
-//     * @depends testRemove_skill
-//     */
-//    public function testRun_hooks() {
-//        $die = new TestDummyBMDieTesting;
-//
-//        $die->add_skill("Testing", "TestDummyBMSkillTesting");
-//
-//        $die->test();
-//
-//        $this->assertEquals("testing", $die->testvar);
-//
-//        $die->remove_skill("Testing");
-//        $die->add_skill("Testing2", "TestDummyBMSkillTesting2");
-//
-//        $die->test();
-//        $this->assertEquals("still testing", $die->testvar);
-//
-//        $die->add_skill("Testing", "TestDummyBMSkillTesting");
-//
-//        $die->test();
-//        // order in which hooks run is not guaranteed
-//        $this->assertRegExp('/testingstill testing|still testingtesting/', $die->testvar);
-//    }
-//
-//
     /**
      * @covers BMDieTwin::init
      */
@@ -508,30 +367,30 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $splitDice[1]->max);
     }
 
-//    /*
-//     * @covers BMDie::get_recipe
-//     */
-//    public function testGet_recipe() {
-//        $die0 = new BMDie;
-//        $die0->init(51, array());
-//        $this->assertEquals('(51)', $die0->get_recipe());
-//
-//        $die1 = new BMDie;
-//        $die1->init(6, array('Poison'));
-//        $this->assertEquals('p(6)', $die1->get_recipe());
-//
-//        $die2 = new BMDie;
-//        $die2->init(5, array('Shadow'));
-//        $this->assertEquals('s(5)', $die2->get_recipe());
-//
-//        $die3 = new BMDie;
-//        $die3->init(13, array('Poison', 'Shadow'));
-//        $this->assertEquals('ps(13)', $die3->get_recipe());
-//
-//        $die4 = new BMDie;
-//        $die4->init(25, array('Shadow', 'Poison'));
-//        $this->assertEquals('sp(25)', $die4->get_recipe());
-//    }
+    /*
+     * @covers BMDie::get_recipe
+     */
+    public function testGet_recipe() {
+        $die0 = new BMDieTwin;
+        $die0->init(array(5, 12), array());
+        $this->assertEquals('(5,12)', $die0->get_recipe());
+
+        $die1 = new BMDieTwin;
+        $die1->init(array(6, 8), array('Poison'));
+        $this->assertEquals('p(6,8)', $die1->get_recipe());
+
+        $die2 = new BMDieTwin;
+        $die2->init(array(5, 'X'), array('Shadow'));
+        $this->assertEquals('s(5,X)', $die2->get_recipe());
+
+        $die3 = new BMDieTwin;
+        $die3->init(array('Y', 13), array('Poison', 'Shadow'));
+        $this->assertEquals('ps(Y,13)', $die3->get_recipe());
+
+        $die4 = new BMDieTwin;
+        $die4->init(array('X', 'Y'), array('Shadow', 'Poison'));
+        $this->assertEquals('sp(X,Y)', $die4->get_recipe());
+    }
 
     /**
      * @covers BMDieTwin::set_swingValue
