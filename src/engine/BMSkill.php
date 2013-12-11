@@ -86,6 +86,10 @@ class BMSkill {
                      'Skill',
                      'Pass');
     }
+    
+    public static function incompatible_attack_types($args = NULL) {
+        return array();
+    }
 }
 
 ?>

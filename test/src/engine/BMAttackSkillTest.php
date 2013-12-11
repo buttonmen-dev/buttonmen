@@ -280,7 +280,27 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
             $this->assertTrue($sk->find_attack($game));
         }
 
-
+        // test with berserk dice
+        $sk->reset();
+        $this->assertCount(0, $sk->validDice);
+        
+        $die6 = BMDie::create(4, array('Berserk'));
+        $die6->value = 2;
+        $die7 = BMDie::create(6, array('Berserk'));
+        $die7->value = 3;
+        var_dump('test_start');
+        $sk->add_die($die6);
+        var_dump('test_end');
+        $this->assertCount(0, $sk->validDice);
+        $sk->add_die($die7);
+        $this->assertCount(0, $sk->validDice);
+        
+        $die3->value = 5;
+        $die4->value = 5;
+        
+        
+        $this->assertFalse($sk->find_attack($game));
+        
     }
 
     /**
