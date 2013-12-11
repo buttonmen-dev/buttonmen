@@ -291,8 +291,7 @@ class BMInterface {
                                                   $game->playerIdArray);
                 $die->originalPlayerIdx = $originalPlayerIdx;
 
-                if (($die instanceof BMDieSwing) ||
-                    ($die instanceof BMDieTwin && $die->has_swing_dice())) {
+                if (isset($die->swingType)) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
 
                     if (isset($row['swing_value'])) {

@@ -101,16 +101,6 @@ class BMDieTwin extends BMDie {
         return $splitDice;
     }
 
-    public function has_swing_dice() {
-        foreach ($this->dice as $die) {
-            if ($die instanceof BMDieSwing) {
-                return TRUE;
-            }
-        }
-
-        return FALSE;
-    }
-
     public function set_swingValue($swingList) {
         $valid = TRUE;
 
@@ -123,7 +113,7 @@ class BMDieTwin extends BMDie {
 
         $this->recalc_max_min();
 
-        return $valid || !$this->has_swing_dice();
+        return $valid || !isset($this->swingType);
     }
 
     // Return all information about a die which is useful when

@@ -213,8 +213,7 @@ class BMGame {
 
                             // apply swing values
                             foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
-                                if (($die instanceof BMDieSwing) ||
-                                    ($die instanceof BMDieTwin && $die->has_swing_dice()) ) {
+                                if (isset($die->swingType)) {
                                     $isSetSuccessful = $die->set_swingValue(
                                         $this->swingValueArrayArray[$playerIdx]);
                                     // act appropriately if the swing values are invalid
