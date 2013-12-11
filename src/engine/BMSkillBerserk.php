@@ -10,11 +10,17 @@ class BMSkillBerserk extends BMSkill {
 
         $attackTypeArray = &$args['attackTypeArray'];
 
-        if (array_key_exists('Skill', $attackTypeArray)) {
-            unset($attackTypeArray['Skill']);
+        foreach (BMSkillBerserk::incompatible_attack_types() as $attackType) {
+            if (array_key_exists($attackType, $attackTypeArray)) {
+                unset($attackTypeArray[$attackType]);
+            }
         }
 
         $attackTypeArray['Berserk'] = 'Berserk';
+    }
+    
+    public static function incompatible_attack_types($args = NULL) {
+        return array('Skill');
     }
 
     public static function capture(&$args) {
