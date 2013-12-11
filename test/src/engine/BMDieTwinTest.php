@@ -87,7 +87,13 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($this->object->min);
         $this->assertNull($this->object->max);
 
-        $this->object->init(array('R', 'S'), array());
+        try {
+            $this->object->init(array('R', 'S'), array());
+            $this->fail('A twin die can only have one swing type.');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        $this->object->init(array('R', 'R'), array());
 
         $this->assertCount(2, $this->object->dice);
         $this->assertInstanceOf('BMDieSwing', $this->object->dice[0]);
@@ -149,7 +155,7 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($die->min);
         $this->assertNull($die->max);
 
-        $die = BMDieTwin::create(array('R', 'S'), array());
+        $die = BMDieTwin::create(array('R', 'R'), array());
 
         $this->assertInstanceOf('BMDieTwin', $die);
         $this->assertCount(2, $die->dice);
@@ -388,8 +394,8 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('ps(Y,13)', $die3->get_recipe());
 
         $die4 = new BMDieTwin;
-        $die4->init(array('X', 'Y'), array('Shadow', 'Poison'));
-        $this->assertEquals('sp(X,Y)', $die4->get_recipe());
+        $die4->init(array('X', 'X'), array('Shadow', 'Poison'));
+        $this->assertEquals('sp(X,X)', $die4->get_recipe());
     }
 
     /**

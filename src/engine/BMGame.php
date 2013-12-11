@@ -210,9 +210,11 @@ class BMGame {
                         if ($waitingOnAction) {
                             $this->activate_GUI('Waiting on player action.', $playerIdx);
                         } else {
+
                             // apply swing values
-                            foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                                if (method_exists($die, 'set_swingValue')) {
+                            foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
+                                if (($die instanceof BMDieSwing) ||
+                                    ($die instanceof BMDieTwin && $die->has_swing_dice()) ) {
                                     $isSetSuccessful = $die->set_swingValue(
                                         $this->swingValueArrayArray[$playerIdx]);
                                     // act appropriately if the swing values are invalid

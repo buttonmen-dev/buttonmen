@@ -20,6 +20,18 @@ class BMDieTwin extends BMDie {
                 BMDie::create_from_string_components($sides, $skills);
         }
 
+        if ($this->dice[0] instanceof BMDieSwing &&
+            $this->dice[1] instanceof BMDieSwing &&
+            $this->dice[0]->swingType != $this->dice[1]->swingType) {
+            throw new InvalidArgumentException('A twin die can only have one swing type.');
+        }
+
+        if ($this->dice[0] instanceof BMDieSwing) {
+            $this->swingType = $this->dice[0]->swingType;
+        } elseif ($this->dice[1] instanceof BMDieSwing) {
+            $this->swingType = $this->dice[1]->swingType;
+        }
+
         $this->recalc_max_min();
     }
 
@@ -89,20 +101,28 @@ class BMDieTwin extends BMDie {
         return $splitDice;
     }
 
+    public function has_swing_dice() {
+        foreach ($this->dice as $die) {
+            if ($die instanceof BMDieSwing) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+    }
+
     public function set_swingValue($swingList) {
         $valid = TRUE;
-        $hasSwing = FALSE;
 
         foreach ($this->dice as &$die) {
             if ($die instanceof BMDieSwing) {
-                $hasSwing = TRUE;
                 $valid &= $die->set_swingValue($swingList);
             }
         }
 
         $this->recalc_max_min();
 
-        return $valid || !$hasSwing;
+        return $valid || !($this->has_swing_dice());
     }
 
     // Return all information about a die which is useful when
