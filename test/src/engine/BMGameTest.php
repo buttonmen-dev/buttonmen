@@ -4856,19 +4856,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->proceed_to_next_user_action();
-//        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
-//        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
-//        $this->assertEquals(array(array('X' => NULL), array('V' => NULL)),
-//                            $game->swingValueArrayArray);
-//
-//        // specify swing dice correctly
-//        $game->swingValueArrayArray = array(array('X' => 13), array('V' => 11));
-//        $game->proceed_to_next_user_action();
-//        $this->assertTrue($game->activeDieArrayArray[0][4] instanceof BMDieSwing);
-//        $this->assertFalse($game->activeDieArrayArray[0][4]->needsSwingValue);
-//        $this->assertTrue($game->activeDieArrayArray[1][4] instanceof BMDieSwing);
-//        $this->assertFalse($game->activeDieArrayArray[1][4]->needsSwingValue);
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::specifyDice, $game->gameState);
+        $this->assertEquals(array(array(), array('V' => NULL)),
+                            $game->swingValueArrayArray);
+
+        // specify swing dice correctly
+        $game->swingValueArrayArray = array(array(), array('V' => 11));
+        $game->proceed_to_next_user_action();
+        $this->assertTrue($game->activeDieArrayArray[1][3]->dice[0] instanceof BMDieSwing);
+        $this->assertFalse($game->activeDieArrayArray[1][3]->dice[0]->needsSwingValue);
+        $this->assertTrue($game->activeDieArrayArray[1][3]->dice[1] instanceof BMDieSwing);
+        $this->assertFalse($game->activeDieArrayArray[1][3]->dice[1]->needsSwingValue);
 //
 //        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
 //        $this->assertEquals(BMGameState::startTurn, $game->gameState);

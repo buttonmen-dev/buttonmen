@@ -212,7 +212,7 @@ class BMGame {
                         } else {
                             // apply swing values
                             foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                                if ($die instanceof BMDieSwing) {
+                                if (method_exists($die, 'set_swingValue')) {
                                     $isSetSuccessful = $die->set_swingValue(
                                         $this->swingValueArrayArray[$playerIdx]);
                                     // act appropriately if the swing values are invalid
@@ -611,7 +611,7 @@ class BMGame {
             } else {
                 $repeatCount = 0;
             }
-            if ($repeatCount >= 100) {
+            if ($repeatCount >= 20) {
                 throw new LogicException(
                     'Infinite loop detected when advancing game state.');
             }

@@ -40,7 +40,7 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array('die' => $newDie));
 
         foreach ($this->dice as $die) {
-            if ($die instanceof BMSwingDie) {
+            if ($die instanceof BMDieSwing) {
                 $this->ownerObject->request_swing_values($newDie,
                                                          $die->swingType,
                                                          $newDie->playerIdx);
@@ -102,7 +102,7 @@ class BMDieTwin extends BMDie {
 
         $this->recalc_max_min();
 
-        return $valid && $hasSwing;
+        return $valid || !$hasSwing;
     }
 
     // Return all information about a die which is useful when
