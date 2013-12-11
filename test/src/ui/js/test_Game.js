@@ -1,4 +1,36 @@
-module("Game");
+module("Game", {
+  'setup': function() {
+    BMTestUtils.GamePre = BMTestUtils.getAllElements();
+  },
+  'teardown': function() {
+
+    // Delete all elements we expect this module to create
+    delete Game.api;
+    delete Game.game;
+    BMTestUtils.deleteEnvMessage();
+
+    // Fail if any other elements were added or removed
+    BMTestUtils.GamePost = BMTestUtils.getAllElements();
+    deepEqual(
+      BMTestUtils.GamePre, BMTestUtils.GamePost,
+      "After testing, the page should have no unexpected element changes");
+  }
+});
+
+// Fake game data loader - FIXME, use dummy_responder
+BMTestUtils.GameFakeData = function(gametype) {
+  Game.api = {
+    'load_status': 'failed',
+  }
+  if (gametype == 'newgame') {
+    Game.game = 2;
+    Game.api.gameData = {"status":"ok","data":{"gameId":2,"gameState": 24,"roundNumber":1,"maxWins":"3","activePlayerIdx":null,"playerWithInitiativeIdx":null,"playerIdArray":["1","2"],"buttonNameArray":["Clare","Kublai"],"waitingOnActionArray":[true,true],"nDieArray":[5,5],"valueArrayArray":[[null,null,null,null,null],[null,null,null,null,null]],"sidesArrayArray":[[6,8,8,20,null],[null,null,null,null,null]],"dieRecipeArrayArray":[["(6)","(8)","(8)","(20)","(X)"],["(4)","(8)","(12)","(20)","(X)"]],"swingRequestArrayArray":[["X"],["X"]],"validAttackTypeArray":[],"roundScoreArray":[21,22],"gameScoreArrayArray":[{"W":0,"L":0,"D":0},{"W":0,"L":0,"D":0}]}};
+    Game.api.timestamp = "Wed, 11 Dec 2013 03:09:11 +0000";
+    Game.api.actionLog = [];
+    BMTestUtils.playerNameArray = ["tester1", "tester2"];
+    return true;
+  }
+}
 
 // pre-flight test of whether the Game module has been loaded
 test("test_Game_is_loaded", function() {
@@ -22,7 +54,13 @@ test("test_Game.layoutPage", function() {
 });
 
 test("test_Game.parseGameData", function() {
-  ok(null, "Test of Game.parseGameData not implemented");
+  BMTestUtils.GameFakeData('newgame');
+  equal(Game.parseGameData(false, BMTestUtils.playerNameArray), false,
+        "parseGameData() fails if currentPlayerIdx is not set");
+  ok(Game.parseGameData(0, BMTestUtils.playerNameArray),
+     "parseGameData() succeeds");
+  equal(Game.api.gameId, '2', "parseGameData() set gameId");
+  equal(Game.api.opponentIdx, 1, "parseGameData() set opponentIdx");
 });
 
 test("test_Game.parsePlayerData", function() {

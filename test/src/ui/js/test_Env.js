@@ -21,7 +21,8 @@ test("test_Env_is_loaded", function() {
   ok(Env, "The Env namespace exists");
 });
 
-// WARNING: we're not actually testing this routine, exercise caution
+// Can't test this as written because we can't modify the real
+// location.search, and Env.getParameterByName won't accept a fake one
 test("test_Env.getParameterByName", function() {
   expect(1); // number of tests plus 1 for the teardown test
 });
