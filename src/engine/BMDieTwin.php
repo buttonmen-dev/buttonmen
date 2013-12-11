@@ -117,12 +117,13 @@ class BMDieTwin extends BMDie {
         foreach ($this->dice as &$die) {
             if ($die instanceof BMDieSwing) {
                 $valid &= $die->set_swingValue($swingList);
+                $this->swingValue = $die->swingValue;
             }
         }
 
         $this->recalc_max_min();
 
-        return $valid || !($this->has_swing_dice());
+        return $valid || !$this->has_swing_dice();
     }
 
     // Return all information about a die which is useful when
