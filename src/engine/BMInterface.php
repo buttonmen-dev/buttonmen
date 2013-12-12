@@ -592,7 +592,7 @@ class BMInterface {
                      'v1.n_target_wins,'.
                      'v2.is_awaiting_action,'.
                      'g.game_state,'.
-                     's.status '.
+                     's.name AS status '.
                      'FROM game_player_view AS v1 '.
                      'LEFT JOIN game_player_view AS v2 '.
                      'ON v1.game_id = v2.game_id '.
@@ -602,7 +602,7 @@ class BMInterface {
                      'ON g.status_id = s.id '.
                      'WHERE v2.player_id = :player_id '.
                      'AND v1.player_id != v2.player_id '.
-                     'AND s.status != "COMPLETE" '.
+                     'AND s.name != "COMPLETE" '.
                      'ORDER BY v1.game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':player_id' => $playerId));
