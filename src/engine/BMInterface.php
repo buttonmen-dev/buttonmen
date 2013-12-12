@@ -370,7 +370,8 @@ class BMInterface {
 
             // game
             $query = 'UPDATE game '.
-                     'SET status_id = '.
+                     'SET last_action_time = NOW(),'.
+                     '    status_id = '.
                      '        (SELECT id FROM game_status WHERE name = :status),'.
                      '    game_state = :game_state,'.
                      '    round_number = :round_number,'.
