@@ -9,7 +9,10 @@ class BMSkillKonstant extends BMSkill {
         }
 
         $attackTypeArray = &$args['attackTypeArray'];
-        $attackTypeArray['Konstant'] = 'Konstant';
+
+        if (array_key_exists('Power', $attackTypeArray)) {
+            unset($attackTypeArray['Power']);
+        }
     }
 
     public static function make_play_die($args) {
