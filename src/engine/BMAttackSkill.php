@@ -92,6 +92,12 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
+        // do not allow single-die skill attacks from konstant dice
+        if (1 == count($attackers) &&
+            $attackers[0]->has_skill('Konstant')) {
+            return FALSE;
+        }
+
         // array_intersect tries to convert to strings, so we
         // use array_uintersect, which needs a comparison
         // function
