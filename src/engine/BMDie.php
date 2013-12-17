@@ -59,8 +59,7 @@ class BMDie {
 // --AND--
 // Take it out as a reference: $thing = &$args[0]
 
-    public function run_hooks($func, array $args)
-    {
+    public function run_hooks($func, $args) {
         // get the hooks for the calling function
         if (!array_key_exists($func, $this->hookList)) {
             return;
@@ -79,8 +78,7 @@ class BMDie {
     // instead name skill classes according to the expected pattern.
     // The optional argument is only for outside code which needs
     // to add skills (currently, it's used for unit testing).
-    public function add_skill($skill, $skillClass = False)
-    {
+    public function add_skill($skill, $skillClass = FALSE) {
         if (!$skill) {
             return;
         }
@@ -90,7 +88,7 @@ class BMDie {
         }
 
         // Don't add skills that are already added
-        if (!array_key_exists($skill, $this->skillList)) {
+        if (!$this->has_skill($skill)) {
             $this->skillList[$skill] = $skillClass;
 
             foreach ($skillClass::$hooked_methods as $func) {
@@ -99,10 +97,21 @@ class BMDie {
         }
     }
 
+    protected function add_multiple_skills($skills) {
+        if ($skills) {
+            foreach ($skills as $skillClass => $skill) {
+                if (is_string($skillClass)) {
+                    $this->add_skill($skill, $skillClass);
+                } else {
+                    $this->add_skill($skill);
+                }
+            }
+        }
+    }
+
 // This one may need to be hookable. So might add_skill, depending on
 //  how Chaotic shakes out.
-    public function remove_skill($skill)
-    {
+    public function remove_skill($skill) {
         if (!$this->has_skill($skill)) {
             return FALSE;
         }
@@ -122,8 +131,7 @@ class BMDie {
         return TRUE;
     }
 
-    public function has_skill($skill)
-    {
+    public function has_skill($skill) {
         return array_key_exists($skill, $this->skillList);
     }
 
@@ -136,21 +144,12 @@ class BMDie {
     // This is only for use by callers outside of engine (e.g.
     // testing), and should never be used for the default BMSkill<skill>
     // set of skills.
-    public function init($sides, array $skills = NULL)
-    {
+    public function init($sides, array $skills = NULL) {
         $this->min = 1;
         $this->max = $sides;
 
-        if ($skills) {
-            foreach ($skills as $skillClass => $skill) {
-                if (is_string($skillClass)) {
-                    $this->add_skill($skill, $skillClass);
-                } else {
-                    $this->add_skill($skill);
+        $this->add_multiple_skills($skills);
                 }
-            }
-        }
-    }
 
     public static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
@@ -178,24 +177,15 @@ class BMDie {
         $die = NULL;
 
         try {
-            $opt_list = explode('|', $recipe);
-
             // Option dice divide on a |, can contain any die type
-            if (count($opt_list) > 1) {
-                if (function_exists('BMDieOption::create_from_list')) {
-                    $die = BMDieOption::create_from_list($opt_list, $skills);
-                } else {
+            if (count($opt_array = explode('|', $recipe)) > 1) {
+//                $die = BMDieOption::create($opt_array, $skills);
                     throw new Exception("Option skill not implemented");
                 }
-            }
             // Twin dice divide on a comma, can contain any type but option
-            elseif (count($twin_list = explode(',', $recipe)) > 1) {
-                if (function_exists('BMDieTwin::create_from_list')) {
-                    $die = BMDieTwin::create_from_list($twin_list, $skills);
-                } else {
-                    throw new Exception("Twin skill not implemented");
+            elseif (count($twin_array = explode(',', $recipe)) > 1) {
+                $die = BMDieTwin::create($twin_array, $skills);
                 }
-            }
             elseif ('C' == $recipe) {
                 $die = BMDieWildcard::create($recipe, $skills);
             }
@@ -249,8 +239,7 @@ class BMDie {
 //
 // Clones the die and returns the clone
 
-    public function activate()
-    {
+    public function activate() {
         $newDie = clone $this;
 
         $this->run_hooks(__FUNCTION__, array('die' => $newDie));
@@ -259,8 +248,7 @@ class BMDie {
     }
 
 // Roll the die into a game. Clone self, roll, return the clone.
-    public function make_play_die()
-    {
+    public function make_play_die() {
         $newDie = clone $this;
 
         $newDie->roll(FALSE);
@@ -271,8 +259,7 @@ class BMDie {
     }
 
 
-    public function roll($successfulAttack = FALSE)
-    {
+    public function roll($successfulAttack = FALSE) {
 
         if ($this->doesReroll) {
             $this->value = mt_rand($this->min, $this->max);
@@ -281,8 +268,7 @@ class BMDie {
         $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
     }
 
-    public function attack_list()
-    {
+    public function attack_list() {
         $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
         $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list,
@@ -294,8 +280,7 @@ class BMDie {
     // Return all possible values the die may use in this type of attack
     //
     // The values must be sorted, highest to lowest, with no duplication.
-    public function attack_values($type)
-    {
+    public function attack_values($type) {
         $list = array($this->value);
 
         $this->run_hooks(__FUNCTION__, array('attackType' => $type,
@@ -304,12 +289,11 @@ class BMDie {
         return $list;
     }
 
-    public function defense_value($type)
-    {
+    public function defense_value($type) {
         $val = $this->value;
 
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'defenceValue' => &$val));
+//        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
+//                                             'defenceValue' => &$val));
 
         return $val;
     }
@@ -321,8 +305,7 @@ class BMDie {
 //
 // We use a multiplier and divisor so various skills can manipulate them
 // without stepping on each others' toes
-    public function get_scoreValueTimesTen()
-    {
+    public function get_scoreValueTimesTen() {
         $scoreValue = $this->max;
 
         $mult = 1;
@@ -351,8 +334,7 @@ class BMDie {
     // 0 means it doesn't count for initiative.
     // "?" means it's a chance die.
 
-    public function initiative_value()
-    {
+    public function initiative_value() {
         $val = $this->value;
 
         $this->run_hooks(__FUNCTION__, array('initiativeValue' => &$val));
@@ -432,8 +414,7 @@ class BMDie {
 // situation I can come up with off the top of my head
 //
 // These methods cannot act, they may only check: they're called a lot
-    public function is_valid_attacker($type, array $attackers, array $defenders)
-    {
+    public function is_valid_attacker($type, array $attackers, array $defenders) {
         $valid = TRUE;
 
         if ($this->inactive || $this->hasAttacked) {
@@ -462,8 +443,7 @@ class BMDie {
     }
 
 
-    public function is_valid_target($type, array $attackers, array $defenders)
-    {
+    public function is_valid_target($type, array $attackers, array $defenders) {
         $valid = TRUE;
 
         if ($this->unavailable) {
@@ -491,24 +471,21 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array &$attackers, array &$defenders)
-    {
+    public function capture($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
                                              'defenders' => $defenders));
     }
 
 
-    public function be_captured($type, array &$attackers, array &$defenders)
-    {
+    public function be_captured($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
                                              'attackers' => $attackers,
                                              'defenders' => $defenders));
     }
 
 // Print long description
-    public function describe()
-    {
+    public function describe() {
         $this->run_hooks(__FUNCTION__, array());
     }
 
@@ -526,8 +503,7 @@ class BMDie {
 //
 // constant needs to hook this method to fix the die's value. Very
 // little else will.
-    public function split()
-    {
+    public function split() {
         $newdie = clone $this;
 
         if ($newdie->max > 1) {
@@ -573,7 +549,17 @@ class BMDie {
         }
         // Twin dice divide on a comma, can contain any type but option
         elseif ($this instanceof BMDieTwin) {
-
+            if ($this->dice[0] instanceof BMDieSwing) {
+                $recipe .= $this->dice[0]->swingType;
+            } else {
+                $recipe .= $this->dice[0]->max;
+        }
+            $recipe .= ',';
+            if ($this->dice[1] instanceof BMDieSwing) {
+                $recipe .= $this->dice[1]->swingType;
+            } else {
+                $recipe .= $this->dice[1]->max;
+            }
         }
         elseif ($this instanceof BMDieWildcard) {
             $recipe .= 'C';
@@ -611,8 +597,7 @@ class BMDie {
 
     // utility methods
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
                 case 'recipe':
@@ -623,8 +608,7 @@ class BMDie {
         }
     }
 
-    public function __set($property, $value)
-    {
+    public function __set($property, $value) {
 //        switch ($property) {
 //            default:
                 $this->$property = $value;

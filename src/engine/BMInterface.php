@@ -262,6 +262,7 @@ class BMInterface {
             $game->autopassArray = $autopassArray;
 
             // add swing values
+            $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
                      'WHERE game_id = :game_id ';
@@ -292,7 +293,7 @@ class BMInterface {
                                                   $game->playerIdArray);
                 $die->originalPlayerIdx = $originalPlayerIdx;
 
-                if ($die instanceof BMDieSwing) {
+                if (isset($die->swingType)) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
 
                     if (isset($row['swing_value'])) {

@@ -210,9 +210,10 @@ class BMGame {
                         if ($waitingOnAction) {
                             $this->activate_GUI('Waiting on player action.', $playerIdx);
                         } else {
+
                             // apply swing values
-                            foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
-                                if ($die instanceof BMDieSwing) {
+                            foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
+                                if (isset($die->swingType)) {
                                     $isSetSuccessful = $die->set_swingValue(
                                         $this->swingValueArrayArray[$playerIdx]);
                                     // act appropriately if the swing values are invalid
@@ -453,6 +454,7 @@ class BMGame {
                     $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
                     $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
                 }
+
                 break;
 
             case BMGameState::applyHandicaps:
@@ -620,7 +622,7 @@ class BMGame {
             } else {
                 $repeatCount = 0;
             }
-            if ($repeatCount >= 100) {
+            if ($repeatCount >= 20) {
                 throw new LogicException(
                     'Infinite loop detected when advancing game state.');
             }
