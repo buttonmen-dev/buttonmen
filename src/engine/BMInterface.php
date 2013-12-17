@@ -330,7 +330,7 @@ class BMInterface {
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
 
-            $game->proceed_to_next_user_action();
+//            $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
 

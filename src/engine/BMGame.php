@@ -432,7 +432,7 @@ class BMGame {
                 $this->reset_play_state();
                 // swingValueArrayArray must be reset to clear entries in the
                 // database table game_swing_map
-                $this->swingValueArrayArray = NULL;
+                $this->swingValueArrayArray = array_fill(0, $this->nPlayers, array());
 
                 $this->activate_GUI('Show end-of-game screen.');
                 break;
