@@ -43,19 +43,13 @@ class BMSkillBerserk extends BMSkill {
         assert(1 == count($args['attackers']));
 
         $attacker = $args['attackers'][0];
-        $skillList = $attacker->skillList;
 
         // james: which other skills need to be lost after a Berserk attack?
-        unset($skillList['Berserk']);
+        $attacker->remove_skill('Berserk');
 
-        // force removal of swing status
-        $newAttacker = new BMDie();
-        $newAttacker->init(round($attacker->max / 2),
-                           array_keys($skillList));
-        $newAttacker->ownerObject = $attacker->ownerObject;
-        $newAttacker->playerIdx = $attacker->playerIdx;
-        $newAttacker->originalPlayerIdx = $attacker->originalPlayerIdx;
-        $newAttacker->roll(TRUE);
+        // force removal of swing, twin die, and option status
+        $splitDieArray = $attacker->split();
+        $newAttacker = $splitDieArray[0];
         $args['attackers'][0] = $newAttacker;
     }
 }

@@ -9,7 +9,7 @@ class BMAttackSpeed extends BMAttack {
         }
 
         $attacker = $attackers[0];
-        $doesAttackerHaveSkill = array_key_exists($this->type, $attacker->skillList);
+        $doesAttackerHaveSkill = $attacker->has_skill($this->type);
 
         $defenderSum = 0;
         foreach ($defenders as $defender) {

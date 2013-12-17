@@ -72,7 +72,7 @@ class BMInterface {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
-        
+
         // validate all inputs
         foreach ($playerIdArray as $playerId) {
             if (!(is_null($playerId) || is_int($playerId))) {
@@ -80,16 +80,16 @@ class BMInterface {
                 return NULL;
             }
         }
-        
-        if (FALSE === filter_var($maxWins, 
+
+        if (FALSE === filter_var($maxWins,
                                  FILTER_VALIDATE_INT,
                                  array('options'=>
-                                       array('min_range' => 1, 
+                                       array('min_range' => 1,
                                              'max_range' => 5)))) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
-        
+
         $buttonIdArray = array();
         foreach ($playerIdArray as $position => $playerId) {
             // get button ID
@@ -260,6 +260,7 @@ class BMInterface {
             $game->autopassArray = $autopassArray;
 
             // add swing values
+            $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
                      'WHERE game_id = :game_id ';
@@ -290,7 +291,7 @@ class BMInterface {
                                                   $game->playerIdArray);
                 $die->originalPlayerIdx = $originalPlayerIdx;
 
-                if ($die instanceof BMDieSwing) {
+                if (isset($die->swingType)) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
 
                     if (isset($row['swing_value'])) {

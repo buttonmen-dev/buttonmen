@@ -17,7 +17,7 @@ class BMAttackTrip extends BMAttack {
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        $doesAttackerHaveTrip = array_key_exists('Trip', $attacker->skillList);
+        $doesAttackerHaveTrip = $attacker->has_skill('Trip');
         $isDieLargeEnough = ($attacker->max >= $defender->min);
 
         // james: add something about not being able to attack stealth dice
