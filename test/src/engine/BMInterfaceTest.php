@@ -604,7 +604,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game = $this->object->load_game_without_autopass($gameId);
 
         $this->assertEquals(BMGameState::endGame, $game->gameState);
-        $this->assertNull($game->swingValueArrayArray);
+        $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
     }
 
 

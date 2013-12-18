@@ -113,11 +113,20 @@ class BMInterface {
         try {
             // create basic game details
             $query = 'INSERT INTO game '.
-                     '(n_players, n_target_wins, n_recent_passes, creator_id) '.
+                     '    (status_id, '.
+                     '     n_players, '.
+                     '     n_target_wins, '.
+                     '     n_recent_passes, '.
+                     '     creator_id) '.
                      'VALUES '.
-                     '(:n_players, :n_target_wins, :n_recent_passes, :creator_id)';
+                     '    ((SELECT id FROM game_status WHERE name = :status), '.
+                     '     :n_players, '.
+                     '     :n_target_wins, '.
+                     '     :n_recent_passes, '.
+                     '     :creator_id)';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':n_players'     => count($playerIdArray),
+            $statement->execute(array(':status'        => 'OPEN',
+                                      ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0]));
@@ -274,10 +283,14 @@ class BMInterface {
             }
 
             // add die attributes
-            $query = 'SELECT * '.
-                     'FROM die '.
+            $query = 'SELECT d.*,'.
+                     '       s.name AS status '.
+                     'FROM die AS d '.
+                     'LEFT JOIN die_status AS s '.
+                     'ON d.status_id = s.id '.
                      'WHERE game_id = :game_id '.
                      'ORDER BY id;';
+
             $statement3 = self::$conn->prepare($query);
             $statement3->execute(array(':game_id' => $gameId));
 
@@ -318,7 +331,7 @@ class BMInterface {
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
 
-            $game->proceed_to_next_user_action();
+//            $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -347,9 +360,20 @@ class BMInterface {
                 $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
             }
 
+            if (BMGameState::endGame == $game->gameState) {
+                $status = 'COMPLETE';
+            } elseif (in_array(0, $game->playerIdArray) ||
+                      in_array(NULL, $game->buttonArray)) {
+                $status = 'OPEN';
+            } else {
+                $status = 'ACTIVE';
+            }
+
             // game
             $query = 'UPDATE game '.
-                     'SET game_state = :game_state,'.
+                     'SET status_id = '.
+                     '        (SELECT id FROM game_status WHERE name = :status),'.
+                     '    game_state = :game_state,'.
                      '    round_number = :round_number,'.
                      '    turn_number_in_round = :turn_number_in_round,'.
             //:n_recent_draws
@@ -361,7 +385,8 @@ class BMInterface {
             //:chat
                      'WHERE id = :game_id;';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_state' => $game->gameState,
+            $statement->execute(array(':status' => $status,
+                                      ':game_state' => $game->gameState,
                                       ':round_number' => $game->roundNumber,
                                       ':turn_number_in_round' => $game->turnNumberInRound,
                                       ':n_recent_passes' => $game->nRecentPasses,
@@ -426,6 +451,7 @@ class BMInterface {
                                           ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
             }
 
+
             // set players awaiting action
             foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
                 $query = 'UPDATE game_player_map '.
@@ -448,7 +474,8 @@ class BMInterface {
             // note that the logic is written this way to make debugging easier
             // in case something fails during the addition of dice
             $query = 'UPDATE die '.
-                     'SET status = "DELETED" '.
+                     'SET status_id = '.
+                     '    (SELECT id FROM die_status WHERE name = "DELETED") '.
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -461,8 +488,23 @@ class BMInterface {
                         $status = 'NORMAL';
 
                         $query = 'INSERT INTO die '.
-                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
-                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                                 '    (owner_id, '.
+                                 '     original_owner_id, '.
+                                 '     game_id, '.
+                                 '     status_id, '.
+                                 '     recipe, '.
+                                 '     swing_value, '.
+                                 '     position, '.
+                                 '     value) '.
+                                 'VALUES '.
+                                 '    (:owner_id, '.
+                                 '     :original_owner_id, '.
+                                 '     :game_id, '.
+                                 '     (SELECT id FROM die_status WHERE name = :status), '.
+                                 '     :recipe, '.
+                                 '     :swing_value, '.
+                                 '     :position, '.
+                                 '     :value);';
                         $statement = self::$conn->prepare($query);
                         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
@@ -484,8 +526,23 @@ class BMInterface {
                         $status = 'CAPTURED';
 
                         $query = 'INSERT INTO die '.
-                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
-                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                                 '    (owner_id, '.
+                                 '     original_owner_id, '.
+                                 '     game_id, '.
+                                 '     status_id, '.
+                                 '     recipe, '.
+                                 '     swing_value, '.
+                                 '     position, '.
+                                 '     value) '.
+                                 'VALUES '.
+                                 '    (:owner_id, '.
+                                 '     :original_owner_id, '.
+                                 '     :game_id, '.
+                                 '     (SELECT id FROM die_status WHERE name = :status), '.
+                                 '     :recipe, '.
+                                 '     :swing_value, '.
+                                 '     :position, '.
+                                 '     :value);';
                         $statement = self::$conn->prepare($query);
                         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
@@ -501,7 +558,8 @@ class BMInterface {
 
             // delete dice with a status of "DELETED" for this game
             $query = 'DELETE FROM die '.
-                     'WHERE status = "DELETED" '.
+                     'WHERE status_id = '.
+                     '    (SELECT id FROM die_status WHERE name = "DELETED") '.
                      'AND game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -535,15 +593,17 @@ class BMInterface {
                      'v1.n_target_wins,'.
                      'v2.is_awaiting_action,'.
                      'g.game_state,'.
-                     'g.status '.
+                     's.name AS status '.
                      'FROM game_player_view AS v1 '.
                      'LEFT JOIN game_player_view AS v2 '.
                      'ON v1.game_id = v2.game_id '.
                      'LEFT JOIN game AS g '.
                      'ON g.id = v1.game_id '.
+                     'LEFT JOIN game_status AS s '.
+                     'ON g.status_id = s.id '.
                      'WHERE v2.player_id = :player_id '.
                      'AND v1.player_id != v2.player_id '.
-                     'AND g.status != "COMPLETE" '.
+                     'AND s.name != "COMPLETE" '.
                      'ORDER BY v1.game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':player_id' => $playerId));

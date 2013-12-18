@@ -3943,7 +3943,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::endGame, $game->gameState);
-        $this->assertNull($game->swingValueArrayArray);
+        $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
     }
 
     /**
