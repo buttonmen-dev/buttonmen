@@ -201,7 +201,9 @@ class BMInterface {
 
                 if (is_null($autopassOverride)) {
                     $autopassArray[$pos] = (bool)$row['autopass'];
-                } else {
+                } elseif ('all_false' == $autopassOverride) {
+                    $autopassArray[$pos] = FALSE;
+                }  else {
                     assert(is_array($autopassOverride));
                     assert(array_key_exists($pos, $autopassOverride));
                     $autopassArray[$pos] = $autopassOverride[$pos];
@@ -331,7 +333,7 @@ class BMInterface {
     }
 
     public function load_game_without_autopass($gameId) {
-        return $this->load_game($gameId, array(FALSE, FALSE));
+        return $this->load_game($gameId, 'all_false');
     }
 
     public function save_game(BMGame $game) {
@@ -680,7 +682,7 @@ class BMInterface {
                 return('');
             } else {
                 $this->message = 'Player ID retrieved successfully.';
-                return(intval($result[0]));
+                return((int)$result[0]);
             }
         } catch (Exception $e) {
             error_log(
@@ -908,11 +910,10 @@ class BMInterface {
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
-                $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
                 // On success, don't set a message, because one will be set from the action log
-                return True;
+                return TRUE;
             } else {
                 $this->message = 'Requested attack is not valid';
                 return NULL;
@@ -922,6 +923,92 @@ class BMInterface {
                 "Caught exception in BMInterface::submit_turn: " .
                 $e->getMessage());
             $this->message = 'Internal error while submitting turn';
+        }
+    }
+
+    // react_to_initiative expects the following inputs:
+    //
+    //   $action:
+    //       One of {'chance', 'focus', 'decline'}.
+    //       
+    //   $dieIdxArray:
+    //       (i)   If this is a 'chance' action, then an array containing the
+    //             index of the chance die that is being rerolled.
+    //       (ii)  If this is a 'focus' action, then this is the nonempty array
+    //             of die indices corresponding to the die values in
+    //             dieValueArray. This can be either the indices of ALL focus
+    //             dice OR just a subset.
+    //       (iii) If this is a 'decline' action, then this will be ignored.
+    //       
+    //   $dieValueArray:
+    //       This is only used for the 'focus' action. It is a nonempty array
+    //       containing the values of the focus dice that have been chosen by
+    //       the user. The die indices of the dice being specified are given in
+    //       $dieIdxArray.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+    
+    public function react_to_initiative($userId, $gameNumber, $action,
+                                        $dieIdxArray = NULL, 
+                                        $dieValueArray = NULL) {
+        try {
+            $game = $this->load_game($gameNumber);
+            if (!$this->is_action_current($game,
+                                          BMGameState::react_to_initiative,
+                                          $submitTimestamp,
+                                          $roundNumber,
+                                          $userId)) {
+                $this->message = 'You cannot react to initiative at the moment';
+                return FALSE;
+            }
+
+            $playerIdx = array_search($userId, $game->playerIdArray);
+
+            if (FALSE === $playerIdx) {
+                $this->message = 'You are not a participant in this game';
+                return FALSE;
+            }
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'chance':
+                    if (1 != count($dieIdxArray)) {
+                        $this->message = 'Only one chance die can be rerolled';
+                        return FALSE;
+                    }
+                    $argArray['rerolledDieIdx'] = (int)$dieIdxArray[0];
+                    break;
+                case 'focus':
+                    if (count($dieIdxArray) != count($dieValueArray)) {
+                        $this->message = 'Mismatch in number of indices and values';
+                        return FALSE;
+                    }
+                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+                        $argArray[$dieIdx] = $dieValueArray[$tempIdx];
+                    }
+                case 'decline':
+                    break;
+                default:
+                    $this->message = 'Invalid action to respond to initiative.';
+                    return FALSE;
+            }
+
+            $isSuccessful = $game->react_to_initiative($argArray);
+            if ($isSuccessful) {
+                $this->save_game($game);
+            }
+            
+            return $isSuccessful;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::react_to_initiative: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
         }
     }
 

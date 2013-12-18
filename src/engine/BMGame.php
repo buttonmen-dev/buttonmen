@@ -245,47 +245,12 @@ class BMGame {
                 break;
 
             case BMGameState::determineInitiative:
-                $initiativeArrayArray = array();
-                foreach ($this->activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
-                    $initiativeArrayArray[] = array();
-                    foreach ($tempActiveDieArray as $dieIdx => $tempDie) {
-                        // update initiative arrays if die counts for initiative
-                        $tempInitiative = $tempDie->initiative_value();
-                        if ($tempInitiative > 0) {
-                            $initiativeArrayArray[$playerIdx][] = $tempInitiative;
-                        }
-                    }
-                    sort($initiativeArrayArray[$playerIdx]);
-                }
+                $doesPlayerHaveInitiativeArray =
+                  BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
 
-                // determine player that has won initiative
-                $nPlayers = count($this->playerIdArray);
-                $doesPlayerHaveInitiative = array_fill(0, $nPlayers, TRUE);
-
-                $dieIdx = 0;
-                while (array_sum($doesPlayerHaveInitiative) >= 2) {
-                    $dieValues = array();
-                    foreach($initiativeArrayArray as $tempInitiativeArray) {
-                        if (isset($tempInitiativeArray[$dieIdx])) {
-                            $dieValues[] = $tempInitiativeArray[$dieIdx];
-                        } else {
-                            $dieValues[] = PHP_INT_MAX;
-                        }
-                    }
-                    $minDieValue = min($dieValues);
-                    if (PHP_INT_MAX === $minDieValue) {
-                        break;
-                    }
-                    for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
-                        if ($dieValues[$playerIdx] > $minDieValue) {
-                            $doesPlayerHaveInitiative[$playerIdx] = FALSE;
-                        }
-                    }
-                    $dieIdx++;
-                }
-                if (array_sum($doesPlayerHaveInitiative) > 1) {
+                if (array_sum($doesPlayerHaveInitiativeArray) > 1) {
                     $playersWithInitiative = array();
-                    foreach ($doesPlayerHaveInitiative as $playerIdx => $tempHasInitiative) {
+                    foreach ($doesPlayerHaveInitiativeArray as $playerIdx => $tempHasInitiative) {
                         if ($tempHasInitiative) {
                             $playersWithInitiative[] = $playerIdx;
                         }
@@ -293,19 +258,41 @@ class BMGame {
                     $tempPlayerWithInitiativeIdx = array_rand($playersWithInitiative);
                 } else {
                     $tempPlayerWithInitiativeIdx =
-                        array_search(TRUE, $doesPlayerHaveInitiative, TRUE);
+                        array_search(TRUE, $doesPlayerHaveInitiativeArray, TRUE);
                 }
 
-                // james: not yet programmed
-                // if there are focus or chance dice, determine if they might make a difference
-                if (FALSE) {
-                    // if so, then ask player to make decisions
-                    $this->activate_GUI('ask_player_about_focus_dice');
-                    break;
-                }
-
-                // if no more decisions, then set BMGame->playerWithInitiativeIdx
                 $this->playerWithInitiativeIdx = $tempPlayerWithInitiativeIdx;
+                break;
+
+            case BMGameState::reactToInitiative:
+                $canReactArray = array_fill(0, $this->nPlayers, FALSE);
+
+                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                    // do nothing if a player has won initiative
+                    if ($this->playerWithInitiativeIdx == $playerIdx) {
+                        continue;
+                    }
+
+                    // find out if any of the dice have the ability to react
+                    // when the player loses initiative
+                    foreach ($activeDieArray as $activeDie) {
+                        $hookResultArray =
+                          $activeDie->run_hooks('react_to_initiative',
+                                                array('activeDieArrayArray' => $this->activeDieArrayArray,
+                                                      'playerIdx' => $playerIdx));
+                        if (is_array($hookResultArray) && count($hookResultArray) > 0) {
+                            foreach ($hookResultArray as $hookResult) {
+                                if (TRUE === $hookResult) {
+                                    $canReactArray[$playerIdx] = TRUE;
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    $this->waitingOnActionArray = $canReactArray;
+                }
+
                 break;
 
             case BMGameState::startRound:
@@ -544,6 +531,12 @@ class BMGame {
 
             case BMGameState::determineInitiative:
                 if (isset($this->playerWithInitiativeIdx)) {
+                    $this->gameState = BMGameState::reactToInitiative;
+                }
+                break;
+
+            case BMGameState::reactToInitiative:
+                if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
                 }
                 break;
@@ -593,18 +586,35 @@ class BMGame {
         }
     }
 
-    public function proceed_to_next_user_action() {
+    // The variable $gameStateBreakpoint is used for debugging purposes only.
+    // If used, the game will stop as soon as the game state becomes
+
+    public function proceed_to_next_user_action($gameStateBreakpoint = NULL) {
         $repeatCount = 0;
+        $initialGameState = $this->gameState;
         $this->update_game_state();
+
+        if (isset($gameStateBreakpoint) &&
+            ($gameStateBreakpoint == $this->gameState) &&
+            ($initialGameState != $this->gameState)) {
+            return;
+        }
+
         $this->do_next_step();
 
         while (0 === array_sum($this->waitingOnActionArray)) {
             $intermediateGameState = $this->gameState;
             $this->update_game_state();
+
+            if (isset($gameStateBreakpoint) &&
+                ($gameStateBreakpoint == $this->gameState)) {
+                return;
+            }
+
             $this->do_next_step();
 
             if (BMGameState::endGame === $this->gameState) {
-                break;
+                return;
             }
 
             if ($intermediateGameState === $this->gameState) {
@@ -619,11 +629,136 @@ class BMGame {
         }
     }
 
-    protected function run_die_hooks($gameState) {
+    // react_to_initiative expects one of the following three input arrays:
+    //
+    //   1.  array('action' => 'chance',
+    //             'playerIdx => $playerIdx,
+    //             'rerolledDieIdx' => $rerolledDieIdx)
+    //       where the index of the rerolled chance die is in $rerolledDieIdx
+    //
+    //   2.  array('action' => 'decline',
+    //             'playerIdx' => $playerIdx)
+    //
+    //   3.  array('action' => 'focus',
+    //             'playerIdx' => $playerIdx,
+    //             'focusValueArray' => array($dieIdx1 => $dieValue1,
+    //                                        $dieIdx2 => $dieValue2))
+    //       where the details of ALL focus dice are in $focusValueArray
+    //
+    // It returns a boolean telling whether the reaction has been successful.
+    // If it fails, $game->message will say why it has failed.
+
+    public function react_to_initiative(array $args) {
+        if (BMGameState::reactToInitiative != $this->gameState) {
+            $this->message = 'Wrong game state to react to initiative.';
+            return FALSE;
+        }
+
+        if (!array_key_exists('action', $args) ||
+            !array_key_exists('playerIdx', $args)) {
+            $this->message = 'Missing action or player index.';
+            return FALSE;
+        }
+
+        $playerIdx = $args['playerIdx'];
+        $waitingOnActionArray = &$this->waitingOnActionArray;
+        $waitingOnActionArray[$playerIdx] = FALSE;
+
+        switch ($args['action']) {
+            case 'chance':
+                if (!array_key_exists('rerolledDieIdx', $args)) {
+                    $this->message = 'rerolledDieIdx must exist.';
+                    return FALSE;
+                }
+
+                if (FALSE === filter_var($args['rerolledDieIdx'],
+                                         FILTER_VALIDATE_INT,
+                                         array("options"=>
+                                               array("min_range"=>0,
+                                                     "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1)))) {
+                    $this->message = 'Invalid die index.';
+                    return FALSE;
+                }
+
+                $die = $this->activeDieArrayArray[$playerIdx][$args['rerolledDieIdx']];
+                if (FALSE === array_search('BMSkillChance', $die->skillList)) {
+                    $this->message = 'Can only apply chance action to chance die.';
+                    return FALSE;
+                }
+
+                $die->roll();
+                $this->gameState = BMGameState::determineInitiative;
+                break;
+            case 'decline':
+                if (0 == array_sum($this->waitingOnActionArray)) {
+                    $this->gameState = BMGameState::startRound;
+                }
+                break;
+            case 'focus':
+                if (!array_key_exists('focusValueArray', $args)) {
+                    $this->message = 'focusValueArray must exist.';
+                    return FALSE;
+                }
+
+                // check new die values
+                $focusValueArray = $args['focusValueArray'];
+
+                if (!is_array($focusValueArray) || (0 == count($focusValueArray))) {
+                    $this->message = 'focusValueArray must be a non-empty array.';
+                    return FALSE;
+                }
+
+                // focusValueArray should have the form array($dieIdx1 => $dieValue1, ...)
+                foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    if (FALSE === filter_var($dieIdx,
+                                             FILTER_VALIDATE_INT,
+                                             array("options"=>
+                                                   array("min_range"=>0,
+                                                         "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1)))) {
+                        $this->message = 'Invalid die index.';
+                        return FALSE;
+                    }
+
+                    $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
+
+                    if (FALSE === filter_var($newDieValue,
+                                             FILTER_VALIDATE_INT,
+                                             array("options"=>
+                                                   array("min_range"=>$die->min,
+                                                         "max_range"=>$die->value)))) {
+                        $this->message = 'Invalid value for focus die.';
+                        return FALSE;
+                    }
+
+                    if (FALSE === array_search('BMSkillFocus', $die->skillList)) {
+                        $this->message = 'Can only apply focus action to focus die.';
+                        return FALSE;
+                    }
+                }
+
+                // change specified die values
+                foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
+                }
+
+                $this->gameState = BMGameState::determineInitiative;
+                break;
+            default:
+                $this->message = 'Invalid reaction to initiative.';
+                return FALSE;
+        }
+
+        $this->do_next_step();
+        return TRUE;
+    }
+
+    protected function run_die_hooks($gameState, array $args = array()) {
+        $args['activePlayerIdx'] = $this->activePlayerIdx;
+
         if (!empty($this->activeDieArrayArray)) {
             foreach ($this->activeDieArrayArray as $activeDieArray) {
                 foreach ($activeDieArray as $activeDie) {
-                    $activeDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                    $activeDie->run_hooks_at_game_state($gameState, $args);
                 }
             }
         }
@@ -631,7 +766,7 @@ class BMGame {
         if (!empty($this->capturedDieArrayArray)) {
             foreach ($this->capturedDieArrayArray as $capturedDieArray) {
                 foreach ($capturedDieArray as $capturedDie) {
-                    $capturedDie->run_hooks_at_game_state($gameState, $this->attackerPlayerIdx);
+                    $capturedDie->run_hooks_at_game_state($gameState, $args);
                 }
             }
         }
@@ -709,6 +844,49 @@ class BMGame {
         $auxiliaryDice = trim($auxiliaryDice);
 
         return array($nonAuxiliaryDice, $auxiliaryDice);
+    }
+
+    public static function does_player_have_initiative_array(array $activeDieArrayArray) {
+        $initiativeArrayArray = array();
+        foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
+            $initiativeArrayArray[] = array();
+            foreach ($tempActiveDieArray as $dieIdx => $tempDie) {
+                // update initiative arrays if die counts for initiative
+                $tempInitiative = $tempDie->initiative_value();
+                if ($tempInitiative > 0) {
+                    $initiativeArrayArray[$playerIdx][] = $tempInitiative;
+                }
+            }
+            sort($initiativeArrayArray[$playerIdx]);
+        }
+
+        // determine player that has won initiative
+        $nPlayers = count($activeDieArrayArray);
+        $doesPlayerHaveInitiative = array_fill(0, $nPlayers, TRUE);
+
+        $dieIdx = 0;
+        while (array_sum($doesPlayerHaveInitiative) >= 2) {
+            $dieValues = array();
+            foreach($initiativeArrayArray as $tempInitiativeArray) {
+                if (isset($tempInitiativeArray[$dieIdx])) {
+                    $dieValues[] = $tempInitiativeArray[$dieIdx];
+                } else {
+                    $dieValues[] = PHP_INT_MAX;
+                }
+            }
+            $minDieValue = min($dieValues);
+            if (PHP_INT_MAX === $minDieValue) {
+                break;
+            }
+            for ($playerIdx = 0; $playerIdx <= $nPlayers - 1; $playerIdx++) {
+                if ($dieValues[$playerIdx] > $minDieValue) {
+                    $doesPlayerHaveInitiative[$playerIdx] = FALSE;
+                }
+            }
+            $dieIdx++;
+        }
+
+        return $doesPlayerHaveInitiative;
     }
 
     // james: parts of this function needs to be moved to the BMDie class

@@ -65,9 +65,13 @@ class BMDie {
             return;
         }
 
+        $resultArray = array();
+
         foreach ($this->hookList[$func] as $skillClass) {
-            $skillClass::$func($args);
+            $resultArray[$skillClass] = $skillClass::$func($args);
         }
+
+        return $resultArray;
     }
 
     // Other code inside engine must never set $skillClass, but
@@ -145,7 +149,7 @@ class BMDie {
         $this->max = $sides;
 
         $this->add_multiple_skills($skills);
-    }
+                }
 
     public static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
@@ -176,12 +180,12 @@ class BMDie {
             // Option dice divide on a |, can contain any die type
             if (count($opt_array = explode('|', $recipe)) > 1) {
 //                $die = BMDieOption::create($opt_array, $skills);
-                throw new Exception("Option skill not implemented");
-            }
+                    throw new Exception("Option skill not implemented");
+                }
             // Twin dice divide on a comma, can contain any type but option
             elseif (count($twin_array = explode(',', $recipe)) > 1) {
                 $die = BMDieTwin::create($twin_array, $skills);
-            }
+                }
             elseif ('C' == $recipe) {
                 $die = BMDieWildcard::create($recipe, $skills);
             }
@@ -268,7 +272,7 @@ class BMDie {
         $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
         $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list,
-                                             'value' => intval($this->value)));
+                                             'value' => (int)$this->value));
 
         return $list;
     }
@@ -516,10 +520,10 @@ class BMDie {
         return $dice;
     }
 
-    public function run_hooks_at_game_state($gameState, $activePlayerIdx) {
+    public function run_hooks_at_game_state($gameState, $args) {
         switch ($gameState) {
             case BMGameState::endTurn:
-                if ($this->playerIdx === $activePlayerIdx) {
+                if ($this->playerIdx === $args['activePlayerIdx']) {
                     $this->inactive = "";
                 }
                 $this->hasAttacked = FALSE;
@@ -528,7 +532,8 @@ class BMDie {
                 // do nothing special
         }
 
-        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' => $activePlayerIdx));
+        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' =>
+                                             $args['activePlayerIdx']));
     }
 
     public function get_recipe() {
@@ -548,7 +553,7 @@ class BMDie {
                 $recipe .= $this->dice[0]->swingType;
             } else {
                 $recipe .= $this->dice[0]->max;
-            }
+        }
             $recipe .= ',';
             if ($this->dice[1] instanceof BMDieSwing) {
                 $recipe .= $this->dice[1]->swingType;
