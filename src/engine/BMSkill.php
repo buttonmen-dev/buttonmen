@@ -65,6 +65,8 @@ class BMSkill {
 
     protected static function skill_name_abbreviation_mapping() {
         return array('Berserk'  => 'B',
+                     'Chance'  => 'c',
+                     'Focus'   => 'f',
                      'Konstant' => 'k',
                      'Null'     => 'n',
                      'Poison'   => 'p',
@@ -88,6 +90,10 @@ class BMSkill {
                      'Skill',
                      'Pass');
     }
+    
+    public static function incompatible_attack_types($args = NULL) {
+        return array();
+}
 }
 
 ?>

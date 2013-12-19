@@ -9,10 +9,14 @@ How to start an instance:
     and install it.  (So far, this has been successfully tested
     using Vagrant 1.2.7 on Mac OS X 10.8.)
 
- 2. In your shell, cd into this directory in your checked out repo:
+ 2. (one-time) Install VirtualBox: download any recent version from
+      http://www.virtualbox.org
+    and install it.
+
+ 3. In your shell, cd into this directory in your checked out repo:
       cd .../deploy/vagrant
 
- 3. Initialize the repo:
+ 4. Initialize the repo:
       vagrant up
     This will take some time, probably several minutes.  The file
     README.vagrant-up-example is an example of what you might see
@@ -22,7 +26,20 @@ How to start an instance:
     it needs to download a copy of the Ubuntu VM which it will
     customize to make your test VM.
 
- 4. Use the site: using a web browser, go to:
+ 4b. IF you are running vagrant on Windows, puppet may fail (see
+     README.vagrant-up-windows-example for an example of what this
+     may look like).  In that case, SSH into the new VM:
+
+       vagrant ssh
+
+     Once logged into the VM, run puppet by hand:
+
+       sudo puppet apply --modulepath /tmp/vagrant-puppet/modules-0 /buttonmen/deploy/vagrant/manifests/init.pp
+
+     This should produce output similar to the second part of
+     README.vagrant-up-example
+
+ 5. Use the site: using a web browser, go to:
 
       http://localhost:8080/
 
@@ -49,15 +66,24 @@ Things you might want to do after you have a running instance:
 
      vagrant help
 
- * Login to your instance and edit buttonmen code by hand:
+ * Quickly update your vagrant instance's webserver with code changes
+   you've made in your git working directory:
+
+     vagrant ssh -c 'sudo /usr/bin/rsync -av --delete /buttonmen/src/ /var/www/'
+
+ * Login to your instance:
 
      vagrant ssh
-     cd /var/www
-     # edit code by hand using your favorite Unix text editor
-     sudo service apache2 reload   # just to make sure no old code is cached
 
- * Run the test suites that run on pagodabox:
+ * Once logged in via SSH, run the test suites that run on pagodabox:
 
      cd /buttonmen/src
      php /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
 
+ * Once logged in via SSH, look at your buttonmen database via the MySQL CLI:
+
+     mysql -u root -p buttonmen
+
+ * Once logged in via SSH, look at the webserver error log to debug failures:
+
+     cat /var/log/apache2/error.log

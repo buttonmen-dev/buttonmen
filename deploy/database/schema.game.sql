@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS game;
 CREATE TABLE game (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
+    status_id          TINYINT UNSIGNED NOT NULL,
     game_state         TINYINT UNSIGNED DEFAULT 10,
     n_players          TINYINT UNSIGNED DEFAULT 2,
     round_number       TINYINT UNSIGNED DEFAULT 0,
@@ -18,6 +18,12 @@ CREATE TABLE game (
     tournament_id      SMALLINT UNSIGNED,
     description        VARCHAR(255) NOT NULL,
     chat               TEXT
+);
+
+DROP TABLE IF EXISTS game_status;
+CREATE TABLE game_status (
+    id                 TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name               VARCHAR(20) NOT NULL
 );
 
 DROP TABLE IF EXISTS game_player_map;
@@ -60,11 +66,17 @@ CREATE TABLE die (
     owner_id           TINYINT UNSIGNED NOT NULL,
     original_owner_id  TINYINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
-    status             ENUM ('NORMAL', 'CAPTURED', 'DISABLED', 'OUT_OF_GAME', 'DELETED') DEFAULT 'NORMAL',
+    status_id          TINYINT UNSIGNED NOT NULL,
     recipe             VARCHAR(20) NOT NULL,
     swing_value        TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
     value              SMALLINT
+);
+
+DROP TABLE IF EXISTS die_status;
+CREATE TABLE die_status (
+    id                 TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name               VARCHAR(20) NOT NULL
 );
 
 DROP TABLE IF EXISTS open_game_possible_buttons;
@@ -86,7 +98,7 @@ DROP TABLE IF EXISTS last_attack_die_map;
 DROP TABLE IF EXISTS tournament;
 CREATE TABLE tournament (
     id                 SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    status             ENUM ('OPEN', 'ACTIVE', 'COMPLETE') NOT NULL,
+    status_id          TINYINT UNSIGNED NOT NULL,
     current_round      TINYINT UNSIGNED DEFAULT 1,
     n_players          TINYINT UNSIGNED NOT NULL,
     n_target_wins      TINYINT UNSIGNED NOT NULL,

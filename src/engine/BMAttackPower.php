@@ -17,11 +17,11 @@ class BMAttackPower extends BMAttack {
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        if (array_key_exists('Shadow', $attacker->skillList)) {
+        if ($attacker->has_skill('Shadow')) {
             return FALSE;
         }
 
-        if (array_key_exists('Queer', $attacker->skillList) &&
+        if ($attacker->has_skill('Queer') &&
             (1 == $attacker->value % 2)) {
             return FALSE;
         }

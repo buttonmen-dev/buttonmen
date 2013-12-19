@@ -87,7 +87,7 @@ class BMAttackSkill extends BMAttack {
         }
 
         foreach ($attackers as $attacker) {
-            if (array_key_exists('Berserk', $attacker->skillList)) {
+            if ($attacker->has_skill('Berserk')) {
                 return FALSE;
             }
         }

@@ -111,6 +111,7 @@ Overview.parseActiveGames = function(data) {
         'D': data.nDrawsArray[i],
       },
       'isAwaitingAction': data.isAwaitingActionArray[i],
+      'maxWins': data.nTargetWinsArray[i],
       'gameState': data.gameStateArray[i],
       'status': data.statusArray[i],
     };
@@ -186,7 +187,7 @@ Overview.addGameTable = function(gameType, sectionHeader) {
   headerRow.append($('<th>', {'text': 'Opponent', }));
   headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': "Opponent's Button", }));
-  headerRow.append($('<th>', {'text': 'Score (W/L/T)', }));
+  headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
   table.append(headerRow);
   var i = 0;
   while (i < Overview.api.games[gameType].length) {
@@ -201,7 +202,8 @@ Overview.addGameTable = function(gameType, sectionHeader) {
     gameRow.append($('<td>', {'text': gameInfo.opponentButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.gameScoreDict['W'] + '/' +
                                       gameInfo.gameScoreDict['L'] + '/' +
-                                      gameInfo.gameScoreDict['D'], }));
+                                      gameInfo.gameScoreDict['D'] +
+                                      ' (' + gameInfo.maxWins + ')', }));
     i += 1;
     table.append(gameRow);
   }

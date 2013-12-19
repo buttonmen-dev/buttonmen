@@ -8,12 +8,6 @@ class BMDieSwing extends BMDie {
     protected $needsSwingValue = TRUE;
     protected $valueRequested = FALSE;
 
-    // To allow correct behavior for turbo and mood swings that get
-    // cut in half.
-    protected $divisor = 1;
-    protected $remainder = 0;
-
-
     // Don't really like putting data in the code, but where else
     // should it go?
     //
@@ -127,16 +121,12 @@ class BMDieSwing extends BMDie {
 
     public function split()
     {
-        $this->divisor *= 2;
-        $this->remainder = 0;
-
-        $dice = parent::split();
-
-        if ($this->max > $dice[1]->max) {
-            $this->remainder = 1;
-        }
-
-        return $dice;
+        $normalDie = new BMDie();
+        $normalDie->init($this->max, $this->skillList);
+        $normalDie->ownerObject = $this->ownerObject;
+        $normalDie->playerIdx = $this->playerIdx;
+        $normalDie->originalPlayerIdx = $this->originalPlayerIdx;
+        return $normalDie->split();
     }
 
     public function set_swingValue($swingList) {
@@ -157,24 +147,8 @@ class BMDieSwing extends BMDie {
 
         if ($valid) {
             $this->swingValue = $sides;
-
-            // Don't need to ask for a swing value any more
             $this->needsSwingValue = FALSE;
             $this->valueRequested = FALSE;
-
-            // correctly handle cut-in-half swing dice, however many
-            // times they may have been cut
-            for($i = $this->divisor; $i > 1; $i /= 2) {
-                if ($sides > 1) {
-                    $rem = $sides % 2;
-                    $sides -= $rem;
-                    $sides /= 2;
-                    if ($rem && $this->remainder) {
-                        $sides += 1;
-                    }
-                }
-            }
-
             $this->max = $sides;
             $this->scoreValue = $sides;
         }
