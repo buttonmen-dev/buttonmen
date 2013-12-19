@@ -50,7 +50,7 @@ class BMAttack {
             $individualAttackTypeArray['Skill'] = 'Skill';
             $attacker->run_hooks('attack_list',
                                  array('attackTypeArray' => &$individualAttackTypeArray,
-                                       'value' => intval($attacker->value)));
+                                       'value' => (int)$attacker->value));
 
             foreach ($individualAttackTypeArray as $attackType) {
                 $allAttackTypesArray[$attackType] = $attackType;
@@ -59,11 +59,18 @@ class BMAttack {
 
         return $allAttackTypesArray;
     }
-
+    
     public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
         // objects matching
         if (!in_array($die, $this->validDice, TRUE)) {
+            if (is_array($die->skillList)) {
+                foreach ($die->skillList as $skill) {
+                    if (FALSE !== array_search($this->type, $skill::incompatible_attack_types())) {
+                        return;
+                    }
+                }
+            }
             $this->validDice[] = $die;
         }
     }
@@ -292,6 +299,26 @@ class BMAttack {
             }
         }
         return $helpers;
+    }
+    
+    public function __get($property)
+    {
+        if (property_exists($this, $property)) {
+            switch ($property) {
+                default:
+                    return $this->$property;
+            }
+        }
+    }
+
+    public function __set($property, $value)
+    {
+        throw new LogicException(
+            "BMAttack->$property cannot be set.");
+//        switch ($property) {
+//            default:
+//                $this->$property = $value;
+//        }
     }
 }
 

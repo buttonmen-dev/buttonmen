@@ -26,4 +26,4 @@ LEFT JOIN button AS b
 ON pb.button_id = b.id
 LEFT JOIN buttonset AS s
 ON ps.set_id = s.id
-WHERE g.status = "OPEN";
+WHERE g.status_id = (SELECT id FROM game_status WHERE name = "OPEN");

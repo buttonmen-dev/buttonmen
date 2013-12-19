@@ -8,9 +8,11 @@ class BMGameState {
 
     // pre-round
     const loadDiceIntoButtons = 20;
+    // const addReserveDice = 21;
     const addAvailableDiceToGame = 22;
     const specifyDice = 24;
     const determineInitiative = 26;
+    const reactToInitiative = 27;
 
     // start round
     const startRound = 30;
@@ -37,6 +39,7 @@ class BMGameState {
                                     BMGameState::addAvailableDiceToGame,
                                     BMGameState::specifyDice,
                                     BMGameState::determineInitiative,
+                                    BMGameState::reactToInitiative,
                                     BMGameState::startRound,
                                     BMGameState::startTurn,
                                     BMGameState::endTurn,

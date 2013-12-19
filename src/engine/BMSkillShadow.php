@@ -10,11 +10,17 @@ class BMSkillShadow extends BMSkill {
 
         $attackTypeArray = &$args['attackTypeArray'];
 
-        if (array_key_exists('Power', $attackTypeArray)) {
-            unset($attackTypeArray['Power']);
+        foreach (BMSkillShadow::incompatible_attack_types() as $attackType) {
+            if (array_key_exists($attackType, $attackTypeArray)) {
+                unset($attackTypeArray[$attackType]);
+            }
         }
 
         $attackTypeArray['Shadow'] = 'Shadow';
+    }
+    
+    public static function incompatible_attack_types($args = NULL) {
+        return array('Power');
     }
 }
 
