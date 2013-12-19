@@ -63,26 +63,84 @@
             $message = "All button names retrieved successfully.";
             break;
 
-//        case 'loadGameData':
-//            $data = NULL;
-//            $game = $interface->load_game($_POST['game']);
-//            if ($game) {
-//                $currentPlayerId = $_SESSION['user_id'];
-//                $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
-//
-//                foreach ($game->playerIdArray as $playerId) {
-//                    $playerNameArray[] = $interface->get_player_name_from_id($playerId);
-//                }
-//
-//                $data = array(
-//                    'currentPlayerIdx' => $currentPlayerIdx,
-//                    'gameData' => $game->getJsonData($currentPlayerId),
-//                    'playerNameArray' => $playerNameArray,
-//                    'timestamp' => $interface->timestamp->format(DATE_RSS),
-//                    'gameActionLog' => $interface->load_game_action_log($game),
-//                );
-//            }
-//            break;
+        case 'loadGameData':
+	    // The dummy loadGameData returns one of a number of
+	    // sets of dummy game data, for general test use.
+	    // Specify which one you want using the game number:
+            //   1: a newly-created game, waiting for both players to set swing dice
+            //   2: new game in which the active player has set swing dice
+            $data = NULL;
+            if ($_POST['game'] == '1') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "1",
+                            "gameState" => 24,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => null,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("Avis", "Avis"),
+                            "waitingOnActionArray" => array(true,true),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array(null,null,null,null,null),
+                                                       array(null,null,null,null,null)),
+                            "sidesArrayArray" => array(array(4,4,10,12,null),
+                                                       array(null,null,null,null,null)),
+                            "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
+                                                           array("(4)","(4)","(10)","(12)","(X)")),
+                            "swingRequestArrayArray" => array(array("X"), array("X")),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(15, 15),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
+                );
+            } elseif ($_POST['game'] == '2') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "2",
+                            "gameState" => 24,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => null,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("Avis", "Avis"),
+                            "waitingOnActionArray" => array(false,true),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array(null,null,null,null,null),
+                                                       array(null,null,null,null,null)),
+                            "sidesArrayArray" => array(array(4,4,10,12,4),
+                                                       array(null,null,null,null,null)),
+                            "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
+                                                           array("(4)","(4)","(10)","(12)","(X)")),
+                            "swingRequestArrayArray" => array(array("X"), array("X")),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(15, 15),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
+                );
+            }
+            if ($data) {
+                $data['playerNameArray'] = array('tester1', 'tester2');
+                $timestamp = new DateTime();
+                $data['timestamp'] = $timestamp->format(DATE_RSS);
+                $message = "Loaded data for game " . $_POST['game'];
+            }
+            break;
+
 //
 //        case 'loadPlayerName':
 //            if (array_key_exists('user_name', $_SESSION)) {

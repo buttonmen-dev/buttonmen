@@ -12,7 +12,7 @@ module("Api", {
     // Fail if any other elements were added or removed
     BMTestUtils.ApiPost = BMTestUtils.getAllElements();
     deepEqual(
-      BMTestUtils.ApiPre, BMTestUtils.ApiPost,
+      BMTestUtils.ApiPost, BMTestUtils.ApiPre,
       "After testing, the page should have no unexpected element changes");
   }
 });

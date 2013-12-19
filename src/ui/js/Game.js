@@ -147,6 +147,10 @@ Game.showStatePage = function() {
 }
 
 Game.layoutPage = function() {
+  if ($('#game_page').length == 0) {
+    throw("Internal error: #game_page not defined in layoutPage()");
+  }
+
   $('#game_page').empty();
   $('#game_page').append(Game.page);
 

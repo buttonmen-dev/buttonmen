@@ -10,7 +10,7 @@ module("Env", {
     // Fail if any other elements were added or removed
     BMTestUtils.EnvPost = BMTestUtils.getAllElements();
     deepEqual(
-      BMTestUtils.EnvPre, BMTestUtils.EnvPost,
+      BMTestUtils.EnvPost, BMTestUtils.EnvPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
