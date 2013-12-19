@@ -4403,6 +4403,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('Berserk', $skillList);
         $this->assertNotInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
         $this->assertEquals(6, $game->activeDieArrayArray[1][2]->max);
+        $this->assertTrue(isset($game->activeDieArrayArray[1][2]->value));
 
         $this->assertEquals(array(40.5, 3.0), $game->roundScoreArray);
     }
