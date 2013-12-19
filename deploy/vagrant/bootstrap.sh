@@ -8,6 +8,7 @@ set -e
 if which puppet > /dev/null ; then
   echo "Puppet is already installed"
 else
+  apt-get update
   apt-get -y install puppet
 fi
 
