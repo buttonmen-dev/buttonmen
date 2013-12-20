@@ -69,6 +69,43 @@ class BMUtilityHitTable {
             }
 
         }
+
+
+        // find out if there are any konstant dice present
+        $konstantLetterArray = array();
+
+        foreach ($dice as $dieIdx => $die) {
+            if ($die->has_skill('Konstant')) {
+                $konstantLetterArray[] = $ids[$dieIdx];
+            }
+        }
+
+        // remove hits that are the result of single-die skill attacks by
+        // a konstant die
+        if (count($konstantLetterArray) > 0) {
+            // for each attacking konstant die
+            foreach ($konstantLetterArray as $konstantLetter) {
+                // for each possible hit value
+                foreach ($this->hits as $val => &$comboArray) {
+                    // check whether the hit combinations include the required
+                    // single-die skill attack
+                    if (array_key_exists($konstantLetter, $comboArray)) {
+                        if (1 == count($comboArray)) {
+                            // the hit value can be obtained only via the
+                            // single-die skill attack, so unset the hit itself
+                            unset($this->hits[$val]);
+                        } else {
+                            // unset the single-die skill attack option, but
+                            // leave the hit, since some other combination can
+                            // still achieve it
+                            unset($comboArray[$konstantLetter]);
+                        }
+                        // move on to the next konstant die
+                        continue 2;
+                    }
+                }
+            }
+        }
     }
 
     // Test for a hit. Return all possible sets of dice that can make that hit.
