@@ -20,21 +20,21 @@ INSERT INTO buttonset (name) VALUES
 ('Sluggy Freelance'),
 ('Samurai'),
 ('2001'),
-('Diceland')
-('2000 ShoreCon')
-('2002 Anime Expo')
-('2002 Origins')
-('2004 Origins')
-('Balticon 34')
-('Bar Mitzvah')
-('Bridge and Tunnel')
-('Button Brains')
-('Chicagoland Gamers Conclave')
-('Metamorphers')
-('Renaissance')
-('SFR')
-('Space Girlz')
-('SydCon 10')
+('Diceland'),
+('2000 ShoreCon'),
+('2002 Anime Expo'),
+('2002 Origins'),
+('2004 Origins'),
+('Balticon 34'),
+('Bar Mitzvah'),
+('Bridge and Tunnel'),
+('Button Brains'),
+('Chicagoland Gamers Conclave'),
+('Metamorphers'),
+('Renaissance'),
+('SFR'),
+('Space Girlz'),
+('SydCon 10'),
 ('Yoyodyne');
 
 #('Vegas')
@@ -128,7 +128,7 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 # CHICAGOLAND GAMERS CONCLAVE (Chicagoland Gamers Conclave)     Skills: option       (2003 Rare-Promo on old site)
 ('Apples',       '(8) (8) (2/12) (8/16) (20/24)',       1, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave")),
 ('Green Apple',  '(8) (10) (1/8) (6/12) (12/20)',       1, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave")),
-# 2004 ORIGINS (Flying Buffalo) 
+# 2004 ORIGINS (Flying Buffalo)
 #    INTRODUCES Sleep dice AND Game dice; Fire(F); Poison(p); Rage(G); Shadow(s); Slow(w); Speed(z); Value(v); Option
 ('Amara Wintersword',     '(4) (8) (12) (12) (X)?',                          1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Beatnik Turtle',        'wHF(4) (8) (10) vz(20) vz(20)',                   0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -140,7 +140,7 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Spite',                 'p(6) (6) (6) s(X) (X)',                           1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Super Germ',            'p(10) p(12) p(16) p(20) p(24) p(30) p(30) p(X)',  1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Cheese Weasel',         '(6) (8) (12) (16) (20)',                          1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-#? just wondering why these four were not included in the original site.  
+#? just wondering why these four were not included in the original site.
 #?('Billy Shakespear',      '(15) (64) (16) (16)',                             ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 #?('Drew's Truck',          '(5) (10) (15) (20) (X)',                          ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 #?('Igor(p)',               '(8) (8) z(12) (20) (X)',                          ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -209,7 +209,7 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Z-Don',       'g(6) g(8) p(16) (X) (X)',       1, (SELECT id FROM buttonset WHERE name="Diceland")),
 ('Crysis',      'g(8) (10) (10) (X) (X)',        1, (SELECT id FROM buttonset WHERE name="Diceland")),
 ('Golo',        'g(10) g(12) g(20) g(X)',        1, (SELECT id FROM buttonset WHERE name="Diceland")),
-# DORK VICTORY (Cheapass Games)       INTRODUCES Mood Swing(?); Speed(z); Twin 
+# DORK VICTORY (Cheapass Games)       INTRODUCES Mood Swing(?); Speed(z); Twin
 ('Bill',        '(20) (20) (20) (V,V)',          1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
 ('Carson',      '(4,4) (8) (10) (12) (V)',       1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
 ('Gilly',       '(6) (8) z(8) (20) (X)?',        1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
@@ -309,13 +309,13 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Ogi',         '(2) (4) (10) (X) (X)',          1, (SELECT id FROM buttonset WHERE name="Sanctum")),
 ('Fingle',      '(6) (7) (8) (12) (X)',          1, (SELECT id FROM buttonset WHERE name="Sanctum")),
 ('Ngozi',       '(4) (6) (8) (10) (X)',          1, (SELECT id FROM buttonset WHERE name="Sanctum")),
-# SLUGGY FREELANCE (Sluggy)          ITNRODUCES: option dice
+# SLUGGY FREELANCE (Sluggy)          INTRODUCES: option dice
 ('Aylee',       '(8) (10|20) (12) (12|20) (20)', 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 ('Bun-Bun',     '(4|10) (4|12) (6|12) (20) (20)',1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 ('KiKi',        '(3|20) (4) (8|12) (10) (10|20)',1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 ('Riff',        '(4|20) (6) (6|8) (10|12) (20)', 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 ('Torg',        '(6) (6|20) (8) (10|12) (12|20)',1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
-('Zoë',         '(4|12) (6|10) (8) (10|20) (12|20)', 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
+('ZoÃ«',         '(4|12) (6|10) (8) (10|20) (12|20)', 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 # SOLDIERS (Cheapass Games) NOTE: original Buttonmen set, no special die skills
 ('Avis',        '(4) (4) (10) (12) (X)',         1, (SELECT id FROM buttonset WHERE name="Soldiers")),
 ('Hammer',      '(6) (12) (20) (20) (X)',        1, (SELECT id FROM buttonset WHERE name="Soldiers")),
@@ -353,10 +353,10 @@ INSERT INTO button (name, recipe, tourn_legal, set_id) VALUES
 ('Dunkirk',     '(6) (6) (10) (20) s(X)',        1, (SELECT id FROM buttonset WHERE name="Vampyres")),
 ('Starchylde',  's(6) (8) s(10) (12) (X)',       1, (SELECT id FROM buttonset WHERE name="Vampyres")),
 ('McGinty',     '(4) s(10) (12) (12) (X)',       1, (SELECT id FROM buttonset WHERE name="Vampyres")),
-('Tiffany',     '(4) s(8) (8) (10) s(X)',        1, (SELECT id FROM buttonset WHERE name="Vampyres"))
+('Tiffany',     '(4) s(8) (8) (10) s(X)',        1, (SELECT id FROM buttonset WHERE name="Vampyres")),
 # YOYODYNE (Fuzzface)                   INTRODUCES Chance(c) dice
 ('Fuzzface',      '(4) (8) (10) c(10) c(12)',      1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 ('John Kovalic',  '(6) c(6) (10) (12) c(20)',      1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 ('Pikathulhu',    '(6) c(6) (10) (12) c(X)',       1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
-('Ulthar',        '(4) (8) (10) c(10) c(T)',       1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),;
+('Ulthar',        '(4) (8) (10) c(10) c(T)',       1, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
 
