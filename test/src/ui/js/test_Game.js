@@ -7,6 +7,9 @@ module("Game", {
       if (name == 'game') {
         if (BMTestUtils.GameType == 'newgame') { return '1'; }
         if (BMTestUtils.GameType == 'swingset') { return '2'; }
+        if (BMTestUtils.GameType == 'turnactive') { return '3'; }
+        if (BMTestUtils.GameType == 'turninactive') { return '4'; }
+        if (BMTestUtils.GameType == 'finished') { return '5'; }
       }
     }
 
@@ -154,24 +157,72 @@ asyncTest("test_Game.actionChooseSwingInactive", function() {
   });
 });
 
-test("test_Game.actionPlayTurnActive", function() {
-  ok(null, "Test of Game.actionPlayTurnActive not implemented");
+asyncTest("test_Game.actionPlayTurnActive", function() {
+  BMTestUtils.GameType = 'turnactive';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    item = document.getElementById('attack_type_select');
+    ok(item, "#attack_type_select is set");
+    ok(Game.form, "Game.form is set");
+    start();
+  });
 });
 
-test("test_Game.actionPlayTurnInactive", function() {
-  ok(null, "Test of Game.actionPlayTurnInactive not implemented");
+asyncTest("test_Game.actionPlayTurnInactive", function() {
+  BMTestUtils.GameType = 'turninactive';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnInactive();
+    item = document.getElementById('attack_type_select');
+    equal(item, null, "#attack_type_select is not set");
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
 });
 
-test("test_Game.actionShowFinishedGame", function() {
-  ok(null, "Test of Game.actionShowFinishedGame not implemented");
+asyncTest("test_Game.actionShowFinishedGame", function() {
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.actionShowFinishedGame();
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
 });
 
-test("test_Game.formChooseSwingActive", function() {
-  ok(null, "Test of Game.formChooseSwingActive not implemented");
+// The logic here is a little hairy: since Game.getCurrentGame()
+// takes a callback, we can use the normal asynchronous logic there.
+// However, the POST done by our forms doesn't take a callback (it
+// just redraws the page), so turn off asynchronous handling in
+// AJAX while we test that, to make sure the test sees the return
+// from the POST.
+asyncTest("test_Game.formChooseSwingActive", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.actionChooseSwingActive();
+    $('#swing_0').val('7');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success", "text": "Successfully set swing values"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
 });
 
-test("test_Game.formPlayTurnActive", function() {
-  ok(null, "Test of Game.formPlayTurnActive not implemented");
+asyncTest("test_Game.formPlayTurnActive", function() {
+  BMTestUtils.GameType = 'turnactive';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success", "text": "Dummy turn submission accepted"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
 });
 
 asyncTest("test_Game.pageAddGameHeader", function() {
@@ -223,35 +274,114 @@ asyncTest("test_Game.pageAddActionLogFooter", function() {
   });
 });
 
-test("test_Game.dieRecipeTable", function() {
-  ok(null, "Test of Game.dieRecipeTable not implemented");
+asyncTest("test_Game.dieRecipeTable", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    var dietable = Game.dieRecipeTable();
+    // jQuery trick to get the full HTML including the object itself
+    var diehtml = $('<div>').append(dietable.clone()).remove().html();
+    ok(diehtml.match('<table id="die_description_table">'),
+       "Die recipe table has reasonable contents");
+    start();
+  });
 });
 
-test("test_Game.dieTableEntry", function() {
-  ok(null, "Test of Game.dieTableEntry not implemented");
+asyncTest("test_Game.dieTableEntry", function() {
+  BMTestUtils.GameType = 'swingset';
+  Game.getCurrentGame(function() {
+    var htmlobj = Game.dieTableEntry(
+      4,
+      Game.api.player.nDie,
+      Game.api.player.dieRecipeArray,
+      Game.api.player.sidesArray
+    );
+    // jQuery trick to get the full HTML including the object itself
+    var html = $('<div>').append(htmlobj.clone()).remove().html();
+    deepEqual(html, "<td>(X)=4</td>",
+      "Die table entry has expected contents");
+    start();
+  });
 });
 
-test("test_Game.pageAddDieBattleTable", function() {
-  ok(null, "Test of Game.pageAddDieBattleTable not implemented");
+asyncTest("test_Game.pageAddDieBattleTable", function() {
+  BMTestUtils.GameType = 'turnactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddDieBattleTable();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('<br>'), "die battle table should insert line break");
+    start();
+  });
 });
 
-test("test_Game.pageAddGamePlayerStatus", function() {
-  ok(null, "Test of Game.pageAddGamePlayerStatus not implemented");
+asyncTest("test_Game.pageAddGamePlayerStatus", function() {
+  BMTestUtils.GameType = 'turnactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGamePlayerStatus('player', false, true);
+    var htmlout = Game.page.html();
+    ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
+    start();
+  });
 });
 
-test("test_Game.pageAddGamePlayerDice", function() {
-  ok(null, "Test of Game.pageAddGamePlayerDice not implemented");
+asyncTest("test_Game.pageAddGamePlayerDice", function() {
+  BMTestUtils.GameType = 'turnactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGamePlayerDice('opponent', true);
+    var htmlout = Game.page.html();
+    ok(htmlout.match('die_img unselected'),
+       "dice should include some text with the correct CSS class");
+    start();
+  });
 });
 
-test("test_Game.pageAddGameWinner", function() {
-  ok(null, "Test of Game.pageAddGameWinner not implemented");
+asyncTest("test_Game.pageAddGameWinner", function() {
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameWinner();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('tester1 won!'),
+       "correct game winner should be displayed");
+    start();
+  });
 });
 
-test("test_Game.dieIndexId", function() {
-  ok(null, "Test of Game.dieIndexId not implemented");
+asyncTest("test_Game.dieIndexId", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    var idxval = Game.dieIndexId('opponent', 3);
+    equal(idxval, 'playerIdx_1_dieIdx_3',
+          "die index string should be correct");
+    start();
+  });
 });
 
-test("test_Game.dieBorderToggleHandler", function() {
-  ok(null, "Test of Game.dieBorderToggleHandler not implemented");
+asyncTest("test_Game.dieBorderToggleHandler", function() {
+  BMTestUtils.GameType = 'turnactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGamePlayerDice('player', true);
+    Game.layoutPage();
+
+    // test the toggle handler by seeing if a die becomes selected
+    // and unselected on click
+    var dieobj = $('#playerIdx_0_dieIdx_0');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img unselected'), "die is unselected before click");
+
+    $('#playerIdx_0_dieIdx_0').trigger('click');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img selected'), "die is selected after first click");
+
+    $('#playerIdx_0_dieIdx_0').trigger('click');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img unselected'),
+       "die is unselected after second click");
+
+    start();
+  });
 });
 
