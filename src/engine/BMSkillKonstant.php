@@ -1,7 +1,9 @@
 <?php
 
 class BMSkillKonstant extends BMSkill {
-    public static $hooked_methods = array('attack_list', 'make_play_die', 'attack_values');
+    public static $hooked_methods = array('attack_list',
+                                          'make_play_die',
+                                          'attack_values');
 
     public static function attack_list($args) {
         if (!is_array($args)) {

@@ -19,11 +19,11 @@ class BMAttackSkill extends BMAttack {
     }
 
     public function find_attack($game) {
-        $this->generate_hit_table($game);
-
         $targets = $game->defenderAllDieArray;
 
         if (count($targets) < 1) { return FALSE; }
+
+        $this->generate_hit_table($game);
 
         // Check all precise hits before trying any with help, because
         // help is slow
