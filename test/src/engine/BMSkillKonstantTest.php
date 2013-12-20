@@ -28,6 +28,9 @@ class BMSkillKonstantTest extends PHPUnit_Framework_TestCase {
      */
     public function testAttack_list()
     {
+        // check for graceful failure
+        $this->object->attack_list(NULL);
+
         // Test Power removal
         $a = array('Power' => 'Power', 'Skill' => 'Skill');
         $b = array('attackTypeArray' => &$a);
@@ -71,11 +74,43 @@ class BMSkillKonstantTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($initialDieValue, $die2->value);
         $this->assertEquals($initialDieValue, $die2->min);
         $this->assertEquals($initialDieValue, $die2->max);
-        
+
         $die2->roll(FALSE);
         $this->assertEquals($initialDieValue, $die2->value);
         $this->assertEquals($initialDieValue, $die2->min);
         $this->assertEquals($initialDieValue, $die2->max);
+    }
+
+    /**
+     * @covers BMSkillKonstant::attack_values
+     */
+    public function testAttack_values()
+    {
+        $attackValues = array(3);
+
+        // check for graceful failure
+        $this->object->attack_values(NULL);
+        $this->assertEquals(array(3), $attackValues);
+
+        $this->object->attack_values(array('attackType' => 'Skill'));
+        $this->assertEquals(array(3), $attackValues);
+
+        $this->object->attack_values(array('attackValues' => &$attackValues));
+        $this->assertEquals(array(3), $attackValues);
+
+        $this->object->attack_values(array('attackType' => 'Power',
+                                           'attackValues' => &$attackValues));
+        $this->assertEquals(array(3), $attackValues);
+
+        // check that konstant die can have a negative value for a skill attack
+        $this->object->attack_values(array('attackType' => 'Skill',
+                                           'attackValues' => &$attackValues));
+        $this->assertEquals(array(3, -3), $attackValues);
+
+        $attackValues = array(0, 4, 5);
+        $this->object->attack_values(array('attackType' => 'Skill',
+                                           'attackValues' => &$attackValues));
+        $this->assertEquals(array(0, 4, 5, -4, -5), $attackValues);
     }
 }
 

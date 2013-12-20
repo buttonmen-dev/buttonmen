@@ -15,8 +15,8 @@ class BMUtilityHitTable {
 
     // $hits is an array keyed by numbers. Values is an array, keyed
     // by the combined unique ids of the sets of dice used to make the value
-    // 
-    // So, if 4 can be made with A and B or C and D, 
+    //
+    // So, if 4 can be made with A and B or C and D,
     // $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
     private $hits = array();
 
