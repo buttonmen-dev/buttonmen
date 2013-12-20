@@ -200,93 +200,75 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(6, $die->max);
 
-        // expectedException aborts function execution when the
-        // exception is thrown, so doesn't work as part of a large
-        // blob of tests.
-
-        $fail = FALSE;
-
         try {
             $die = BMDie::create(-15, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
 
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-
         $this->assertEquals(6, $die->max);
-        $fail = FALSE;
 
         // try some more bad values
         try {
             $die = BMDie::create(1023, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create(0, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create(100, array());
+            $this->fail('Creating out-of-range die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating out-of-range die didn't throw an exception.");
-        $fail = FALSE;
 
         // downright illegal values
         try {
             $die = BMDie::create("thing", array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create("4score", array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create(2.718, array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
-
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
-        $fail = FALSE;
 
         try {
             $die = BMDie::create("thing8", array());
+            $this->fail('Creating non-numeric die did not throw an exception.');
         }
         catch (UnexpectedValueException $e) {
-            $fail = TRUE;
         }
+    }
 
-        $this->assertTrue($fail, "Creating non-numeric die didn't throw an exception.");
+    /*
+     * @covers BMDie::create_from_recipe
+     */
+    public function testCreate_from_recipe() {
+        $die = BMDie::create_from_recipe('ps(6)');
+        $this->assertTrue($die->has_skill('Poison'));
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertEquals(6, $die->max);
     }
 
     /*
@@ -385,10 +367,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      */
     public function testRoll() {
         $this->object->init(6, array());
-
-        for($i = 1; $i <= 6; $i++) {
-            $rolls[$i] = 0;
-        }
+        $rolls = array_fill(1, 6, 0);
 
         for ($i = 0; $i < 300; $i++) {
             $this->object->roll(FALSE);
@@ -417,7 +396,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         }
 
         // test locked-out rerolls
-
         $val = $this->object->value;
 
         $this->object->doesReroll = FALSE;
@@ -755,34 +733,41 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 1));
         $this->assertNotEquals("", $this->object->inactive);
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
         $this->assertEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 1);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertNotEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn, 0);
+        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+                                               array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertEquals("", $this->object->inactive);
     }

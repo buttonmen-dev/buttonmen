@@ -16,18 +16,35 @@ class BMSkillQueer extends BMSkill {
         }
 
         if (0 == $value % 2) {
-            if (array_key_exists('Shadow', $attackTypeArray)) {
-                unset($attackTypeArray['Shadow']);
-            }
-
             $attackTypeArray['Power'] = 'Power';
         } else {
-            if (array_key_exists('Power', $attackTypeArray)) {
-                unset($attackTypeArray['Power']);
-            }
-
             $attackTypeArray['Shadow'] = 'Shadow';
         }
+        
+        foreach (BMSkillQueer::incompatible_attack_types(array('value' => $value)) as $attackType) {
+            if (array_key_exists($attackType, $attackTypeArray)) {
+                unset($attackTypeArray[$attackType]);
+            }
+        }
+    }
+    
+    public static function incompatible_attack_types($args = NULL) {
+        if (!isset($args) || !array_key_exists('value', $args)) {
+            return array();
+        }
+        
+        if (FALSE === filter_var($args['value'],
+                                 FILTER_VALIDATE_INT,
+                                 array("options"=>
+                                       array("min_range"=>1)))) {
+            throw new InvalidArgumentException('Invalid value.');
+        }
+        
+        if (0 == $args['value'] % 2) {
+            return array('Shadow');
+        } else {
+            return array('Power');
+        }       
     }
 }
 
