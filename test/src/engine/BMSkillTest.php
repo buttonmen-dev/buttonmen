@@ -16,7 +16,7 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($result);
         $result = BMSkill::unimplemented_skill_in_string('ps');
         $this->assertFalse($result);
-        $result = BMSkill::unimplemented_skill_in_string('fps');
+        $result = BMSkill::unimplemented_skill_in_string('bps');
         $this->assertTrue($result);
     }
 }

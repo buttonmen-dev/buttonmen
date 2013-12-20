@@ -24,7 +24,7 @@ class BMAttackBerserkTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttackSpeed::validate_attack
+     * @covers BMAttackBerserk::validate_attack
      */
     public function testValidate_attack()
     {

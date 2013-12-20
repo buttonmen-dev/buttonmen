@@ -72,7 +72,7 @@ class BMInterface {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
-        
+
         // validate all inputs
         foreach ($playerIdArray as $playerId) {
             if (!(is_null($playerId) || is_int($playerId))) {
@@ -80,16 +80,16 @@ class BMInterface {
                 return NULL;
             }
         }
-        
-        if (FALSE === filter_var($maxWins, 
+
+        if (FALSE === filter_var($maxWins,
                                  FILTER_VALIDATE_INT,
                                  array('options'=>
-                                       array('min_range' => 1, 
+                                       array('min_range' => 1,
                                              'max_range' => 5)))) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
-        
+
         $buttonIdArray = array();
         foreach ($playerIdArray as $position => $playerId) {
             // get button ID
@@ -113,11 +113,20 @@ class BMInterface {
         try {
             // create basic game details
             $query = 'INSERT INTO game '.
-                     '(n_players, n_target_wins, n_recent_passes, creator_id) '.
+                     '    (status_id, '.
+                     '     n_players, '.
+                     '     n_target_wins, '.
+                     '     n_recent_passes, '.
+                     '     creator_id) '.
                      'VALUES '.
-                     '(:n_players, :n_target_wins, :n_recent_passes, :creator_id)';
+                     '    ((SELECT id FROM game_status WHERE name = :status), '.
+                     '     :n_players, '.
+                     '     :n_target_wins, '.
+                     '     :n_recent_passes, '.
+                     '     :creator_id)';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':n_players'     => count($playerIdArray),
+            $statement->execute(array(':status'        => 'OPEN',
+                                      ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0]));
@@ -201,7 +210,9 @@ class BMInterface {
 
                 if (is_null($autopassOverride)) {
                     $autopassArray[$pos] = (bool)$row['autopass'];
-                } else {
+                } elseif ('all_false' == $autopassOverride) {
+                    $autopassArray[$pos] = FALSE;
+                }  else {
                     assert(is_array($autopassOverride));
                     assert(array_key_exists($pos, $autopassOverride));
                     $autopassArray[$pos] = $autopassOverride[$pos];
@@ -260,6 +271,7 @@ class BMInterface {
             $game->autopassArray = $autopassArray;
 
             // add swing values
+            $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
                      'WHERE game_id = :game_id ';
@@ -271,10 +283,14 @@ class BMInterface {
             }
 
             // add die attributes
-            $query = 'SELECT * '.
-                     'FROM die '.
+            $query = 'SELECT d.*,'.
+                     '       s.name AS status '.
+                     'FROM die AS d '.
+                     'LEFT JOIN die_status AS s '.
+                     'ON d.status_id = s.id '.
                      'WHERE game_id = :game_id '.
                      'ORDER BY id;';
+
             $statement3 = self::$conn->prepare($query);
             $statement3->execute(array(':game_id' => $gameId));
 
@@ -290,7 +306,7 @@ class BMInterface {
                                                   $game->playerIdArray);
                 $die->originalPlayerIdx = $originalPlayerIdx;
 
-                if ($die instanceof BMDieSwing) {
+                if (isset($die->swingType)) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
 
                     if (isset($row['swing_value'])) {
@@ -315,7 +331,7 @@ class BMInterface {
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
 
-            $game->proceed_to_next_user_action();
+//            $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -330,7 +346,7 @@ class BMInterface {
     }
 
     public function load_game_without_autopass($gameId) {
-        return $this->load_game($gameId, array(FALSE, FALSE));
+        return $this->load_game($gameId, 'all_false');
     }
 
     public function save_game(BMGame $game) {
@@ -344,9 +360,21 @@ class BMInterface {
                 $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
             }
 
+            if (BMGameState::endGame == $game->gameState) {
+                $status = 'COMPLETE';
+            } elseif (in_array(0, $game->playerIdArray) ||
+                      in_array(NULL, $game->buttonArray)) {
+                $status = 'OPEN';
+            } else {
+                $status = 'ACTIVE';
+            }
+
             // game
             $query = 'UPDATE game '.
-                     'SET game_state = :game_state,'.
+                     'SET last_action_time = NOW(),'.
+                     '    status_id = '.
+                     '        (SELECT id FROM game_status WHERE name = :status),'.
+                     '    game_state = :game_state,'.
                      '    round_number = :round_number,'.
                      '    turn_number_in_round = :turn_number_in_round,'.
             //:n_recent_draws
@@ -358,7 +386,8 @@ class BMInterface {
             //:chat
                      'WHERE id = :game_id;';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_state' => $game->gameState,
+            $statement->execute(array(':status' => $status,
+                                      ':game_state' => $game->gameState,
                                       ':round_number' => $game->roundNumber,
                                       ':turn_number_in_round' => $game->turnNumberInRound,
                                       ':n_recent_passes' => $game->nRecentPasses,
@@ -423,6 +452,7 @@ class BMInterface {
                                           ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
             }
 
+
             // set players awaiting action
             foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
                 $query = 'UPDATE game_player_map '.
@@ -445,7 +475,8 @@ class BMInterface {
             // note that the logic is written this way to make debugging easier
             // in case something fails during the addition of dice
             $query = 'UPDATE die '.
-                     'SET status = "DELETED" '.
+                     'SET status_id = '.
+                     '    (SELECT id FROM die_status WHERE name = "DELETED") '.
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -458,8 +489,23 @@ class BMInterface {
                         $status = 'NORMAL';
 
                         $query = 'INSERT INTO die '.
-                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
-                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                                 '    (owner_id, '.
+                                 '     original_owner_id, '.
+                                 '     game_id, '.
+                                 '     status_id, '.
+                                 '     recipe, '.
+                                 '     swing_value, '.
+                                 '     position, '.
+                                 '     value) '.
+                                 'VALUES '.
+                                 '    (:owner_id, '.
+                                 '     :original_owner_id, '.
+                                 '     :game_id, '.
+                                 '     (SELECT id FROM die_status WHERE name = :status), '.
+                                 '     :recipe, '.
+                                 '     :swing_value, '.
+                                 '     :position, '.
+                                 '     :value);';
                         $statement = self::$conn->prepare($query);
                         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
@@ -481,8 +527,23 @@ class BMInterface {
                         $status = 'CAPTURED';
 
                         $query = 'INSERT INTO die '.
-                                 '(owner_id, original_owner_id, game_id, status, recipe, swing_value, position, value) '.
-                                 'VALUES (:owner_id, :original_owner_id, :game_id, :status, :recipe, :swing_value, :position, :value);';
+                                 '    (owner_id, '.
+                                 '     original_owner_id, '.
+                                 '     game_id, '.
+                                 '     status_id, '.
+                                 '     recipe, '.
+                                 '     swing_value, '.
+                                 '     position, '.
+                                 '     value) '.
+                                 'VALUES '.
+                                 '    (:owner_id, '.
+                                 '     :original_owner_id, '.
+                                 '     :game_id, '.
+                                 '     (SELECT id FROM die_status WHERE name = :status), '.
+                                 '     :recipe, '.
+                                 '     :swing_value, '.
+                                 '     :position, '.
+                                 '     :value);';
                         $statement = self::$conn->prepare($query);
                         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
@@ -498,7 +559,8 @@ class BMInterface {
 
             // delete dice with a status of "DELETED" for this game
             $query = 'DELETE FROM die '.
-                     'WHERE status = "DELETED" '.
+                     'WHERE status_id = '.
+                     '    (SELECT id FROM die_status WHERE name = "DELETED") '.
                      'AND game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -532,15 +594,17 @@ class BMInterface {
                      'v1.n_target_wins,'.
                      'v2.is_awaiting_action,'.
                      'g.game_state,'.
-                     'g.status '.
+                     's.name AS status '.
                      'FROM game_player_view AS v1 '.
                      'LEFT JOIN game_player_view AS v2 '.
                      'ON v1.game_id = v2.game_id '.
                      'LEFT JOIN game AS g '.
                      'ON g.id = v1.game_id '.
+                     'LEFT JOIN game_status AS s '.
+                     'ON g.status_id = s.id '.
                      'WHERE v2.player_id = :player_id '.
                      'AND v1.player_id != v2.player_id '.
-                     'AND g.status != "COMPLETE" '.
+                     'AND s.name != "COMPLETE" '.
                      'ORDER BY v1.game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':player_id' => $playerId));
@@ -679,7 +743,7 @@ class BMInterface {
                 return('');
             } else {
                 $this->message = 'Player ID retrieved successfully.';
-                return(intval($result[0]));
+                return((int)$result[0]);
             }
         } catch (Exception $e) {
             error_log(
@@ -907,11 +971,10 @@ class BMInterface {
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
-                $game->proceed_to_next_user_action();
                 $this->save_game($game);
 
                 // On success, don't set a message, because one will be set from the action log
-                return True;
+                return TRUE;
             } else {
                 $this->message = 'Requested attack is not valid';
                 return NULL;
@@ -921,6 +984,92 @@ class BMInterface {
                 "Caught exception in BMInterface::submit_turn: " .
                 $e->getMessage());
             $this->message = 'Internal error while submitting turn';
+        }
+    }
+
+    // react_to_initiative expects the following inputs:
+    //
+    //   $action:
+    //       One of {'chance', 'focus', 'decline'}.
+    //       
+    //   $dieIdxArray:
+    //       (i)   If this is a 'chance' action, then an array containing the
+    //             index of the chance die that is being rerolled.
+    //       (ii)  If this is a 'focus' action, then this is the nonempty array
+    //             of die indices corresponding to the die values in
+    //             dieValueArray. This can be either the indices of ALL focus
+    //             dice OR just a subset.
+    //       (iii) If this is a 'decline' action, then this will be ignored.
+    //       
+    //   $dieValueArray:
+    //       This is only used for the 'focus' action. It is a nonempty array
+    //       containing the values of the focus dice that have been chosen by
+    //       the user. The die indices of the dice being specified are given in
+    //       $dieIdxArray.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+    
+    public function react_to_initiative($userId, $gameNumber, $action,
+                                        $dieIdxArray = NULL, 
+                                        $dieValueArray = NULL) {
+        try {
+            $game = $this->load_game($gameNumber);
+            if (!$this->is_action_current($game,
+                                          BMGameState::react_to_initiative,
+                                          $submitTimestamp,
+                                          $roundNumber,
+                                          $userId)) {
+                $this->message = 'You cannot react to initiative at the moment';
+                return FALSE;
+            }
+
+            $playerIdx = array_search($userId, $game->playerIdArray);
+
+            if (FALSE === $playerIdx) {
+                $this->message = 'You are not a participant in this game';
+                return FALSE;
+            }
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'chance':
+                    if (1 != count($dieIdxArray)) {
+                        $this->message = 'Only one chance die can be rerolled';
+                        return FALSE;
+                    }
+                    $argArray['rerolledDieIdx'] = (int)$dieIdxArray[0];
+                    break;
+                case 'focus':
+                    if (count($dieIdxArray) != count($dieValueArray)) {
+                        $this->message = 'Mismatch in number of indices and values';
+                        return FALSE;
+                    }
+                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+                        $argArray[$dieIdx] = $dieValueArray[$tempIdx];
+                    }
+                case 'decline':
+                    break;
+                default:
+                    $this->message = 'Invalid action to respond to initiative.';
+                    return FALSE;
+            }
+
+            $isSuccessful = $game->react_to_initiative($argArray);
+            if ($isSuccessful) {
+                $this->save_game($game);
+            }
+            
+            return $isSuccessful;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::react_to_initiative: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
         }
     }
 
