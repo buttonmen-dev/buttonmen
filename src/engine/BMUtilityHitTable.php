@@ -100,8 +100,6 @@ class BMUtilityHitTable {
                             // still achieve it
                             unset($comboArray[$konstantLetter]);
                         }
-                        // move on to the next konstant die
-                        continue 2;
                     }
                 }
             }
@@ -119,6 +117,14 @@ class BMUtilityHitTable {
     // Return a list of all possible hits
     public function list_hits() {
         return array_keys($this->hits);
+    }
+
+    public function __get($property) {
+        return $this->$property;
+    }
+
+    public function __set($property, $value) {
+        throw new LogicException('Private properties cannot be set.');
     }
 }
 

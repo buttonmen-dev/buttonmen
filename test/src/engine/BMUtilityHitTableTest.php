@@ -206,7 +206,7 @@ class BMUtilityHitTableTest extends PHPUnit_Framework_TestCase {
         $die1 = BMDie::create(10,
                     array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die1->value = 10;
-        $die2 = BMDie::create(6, 
+        $die2 = BMDie::create(6,
                     array("TestDummyBMSkillTestStinger" => "TestStinger"));
         $die2->value = 6;
 
@@ -264,6 +264,40 @@ class BMUtilityHitTableTest extends PHPUnit_Framework_TestCase {
             }
             $this->assertTrue($found1 && $found2);
         }
+    }
+
+    /**
+     * @covers BMUtilityHitTable::find_hit
+     * @covers BMUtilityHitTable::__construct
+     */
+    public function testFind_hit_konstant()
+    {
+        $die1 = BMDie::create(6);
+        $die1->value = 2;
+        $die1->add_skill('Konstant');
+
+        $die2 = BMDie::create(10);
+        $die2->value = 8;
+
+        $die3 = BMDie::create(16);
+        $die3->value = 1;
+        $die3->add_skill('Konstant');
+
+
+        $hitTable = new BMUtilityHitTable(array($die1));
+        $this->assertCount(0, $hitTable->hits);
+
+        $hitTable = new BMUtilityHitTable(array($die1, $die2));
+        $hitValues = array_keys($hitTable->hits);
+        $this->assertCount(3, $hitValues);
+        sort($hitValues);
+        $this->assertEquals(array(6, 8, 10), $hitValues);
+
+        $hitTable = new BMUtilityHitTable(array($die1, $die3));
+        $hitValues = array_keys($hitTable->hits);
+        $this->assertCount(4, $hitValues);
+        sort($hitValues);
+        $this->assertEquals(array(-3, -1, 1, 3), $hitValues);
     }
 
     /**
