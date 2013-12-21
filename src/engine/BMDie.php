@@ -261,7 +261,7 @@ class BMDie {
 
     public function roll($successfulAttack = FALSE) {
 
-        if ($this->doesReroll) {
+        if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
