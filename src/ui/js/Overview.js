@@ -49,9 +49,9 @@ Overview.getOverview = function(callbackfunc) {
     };
     return callbackfunc();
   }
-    
+
   $.post(Env.api_location,
-         { type: 'loadActiveGames', },
+         { type: 'loadActiveGames' },
          function(rs) {
            if (rs.status == 'ok') {
              if (Overview.parseActiveGames(rs.data)) {

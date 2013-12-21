@@ -76,7 +76,7 @@ Game.getCurrentGame = function(callbackfunc) {
   }
 
   $.post(Env.api_location,
-         { type: 'loadGameData', game: Game.game, },
+         { type: 'loadGameData', game: Game.game },
          function(rs) {
            if (rs.status == 'ok') {
              Game.api.gameData = rs.data.gameData;
