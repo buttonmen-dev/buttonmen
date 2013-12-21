@@ -85,6 +85,14 @@ class responder {
             }
         }
 
+        if ($args['type'] == 'loadPlayerInfo') {
+            return $interface->get_player_info($_SESSION['user_id']);
+        }
+
+        if ($args['type'] == 'savePlayerInfo') {
+            $interface->set_player_info($_SESSION['user_id'], $args);
+        }
+
         if ($args['type'] == 'loadPlayerNames') {
             return $interface->get_player_names_like('');
         }
