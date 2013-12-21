@@ -166,7 +166,7 @@ Newuser.formCreateUser = function() {
       };
       Newuser.showNewuserPage();
     } else {
-      $.post('../api/responder.php', {
+      $.post(Env.api_location, {
                type: 'createUser',
                username: username,
                password: password

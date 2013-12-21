@@ -1,0 +1,51 @@
+#!/bin/sh
+##### Run all ButtonMen CLI audit and test scripts
+
+failed_tests=''
+
+# Run audit script to verify PHP file layout
+echo "Auditing PHP file locations"
+php /buttonmen/deploy/pagodabox/audit_php_files.php /buttonmen/
+if [ "$?" = "0" ]; then
+  echo "Passed"
+else
+  echo "FAILED: make sure this passes before committing code"
+  failed_tests="${failed_tests} audit_php_files.php"
+fi
+echo
+echo "------------------------------------------------------------------------" 
+
+# Run audit script to verify JS unit test coverage
+echo "Auditing JS unit test coverage locations"
+/usr/local/bin/audit_js_unit_test_coverage
+if [ "$?" = "0" ]; then
+  echo "Passed"
+else
+  echo "FAILED: make sure this passes before committing code"
+  failed_tests="${failed_tests} audit_js_unit_test_coverage"
+fi
+echo
+echo "------------------------------------------------------------------------" 
+
+# Run PHP unit tests
+echo "Running PHP unit tests"
+cd /buttonmen/src
+php /usr/local/etc/buttonmen_phpunit.php /buttonmen/test
+if [ "$?" = "0" ]; then
+  echo "Passed"
+else
+  echo "FAILED: make sure this passes before committing code"
+  failed_tests="${failed_tests} buttonmen_phpunit.php"
+fi
+echo
+echo "------------------------------------------------------------------------" 
+
+if [ "${failed_tests}" = "" ]; then
+  echo "All checks passed"
+  echo "Don't forget to run the QUnit tests at /test-ui/ from a browser"
+  exit 0
+else
+  echo "Some checks FAILED:${failed_tests}"
+  echo "Fix these before issuing a pull request"
+  exit 1
+fi

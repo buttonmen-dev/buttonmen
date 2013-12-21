@@ -10,6 +10,13 @@ Env.messageTypeColors = {
   'success': 'green'
 };
 
+// location of backend API - depends whether we're testing
+if ('unit_test' in Env) {
+  Env.api_location = "../api/dummy_responder.php"
+} else {
+  Env.api_location = "../api/responder.php"
+}
+
 // Courtesy of stackoverflow:
 // http://stackoverflow.com/questions/901115/how-can-i-get-query-string-values/5158301#5158301
 Env.getParameterByName = function(name) {

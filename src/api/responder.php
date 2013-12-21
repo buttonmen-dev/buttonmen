@@ -1,22 +1,36 @@
 <?php
-    session_start();
-    require 'api_core.php';
 
-    require_once('../lib/bootstrap.php');
+class responder {
 
-    header('Content-Type: application/json');
+    // properties
+    private $isTest;               // whether this invocation is for testing
 
-    $interface = new BMInterface;
+    // constructor
+    // * For live invocation:
+    //   * start a session (and require api_core to get session functions)
+    // * For test invocation:
+    //   * don't start a session
+    public function __construct($isTest = FALSE) {
+        $this->isTest = $isTest;
 
-    switch ($_POST['type']) {
+        if (!($this->isTest)) {
+            session_start();
+            require 'api_core.php';
+            require_once('../lib/bootstrap.php');
+        }
+    }
 
-        case 'createUser':
-	    $data = $interface->create_user($_POST['username'],
-	                                    $_POST['password']);
-            break;
+    // This function looks at the provided arguments, calls an
+    // appropriate interface routine, and returns either some game
+    // data on success, or NULL on failure
+    protected function get_interface_response($interface, $args) {
 
-        case 'createGame':
-            $playerNameArray = $_POST['playerNameArray'];
+        if ($args['type'] == 'createUser') {
+            return $interface->create_user($args['username'], $args['password']);
+        }
+
+        if ($args['type'] == 'createGame') {
+            $playerNameArray = $args['playerNameArray'];
             $playerIdArray = array();
             foreach ($playerNameArray as $playerName) {
                 $playerId = $interface->get_player_id_from_name($playerName);
@@ -27,23 +41,23 @@
                 }
             }
 
-            $buttonNameArray = $_POST['buttonNameArray'];
-            $maxWins = $_POST['maxWins'];
+            $buttonNameArray = $args['buttonNameArray'];
+            $maxWins = $args['maxWins'];
 
-            $data = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
-            break;
+            return $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
+        }
 
-        case 'loadActiveGames':
-            $data = $interface->get_all_active_games($_SESSION['user_id']);
-            break;
+        if ($args['type'] == 'loadActiveGames') {
+            return $interface->get_all_active_games($_SESSION['user_id']);
+        }
 
-        case 'loadButtonNames':
-            $data = $interface->get_all_button_names();
-            break;
+        if ($args['type'] == 'loadButtonNames') {
+            return $interface->get_all_button_names();
+        }
 
-        case 'loadGameData':
+        if ($args['type'] == 'loadGameData') {
             $data = NULL;
-            $game = $interface->load_game($_POST['game']);
+            $game = $interface->load_game($args['game']);
             if ($game) {
                 $currentPlayerId = $_SESSION['user_id'];
                 $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
@@ -60,66 +74,91 @@
                     'gameActionLog' => $interface->load_game_action_log($game),
                 );
             }
-            break;
+            return $data;
+        }
 
-        case 'loadPlayerName':
+        if ($args['type'] == 'loadPlayerName') {
             if (array_key_exists('user_name', $_SESSION)) {
-                $data = array('userName' => $_SESSION['user_name']);
+                return array('userName' => $_SESSION['user_name']);
             } else {
-                $data = NULL;
+                return NULL;
             }
-            break;
+        }
 
-        case 'loadPlayerNames':
-            $data = $interface->get_player_names_like('');
-            break;
+        if ($args['type'] == 'loadPlayerNames') {
+            return $interface->get_player_names_like('');
+        }
 
-        case 'submitSwingValues':
-            $data = $interface->submit_swing_values($_SESSION['user_id'],
-                                                    $_POST['game'],
-                                                    $_POST['roundNumber'],
-                                                    $_POST['timestamp'],
-                                                    $_POST['swingValueArray']);
-            break;
+        if ($args['type'] == 'submitSwingValues') {
+            return $interface->submit_swing_values($_SESSION['user_id'],
+                                                   $args['game'],
+                                                   $args['roundNumber'],
+                                                   $args['timestamp'],
+                                                   $args['swingValueArray']);
+        }
 
-        case 'submitTurn':
-            $data = $interface->submit_turn($_SESSION['user_id'],
-                                            $_POST['game'],
-                                            $_POST['roundNumber'],
-                                            $_POST['timestamp'],
-                                            $_POST['dieSelectStatus'],
-                                            $_POST['attackType'],
-                                            (int)$_POST['attackerIdx'],
-                                            (int)$_POST['defenderIdx']);
-            break;
+        if ($args['type'] == 'submitTurn') {
+            return $interface->submit_turn($_SESSION['user_id'],
+                                           $args['game'],
+                                           $args['roundNumber'],
+                                           $args['timestamp'],
+                                           $args['dieSelectStatus'],
+                                           $args['attackType'],
+                                           (int)$args['attackerIdx'],
+                                           (int)$args['defenderIdx']);
+        }
 
-        case 'login':
-            $login_success = login($_POST['username'], $_POST['password']);
+        if ($args['type'] == 'login') {
+            $login_success = login($args['username'], $args['password']);
             if ($login_success) {
-                $data = array('userName' => $_POST['username']);
+                return array('userName' => $args['username']);
             } else {
-                $data = NULL;
+                return NULL;
             }
-            break;
+        }
 
-        case 'logout':
+        if ($args['type'] == 'logout') {
             logout();
-            $data = array('userName' => False);
-            break;
+            return array('userName' => False);
+        }
 
-        default:
-            $data = NULL;
+        // no action specified
+        return NULL;
     }
 
-    $output = array(
-        'data' => $data,
-        'message' => $interface->message,
-    );
-    if ($data) {
-        $output['status'] = 'ok';
-    } else {
-        $output['status'] = 'failed';
-    }
+    // Construct an interface, ask it for the response to the
+    // request, then construct a response
+    // * For live invocation:
+    //   * display the output to the user
+    // * For test invocation:
+    //   * return the output as a PHP variable
+    public function process_request($args) {
+        $interface = new BMInterface($this->isTest);
+        $data = $this->get_interface_response($interface, $args);
 
-    echo json_encode($output);
+        $output = array(
+            'data' => $data,
+            'message' => $interface->message,
+        );
+        if ($data) {
+            $output['status'] = 'ok';
+        } else {
+            $output['status'] = 'failed';
+        }
+
+        if ($this->isTest) {
+            return $output;
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode($output);
+        }
+    }
+}
+
+// If responder was called via a POST request (rather than by
+// test code), the $_POST variable will be set
+if ($_POST) {
+    $responder = new responder(False);
+    $responder->process_request($_POST);
+}
 ?>

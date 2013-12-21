@@ -75,8 +75,8 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  $.post('../api/responder.php',
-         { type: 'loadGameData', game: Game.game },
+  $.post(Env.api_location,
+         { type: 'loadGameData', game: Game.game, },
          function(rs) {
            if (rs.status == 'ok') {
              Game.api.gameData = rs.data.gameData;
@@ -147,6 +147,10 @@ Game.showStatePage = function() {
 }
 
 Game.layoutPage = function() {
+  if ($('#game_page').length == 0) {
+    throw("Internal error: #game_page not defined in layoutPage()");
+  }
+
   $('#game_page').empty();
   $('#game_page').append(Game.page);
 
@@ -412,7 +416,7 @@ Game.formChooseSwingActive = function() {
   });
 
   if (textFieldsFilled) {
-    $.post('../api/responder.php', {
+    $.post(Env.api_location, {
              type: 'submitSwingValues',
              game: Game.game,
              swingValueArray: swingValueArray,
@@ -469,7 +473,7 @@ Game.formPlayTurnActive = function() {
   var attackType = $('#attack_type_select').val();
 
   // Now try submitting the result
-  $.post('../api/responder.php', {
+  $.post(Env.api_location, {
            type: 'submitTurn',
            game: Game.game,
            attackerIdx: Game.api.playerIdx,
