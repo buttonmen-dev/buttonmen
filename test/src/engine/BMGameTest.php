@@ -5440,8 +5440,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(), array('V' => 11)),
                             $game->swingValueArrayArray);
         $this->assertEquals( 4, $game->activeDieArrayArray[0][0]->max);
-        $this->assertEquals($game->activeDieArrayArray[0][1]->value,
-                            $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[0][1]->max);
         $this->assertEquals( 8, $game->activeDieArrayArray[0][2]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);

@@ -19,8 +19,7 @@ class BMSkillKonstant extends BMSkill {
 
     public static function make_play_die($args) {
         $die = $args['die'];
-        $die->min = $die->value;
-        $die->max = $die->value;
+        $die->doesReroll = FALSE;
     }
 
     public static function attack_values($args) {

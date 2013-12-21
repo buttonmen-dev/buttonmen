@@ -67,18 +67,18 @@ class BMSkillKonstantTest extends PHPUnit_Framework_TestCase {
                                                       array("min_range"=>1,
                                                             "max_range"=>6))));
         $initialDieValue = $die2->value;
-        $this->assertEquals($initialDieValue, $die2->min);
-        $this->assertEquals($initialDieValue, $die2->max);
+        $this->assertEquals(1, $die2->min);
+        $this->assertEquals(6, $die2->max);
 
         $die2->roll(TRUE);
         $this->assertEquals($initialDieValue, $die2->value);
-        $this->assertEquals($initialDieValue, $die2->min);
-        $this->assertEquals($initialDieValue, $die2->max);
+        $this->assertEquals(1, $die2->min);
+        $this->assertEquals(6, $die2->max);
 
         $die2->roll(FALSE);
         $this->assertEquals($initialDieValue, $die2->value);
-        $this->assertEquals($initialDieValue, $die2->min);
-        $this->assertEquals($initialDieValue, $die2->max);
+        $this->assertEquals(1, $die2->min);
+        $this->assertEquals(6, $die2->max);
     }
 
     /**
