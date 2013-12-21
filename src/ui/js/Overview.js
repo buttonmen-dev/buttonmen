@@ -86,7 +86,7 @@ Overview.getOverview = function(callbackfunc) {
 }
 
 Overview.parseActiveGames = function(data) {
-  if (data.gameIdArray == null) {
+  if (data.gameIdArray.length == 0) {
     Overview.api.load_status = 'nogames';
     return false;
   }
@@ -138,10 +138,10 @@ Overview.showPage = function() {
   Overview.page = $('<div>');
 
   if (Login.logged_in == true) {
-    Overview.addNewgameLink();
+    Overview.pageAddNewgameLink();
 
     if (Overview.api.load_status == 'ok') {
-      Overview.addGameTables();
+      Overview.pageAddGameTables();
     }
   }
 
@@ -158,13 +158,13 @@ Overview.layoutPage = function() {
 // Helper routines to add HTML entities to existing pages
 
 // Add tables for types of existing games
-Overview.addGameTables = function() {
-  Overview.addGameTable('awaitingPlayer', 'Games waiting for you');
-  Overview.addGameTable('awaitingOpponent', 'Games waiting for your opponent');
-  Overview.addGameTable('finished', 'Completed games');
+Overview.pageAddGameTables = function() {
+  Overview.pageAddGameTable('awaitingPlayer', 'Games waiting for you');
+  Overview.pageAddGameTable('awaitingOpponent', 'Games waiting for your opponent');
+  Overview.pageAddGameTable('finished', 'Completed games');
 }
 
-Overview.addNewgameLink = function() {
+Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
   var newgamePar = $('<p>');
   newgamePar.append($('<a>', {
@@ -175,7 +175,7 @@ Overview.addNewgameLink = function() {
   Overview.page.append(newgameDiv);
 }
 
-Overview.addGameTable = function(gameType, sectionHeader) {
+Overview.pageAddGameTable = function(gameType, sectionHeader) {
   if (Overview.api.games[gameType].length == 0) {
      return;
   }
