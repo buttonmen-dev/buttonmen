@@ -84,7 +84,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 $ret1 = $this->object->process_request($args);
             }
             $matches = array();
-            preg_match('/id=(\d+)/', $ret1['message'], &$matches);
+            preg_match('/id=(\d+)/', $ret1['message'], $matches);
             $this->user_ids['responder003'] = (int)$matches[1];
         }
 
@@ -96,7 +96,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 $ret1 = $this->object->process_request($args);
             }
             $matches = array();
-            preg_match('/id=(\d+)/', $ret1['message'], &$matches);
+            preg_match('/id=(\d+)/', $ret1['message'], $matches);
             $this->user_ids['responder004'] = (int)$matches[1];
         }
 
