@@ -18,7 +18,9 @@ BMTestUtils.getAllElements = function() {
 
     // Skip module-name and test-name SPAN elements created by QUnit itself
     if ((elemNode == "SPAN") && (elemId == "") &&
-        ((elemClass == "module-name") || (elemClass == "test-name"))) {
+        ((elemClass == "module-name") || (elemClass == "test-name") ||
+         (elemClass == "passed") || (elemClass == "total") ||
+         (elemClass == "failed"))) {
       continue;
     }
 
@@ -50,4 +52,17 @@ BMTestUtils.deleteEnvMessage = function() {
   delete Env.message;
   $('#env_message').remove();
   $('#env_message').empty();
+}
+
+// Fake player login information for other functions to use
+BMTestUtils.setupFakeLogin = function() {
+  BMTestUtils.OverviewOldLoginPlayer = Login.player;
+  BMTestUtils.OverviewOldLoginLoggedin = Login.logged_in;
+  Login.player = 'tester1';
+  Login.logged_in = true;
+}
+
+BMTestUtils.cleanupFakeLogin = function() {
+  Login.player = BMTestUtils.OverviewOldLoginPlayer;
+  Login.logged_in = BMTestUtils.OverviewOldLoginLoggedin;
 }

@@ -106,9 +106,6 @@ asyncTest("test_Game.layoutPage", function() {
     var item = document.getElementById('game_page');
     equal(item.nodeName, "DIV",
           "#game_page is a div after layoutPage() is called");
-//    var htmlout = Game.page.html();
-//    ok(htmlout.length > 0,
-//       "The created page should have nonzero contents");
     start();
   });
 });
