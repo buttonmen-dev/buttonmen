@@ -5,40 +5,147 @@
  *  automated testing of API compliance
  */
 
-    session_start();
+class dummy_responder {
 
-    header('Content-Type: application/json');
+    // properties
 
-    switch ($_POST['type']) {
+    // N.B. this class is always used for some type of testing,
+    // but, the usage here matches the way responder uses this flag:
+    // * False: this instance is being accessed remotely via POST
+    // * True:  this instance is being accessed locally by unit tests
+    private $isTest;               // whether this invocation is for testing
 
-//        case 'createUser':
-//	    $data = $interface->create_user($_POST['username'],
-//	                                    $_POST['password']);
-//            break;
+    // constructor
+    // * For live invocation:
+    //   * start a session (don't use api_core because dummy_responder has no backend)
+    // * For test invocation:
+    //   * don't start a session
+    public function __construct($isTest = FALSE) {
+        $this->isTest = $isTest;
 
-//        case 'createGame':
-//            $playerNameArray = $_POST['playerNameArray'];
-//            $playerIdArray = array();
-//            foreach ($playerNameArray as $playerName) {
-//                $playerId = $interface->get_player_id_from_name($playerName);
-//                if (is_int($playerId)) {
-//                    $playerIdArray[] = $playerId;
-//                } else {
-//                    $playerIdArray[] = NULL;
-//                }
-//            }
-//
-//            $buttonNameArray = $_POST['buttonNameArray'];
-//            $maxWins = $_POST['maxWins'];
-//
-//            $data = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
-//            break;
-//
-//        case 'loadActiveGames':
-//            $data = $interface->get_all_active_games($_SESSION['user_id']);
-//            break;
-//
-        case 'loadButtonNames':
+        if (!($this->isTest)) {
+            session_start();
+        }
+    }
+
+    // This function looks at the provided arguments, fakes appropriate
+    // data to match the public API, and returns either some game
+    // data on success, or NULL on failure.  (Failure will happen if
+    // the requested arguments are invalid.)
+    protected function get_interface_response($args) {
+
+        if ($args['type'] == 'createUser') {
+            $dummy_users = array(
+                'tester1' => 1,
+                'tester2' => 2,
+                'tester3' => 3);
+            $username = $args['username'];
+            if (array_key_exists($username, $dummy_users)) {
+                $userid = $dummy_users[$username];
+                return array(NULL, "$username already exists (id=$userid)");
+            }
+            return array(array('userName' => $username), "User $username created successfully");
+        }
+
+	// for verisimilitude, choose a game ID of one greater than
+	// the number of "existing" games represented in loadGameData
+	// and loadActiveGames
+        if ($args['type'] == 'createGame') {
+            $gameId = '6';
+            return array(array('gameId' => $gameId), "Game $gameId created successfully.");
+        }
+
+        // Use the same fake games here which were described in loadGameData
+        if ($args['type'] == 'loadActiveGames') {
+            $data = array(
+                'gameIdArray' => array(),
+                'opponentIdArray' => array(),
+                'opponentNameArray' => array(),
+                'myButtonNameArray' => array(),
+                'opponentButtonNameArray' => array(),
+                'nWinsArray' => array(),
+                'nLossesArray' => array(),
+                'nDrawsArray' => array(),
+                'nTargetWinsArray' => array(),
+                'isAwaitingActionArray' => array(),
+                'gameStateArray' => array(),
+                'statusArray' => array(),
+            );
+
+            // game 1
+            $data['gameIdArray'][] = "1";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Avis";
+            $data['opponentButtonNameArray'][] = "Avis";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "1";
+            $data['gameStateArray'][] = "24";
+            $data['statusArray'][] = "ACTIVE";
+
+            // game 2
+            $data['gameIdArray'][] = "2";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Avis";
+            $data['opponentButtonNameArray'][] = "Avis";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "0";
+            $data['gameStateArray'][] = "24";
+            $data['statusArray'][] = "ACTIVE";
+
+            // game 3
+            $data['gameIdArray'][] = "3";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Avis";
+            $data['opponentButtonNameArray'][] = "Avis";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "1";
+            $data['gameStateArray'][] = "40";
+            $data['statusArray'][] = "ACTIVE";
+
+            // game 4
+            $data['gameIdArray'][] = "4";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Avis";
+            $data['opponentButtonNameArray'][] = "Avis";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "0";
+            $data['gameStateArray'][] = "40";
+            $data['statusArray'][] = "ACTIVE";
+
+            // game 5
+            $data['gameIdArray'][] = "5";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Avis";
+            $data['opponentButtonNameArray'][] = "Avis";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "0";
+            $data['gameStateArray'][] = "60";
+            $data['statusArray'][] = "COMPLETE";
+
+            return array($data, "All game details retrieved successfully.");
+        }
+
+        if ($args['type'] == 'loadButtonNames') {
             $data = array(
               'buttonNameArray' => array(),
               'recipeArray' => array(),
@@ -60,20 +167,20 @@
             $data['recipeArray'][] = "p(20) s(20) (V) (X)";
             $data['hasUnimplementedSkillArray'][] = false;
 
-            $message = "All button names retrieved successfully.";
-            break;
+            return array($data, "All button names retrieved successfully.");
+        }
 
-        case 'loadGameData':
-	    // The dummy loadGameData returns one of a number of
-	    // sets of dummy game data, for general test use.
-	    // Specify which one you want using the game number:
-            //   1: a newly-created game, waiting for both players to set swing dice
-            //   2: new game in which the active player has set swing dice
-            //   3: game in which it is the current player's turn to attack
-            //   4: game in which it is the opponent's turn to attack
-            //   5: game which has been completed
+        // The dummy loadGameData returns one of a number of
+        // sets of dummy game data, for general test use.
+        // Specify which one you want using the game number:
+        //   1: a newly-created game, waiting for both players to set swing dice
+        //   2: new game in which the active player has set swing dice
+        //   3: game in which it is the current player's turn to attack
+        //   4: game in which it is the opponent's turn to attack
+        //   5: game which has been completed
+        if ($args['type'] == 'loadGameData') {
             $data = NULL;
-            if ($_POST['game'] == '1') {
+            if ($args['game'] == '1') {
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -104,7 +211,7 @@
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
                 );
-            } elseif ($_POST['game'] == '2') {
+            } elseif ($args['game'] == '2') {
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -135,7 +242,7 @@
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
                 );
-            } elseif ($_POST['game'] == '3') {
+            } elseif ($args['game'] == '3') {
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -166,7 +273,7 @@
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
                 );
-            } elseif ($_POST['game'] == '4') {
+            } elseif ($args['game'] == '4') {
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -197,7 +304,7 @@
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
                 );
-            } elseif ($_POST['game'] == '5') {
+            } elseif ($args['game'] == '5') {
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -225,15 +332,15 @@
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(
                         array("timestamp" => "2013-12-20 00:52:42",
-                              "message" => "End of round: c1 won round 5 (46 vs 30)"),
+                              "message" => "End of round: tester1 won round 5 (46 vs 30)"),
                         array("timestamp" => "2013-12-20 00:52:42",
-                              "message" => "c1 performed Power attack using [(X):7] against [(4):2]; Defender (4) was captured; Attacker (X) rerolled 7 => 4"),
+                              "message" => "tester1 performed Power attack using [(X):7] against [(4):2]; Defender (4) was captured; Attacker (X) rerolled 7 => 4"),
                         array("timestamp" => "2013-12-20 00:52:36",
-                              "message" => "c2 passed"),
+                              "message" => "tester2 passed"),
                         array("timestamp" => "2013-12-20 00:52:33",
-                              "message" => "c1 performed Power attack using [(X):14] against [(10):4]; Defender (10) was captured; Attacker (X) rerolled 14 => 7"),
+                              "message" => "tester1 performed Power attack using [(X):14] against [(10):4]; Defender (10) was captured; Attacker (X) rerolled 14 => 7"),
                         array("timestamp" => "2013-12-20 00:52:29",
-                              "message" => "c2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
+                              "message" => "tester2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                     ),
                 );
             }
@@ -242,20 +349,16 @@
                 $data['playerNameArray'] = array('tester1', 'tester2');
                 $timestamp = new DateTime();
                 $data['timestamp'] = $timestamp->format(DATE_RSS);
-                $message = "Loaded data for game " . $_POST['game'];
+                return array($data, "Loaded data for game " . $args['game']);
             }
-            break;
+            return array(NULL, "Game does not exist.");
+        }
 
-//
-//        case 'loadPlayerName':
-//            if (array_key_exists('user_name', $_SESSION)) {
-//                $data = array('userName' => $_SESSION['user_name']);
-//            } else {
-//                $data = NULL;
-//            }
-//            break;
-//
-        case 'loadPlayerNames':
+        if ($args['type'] == 'loadPlayerName') {
+            return array(array('userName' => 'tester1'), NULL);
+        }
+
+        if ($args['type'] == 'loadPlayerNames') {
             $data = array(
                 'nameArray' => array(),
             );
@@ -265,47 +368,71 @@
             $data['nameArray'][] = 'tester2';
             $data['nameArray'][] = 'tester3';
 
-            $message = "Names retrieved successfully.";
-            break;
+            return array($data, "Names retrieved successfully.");
+        }
 
-        case 'submitSwingValues':
-            $data = True;
-            $message = 'Successfully set swing values';
-            break;
+        if ($args['type'] == 'submitSwingValues') {
+            return array(True, 'Successfully set swing values');
+        }
 
-        case 'submitTurn':
-            $data = True;
-            $message = 'Dummy turn submission accepted';
-            break;
+        if ($args['type'] == 'submitTurn') {
+            return array(True, 'Dummy turn submission accepted');
+        }
 
-//        case 'login':
+        if ($args['type'] == 'login') {
 //            $login_success = login($_POST['username'], $_POST['password']);
 //            if ($login_success) {
 //                $data = array('userName' => $_POST['username']);
 //            } else {
 //                $data = NULL;
 //            }
-//            break;
-//
-//        case 'logout':
+            return array(NULL, "function not implemented");
+        }
+
+        if ($args['type'] == 'logout') {
 //            logout();
 //            $data = array('userName' => False);
-//            break;
-//
-        default:
-            $data = NULL;
-            $message = 'Requested function not implemented in dummy_responder';
+            return array(NULL, "function not implemented");
+        }
+
+        return array(NULL, NULL);
     }
 
-    $output = array(
-        'data' => $data,
-        'message' => $message,
-    );
-    if ($data) {
-        $output['status'] = 'ok';
-    } else {
-        $output['status'] = 'failed';
-    }
+    // Ask get_interface_response() for the dummy response to the
+    // request, then construct a response.  Match the logic in
+    // responder as closely as possible for convenience.
+    // * For live (remote) invocation:
+    //   * display the output to the user
+    // * For test invocation:
+    //   * return the output as a PHP variable
+    public function process_request($args) {
+        $retval = $this->get_interface_response($args);
+        $data = $retval[0];
+        $message = $retval[1];
 
-    echo json_encode($output);
+        $output = array(
+            'data' => $data,
+            'message' => $message,
+        );
+        if ($data) {
+            $output['status'] = 'ok';
+        } else {
+            $output['status'] = 'failed';
+        }
+
+        if ($this->isTest) {
+            return $output;
+        } else {
+            header('Content-Type: application/json');
+            echo json_encode($output);
+        }
+    }
+}
+
+// If dummy_responder was called via a POST request (rather than
+// by test code), the $_POST variable will be set
+if ($_POST) {
+    $dummy_responder = new dummy_responder(False);
+    $dummy_responder->process_request($_POST);
+}
 ?>

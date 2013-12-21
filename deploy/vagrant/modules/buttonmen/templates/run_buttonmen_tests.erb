@@ -1,7 +1,7 @@
 #!/bin/sh
 ##### Run all ButtonMen CLI audit and test scripts
 
-RETVAL=0
+failed_tests=''
 
 # Run audit script to verify PHP file layout
 echo "Auditing PHP file locations"
@@ -10,9 +10,8 @@ if [ "$?" = "0" ]; then
   echo "Passed"
 else
   echo "FAILED: make sure this passes before committing code"
-  RETVAL=1
+  failed_tests="${failed_tests} audit_php_files.php"
 fi
-
 echo
 echo "------------------------------------------------------------------------" 
 
@@ -23,9 +22,8 @@ if [ "$?" = "0" ]; then
   echo "Passed"
 else
   echo "FAILED: make sure this passes before committing code"
-  RETVAL=1
+  failed_tests="${failed_tests} audit_js_unit_test_coverage"
 fi
-
 echo
 echo "------------------------------------------------------------------------" 
 
@@ -37,7 +35,17 @@ if [ "$?" = "0" ]; then
   echo "Passed"
 else
   echo "FAILED: make sure this passes before committing code"
-  RETVAL=1
+  failed_tests="${failed_tests} buttonmen_phpunit.php"
 fi
+echo
+echo "------------------------------------------------------------------------" 
 
-exit $RETVAL
+if [ "${failed_tests}" = "" ]; then
+  echo "All checks passed"
+  echo "Don't forget to run the QUnit tests at /test-ui/ from a browser"
+  exit 0
+else
+  echo "Some checks FAILED:${failed_tests}"
+  echo "Fix these before issuing a pull request"
+  exit 1
+fi
