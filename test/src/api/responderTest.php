@@ -315,12 +315,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $real_game_id = $retval['data']['gameId'];
         $dummy_game_id = '1';
 
-        // now submit swing values
-        $timestamp = new DateTime();
+        // now ask for the game data so we have the timestamp to return
+        $args = array(
+            'type' => 'loadGameData',
+            'game' => "$real_game_id");
+        $retval = $this->object->process_request($args);
+        $timestamp = $retval['data']['timestamp'];
+
+        // now submit the swing values
         $args = array(
             'type' => 'submitSwingValues',
             'roundNumber' => 1,
-            'timestamp' => $timestamp->format(DATE_RSS),
+            'timestamp' => $timestamp,
             'swingValueArray' => array('7'));
         $args['game'] = $real_game_id;
         $retval = $this->object->process_request($args);
