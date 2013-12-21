@@ -5373,7 +5373,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals( 8, $button1->dieArray[2]->max);
         $this->assertEquals(12, $button1->dieArray[3]->max);
         $this->assertEquals(20, $button1->dieArray[4]->max);
-        $this->assertEquals(array('attack_list', 'make_play_die', 'attack_values'),
+        $this->assertEquals(array('attack_list', 'make_play_die', 'attack_values', 'hit_table'),
                             array_keys($button1->dieArray[1]->hookList));
         $this->assertEquals(array('BMSkillKonstant'),
                             $button1->dieArray[1]->hookList['attack_list']);
@@ -5381,6 +5381,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $button1->dieArray[1]->hookList['make_play_die']);
         $this->assertEquals(array('BMSkillKonstant'),
                             $button1->dieArray[1]->hookList['attack_values']);
+        $this->assertEquals(array('BMSkillKonstant'),
+                            $button1->dieArray[1]->hookList['hit_table']);
 
         $button2 = new BMButton;
         $button2->load('p(4) (12) p(20) (20) (V)', 'Coil');
@@ -5462,7 +5464,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
 
-        $this->assertEquals(array('attack_list', 'make_play_die', 'attack_values'),
+        $this->assertEquals(array('attack_list', 'make_play_die', 'attack_values', 'hit_table'),
                             array_keys($game->activeDieArrayArray[0][1]->hookList));
         $this->assertEquals(array('BMSkillKonstant'),
                             $game->activeDieArrayArray[0][1]->hookList['attack_list']);
@@ -5470,6 +5472,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $game->activeDieArrayArray[0][1]->hookList['make_play_die']);
         $this->assertEquals(array('BMSkillKonstant'),
                             $game->activeDieArrayArray[0][1]->hookList['attack_values']);
+        $this->assertEquals(array('BMSkillKonstant'),
+                            $game->activeDieArrayArray[0][1]->hookList['hit_table']);
 
         $this->assertEquals(array('score_value'),
                             array_keys($game->activeDieArrayArray[1][0]->hookList));

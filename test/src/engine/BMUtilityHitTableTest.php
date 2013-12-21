@@ -269,6 +269,8 @@ class BMUtilityHitTableTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMUtilityHitTable::find_hit
      * @covers BMUtilityHitTable::__construct
+     * @covers BMUtilityHitTable::__get
+     * @covers BMSkillKonstant::hit_table
      */
     public function testFind_hit_konstant()
     {
@@ -371,6 +373,19 @@ class BMUtilityHitTableTest extends PHPUnit_Framework_TestCase {
             } else {
                 $this->assertNotContains($i, $ht->list_hits());
             }
+        }
+    }
+
+    /**
+     * @covers BMUtilityHitTable::__set
+     */
+    public function testSet()
+    {
+        try {
+            $this->object->hits = NULL;
+            throw new LogicException('Cannot set private properties.');
+        } catch (LogicException $e) {
+
         }
     }
 }
