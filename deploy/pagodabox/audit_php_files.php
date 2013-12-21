@@ -4,6 +4,7 @@
   // class, named after the filename
   $php_compliant_dirs = array(
     "src/engine",
+    "test/src/api",
     "test/src/engine",
     "test/src/engine/Utility"
   );

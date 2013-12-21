@@ -22,6 +22,16 @@ class buttonmen::server {
       content => template("buttonmen/create_databases.erb"),
       mode => 0555;
 
+    "/usr/local/bin/run_buttonmen_tests":
+      ensure => file,
+      content => template("buttonmen/run_buttonmen_tests.erb"),
+      mode => 0555;
+
+    "/usr/local/bin/audit_js_unit_test_coverage":
+      ensure => file,
+      content => template("buttonmen/audit_js_unit_test_coverage.erb"),
+      mode => 0555;
+
     "/usr/local/etc/buttonmen_phpunit.php":
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
@@ -31,6 +41,10 @@ class buttonmen::server {
     "buttonmen_src_rsync":
       command => "/usr/bin/rsync -a --delete /buttonmen/src/ /var/www/",
       require => Package["apache2"];
+
+    "buttonmen_uitest_rsync":
+      command => "/usr/bin/rsync -a --delete /buttonmen/test/src/ui/ /var/www/test-ui/",
+      require => Exec["buttonmen_src_rsync"];
 
     "buttonmen_create_databases":
       command => "/usr/local/bin/create_buttonmen_databases",

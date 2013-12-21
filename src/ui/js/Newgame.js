@@ -231,7 +231,7 @@ Newgame.formCreateGame = function() {
 
     var maxWins = $('#n_rounds').val();
 
-    $.post('../api/responder.php', {
+    $.post(Env.api_location, {
              type: 'createGame',
              playerNameArray: playerNameArray,
              buttonNameArray: buttonNameArray,
