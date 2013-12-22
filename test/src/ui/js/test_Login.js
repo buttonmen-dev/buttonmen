@@ -44,8 +44,8 @@ test("test_Login.stateLoggedOut", function() {
   ok(true, "INCOMPLETE: Test of Login.stateLoggedOut not implemented");
 });
 
-test("test_Login.mainNavbar", function() {
-  ok(true, "INCOMPLETE: Test of Login.mainNavbar not implemented");
+test("test_Login.addMainNavbar", function() {
+  ok(true, "INCOMPLETE: Test of Login.addMainNavbar not implemented");
 });
 
 test("test_Login.postToResponder", function() {
