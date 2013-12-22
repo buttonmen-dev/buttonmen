@@ -169,6 +169,93 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMAttackSkill::validate_attack
+     */
+    public function testValidate_attack_single_die_konstant() {
+        $game = new TestDummyGame;
+
+        $sk = $this->object;
+
+        $die1 = BMDie::create(6);
+        $die1->add_skill('Konstant');
+        $die1 = $die1->make_play_die();
+
+        $die2 = BMDie::create(6);
+        $die2->value = $die1->value;
+
+        // Naturally created during the flow of the game, need to make
+        // by hand here
+        $sk->reset();
+        $sk->add_die($die1);
+        $game->attackerAllDieArray = array($die1);
+        $sk->make_hit_table();
+
+        $this->assertFalse($sk->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackSkill::validate_attack
+     */
+    public function testValidate_attack_multiple_dice_konstant_addition() {
+        $game = new TestDummyGame;
+
+        $sk = $this->object;
+
+        $die1 = BMDie::create(6);
+        $die1->add_skill('Konstant');
+        $die1 = $die1->make_play_die();
+
+        $die2 = BMDie::create(6);
+        $die2->value = 7 - $die1->value;
+
+        $die3 = BMDie::create(10);
+        $die3->value = 7;
+
+        $this->assertEquals($die3->value, $die1->value + $die2->value);
+
+        // Naturally created during the flow of the game, need to make
+        // by hand here
+        $sk->reset();
+        $sk->add_die($die1);
+        $sk->add_die($die2);
+        $game->attackerAllDieArray = array($die1, $die2);
+        $sk->make_hit_table();
+
+        $this->assertTrue($sk->validate_attack($game, array($die1, $die2), array($die3)));
+    }
+
+    /**
+     * @covers BMAttackSkill::validate_attack
+     */
+    public function testValidate_attack_multiple_dice_konstant_subtraction() {
+        $game = new TestDummyGame;
+
+        $sk = $this->object;
+
+        $die1 = BMDie::create(6);
+        $die1->add_skill('Konstant');
+        $die1 = $die1->make_play_die();
+
+        $die2 = BMDie::create(20);
+        $die2->value = 7 + $die1->value;
+
+        $die3 = BMDie::create(10);
+        $die3->value = 7;
+
+        $this->assertEquals($die3->value, -$die1->value + $die2->value);
+
+        // Naturally created during the flow of the game, need to make
+        // by hand here
+        $sk->reset();
+        $sk->add_die($die1);
+        $sk->add_die($die2);
+        $game->attackerAllDieArray = array($die1, $die2);
+        $sk->make_hit_table();
+
+        $this->assertTrue($sk->validate_attack($game, array($die1, $die2), array($die3)));
+    }
+
+    /**
      * @covers BMAttackSkill::find_attack
      * @depends testValidate_attack
      */
@@ -283,7 +370,7 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         // test with berserk dice
         $sk->reset();
         $this->assertCount(0, $sk->validDice);
-        
+
         $die6 = BMDie::create(4, array('Berserk'));
         $die6->value = 2;
         $die7 = BMDie::create(6, array('Berserk'));
@@ -292,13 +379,13 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $sk->validDice);
         $sk->add_die($die7);
         $this->assertCount(0, $sk->validDice);
-        
+
         $die3->value = 5;
         $die4->value = 5;
-        
-        
+
+
         $this->assertFalse($sk->find_attack($game));
-        
+
     }
 
     /**

@@ -177,8 +177,8 @@ class BMDie {
         $die = NULL;
 
         try {
-            // Option dice divide on a |, can contain any die type
-            if (count($opt_array = explode('|', $recipe)) > 1) {
+            // Option dice divide on a /, can contain any die type
+            if (count($opt_array = explode('/', $recipe)) > 1) {
 //                $die = BMDieOption::create($opt_array, $skills);
                     throw new Exception("Option skill not implemented");
                 }
@@ -261,7 +261,7 @@ class BMDie {
 
     public function roll($successfulAttack = FALSE) {
 
-        if ($this->doesReroll) {
+        if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
@@ -543,7 +543,7 @@ class BMDie {
         }
         $recipe .= '(';
 
-        // Option dice divide on a |, can contain any die type
+        // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
 
         }

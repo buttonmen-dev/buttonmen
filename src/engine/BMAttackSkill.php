@@ -19,11 +19,11 @@ class BMAttackSkill extends BMAttack {
     }
 
     public function find_attack($game) {
-        $this->generate_hit_table($game);
-
         $targets = $game->defenderAllDieArray;
 
         if (count($targets) < 1) { return FALSE; }
+
+        $this->generate_hit_table($game);
 
         // Check all precise hits before trying any with help, because
         // help is slow
@@ -90,6 +90,12 @@ class BMAttackSkill extends BMAttack {
             if ($attacker->has_skill('Berserk')) {
                 return FALSE;
             }
+        }
+
+        // do not allow single-die skill attacks from konstant dice
+        if (1 == count($attackers) &&
+            $attackers[0]->has_skill('Konstant')) {
+            return FALSE;
         }
 
         // array_intersect tries to convert to strings, so we

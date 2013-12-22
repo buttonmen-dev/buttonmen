@@ -17,7 +17,8 @@ class BMAttackPower extends BMAttack {
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        if ($attacker->has_skill('Shadow')) {
+        if ($attacker->has_skill('Shadow') ||
+            $attacker->has_skill('Konstant')) {
             return FALSE;
         }
 
