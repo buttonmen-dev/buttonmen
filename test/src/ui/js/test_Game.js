@@ -295,7 +295,7 @@ asyncTest("test_Game.dieTableEntry", function() {
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, "<td>(X)=4</td>",
+    deepEqual(html, "<td>(X=4)</td>",
       "Die table entry has expected contents");
     start();
   });
