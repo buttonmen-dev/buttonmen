@@ -128,6 +128,10 @@ asyncTest("test_Game.parsePlayerData", function() {
   Game.getCurrentGame(function() {
     deepEqual(Game.api.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
               "player die recipe array should be parsed correctly");
+    deepEqual(
+      Game.api.player.swingRequestArray['X'],
+      {'min': 4, 'max': 20},
+      "swing request array should contain X entry with correct min/max");
     start();
   });
 });
@@ -139,6 +143,8 @@ asyncTest("test_Game.actionChooseSwingActive", function() {
     item = document.getElementById('swing_table');
     equal(item.nodeName, "TABLE",
           "#swing_table is a table after actionChooseSwingActive() is called");
+    ok(item.innerHTML.match(/X: \(4-20\)/),
+       "swing table should contain request to set X swing");
     start();
   });
 });
@@ -195,7 +201,7 @@ asyncTest("test_Game.formChooseSwingActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionChooseSwingActive();
-    $('#swing_0').val('7');
+    $('#swing_X').val('7');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     deepEqual(

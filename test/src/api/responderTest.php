@@ -327,7 +327,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'type' => 'submitSwingValues',
             'roundNumber' => 1,
             'timestamp' => $timestamp,
-            'swingValueArray' => array('7'));
+            'swingValueArray' => array('X' => '7'));
         $args['game'] = $real_game_id;
         $retval = $this->object->process_request($args);
         $args['game'] = $dummy_game_id;

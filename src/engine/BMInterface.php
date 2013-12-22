@@ -875,19 +875,17 @@ class BMInterface {
             }
 
             // try to set swing values
-            $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            $swingLettersRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            sort($swingLettersRequested);
+            $swingLettersSubmitted = array_keys($swingValueArray);
+            sort($swingLettersSubmitted);
 
-            if (count($swingRequestArray) != count($swingValueArray)) {
-                $this->message = 'Wrong number of swing values submitted';
+            if ($swingLettersRequested != $swingLettersSubmitted) {
+                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingLettersRequested);
                 return NULL;
             }
 
-            $swingValueArrayWithKeys = array();
-            foreach ($swingRequestArray as $swingIdx => $swingRequest) {
-                $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
-            }
-
-            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
+            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
 
             $game->proceed_to_next_user_action();
 
