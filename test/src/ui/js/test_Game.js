@@ -232,7 +232,7 @@ asyncTest("test_Game.pageAddGameHeader", function() {
       Game.page.html(),
       "<div id=\"game_id\">Game #1</div>" +
       "<div id=\"round_number\">Round #1</div>" +
-      "<div class=\"action_desc\" id=\"action_desc\">Howdy, world</div>",
+      "<div class=\"action_desc\" id=\"action_desc\">Howdy, world</div><br>",
       "Correct header text is added to Game.page"
     );
     start();
