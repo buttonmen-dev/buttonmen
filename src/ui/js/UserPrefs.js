@@ -55,19 +55,6 @@ UserPrefs.layoutPage = function() {
 // Each function should start by populating UserPrefs.page and UserPrefs.form
 // and end by invoking UserPrefs.layoutPage();
 
-//UserPrefs.actionLoadPrefs = function() {
-//
-//  // Create empty page and undefined form objects to be filled later
-//  UserPrefs.page = $('<div>');
-//  UserPrefs.form = null;
-//
-////  // Add the "player preferences" HTML contents
-////  UserPrefs.addPrefsPage();
-//
-//  // Lay out the page
-//  UserPrefs.layoutPage();
-//}
-//
 UserPrefs.actionShowPrefs = function() {
 
   // Create empty page and undefined form objects to be filled later
@@ -84,22 +71,14 @@ UserPrefs.actionShowPrefs = function() {
                        'action': "javascript:void(0);"
                      });
 
-  // Table of user creation options
+  // Table of user preferences
   var createtable = $('<table>', {'id': 'userprefs_create_table' });
 
   var entries = {
     'autopass': {
-      'text': 'Autopass on?',
+      'text': 'Allow autopass',
       'type': 'checkbox'
     }
-//    'password': {
-//      'text': 'Password',
-//      'type': 'password'
-//    },
-//    'password_confirm': {
-//      'text': 'Password (again)',
-//      'type': 'password'
-//    }
   }
 
   $.each(entries, function(entryid, entryinfo) {
@@ -120,7 +99,7 @@ UserPrefs.actionShowPrefs = function() {
   createform.append($('<br>'));
   createform.append($('<button>', {
                         'id': 'userprefs_action_button',
-                        'text': 'Submit'
+                        'text': 'Save'
                       }));
   creatediv.append(createform);
 
@@ -139,70 +118,32 @@ UserPrefs.actionShowPrefs = function() {
 
 UserPrefs.formSetPrefs = function() {
   var autopass = $('#userprefs_autopass').val();
-//
-//  if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
-//    Env.message = {
-//      'type': 'error',
-//      'text': 'Usernames may only contain letters, numbers, and underscores'
-//    };
-//    Newuser.showNewuserPage();
-//
-//  } else {
-//    var password = $('#newuser_password').val();
-//    var password_confirm = $('#newuser_password_confirm').val();
-//    if (password.length == 0) {
-//      Env.message = {
-//        'type': 'error',
-//        'text': 'Password may not be null'
-//      };
-//      Newuser.showNewuserPage();
-//    } else if (password != password_confirm) {
-//      Env.message = {
-//        'type': 'error',
-//        'text': 'Passwords do not match'
-//      };
-//      Newuser.showNewuserPage();
-//    } else {
-//      $.post('../api/responder.php', {
-//               type: 'createUser',
-//               username: username,
-//               password: password
-//             },
-//             function(rs) {
-//               if ('ok' == rs.status) {
-//                 var userName = rs.data.userName;
-//                 var indexLink = $('<a>', {
-//                   'href': 'index.html',
-//                   'text': 'Go back to the homepage, login, and start ' +
-//                           'beating people up'
-//                 });
-//               var userPar = $('<p>',
-//                                {'text': rs.message + ' ' });
-//               userPar.append($('<br>'));
-//               userPar.append(indexLink);
-//               Env.message = {
-//                 'type': 'success',
-//                 'text': '',
-//                 'obj': userPar
-//               };
-//               Newuser.showNewuserPage();
-//             } else {
-//               Env.message = {
-//                 'type': 'error',
-//                 'text': rs.message
-//               };
-//               Newuser.showNewuserPage();
-//             }
-//           }
-//    ).fail(function() {
-//             Env.message = {
-//               'type': 'error',
-//               'text': 'Internal error when calling createUser'
-//             };
-//             Newuser.showNewuserPage();
-//           });
-//    }
-//  }
+
+  $.post(Env.api_location, {
+             type: 'savePlayerInfo',
+             autopass: autopass
+         },
+         function(rs) {
+             if ('ok' == rs.status) {
+                 Env.message = {
+                     'type': 'success',
+                     'text': 'User details set successfully.'
+                 };
+             } else {
+                 Env.message = {
+                     'type': 'error',
+                     'text': rs.message
+                 };
+                 UserPrefs.showUserPrefsPage();
+             }
+         }
+        ).fail(function() {
+                   Env.message = {
+                       'type': 'error',
+                       'text': 'Internal error when calling formSetPrefs.'
+                   };
+                   UserPrefs.showUserPrefsPage();
+               });
 }
 //
 //////////////////////////////////////////////////////////////////////////

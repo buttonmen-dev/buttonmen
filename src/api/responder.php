@@ -90,7 +90,8 @@ class responder {
         }
 
         if ($args['type'] == 'savePlayerInfo') {
-            $interface->set_player_info($_SESSION['user_id'], $args);
+            $interface->set_player_info($_SESSION['user_id'],
+                                        array('autopass' => $args['autopass']));
         }
 
         if ($args['type'] == 'loadPlayerNames') {
