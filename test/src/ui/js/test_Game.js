@@ -285,6 +285,8 @@ asyncTest("test_Game.dieRecipeTable", function() {
           "Die recipe table should be a table element");
     ok(item.innerHTML.match('Avis'),
        "Die recipe table should contain button names");
+    ok(item.innerHTML.match('0/0/0'),
+       "Die recipe table should contain game state");
     start();
   });
 });
@@ -377,6 +379,21 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
        "header row should contain <th> entries");
     ok(item.innerHTML.match('Avis'),
        "header row should contain button names");
+    start();
+  });
+});
+
+asyncTest("test_Game.playerWLTText", function() {
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    var text = Game.playerWLTText('opponent');
+    Game.page.append(text);
+    Game.layoutPage();
+
+    var item = document.getElementById('game_page');
+    ok(item.innerHTML.match('2/3/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
 });
