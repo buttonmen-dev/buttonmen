@@ -288,15 +288,15 @@ class dummy_responder {
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(
                         array("timestamp" => "2013-12-22 21:09:01",
-                              "message" => "c2 performed Power attack using [(12):1] against [(4):1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
+                              "message" => "tester2 performed Power attack using [(12):1] against [(4):1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
                         array("timestamp" => "2013-12-22 21:08:56",
-                              "message" => "c1 performed Power attack using [(4):2] against [(X):1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
+                              "message" => "tester1 performed Power attack using [(4):2] against [(X):1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
                         array("timestamp" => "2013-12-22 21:03:52",
-                              "message" => "c2 performed Skill attack using [(4):4,(X):3] against [(10):7]; Defender (10) was captured; Attacker (4) rerolled 4 => 4; Attacker (X) rerolled 3 => 1"),
+                              "message" => "tester2 performed Skill attack using [(4):4,(X):3] against [(10):7]; Defender (10) was captured; Attacker (4) rerolled 4 => 4; Attacker (X) rerolled 3 => 1"),
                         array("timestamp" => "2013-12-22 21:03:39",
-                              "message" => "c1 performed Power attack using [(4):3] against [(10):3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
+                              "message" => "tester1 performed Power attack using [(4):3] against [(10):3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
                         array("timestamp" => "2013-12-22 21:03:12",
-                              "message" => "c2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
+                              "message" => "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
                     )
                 );
 
