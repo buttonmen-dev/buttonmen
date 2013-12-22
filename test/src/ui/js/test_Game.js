@@ -136,7 +136,7 @@ asyncTest("test_Game.actionChooseSwingActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionChooseSwingActive();
-    item = document.getElementById('swing_table');
+    var item = document.getElementById('swing_table');
     equal(item.nodeName, "TABLE",
           "#swing_table is a table after actionChooseSwingActive() is called");
     start();
@@ -274,11 +274,17 @@ asyncTest("test_Game.pageAddActionLogFooter", function() {
 asyncTest("test_Game.dieRecipeTable", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
+    Game.page = $('<div>');
     var dietable = Game.dieRecipeTable();
-    // jQuery trick to get the full HTML including the object itself
-    var diehtml = $('<div>').append(dietable.clone()).remove().html();
-    ok(diehtml.match('<table id="die_description_table">'),
-       "Die recipe table has reasonable contents");
+    Game.page.append(dietable);
+    Game.layoutPage();
+
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "Document should contain die recipe table");
+    equal(item.nodeName, "TABLE",
+          "Die recipe table should be a table element");
+    ok(item.innerHTML.match('Avis'),
+       "Die recipe table should contain button names");
     start();
   });
 });
@@ -352,6 +358,25 @@ asyncTest("test_Game.dieIndexId", function() {
     var idxval = Game.dieIndexId('opponent', 3);
     equal(idxval, 'playerIdx_1_dieIdx_3',
           "die index string should be correct");
+    start();
+  });
+});
+
+asyncTest("test_Game.playerOpponentHeaderRow", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    var row = Game.playerOpponentHeaderRow('Button', 'buttonName');
+    var table = $('<table>');
+    table.append(row);
+    Game.page.append(table);
+    Game.layoutPage();
+
+    var item = document.getElementById('game_page');
+    ok(item.innerHTML.match('<th>'),
+       "header row should contain <th> entries");
+    ok(item.innerHTML.match('Avis'),
+       "header row should contain button names");
     start();
   });
 });

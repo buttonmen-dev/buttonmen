@@ -569,17 +569,9 @@ Game.pageAddActionLogFooter = function() {
 // Generate and return a two-column table of the dice in each player's recipe
 Game.dieRecipeTable = function() {
 
-  var dietable = $('<table>', {'id': 'die_description_table', });
-  var headerrow = $('<tr>', {});
-  headerrow.append($('<th>', {
-                     'id': 'header_current_player',
-                     'text': Game.api.player.playerName,
-                     }))
-  headerrow.append($('<th>', {
-                     'id': 'header_opponent',
-                     'text': Game.api.opponent.playerName,
-                     }))
-  dietable.append(headerrow);
+  var dietable = $('<table>', {'id': 'die_recipe_table', });
+  dietable.append(Game.playerOpponentHeaderRow('Player', 'playerName'));
+  dietable.append(Game.playerOpponentHeaderRow('Button', 'buttonName'));
   var maxDice = Math.max(Game.api.player.nDie, Game.api.opponent.nDie);
   for (var i = 0; i < maxDice; i++) {
     var dierow = $('<tr>', {});
@@ -740,6 +732,18 @@ Game.dieIndexId = function(player, dieidx) {
     var playerIdx = Game.api.opponentIdx;
   }
   return ('playerIdx_' + playerIdx + '_dieIdx_' + dieidx);
+}
+
+// Two-column row containing information about the player and the opponent
+Game.playerOpponentHeaderRow = function(label, field) {
+  var headerrow = $('<tr>', {});
+  headerrow.append($('<th>', {
+                     'text': label + ': ' + Game.api.player[field],
+                     }))
+  headerrow.append($('<th>', {
+                     'text': label + ': ' + Game.api.opponent[field],
+                     }))
+  return headerrow;
 }
 
 Game.dieBorderToggleHandler = function() {
