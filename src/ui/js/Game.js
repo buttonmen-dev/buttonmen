@@ -242,7 +242,7 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
 // It is time to choose swing dice, and the current player has dice to choose
 Game.actionChooseSwingActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader('Your turn to choose swing dice');
 
   var swingdiv = $('<div>');
 
@@ -299,7 +299,7 @@ Game.actionChooseSwingActive = function() {
 
 Game.actionChooseSwingInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("Opponent's turn to choose swing dice");
 
   dietable = Game.dieRecipeTable();
   Game.page.append(dietable);
@@ -318,7 +318,7 @@ Game.actionChooseSwingInactive = function() {
 
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("Your turn to attack");
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(true);
   Game.page.append($('<br>'));
@@ -366,7 +366,7 @@ Game.actionPlayTurnActive = function() {
 
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("Opponent's turn to attack");
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<p>', {'text':
@@ -382,7 +382,7 @@ Game.actionPlayTurnInactive = function() {
 
 Game.actionShowFinishedGame = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("This game is over");
   Game.page.append($('<br>'));
   Game.pageAddGamePlayerStatus('player', false, false);
   Game.page.append($('<br>'));
@@ -510,11 +510,15 @@ Game.formPlayTurnActive = function() {
 // Page layout helper routines
 
 // Display header information about the game
-Game.pageAddGameHeader = function() {
+Game.pageAddGameHeader = function(action_desc) {
   Game.page.append($('<div>', {'id': 'game_id',
                                'text': 'Game #' + Game.api.gameId, }));
   Game.page.append($('<div>', {'id': 'round_number',
                                'text': 'Round #' + Game.api.roundNumber, }));
+  Game.page.append($('<div>', {'id': 'action_desc',
+                               'class': 'action_desc',
+                               'text': action_desc}));
+  Game.page.append($('<br>'));
   return true;
 }
 
