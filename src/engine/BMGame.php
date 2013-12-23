@@ -1493,18 +1493,20 @@ class BMGame {
                 $dieRecipeArrayArray[] = array();
 
                 $playerSwingRequestArray = array();
-                foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
-                    if ($swingdice[0] instanceof BMDieTwin) {
-                        $swingdie = $swingdice[0]->dice[0];
-                    } else {
-                        $swingdie = $swingdice[0];
+                if (isset($this->swingRequestArrayArray[$playerIdx])) {
+                    foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+                        if ($swingdice[0] instanceof BMDieTwin) {
+                            $swingdie = $swingdice[0]->dice[0];
+                        } else {
+                            $swingdie = $swingdice[0];
+                        }
+                        if ($swingdie instanceof BMDieSwing) {
+                            $validRange = $swingdie->swing_range($swingtype);
+                        } else {
+                            throw new LogicException("Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie);
+                        }
+                        $playerSwingRequestArray[$swingtype] = array(strval($validRange[0]), strval($validRange[1]));
                     }
-                    if ($swingdie instanceof BMDieSwing) {
-                        $validRange = $swingdie->swing_range($swingtype);
-                    } else {
-                        throw new LogicException("Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie);
-                    }
-                    $playerSwingRequestArray[$swingtype] = array(strval($validRange[0]), strval($validRange[1]));
                 }
                 $swingRequestArrayArray[] = $playerSwingRequestArray;
 
