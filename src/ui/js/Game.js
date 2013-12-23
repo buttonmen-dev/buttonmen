@@ -675,8 +675,10 @@ Game.formReactToInitiativeActive = function() {
              type: 'reactToInitiative',
              game: Game.game,
              roundNumber: Game.api.roundNumber,
-             action: action,
              timestamp: Game.api.timestamp,
+             action: action,
+             dieIdxArray: dieIdxArray,
+             dieValueArray: dieValueArray,
            },
            function(rs) {
              if ('ok' == rs.status) {

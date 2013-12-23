@@ -17,7 +17,10 @@ class dummy_responder {
 
     // Set of keys expected by each responder argument type
     private $keylists = array(
-        'submitSwingValues' => array('type', 'game', 'roundNumber', 'swingValueArray', 'timestamp'));
+        'submitSwingValues' => array('type', 'game', 'roundNumber', 'swingValueArray', 'timestamp'),
+        'reactToInitiative' => array('type', 'game', 'roundNumber', 'timestamp',
+                                     'action', 'dieIdxArray', 'dieValueArray')
+    );
 
     // constructor
     // * For live invocation:
@@ -87,9 +90,9 @@ class dummy_responder {
             return array(array('userName' => $username), "User $username created successfully");
         }
 
-	// for verisimilitude, choose a game ID of one greater than
-	// the number of "existing" games represented in loadGameData
-	// and loadActiveGames
+        // for verisimilitude, choose a game ID of one greater than
+        // the number of "existing" games represented in loadGameData
+        // and loadActiveGames
         if ($args['type'] == 'createGame') {
             $gameId = '10';
             return array(array('gameId' => $gameId), "Game $gameId created successfully.");
@@ -673,6 +676,10 @@ class dummy_responder {
                 }
             }
             return array(True, 'Successfully set swing values');
+        }
+
+        if ($args['type'] == 'reactToInitiative') {
+            return array(True, 'Successfully gained initiative');
         }
 
         if ($args['type'] == 'submitTurn') {
