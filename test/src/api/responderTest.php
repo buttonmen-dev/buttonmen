@@ -17,16 +17,28 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function setUp() {
 
         // setup the test interface
+        //
+        // The multiple paths are to deal with the many diverse testing
+        // environments that we have, and their different assumptions about
+        // which directory is the unit test run directory.
         if (file_exists('../test/src/database/mysql.test.inc.php')) {
             require '../test/src/database/mysql.test.inc.php';
         } else {
             require 'test/src/database/mysql.test.inc.php';
         }
 
-        require_once '../src/api/responder.php';
+        if (file_exists('../src/api/responder.php')) {
+            require_once '../src/api/responder.php';
+        } else {
+            require_once 'src/api/responder.php';
+        }
         $this->object = new responder(True);
 
-        require_once '../src/api/dummy_responder.php';
+        if (file_exists('../src/api/dummy_responder.php')) {
+            require_once '../src/api/dummy_responder.php';
+        } else {
+            require_once 'src/api/dummy_responder.php';
+        }
         $this->dummy = new dummy_responder(True);
 
         // Cache user IDs parsed from the DB for use within a test
