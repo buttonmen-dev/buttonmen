@@ -665,7 +665,8 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
     if (Game.api[player].nCapturedDie > 0) {
       var capturedDieDescs = [];
       $.each(Game.api[player].capturedRecipeArray, function(idx, recipe) {
-        capturedDieDescs.push(recipe);
+        capturedDieDescs.push(
+          Game.dieRecipeText(recipe, Game.api[player].capturedSidesArray[idx]));
       });
       var capturedDieText = capturedDieDescs.join(', ');
     } else {

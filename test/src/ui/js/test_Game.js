@@ -339,6 +339,8 @@ asyncTest("test_Game.pageAddGamePlayerStatus", function() {
     ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
     ok(htmlout.match('Dice captured'),
        "game player status should report captured dice");
+    ok(htmlout.match('(X=4)'),
+       "status should report that player captured an X=4");
     start();
   });
 });
