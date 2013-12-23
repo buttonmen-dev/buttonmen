@@ -194,6 +194,11 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
                       Game.api.playerIdx, playerNameArray);
   Game.api.opponent = Game.parsePlayerData(
                         Game.api.opponentIdx, playerNameArray);
+
+  // Parse game WLT text into a string for convenience
+  Game.api.player['gameScoreStr'] = Game.playerWLTText('player');
+  Game.api.opponent['gameScoreStr'] = Game.playerWLTText('opponent');
+
   return true;
 }
 
@@ -226,9 +231,16 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
     'capturedRecipeArray':
       Game.api.gameData['data']['capturedRecipeArrayArray'][playerIdx],
 
-    'swingRequestArray':
-      Game.api.gameData['data']['swingRequestArrayArray'][playerIdx],
+    'swingRequestArray': {},
   }
+
+  $.each(Game.api.gameData['data']['swingRequestArrayArray'][playerIdx],
+         function(letter, range) {
+           data['swingRequestArray'][letter] = {
+             'min': parseInt(range[0]),
+             'max': parseInt(range[1])
+           }
+         })
 
   // activePlayerIdx may be either player or may be null
   if (Game.api.gameData['data']['activePlayerIdx'] == playerIdx) {
@@ -253,7 +265,7 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
 // It is time to choose swing dice, and the current player has dice to choose
 Game.actionChooseSwingActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader('Your turn to choose swing dice');
 
   var swingdiv = $('<div>');
 
@@ -267,14 +279,16 @@ Game.actionChooseSwingActive = function() {
                     });
   var swingtable = $('<table>', {'id': 'swing_table', });
   $.each (Game.api.player.swingRequestArray,
-          function(index, value) {
+          function(letter, range) {
             var swingrow = $('<tr>', {});
-            swingrow.append($('<td>', { 'text': value + ':', }));
+            var swingtext = letter + ': (' + range['min'] + '-' +
+                            range['max'] + ')'
+            swingrow.append($('<td>', { 'text': swingtext, }));
             var swinginput = $('<td>', {});
             swinginput.append($('<input>', {
                                'type': 'text',
                                'class': 'swing',
-                               'id': 'swing_' + index,
+                               'id': 'swing_' + letter,
                                'size': '2',
                                'maxlength': '2',
                               }));
@@ -310,7 +324,7 @@ Game.actionChooseSwingActive = function() {
 
 Game.actionChooseSwingInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("Opponent's turn to choose swing dice");
 
   dietable = Game.dieRecipeTable();
   Game.page.append(dietable);
@@ -329,7 +343,7 @@ Game.actionChooseSwingInactive = function() {
 
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("Your turn to attack");
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(true);
   Game.page.append($('<br>'));
@@ -377,7 +391,7 @@ Game.actionPlayTurnActive = function() {
 
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("Opponent's turn to attack");
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<p>', {'text':
@@ -393,7 +407,7 @@ Game.actionPlayTurnInactive = function() {
 
 Game.actionShowFinishedGame = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader();
+  Game.pageAddGameHeader("This game is over");
   Game.page.append($('<br>'));
   Game.pageAddGamePlayerStatus('player', false, false);
   Game.page.append($('<br>'));
@@ -415,12 +429,13 @@ Game.actionShowFinishedGame = function() {
 // Form submission action for choosing swing dice
 Game.formChooseSwingActive = function() {
   var textFieldsFilled = true;
-  var swingValueArray = [];
+  var swingValueArray = {};
 
-  $('input:text').each(function(index, element) {
-    var value = $(element).val();
+  // Iterate over expected swing values
+  $.each(Game.api.player.swingRequestArray, function(letter, range) {
+    var value = $('#swing_' + letter).val();
     if ($.isNumeric(value)) {
-      swingValueArray[index] = value;
+      swingValueArray[letter] = value;
     } else {
       textFieldsFilled = false;
     }
@@ -521,11 +536,15 @@ Game.formPlayTurnActive = function() {
 // Page layout helper routines
 
 // Display header information about the game
-Game.pageAddGameHeader = function() {
+Game.pageAddGameHeader = function(action_desc) {
   Game.page.append($('<div>', {'id': 'game_id',
                                'text': 'Game #' + Game.api.gameId, }));
   Game.page.append($('<div>', {'id': 'round_number',
                                'text': 'Round #' + Game.api.roundNumber, }));
+  Game.page.append($('<div>', {'id': 'action_desc',
+                               'class': 'action_desc',
+                               'text': action_desc}));
+  Game.page.append($('<br>'));
   return true;
 }
 
@@ -580,17 +599,10 @@ Game.pageAddActionLogFooter = function() {
 // Generate and return a two-column table of the dice in each player's recipe
 Game.dieRecipeTable = function() {
 
-  var dietable = $('<table>', {'id': 'die_description_table', });
-  var headerrow = $('<tr>', {});
-  headerrow.append($('<th>', {
-                     'id': 'header_current_player',
-                     'text': Game.api.player.playerName,
-                     }))
-  headerrow.append($('<th>', {
-                     'id': 'header_opponent',
-                     'text': Game.api.opponent.playerName,
-                     }))
-  dietable.append(headerrow);
+  var dietable = $('<table>', {'id': 'die_recipe_table', });
+  dietable.append(Game.playerOpponentHeaderRow('Player', 'playerName'));
+  dietable.append(Game.playerOpponentHeaderRow('Button', 'buttonName'));
+  dietable.append(Game.playerOpponentHeaderRow('', 'gameScoreStr'));
   var maxDice = Math.max(Game.api.player.nDie, Game.api.opponent.nDie);
   for (var i = 0; i < maxDice; i++) {
     var dierow = $('<tr>', {});
@@ -609,12 +621,7 @@ Game.dieRecipeTable = function() {
 
 Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
   if (i < nDie) {
-    var dieval = dieRecipeArray[i];
-    var diesides = dieSidesArray[i];
-    if ((diesides != null) &&
-        (dieval.indexOf('(' + diesides + ')') == -1)) {
-      dieval += '=' + diesides;
-    }
+    dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
     return $('<td>', {'text': dieval, });
   }
     return $('<td>', {});
@@ -646,11 +653,7 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
 
   // Game score
   var gameScoreDiv = $('<div>');
-  gameScoreDiv.append($('<span>', {
-    'text': "W/L/T: " + Game.api[player].gameScoreDict['W'] +
-            "/" + Game.api[player].gameScoreDict['L'] + 
-            "/" + Game.api[player].gameScoreDict['D'] +
-            " (" + Game.api.maxWins + ")", }));
+  gameScoreDiv.append($('<span>', { 'text': Game.api[player].gameScoreStr, }));
 
   if (game_active) {
     // Round score, only applicable in active games
@@ -713,16 +716,9 @@ Game.pageAddGamePlayerDice = function(player, clickable) {
                     }));
     dieDiv.append($('<br>'));
 
-    // If the recipe doesn't contain (sides), assume there are swing
-    // dice in the recipe, so we need to specify the current number
-    // of sides
-    var dieSides =  '(' + Game.api[player].sidesArray[i] + ')';
-    var dieRecipeText = Game.api[player].dieRecipeArray[i];
-    if (dieRecipeText.indexOf(dieSides) === -1) {
-      dieRecipeText = dieRecipeText.replace(
-                        ')',
-                        '=' + Game.api[player].sidesArray[i] + ')');
-    }
+    var dieRecipeText = Game.dieRecipeText(
+                          Game.api[player].dieRecipeArray[i],
+                          Game.api[player].sidesArray[i]);
     dieDiv.append($('<span>', {
                       'class': 'die_recipe',
                       'text': dieRecipeText,
@@ -769,6 +765,58 @@ Game.dieIndexId = function(player, dieidx) {
   return ('playerIdx_' + playerIdx + '_dieIdx_' + dieidx);
 }
 
+// Two-column row containing information about the player and the opponent
+Game.playerOpponentHeaderRow = function(label, field) {
+  var headerrow = $('<tr>', {});
+  var prefix = '';
+  if (label) {
+    prefix = label + ': ';
+  }
+  headerrow.append($('<th>', {
+                     'text': prefix + Game.api.player[field],
+                     }))
+  headerrow.append($('<th>', {
+                     'text': prefix + Game.api.opponent[field],
+                     }))
+  return headerrow;
+}
+
+Game.playerWLTText = function(player) {
+  var text = "W/L/T: " + Game.api[player].gameScoreDict['W'] +
+              "/" + Game.api[player].gameScoreDict['L'] + 
+              "/" + Game.api[player].gameScoreDict['D'] +
+              " (" + Game.api.maxWins + ")";
+  return text;
+};
+
+// If the recipe doesn't contain (sides), assume there are swing
+// dice in the recipe, so we need to specify the current number
+// of sides
+Game.dieRecipeText = function(recipe, sides) {
+  var dieRecipeText = recipe;
+  if (sides) {
+    var lparen = recipe.indexOf('(');
+    var rparen = recipe.indexOf(')');
+    var recipeSideStrings = recipe.substring(lparen + 1, rparen).split(',');
+    sidesum = 0;
+    swingcount = 0;
+    for (i = 0; i < recipeSideStrings.length; i++) {
+      var itemSides = parseInt(recipeSideStrings[i]);
+      if (itemSides > 0) {
+        sidesum += itemSides;
+      } else {
+        swingcount += 1;
+      }
+    }
+    if (sidesum != sides) {
+      dieRecipeText = dieRecipeText.replace(
+                        ')', '=' + (sides/swingcount) + ')');
+    }
+  }
+  return dieRecipeText;
+}
+
 Game.dieBorderToggleHandler = function() {
   $(this).toggleClass('selected unselected');
 }
+
