@@ -215,9 +215,15 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
     'sidesArray': Game.api.gameData['data']['sidesArrayArray'][playerIdx],
     'dieRecipeArray':
       Game.api.gameData['data']['dieRecipeArrayArray'][playerIdx],
-    'swingRequestArray':
-      Game.api.gameData['data']['swingRequestArrayArray'][playerIdx],
+    'swingRequestArray': {},
   }
+  $.each(Game.api.gameData['data']['swingRequestArrayArray'][playerIdx],
+         function(letter, range) {
+           data['swingRequestArray'][letter] = {
+             'min': parseInt(range[0]),
+             'max': parseInt(range[1])
+           }
+         })
 
   // activePlayerIdx may be either player or may be null
   if (Game.api.gameData['data']['activePlayerIdx'] == playerIdx) {
@@ -256,14 +262,16 @@ Game.actionChooseSwingActive = function() {
                     });
   var swingtable = $('<table>', {'id': 'swing_table', });
   $.each (Game.api.player.swingRequestArray,
-          function(index, value) {
+          function(letter, range) {
             var swingrow = $('<tr>', {});
-            swingrow.append($('<td>', { 'text': value + ':', }));
+            var swingtext = letter + ': (' + range['min'] + '-' +
+                            range['max'] + ')'
+            swingrow.append($('<td>', { 'text': swingtext, }));
             var swinginput = $('<td>', {});
             swinginput.append($('<input>', {
                                'type': 'text',
                                'class': 'swing',
-                               'id': 'swing_' + index,
+                               'id': 'swing_' + letter,
                                'size': '2',
                                'maxlength': '2',
                               }));
@@ -404,12 +412,13 @@ Game.actionShowFinishedGame = function() {
 // Form submission action for choosing swing dice
 Game.formChooseSwingActive = function() {
   var textFieldsFilled = true;
-  var swingValueArray = [];
+  var swingValueArray = {};
 
-  $('input:text').each(function(index, element) {
-    var value = $(element).val();
+  // Iterate over expected swing values
+  $.each(Game.api.player.swingRequestArray, function(letter, range) {
+    var value = $('#swing_' + letter).val();
     if ($.isNumeric(value)) {
-      swingValueArray[index] = value;
+      swingValueArray[letter] = value;
     } else {
       textFieldsFilled = false;
     }
