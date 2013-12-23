@@ -448,7 +448,7 @@ class dummy_responder {
                                                        array(null,null,null,null,null)),
                             "dieRecipeArrayArray" => array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
                                                            array("(4)","p(6,6)","(10)","(20)","(W)")),
-                            "swingRequestArrayArray" => array(array("W"), array("W")),
+                            "swingRequestArrayArray" => array(array("W" => array('4', '12')), array("W" => array('4', '12'))),
                             "validAttackTypeArray" => array(),
                             "roundScoreArray" => array(27, 5),
                             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
