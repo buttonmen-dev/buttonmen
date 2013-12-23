@@ -129,6 +129,8 @@ asyncTest("test_Game.parsePlayerData", function() {
   Game.getCurrentGame(function() {
     deepEqual(Game.api.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
               "player die recipe array should be parsed correctly");
+    deepEqual(Game.api.player.capturedValueArray, [],
+              "array of captured dice should be parsed");
     deepEqual(
       Game.api.player.swingRequestArray['X'],
       {'min': 4, 'max': 20},
@@ -335,6 +337,10 @@ asyncTest("test_Game.pageAddGamePlayerStatus", function() {
     Game.pageAddGamePlayerStatus('player', false, true);
     var htmlout = Game.page.html();
     ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
+    ok(htmlout.match('Dice captured'),
+       "game player status should report captured dice");
+    ok(htmlout.match('(X=4)'),
+       "status should report that player captured an X=4");
     start();
   });
 });

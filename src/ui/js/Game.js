@@ -220,8 +220,20 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
     'sidesArray': Game.api.gameData['data']['sidesArrayArray'][playerIdx],
     'dieRecipeArray':
       Game.api.gameData['data']['dieRecipeArrayArray'][playerIdx],
+
+     // N.B. These arrays describe the other player's dice which this
+     // player has captured
+    'nCapturedDie': Game.api.gameData['data']['nCapturedDieArray'][playerIdx],
+    'capturedValueArray':
+      Game.api.gameData['data']['capturedValueArrayArray'][playerIdx],
+    'capturedSidesArray':
+      Game.api.gameData['data']['capturedSidesArrayArray'][playerIdx],
+    'capturedRecipeArray':
+      Game.api.gameData['data']['capturedRecipeArrayArray'][playerIdx],
+
     'swingRequestArray': {},
   }
+
   $.each(Game.api.gameData['data']['swingRequestArrayArray'][playerIdx],
          function(letter, range) {
            data['swingRequestArray'][letter] = {
@@ -643,16 +655,32 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
   var gameScoreDiv = $('<div>');
   gameScoreDiv.append($('<span>', { 'text': Game.api[player].gameScoreStr, }));
 
-  // Round score, only applicable in active games
   if (game_active) {
+    // Round score, only applicable in active games
     var roundScoreDiv = $('<div>');
     roundScoreDiv.append($('<span>', {
       'text': "Score: " + Game.api[player].roundScore, }));
+
+    // Dice captured this round, only applicable in active games
+    if (Game.api[player].nCapturedDie > 0) {
+      var capturedDieDescs = [];
+      $.each(Game.api[player].capturedRecipeArray, function(idx, recipe) {
+        capturedDieDescs.push(
+          Game.dieRecipeText(recipe, Game.api[player].capturedSidesArray[idx]));
+      });
+      var capturedDieText = capturedDieDescs.join(', ');
+    } else {
+      var capturedDieText = 'none'
+    }
+    var capturedDiceDiv = $('<div>');
+    capturedDiceDiv.append($('<span>', {
+      'text': "Dice captured: " + capturedDieText, })); 
   }
 
   // Order the elements depending on the "reversed" flag
   if (reversed == true) {
     if (game_active) {
+      Game.page.append(capturedDiceDiv);
       Game.page.append(roundScoreDiv);
     }
     Game.page.append(gameScoreDiv);
@@ -664,6 +692,7 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
     Game.page.append(gameScoreDiv);
     if (game_active) {
       Game.page.append(roundScoreDiv);
+      Game.page.append(capturedDiceDiv);
     }
   }
 
