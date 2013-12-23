@@ -97,6 +97,22 @@ class responder {
                                                    $args['swingValueArray']);
         }
 
+        if ($args['type'] == 'reactToInitiative') {
+            if (!(array_key_exists('dieIdxArray', $args))) {
+                $args['dieIdxArray'] = NULL;
+            }
+            if (!(array_key_exists('dieValueArray', $args))) {
+                $args['dieValueArray'] = NULL;
+            }
+            return $interface->react_to_initiative($_SESSION['user_id'],
+                                                   $args['game'],
+                                                   $args['roundNumber'],
+                                                   $args['timestamp'],
+                                                   $args['action'],
+                                                   $args['dieIdxArray'],
+                                                   $args['dieValueArray']);
+        }
+
         if ($args['type'] == 'submitTurn') {
             return $interface->submit_turn($_SESSION['user_id'],
                                            $args['game'],

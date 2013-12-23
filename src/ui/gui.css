@@ -55,6 +55,10 @@ select option.yellowed {
     background-color: #ffff00;
 }
 
+select.center {
+    text-align: center;
+}
+
 .action_desc {
     color: blue;
 }

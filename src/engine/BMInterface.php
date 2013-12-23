@@ -1009,13 +1009,14 @@ class BMInterface {
     // successful.
     // If it fails, $this->message will say why it has failed.
     
-    public function react_to_initiative($userId, $gameNumber, $action,
-                                        $dieIdxArray = NULL, 
+    public function react_to_initiative($userId, $gameNumber, $roundNumber,
+					$submitTimestamp, $action,
+					$dieIdxArray = NULL,
                                         $dieValueArray = NULL) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
-                                          BMGameState::react_to_initiative,
+                                          BMGameState::reactToInitiative,
                                           $submitTimestamp,
                                           $roundNumber,
                                           $userId)) {
@@ -1049,6 +1050,7 @@ class BMInterface {
                     foreach ($dieIdxArray as $tempIdx => $dieIdx) {
                         $argArray[$dieIdx] = $dieValueArray[$tempIdx];
                     }
+                    break;
                 case 'decline':
                     break;
                 default:

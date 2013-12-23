@@ -11,6 +11,9 @@ module("Game", {
         if (BMTestUtils.GameType == 'turninactive') { return '4'; }
         if (BMTestUtils.GameType == 'finished') { return '5'; }
         if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
+        if (BMTestUtils.GameType == 'focus') { return '7'; }
+        if (BMTestUtils.GameType == 'chanceactive') { return '8'; }
+        if (BMTestUtils.GameType == 'chanceinactive') { return '8'; }
       }
     }
 
@@ -139,6 +142,44 @@ asyncTest("test_Game.parsePlayerData", function() {
   });
 });
 
+asyncTest("test_Game.parseValidInitiativeActions", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.parseValidInitiativeActions();
+    deepEqual(Game.api.player.initiativeActions, {},
+              "No valid initiative actions during choose swing phase");
+    start();
+  });
+});
+
+asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.parseValidInitiativeActions();
+    deepEqual(
+      Game.api.player.initiativeActions,
+        {'focus': {
+          '3': [5, 4, 3, 2, 1],
+          '4': [17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
+         },
+         'decline': true },
+        "Correct valid initiative actions identified for Crab");
+    start();
+  });
+});
+
+asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
+  BMTestUtils.GameType = 'chanceactive';
+  Game.getCurrentGame(function() {
+    Game.parseValidInitiativeActions();
+    deepEqual(
+      Game.api.player.initiativeActions,
+        {'chance': { '1': true, '4': true }, 'decline': true },
+        "Correct valid initiative actions identified for John Kovalic");
+    start();
+  });
+});
+
 asyncTest("test_Game.actionChooseSwingActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
@@ -159,6 +200,32 @@ asyncTest("test_Game.actionChooseSwingInactive", function() {
     item = document.getElementById('swing_table');
     equal(item, null, "#swing_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionReactToInitiativeActive", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeActive();
+    item = document.getElementById('init_react_3');
+    ok(item, "#init_react_3 select is set");
+    item = document.getElementById('init_react_4');
+    ok(item, "#init_react_4 select is set");
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionReactToInitiativeInactive", function() {
+  BMTestUtils.GameType = 'chanceinactive';
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeInactive();
+    item = document.getElementById('die_recipe_table');
+    ok(item, "page contains die recipe table");
+    item = document.getElementById('init_react_1');
+    equal(item, null, "#init_react_1 select is not set");
+    equal(Game.form, null, "Game.form is not set");
     start();
   });
 });
@@ -210,6 +277,23 @@ asyncTest("test_Game.formChooseSwingActive", function() {
     deepEqual(
       Env.message,
       {"type": "success", "text": "Successfully set swing values"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Game.formReactToInitiativeActive", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeActive();
+    $('#react_type_select').val('focus');
+    $('#init_react_3').val('5');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success", "text": "Successfully gained initiative"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
@@ -286,7 +370,7 @@ asyncTest("test_Game.dieRecipeTable", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    var dietable = Game.dieRecipeTable();
+    var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
     Game.layoutPage();
 
@@ -298,6 +382,56 @@ asyncTest("test_Game.dieRecipeTable", function() {
        "Die recipe table should contain button names");
     ok(item.innerHTML.match('0/0/0'),
        "Die recipe table should contain game state");
+    start();
+  });
+});
+
+asyncTest("test_Game.dieRecipeTable_focus", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.parseValidInitiativeActions();
+    Game.page = $('<div>');
+    var dietable = Game.dieRecipeTable(true, true);
+    Game.page.append(dietable);
+    Game.layoutPage();
+
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "Document should contain die recipe table");
+    equal(item.nodeName, "TABLE",
+          "Die recipe table should be a table element");
+    ok(item.innerHTML.match('Crab'),
+       "Die recipe table should contain button names");
+    ok(item.innerHTML.match('Value'),
+       "Die recipe table should contain header for table of values");
+    ok(item.innerHTML.match(/7/),
+       "Die recipe table should contain entries for table of values");
+    ok(item.innerHTML.match(/id="init_react_3"/),
+       "Die recipe table should contain an init reaction entry for die idx 3");
+    ok(item.innerHTML.match(/id="init_react_4"/),
+       "Die recipe table should contain an init reaction entry for die idx 4");
+    start();
+  });
+});
+
+asyncTest("test_Game.dieRecipeTable_chance", function() {
+  BMTestUtils.GameType = 'chanceactive';
+  Game.getCurrentGame(function() {
+    Game.parseValidInitiativeActions();
+    Game.page = $('<div>');
+    var dietable = Game.dieRecipeTable(true, true);
+    Game.page.append(dietable);
+    Game.layoutPage();
+
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "Document should contain die recipe table");
+    equal(item.nodeName, "TABLE",
+          "Die recipe table should be a table element");
+    ok(item.innerHTML.match('John Kovalic'),
+       "Die recipe table should contain button names");
+    ok(item.innerHTML.match('Value'),
+       "Die recipe table should contain header for table of values");
+    ok(item.innerHTML.match(/id="init_react_1"/),
+       "Die recipe table should contain an init reaction entry for die idx 1");
     start();
   });
 });
@@ -432,6 +566,24 @@ test("test_Game.dieRecipeText", function() {
   equal(text, "(W,W=7)", "text for swing option die should be correct");
 });
 
+test("test_Game.dieValidTurndownValues", function() {
+  deepEqual(Game.dieValidTurndownValues("s(4)", "3"), [],
+            "An arbitrary non-focus die has no valid turndown values");
+  deepEqual(Game.dieValidTurndownValues("f(7)", "5"), [4, 3, 2, 1],
+            "A focus die has valid turndown values");
+  deepEqual(Game.dieValidTurndownValues("f(7)", "1"), [],
+            "A focus die showing 1 has no valid turndown values");
+  deepEqual(Game.dieValidTurndownValues("f(7,7)", "4"), [3, 2],
+            "A twin focus die can only turn down as far as 2");
+});
+
+test("test_Game.dieCanRerollForInitiative", function() {
+  equal(Game.dieCanRerollForInitiative("s(4)"), false,
+        "An arbitrary non-chance die cannot reroll for initiative");
+  equal(Game.dieCanRerollForInitiative("c(5,5)"), true,
+        "An arbitrary chance die can reroll for initiative");
+});
+
 asyncTest("test_Game.dieBorderToggleHandler", function() {
   BMTestUtils.GameType = 'turnactive';
   Game.getCurrentGame(function() {
@@ -458,3 +610,8 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
   });
 });
 
+test("test_Game.dieValueSelectTd", function() {
+  var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1);
+  var html = td.html();
+  ok(html.match(/<select /), "select row should contain a select");
+});
