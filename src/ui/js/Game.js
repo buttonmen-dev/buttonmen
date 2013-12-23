@@ -596,12 +596,7 @@ Game.dieRecipeTable = function() {
 
 Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
   if (i < nDie) {
-    var dieval = dieRecipeArray[i];
-    var diesides = dieSidesArray[i];
-    if ((diesides != null) &&
-        (dieval.indexOf('(' + diesides + ')') == -1)) {
-      dieval += '=' + diesides;
-    }
+    dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
     return $('<td>', {'text': dieval, });
   }
     return $('<td>', {});
@@ -680,16 +675,9 @@ Game.pageAddGamePlayerDice = function(player, clickable) {
                     }));
     dieDiv.append($('<br>'));
 
-    // If the recipe doesn't contain (sides), assume there are swing
-    // dice in the recipe, so we need to specify the current number
-    // of sides
-    var dieSides =  '(' + Game.api[player].sidesArray[i] + ')';
-    var dieRecipeText = Game.api[player].dieRecipeArray[i];
-    if (dieRecipeText.indexOf(dieSides) === -1) {
-      dieRecipeText = dieRecipeText.replace(
-                        ')',
-                        '=' + Game.api[player].sidesArray[i] + ')');
-    }
+    var dieRecipeText = Game.dieRecipeText(
+                          Game.api[player].dieRecipeArray[i],
+                          Game.api[player].sidesArray[i]);
     dieDiv.append($('<span>', {
                       'class': 'die_recipe',
                       'text': dieRecipeText,
@@ -758,8 +746,36 @@ Game.playerWLTText = function(player) {
               "/" + Game.api[player].gameScoreDict['D'] +
               " (" + Game.api.maxWins + ")";
   return text;
+};
+
+// If the recipe doesn't contain (sides), assume there are swing
+// dice in the recipe, so we need to specify the current number
+// of sides
+Game.dieRecipeText = function(recipe, sides) {
+  var dieRecipeText = recipe;
+  if (sides) {
+    var lparen = recipe.indexOf('(');
+    var rparen = recipe.indexOf(')');
+    var recipeSideStrings = recipe.substring(lparen + 1, rparen).split(',');
+    sidesum = 0;
+    swingcount = 0;
+    for (i = 0; i < recipeSideStrings.length; i++) {
+      var itemSides = parseInt(recipeSideStrings[i]);
+      if (itemSides > 0) {
+        sidesum += itemSides;
+      } else {
+        swingcount += 1;
+      }
+    }
+    if (sidesum != sides) {
+      dieRecipeText = dieRecipeText.replace(
+                        ')', '=' + (sides/swingcount) + ')');
+    }
+  }
+  return dieRecipeText;
 }
 
 Game.dieBorderToggleHandler = function() {
   $(this).toggleClass('selected unselected');
 }
+

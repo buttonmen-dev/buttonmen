@@ -10,6 +10,7 @@ module("Game", {
         if (BMTestUtils.GameType == 'turnactive') { return '3'; }
         if (BMTestUtils.GameType == 'turninactive') { return '4'; }
         if (BMTestUtils.GameType == 'finished') { return '5'; }
+        if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
       }
     }
 
@@ -302,7 +303,7 @@ asyncTest("test_Game.dieTableEntry", function() {
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, "<td>(X)=4</td>",
+    deepEqual(html, "<td>(X=4)</td>",
       "Die table entry has expected contents");
     start();
   });
@@ -396,6 +397,25 @@ asyncTest("test_Game.playerWLTText", function() {
        "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
+});
+
+test("test_Game.dieRecipeText", function() {
+  var text = Game.dieRecipeText("p(4)", "4");
+  equal(text, "p(4)", "text for non-swing die with skills should be correct");
+
+  text = Game.dieRecipeText("zs(X)", "7");
+  equal(text, "zs(X=7)",
+        "text for swing die with skills should be correct");
+
+  text = Game.dieRecipeText("(W)", null);
+  equal(text, "(W)",
+        "text for swing die with unknown value should be correct");
+
+  text = Game.dieRecipeText("(6,6)", "12");
+  equal(text, "(6,6)", "text for non-swing option die should be correct");
+
+  text = Game.dieRecipeText("(W,W)", "14");
+  equal(text, "(W,W=7)", "text for swing option die should be correct");
 });
 
 asyncTest("test_Game.dieBorderToggleHandler", function() {

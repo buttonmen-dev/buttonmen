@@ -51,7 +51,7 @@ class dummy_responder {
 	// the number of "existing" games represented in loadGameData
 	// and loadActiveGames
         if ($args['type'] == 'createGame') {
-            $gameId = '6';
+            $gameId = '7';
             return array(array('gameId' => $gameId), "Game $gameId created successfully.");
         }
 
@@ -142,6 +142,20 @@ class dummy_responder {
             $data['gameStateArray'][] = "60";
             $data['statusArray'][] = "COMPLETE";
 
+            // game 6
+            $data['gameIdArray'][] = "6";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Buck";
+            $data['opponentButtonNameArray'][] = "Von Pinn";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "1";
+            $data['gameStateArray'][] = "24";
+            $data['statusArray'][] = "ACTIVE";
+
             return array($data, "All game details retrieved successfully.");
         }
 
@@ -165,6 +179,16 @@ class dummy_responder {
             // a button with four dice and some implemented skills
             $data['buttonNameArray'][] = "Jellybean";
             $data['recipeArray'][] = "p(20) s(20) (V) (X)";
+            $data['hasUnimplementedSkillArray'][] = false;
+
+            // Buck
+            $data['buttonNameArray'][] = "Buck";
+            $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
+            $data['hasUnimplementedSkillArray'][] = false;
+
+            // Von Pinn
+            $data['buttonNameArray'][] = "Von Pinn";
+            $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
             $data['hasUnimplementedSkillArray'][] = false;
 
             return array($data, "All button names retrieved successfully.");
@@ -342,6 +366,37 @@ class dummy_responder {
                         array("timestamp" => "2013-12-20 00:52:29",
                               "message" => "tester2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                     ),
+                );
+            } else if ($args['game'] == '6') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "6",
+                            "gameState" => 24,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => null,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("Buck", "Von Pinn"),
+                            "waitingOnActionArray" => array(true,true),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array(null,null,null,null,null),
+                                                       array(null,null,null,null,null)),
+                            "sidesArrayArray" => array(array(12,10,12,20,null),
+                                                       array(null,null,null,null,null)),
+                            "dieRecipeArrayArray" => array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
+                                                           array("(4)","p(6,6)","(10)","(20)","(W)")),
+                            "swingRequestArrayArray" => array(array("W"), array("W")),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(27, 5),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
                 );
             }
 
