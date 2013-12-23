@@ -9,6 +9,7 @@ Game.GAME_STATE_LOAD_DICE_INTO_BUTTONS = 20;
 Game.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = 22;
 Game.GAME_STATE_SPECIFY_DICE = 24;
 Game.GAME_STATE_DETERMINE_INITIATIVE = 26;
+Game.GAME_STATE_REACT_TO_INITIATIVE = 27;
 Game.GAME_STATE_START_ROUND = 30;
 Game.GAME_STATE_START_TURN = 40;
 Game.GAME_STATE_END_TURN = 48;
@@ -121,6 +122,12 @@ Game.showStatePage = function() {
         Game.actionChooseSwingActive();
       } else {
         Game.actionChooseSwingInactive();
+      }
+    } else if (Game.api.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
+      if (Game.api.player.waitingOnAction) {
+        Game.actionReactToInitiativeActive();
+      } else {
+        Game.actionReactToInitiativeInactive();
       }
     } else if (Game.api.gameState == Game.GAME_STATE_START_TURN) {
       if (Game.api.player.waitingOnAction) {
@@ -313,6 +320,63 @@ Game.actionChooseSwingInactive = function() {
   Game.form = null;
 
   // Now layout the page
+  Game.layoutPage();
+}
+
+Game.actionReactToInitiativeActive = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader();
+
+//  var swingdiv = $('<div>');
+//
+//  // Get a table containing the existing die recipes
+//  dietable = Game.dieRecipeTable();
+//
+//  // Create a form for submitting swing values
+//  var swingform = $('<form>', {
+//                      'id': 'game_action_form',
+//                      'action': "javascript:void(0);",
+//                    });
+//  var swingtable = $('<table>', {'id': 'swing_table', });
+//  $.each (Game.api.player.swingRequestArray,
+//          function(index, value) {
+//            var swingrow = $('<tr>', {});
+//            swingrow.append($('<td>', { 'text': value + ':', }));
+//            var swinginput = $('<td>', {});
+//            swinginput.append($('<input>', {
+//                               'type': 'text',
+//                               'class': 'swing',
+//                               'id': 'swing_' + index,
+//                               'size': '2',
+//                               'maxlength': '2',
+//                              }));
+//            swingrow.append(swinginput);
+//            swingtable.append(swingrow);
+//          });
+//  swingform.append(swingtable);
+//  swingform.append($('<br>'));
+//  swingform.append($('<button>', {
+//                                  'id': 'game_action_button',
+//                                  'text': 'Submit',
+//                                 }));
+//
+//  // Add the swing die form to the left column of the die table
+//  var formtd = $('<td>', {});
+//  formtd.append($('<br>'));
+//  formtd.append(swingform);
+//  var formrow = $('<tr>', {});
+//  formrow.append(formtd);
+//  formrow.append($('<td>', {}));
+//  dietable.append(formrow);
+//
+//  // Add the die table to the page
+//  Game.page.append(dietable);
+//  Game.pageAddFooter();
+//
+//  // Function to invoke on button click
+//  Game.form = Game.formChooseSwingActive;
+//
+//  // Now layout the page
   Game.layoutPage();
 }
 

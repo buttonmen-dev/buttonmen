@@ -142,6 +142,20 @@ class dummy_responder {
             $data['gameStateArray'][] = "60";
             $data['statusArray'][] = "COMPLETE";
 
+            // game 7
+            $data['gameIdArray'][] = "7";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Crab";
+            $data['opponentButtonNameArray'][] = "Crab";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "0";
+            $data['gameStateArray'][] = "27";
+            $data['statusArray'][] = "ACTIVE";
+
             return array($data, "All game details retrieved successfully.");
         }
 
@@ -167,6 +181,11 @@ class dummy_responder {
             $data['recipeArray'][] = "p(20) s(20) (V) (X)";
             $data['hasUnimplementedSkillArray'][] = false;
 
+            // a button with focus dice
+            $data['buttonNameArray'][] = "Crab";
+            $data['recipeArray'][] = "(8) (10) (12) f(20) f(20)";
+            $data['hasUnimplementedSkillArray'][] = false;
+
             return array($data, "All button names retrieved successfully.");
         }
 
@@ -178,6 +197,7 @@ class dummy_responder {
         //   3: game in which it is the current player's turn to attack
         //   4: game in which it is the opponent's turn to attack
         //   5: game which has been completed
+        //   7: game in which focus dice can be used to respond to initiative
         if ($args['type'] == 'loadGameData') {
             $data = NULL;
             if ($args['game'] == '1') {
@@ -343,8 +363,38 @@ class dummy_responder {
                               "message" => "tester2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                     ),
                 );
+            } elseif ($args['game'] == '7') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "7",
+                            "gameState" => 27,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => 1,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("Crab", "Crab"),
+                            "waitingOnActionArray" => array(true, false),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array("1", "8", "10", "6", "18"),
+                                                       array("4", "7", "5", "1", "12")),
+                            "sidesArrayArray" => array(array(8,10,12,20,20),
+                                                       array(8,10,12,20,20)),
+                            "dieRecipeArrayArray" => array(array("(8)","(10)","(12)","f(20)","f(20)"),
+                                                           array("(8)","(10)","(12)","f(20)","f(20)")),
+                            "swingRequestArrayArray" => array(array(), array()),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(35, 35),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
+                );
             }
-
             if ($data) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
                 $timestamp = new DateTime();

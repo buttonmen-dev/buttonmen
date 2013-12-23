@@ -10,6 +10,7 @@ module("Game", {
         if (BMTestUtils.GameType == 'turnactive') { return '3'; }
         if (BMTestUtils.GameType == 'turninactive') { return '4'; }
         if (BMTestUtils.GameType == 'finished') { return '5'; }
+        if (BMTestUtils.GameType == 'focus') { return '7'; }
       }
     }
 
@@ -150,6 +151,14 @@ asyncTest("test_Game.actionChooseSwingInactive", function() {
     item = document.getElementById('swing_table');
     equal(item, null, "#swing_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionReactToInitiativeActive", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeActive();
     start();
   });
 });
