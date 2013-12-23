@@ -44,7 +44,7 @@ UserPrefs.layoutPage = function() {
   $('#userprefs_page').empty();
   $('#userprefs_page').append(UserPrefs.page);
 
-  if (UserPrefs.form == true) {
+  if (UserPrefs.form) {
     $('#userprefs_action_button').click(UserPrefs.form);
   }
 }
