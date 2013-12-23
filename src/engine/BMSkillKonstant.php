@@ -2,7 +2,7 @@
 
 class BMSkillKonstant extends BMSkill {
     public static $hooked_methods = array('attack_list',
-                                          'pre_roll',
+                                          'add_skill',
                                           'attack_values',
                                           'hit_table');
 
@@ -18,7 +18,7 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 
-    public static function pre_roll($args) {
+    public static function add_skill($args) {
         if (!array_key_exists('die', $args)) {
             return;
         }

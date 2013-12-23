@@ -952,7 +952,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(24, $game->activeDieArrayArray[1][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[1][4]->max);
         $this->assertTrue($game->activeDieArrayArray[0][1]->has_skill('Konstant'));
+        $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
         $this->assertTrue($game->activeDieArrayArray[1][0]->has_skill('Konstant'));
+        $this->assertFalse($game->activeDieArrayArray[1][0]->doesReroll);
 
         $this->assertNotNull($game->activeDieArrayArray[0][0]->value);
         $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
@@ -989,10 +991,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Skill'); // attackType
 
-        var_dump('BMInterfaceTest::test_start');
         $this->object->save_game($game);
         $game = $this->object->load_game_without_autopass($game->gameId);
-        var_dump('BMInterfaceTest::test_end');
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
@@ -1005,6 +1005,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check explicitly that the konstant die does not reroll
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
     }
 }
 
