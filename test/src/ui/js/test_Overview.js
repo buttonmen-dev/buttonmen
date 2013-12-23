@@ -48,7 +48,7 @@ asyncTest("test_Overview.showOverviewPage", function() {
 asyncTest("test_Overview.getOverview", function() {
   Overview.getOverview(function() {
     equal(Overview.api.load_status, 'ok', 'Successfully loaded overview data');
-    equal(Overview.api.nGames, 6, 'Got expected number of games for overview');
+    equal(Overview.api.nGames, 7, 'Got expected number of games for overview');
     start();
   });
 });
