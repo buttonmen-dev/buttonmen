@@ -23,10 +23,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             require 'test/src/database/mysql.test.inc.php';
         }
 
-        require_once 'api/responder.php';
+        require_once '../src/api/responder.php';
         $this->object = new responder(True);
 
-        require_once 'api/dummy_responder.php';
+        require_once '../src/api/dummy_responder.php';
         $this->dummy = new dummy_responder(True);
 
         // Cache user IDs parsed from the DB for use within a test
