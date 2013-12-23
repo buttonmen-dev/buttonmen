@@ -348,6 +348,61 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
     }
 
+    public function test_request_reactToInitiative() {
+        $_SESSION = $this->mock_test_user_login();
+
+        $dummy_game_id = '7';
+
+	// create a game so we have the ID to load, making sure we
+	// get a game which is in the react to initiative game
+	// state, and the other player has initiative
+        $args = array(
+            'type' => 'createGame',
+            'playerNameArray' => array('responder003', 'responder004'),
+            'buttonNameArray' => array('Crab', 'Crab'),
+            'maxWins' => '3',
+        );
+
+        $maxtries = 50;
+        $thistry = 0;
+        $real_game_id = NULL;
+        while (!($real_game_id) && ($thistry < $maxtries)) {
+            $retval = $this->object->process_request($args);
+            $real_game_id = $retval['data']['gameId'];
+
+            // now ask for the game data so we have the timestamp to return
+            $dataargs = array(
+                'type' => 'loadGameData',
+                'game' => "$real_game_id");
+            $retval = $this->object->process_request($dataargs);
+            $timestamp = $retval['data']['timestamp'];
+
+            if (($retval['data']['gameData']['data']['gameState'] != 27) ||
+                ($retval['data']['gameData']['data']['playerWithInitiativeIdx'] != 1)) {
+                $real_game_id = NULL;
+                $thistry++;
+            }
+        }
+        $this->assertTrue($thistry < $maxtries,
+            "Tried $maxtries times to create a game where the active player could use focus dice, and failed.  Unlucky, or is something wrong?");
+
+        // now submit the initiative response
+        $args = array(
+            'type' => 'reactToInitiative',
+            'roundNumber' => 1,
+            'timestamp' => $timestamp,
+            'action' => 'focus',
+            'dieIdxArray' => array('3', '4'),
+            'dieValueArray' => array('1', '1'),
+        );
+        $args['game'] = $real_game_id;
+        $retval = $this->object->process_request($args);
+        $args['game'] = $dummy_game_id;
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+    }
+
     public function test_request_submitTurn() {
         $this->markTestIncomplete("No test for submitTurn responder yet");
     }

@@ -615,9 +615,9 @@ Game.formReactToInitiativeActive = function() {
     case 'focus':
       if ('focus' in Game.api.player.initiativeActions) {
         $.each(Game.api.player.initiativeActions.focus, function(i, vals) {
-          var value = $('#init_react_' + i).val();
+          var value = parseInt($('#init_react_' + i).val());
           if (value != Game.api.player.valueArray[i]) {
-            if (value in vals) {
+            if (vals.indexOf(value) >= 0) {
               dieIdxArray.push(i);
               dieValueArray.push(value);
             } else {

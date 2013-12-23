@@ -288,7 +288,7 @@ asyncTest("test_Game.formReactToInitiativeActive", function() {
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     $('#react_type_select').val('focus');
-    $('#init_react_3').val('3');
+    $('#init_react_3').val('5');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     deepEqual(
