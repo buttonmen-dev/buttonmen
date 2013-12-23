@@ -48,14 +48,14 @@ asyncTest("test_Overview.showOverviewPage", function() {
 asyncTest("test_Overview.getOverview", function() {
   Overview.getOverview(function() {
     equal(Overview.api.load_status, 'ok', 'Successfully loaded overview data');
-    equal(Overview.api.nGames, 7, 'Got expected number of games for overview');
+    equal(Overview.api.nGames, 9, 'Got expected number of games for overview');
     start();
   });
 });
 
 asyncTest("test_Overview.parseActiveGames", function() {
   Overview.getOverview(function() {
-    equal(Overview.api.games.awaitingPlayer.length, 3,
+    equal(Overview.api.games.awaitingPlayer.length, 5,
           "expected number of games parsed as waiting for the active player");
     start();
   });

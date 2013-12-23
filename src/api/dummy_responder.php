@@ -91,7 +91,7 @@ class dummy_responder {
 	// the number of "existing" games represented in loadGameData
 	// and loadActiveGames
         if ($args['type'] == 'createGame') {
-            $gameId = '7';
+            $gameId = '10';
             return array(array('gameId' => $gameId), "Game $gameId created successfully.");
         }
 
@@ -206,6 +206,34 @@ class dummy_responder {
             $data['nLossesArray'][] = "0";
             $data['nDrawsArray'][] = "0";
             $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "1";
+            $data['gameStateArray'][] = "27";
+            $data['statusArray'][] = "ACTIVE";
+
+            // game 8
+            $data['gameIdArray'][] = "8";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "John Kovalic";
+            $data['opponentButtonNameArray'][] = "John Kovalic";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "1";
+            $data['gameStateArray'][] = "27";
+            $data['statusArray'][] = "ACTIVE";
+
+            // game 9
+            $data['gameIdArray'][] = "9";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "John Kovalic";
+            $data['opponentButtonNameArray'][] = "John Kovalic";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
             $data['isAwaitingActionArray'][] = "0";
             $data['gameStateArray'][] = "27";
             $data['statusArray'][] = "ACTIVE";
@@ -245,9 +273,14 @@ class dummy_responder {
             $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
             $data['hasUnimplementedSkillArray'][] = false;
 
-            // a button with focus dice
+            // Crab: a button with focus dice
             $data['buttonNameArray'][] = "Crab";
             $data['recipeArray'][] = "(8) (10) (12) f(20) f(20)";
+            $data['hasUnimplementedSkillArray'][] = false;
+
+            // John Kovalic: a button with chance dice
+            $data['buttonNameArray'][] = "John Kovalic";
+            $data['recipeArray'][] = "(6) c(6) (10) (12) c(20)";
             $data['hasUnimplementedSkillArray'][] = false;
 
             return array($data, "All button names retrieved successfully.");
@@ -527,6 +560,76 @@ class dummy_responder {
                             "swingRequestArrayArray" => array(array(), array()),
                             "validAttackTypeArray" => array(),
                             "roundScoreArray" => array(35, 35),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
+                );
+            } elseif ($args['game'] == '8') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "8",
+                            "gameState" => 27,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => 1,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("John Kovalic", "John Kovalic"),
+                            "waitingOnActionArray" => array(true, false),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array("4", "3", "6", "5", "4"),
+                                                       array("2", "4", "2", "3", "18")),
+                            "sidesArrayArray" => array(array(6,6,10,12,20),
+                                                       array(6,6,10,12,20)),
+                            "dieRecipeArrayArray" => array(array("(6)","c(6)","(10)","(12)","c(20)"),
+                                                           array("(6)","c(6)","(10)","(12)","c(20)")),
+                            "nCapturedDieArray" => array(0, 0),
+                            "capturedValueArrayArray" => array(array(), array()),
+                            "capturedSidesArrayArray" => array(array(), array()),
+                            "capturedRecipeArrayArray" => array(array(), array()),
+                            "swingRequestArrayArray" => array(array(), array()),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(27, 27),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
+                );
+            } elseif ($args['game'] == '9') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "9",
+                            "gameState" => 27,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => 0,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("John Kovalic", "John Kovalic"),
+                            "waitingOnActionArray" => array(false, true),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array("2", "4", "2", "3", "18"),
+                                                       array("4", "3", "6", "5", "4")),
+                            "sidesArrayArray" => array(array(6,6,10,12,20),
+                                                       array(6,6,10,12,20)),
+                            "dieRecipeArrayArray" => array(array("(6)","c(6)","(10)","(12)","c(20)"),
+                                                           array("(6)","c(6)","(10)","(12)","c(20)")),
+                            "nCapturedDieArray" => array(0, 0),
+                            "capturedValueArrayArray" => array(array(), array()),
+                            "capturedSidesArrayArray" => array(array(), array()),
+                            "capturedRecipeArrayArray" => array(array(), array()),
+                            "swingRequestArrayArray" => array(array(), array()),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(27, 27),
                             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                                            array("W" => 0, "L" => 0, "D" => 0)),
                         ),
