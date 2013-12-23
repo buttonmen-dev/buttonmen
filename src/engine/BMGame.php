@@ -1492,11 +1492,22 @@ class BMGame {
                 $sidesArrayArray[] = array();
                 $dieRecipeArrayArray[] = array();
 
-                if (empty($this->swingRequestArrayArray[$playerIdx])) {
-                    $swingRequestArrayArray[] = array();
-                } else {
-                    $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
+                $playerSwingRequestArray = array();
+                foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+                    if ($swingdice[0] instanceof BMDieTwin) {
+                        $swingdie = $swingdice[0]->dice[0];
+                    } else {
+                        $swingdie = $swingdice[0];
+                    }
+                    if ($swingdie instanceof BMDieSwing) {
+                        $validRange = $swingdie->swing_range($swingtype);
+                    } else {
+                        throw new LogicException("Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie);
+                    }
+                    $playerSwingRequestArray[$swingtype] = array(strval($validRange[0]), strval($validRange[1]));
                 }
+                $swingRequestArrayArray[] = $playerSwingRequestArray;
+
                 foreach ($activeDieArray as $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
@@ -1524,6 +1535,36 @@ class BMGame {
             $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
+        if (isset($this->capturedDieArrayArray)) {
+            $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
+            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
+                $capturedValueArrayArray[] = array();
+                $capturedSidesArrayArray[] = array();
+                $capturedRecipeArrayArray[] = array();
+
+                foreach ($capturedDieArray as $die) {
+                    // hide swing information if appropriate
+                    $dieValue = $die->value;
+                    $dieMax = $die->max;
+
+                    if ($wereBothSwingValuesReset &&
+                        ($this->gameState <= BMGameState::specifyDice) &&
+                        ($playerIdx !== $requestingPlayerIdx)) {
+                        $dieValue = NULL;
+                        $dieMax = NULL;
+                    }
+                    $capturedValueArrayArray[$playerIdx][] = $dieValue;
+                    $capturedSidesArrayArray[$playerIdx][] = $dieMax;
+                    $capturedRecipeArrayArray[$playerIdx][] = $die->recipe;
+                }
+            }
+        } else {
+            $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
+            $capturedValueArrayArray = array_fill(0, $this->nPlayers, array());
+            $capturedSidesArrayArray = array_fill(0, $this->nPlayers, array());
+            $capturedRecipeArrayArray = array_fill(0, $this->nPlayers, array());
+        }
+
         if (!$swingValuesAllSpecified) {
                 foreach($valueArrayArray as &$valueArray) {
                         foreach($valueArray as &$value) {
@@ -1541,23 +1582,27 @@ class BMGame {
         }
 
         $dataArray =
-            array('gameId'                  => $this->gameId,
-                  'gameState'               => $this->gameState,
-                  'roundNumber'             => $this->get_roundNumber(),
-                  'maxWins'                 => $this->maxWins,
-                  'activePlayerIdx'         => $this->activePlayerIdx,
-                  'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
-                  'playerIdArray'           => $this->playerIdArray,
-                  'buttonNameArray'         => $buttonNameArray,
-                  'waitingOnActionArray'    => $this->waitingOnActionArray,
-                  'nDieArray'               => $nDieArray,
-                  'valueArrayArray'         => $valueArrayArray,
-                  'sidesArrayArray'         => $sidesArrayArray,
-                  'dieRecipeArrayArray'     => $dieRecipeArrayArray,
-                  'swingRequestArrayArray'  => $swingRequestArrayArray,
-                  'validAttackTypeArray'    => $validAttackTypeArray,
-                  'roundScoreArray'         => $this->get_roundScoreArray(),
-                  'gameScoreArrayArray'     => $this->gameScoreArrayArray);
+            array('gameId'                   => $this->gameId,
+                  'gameState'                => $this->gameState,
+                  'roundNumber'              => $this->get_roundNumber(),
+                  'maxWins'                  => $this->maxWins,
+                  'activePlayerIdx'          => $this->activePlayerIdx,
+                  'playerWithInitiativeIdx'  => $this->playerWithInitiativeIdx,
+                  'playerIdArray'            => $this->playerIdArray,
+                  'buttonNameArray'          => $buttonNameArray,
+                  'waitingOnActionArray'     => $this->waitingOnActionArray,
+                  'nDieArray'                => $nDieArray,
+                  'valueArrayArray'          => $valueArrayArray,
+                  'sidesArrayArray'          => $sidesArrayArray,
+                  'dieRecipeArrayArray'      => $dieRecipeArrayArray,
+                  'nCapturedDieArray'        => $nCapturedDieArray,
+                  'capturedValueArrayArray'  => $capturedValueArrayArray,
+                  'capturedSidesArrayArray'  => $capturedSidesArrayArray,
+                  'capturedRecipeArrayArray' => $capturedRecipeArrayArray,
+                  'swingRequestArrayArray'   => $swingRequestArrayArray,
+                  'validAttackTypeArray'     => $validAttackTypeArray,
+                  'roundScoreArray'          => $this->get_roundScoreArray(),
+                  'gameScoreArrayArray'      => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
     }

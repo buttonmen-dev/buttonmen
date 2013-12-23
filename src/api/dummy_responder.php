@@ -15,6 +15,10 @@ class dummy_responder {
     // * True:  this instance is being accessed locally by unit tests
     private $isTest;               // whether this invocation is for testing
 
+    // Set of keys expected by each responder argument type
+    private $keylists = array(
+        'submitSwingValues' => array('type', 'game', 'roundNumber', 'swingValueArray', 'timestamp'));
+
     // constructor
     // * For live invocation:
     //   * start a session (don't use api_core because dummy_responder has no backend)
@@ -28,11 +32,47 @@ class dummy_responder {
         }
     }
 
+    // This function verifies that the set of keys provided as
+    // arguments is exactly the expected set
+    protected function verify_key_list($args, $keylist) {
+        foreach ($keylist as $idx => $key) {
+            if (!(array_key_exists($key, $args))) {
+                return False;
+            }
+        }
+        foreach ($args as $key => $value) {
+            if (!(in_array($key, $keylist))) {
+                return False;
+            }
+        }
+        return True;
+    }
+
+    // look for errors in the argument list
+    protected function is_arg_list_error($args) {
+        if (!(array_key_exists('type', $args))) {
+            return "no type argument specified";
+        }
+
+        if (array_key_exists($args['type'], $this->keylists)) {
+            $keylist = $this->keylists[$args['type']];
+            if (!($this->verify_key_list($args, $keylist))) {
+                return ('responder error: ' . $args['type'] . ' expects keys: ' . implode(',', $keylist));
+            }
+        }
+        return NULL;
+    }
+
     // This function looks at the provided arguments, fakes appropriate
     // data to match the public API, and returns either some game
     // data on success, or NULL on failure.  (Failure will happen if
     // the requested arguments are invalid.)
     protected function get_interface_response($args) {
+
+        $argerror = $this->is_arg_list_error($args);
+        if ($argerror) {
+            return array(NULL, "responder error: $argerror");
+        }
 
         if ($args['type'] == 'createUser') {
             $dummy_users = array(
@@ -51,7 +91,7 @@ class dummy_responder {
 	// the number of "existing" games represented in loadGameData
 	// and loadActiveGames
         if ($args['type'] == 'createGame') {
-            $gameId = '6';
+            $gameId = '7';
             return array(array('gameId' => $gameId), "Game $gameId created successfully.");
         }
 
@@ -142,6 +182,20 @@ class dummy_responder {
             $data['gameStateArray'][] = "60";
             $data['statusArray'][] = "COMPLETE";
 
+            // game 6
+            $data['gameIdArray'][] = "6";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Buck";
+            $data['opponentButtonNameArray'][] = "Von Pinn";
+            $data['nWinsArray'][] = "0";
+            $data['nLossesArray'][] = "0";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "1";
+            $data['gameStateArray'][] = "24";
+            $data['statusArray'][] = "ACTIVE";
+
             return array($data, "All game details retrieved successfully.");
         }
 
@@ -165,6 +219,16 @@ class dummy_responder {
             // a button with four dice and some implemented skills
             $data['buttonNameArray'][] = "Jellybean";
             $data['recipeArray'][] = "p(20) s(20) (V) (X)";
+            $data['hasUnimplementedSkillArray'][] = false;
+
+            // Buck
+            $data['buttonNameArray'][] = "Buck";
+            $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
+            $data['hasUnimplementedSkillArray'][] = false;
+
+            // Von Pinn
+            $data['buttonNameArray'][] = "Von Pinn";
+            $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
             $data['hasUnimplementedSkillArray'][] = false;
 
             return array($data, "All button names retrieved successfully.");
@@ -201,7 +265,11 @@ class dummy_responder {
                                                        array(null,null,null,null,null)),
                             "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
                                                            array("(4)","(4)","(10)","(12)","(X)")),
-                            "swingRequestArrayArray" => array(array("X"), array("X")),
+                            "nCapturedDieArray" => array(0, 0),
+                            "capturedValueArrayArray" => array(array(), array()),
+                            "capturedSidesArrayArray" => array(array(), array()),
+                            "capturedRecipeArrayArray" => array(array(), array()),
+                            "swingRequestArrayArray" => array(array("X" => array('4', '20')), array("X" => array('4', '20'))),
                             "validAttackTypeArray" => array(),
                             "roundScoreArray" => array(15, 15),
                             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
@@ -232,7 +300,11 @@ class dummy_responder {
                                                        array(null,null,null,null,null)),
                             "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
                                                            array("(4)","(4)","(10)","(12)","(X)")),
-                            "swingRequestArrayArray" => array(array("X"), array("X")),
+                            "nCapturedDieArray" => array(0, 0),
+                            "capturedValueArrayArray" => array(array(), array()),
+                            "capturedSidesArrayArray" => array(array(), array()),
+                            "capturedRecipeArrayArray" => array(array(), array()),
+                            "swingRequestArrayArray" => array(array("X" => array('4', '20')), array("X" => array('4', '20'))),
                             "validAttackTypeArray" => array(),
                             "roundScoreArray" => array(15, 15),
                             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
@@ -252,27 +324,48 @@ class dummy_responder {
                             "roundNumber" => 1,
                             "maxWins" => "3",
                             "activePlayerIdx" => 0,
-                            "playerWithInitiativeIdx" => 0,
+                            "playerWithInitiativeIdx" => 1,
                             "playerIdArray" => array("1", "2"),
                             "buttonNameArray" => array("Avis", "Avis"),
                             "waitingOnActionArray" => array(true, false),
-                            "nDieArray" => array(5, 5),
-                            "valueArrayArray" => array(array("1", "3", "4", "5", "2"),
-                                                       array("3", "4", "7", "9", "4")),
-                            "sidesArrayArray" => array(array(4,4,10,12,4),
-                                                       array(4,4,10,12,4)),
-                            "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
-                                                           array("(4)","(4)","(10)","(12)","(X)")),
-                            "swingRequestArrayArray" => array(array("X"), array("X")),
+                            "nDieArray" => array(2, 3),
+                            "valueArrayArray" => array(array("4", "2"),
+                                                       array("4", "4", "5")),
+                            "sidesArrayArray" => array(array(4,4),
+                                                       array(4,4,12)),
+                            "dieRecipeArrayArray" => array(array("(4)","(X)"),
+                                                           array("(4)","(4)","(12)")),
+                            "nCapturedDieArray" => array(2, 3),
+                            "capturedValueArrayArray" => array(array("3", "1"),
+                                                               array("11", "7", "1")),
+                            "capturedSidesArrayArray" => array(array("10", "4"),
+                                                               array("12", "10", "4")),
+                            "capturedRecipeArrayArray" => array(array("(10)", "(X)"),
+                                                                array("(12)", "(10)", "(4)")),
+                            "swingRequestArrayArray" => array(array("X" => array('4', '20')), array("X" => array('4', '20'))),
                             "validAttackTypeArray" => array("Power" => "Power", "Skill" => "Skill", ),
-                            "roundScoreArray" => array(17, 17),
+                            "roundScoreArray" => array(18, 36),
                             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                                            array("W" => 0, "L" => 0, "D" => 0)),
                         ),
                     ),
                     'currentPlayerIdx' => 0,
-                    'gameActionLog' => array(),
+                    'gameActionLog' => array(
+                        array("timestamp" => "2013-12-22 21:09:01",
+                              "message" => "tester2 performed Power attack using [(12):1] against [(4):1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
+                        array("timestamp" => "2013-12-22 21:08:56",
+                              "message" => "tester1 performed Power attack using [(4):2] against [(X):1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
+                        array("timestamp" => "2013-12-22 21:03:52",
+                              "message" => "tester2 performed Skill attack using [(4):4,(X):3] against [(10):7]; Defender (10) was captured; Attacker (4) rerolled 4 => 4; Attacker (X) rerolled 3 => 1"),
+                        array("timestamp" => "2013-12-22 21:03:39",
+                              "message" => "tester1 performed Power attack using [(4):3] against [(10):3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
+                        array("timestamp" => "2013-12-22 21:03:12",
+                              "message" => "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
+                    )
                 );
+
+
+
             } elseif ($args['game'] == '4') {
                 $data = array(
                     'gameData' => array(
@@ -294,7 +387,11 @@ class dummy_responder {
                                                        array(4,4,10,12,4)),
                             "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
                                                            array("(4)","(4)","(10)","(12)","(X)")),
-                            "swingRequestArrayArray" => array(array("X"), array("X")),
+                            "nCapturedDieArray" => array(0, 0),
+                            "capturedValueArrayArray" => array(array(), array()),
+                            "capturedSidesArrayArray" => array(array(), array()),
+                            "capturedRecipeArrayArray" => array(array(), array()),
+                            "swingRequestArrayArray" => array(array("X" => array('4', '20')), array("X" => array('4', '20'))),
                             "validAttackTypeArray" => array("Power" => "Power", "Skill" => "Skill", ),
                             "roundScoreArray" => array(17, 17),
                             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
@@ -322,11 +419,15 @@ class dummy_responder {
                             "valueArrayArray" => array(array(), array()),
                             "sidesArrayArray" => array(array(), array()),
                             "dieRecipeArrayArray" => array(array(), array()),
-                            "swingRequestArrayArray" => array(array(), array()),
+                            "swingRequestArrayArray" => array(array("X" => array('4', '20')), array("X" => array('4', '20'))),
                             "validAttackTypeArray" => array(),
                             "roundScoreArray" => array(0, 0),
                             "gameScoreArrayArray" => array(array("W" => 3, "L" => 2, "D" => 0),
                                                            array("W" => 2, "L" => 3, "D" => 0)),
+                            "nCapturedDieArray" => array(0, 0),
+                            "capturedValueArrayArray" => array(array(), array()),
+                            "capturedSidesArrayArray" => array(array(), array()),
+                            "capturedRecipeArrayArray" => array(array(), array()),
                         ),
                     ),
                     'currentPlayerIdx' => 0,
@@ -342,6 +443,37 @@ class dummy_responder {
                         array("timestamp" => "2013-12-20 00:52:29",
                               "message" => "tester2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                     ),
+                );
+            } else if ($args['game'] == '6') {
+                $data = array(
+                    'gameData' => array(
+                        "status" => "ok",
+                        "data" => array(
+                            "gameId" => "6",
+                            "gameState" => 24,
+                            "roundNumber" => 1,
+                            "maxWins" => "3",
+                            "activePlayerIdx" => null,
+                            "playerWithInitiativeIdx" => null,
+                            "playerIdArray" => array("1", "2"),
+                            "buttonNameArray" => array("Buck", "Von Pinn"),
+                            "waitingOnActionArray" => array(true,true),
+                            "nDieArray" => array(5, 5),
+                            "valueArrayArray" => array(array(null,null,null,null,null),
+                                                       array(null,null,null,null,null)),
+                            "sidesArrayArray" => array(array(12,10,12,20,null),
+                                                       array(null,null,null,null,null)),
+                            "dieRecipeArrayArray" => array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
+                                                           array("(4)","p(6,6)","(10)","(20)","(W)")),
+                            "swingRequestArrayArray" => array(array("W"), array("W")),
+                            "validAttackTypeArray" => array(),
+                            "roundScoreArray" => array(27, 5),
+                            "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
+                                                           array("W" => 0, "L" => 0, "D" => 0)),
+                        ),
+                    ),
+                    'currentPlayerIdx' => 0,
+                    'gameActionLog' => array(),
                 );
             }
 
@@ -372,6 +504,12 @@ class dummy_responder {
         }
 
         if ($args['type'] == 'submitSwingValues') {
+            $valid_swing = array('R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
+            foreach ($args['swingValueArray'] as $letter => $value) {
+                if (!(in_array($letter, $valid_swing, True))) {
+                    return array(NULL, "Unknown swing letter $letter");
+                }
+            }
             return array(True, 'Successfully set swing values');
         }
 

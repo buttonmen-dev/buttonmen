@@ -73,18 +73,18 @@ Login.getLoginForm = function() {
 // The function should setup a header and a form
 
 Login.stateLoggedIn = function() {
-  Login.message = $('<p>', {
-    'text': 'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
-  });
-
   var loginform = Login.getLoginForm();
+  loginform.append(
+    'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
+  );
   loginform.append($('<button>', {
                        'id': 'login_action_button',
                        'text': 'Logout?'
                      }));
-  Login.form = Login.formLogout;
 
-  Login.message.append(loginform);
+  Login.message = loginform;
+  Login.addMainNavbar();
+  Login.form = Login.formLogout;
   Login.logged_in = true;
 }
 
@@ -135,6 +135,26 @@ Login.stateLoggedOut = function() {
   Login.message.append(loginform);
   Login.form = Login.formLogin;
   Login.logged_in = false;
+}
+
+////////////////////////////////////////////////////////////////////////
+// Helper functions which add text to the existing message
+
+Login.addMainNavbar = function() {
+  Login.message.append($('<br>'));
+  var navtable = $('<table>', {'style': 'float:left'});
+  var navrow = $('<tr>');
+  var links = {
+    'index.html': 'Overview',
+    'create_game.html': 'Create game' };
+  $.each(links, function(url, text) {
+    var navtd = $('<td>');
+    navtd.append($('<a>', { 'href': url, 'text': text }));
+    navrow.append(navtd);
+  });
+  navtable.append(navrow);
+  Login.message.append(navtable);
+  Login.message.append($('<br>'));
 }
 
 ////////////////////////////////////////////////////////////////////////
