@@ -54,9 +54,9 @@ class BMSkillKonstantTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillKonstant::make_play_die
+     * @covers BMSkillKonstant::pre_roll
      */
-    public function testMake_play_die()
+    public function testPre_roll()
     {
         $die1 = BMDie::create(6);
         $die1->add_skill('Konstant');

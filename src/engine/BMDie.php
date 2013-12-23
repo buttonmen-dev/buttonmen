@@ -149,7 +149,7 @@ class BMDie {
         $this->max = $sides;
 
         $this->add_multiple_skills($skills);
-                }
+    }
 
     public static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
@@ -260,6 +260,7 @@ class BMDie {
 
 
     public function roll($successfulAttack = FALSE) {
+        $this->run_hooks('pre_roll', array('die' => &$this));
 
         if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
