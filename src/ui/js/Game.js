@@ -277,7 +277,7 @@ Game.actionChooseSwingActive = function() {
   var swingdiv = $('<div>');
 
   // Get a table containing the existing die recipes
-  dietable = Game.dieRecipeTable();
+  dietable = Game.dieRecipeTable(false);
 
   // Create a form for submitting swing values
   var swingform = $('<form>', {
@@ -333,7 +333,7 @@ Game.actionChooseSwingInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader("Opponent's turn to choose swing dice");
 
-  dietable = Game.dieRecipeTable();
+  dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
   Game.page.append($('<br>'));
 
@@ -352,11 +352,11 @@ Game.actionReactToInitiativeActive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader();
 
-//  var swingdiv = $('<div>');
-//
-//  // Get a table containing the existing die recipes
-//  dietable = Game.dieRecipeTable();
-//
+  var focusdiv = $('<div>');
+
+  // Get a table containing the existing die recipes
+  dietable = Game.dieRecipeTable(true);
+
 //  // Create a form for submitting swing values
 //  var swingform = $('<form>', {
 //                      'id': 'game_action_form',
@@ -394,14 +394,14 @@ Game.actionReactToInitiativeActive = function() {
 //  formrow.append($('<td>', {}));
 //  dietable.append(formrow);
 //
-//  // Add the die table to the page
-//  Game.page.append(dietable);
-//  Game.pageAddFooter();
-//
-//  // Function to invoke on button click
+  // Add the die table to the page
+  Game.page.append(dietable);
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
 //  Game.form = Game.formChooseSwingActive;
-//
-//  // Now layout the page
+
+  // Now layout the page
   Game.layoutPage();
 }
 
@@ -661,24 +661,59 @@ Game.pageAddActionLogFooter = function() {
 
 
 // Generate and return a two-column table of the dice in each player's recipe
-Game.dieRecipeTable = function() {
+Game.dieRecipeTable = function(focus) {
 
   var dietable = $('<table>', {'id': 'die_recipe_table', });
   dietable.append(Game.playerOpponentHeaderRow('Player', 'playerName'));
   dietable.append(Game.playerOpponentHeaderRow('Button', 'buttonName'));
   dietable.append(Game.playerOpponentHeaderRow('', 'gameScoreStr'));
+
+  if (focus) {
+    var focusHeaderLRow = $('<tr>');
+    focusHeaderLRow.append($('<th>', { 'text': 'Recipe' }));
+    focusHeaderLRow.append($('<th>', { 'text': 'Value' }));
+    var focusHeaderRRow = focusHeaderLRow.clone();
+
+    var focusLTable = $('<table>');
+    var focusRTable = $('<table>');
+
+    focusLTable.append(focusHeaderLRow);
+    focusRTable.append(focusHeaderRRow);
+  }
+
   var maxDice = Math.max(Game.api.player.nDie, Game.api.opponent.nDie);
   for (var i = 0; i < maxDice; i++) {
-    var dierow = $('<tr>', {});
-    dierow.append(
-      Game.dieTableEntry(i, Game.api.player.nDie,
-                         Game.api.player.dieRecipeArray,
-                         Game.api.player.sidesArray));
-    dierow.append(
-      Game.dieTableEntry(i, Game.api.opponent.nDie,
-                         Game.api.opponent.dieRecipeArray,
-                         Game.api.opponent.sidesArray));
-    dietable.append(dierow);
+    var playerEnt = Game.dieTableEntry(
+      i, Game.api.player.nDie,
+      Game.api.player.dieRecipeArray,
+      Game.api.player.sidesArray);
+    var opponentEnt = Game.dieTableEntry(
+      i, Game.api.opponent.nDie,
+      Game.api.opponent.dieRecipeArray,
+      Game.api.opponent.sidesArray);
+    if (focus) {
+      var dieLRow = $('<tr>');
+      var dieRRow = $('<tr>');
+      dieLRow.append(playerEnt);
+      dieRRow.append(opponentEnt);
+      focusLTable.append(dieLRow);
+      focusRTable.append(dieRRow);
+    } else {
+      var dierow = $('<tr>', {});
+      dierow.append(playerEnt);
+      dierow.append(opponentEnt);
+      dietable.append(dierow);
+    }
+  }
+  if (focus) {
+    focusrow = $('<tr>');
+    focusLTd = $('<td>');
+    focusRTd = $('<td>');
+    focusLTd.append(focusLTable);
+    focusRTd.append(focusRTable);
+    focusrow.append(focusLTd);
+    focusrow.append(focusRTd);
+    dietable.append(focusrow);
   }
   return dietable;
 }

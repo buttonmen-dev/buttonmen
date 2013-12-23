@@ -295,7 +295,7 @@ asyncTest("test_Game.dieRecipeTable", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    var dietable = Game.dieRecipeTable();
+    var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
     Game.layoutPage();
 
@@ -307,6 +307,26 @@ asyncTest("test_Game.dieRecipeTable", function() {
        "Die recipe table should contain button names");
     ok(item.innerHTML.match('0/0/0'),
        "Die recipe table should contain game state");
+    start();
+  });
+});
+
+asyncTest("test_Game.dieRecipeTable_focus", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    var dietable = Game.dieRecipeTable(true);
+    Game.page.append(dietable);
+    Game.layoutPage();
+
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "Document should contain die recipe table");
+    equal(item.nodeName, "TABLE",
+          "Die recipe table should be a table element");
+    ok(item.innerHTML.match('Crab'),
+       "Die recipe table should contain button names");
+    ok(item.innerHTML.match('Value'),
+       "Die recipe table should contain table of values");
     start();
   });
 });
