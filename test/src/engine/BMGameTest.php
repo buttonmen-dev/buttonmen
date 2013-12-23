@@ -2156,6 +2156,29 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $out6 = $game3->getJsonData(456);
         $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
+        
+        // add test for button without swing dice
+        $button1 = new BMButton;
+        $button1->load('(8) (10) (12) (20) (4)', 'BauerAltered');
+
+        $button2 = new BMButton;
+        $button2->load('(4) (6) (8) (X) (X)', 'Stark');
+
+        // load game
+        $game4 = new BMGame(424242, array(123, 456));
+        $game4->buttonArray = array($button1, $button2);
+        $game4->waitingOnActionArray = array(FALSE, FALSE);
+        $game4->proceed_to_next_user_action();
+
+        // beginning of game
+        // one player has specified the swing value, the other not
+        $game4->swingValueArrayArray = array(array(), array('X' => 5));
+        $game4->proceed_to_next_user_action();
+
+        $out7 = $game4->getJsonData(123);
+        $this->assertTrue(isset($out7['data']['swingRequestArrayArray']));
+        $this->assertEquals(array(), $out7['data']['swingRequestArrayArray'][0]);
+        $this->assertEquals(array('4', '20'), $out7['data']['swingRequestArrayArray'][1]['X']);
     }
 
     /**
