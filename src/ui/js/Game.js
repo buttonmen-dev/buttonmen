@@ -194,6 +194,11 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
                       Game.api.playerIdx, playerNameArray);
   Game.api.opponent = Game.parsePlayerData(
                         Game.api.opponentIdx, playerNameArray);
+
+  // Parse game WLT text into a string for convenience
+  Game.api.player['gameScoreStr'] = Game.playerWLTText('player');
+  Game.api.opponent['gameScoreStr'] = Game.playerWLTText('opponent');
+
   return true;
 }
 
@@ -578,17 +583,10 @@ Game.pageAddActionLogFooter = function() {
 // Generate and return a two-column table of the dice in each player's recipe
 Game.dieRecipeTable = function() {
 
-  var dietable = $('<table>', {'id': 'die_description_table', });
-  var headerrow = $('<tr>', {});
-  headerrow.append($('<th>', {
-                     'id': 'header_current_player',
-                     'text': Game.api.player.playerName,
-                     }))
-  headerrow.append($('<th>', {
-                     'id': 'header_opponent',
-                     'text': Game.api.opponent.playerName,
-                     }))
-  dietable.append(headerrow);
+  var dietable = $('<table>', {'id': 'die_recipe_table', });
+  dietable.append(Game.playerOpponentHeaderRow('Player', 'playerName'));
+  dietable.append(Game.playerOpponentHeaderRow('Button', 'buttonName'));
+  dietable.append(Game.playerOpponentHeaderRow('', 'gameScoreStr'));
   var maxDice = Math.max(Game.api.player.nDie, Game.api.opponent.nDie);
   for (var i = 0; i < maxDice; i++) {
     var dierow = $('<tr>', {});
@@ -639,11 +637,7 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
 
   // Game score
   var gameScoreDiv = $('<div>');
-  gameScoreDiv.append($('<span>', {
-    'text': "W/L/T: " + Game.api[player].gameScoreDict['W'] +
-            "/" + Game.api[player].gameScoreDict['L'] + 
-            "/" + Game.api[player].gameScoreDict['D'] +
-            " (" + Game.api.maxWins + ")", }));
+  gameScoreDiv.append($('<span>', { 'text': Game.api[player].gameScoreStr, }));
 
   // Round score, only applicable in active games
   if (game_active) {
@@ -738,6 +732,30 @@ Game.dieIndexId = function(player, dieidx) {
   }
   return ('playerIdx_' + playerIdx + '_dieIdx_' + dieidx);
 }
+
+// Two-column row containing information about the player and the opponent
+Game.playerOpponentHeaderRow = function(label, field) {
+  var headerrow = $('<tr>', {});
+  var prefix = '';
+  if (label) {
+    prefix = label + ': ';
+  }
+  headerrow.append($('<th>', {
+                     'text': prefix + Game.api.player[field],
+                     }))
+  headerrow.append($('<th>', {
+                     'text': prefix + Game.api.opponent[field],
+                     }))
+  return headerrow;
+}
+
+Game.playerWLTText = function(player) {
+  var text = "W/L/T: " + Game.api[player].gameScoreDict['W'] +
+              "/" + Game.api[player].gameScoreDict['L'] + 
+              "/" + Game.api[player].gameScoreDict['D'] +
+              " (" + Game.api.maxWins + ")";
+  return text;
+};
 
 // If the recipe doesn't contain (sides), assume there are swing
 // dice in the recipe, so we need to specify the current number
