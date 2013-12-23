@@ -227,14 +227,14 @@ asyncTest("test_Game.pageAddGameHeader", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameHeader('Howdy, world');
+    var html = Game.page.html();
 
-    deepEqual(
-      Game.page.html(),
-      "<div id=\"game_id\">Game #1</div>" +
-      "<div id=\"round_number\">Round #1</div>" +
-      "<div class=\"action_desc\" id=\"action_desc\">Howdy, world</div><br>",
-      "Correct header text is added to Game.page"
-    );
+    ok(html.match(/Game #1/), "Game header should contain game number");
+    ok(html.match(/round_number/), "Game header should contain round number");
+    ok(html.match(/class="action_desc"/),
+       "Action description class should be defined");
+    ok(html.match(/Howdy, world/),
+       "Action description should contain specified text");
     start();
   });
 });
