@@ -2,7 +2,7 @@
 
 class BMSkillKonstant extends BMSkill {
     public static $hooked_methods = array('attack_list',
-                                          'make_play_die',
+                                          'add_skill',
                                           'attack_values',
                                           'hit_table');
 
@@ -18,9 +18,12 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 
-    public static function make_play_die($args) {
-        $die = $args['die'];
-        $die->doesReroll = FALSE;
+    public static function add_skill($args) {
+        if (!array_key_exists('die', $args)) {
+            return;
+        }
+
+        $args['die']->doesReroll = FALSE;
     }
 
     public static function attack_values($args) {

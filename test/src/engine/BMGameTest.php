@@ -2156,7 +2156,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $out6 = $game3->getJsonData(456);
         $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
-        
+
         // add test for button without swing dice
         $button1 = new BMButton;
         $button1->load('(8) (10) (12) (20) (4)', 'BauerAltered');
@@ -5397,16 +5397,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals( 8, $button1->dieArray[2]->max);
         $this->assertEquals(12, $button1->dieArray[3]->max);
         $this->assertEquals(20, $button1->dieArray[4]->max);
-        $this->assertEquals(array('attack_list', 'make_play_die', 'attack_values', 'hit_table'),
+        $this->assertEquals(array('attack_list', 'add_skill', 'attack_values', 'hit_table'),
                             array_keys($button1->dieArray[1]->hookList));
         $this->assertEquals(array('BMSkillKonstant'),
                             $button1->dieArray[1]->hookList['attack_list']);
         $this->assertEquals(array('BMSkillKonstant'),
-                            $button1->dieArray[1]->hookList['make_play_die']);
+                            $button1->dieArray[1]->hookList['add_skill']);
         $this->assertEquals(array('BMSkillKonstant'),
                             $button1->dieArray[1]->hookList['attack_values']);
         $this->assertEquals(array('BMSkillKonstant'),
                             $button1->dieArray[1]->hookList['hit_table']);
+        $this->assertFalse($button1->dieArray[1]->doesReroll);
 
         $button2 = new BMButton;
         $button2->load('p(4) (12) p(20) (20) (V)', 'Coil');
@@ -5488,17 +5489,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
 
-        $this->assertEquals(array('attack_list', 'make_play_die', 'attack_values', 'hit_table'),
+        $this->assertEquals(array('attack_list', 'add_skill', 'attack_values', 'hit_table'),
                             array_keys($game->activeDieArrayArray[0][1]->hookList));
         $this->assertEquals(array('BMSkillKonstant'),
                             $game->activeDieArrayArray[0][1]->hookList['attack_list']);
         $this->assertEquals(array('BMSkillKonstant'),
-                            $game->activeDieArrayArray[0][1]->hookList['make_play_die']);
+                            $game->activeDieArrayArray[0][1]->hookList['add_skill']);
         $this->assertEquals(array('BMSkillKonstant'),
                             $game->activeDieArrayArray[0][1]->hookList['attack_values']);
         $this->assertEquals(array('BMSkillKonstant'),
                             $game->activeDieArrayArray[0][1]->hookList['hit_table']);
-
+        $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
+        
         $this->assertEquals(array('score_value'),
                             array_keys($game->activeDieArrayArray[1][0]->hookList));
         $this->assertEquals(array('BMSkillPoison'),
