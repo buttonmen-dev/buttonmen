@@ -10,6 +10,7 @@ module("Game", {
         if (BMTestUtils.GameType == 'turnactive') { return '3'; }
         if (BMTestUtils.GameType == 'turninactive') { return '4'; }
         if (BMTestUtils.GameType == 'finished') { return '5'; }
+        if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
         if (BMTestUtils.GameType == 'focus') { return '7'; }
       }
     }
@@ -129,6 +130,10 @@ asyncTest("test_Game.parsePlayerData", function() {
   Game.getCurrentGame(function() {
     deepEqual(Game.api.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
               "player die recipe array should be parsed correctly");
+    deepEqual(
+      Game.api.player.swingRequestArray['X'],
+      {'min': 4, 'max': 20},
+      "swing request array should contain X entry with correct min/max");
     start();
   });
 });
@@ -137,9 +142,11 @@ asyncTest("test_Game.actionChooseSwingActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionChooseSwingActive();
-    item = document.getElementById('swing_table');
+    var item = document.getElementById('swing_table');
     equal(item.nodeName, "TABLE",
           "#swing_table is a table after actionChooseSwingActive() is called");
+    ok(item.innerHTML.match(/X: \(4-20\)/),
+       "swing table should contain request to set X swing");
     start();
   });
 });
@@ -204,7 +211,7 @@ asyncTest("test_Game.formChooseSwingActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionChooseSwingActive();
-    $('#swing_0').val('7');
+    $('#swing_X').val('7');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     deepEqual(
@@ -235,13 +242,15 @@ asyncTest("test_Game.pageAddGameHeader", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddGameHeader();
-    deepEqual(
-      Game.page.html(),
-      "<div id=\"game_id\">Game #1</div>" +
-      "<div id=\"round_number\">Round #1</div>",
-      "Correct header text is added to Game.page"
-    );
+    Game.pageAddGameHeader('Howdy, world');
+    var html = Game.page.html();
+
+    ok(html.match(/Game #1/), "Game header should contain game number");
+    ok(html.match(/round_number/), "Game header should contain round number");
+    ok(html.match(/class="action_desc"/),
+       "Action description class should be defined");
+    ok(html.match(/Howdy, world/),
+       "Action description should contain specified text");
     start();
   });
 });
@@ -283,11 +292,19 @@ asyncTest("test_Game.pageAddActionLogFooter", function() {
 asyncTest("test_Game.dieRecipeTable", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
+    Game.page = $('<div>');
     var dietable = Game.dieRecipeTable();
-    // jQuery trick to get the full HTML including the object itself
-    var diehtml = $('<div>').append(dietable.clone()).remove().html();
-    ok(diehtml.match('<table id="die_description_table">'),
-       "Die recipe table has reasonable contents");
+    Game.page.append(dietable);
+    Game.layoutPage();
+
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "Document should contain die recipe table");
+    equal(item.nodeName, "TABLE",
+          "Die recipe table should be a table element");
+    ok(item.innerHTML.match('Avis'),
+       "Die recipe table should contain button names");
+    ok(item.innerHTML.match('0/0/0'),
+       "Die recipe table should contain game state");
     start();
   });
 });
@@ -303,7 +320,7 @@ asyncTest("test_Game.dieTableEntry", function() {
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, "<td>(X)=4</td>",
+    deepEqual(html, "<td>(X=4)</td>",
       "Die table entry has expected contents");
     start();
   });
@@ -363,6 +380,59 @@ asyncTest("test_Game.dieIndexId", function() {
           "die index string should be correct");
     start();
   });
+});
+
+asyncTest("test_Game.playerOpponentHeaderRow", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    var row = Game.playerOpponentHeaderRow('Button', 'buttonName');
+    var table = $('<table>');
+    table.append(row);
+    Game.page.append(table);
+    Game.layoutPage();
+
+    var item = document.getElementById('game_page');
+    ok(item.innerHTML.match('<th>'),
+       "header row should contain <th> entries");
+    ok(item.innerHTML.match('Avis'),
+       "header row should contain button names");
+    start();
+  });
+});
+
+asyncTest("test_Game.playerWLTText", function() {
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    var text = Game.playerWLTText('opponent');
+    Game.page.append(text);
+    Game.layoutPage();
+
+    var item = document.getElementById('game_page');
+    ok(item.innerHTML.match('2/3/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
+    start();
+  });
+});
+
+test("test_Game.dieRecipeText", function() {
+  var text = Game.dieRecipeText("p(4)", "4");
+  equal(text, "p(4)", "text for non-swing die with skills should be correct");
+
+  text = Game.dieRecipeText("zs(X)", "7");
+  equal(text, "zs(X=7)",
+        "text for swing die with skills should be correct");
+
+  text = Game.dieRecipeText("(W)", null);
+  equal(text, "(W)",
+        "text for swing die with unknown value should be correct");
+
+  text = Game.dieRecipeText("(6,6)", "12");
+  equal(text, "(6,6)", "text for non-swing option die should be correct");
+
+  text = Game.dieRecipeText("(W,W)", "14");
+  equal(text, "(W,W=7)", "text for swing option die should be correct");
 });
 
 asyncTest("test_Game.dieBorderToggleHandler", function() {
