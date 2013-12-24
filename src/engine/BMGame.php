@@ -765,10 +765,20 @@ class BMGame {
                 }
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
-                
-                if (!$newInitiativeArray[$playerIdx] ||
-                    array_sum($newInitiativeArray) > 1) {
-                    // reset die values
+
+                // if the change is successful, disable focus dice that changed
+                // value
+                if ($newInitiativeArray[$playerIdx] &&
+                    1 == array_sum($newInitiativeArray)) {
+                    foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                        if ($oldDieValue >
+                            $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
+                            $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
+                        }
+                    }
+                } else {
+                    // if the change does not gain initiative unambiguously, it is
+                    // invalid, so reset die values to original values
                     foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                         $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
                     }
