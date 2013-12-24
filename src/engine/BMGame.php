@@ -275,7 +275,7 @@ class BMGame {
 
                     // find out if any of the dice have the ability to react
                     // when the player loses initiative
-                    foreach ($activeDieArray as $activeDie) {
+                    foreach ($activeDieArray as $activeDie) {                        
                         if ($activeDie->disabled) {
                             continue;
                         }
@@ -292,9 +292,9 @@ class BMGame {
                             }
                         }
                     }
-
-                    $this->waitingOnActionArray = $canReactArray;
                 }
+                
+                $this->waitingOnActionArray = $canReactArray;
 
                 break;
 
