@@ -665,7 +665,9 @@ class BMGame {
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.
 
-    public function react_to_initiative(array $args) {
+    // $gainedInitiativeOverride is used for testing purposes only
+
+    public function react_to_initiative(array $args, $gainedInitiativeOverride = NULL) {
         if (BMGameState::reactToInitiative != $this->gameState) {
             $this->message = 'Wrong game state to react to initiative.';
             return FALSE;
@@ -789,6 +791,10 @@ class BMGame {
             default:
                 $this->message = 'Invalid reaction to initiative.';
                 return FALSE;
+        }
+
+        if (isset($gainedInitiativeOverride)) {
+            $gainedInitiative = $gainedInitiativeOverride;
         }
 
         if ($gainedInitiative) {
