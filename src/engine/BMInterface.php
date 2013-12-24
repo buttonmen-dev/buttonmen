@@ -1060,6 +1060,8 @@ class BMInterface {
             $isSuccessful = $game->react_to_initiative($argArray);
             if ($isSuccessful) {
                 $this->save_game($game);
+            } else {
+                $this->message = $game->message;
             }
             
             return $isSuccessful;

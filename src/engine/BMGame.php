@@ -688,6 +688,7 @@ class BMGame {
                 }
 
                 $die->roll();
+//                $die->disabled = TRUE;
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
                 $gainedInitiative = $newInitiativeArray[$playerIdx] && 

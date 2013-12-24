@@ -316,7 +316,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'playerIdx' => 0)));
 
         // test 'decline' action
-        $this->assertTrue(
+        $this->assertEquals(
+            array('gained_initiative' => FALSE),
             $game->react_to_initiative(array('action' => 'decline',
                                              'playerIdx' => 0)));
         $game->proceed_to_next_user_action();
@@ -403,11 +404,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'playerIdx' => 0,
                                              'rerolledDieIdx' => 0)));
 
-        // test correct 'focus' action
+        // test correct 'chance' action
         $this->assertTrue(
-            $game->react_to_initiative(array('action' => 'chance',
-                                             'playerIdx' => 0,
-                                             'rerolledDieIdx' => 4)));
+            array_key_exists('gained_initiative',
+                $game->react_to_initiative(array('action' => 'chance',
+                                                 'playerIdx' => 0,
+                                                 'rerolledDieIdx' => 4))));
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][2]->value);
@@ -473,7 +475,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'playerIdx' => 0)));
 
         // test 'decline' action
-        $this->assertTrue(
+        $this->assertEquals(
+            array('gained_initiative' => FALSE),
             $game->react_to_initiative(array('action' => 'decline',
                                              'playerIdx' => 0)));
         $game->proceed_to_next_user_action();
@@ -601,7 +604,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
         
         // test correct 'focus' action
-        $this->assertTrue(
+        $this->assertEquals(
+            array('gained_initiative' => TRUE),
             $game->react_to_initiative(array('action' => 'focus',
                                              'playerIdx' => 0,
                                              'focusValueArray' => array(1 => 1,
