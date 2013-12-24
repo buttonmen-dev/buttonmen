@@ -509,11 +509,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // manually set die values
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $activeDieArrayArray[0][0]->value = 6;
+        $activeDieArrayArray[0][0]->value = 4;
         $activeDieArrayArray[0][1]->value = 6;
-        $activeDieArrayArray[0][2]->value = 6;
+        $activeDieArrayArray[0][2]->value = 4;
         $activeDieArrayArray[0][3]->value = 6;
-        $activeDieArrayArray[0][4]->value = 6;
+        $activeDieArrayArray[0][4]->value = 4;
         $activeDieArrayArray[1][0]->value = 4;
         $activeDieArrayArray[1][1]->value = 4;
         $activeDieArrayArray[1][2]->value = 4;
@@ -525,11 +525,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
-        $this->assertEquals(6, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
-        $this->assertEquals(6, $game->activeDieArrayArray[0][2]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
-        $this->assertEquals(6, $game->activeDieArrayArray[0][4]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][4]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][2]->value);
@@ -541,18 +541,28 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $game->react_to_initiative(array('playerIdx' => 0,
                                              'focusValueArray' => array(1 => 1,
                                                                         3 => 5))));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
+        
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'focus',
                                              'focusValueArray' => array(1 => 1,
                                                                         3 => 5))));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
+        
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'focus',
                                              'playerIdx' => 0)));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
 
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'focus',
                                              'playerIdx' => 0,
                                              'focusValueArray' => array())));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
 
         // test invalid 'focus' action
         $this->assertFalse(
@@ -560,6 +570,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'playerIdx' => 0,
                                              'focusValueArray' => array(1 => 1,
                                                                         3 => 12))));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
 
         // test that 'focus' fails gracefully with invalid die index
         $this->assertFalse(
@@ -567,6 +579,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'playerIdx' => 0,
                                              'focusValueArray' => array(1 => 1,
                                                                         10 => 1))));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
 
         // test that 'focus' can only be used with focus dice
         $this->assertFalse(
@@ -574,18 +588,29 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                              'playerIdx' => 0,
                                              'focusValueArray' => array(2 => 1,
                                                                         3 => 1))));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
 
+        // test incorrect 'focus' action, where the dice tie in values
+        $this->assertFalse(
+            $game->react_to_initiative(array('action' => 'focus',
+                                             'playerIdx' => 0,
+                                             'focusValueArray' => array(1 => 4,
+                                                                        3 => 4))));
+        $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
+        
         // test correct 'focus' action
         $this->assertTrue(
             $game->react_to_initiative(array('action' => 'focus',
                                              'playerIdx' => 0,
                                              'focusValueArray' => array(1 => 1,
-                                                                        3 => 5))));
-        $this->assertEquals(6, $game->activeDieArrayArray[0][0]->value);
+                                                                        3 => 6))));
+        $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
-        $this->assertEquals(6, $game->activeDieArrayArray[0][2]->value);
-        $this->assertEquals(5, $game->activeDieArrayArray[0][3]->value);
-        $this->assertEquals(6, $game->activeDieArrayArray[0][4]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][4]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][2]->value);

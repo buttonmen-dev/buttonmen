@@ -331,8 +331,6 @@ class BMInterface {
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
 
-//            $game->proceed_to_next_user_action();
-
             $this->message = $this->message."Loaded data for game $gameId.";
 
             return $game;
@@ -1047,8 +1045,9 @@ class BMInterface {
                         $this->message = 'Mismatch in number of indices and values';
                         return FALSE;
                     }
+                    $argArray['focusValueArray'] = array();
                     foreach ($dieIdxArray as $tempIdx => $dieIdx) {
-                        $argArray[$dieIdx] = $dieValueArray[$tempIdx];
+                        $argArray['focusValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
                     }
                     break;
                 case 'decline':

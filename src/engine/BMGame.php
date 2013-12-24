@@ -663,6 +663,7 @@ class BMGame {
         $playerIdx = $args['playerIdx'];
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
+        
 
         switch ($args['action']) {
             case 'chance':
@@ -737,10 +738,23 @@ class BMGame {
                 }
 
                 // change specified die values
+                $oldValueArray = array();
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
                 }
-
+                $newInitiativeArray = BMGame::does_player_have_initiative_array(
+                                          $this->activeDieArrayArray);
+                
+                if (!$newInitiativeArray[$args['playerIdx']] ||
+                    array_sum($newInitiativeArray) > 1) {
+                    // reset die values
+                    foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
+                    }
+                    $this->message = 'Focus dice not set low enough.';
+                    return FALSE;
+                }
                 $this->gameState = BMGameState::determineInitiative;
                 break;
             default:
