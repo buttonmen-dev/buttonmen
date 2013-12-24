@@ -688,9 +688,14 @@ class BMGame {
                 }
 
                 $die->roll();
+                $newInitiativeArray = BMGame::does_player_have_initiative_array(
+                                          $this->activeDieArrayArray);
+                $gainedInitiative = $newInitiativeArray[$playerIdx] && 
+                                    (1 == array_sum($newInitiativeArray));
                 $this->gameState = BMGameState::determineInitiative;
                 break;
             case 'decline':
+                $gainedInitiative = FALSE;
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
                 }
@@ -746,7 +751,7 @@ class BMGame {
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
                 
-                if (!$newInitiativeArray[$args['playerIdx']] ||
+                if (!$newInitiativeArray[$playerIdx] ||
                     array_sum($newInitiativeArray) > 1) {
                     // reset die values
                     foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
@@ -756,6 +761,7 @@ class BMGame {
                     return FALSE;
                 }
                 $this->gameState = BMGameState::determineInitiative;
+                $gainedInitiative = TRUE;
                 break;
             default:
                 $this->message = 'Invalid reaction to initiative.';
@@ -763,7 +769,7 @@ class BMGame {
         }
 
         $this->do_next_step();
-        return TRUE;
+        return array('gained_initiative' => $gainedInitiative);
     }
 
     protected function run_die_hooks($gameState, array $args = array()) {
