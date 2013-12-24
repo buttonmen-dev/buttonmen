@@ -321,6 +321,10 @@ class BMInterface {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
+                    case 'DISABLED':
+                        $die->disabled = TRUE;
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
                     case 'CAPTURED':
                         $die->captured = TRUE;
                         $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -485,6 +489,9 @@ class BMInterface {
                     foreach ($activeDieArray as $dieIdx => $activeDie) {
                         // james: set status, this is currently INCOMPLETE
                         $status = 'NORMAL';
+                        if ($activeDie->disabled) {
+                            $status = 'DISABLED';
+                        }
 
                         $query = 'INSERT INTO die '.
                                  '    (owner_id, '.

@@ -276,6 +276,9 @@ class BMGame {
                     // find out if any of the dice have the ability to react
                     // when the player loses initiative
                     foreach ($activeDieArray as $activeDie) {
+                        if ($activeDie->disabled) {
+                            continue;
+                        }
                         $hookResultArray =
                           $activeDie->run_hooks('react_to_initiative',
                                                 array('activeDieArrayArray' => $this->activeDieArrayArray,
@@ -538,6 +541,11 @@ class BMGame {
             case BMGameState::reactToInitiative:
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
+                    foreach ($this->activeDieArrayArray as &$activeDieArray) {
+                        foreach($activeDieArray as &$activeDie) {
+                            unset($activeDie->disabled);
+                        }
+                    }
                 }
                 break;
 
@@ -688,7 +696,7 @@ class BMGame {
                 }
 
                 $die->roll();
-//                $die->disabled = TRUE;
+                $die->disabled = TRUE;
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
                 $gainedInitiative = $newInitiativeArray[$playerIdx] && 
