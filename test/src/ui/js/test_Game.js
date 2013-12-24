@@ -293,7 +293,8 @@ asyncTest("test_Game.formReactToInitiativeActive", function() {
     $('#game_action_button').trigger('click');
     deepEqual(
       Env.message,
-      {"type": "success", "text": "Successfully gained initiative"},
+      {"type": "success",
+       "text": "Successfully gained initiative using focus dice"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();

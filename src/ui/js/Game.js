@@ -415,7 +415,7 @@ Game.actionReactToInitiativeActive = function() {
     reacttypeselect.append(
       $('<option>', {
           'value': typename,
-          'label': typename,
+          'label': typetext,
           'text': typetext,
         }));
   });
@@ -684,9 +684,31 @@ Game.formReactToInitiativeActive = function() {
            },
            function(rs) {
              if ('ok' == rs.status) {
+               switch (action) {
+                 case 'chance':
+                   if (rs.data.gained_initiative) {
+                     var message = 
+                       "Successfully gained initiative by rerolling chance die";
+                   } else {
+                     var message = 
+                       "Rerolled chance die, but did not gain initiative";
+                   }
+                   break;
+                 case 'decline':
+                   var message = 
+                     "Declined to use chance/focus dice";
+                   break;
+                 case 'focus':
+                   var message = 
+                     "Successfully gained initiative using focus dice";
+                   break;
+               }
+
+               if (rs.gained_initiative) {
+               }
                Env.message = {
                  'type': 'success',
-                 'text': rs.message,
+                 'text': message,
                };
              } else {
                Env.message = {
