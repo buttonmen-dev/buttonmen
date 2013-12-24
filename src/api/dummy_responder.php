@@ -334,6 +334,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '2') {
                 $data = array(
@@ -369,6 +370,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '3') {
                 $data = array(
@@ -417,7 +419,8 @@ class dummy_responder {
                               "message" => "tester1 performed Power attack using [(4):3] against [(10):3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
                         array("timestamp" => "2013-12-22 21:03:12",
                               "message" => "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
-                    )
+                    ),
+                    'gameChatLog' => array(),
                 );
 
 
@@ -456,6 +459,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '5') {
                 $data = array(
@@ -499,6 +503,7 @@ class dummy_responder {
                         array("timestamp" => "2013-12-20 00:52:29",
                               "message" => "tester2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                     ),
+                    'gameChatLog' => array(),
                 );
             } else if ($args['game'] == '6') {
                 $data = array(
@@ -534,6 +539,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '7') {
                 $data = array(
@@ -569,6 +575,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '8') {
                 $data = array(
@@ -604,6 +611,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '9') {
                 $data = array(
@@ -639,6 +647,7 @@ class dummy_responder {
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
+                    'gameChatLog' => array(),
                 );
             }
 
