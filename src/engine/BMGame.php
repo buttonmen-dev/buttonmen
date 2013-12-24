@@ -541,13 +541,16 @@ class BMGame {
                 break;
 
             case BMGameState::reactToInitiative:
+                // if everyone is out of actions, reactivate chance dice
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
                     if (isset($this->activeDieArrayArray)) {
                         foreach ($this->activeDieArrayArray as &$activeDieArray) {
                             if (isset($activeDieArray)) {
                                 foreach($activeDieArray as &$activeDie) {
-                                    unset($activeDie->disabled);
+                                    if ($activeDie->has_skill('Chance')) {
+                                        unset($activeDie->disabled);
+                                    }
                                 }
                             }
                         }
@@ -703,13 +706,15 @@ class BMGame {
 
                 $die->roll();
                 $die->disabled = TRUE;
-                // re-enable all disabled dice for other players
+                // re-enable all disabled chance dice for other players
                 foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
                     if ($playerIdx == $pIdx) {
                         continue;
                     }
                     foreach ($activeDieArray as &$activeDie) {
-                        unset($activeDie->disabled);
+                        if ($activeDie->has_skill('Chance')) {
+                            unset($activeDie->disabled);
+                        }
                     }
                 }
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
