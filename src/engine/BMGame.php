@@ -541,9 +541,13 @@ class BMGame {
             case BMGameState::reactToInitiative:
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
-                    foreach ($this->activeDieArrayArray as &$activeDieArray) {
-                        foreach($activeDieArray as &$activeDie) {
-                            unset($activeDie->disabled);
+                    if (isset($this->activeDieArrayArray)) {
+                        foreach ($this->activeDieArrayArray as &$activeDieArray) {
+                            if (isset($activeDieArray)) {
+                                foreach($activeDieArray as &$activeDie) {
+                                    unset($activeDie->disabled);
+                                }
+                            }
                         }
                     }
                 }

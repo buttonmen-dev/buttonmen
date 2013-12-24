@@ -679,7 +679,8 @@ class dummy_responder {
         }
 
         if ($args['type'] == 'reactToInitiative') {
-            return array(True, 'Successfully gained initiative');
+            return array(array('gained_initiative' => TRUE), 
+                               'Successfully gained initiative');
         }
 
         if ($args['type'] == 'submitTurn') {
