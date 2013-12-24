@@ -487,12 +487,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][4]->value);
 
-        // test correct 'focus' action
-        $this->assertEquals(
-            array('gained_initiative' => true),
+        // test correct 'chance' action by player 1
+        $this->assertTrue(
+            array_key_exists('gained_initiative',
             $game->react_to_initiative(array('action' => 'chance',
                                              'playerIdx' => 0,
-                                             'rerolledDieIdx' => 4)));
+                                             'rerolledDieIdx' => 4))));
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
@@ -515,6 +515,53 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
 
+        // test correct 'chance' action by player 2
+        $this->assertTrue(
+            array_key_exists('gained_initiative',
+            $game->react_to_initiative(array('action' => 'chance',
+                                             'playerIdx' => 1,
+                                             'rerolledDieIdx' => 4))));
+        $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][3]->value);
+        $this->assertEquals(3, $game->activeDieArrayArray[0][4]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][1]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][2]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
+        $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+        $this->assertTrue($game->activeDieArrayArray[1][4]->disabled);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
+
+        // manually set die values
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[1][4]->value = 2;
+        $game->activeDieArrayArray = $activeDieArrayArray;
+        $game->do_next_step();
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        // test correct 'chance' action by player 1
+        $this->assertTrue(
+            array_key_exists('gained_initiative',
+            $game->react_to_initiative(array('action' => 'chance',
+                                             'playerIdx' => 0,
+                                             'rerolledDieIdx' => 4))));
+        $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[0][3]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][1]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][2]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
+        $this->assertEquals(2, $game->activeDieArrayArray[1][4]->value);
+        $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+        $this->assertTrue($game->activeDieArrayArray[0][4]->disabled);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->disabled));
     }
 
     /**

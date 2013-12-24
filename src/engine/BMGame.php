@@ -703,6 +703,15 @@ class BMGame {
 
                 $die->roll();
                 $die->disabled = TRUE;
+                // re-enable all disabled dice for other players
+                foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
+                    if ($playerIdx == $pIdx) {
+                        continue;
+                    }
+                    foreach ($activeDieArray as &$activeDie) {
+                        unset($activeDie->disabled);
+                    }
+                }
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
                 $gainedInitiative = $newInitiativeArray[$playerIdx] && 
