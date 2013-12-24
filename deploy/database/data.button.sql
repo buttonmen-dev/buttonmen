@@ -47,16 +47,16 @@ INSERT INTO buttonset (name) VALUES
 ('SFR'),
 ('Space Girlz'),
 ('Bridge and Tunnel'),
-('2005 Rare Promo');
-
-#('Geekz')
-#('Iron Chef')
-#('7 deadly sins')
-#('Chicago Crew')
-#('Four Horsemen')
-#('Free Radicals')
-#('Hodge Podge')
-#('Victorian Horror')
+('2005 Rare Promo'),
+#
+('Geekz'),
+('Iron Chef'),
+('7 deadly sins'),
+('Chicago Crew'),
+('Four Horsemen'),
+('Free Radicals'),
+('Hodge Podge'),
+('Victorian Horror');
 
 DELETE FROM button;
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -81,7 +81,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Rikachu Origins 2000 (Origins)
 ('Rikachu',             '(1) (1) (1) (1) (Y)',                0, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # 2000 SHORECON (ShoreCon)            NO SPECIAL DIE SKILLS
-('ConMan',     '(4) (6) p(20)',       1, (SELECT id FROM buttonset WHERE name="2000 ShoreCon")),
+('ConMan',     '(4) (6) p(20)',      0,  1, (SELECT id FROM buttonset WHERE name="2000 ShoreCon")),
 # 2002 ANIME EXPO                                NO SPECIAL DICE SKILLS
 ('MAX(p)',          '(4) (6) (18) (20 (X)',           0, 1, (SELECT id FROM buttonset WHERE name="2002 Anime Expo")),
 # 2002 Origins (Cheapass Games)                       SKILLS: Stinger(g) on old site)
@@ -439,7 +439,6 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('John Kovalic',  '(6) c(6) (10) (12) c(20)',    0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 ('Pikathulhu',    '(6) c(6) (10) (12) c(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 ('Ulthar',        '(4) (8) (10) c(10) c(T)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
-('BUTTON NAME',         'RECIPE',          0, (SELECT id FROM buttonset WHERE name="SET NAME")),
 #########
 # I haven't found any info regarding the rest of these sets, and suspect many to fan / vanity sets
 # GEEKZ                                                        SKILLS Poison; Shadow; Reserve; Twin
