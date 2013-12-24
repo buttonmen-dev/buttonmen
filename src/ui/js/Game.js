@@ -686,7 +686,7 @@ Game.formReactToInitiativeActive = function() {
              if ('ok' == rs.status) {
                Env.message = {
                  'type': 'success',
-                 'text': 'Successfully gained initiative',
+                 'text': rs.message,
                };
              } else {
                Env.message = {

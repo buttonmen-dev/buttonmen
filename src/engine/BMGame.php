@@ -277,7 +277,10 @@ class BMGame {
 
                     // find out if any of the dice have the ability to react
                     // when the player loses initiative
-                    foreach ($activeDieArray as $activeDie) {
+                    foreach ($activeDieArray as $activeDie) {                        
+                        if ($activeDie->disabled) {
+                            continue;
+                        }
                         $hookResultArray =
                           $activeDie->run_hooks('react_to_initiative',
                                                 array('activeDieArrayArray' => $this->activeDieArrayArray,
@@ -291,9 +294,9 @@ class BMGame {
                             }
                         }
                     }
-
-                    $this->waitingOnActionArray = $canReactArray;
                 }
+                
+                $this->waitingOnActionArray = $canReactArray;
 
                 break;
 
@@ -540,6 +543,15 @@ class BMGame {
             case BMGameState::reactToInitiative:
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
+                    if (isset($this->activeDieArrayArray)) {
+                        foreach ($this->activeDieArrayArray as &$activeDieArray) {
+                            if (isset($activeDieArray)) {
+                                foreach($activeDieArray as &$activeDie) {
+                                    unset($activeDie->disabled);
+                                }
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -665,6 +677,7 @@ class BMGame {
         $playerIdx = $args['playerIdx'];
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
+        
 
         switch ($args['action']) {
             case 'chance':
@@ -689,9 +702,15 @@ class BMGame {
                 }
 
                 $die->roll();
+                $die->disabled = TRUE;
+                $newInitiativeArray = BMGame::does_player_have_initiative_array(
+                                          $this->activeDieArrayArray);
+                $gainedInitiative = $newInitiativeArray[$playerIdx] && 
+                                    (1 == array_sum($newInitiativeArray));
                 $this->gameState = BMGameState::determineInitiative;
                 break;
             case 'decline':
+                $gainedInitiative = FALSE;
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
                 }
@@ -739,11 +758,25 @@ class BMGame {
                 }
 
                 // change specified die values
+                $oldValueArray = array();
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
                 }
-
+                $newInitiativeArray = BMGame::does_player_have_initiative_array(
+                                          $this->activeDieArrayArray);
+                
+                if (!$newInitiativeArray[$playerIdx] ||
+                    array_sum($newInitiativeArray) > 1) {
+                    // reset die values
+                    foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
+                    }
+                    $this->message = 'Focus dice not set low enough.';
+                    return FALSE;
+                }
                 $this->gameState = BMGameState::determineInitiative;
+                $gainedInitiative = TRUE;
                 break;
             default:
                 $this->message = 'Invalid reaction to initiative.';
@@ -751,7 +784,7 @@ class BMGame {
         }
 
         $this->do_next_step();
-        return TRUE;
+        return array('gained_initiative' => $gainedInitiative);
     }
 
     protected function run_die_hooks($gameState, array $args = array()) {

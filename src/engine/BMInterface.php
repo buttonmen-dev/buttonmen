@@ -321,6 +321,10 @@ class BMInterface {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
+                    case 'DISABLED':
+                        $die->disabled = TRUE;
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
                     case 'CAPTURED':
                         $die->captured = TRUE;
                         $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -330,8 +334,6 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
-
-//            $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -487,6 +489,9 @@ class BMInterface {
                     foreach ($activeDieArray as $dieIdx => $activeDie) {
                         // james: set status, this is currently INCOMPLETE
                         $status = 'NORMAL';
+                        if ($activeDie->disabled) {
+                            $status = 'DISABLED';
+                        }
 
                         $query = 'INSERT INTO die '.
                                  '    (owner_id, '.
@@ -1100,8 +1105,9 @@ class BMInterface {
                         $this->message = 'Mismatch in number of indices and values';
                         return FALSE;
                     }
+                    $argArray['focusValueArray'] = array();
                     foreach ($dieIdxArray as $tempIdx => $dieIdx) {
-                        $argArray[$dieIdx] = $dieValueArray[$tempIdx];
+                        $argArray['focusValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
                     }
                     break;
                 case 'decline':
@@ -1114,6 +1120,9 @@ class BMInterface {
             $isSuccessful = $game->react_to_initiative($argArray);
             if ($isSuccessful) {
                 $this->save_game($game);
+                $this->message = 'Successfully gained initiative';
+            } else {
+                $this->message = $game->message;
             }
             
             return $isSuccessful;
