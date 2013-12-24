@@ -277,7 +277,7 @@ class BMGame {
 
                     // find out if any of the dice have the ability to react
                     // when the player loses initiative
-                    foreach ($activeDieArray as $activeDie) {                        
+                    foreach ($activeDieArray as $activeDie) {
                         if ($activeDie->disabled) {
                             continue;
                         }
@@ -295,7 +295,7 @@ class BMGame {
                         }
                     }
                 }
-                
+
                 $this->waitingOnActionArray = $canReactArray;
 
                 break;
@@ -680,7 +680,7 @@ class BMGame {
         $playerIdx = $args['playerIdx'];
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
-        
+
 
         switch ($args['action']) {
             case 'chance':
@@ -705,21 +705,15 @@ class BMGame {
                 }
 
                 $die->roll();
-                $die->disabled = TRUE;
-                // re-enable all disabled chance dice for other players
-                foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
-                    if ($playerIdx == $pIdx) {
-                        continue;
-                    }
-                    foreach ($activeDieArray as &$activeDie) {
-                        if ($activeDie->has_skill('Chance')) {
-                            unset($activeDie->disabled);
-                        }
+                foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
+                    if ($die->has_skill('Chance')) {
+                        $die->disabled = TRUE;
                     }
                 }
+
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
-                $gainedInitiative = $newInitiativeArray[$playerIdx] && 
+                $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                                     (1 == array_sum($newInitiativeArray));
                 $this->gameState = BMGameState::determineInitiative;
                 break;
@@ -779,7 +773,7 @@ class BMGame {
                 }
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
-                
+
                 if (!$newInitiativeArray[$playerIdx] ||
                     array_sum($newInitiativeArray) > 1) {
                     // reset die values
@@ -797,7 +791,22 @@ class BMGame {
                 return FALSE;
         }
 
+        if ($gainedInitiative) {
+            // re-enable all disabled chance dice for other players
+            foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
+                if ($playerIdx == $pIdx) {
+                    continue;
+                }
+                foreach ($activeDieArray as &$activeDie) {
+                    if ($activeDie->has_skill('Chance')) {
+                        unset($activeDie->disabled);
+                    }
+                }
+            }
+        }
+
         $this->do_next_step();
+
         return array('gained_initiative' => $gainedInitiative);
     }
 
