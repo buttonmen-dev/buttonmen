@@ -277,7 +277,7 @@ class BMGame {
 
                     // find out if any of the dice have the ability to react
                     // when the player loses initiative
-                    foreach ($activeDieArray as $activeDie) {                        
+                    foreach ($activeDieArray as $activeDie) {
                         if ($activeDie->disabled) {
                             continue;
                         }
@@ -295,7 +295,7 @@ class BMGame {
                         }
                     }
                 }
-                
+
                 $this->waitingOnActionArray = $canReactArray;
 
                 break;
@@ -343,9 +343,14 @@ class BMGame {
                 $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
                 $attackerAttackDieArray = array();
                 foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
-                    $attackerAttackDieArray[] =
+                    $attackDie =
                         &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
                                                    [$attackerAttackDieIdx];
+                    if ($attackDie->disabled) {
+                        $this->message = 'Attempting to attack with a disabled die.';
+                        return;
+                    }
+                    $attackerAttackDieArray[] = &$attackDie;
                 }
                 $defenderAttackDieArray = array();
                 foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
@@ -565,6 +570,18 @@ class BMGame {
                 if ((isset($this->attack)) &&
                     FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
                     $this->gameState = BMGameState::endTurn;
+                    if (isset($this->activeDieArrayArray) &&
+                        isset($this->attack['attackerPlayerIdx'])) {
+                        foreach ($this->activeDieArrayArray[
+                                     $this->attack['attackerPlayerIdx']]
+                                 as &$activeDie) {
+                            if ($activeDie->disabled) {
+                                if ($activeDie->has_skill('Focus')) {
+                                    unset($activeDie->disabled);
+                                }
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -677,7 +694,7 @@ class BMGame {
         $playerIdx = $args['playerIdx'];
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
-        
+
 
         switch ($args['action']) {
             case 'chance':
@@ -705,7 +722,7 @@ class BMGame {
                 $die->disabled = TRUE;
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
-                $gainedInitiative = $newInitiativeArray[$playerIdx] && 
+                $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                                     (1 == array_sum($newInitiativeArray));
                 $this->gameState = BMGameState::determineInitiative;
                 break;

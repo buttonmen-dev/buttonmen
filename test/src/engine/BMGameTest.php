@@ -546,14 +546,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                                                         3 => 5))));
         $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
-        
+
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'focus',
                                              'focusValueArray' => array(1 => 1,
                                                                         3 => 5))));
         $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
-        
+
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'focus',
                                              'playerIdx' => 0)));
@@ -602,7 +602,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                                                         3 => 4))));
         $this->assertEquals(6, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
-        
+
         // test correct 'focus' action
         $this->assertEquals(
             array('gained_initiative' => TRUE),
@@ -621,6 +621,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[1][4]->value);
         $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
+        $this->assertTrue($game->activeDieArrayArray[0][1]->disabled);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
 
         $game->proceed_to_next_user_action();
 
@@ -5299,7 +5301,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @coversNothing
+     * @coversUpdate_game_state
      */
     public function test_focus_round() {
         // load buttons
@@ -5390,12 +5392,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $activeDieArrayArray[0][1]->value = 6;
         $activeDieArrayArray[0][2]->value = 6;
         $activeDieArrayArray[0][3]->value = 6;
-        $activeDieArrayArray[0][4]->value = 6;
+        $activeDieArrayArray[0][4]->value = 3;
         $activeDieArrayArray[1][0]->value = 4;
         $activeDieArrayArray[1][1]->value = 4;
         $activeDieArrayArray[1][2]->value = 4;
         $activeDieArrayArray[1][3]->value = 4;
-        $activeDieArrayArray[1][4]->value = 4;
+        $activeDieArrayArray[1][4]->value = 3;
 
         $game->do_next_step();
         $this->assertEquals(BMGameState::determineInitiative, $game->gameState);
@@ -5409,6 +5411,23 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::reactToInitiative, $game->gameState);
+
+        $game->react_to_initiative(array('action' => 'focus',
+                                         'playerIdx' => 0,
+                                         'focusValueArray' => array(1 => 1,
+                                                                    3 => 6)));
+        $this->assertTrue($game->activeDieArrayArray[0][1]->disabled);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
+        $game->do_next_step();
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        // try to use the focus die in an attack when it is disabled
+        $game->attack = array(0, 1, array(1, 4), array(1), 'Skill');
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(5, count($game->activeDieArrayArray[1]));
     }
 
     /**
@@ -5529,7 +5548,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array('BMSkillKonstant'),
                             $game->activeDieArrayArray[0][1]->hookList['hit_table']);
         $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
-        
+
         $this->assertEquals(array('score_value'),
                             array_keys($game->activeDieArrayArray[1][0]->hookList));
         $this->assertEquals(array('BMSkillPoison'),
