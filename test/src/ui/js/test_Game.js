@@ -355,11 +355,11 @@ asyncTest("test_Game.pageAddTimestampFooter", function() {
   });
 });
 
-asyncTest("test_Game.pageAddActionLogFooter", function() {
+asyncTest("test_Game.pageAddLogFooter", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddActionLogFooter();
+    Game.pageAddLogFooter();
     var htmlout = Game.page.html();
     deepEqual(htmlout, "", "Action log footer for a new game should be empty");
     start();
@@ -582,6 +582,12 @@ test("test_Game.dieCanRerollForInitiative", function() {
         "An arbitrary non-chance die cannot reroll for initiative");
   equal(Game.dieCanRerollForInitiative("c(5,5)"), true,
         "An arbitrary chance die can reroll for initiative");
+});
+
+test("test_Game.chatBox", function() {
+  var obj = Game.chatBox();
+  var html = obj.html();
+  ok(html.match(/"game_chat"/), "Game chat box has correct ID in page");
 });
 
 asyncTest("test_Game.dieBorderToggleHandler", function() {

@@ -83,6 +83,7 @@ Game.getCurrentGame = function(callbackfunc) {
              Game.api.gameData = rs.data.gameData;
              Game.api.timestamp = rs.data.timestamp;
              Game.api.actionLog = rs.data.gameActionLog;
+             Game.api.chatLog = rs.data.gameChatLog;
              if (Game.parseGameData(rs.data.currentPlayerIdx, rs.data.playerNameArray)) {
                Game.api.load_status = 'ok';
              } else {
@@ -468,6 +469,7 @@ Game.actionPlayTurnActive = function() {
   Game.page.append($('<br>'));
 
   var attackdiv = $('<div>');
+  attackdiv.append(Game.chatBox());
   var attackform = $('<form>', {
                        'id': 'game_action_form',
                        'action': "javascript:void(0);",
@@ -729,6 +731,9 @@ Game.formPlayTurnActive = function() {
   // Get the specified attack type
   var attackType = $('#attack_type_select').val();
 
+  // Get the game chat
+  var chat = $('#game_chat').val();
+
   // Now try submitting the result
   $.post(Env.api_location, {
            type: 'submitTurn',
@@ -737,6 +742,7 @@ Game.formPlayTurnActive = function() {
            defenderIdx: Game.api.opponentIdx,
            dieSelectStatus: dieSelectStatus,
            attackType: attackType,
+           chat: chat,
            roundNumber: Game.api.roundNumber,
            timestamp: Game.api.timestamp,
          },
@@ -782,7 +788,7 @@ Game.pageAddGameHeader = function(action_desc) {
 // Display common page footer data
 Game.pageAddFooter = function() {
   Game.pageAddTimestampFooter();
-  Game.pageAddActionLogFooter();
+  Game.pageAddLogFooter();
 }
 
 // Display a footer-style message with the last action timestamp
@@ -803,22 +809,62 @@ Game.pageAddTimestampFooter = function() {
 }
 
 // Display recent game data from the action log at the foot of the page
-Game.pageAddActionLogFooter = function() {
-  if (Game.api.actionLog.length > 0) {
+Game.pageAddLogFooter = function() {
+  if ((Game.api.chatLog.length > 0) || (Game.api.actionLog.length > 0)) {
     var logdiv = $('<div>');
-    logdiv.append($('<p>', {'text': 'Recent game activity', }));
     var logtable = $('<table>');
-    $.each(Game.api.actionLog, function(logindex, logentry) {
-      var logrow = $('<tr>');
-      logrow.append($('<td>', {
-        'class': 'left', 
-        'nowrap': 'nowrap', 
-        'text': '(' + logentry.timestamp + ')', }));
-      logrow.append($('<td>', {
-        'class': 'left', 
-        'text': logentry.message, }));
-      logtable.append(logrow);
-    });
+    var logrow = $('<tr>');
+
+    if (Game.api.actionLog.length > 0) {
+      var actiontd = $('<td>', {'class': 'logtable', });
+      actiontd.append($('<p>', {'text': 'Recent game activity', }));
+      var actiontable = $('<table>', {'border': 'on', });
+      $.each(Game.api.actionLog, function(logindex, logentry) {
+        if (logentry.message.indexOf(Game.api.player.playerName + ' ') == 0) {
+          nameclass = 'chatplayer';
+        } else {
+          nameclass = 'chatopponent';
+        }
+        var actionrow = $('<tr>');
+        actionrow.append($('<td>', {
+          'class': nameclass,
+          'nowrap': 'nowrap', 
+          'text': '(' + logentry.timestamp + ')', }));
+        actionrow.append($('<td>', {
+          'class': 'left', 
+          'text': logentry.message, }));
+        actiontable.append(actionrow);
+      });
+      actiontd.append(actiontable);
+      logrow.append(actiontd);
+    }
+
+    if (Game.api.chatLog.length > 0) {
+      var chattd = $('<td>', {'class': 'logtable', });
+      chattd.append($('<p>', {'text': 'Recent game chat', }));
+      var chattable = $('<table>', {'border': 'on', });
+      $.each(Game.api.chatLog, function(logindex, logentry) {
+        var chatrow = $('<tr>');
+        if (logentry.player == Game.api.player.playerName) {
+          nameclass = 'chatplayer';
+        } else {
+          nameclass = 'chatopponent';
+        }
+        chatrow.append($('<td>', {
+          'class': nameclass, 
+          'nowrap': 'nowrap', 
+          'text': logentry.player + ' (' + logentry.timestamp + ')',
+        }));
+        chatrow.append($('<td>', {
+          'class': 'left', 
+          'text': logentry.message, }));
+        chattable.append(chatrow);
+      });
+      chattd.append(chattable);
+      logrow.append(chattd);
+    }
+
+    logtable.append(logrow);
     logdiv.append(logtable);
 
     Game.page.append($('<hr>'));
@@ -1154,4 +1200,18 @@ Game.dieValueSelectTd = function(
   });
   selectTd.append(select);
   return selectTd;
+}
+
+Game.chatBox = function() {
+  var chattable = $('<table>');
+  var chatrow = $('<tr>');
+  chatrow.append($('<td>', {'text': 'Chat:', }));
+  chatrow.append($('<textarea>', {
+                   'id': 'game_chat',
+                   'rows': '3',
+                   'cols': '50',
+                   'maxlength': '500',
+                 }));
+  chattable.append(chatrow);
+  return chattable;
 }

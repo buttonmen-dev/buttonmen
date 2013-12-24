@@ -72,6 +72,7 @@ class responder {
                     'playerNameArray' => $playerNameArray,
                     'timestamp' => $interface->timestamp->format(DATE_RSS),
                     'gameActionLog' => $interface->load_game_action_log($game),
+                    'gameChatLog' => $interface->load_game_chat_log($game),
                 );
             }
             return $data;
@@ -114,6 +115,9 @@ class responder {
         }
 
         if ($args['type'] == 'submitTurn') {
+            if (!(array_key_exists('chat', $args))) {
+                $args['chat'] = '';
+            }
             return $interface->submit_turn($_SESSION['user_id'],
                                            $args['game'],
                                            $args['roundNumber'],
@@ -121,7 +125,8 @@ class responder {
                                            $args['dieSelectStatus'],
                                            $args['attackType'],
                                            (int)$args['attackerIdx'],
-                                           (int)$args['defenderIdx']);
+                                           (int)$args['defenderIdx'],
+                                           $args['chat']);
         }
 
         if ($args['type'] == 'login') {

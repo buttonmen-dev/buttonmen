@@ -60,6 +60,15 @@ CREATE TABLE game_action_log (
     message            VARCHAR(512)
 );
 
+DROP TABLE IF EXISTS game_chat_log;
+CREATE TABLE game_chat_log (
+    id                 INTEGER UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
+    chat_time          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    chatting_player    SMALLINT UNSIGNED NOT NULL,
+    message            VARCHAR(1024)
+);
+
 DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,

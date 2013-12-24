@@ -36,6 +36,7 @@
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
  * @property      array $actionLog               Game actions taken by this BMGame instance
+ * @property      array $chat                    A chat message submitted by the active player
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -76,6 +77,7 @@ class BMGame {
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
     private $autopassArray;         // boolean array whether each player has enabled autopass
     private $actionLog;             // game actions taken by this BMGame instance
+    private $chat;                  // chat message submitted by the active player with an attack
     private $message;               // message to be passed to the GUI
 
     public $swingRequestArrayArray;
@@ -1047,6 +1049,11 @@ class BMGame {
     // the database
     public function empty_action_log() {
         $this->actionLog = array();
+    }
+
+    // N.B. The chat text has not been sanitized at this point, so don't use it for anything
+    public function add_chat($playerIdx, $chat) {
+        $this->chat = array('playerIdx' => $playerIdx, 'chat' => $chat);
     }
 
     // special recording function for logging what changed as the result of an attack

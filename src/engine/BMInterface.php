@@ -572,6 +572,12 @@ class BMInterface {
                 $this->load_message_from_game_actions($game);
                 $this->log_game_actions($game);
             }
+	    // If the player sent a chat message, insert it now
+	    // then save them to the historical log
+            if ($game->chat['chat']) {
+                $this->log_game_chat($game);
+            }
+
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::save_game: " .
@@ -856,6 +862,51 @@ class BMInterface {
         }
     }
 
+    protected function log_game_chat(BMGame $game) {
+
+        // We're going to display this in user browsers, so first clean up all HTML tags
+        $mysqlchat = htmlspecialchars($game->chat['chat']);
+ 
+        // Now, if the string is too long, truncate it
+        if (strlen($mysqlchat) > 1020) {
+            $mysqlchat = substr($mysqlchat, 0, 1020);
+        }
+
+        $query = 'INSERT INTO game_chat_log ' .
+                 '(game_id, chatting_player, message) ' .
+                 'VALUES ' .
+                 '(:game_id, :chatting_player, :message)';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(
+            array(':game_id'         => $game->gameId,
+                  ':chatting_player' => $game->chat['playerIdx'],
+                  ':message'         => $mysqlchat));
+    }
+
+    public function load_game_chat_log(BMGame $game, $n_entries = 5) {
+        try {
+            $query = 'SELECT chat_time,chatting_player,message FROM game_chat_log ' .
+                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+            $chatEntries = array();
+            while ($row = $statement->fetch()) {
+                $chatEntries[] = array(
+                    'timestamp' => $row['chat_time'],
+                    'player' => $this->get_player_name_from_id($row['chatting_player']),
+                    'message' => $row['message'],
+                );
+            }
+            return $chatEntries;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::load_game_chat_log: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reading chat entries';
+            return NULL;
+        }
+    }
+
     public function submit_swing_values($userId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
                                         $swingValueArray) {
@@ -915,7 +966,7 @@ class BMInterface {
     public function submit_turn($userId, $gameNumber, $roundNumber,
                                 $submitTimestamp,
 				$dieSelectStatus, $attackType,
-				$attackerIdx, $defenderIdx) {
+				$attackerIdx, $defenderIdx, $chat) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
@@ -966,6 +1017,8 @@ class BMInterface {
             foreach ($attackers as $attackDie) {
                 $attack->add_die($attackDie);
             }
+
+            $game->add_chat($userId, $chat);
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
