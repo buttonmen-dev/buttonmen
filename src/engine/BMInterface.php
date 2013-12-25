@@ -445,6 +445,14 @@ class BMInterface {
 
             // set player that won initiative
             if (isset($game->playerWithInitiativeIdx)) {
+                // set all players to not having initiative
+                $query = 'UPDATE game_player_map '.
+                         'SET did_win_initiative = 0 '.
+                         'WHERE game_id = :game_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id' => $game->gameId));
+
+                // set player that won initiative
                 $query = 'UPDATE game_player_map '.
                          'SET did_win_initiative = 1 '.
                          'WHERE game_id = :game_id '.
@@ -871,7 +879,7 @@ class BMInterface {
 
         // We're going to display this in user browsers, so first clean up all HTML tags
         $mysqlchat = htmlspecialchars($game->chat['chat']);
- 
+
         // Now, if the string is too long, truncate it
         if (strlen($mysqlchat) > 1020) {
             $mysqlchat = substr($mysqlchat, 0, 1020);
@@ -1047,7 +1055,7 @@ class BMInterface {
     //
     //   $action:
     //       One of {'chance', 'focus', 'decline'}.
-    //       
+    //
     //   $dieIdxArray:
     //       (i)   If this is a 'chance' action, then an array containing the
     //             index of the chance die that is being rerolled.
@@ -1056,7 +1064,7 @@ class BMInterface {
     //             dieValueArray. This can be either the indices of ALL focus
     //             dice OR just a subset.
     //       (iii) If this is a 'decline' action, then this will be ignored.
-    //       
+    //
     //   $dieValueArray:
     //       This is only used for the 'focus' action. It is a nonempty array
     //       containing the values of the focus dice that have been chosen by
@@ -1066,7 +1074,7 @@ class BMInterface {
     // The function returns a boolean telling whether the reaction has been
     // successful.
     // If it fails, $this->message will say why it has failed.
-    
+
     public function react_to_initiative($userId, $gameNumber, $roundNumber,
 					$submitTimestamp, $action,
 					$dieIdxArray = NULL,
@@ -1124,7 +1132,7 @@ class BMInterface {
             } else {
                 $this->message = $game->message;
             }
-            
+
             return $isSuccessful;
         } catch (Exception $e) {
             error_log(
