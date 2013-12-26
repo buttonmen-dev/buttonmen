@@ -95,6 +95,8 @@ class BMDie {
                 $this->hookList[$func][] = $skillClass;
             }
         }
+        
+        $this->run_hooks(__FUNCTION__, array('die' => &$this));
     }
 
     protected function add_multiple_skills($skills) {
@@ -149,7 +151,7 @@ class BMDie {
         $this->max = $sides;
 
         $this->add_multiple_skills($skills);
-                }
+    }
 
     public static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
@@ -250,17 +252,12 @@ class BMDie {
 // Roll the die into a game. Clone self, roll, return the clone.
     public function make_play_die() {
         $newDie = clone $this;
-
         $newDie->roll(FALSE);
-
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         return $newDie;
     }
 
 
     public function roll($successfulAttack = FALSE) {
-
         if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
