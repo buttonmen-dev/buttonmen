@@ -98,7 +98,7 @@ class BMInterface {
     }
 
     public function set_player_info($playerId, array $infoArray) {
-        $infoArray['autopass'] = (int)($args['autopass']);
+        $infoArray['autopass'] = (int)($infoArray['autopass']);
         foreach ($infoArray as $infoType => $info) {
             try {
                 $query = 'UPDATE player '.

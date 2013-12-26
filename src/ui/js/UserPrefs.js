@@ -134,7 +134,7 @@ UserPrefs.formSetPrefs = function() {
                      'type': 'error',
                      'text': rs.message
                  };
-             }
+             };
              UserPrefs.showUserPrefsPage();
          }
         ).fail(function() {
