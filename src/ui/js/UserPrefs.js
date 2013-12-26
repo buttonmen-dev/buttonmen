@@ -108,8 +108,37 @@ UserPrefs.actionShowPrefs = function() {
   // Function to invoke on button click
   UserPrefs.form = UserPrefs.formSetPrefs;
 
+  // Load values from database
+  UserPrefs.loadPrefs();
+
   // Lay out the page
   UserPrefs.layoutPage();
+}
+
+UserPrefs.loadPrefs = function () {
+  $.post(Env.api_location, {
+             type: 'loadPlayerInfo'
+         },
+         function(rs) {
+             if ('ok' == rs.status) {
+                 $('#userprefs_autopass').prop('checked', rs.data.autopass);
+                 Env.message = {
+                     'type': 'success',
+                     'text': 'User details loaded successfully.'
+                 };
+             } else {
+                 Env.message = {
+                     'type': 'error',
+                     'text': rs.message
+                 };
+             }
+         }
+        ).fail(function () {
+                   Env.message = {
+                       'type': 'error',
+                       'text': 'Internal error when loading player preferences.'
+                   };
+               })
 }
 
 
@@ -117,7 +146,7 @@ UserPrefs.actionShowPrefs = function() {
 // These functions define form submissions, one per action type
 
 UserPrefs.formSetPrefs = function() {
-  var autopass = ('true' == $('#userprefs_autopass').prop('checked'));
+  var autopass = $('#userprefs_autopass').prop('checked');
 
   $.post(Env.api_location, {
              type: 'savePlayerInfo',
