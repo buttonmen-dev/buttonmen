@@ -24,12 +24,12 @@ class BMAttackPassTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttackPower::validate_attack
+     * @covers BMAttackPass::validate_attack
      */
     public function testValidate_attack()
     {
         $game = new TestDummyGame;
-        
+
         $die1 = new BMDie;
         $die1->init(6);
         $die1->value = 6;
