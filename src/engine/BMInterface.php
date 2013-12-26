@@ -98,6 +98,7 @@ class BMInterface {
     }
 
     public function set_player_info($playerId, array $infoArray) {
+        $infoArray['autopass'] = (int)($args['autopass']);
         foreach ($infoArray as $infoType => $info) {
             try {
                 $query = 'UPDATE player '.
@@ -107,7 +108,8 @@ class BMInterface {
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
-
+                $this->message = "Player info updated successfully.";
+                return array('playerId' => $playerId);
             } catch (Exception $e) {
                 var_dump($e->getMessage());
                 $this->message = 'Player info update failed: '.$e->getMessage();

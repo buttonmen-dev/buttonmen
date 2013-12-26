@@ -117,7 +117,7 @@ UserPrefs.actionShowPrefs = function() {
 // These functions define form submissions, one per action type
 
 UserPrefs.formSetPrefs = function() {
-  var autopass = $('#userprefs_autopass').val();
+  var autopass = ('true' == $('#userprefs_autopass').prop('checked'));
 
   $.post(Env.api_location, {
              type: 'savePlayerInfo',
