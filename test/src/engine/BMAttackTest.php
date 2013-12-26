@@ -62,25 +62,28 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $attackArray = BMAttack::possible_attack_types(array($die1));
         $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(2, count($attackArray));
+        $this->assertEquals(3, count($attackArray));
         $this->assertTrue(in_array('Power', $attackArray));
         $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertTrue(in_array('Surrender', $attackArray));
 
         $die2 = new BMDie;
         $die2->init(5);
         $die2->add_skill('Shadow');
         $attackArray = BMAttack::possible_attack_types(array($die2));
         $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(2, count($attackArray));
+        $this->assertEquals(3, count($attackArray));
         $this->assertTrue(in_array('Shadow', $attackArray));
         $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertTrue(in_array('Surrender', $attackArray));
 
         $attackArray = BMAttack::possible_attack_types(array($die1, $die2));
         $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(3, count($attackArray));
+        $this->assertEquals(4, count($attackArray));
         $this->assertTrue(in_array('Power', $attackArray));
         $this->assertTrue(in_array('Shadow', $attackArray));
         $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertTrue(in_array('Surrender', $attackArray));
     }
 
     /**

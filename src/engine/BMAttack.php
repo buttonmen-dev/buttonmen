@@ -42,7 +42,7 @@ class BMAttack {
     }
 
     public static function possible_attack_types(array $attackers) {
-        $allAttackTypesArray = array();
+        $allAttackTypesArray = array('Surrender' => 'Surrender');
 
         foreach ($attackers as $attacker) {
             $individualAttackTypeArray = array();
@@ -59,7 +59,7 @@ class BMAttack {
 
         return $allAttackTypesArray;
     }
-    
+
     public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
         // objects matching
@@ -300,7 +300,7 @@ class BMAttack {
         }
         return $helpers;
     }
-    
+
     public function __get($property)
     {
         if (property_exists($this, $property)) {
