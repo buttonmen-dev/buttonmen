@@ -7,7 +7,7 @@ if (!(Env)) {
 Env.messageTypeColors = {
   'none': 'black',
   'error': 'red',
-  'success': 'green'
+  'success': 'green',
 };
 
 // location of backend API - depends whether we're testing
@@ -28,7 +28,7 @@ Env.getParameterByName = function(name) {
 // messages
 Env.setupEnvStub = function() {
   if ($('#env_message').length == 0) {
-    $('body').append($('<div>', {'id': 'env_message' }));
+    $('body').append($('<div>', {'id': 'env_message', }));
   }
 }
 
@@ -40,7 +40,7 @@ Env.showStatusMessage = function() {
     msgobj.append($('<font>',
                   {
                     'color': Env.messageTypeColors[Env.message.type],
-                    'text': Env.message.text
+                    'text': Env.message.text,
                   }));
     if ('obj' in Env.message) {
       msgobj.append(Env.message.obj);

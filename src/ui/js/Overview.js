@@ -29,7 +29,7 @@ Overview.showOverviewPage = function() {
 
   // Make sure the div element that we will need exists in the page body
   if ($('#overview_page').length == 0) {
-    $('body').append($('<div>', {'id': 'overview_page' }));
+    $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
   // Find the current game, and invoke that with the "parse game state"
@@ -39,19 +39,19 @@ Overview.showOverviewPage = function() {
 
 Overview.getOverview = function(callbackfunc) {
   Overview.api = {
-    'load_status': 'failed'
+    'load_status': 'failed',
   }
 
   if (Login.player == null) {
     Env.message = {
       'type': 'none',
-      'text': 'Please login to start beating people up'
+      'text': 'Please login to start beating people up',
     };
     return callbackfunc();
   }
-
+    
   $.post(Env.api_location,
-         { type: 'loadActiveGames' },
+         { type: 'loadActiveGames', },
          function(rs) {
            if (rs.status == 'ok') {
              if (Overview.parseActiveGames(rs.data)) {
@@ -59,19 +59,19 @@ Overview.getOverview = function(callbackfunc) {
              } else if (Overview.api.load_status == 'nogames') {
                Env.message = {
                  'type': 'none',
-                 'text': 'You have no active games'
+                 'text': 'You have no active games',
                };
              } else {
                Env.message = {
                  'type': 'error',
                  'text':
-                   'Active game list received from server could not be parsed!'
+                   'Active game list received from server could not be parsed!',
                };
              }
            } else {
              Env.message = {
                'type': 'error',
-               'text': rs.message
+               'text': rs.message,
              };
            }
            return callbackfunc();
@@ -79,7 +79,7 @@ Overview.getOverview = function(callbackfunc) {
   ).fail(function() {
     Env.message = {
       'type': 'error',
-      'text': 'Internal error when calling loadActiveGames'
+      'text': 'Internal error when calling loadActiveGames',
     };
     return callbackfunc();
   });
@@ -90,11 +90,11 @@ Overview.parseActiveGames = function(data) {
     Overview.api.load_status = 'nogames';
     return false;
   }
-
+          
   Overview.api.games = {
     'awaitingPlayer': [],
     'awaitingOpponent': [],
-    'finished': []
+    'finished': [],
   };
   Overview.api.nGames = data.gameIdArray.length;
   i = 0;
@@ -108,12 +108,12 @@ Overview.parseActiveGames = function(data) {
       'gameScoreDict': {
         'W': data.nWinsArray[i],
         'L': data.nLossesArray[i],
-        'D': data.nDrawsArray[i]
+        'D': data.nDrawsArray[i],
       },
       'isAwaitingAction': data.isAwaitingActionArray[i],
       'maxWins': data.nTargetWinsArray[i],
       'gameState': data.gameStateArray[i],
-      'status': data.statusArray[i]
+      'status': data.statusArray[i],
     };
     if (gameInfo.isAwaitingAction == "1") {
       Overview.api.games['awaitingPlayer'].push(gameInfo);
@@ -169,7 +169,7 @@ Overview.pageAddNewgameLink = function() {
   var newgamePar = $('<p>');
   newgamePar.append($('<a>', {
     'href': 'create_game.html',
-    'text': 'Create a new game'
+    'text': 'Create a new game',
   }));
   newgameDiv.append(newgamePar);
   Overview.page.append(newgameDiv);
@@ -179,15 +179,15 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   if (Overview.api.games[gameType].length == 0) {
      return;
   }
-  var tableDiv = $('<div>');
-  tableDiv.append($('<h2>', {'text': sectionHeader }));
+  var tableDiv = $('<div>');  
+  tableDiv.append($('<h2>', {'text': sectionHeader, }));
   var table = $('<table>');
   headerRow = $('<tr>');
-  headerRow.append($('<th>', {'text': 'Game #' }));
-  headerRow.append($('<th>', {'text': 'Opponent' }));
-  headerRow.append($('<th>', {'text': 'Your Button' }));
-  headerRow.append($('<th>', {'text': "Opponent's Button" }));
-  headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))' }));
+  headerRow.append($('<th>', {'text': 'Game #', }));
+  headerRow.append($('<th>', {'text': 'Opponent', }));
+  headerRow.append($('<th>', {'text': 'Your Button', }));
+  headerRow.append($('<th>', {'text': "Opponent's Button", }));
+  headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
   table.append(headerRow);
   var i = 0;
   while (i < Overview.api.games[gameType].length) {
@@ -195,15 +195,15 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gameRow = $('<tr>');
     var gameLinkTd = $('<td>');
     gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
-                                'text': gameInfo.gameId}));
+                                'text': gameInfo.gameId,}));
     gameRow.append(gameLinkTd);
-    gameRow.append($('<td>', {'text': gameInfo.opponentName }));
-    gameRow.append($('<td>', {'text': gameInfo.playerButtonName }));
-    gameRow.append($('<td>', {'text': gameInfo.opponentButtonName }));
+    gameRow.append($('<td>', {'text': gameInfo.opponentName, }));
+    gameRow.append($('<td>', {'text': gameInfo.playerButtonName, }));
+    gameRow.append($('<td>', {'text': gameInfo.opponentButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.gameScoreDict['W'] + '/' +
                                       gameInfo.gameScoreDict['L'] + '/' +
                                       gameInfo.gameScoreDict['D'] +
-                                      ' (' + gameInfo.maxWins + ')' }));
+                                      ' (' + gameInfo.maxWins + ')', }));
     i += 1;
     table.append(gameRow);
   }
