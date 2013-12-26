@@ -1041,7 +1041,7 @@ class BMInterface {
     //
     //   $action:
     //       One of {'chance', 'focus', 'decline'}.
-    //       
+    //
     //   $dieIdxArray:
     //       (i)   If this is a 'chance' action, then an array containing the
     //             index of the chance die that is being rerolled.
@@ -1050,7 +1050,7 @@ class BMInterface {
     //             dieValueArray. This can be either the indices of ALL focus
     //             dice OR just a subset.
     //       (iii) If this is a 'decline' action, then this will be ignored.
-    //       
+    //
     //   $dieValueArray:
     //       This is only used for the 'focus' action. It is a nonempty array
     //       containing the values of the focus dice that have been chosen by
@@ -1060,9 +1060,9 @@ class BMInterface {
     // The function returns a boolean telling whether the reaction has been
     // successful.
     // If it fails, $this->message will say why it has failed.
-    
-    public function react_to_initiative($userId, $gameNumber, $action,
-                                        $dieIdxArray = NULL, 
+
+    public function react_to_initiative($playerId, $gameNumber, $action,
+                                        $dieIdxArray = NULL,
                                         $dieValueArray = NULL) {
         try {
             $game = $this->load_game($gameNumber);
@@ -1070,12 +1070,12 @@ class BMInterface {
                                           BMGameState::react_to_initiative,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }
 
-            $playerIdx = array_search($userId, $game->playerIdArray);
+            $playerIdx = array_search($playerId, $game->playerIdArray);
 
             if (FALSE === $playerIdx) {
                 $this->message = 'You are not a participant in this game';
@@ -1112,7 +1112,7 @@ class BMInterface {
             if ($isSuccessful) {
                 $this->save_game($game);
             }
-            
+
             return $isSuccessful;
         } catch (Exception $e) {
             error_log(
