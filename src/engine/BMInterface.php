@@ -923,7 +923,7 @@ class BMInterface {
 
         // We're going to display this in user browsers, so first clean up all HTML tags
         $mysqlchat = htmlspecialchars($game->chat['chat']);
- 
+
         // Now, if the string is too long, truncate it
         if (strlen($mysqlchat) > 1020) {
             $mysqlchat = substr($mysqlchat, 0, 1020);
@@ -964,7 +964,7 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values($userId, $gameNumber,
+    public function submit_swing_values($playerId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
                                         $swingValueArray) {
         try {
@@ -1022,8 +1022,8 @@ class BMInterface {
 
     public function submit_turn($playerId, $gameNumber, $roundNumber,
                                 $submitTimestamp,
-				$dieSelectStatus, $attackType,
-				$attackerIdx, $defenderIdx, $chat) {
+                                $dieSelectStatus, $attackType,
+                                $attackerIdx, $defenderIdx, $chat) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
@@ -1075,7 +1075,7 @@ class BMInterface {
                 $attack->add_die($attackDie);
             }
 
-            $game->add_chat($userId, $chat);
+            $game->add_chat($playerId, $chat);
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
@@ -1118,10 +1118,10 @@ class BMInterface {
     // The function returns a boolean telling whether the reaction has been
     // successful.
     // If it fails, $this->message will say why it has failed.
-    
-    public function react_to_initiative($userId, $gameNumber, $roundNumber,
-					$submitTimestamp, $action,
-					$dieIdxArray = NULL,
+
+    public function react_to_initiative($playerId, $gameNumber, $roundNumber,
+                                        $submitTimestamp, $action,
+                                        $dieIdxArray = NULL,
                                         $dieValueArray = NULL) {
         try {
             $game = $this->load_game($gameNumber);
