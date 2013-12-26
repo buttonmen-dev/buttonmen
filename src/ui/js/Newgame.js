@@ -254,14 +254,13 @@ Newgame.formCreateGame = function() {
                  'text': '',
                  'obj': gamePar
                };
-               Newgame.showNewgamePage();
              } else {
                Env.message = {
                  'type': 'error',
                  'text': rs.message
                };
-               Newgame.showNewgamePage();
              }
+             Newgame.showNewgamePage();
            }
     ).fail(function() {
              Env.message = {

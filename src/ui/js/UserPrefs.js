@@ -134,8 +134,8 @@ UserPrefs.formSetPrefs = function() {
                      'type': 'error',
                      'text': rs.message
                  };
-                 UserPrefs.showUserPrefsPage();
              }
+             UserPrefs.showUserPrefsPage();
          }
         ).fail(function() {
                    Env.message = {
