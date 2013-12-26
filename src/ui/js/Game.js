@@ -704,8 +704,6 @@ Game.formReactToInitiativeActive = function() {
                    break;
                }
 
-               if (rs.gained_initiative) {
-               }
                Env.message = {
                  'type': 'success',
                  'text': message,
