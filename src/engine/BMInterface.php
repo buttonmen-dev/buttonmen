@@ -499,6 +499,14 @@ class BMInterface {
 
             // set player that won initiative
             if (isset($game->playerWithInitiativeIdx)) {
+                // set all players to not having initiative
+                $query = 'UPDATE game_player_map '.
+                         'SET did_win_initiative = 0 '.
+                         'WHERE game_id = :game_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id' => $game->gameId));
+
+                // set player that won initiative
                 $query = 'UPDATE game_player_map '.
                          'SET did_win_initiative = 1 '.
                          'WHERE game_id = :game_id '.
