@@ -35,7 +35,7 @@ class BMInterface {
     // methods
 
     public function create_user($username, $password) {
-	try {
+        try {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
@@ -62,6 +62,60 @@ class BMInterface {
             $this->message = 'User create failed: ' . $errorData[2];
             return NULL;
         }
+    }
+
+    public function get_player_info($playerId) {
+        try {
+            $query = 'SELECT * FROM player WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+            $result = $statement->fetchAll();
+
+            if (0 == count($result)) {
+                return NULL;
+            }
+        } catch (Exception $e) {
+            $errorData = $statement->errorInfo();
+            $this->message = 'Player info get failed: ' . $errorData[2];
+            return NULL;
+        }
+
+        $playerInfoArray = $result[0];
+
+        // make sure that the password hash is not accessed this way
+        unset($playerInfoArray['password_hashed']);
+
+        $playerInfoArray['id'] = (int)$playerInfoArray['id'];
+//        $playerInfoArray['dob']
+        $playerInfoArray['autopass'] = (bool)$playerInfoArray['autopass'];
+//        $playerInfoArray['last_action_time']
+//        $playerInfoArray['creation_time']
+        $playerInfoArray['fanatic_button_id'] = (int)$playerInfoArray['fanatic_button_id'];
+        $playerInfoArray['n_games_won'] = (int)$playerInfoArray['n_games_won'];
+        $playerInfoArray['n_games_lost'] = (int)$playerInfoArray['n_games_lost'];
+
+        return $playerInfoArray;
+    }
+
+    public function set_player_info($playerId, array $infoArray) {
+        $infoArray['autopass'] = (int)($infoArray['autopass']);
+        foreach ($infoArray as $infoType => $info) {
+            try {
+                $query = 'UPDATE player '.
+                         "SET $infoType = :info ".
+                         'WHERE id = :player_id;';
+
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':info' => $info,
+                                          ':player_id' => $playerId));
+                $this->message = "Player info updated successfully.";
+                return array('playerId' => $playerId);
+            } catch (Exception $e) {
+                var_dump($e->getMessage());
+                $this->message = 'Player info update failed: '.$e->getMessage();
+            }
+        }
+
     }
 
     public function create_game(array $playerIdArray,
@@ -920,12 +974,12 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values($userId, $gameNumber,
+    public function submit_swing_values($playerId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
                                         $swingValueArray) {
         try {
             $game = $this->load_game($gameNumber);
-            $currentPlayerIdx = array_search($userId, $game->playerIdArray);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
@@ -933,7 +987,7 @@ class BMInterface {
                                           BMGameState::specifyDice,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
@@ -976,17 +1030,17 @@ class BMInterface {
         }
     }
 
-    public function submit_turn($userId, $gameNumber, $roundNumber,
+    public function submit_turn($playerId, $gameNumber, $roundNumber,
                                 $submitTimestamp,
-				$dieSelectStatus, $attackType,
-				$attackerIdx, $defenderIdx, $chat) {
+                                $dieSelectStatus, $attackType,
+                                $attackerIdx, $defenderIdx, $chat) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
                                           BMGameState::startTurn,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }
@@ -1031,7 +1085,7 @@ class BMInterface {
                 $attack->add_die($attackDie);
             }
 
-            $game->add_chat($userId, $chat);
+            $game->add_chat($playerId, $chat);
 
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
@@ -1075,9 +1129,9 @@ class BMInterface {
     // successful.
     // If it fails, $this->message will say why it has failed.
 
-    public function react_to_initiative($userId, $gameNumber, $roundNumber,
-					$submitTimestamp, $action,
-					$dieIdxArray = NULL,
+    public function react_to_initiative($playerId, $gameNumber, $roundNumber,
+                                        $submitTimestamp, $action,
+                                        $dieIdxArray = NULL,
                                         $dieValueArray = NULL) {
         try {
             $game = $this->load_game($gameNumber);
@@ -1085,12 +1139,12 @@ class BMInterface {
                                           BMGameState::reactToInitiative,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }
 
-            $playerIdx = array_search($userId, $game->playerIdArray);
+            $playerIdx = array_search($playerId, $game->playerIdArray);
 
             if (FALSE === $playerIdx) {
                 $this->message = 'You are not a participant in this game';
