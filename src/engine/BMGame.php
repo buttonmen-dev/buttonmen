@@ -1003,6 +1003,9 @@ class BMGame {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
+        // james: deliberately ignore Surrender attacks here, so that it
+        //        does not appear in the list of attack types
+
         return $validAttackTypeArray;
     }
 

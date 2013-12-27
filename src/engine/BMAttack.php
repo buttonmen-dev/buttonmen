@@ -42,7 +42,7 @@ class BMAttack {
     }
 
     public static function possible_attack_types(array $attackers) {
-        $allAttackTypesArray = array('Surrender' => 'Surrender');
+        $allAttackTypesArray = array();
 
         foreach ($attackers as $attacker) {
             $individualAttackTypeArray = array();
@@ -56,6 +56,9 @@ class BMAttack {
                 $allAttackTypesArray[$attackType] = $attackType;
             }
         }
+
+        // james: deliberately ignore Surrender attacks here, so that it
+        //        does not appear in the list of attack types
 
         return $allAttackTypesArray;
     }
