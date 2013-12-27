@@ -167,6 +167,16 @@ class BMAttack {
 //            // return FALSE;
 //        }
 
+        if ('Surrender' == $game->attack['attackType']) {
+            // this logic is only designed for two players
+            $this->gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
+            $this->gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
+            $game->reset_play_state();
+            $game->gameState = BMGameState::endRound;
+
+            return TRUE;
+        }
+
         if ('Pass' == $game->attack['attackType']) {
             $game->nRecentPasses += 1;
         } else {

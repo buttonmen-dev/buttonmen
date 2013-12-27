@@ -373,8 +373,8 @@ class BMGame {
                   $attackerAttackDieArray, $defenderAttackDieArray
                 );
 
-                $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
-                $this->turnNumberInRound += 1;
+                $this->turnNumberInRound++;
+                $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);                
 
                 $postAttackDice = $this->get_action_log_data(
                   $attackerAttackDieArray, $defenderAttackDieArray
