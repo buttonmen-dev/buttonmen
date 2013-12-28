@@ -94,7 +94,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # 2003 Rare-Promos  (lacking information about this set except for one button, Apples and Green Apples were once here)
 ('Abe Caine',    'p(4,4) p(8,8) (10) ps(24) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="2003 Rare-Promos")),
 # 2004 ORIGINS (Flying Buffalo) 
-#    INTRODUCES Sleep(Z) dice AND Game(R) dice; Fire(F); Poison(p); Shadow(s); Slow(w); Speed(z); Value(v); Option
+#    INTRODUCES Sleep(Z) dice AND Game(#) dice; Fire(F); Poison(p); Shadow(s); Slow(w); Speed(z); Value(v); Option
 ('Amara Wintersword',     '(4) (8) (12) (12) (X)?',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Beatnik Turtle',        'wHF(4) (8) (10) vz(20) vz(20)',                   0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Captain Bingo',         '(8) (6/12) (6/12) (12/20) (X)',                   0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -104,13 +104,13 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Cheese Weasel',         '(6) (8) (12) (16) (20)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # ('Killer Christmas Tree', '(6) Z(6) (10) Z(12) (X)',                       0, ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # The old site used raGe dice instead of Game dice in the following recipes.
-('Delt',                  'R(4) R(4) (10) (12) R(X)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Reggie',                '(8) (10) R(12) (20) R(20)',                       0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Rold',                  '(6) (6) R(6) R(6) R(6)',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Delt',                  '\#(4) \#(4) (10) (12) \#(X)',                      0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Reggie',                '(8) (10) \#(12) (20) \#(20)',                      0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Rold',                  '(6) (6) \#(6) \#(6) \#(6)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # since old site users are used to playing these with Rage . . .
-('Classic Delt',          'G(4) G(4) (10) (12) G(X)',                        0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Classic Reggie',        '(8) (10) G(12) (20) G(20)',                       0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Classic Rold',          '(6) (6) G(6) G(6) G(6)',                          0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Delt Rage',              'G(4) G(4) (10) (12) G(X)',                        0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Reggie Rage',            '(8) (10) G(12) (20) G(20)',                       0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Rold Rage',              '(6) (6) G(6) G(6) G(6)',                          0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 #? just wondering why these four were not included in the original site.  
 #?('Billy Shakespear',      '(15) (64) (16) (16)',                             0, ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 #?('Drew's Truck',          '(5) (10) (15) (20) (X)',                          0, ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
