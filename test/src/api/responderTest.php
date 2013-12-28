@@ -298,6 +298,38 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy player names should have matching structures");
     }
 
+    public function test_request_loadPlayerInfo() {
+        $_SESSION = $this->mock_test_user_login();
+        $args = array('type' => 'loadPlayerInfo');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy player data should have matching structures");
+    }
+
+    public function test_request_savePlayerInfo() {
+        $_SESSION = $this->mock_test_user_login();
+        $args = array('type' => 'savePlayerInfo', 'autopass' => True, );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy player data update return values should have matching structures");
+    }
+
     public function test_request_loadPlayerNames() {
         $args = array('type' => 'loadPlayerNames');
         $retval = $this->object->process_request($args);

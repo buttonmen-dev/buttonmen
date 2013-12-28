@@ -146,7 +146,8 @@ Login.addMainNavbar = function() {
   var navrow = $('<tr>');
   var links = {
     'index.html': 'Overview',
-    'create_game.html': 'Create game' };
+    'create_game.html': 'Create game',
+    'prefs.html': 'Preferences' };
   $.each(links, function(url, text) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
