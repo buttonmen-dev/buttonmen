@@ -51,6 +51,10 @@ class responder {
             return $interface->get_all_active_games($_SESSION['user_id']);
         }
 
+        if ($args['type'] == 'loadCompletedGames') {
+            return $interface->get_all_completed_games($_SESSION['user_id']);
+        }
+
         if ($args['type'] == 'loadButtonNames') {
             return $interface->get_all_button_names();
         }
