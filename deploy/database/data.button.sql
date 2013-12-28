@@ -44,7 +44,9 @@ INSERT INTO buttonset (name) VALUES
 ('Bar Mitzvah'),
 ('Button Brains'),
 ('Chicagoland Gamers Conclave'),
+('2003 Rare-Promos'),
 ('SFR'),
+('2004 Origins'),
 ('Space Girlz'),
 ('Bridge and Tunnel'),
 ('2005 Rare Promo'),
@@ -74,7 +76,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # JAMES ERNEST is mathematically impossible to implement (though it might be fun to try to work around this, changing sizes to die skills)
 # ('James Ernest','(pi) (inf) (sqrt(-2)) (X)',     1, 0, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # Carson from 1999 GenCon
-# ('Carson(p)',      '(4) (5) (6) (7) (X)',        ?, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
+('Carson(p)',      '(4) (5) (6) (7) (X)',          0, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # 2000 RARE-PROMO
 # Gordo from ButtonMen Poster 1999 (Cheapass Games)
 ('Gordo',               'u(V) u(W) u(X) u(Y) u(Z)',           0, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
@@ -85,15 +87,17 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # 2000 SHORECON (ShoreCon)            NO SPECIAL DIE SKILLS
 ('ConMan',     '(4) (6) p(20)',      0,  1, (SELECT id FROM buttonset WHERE name="2000 ShoreCon")),
 # 2002 ANIME EXPO                                NO SPECIAL DICE SKILLS
-('MAX(p)',          '(4) (6) (18) (20 (X)',           0, 1, (SELECT id FROM buttonset WHERE name="2002 Anime Expo")),
+('MAX(p)',          '(4) (6) (18) (20) (X)',           0, 1, (SELECT id FROM buttonset WHERE name="2002 Anime Expo")),
 # 2002 Origins (Cheapass Games)                       SKILLS: Stinger(g) on old site)
 ('Apples',       '(8) (8) (2/12) (8/16) (20/24)',       0, 1, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave")),
 ('Green Apple',  '(8) (10) (1/8) (6/12) (12/20)',       0, 1, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave")),
+# 2003 Rare-Promos  (lacking information about this set except for one button, Apples and Green Apples were once here)
+('Abe Caine',    'p(4,4) p(8,8) (10) ps(24) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="2003 Rare-Promos")),
 # 2004 ORIGINS (Flying Buffalo) 
 #    INTRODUCES Sleep(Z) dice AND Game(R) dice; Fire(F); Poison(p); Shadow(s); Slow(w); Speed(z); Value(v); Option
 ('Amara Wintersword',     '(4) (8) (12) (12) (X)?',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Beatnik Turtle',        'wHF(4) (8) (10) vz(20) vz(20)',                   0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Captain Bingo',         '(8 6/12 6/12 12/20 X',                            0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Captain Bingo',         '(8) (6/12) (6/12) (12/20) (X)',                   0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Oni',                   '(4) (10) f(12) f(12) (V)',                        0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Spite',                 'p(6) (6) (6) s(X) (X)',                           0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Super Germ',            'p(10) p(12) p(16) p(20) p(24) p(30) p(30) p(X)',  0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -118,7 +122,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # BALTICON 34 (Balticon)                             INTRODUCES Option(/)       (2000 Rare / Promo on old site)
 ('Social Class',   '(4/6) (6/8) (8/10) (10/12) (12/20)',        0, 1, (SELECT id FROM buttonset WHERE name="Balticon 34")),
 # BAR MITZVAH (Theodore Alper)                         SKILLS: Speed (z); Ornery (o)
-('Bar Mitzvah Boy', '(6/13) (8) (10) (f13) (f30)',             0, 0, (SELECT id FROM buttonset WHERE name="Bar Mitzvah")),
+('Bar Mitzvah Boy', '(6/13) (8) (10) f(13) f(30)',             0, 0, (SELECT id FROM buttonset WHERE name="Bar Mitzvah")),
 ('Judah Maccabee',  '(8) z(12) H(4) o(12) (Y)',                0, 0, (SELECT id FROM buttonset WHERE name="Bar Mitzvah")),
 # THE BIG CHEESE (Cheapass Games) 
 ('Bunnies',     '(1) (1) (1) (1) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese")),
@@ -181,19 +185,19 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Tirade from Wunderland (Wunderland)
 ('Tirade',              '(6) ^(6) ^(10) (V)!',                0, 0, (SELECT id FROM buttonset WHERE name="ButtonBroccoli")),
 # BUTTONLORDS (Green Knight)             INTRODUCES Auxilary(+) dice; Shadow(s)
-('Arthur',      '(8) (8) (10) (20) (X) +(20)',      0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Mordred',     's(6) (10) (10) s(20) s(X) +(4)',   0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Lancelot',    '(10) (12) (20) (20) (X) +(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Gawaine',     '(4) (4) (12) (20) (X) +(6)',       0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Morgan Le Fay','s(4) (12) s(12) (20) (X) +(12)',  0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Guenever',    '(6) s(8) (10) (12) (X) +(8)',      0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Nimue',       '(4) (6) s(12) (20) (X) +s(10)',    0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
-('Merlin',      '(2) (4) s(10) s(20) (X) +s(X)',    0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('King Arthur',    '(8) (8) (10) (20) (X) +(20)',      0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Mordred',        's(6) (10) (10) s(20) s(X) +(4)',   0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Lancelot',       '(10) (12) (20) (20) (X) +(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Gawaine',        '(4) (4) (12) (20) (X) +(6)',       0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Morgan Le Fay',  's(4) (12) s(12) (20) (X) +(12)',   0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Guenever',       '(6) s(8) (10) (12) (X) +(8)',      0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Nimue',          '(4) (6) s(12) (20) (X) +s(10)',    0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
+('Merlin',         '(2) (4) s(10) s(20) (X) +s(X)',    0, 1, (SELECT id FROM buttonset WHERE name="Buttonlords")),
 # DEMICON THE 13TH (DemiCon)                           SKILLS Shadow; Option
 ('The Effster',               's(4) (8) (8) s(12) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="Demicon the 13th")),
 ('The Fictitious Alan Clark', 's(8) s(8) (3/12) (20) (X)',    0, 1, (SELECT id FROM buttonset WHERE name="Demicon the 13th")),
 # DICELAND                            INTRODUCES Stinger(g) dice
-('Buck Godot',  'g(8) g(10) (12) (20) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Diceland")),
+('Buck',        'g(8) g(10) (12) (20) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Diceland")),
 ('Cass',        '(4) g(4) g(6) (12) (X)',        0, 1, (SELECT id FROM buttonset WHERE name="Diceland")),
 ('Z-Don',       'g(6) g(8) p(16) (X) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="Diceland")),
 ('Crysis',      'g(8) (10) (10) (X) (X)',        0, 1, (SELECT id FROM buttonset WHERE name="Diceland")),
@@ -409,7 +413,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Dixie',            '(4) (6) (10) (12,12) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Studio Foglio")),
 ('Growf',            '(4,4) (6) (8) (12) (X)',        0, 1, (SELECT id FROM buttonset WHERE name="Studio Foglio")),
 # Buck Godot    NOTE: Winslow from this set is a die, not a button.
-('Buck',             '(6,6) (10) (12) (20) (W,W)',    0, 1, (SELECT id FROM buttonset WHERE name="Studio Foglio")),
+('Buck Godot',       '(6,6) (10) (12) (20) (W,W)',    0, 1, (SELECT id FROM buttonset WHERE name="Studio Foglio")),
 # Girl Genius
 # Jorgi from GenCon 2001 (Cheapass Games)
 ('Agatha',           '(4) (6) (8,8) (20) (X)',        0, 1, (SELECT id FROM buttonset WHERE name="Studio Foglio")),
@@ -505,6 +509,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Jose',                'M(3) M(4) M(6) M(8) M(T)',                  0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Loki',                'Ho(2,2) Ho(2,2) Ho(2,2) Ho(2,2) (T)',       0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Marilyn Monroe',      'D(36) (24) (36)',                           0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
+('Miser',               'v(20) v(20) v(20) v(20) v(20)',             0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Qui-Gon Jinn',        'f(4) (6) f(8) (10) f(12)',                  0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Skomp',               'wm(1) wm(2) wm(4) m(8) m(10)',              0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('The Tick',            'H(1,10) H(12) H(20) H(20)',                 0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
@@ -525,7 +530,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('ABCGi',           '%Ho(1) pdw(7) mhv(13) zkt(23) (X,X)!',       0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('albertel',        'n^(20) t(20) z(20) q(S)',                    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Alljazzedup80',   'z(8) B(8) p(10) %(12) (10/20)',              0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
-('amica',           't(4) p(6) o(8 (7,7) o(Y)?',                  0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
+('amica',           't(4) p(6) o(8) (7,7) o(Y)?',                  0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Anders',          '(8) (8) (8) (8) (8) o(24)',                  0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('antherem',        'fH(4) opH^(8) f(10) @(12) (U) r(10) r(12)',  0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('anthony',       'v?(X,X) vst(16) stomp(10) {zf,Bp}(V) fF(15)',  0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
