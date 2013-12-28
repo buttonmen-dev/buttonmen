@@ -31,6 +31,20 @@ td.left {
     text-align: left;
 }
 
+td.chatplayer {
+    text-align: right;
+    background-color: #00ffff;
+}
+
+td.chatopponent {
+    text-align: right;
+    background-color: #00ff00;
+}
+
+td.logtable {
+    vertical-align: top;
+}
+
 th {
     text-align: center;
     /*border: 1px solid black;*/
@@ -53,6 +67,14 @@ select option.greyed {
 
 select option.yellowed {
     background-color: #ffff00;
+}
+
+select.center {
+    text-align: center;
+}
+
+.action_desc {
+    color: blue;
 }
 
 .die_img {

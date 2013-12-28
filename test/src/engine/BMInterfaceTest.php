@@ -18,9 +18,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             require 'test/src/database/mysql.test.inc.php';
         }
         $this->object = new BMInterface(TRUE);
-
-        $this->object->create_user('test3', 't');
-        $this->object->create_user('test4', 't');
     }
 
     /**
@@ -32,6 +29,67 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMInterface::create_user
+     */
+    public function test_create_user() {
+        $this->object->create_user('test3', 't');
+        $this->object->create_user('test4', 't');
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::get_player_info
+     */
+    public function test_get_player_info() {
+        $resultArray = $this->object->get_player_info(1, array('autopass'));
+        $this->assertTrue(is_array($resultArray));
+
+        $this->assertArrayHasKey('id', $resultArray);
+        $this->assertArrayHasKey('name_ingame', $resultArray);
+        $this->assertArrayNotHasKey('password_hashed', $resultArray);
+        $this->assertArrayHasKey('name_irl', $resultArray);
+        $this->assertArrayHasKey('email', $resultArray);
+        $this->assertArrayHasKey('dob', $resultArray);
+        $this->assertArrayHasKey('autopass', $resultArray);
+        $this->assertArrayHasKey('image_path', $resultArray);
+        $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('last_action_time', $resultArray);
+        $this->assertArrayHasKey('creation_time', $resultArray);
+        $this->assertArrayHasKey('fanatic_button_id', $resultArray);
+        $this->assertArrayHasKey('n_games_won', $resultArray);
+        $this->assertArrayHasKey('n_games_lost', $resultArray);
+
+        $this->assertTrue(is_int($resultArray['id']));
+        $this->assertEquals(1, $resultArray['id']);
+
+        $this->assertTrue(is_bool($resultArray['autopass']));
+
+        $this->assertTrue(is_int($resultArray['fanatic_button_id']));
+        $this->assertEquals(0, $resultArray['fanatic_button_id']);
+        $this->assertTrue(is_int($resultArray['n_games_won']));
+        $this->assertTrue(is_int($resultArray['n_games_lost']));
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::get_player_info
+     * @covers BMInterface::set_player_info
+     */
+    public function test_set_player_info() {
+        $this->object->set_player_info(1, array('autopass' => 1));
+        $playerInfoArray = $this->object->get_player_info(1);
+        $this->assertEquals(TRUE, $playerInfoArray['autopass']);
+
+        $this->object->set_player_info(1, array('autopass' => 0));
+        $playerInfoArray = $this->object->get_player_info(1);
+        $this->assertEquals(FALSE, $playerInfoArray['autopass']);
+    }
+
+    /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
@@ -140,6 +198,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      */
     public function test_create_self_game() {
@@ -151,6 +211,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::create_game
      */
     public function test_create_game_with_invalid_parameters() {
@@ -180,6 +242,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -296,6 +360,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
@@ -345,6 +411,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::load_game
      */
     public function test_load_poison() {
@@ -398,6 +466,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      */
     public function test_swing_value_reset_at_end_of_round() {
@@ -556,6 +626,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::save_game
      */
     public function test_swing_value_reset_at_end_of_game() {
@@ -612,6 +684,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * The following unit tests ensure that the swing values are persistent,
      * even when the swing dice have been changed to normal dice,
      *   e.g., by a berserk attack.
+     *
+     * @depends test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -682,6 +756,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     /**
      * The following unit tests ensure that the number of passes is updated
      * correctly.
+     *
+     * @depends test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -759,6 +835,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * The following unit tests ensure that autopass works correctly.
+     *
+     * @depends test_create_user
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
@@ -924,6 +1002,88 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
         $this->assertEquals(22, $game->capturedDieArrayArray[0][0]->max);
         $this->assertEquals(6, $game->capturedDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * The following unit tests ensure that konstant works correctly.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    function test_konstant() {
+        $retval = $this->object->create_game(array(1, 2), array('Al-Khwarizmi', 'Carl Friedrich Gauss'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game_without_autopass($gameId);
+
+        // load game
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals( 4, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 8, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(12, $game->activeDieArrayArray[0][3]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals( 8, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals( 8, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(24, $game->activeDieArrayArray[1][3]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[1][4]->max);
+        $this->assertTrue($game->activeDieArrayArray[0][1]->has_skill('Konstant'));
+        $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
+        $this->assertTrue($game->activeDieArrayArray[1][0]->has_skill('Konstant'));
+        $this->assertFalse($game->activeDieArrayArray[1][0]->doesReroll);
+
+        $this->assertNotNull($game->activeDieArrayArray[0][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][4]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+
+        // artificially set player 1 as winning initiative
+        $game->playerWithInitiativeIdx = 0;
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 1;
+        $dieArrayArray[0][3]->value = 1;
+        $dieArrayArray[0][4]->value = 1;
+        $dieArrayArray[1][0]->value = 2;
+        $dieArrayArray[1][1]->value = 2;
+        $dieArrayArray[1][2]->value = 2;
+        $dieArrayArray[1][3]->value = 2;
+        $dieArrayArray[1][4]->value = 2;
+
+        // perform valid attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0, 1), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game_without_autopass($game->gameId);
+
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(6, $game->capturedDieArrayArray[0][0]->max);
+        $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+
+        // check explicitly that the konstant die does not reroll
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
     }
 }
 

@@ -139,7 +139,9 @@ Newgame.actionCreateGame = function() {
   // temporarily used a select for the opponent name
   var playerNames = {};
   for (var playerName in Api.player.list) {
-    playerNames[playerName] = playerName;
+    if (playerName != Login.player) {
+      playerNames[playerName] = playerName;
+    }
   }
   createtable.append(
     Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
@@ -231,7 +233,7 @@ Newgame.formCreateGame = function() {
 
     var maxWins = $('#n_rounds').val();
 
-    $.post('../api/responder.php', {
+    $.post(Env.api_location, {
              type: 'createGame',
              playerNameArray: playerNameArray,
              buttonNameArray: buttonNameArray,

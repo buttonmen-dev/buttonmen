@@ -10,8 +10,8 @@ var Api = {
 //
 // Each routine should be defined as: Api.getXData(callbackfunc),
 // and should do these things:
-// * call responder.php with arguments which load the requested type of
-//   data from the server
+// * call Env.api_location with arguments which load the requested
+//   type of data from the server
 // * call Api.parseXData(rs) to parse the response from the server
 //   and populate Api.x in whatever way is desired
 // * call the requested callback function no matter what happened with
@@ -33,7 +33,7 @@ Api.getButtonData = function(callbackfunc) {
   Api.button = {
     'load_status': 'failed',
   };
-  $.post('../api/responder.php',
+  $.post(Env.api_location,
          { type: 'loadButtonNames', },
          function(rs) {
            if (rs.status == 'ok') {
@@ -86,7 +86,7 @@ Api.getPlayerData = function(callbackfunc) {
   Api.player = {
     'load_status': 'failed',
   };
-  $.post('../api/responder.php',
+  $.post(Env.api_location,
          { type: 'loadPlayerNames', },
          function(rs) {
            if (rs.status == 'ok') {

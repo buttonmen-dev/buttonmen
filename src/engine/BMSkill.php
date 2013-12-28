@@ -64,21 +64,23 @@ class BMSkill {
     }
 
     protected static function skill_name_abbreviation_mapping() {
-        return array('Berserk' => 'B',
+        return array('Berserk'  => 'B',
                      'Chance'  => 'c',
                      'Focus'   => 'f',
-                     'Null'    => 'n',
-                     'Poison'  => 'p',
-                     'Queer'   => 'q',
-                     'Shadow'  => 's',
-                     'Speed'   => 'z',
-                     'Trip'    => 't',
-                     'Value'   => 'v');
+                     'Konstant' => 'k',
+                     'Null'     => 'n',
+                     'Poison'   => 'p',
+                     'Queer'    => 'q',
+                     'Shadow'   => 's',
+                     'Speed'    => 'z',
+                     'Trip'     => 't',
+                     'Value'    => 'v');
     }
 
     public static function attack_types() {
         return array(// skill related attack types
                      'Berserk',
+                     'Konstant',
                      'Null',
                      'Shadow',
                      'Speed',
@@ -91,7 +93,7 @@ class BMSkill {
     
     public static function incompatible_attack_types($args = NULL) {
         return array();
-    }
+}
 }
 
 ?>

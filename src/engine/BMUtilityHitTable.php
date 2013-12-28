@@ -15,8 +15,8 @@ class BMUtilityHitTable {
 
     // $hits is an array keyed by numbers. Values is an array, keyed
     // by the combined unique ids of the sets of dice used to make the value
-    // 
-    // So, if 4 can be made with A and B or C and D, 
+    //
+    // So, if 4 can be made with A and B or C and D,
     // $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
     private $hits = array();
 
@@ -69,6 +69,11 @@ class BMUtilityHitTable {
             }
 
         }
+
+        foreach ($dice as $dieIdx => $die) {
+            $die->run_hooks('hit_table', array('hits' => &$this->hits,
+                                               'dieLetter' => $ids[$dieIdx]));
+        }
     }
 
     // Test for a hit. Return all possible sets of dice that can make that hit.
@@ -82,6 +87,14 @@ class BMUtilityHitTable {
     // Return a list of all possible hits
     public function list_hits() {
         return array_keys($this->hits);
+    }
+
+    public function __get($property) {
+        return $this->$property;
+    }
+
+    public function __set($property, $value) {
+        throw new LogicException('Private properties cannot be set.');
     }
 }
 

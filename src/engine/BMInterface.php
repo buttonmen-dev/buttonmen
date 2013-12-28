@@ -35,7 +35,7 @@ class BMInterface {
     // methods
 
     public function create_user($username, $password) {
-	try {
+        try {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
@@ -62,6 +62,60 @@ class BMInterface {
             $this->message = 'User create failed: ' . $errorData[2];
             return NULL;
         }
+    }
+
+    public function get_player_info($playerId) {
+        try {
+            $query = 'SELECT * FROM player WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+            $result = $statement->fetchAll();
+
+            if (0 == count($result)) {
+                return NULL;
+            }
+        } catch (Exception $e) {
+            $errorData = $statement->errorInfo();
+            $this->message = 'Player info get failed: ' . $errorData[2];
+            return NULL;
+        }
+
+        $playerInfoArray = $result[0];
+
+        // make sure that the password hash is not accessed this way
+        unset($playerInfoArray['password_hashed']);
+
+        $playerInfoArray['id'] = (int)$playerInfoArray['id'];
+//        $playerInfoArray['dob']
+        $playerInfoArray['autopass'] = (bool)$playerInfoArray['autopass'];
+//        $playerInfoArray['last_action_time']
+//        $playerInfoArray['creation_time']
+        $playerInfoArray['fanatic_button_id'] = (int)$playerInfoArray['fanatic_button_id'];
+        $playerInfoArray['n_games_won'] = (int)$playerInfoArray['n_games_won'];
+        $playerInfoArray['n_games_lost'] = (int)$playerInfoArray['n_games_lost'];
+
+        return $playerInfoArray;
+    }
+
+    public function set_player_info($playerId, array $infoArray) {
+        $infoArray['autopass'] = (int)($infoArray['autopass']);
+        foreach ($infoArray as $infoType => $info) {
+            try {
+                $query = 'UPDATE player '.
+                         "SET $infoType = :info ".
+                         'WHERE id = :player_id;';
+
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':info' => $info,
+                                          ':player_id' => $playerId));
+                $this->message = "Player info updated successfully.";
+                return array('playerId' => $playerId);
+            } catch (Exception $e) {
+                var_dump($e->getMessage());
+                $this->message = 'Player info update failed: '.$e->getMessage();
+            }
+        }
+
     }
 
     public function create_game(array $playerIdArray,
@@ -321,6 +375,10 @@ class BMInterface {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
+                    case 'DISABLED':
+                        $die->disabled = TRUE;
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
                     case 'CAPTURED':
                         $die->captured = TRUE;
                         $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -330,8 +388,6 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $capturedDieArrayArray;
-
-//            $game->proceed_to_next_user_action();
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -443,6 +499,14 @@ class BMInterface {
 
             // set player that won initiative
             if (isset($game->playerWithInitiativeIdx)) {
+                // set all players to not having initiative
+                $query = 'UPDATE game_player_map '.
+                         'SET did_win_initiative = 0 '.
+                         'WHERE game_id = :game_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':game_id' => $game->gameId));
+
+                // set player that won initiative
                 $query = 'UPDATE game_player_map '.
                          'SET did_win_initiative = 1 '.
                          'WHERE game_id = :game_id '.
@@ -487,6 +551,9 @@ class BMInterface {
                     foreach ($activeDieArray as $dieIdx => $activeDie) {
                         // james: set status, this is currently INCOMPLETE
                         $status = 'NORMAL';
+                        if ($activeDie->disabled) {
+                            $status = 'DISABLED';
+                        }
 
                         $query = 'INSERT INTO die '.
                                  '    (owner_id, '.
@@ -572,6 +639,12 @@ class BMInterface {
                 $this->load_message_from_game_actions($game);
                 $this->log_game_actions($game);
             }
+	    // If the player sent a chat message, insert it now
+	    // then save them to the historical log
+            if ($game->chat['chat']) {
+                $this->log_game_chat($game);
+            }
+
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::save_game: " .
@@ -856,12 +929,57 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values($userId, $gameNumber,
+    protected function log_game_chat(BMGame $game) {
+
+        // We're going to display this in user browsers, so first clean up all HTML tags
+        $mysqlchat = htmlspecialchars($game->chat['chat']);
+
+        // Now, if the string is too long, truncate it
+        if (strlen($mysqlchat) > 1020) {
+            $mysqlchat = substr($mysqlchat, 0, 1020);
+        }
+
+        $query = 'INSERT INTO game_chat_log ' .
+                 '(game_id, chatting_player, message) ' .
+                 'VALUES ' .
+                 '(:game_id, :chatting_player, :message)';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(
+            array(':game_id'         => $game->gameId,
+                  ':chatting_player' => $game->chat['playerIdx'],
+                  ':message'         => $mysqlchat));
+    }
+
+    public function load_game_chat_log(BMGame $game, $n_entries = 5) {
+        try {
+            $query = 'SELECT chat_time,chatting_player,message FROM game_chat_log ' .
+                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+            $chatEntries = array();
+            while ($row = $statement->fetch()) {
+                $chatEntries[] = array(
+                    'timestamp' => $row['chat_time'],
+                    'player' => $this->get_player_name_from_id($row['chatting_player']),
+                    'message' => $row['message'],
+                );
+            }
+            return $chatEntries;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::load_game_chat_log: " .
+                $e->getMessage());
+            $this->message = 'Internal error while reading chat entries';
+            return NULL;
+        }
+    }
+
+    public function submit_swing_values($playerId, $gameNumber,
                                         $roundNumber, $submitTimestamp,
                                         $swingValueArray) {
         try {
             $game = $this->load_game($gameNumber);
-            $currentPlayerIdx = array_search($userId, $game->playerIdArray);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
@@ -869,25 +987,23 @@ class BMInterface {
                                           BMGameState::specifyDice,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
 
             // try to set swing values
-            $swingRequestArray = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            $swingLettersRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            sort($swingLettersRequested);
+            $swingLettersSubmitted = array_keys($swingValueArray);
+            sort($swingLettersSubmitted);
 
-            if (count($swingRequestArray) != count($swingValueArray)) {
-                $this->message = 'Wrong number of swing values submitted';
+            if ($swingLettersRequested != $swingLettersSubmitted) {
+                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingLettersRequested);
                 return NULL;
             }
 
-            $swingValueArrayWithKeys = array();
-            foreach ($swingRequestArray as $swingIdx => $swingRequest) {
-                $swingValueArrayWithKeys[$swingRequest] = $swingValueArray[$swingIdx];
-            }
-
-            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArrayWithKeys;
+            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
 
             $game->proceed_to_next_user_action();
 
@@ -914,17 +1030,17 @@ class BMInterface {
         }
     }
 
-    public function submit_turn($userId, $gameNumber, $roundNumber,
+    public function submit_turn($playerId, $gameNumber, $roundNumber,
                                 $submitTimestamp,
-				$dieSelectStatus, $attackType,
-				$attackerIdx, $defenderIdx) {
+                                $dieSelectStatus, $attackType,
+                                $attackerIdx, $defenderIdx, $chat) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
                                           BMGameState::startTurn,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }
@@ -969,6 +1085,8 @@ class BMInterface {
                 $attack->add_die($attackDie);
             }
 
+            $game->add_chat($playerId, $chat);
+
             // validate the attack and output the result
             if ($attack->validate_attack($game, $attackers, $defenders)) {
                 $this->save_game($game);
@@ -991,7 +1109,7 @@ class BMInterface {
     //
     //   $action:
     //       One of {'chance', 'focus', 'decline'}.
-    //       
+    //
     //   $dieIdxArray:
     //       (i)   If this is a 'chance' action, then an array containing the
     //             index of the chance die that is being rerolled.
@@ -1000,7 +1118,7 @@ class BMInterface {
     //             dieValueArray. This can be either the indices of ALL focus
     //             dice OR just a subset.
     //       (iii) If this is a 'decline' action, then this will be ignored.
-    //       
+    //
     //   $dieValueArray:
     //       This is only used for the 'focus' action. It is a nonempty array
     //       containing the values of the focus dice that have been chosen by
@@ -1010,22 +1128,23 @@ class BMInterface {
     // The function returns a boolean telling whether the reaction has been
     // successful.
     // If it fails, $this->message will say why it has failed.
-    
-    public function react_to_initiative($userId, $gameNumber, $action,
-                                        $dieIdxArray = NULL, 
+
+    public function react_to_initiative($playerId, $gameNumber, $roundNumber,
+                                        $submitTimestamp, $action,
+                                        $dieIdxArray = NULL,
                                         $dieValueArray = NULL) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
-                                          BMGameState::react_to_initiative,
+                                          BMGameState::reactToInitiative,
                                           $submitTimestamp,
                                           $roundNumber,
-                                          $userId)) {
+                                          $playerId)) {
                 $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }
 
-            $playerIdx = array_search($userId, $game->playerIdArray);
+            $playerIdx = array_search($playerId, $game->playerIdArray);
 
             if (FALSE === $playerIdx) {
                 $this->message = 'You are not a participant in this game';
@@ -1048,9 +1167,11 @@ class BMInterface {
                         $this->message = 'Mismatch in number of indices and values';
                         return FALSE;
                     }
+                    $argArray['focusValueArray'] = array();
                     foreach ($dieIdxArray as $tempIdx => $dieIdx) {
-                        $argArray[$dieIdx] = $dieValueArray[$tempIdx];
+                        $argArray['focusValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
                     }
+                    break;
                 case 'decline':
                     break;
                 default:
@@ -1061,8 +1182,11 @@ class BMInterface {
             $isSuccessful = $game->react_to_initiative($argArray);
             if ($isSuccessful) {
                 $this->save_game($game);
+                $this->message = 'Successfully gained initiative';
+            } else {
+                $this->message = $game->message;
             }
-            
+
             return $isSuccessful;
         } catch (Exception $e) {
             error_log(

@@ -36,6 +36,7 @@
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
  * @property      array $actionLog               Game actions taken by this BMGame instance
+ * @property      array $chat                    A chat message submitted by the active player
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -76,6 +77,7 @@ class BMGame {
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
     private $autopassArray;         // boolean array whether each player has enabled autopass
     private $actionLog;             // game actions taken by this BMGame instance
+    private $chat;                  // chat message submitted by the active player with an attack
     private $message;               // message to be passed to the GUI
 
     public $swingRequestArrayArray;
@@ -276,6 +278,9 @@ class BMGame {
                     // find out if any of the dice have the ability to react
                     // when the player loses initiative
                     foreach ($activeDieArray as $activeDie) {
+                        if ($activeDie->disabled) {
+                            continue;
+                        }
                         $hookResultArray =
                           $activeDie->run_hooks('react_to_initiative',
                                                 array('activeDieArrayArray' => $this->activeDieArrayArray,
@@ -289,9 +294,9 @@ class BMGame {
                             }
                         }
                     }
-
-                    $this->waitingOnActionArray = $canReactArray;
                 }
+
+                $this->waitingOnActionArray = $canReactArray;
 
                 break;
 
@@ -536,8 +541,20 @@ class BMGame {
                 break;
 
             case BMGameState::reactToInitiative:
+                // if everyone is out of actions, reactivate chance dice
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
+                    if (isset($this->activeDieArrayArray)) {
+                        foreach ($this->activeDieArrayArray as &$activeDieArray) {
+                            if (isset($activeDieArray)) {
+                                foreach($activeDieArray as &$activeDie) {
+                                    if ($activeDie->has_skill('Chance')) {
+                                        unset($activeDie->disabled);
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -648,7 +665,9 @@ class BMGame {
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.
 
-    public function react_to_initiative(array $args) {
+    // $gainedInitiativeOverride is used for testing purposes only
+
+    public function react_to_initiative(array $args, $gainedInitiativeOverride = NULL) {
         if (BMGameState::reactToInitiative != $this->gameState) {
             $this->message = 'Wrong game state to react to initiative.';
             return FALSE;
@@ -663,6 +682,7 @@ class BMGame {
         $playerIdx = $args['playerIdx'];
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
+
 
         switch ($args['action']) {
             case 'chance':
@@ -687,9 +707,20 @@ class BMGame {
                 }
 
                 $die->roll();
+                foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
+                    if ($die->has_skill('Chance')) {
+                        $die->disabled = TRUE;
+                    }
+                }
+
+                $newInitiativeArray = BMGame::does_player_have_initiative_array(
+                                          $this->activeDieArrayArray);
+                $gainedInitiative = $newInitiativeArray[$playerIdx] &&
+                                    (1 == array_sum($newInitiativeArray));
                 $this->gameState = BMGameState::determineInitiative;
                 break;
             case 'decline':
+                $gainedInitiative = FALSE;
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
                 }
@@ -737,19 +768,52 @@ class BMGame {
                 }
 
                 // change specified die values
+                $oldValueArray = array();
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
+                    $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
                 }
+                $newInitiativeArray = BMGame::does_player_have_initiative_array(
+                                          $this->activeDieArrayArray);
 
+                if (!$newInitiativeArray[$playerIdx] ||
+                    array_sum($newInitiativeArray) > 1) {
+                    // reset die values
+                    foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
+                    }
+                    $this->message = 'Focus dice not set low enough.';
+                    return FALSE;
+                }
                 $this->gameState = BMGameState::determineInitiative;
+                $gainedInitiative = TRUE;
                 break;
             default:
                 $this->message = 'Invalid reaction to initiative.';
                 return FALSE;
         }
 
+        if (isset($gainedInitiativeOverride)) {
+            $gainedInitiative = $gainedInitiativeOverride;
+        }
+
+        if ($gainedInitiative) {
+            // re-enable all disabled chance dice for other players
+            foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
+                if ($playerIdx == $pIdx) {
+                    continue;
+                }
+                foreach ($activeDieArray as &$activeDie) {
+                    if ($activeDie->has_skill('Chance')) {
+                        unset($activeDie->disabled);
+                    }
+                }
+            }
+        }
+
         $this->do_next_step();
-        return TRUE;
+
+        return array('gained_initiative' => $gainedInitiative);
     }
 
     protected function run_die_hooks($gameState, array $args = array()) {
@@ -1047,6 +1111,11 @@ class BMGame {
     // the database
     public function empty_action_log() {
         $this->actionLog = array();
+    }
+
+    // N.B. The chat text has not been sanitized at this point, so don't use it for anything
+    public function add_chat($playerIdx, $chat) {
+        $this->chat = array('playerIdx' => $playerIdx, 'chat' => $chat);
     }
 
     // special recording function for logging what changed as the result of an attack
@@ -1492,11 +1561,24 @@ class BMGame {
                 $sidesArrayArray[] = array();
                 $dieRecipeArrayArray[] = array();
 
-                if (empty($this->swingRequestArrayArray[$playerIdx])) {
-                    $swingRequestArrayArray[] = array();
-                } else {
-                    $swingRequestArrayArray[] = array_keys($this->swingRequestArrayArray[$playerIdx]);
+                $playerSwingRequestArray = array();
+                if (isset($this->swingRequestArrayArray[$playerIdx])) {
+                    foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+                        if ($swingdice[0] instanceof BMDieTwin) {
+                            $swingdie = $swingdice[0]->dice[0];
+                        } else {
+                            $swingdie = $swingdice[0];
+                        }
+                        if ($swingdie instanceof BMDieSwing) {
+                            $validRange = $swingdie->swing_range($swingtype);
+                        } else {
+                            throw new LogicException("Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie);
+                        }
+                        $playerSwingRequestArray[$swingtype] = array(strval($validRange[0]), strval($validRange[1]));
+                    }
                 }
+                $swingRequestArrayArray[] = $playerSwingRequestArray;
+
                 foreach ($activeDieArray as $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
@@ -1524,6 +1606,36 @@ class BMGame {
             $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
+        if (isset($this->capturedDieArrayArray)) {
+            $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
+            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
+                $capturedValueArrayArray[] = array();
+                $capturedSidesArrayArray[] = array();
+                $capturedRecipeArrayArray[] = array();
+
+                foreach ($capturedDieArray as $die) {
+                    // hide swing information if appropriate
+                    $dieValue = $die->value;
+                    $dieMax = $die->max;
+
+                    if ($wereBothSwingValuesReset &&
+                        ($this->gameState <= BMGameState::specifyDice) &&
+                        ($playerIdx !== $requestingPlayerIdx)) {
+                        $dieValue = NULL;
+                        $dieMax = NULL;
+                    }
+                    $capturedValueArrayArray[$playerIdx][] = $dieValue;
+                    $capturedSidesArrayArray[$playerIdx][] = $dieMax;
+                    $capturedRecipeArrayArray[$playerIdx][] = $die->recipe;
+                }
+            }
+        } else {
+            $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
+            $capturedValueArrayArray = array_fill(0, $this->nPlayers, array());
+            $capturedSidesArrayArray = array_fill(0, $this->nPlayers, array());
+            $capturedRecipeArrayArray = array_fill(0, $this->nPlayers, array());
+        }
+
         if (!$swingValuesAllSpecified) {
                 foreach($valueArrayArray as &$valueArray) {
                         foreach($valueArray as &$value) {
@@ -1541,23 +1653,27 @@ class BMGame {
         }
 
         $dataArray =
-            array('gameId'                  => $this->gameId,
-                  'gameState'               => $this->gameState,
-                  'roundNumber'             => $this->get_roundNumber(),
-                  'maxWins'                 => $this->maxWins,
-                  'activePlayerIdx'         => $this->activePlayerIdx,
-                  'playerWithInitiativeIdx' => $this->playerWithInitiativeIdx,
-                  'playerIdArray'           => $this->playerIdArray,
-                  'buttonNameArray'         => $buttonNameArray,
-                  'waitingOnActionArray'    => $this->waitingOnActionArray,
-                  'nDieArray'               => $nDieArray,
-                  'valueArrayArray'         => $valueArrayArray,
-                  'sidesArrayArray'         => $sidesArrayArray,
-                  'dieRecipeArrayArray'     => $dieRecipeArrayArray,
-                  'swingRequestArrayArray'  => $swingRequestArrayArray,
-                  'validAttackTypeArray'    => $validAttackTypeArray,
-                  'roundScoreArray'         => $this->get_roundScoreArray(),
-                  'gameScoreArrayArray'     => $this->gameScoreArrayArray);
+            array('gameId'                   => $this->gameId,
+                  'gameState'                => $this->gameState,
+                  'roundNumber'              => $this->get_roundNumber(),
+                  'maxWins'                  => $this->maxWins,
+                  'activePlayerIdx'          => $this->activePlayerIdx,
+                  'playerWithInitiativeIdx'  => $this->playerWithInitiativeIdx,
+                  'playerIdArray'            => $this->playerIdArray,
+                  'buttonNameArray'          => $buttonNameArray,
+                  'waitingOnActionArray'     => $this->waitingOnActionArray,
+                  'nDieArray'                => $nDieArray,
+                  'valueArrayArray'          => $valueArrayArray,
+                  'sidesArrayArray'          => $sidesArrayArray,
+                  'dieRecipeArrayArray'      => $dieRecipeArrayArray,
+                  'nCapturedDieArray'        => $nCapturedDieArray,
+                  'capturedValueArrayArray'  => $capturedValueArrayArray,
+                  'capturedSidesArrayArray'  => $capturedSidesArrayArray,
+                  'capturedRecipeArrayArray' => $capturedRecipeArrayArray,
+                  'swingRequestArrayArray'   => $swingRequestArrayArray,
+                  'validAttackTypeArray'     => $validAttackTypeArray,
+                  'roundScoreArray'          => $this->get_roundScoreArray(),
+                  'gameScoreArrayArray'      => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
     }

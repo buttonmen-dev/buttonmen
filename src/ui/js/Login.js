@@ -16,7 +16,7 @@ Login.getLoginHeader = function() {
   if (Login.status_type == 0) {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
-  $.post('../api/responder.php',
+  $.post(Env.api_location, 
          {type: 'loadPlayerName'},
          function(rs) {
            var player_name = null;
@@ -73,18 +73,18 @@ Login.getLoginForm = function() {
 // The function should setup a header and a form
 
 Login.stateLoggedIn = function() {
-  Login.message = $('<p>', {
-    'text': 'Welcome to ButtonMen: You are logged in as ' + Login.player + '. ',
-  });
-
   var loginform = Login.getLoginForm();
+  loginform.append(
+    'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
+  );
   loginform.append($('<button>', {
                        'id': 'login_action_button',
                        'text': 'Logout?',
                      }));
-  Login.form = Login.formLogout;
 
-  Login.message.append(loginform);
+  Login.message = loginform;
+  Login.addMainNavbar();
+  Login.form = Login.formLogout;
   Login.logged_in = true;
 }
 
@@ -138,6 +138,26 @@ Login.stateLoggedOut = function() {
 }
 
 ////////////////////////////////////////////////////////////////////////
+// Helper functions which add text to the existing message
+
+Login.addMainNavbar = function() {
+  Login.message.append($('<br>'));
+  var navtable = $('<table>', {'style': 'float:left'});
+  var navrow = $('<tr>');
+  var links = {
+    'index.html': 'Overview',
+    'create_game.html': 'Create game' };
+  $.each(links, function(url, text) {
+    var navtd = $('<td>');
+    navtd.append($('<a>', { 'href': url, 'text': text }));
+    navrow.append(navtd);
+  });
+  navtable.append(navrow);
+  Login.message.append(navtable);
+  Login.message.append($('<br>'));
+}
+
+////////////////////////////////////////////////////////////////////////
 // One function for each possible form action
 // The function should contact the server and then redisplay the page
 
@@ -147,7 +167,7 @@ Login.stateLoggedOut = function() {
 // of attempts to contact responder, so, for now, don't give the user
 // any feedback, just redisplay the header no matter what.  (Fix this later.)
 Login.postToResponder = function(responder_args) {
-  $.post('../api/responder.php',
+  $.post(Env.api_location,
          responder_args,
          function(rs) {
            if (rs.status == 'ok') {

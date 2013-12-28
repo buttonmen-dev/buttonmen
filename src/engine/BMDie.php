@@ -95,6 +95,8 @@ class BMDie {
                 $this->hookList[$func][] = $skillClass;
             }
         }
+        
+        $this->run_hooks(__FUNCTION__, array('die' => &$this));
     }
 
     protected function add_multiple_skills($skills) {
@@ -149,7 +151,7 @@ class BMDie {
         $this->max = $sides;
 
         $this->add_multiple_skills($skills);
-                }
+    }
 
     public static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
@@ -177,8 +179,8 @@ class BMDie {
         $die = NULL;
 
         try {
-            // Option dice divide on a |, can contain any die type
-            if (count($opt_array = explode('|', $recipe)) > 1) {
+            // Option dice divide on a /, can contain any die type
+            if (count($opt_array = explode('/', $recipe)) > 1) {
 //                $die = BMDieOption::create($opt_array, $skills);
                     throw new Exception("Option skill not implemented");
                 }
@@ -250,18 +252,13 @@ class BMDie {
 // Roll the die into a game. Clone self, roll, return the clone.
     public function make_play_die() {
         $newDie = clone $this;
-
         $newDie->roll(FALSE);
-
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         return $newDie;
     }
 
 
     public function roll($successfulAttack = FALSE) {
-
-        if ($this->doesReroll) {
+        if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
@@ -543,7 +540,7 @@ class BMDie {
         }
         $recipe .= '(';
 
-        // Option dice divide on a |, can contain any die type
+        // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
 
         }

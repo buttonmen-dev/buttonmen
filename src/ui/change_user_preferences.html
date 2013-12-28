@@ -12,20 +12,17 @@
     <meta http-equiv="Cache-control" content="no-cache" />
 
 </head>
-
 <body>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
     <!-- needed for autocomplete -->
     <script src="js/extern/jquery-ui.min.js"></script>
     <script src="js/Env.js"></script>
     <script src="js/Login.js"></script>
-    <script src="js/Api.js"></script>
-    <script src="js/Newgame.js"></script>
+    <script src="js/UserPrefs.js"></script>
     <script>
 $(document).ready(function() {
-  Login.showLoginHeader(Newgame.showNewgamePage);
+  Login.showLoginHeader(UserPrefs.showUserPrefsPage);
 });
     </script>
 </body>
-
 </html>
