@@ -80,19 +80,24 @@ class BMInterface {
             return NULL;
         }
 
-        $playerInfoArray = $result[0];
+        $playerInfoSelectArray = $result[0];
 
-        // make sure that the password hash is not accessed this way
-        unset($playerInfoArray['password_hashed']);
-
-        $playerInfoArray['id'] = (int)$playerInfoArray['id'];
-//        $playerInfoArray['dob']
-        $playerInfoArray['autopass'] = (bool)$playerInfoArray['autopass'];
-//        $playerInfoArray['last_action_time']
-//        $playerInfoArray['creation_time']
-        $playerInfoArray['fanatic_button_id'] = (int)$playerInfoArray['fanatic_button_id'];
-        $playerInfoArray['n_games_won'] = (int)$playerInfoArray['n_games_won'];
-        $playerInfoArray['n_games_lost'] = (int)$playerInfoArray['n_games_lost'];
+        // set the values we want to actually return
+        $playerInfoArray = array(
+            'id' => (int)$playerInfoSelectArray['id'],
+            'name_ingame' => $playerInfoSelectArray['name_ingame'],
+            'name_irl' => $playerInfoSelectArray['name_irl'],
+            'email' => $playerInfoSelectArray['email'],
+            'dob' => $playerInfoSelectArray['dob'],
+            'autopass' => (bool)$playerInfoSelectArray['autopass'],
+            'image_path' => $playerInfoSelectArray['image_path'],
+            'comment' => $playerInfoSelectArray['comment'],
+            'last_action_time' => $playerInfoSelectArray['last_action_time'],
+            'creation_time' => $playerInfoSelectArray['creation_time'],
+            'fanatic_button_id' => (int)$playerInfoSelectArray['fanatic_button_id'],
+            'n_games_won' => (int)$playerInfoSelectArray['n_games_won'],
+            'n_games_lost' => (int)$playerInfoSelectArray['n_games_lost'],
+        );
 
         return $playerInfoArray;
     }
