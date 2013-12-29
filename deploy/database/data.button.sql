@@ -4,7 +4,7 @@ INSERT INTO buttonset (name) VALUES
 ('The Big Cheese'),
 ('Sanctum'),
 ('Lunch Money'),
-('1999 Rare-Promo'),
+('1999 Rare / Promo'),
 ('Vampyres'),
 ('Legend of the Five Rings'),
 ('Polycon'),
@@ -70,7 +70,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Eiko & Wu Lan from Furthest North Crew / Toivo Rovainen / Cheapass
 ('Eiko',        '(4) (6) (6) (12) (X)',            0, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 ('Wu Lan',      '(4) (10) (20) (20) (X)',          0, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
-# BUZZING WEASEL's recipe stands for(Fudge) (Regular) (Prestige) (Gamer) (Screw), which are all dice particular to this button 
+# BUZZING WEASEL's recipe stands for(Fudge) (Regular) (Prestige) (Gamer) (Screw), which are all dice particular to this button
 # rather than any standard coding for swing sizes or die skills.  IMO these dice should not be made avialable for other buttons.
 # ('Buzzing Weasel','F R P G S',                   1, 1, (SELECT id FROM buttonset WHERE name="1999 Rare / Promo")),
 # JAMES ERNEST is mathematically impossible to implement (though it might be fun to try to work around this, changing sizes to die skills)
@@ -93,7 +93,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Green Apple',  '(8) (10) (1/8) (6/12) (12/20)',       0, 1, (SELECT id FROM buttonset WHERE name="Chicagoland Gamers Conclave")),
 # 2003 Rare-Promos  (lacking information about this set except for one button, Apples and Green Apples were once here)
 ('Abe Caine',    'p(4,4) p(8,8) (10) ps(24) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="2003 Rare-Promos")),
-# 2004 ORIGINS (Flying Buffalo) 
+# 2004 ORIGINS (Flying Buffalo)
 #    INTRODUCES Sleep(Z) dice AND Game(#) dice; Fire(F); Poison(p); Shadow(s); Slow(w); Speed(z); Value(v); Option
 ('Amara Wintersword',     '(4) (8) (12) (12) (X)?',                          0, 1, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Beatnik Turtle',        'wHF(4) (8) (10) vz(20) vz(20)',                   0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -111,7 +111,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Delt Rage',              'G(4) G(4) (10) (12) G(X)',                        0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Reggie Rage',            '(8) (10) G(12) (20) G(20)',                       0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Rold Rage',              '(6) (6) G(6) G(6) G(6)',                          0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-#? just wondering why these four were not included in the original site.  
+#? just wondering why these four were not included in the original site.
 #?('Billy Shakespear',      '(15) (64) (16) (16)',                             0, ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 #?('Drew's Truck',          '(5) (10) (15) (20) (X)',                          0, ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 #?('Igor(p)',               '(8) (8) z(12) (20) (X)',                          0, ?, (SELECT id FROM buttonset WHERE name="2004 Origins")),
@@ -124,7 +124,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # BAR MITZVAH (Theodore Alper)                         SKILLS: Speed (z); Ornery (o)
 ('Bar Mitzvah Boy', '(6/13) (8) (10) f(13) f(30)',             0, 0, (SELECT id FROM buttonset WHERE name="Bar Mitzvah")),
 ('Judah Maccabee',  '(8) z(12) H(4) o(12) (Y)',                0, 0, (SELECT id FROM buttonset WHERE name="Bar Mitzvah")),
-# THE BIG CHEESE (Cheapass Games) 
+# THE BIG CHEESE (Cheapass Games)
 ('Bunnies',     '(1) (1) (1) (1) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese")),
 ('Lab Rat',     '(2) (2) (2) (2) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese")),
 # BRAWL (Cheapass Games)              INTRODUCES Speed(z) dice
@@ -134,7 +134,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Hale',        'z(8) (12) (20) (20) (S)',             0, 1, (SELECT id FROM buttonset WHERE name="BRAWL")),
 ('Morgan',      'z(10) z(12) z(12) z(X)',              0, 1, (SELECT id FROM buttonset WHERE name="BRAWL")),
 ('Pearl',       '(6) (8) (12) (X) z(X)',               0, 1, (SELECT id FROM buttonset WHERE name="BRAWL")),
-('Sydney',      'z(4) z(6) z(8) (X) z(X)',             0, 0, (SELECT id FROM buttonset WHERE name="")),
+('Sydney',      'z(4) z(6) z(8) (X) z(X)',             0, 0, (SELECT id FROM buttonset WHERE name="BRAWL")),
 # Brawl: Catfight Girls from 2001 Origins
 ('Angora',      'z(4) z(6) z(8) z(10) z(X)',           0, 1, (SELECT id FROM buttonset WHERE name="BRAWL")),
 ('Nickie',      'z(4) (10) (10) (12) z(12)',           0, 1, (SELECT id FROM buttonset WHERE name="BRAWL")),
@@ -204,7 +204,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Golo',        'g(10) g(12) g(20) g(X)',        0, 1, (SELECT id FROM buttonset WHERE name="Diceland")),
 # MICRO from 2002 Origins
 ('Micro',       'g(4) g(4) (12) p(12) g(X)',     0, 0, (SELECT id FROM buttonset WHERE name="Diceland")),
-# DORK VICTORY (Cheapass Games)       INTRODUCES Mood Swing(?); Speed(z); Twin 
+# DORK VICTORY (Cheapass Games)       INTRODUCES Mood Swing(?); Speed(z); Twin
 ('Bill',        '(20) (20) (20) (V,V)',          0, 1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
 ('Carson',      '(4,4) (8) (10) (12) (V)',       0, 1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
 ('Gilly',       '(6) (8) z(8) (20) (X)?',        0, 1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
@@ -259,8 +259,8 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Tuxedo Mask',         '(6) (6) (10) (20) r(4) r(8) r(10) r(12) r(20)', 1, 1, (SELECT id FROM buttonset WHERE name="Sailor Moon 1")),
 ('Shadow Warriors',     '(1) (2) `(4) `(6) `(8) `(10) `(12)',            1, 1, (SELECT id FROM buttonset WHERE name="Sailor Moon 1")),
 # SAILOR MOON 2 (Guardians of Order)                             SKILLS: Reserve(r)
-# ICONIC ABILITIES: LUNA & ARTEMIS: Cat(2), WICKED LADY: DC(2), QUEEN SERENITY: IS(1), RUBEUS: DC(1), PRINCESS SERENA: IS(1), 
-#  SAPPHIRE: DC(2), RINI: IS(1), WISEMAN: Skull, NEO-QUEEN SERENITY: SM(2), PRINCE DIAMOND: DC(2), KING ENDYMION: KC(1), EMERALD: DC(1) 
+# ICONIC ABILITIES: LUNA & ARTEMIS: Cat(2), WICKED LADY: DC(2), QUEEN SERENITY: IS(1), RUBEUS: DC(1), PRINCESS SERENA: IS(1),
+#  SAPPHIRE: DC(2), RINI: IS(1), WISEMAN: Skull, NEO-QUEEN SERENITY: SM(2), PRINCE DIAMOND: DC(2), KING ENDYMION: KC(1), EMERALD: DC(1)
 ('Luna & Artemis',      '(1) (4) (10) (20) r(2) r(2) r(8) r(8)',         1, 1, (SELECT id FROM buttonset WHERE name="Sailor Moon 2")),
 ('Wicked Lady',         '(6) (6) (10) (12) r(4) r(8) r(10) r(20)',       1, 1, (SELECT id FROM buttonset WHERE name="Sailor Moon 2")),
 ('Queen Serenity',      '(4) (6) (10) (12) r(6) r(10) r(12) r(20)',      1, 1, (SELECT id FROM buttonset WHERE name="Sailor Moon 2")),
@@ -302,7 +302,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Professor',     '(2,3) (3,4) (4,5) (10) (T)!',      0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 # Black Jack's T swing cannot be a d12.
 ('Black Jack',    '(1,1) 11 (8,8) (10,11) (T)',       1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-#CRAPS: Any twin die that rolls a 7 may be reset by the player to any value between 2 and 12 (includes after a Trip attack.)  
+#CRAPS: Any twin die that rolls a 7 may be reset by the player to any value between 2 and 12 (includes after a Trip attack.)
 #At the start of a round, this decision must be made before seeing the opponent's starting roll.
 ('Craps',         '(6,6) (6,6) (6,6) (6,6) (6,6)',    1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 # SHAMROCK: The d13s score as normal d13s, but are represented by a d12 for which a 7 counts as a 13
@@ -313,7 +313,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # * Prestidigitation: Change any die to a Trip die.
 # * Bisect with Saw: Change any die (own or opponent's) to half of its originally-rolled value on the opening roll.
 # * Vanishing Act: First die captured by opponent is scored as zero points.
-# * Mind Reading: Opponent must state all sizes of all option and/or swing dice.      
+# * Mind Reading: Opponent must state all sizes of all option and/or swing dice.
 ('Magician',      '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 # LEGEND OF THE FIVE RINGS (Wizards of the Coast)  INTRODUCES Focus(f) dice
 ('Crab',        '(8) (10) (12) f(20) f(20)',     0, 1, (SELECT id FROM buttonset WHERE name="Legend of the Five Rings")),
@@ -478,7 +478,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Monty Brown',   't(1) z(6) o(10) (20) (Y)',           0, 0, (SELECT id FROM buttonset WHERE name="Chicago Crew")),
 ('Octavia',       'st(4) s(4) so(10) s(10) o(X)',       0, 0, (SELECT id FROM buttonset WHERE name="Chicago Crew")),
 ('Spooky',        'ot(8) o(6) o(10) B(15) o(Z)?',       0, 0, (SELECT id FROM buttonset WHERE name="Chicago Crew")),
-# FOUR HORSEMAN                                  SKILLS Berserk; Mighty; Poison; Shadow; Speed; Twin; Weak 
+# FOUR HORSEMAN                                  SKILLS Berserk; Mighty; Poison; Shadow; Speed; Twin; Weak
 ('Death',         '(2,2) p(8) s(10) (16) (X)?',         0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen")),
 ('Famine',        '(6) (8) (10) (12,12) h(X)',          0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen")),
 ('Pestilence',    '(4) pH(6) (12) (20) (S)',            0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen")),
@@ -518,7 +518,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Trogdor',             'sGF(20) sGF(20) sGF(20) sGF(20)',           0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Tyler Durden',        'o(2,2) o(6) s(20) B(20) o(X)?',             0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 # VICTORIAN HORROR       SKILLS Option; Reserve; Mood Swing; Ornery; Plazma; Null; Value;
-#   SKILLS Focus; Konstant; Poison; Shadow; Speed; Stealth; Stinger; Time and Space; Trip; Weak   
+#   SKILLS Focus; Konstant; Poison; Shadow; Speed; Stealth; Stinger; Time and Space; Trip; Weak
 ('Count Dracula',            'sf(4) (8) s(10) (16) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
 ('Dr. Jekyll',       '(X)? (X)? r^(20) rvkt(20) rsfp(20) rhop(20)',   0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
 ('Frankenstein\'s Monster',  '(10/16) (16/20) o(20/30) {G,B}(30)',    0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
