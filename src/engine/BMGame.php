@@ -1067,7 +1067,8 @@ class BMGame {
     }
 
     private function get_roundNumber() {
-        return(array_sum($this->gameScoreArrayArray[0]) + 1);
+        return(min($this->maxWins,
+                   array_sum($this->gameScoreArrayArray[0]) + 1));
     }
 
     private function get_roundScoreArray() {

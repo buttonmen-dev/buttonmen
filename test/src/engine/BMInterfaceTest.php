@@ -644,15 +644,18 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $button2->load('(V)', 'Test2');
 
         // load game
-        $game = new BMGame($gameId, array(234, 567), array('', ''), 1);
+        $game = new BMGame($gameId, array(1, 2), array('', ''), 1);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
-        $game->proceed_to_next_user_action();
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game_without_autopass($gameId);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 7), array('V' => 11));
-        $game->proceed_to_next_user_action();
+        $this->object->save_game($game);
+        $game = $this->object->load_game_without_autopass($gameId);
 
         // artificially set player 1 as winning initiative
         $game->playerWithInitiativeIdx = 0;
@@ -662,6 +665,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->waitingOnActionArray = array(FALSE, TRUE);
         // artificially set die values
         $dieArrayArray = $game->activeDieArrayArray;
+
         $dieArrayArray[0][0]->value = 1;
         $dieArrayArray[1][0]->value = 2;
 
@@ -677,6 +681,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::endGame, $game->gameState);
         $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
+        $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
+                                  array('W' => 1, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(1, $game->roundNumber);
     }
 
 
