@@ -177,7 +177,7 @@ class dummy_responder {
             $data['gameIdArray'][] = "6";
             $data['opponentIdArray'][] = "2";
             $data['opponentNameArray'][] = "tester2";
-            $data['myButtonNameArray'][] = "Buck";
+            $data['myButtonNameArray'][] = "Buck Godot";
             $data['opponentButtonNameArray'][] = "Von Pinn";
             $data['nWinsArray'][] = "0";
             $data['nLossesArray'][] = "0";
@@ -287,8 +287,8 @@ class dummy_responder {
             $data['recipeArray'][] = "p(20) s(20) (V) (X)";
             $data['hasUnimplementedSkillArray'][] = false;
 
-            // Buck
-            $data['buttonNameArray'][] = "Buck";
+            // Buck Godot
+            $data['buttonNameArray'][] = "Buck Godot";
             $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
             $data['hasUnimplementedSkillArray'][] = false;
 
@@ -538,7 +538,7 @@ class dummy_responder {
                             "activePlayerIdx" => null,
                             "playerWithInitiativeIdx" => null,
                             "playerIdArray" => array("1", "2"),
-                            "buttonNameArray" => array("Buck", "Von Pinn"),
+                            "buttonNameArray" => array("Buck Godot", "Von Pinn"),
                             "waitingOnActionArray" => array(true,true),
                             "nDieArray" => array(5, 5),
                             "valueArrayArray" => array(array(null,null,null,null,null),
