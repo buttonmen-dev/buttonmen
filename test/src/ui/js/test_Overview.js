@@ -14,7 +14,8 @@ module("Overview", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
-    delete Overview.api;
+    delete Api.active_games;
+    delete Api.completed_games;
     delete Overview.page;
 
     // Page elements
@@ -47,16 +48,8 @@ asyncTest("test_Overview.showOverviewPage", function() {
 
 asyncTest("test_Overview.getOverview", function() {
   Overview.getOverview(function() {
-    equal(Overview.api.load_status, 'ok', 'Successfully loaded overview data');
-    equal(Overview.api.nGames, 9, 'Got expected number of games for overview');
-    start();
-  });
-});
-
-asyncTest("test_Overview.parseActiveGames", function() {
-  Overview.getOverview(function() {
-    equal(Overview.api.games.awaitingPlayer.length, 5,
-          "expected number of games parsed as waiting for the active player");
+    ok(Api.active_games, "active games are parsed from server");
+    ok(Api.completed_games, "active games are parsed from server");
     start();
   });
 });
@@ -106,9 +99,9 @@ asyncTest("test_Overview.pageAddNewgameLink", function() {
 asyncTest("test_Overview.pageAddGameTable", function() {
   Overview.getOverview(function() {
     Overview.page = $('<div>');
-    Overview.pageAddGameTable('finished', 'Completed games');
+    Overview.pageAddGameTable('awaitingPlayer', 'Waiting for player');
     var htmlout = Overview.page.html();
-    ok(htmlout.match('<h2>Completed games'), "Section header should be set");
+    ok(htmlout.match('<h2>Waiting for player'), "Section header should be set");
     ok(htmlout.match('<table>'), "A table is created");
     start();
   });

@@ -171,19 +171,7 @@ class dummy_responder {
             $data['gameStateArray'][] = "40";
             $data['statusArray'][] = "ACTIVE";
 
-            // game 5
-            $data['gameIdArray'][] = "5";
-            $data['opponentIdArray'][] = "2";
-            $data['opponentNameArray'][] = "tester2";
-            $data['myButtonNameArray'][] = "Avis";
-            $data['opponentButtonNameArray'][] = "Avis";
-            $data['nWinsArray'][] = "0";
-            $data['nLossesArray'][] = "0";
-            $data['nDrawsArray'][] = "0";
-            $data['nTargetWinsArray'][] = "3";
-            $data['isAwaitingActionArray'][] = "0";
-            $data['gameStateArray'][] = "60";
-            $data['statusArray'][] = "COMPLETE";
+            // fake game 5 is completed
 
             // game 6
             $data['gameIdArray'][] = "6";
@@ -240,6 +228,39 @@ class dummy_responder {
             $data['isAwaitingActionArray'][] = "0";
             $data['gameStateArray'][] = "27";
             $data['statusArray'][] = "ACTIVE";
+
+            return array($data, "All game details retrieved successfully.");
+        }
+
+        if ($args['type'] == 'loadCompletedGames') {
+            $data = array(
+                'gameIdArray' => array(),
+                'opponentIdArray' => array(),
+                'opponentNameArray' => array(),
+                'myButtonNameArray' => array(),
+                'opponentButtonNameArray' => array(),
+                'nWinsArray' => array(),
+                'nLossesArray' => array(),
+                'nDrawsArray' => array(),
+                'nTargetWinsArray' => array(),
+                'isAwaitingActionArray' => array(),
+                'gameStateArray' => array(),
+                'statusArray' => array(),
+            );
+
+            // game 5
+            $data['gameIdArray'][] = "5";
+            $data['opponentIdArray'][] = "2";
+            $data['opponentNameArray'][] = "tester2";
+            $data['myButtonNameArray'][] = "Avis";
+            $data['opponentButtonNameArray'][] = "Avis";
+            $data['nWinsArray'][] = "3";
+            $data['nLossesArray'][] = "2";
+            $data['nDrawsArray'][] = "0";
+            $data['nTargetWinsArray'][] = "3";
+            $data['isAwaitingActionArray'][] = "0";
+            $data['gameStateArray'][] = "60";
+            $data['statusArray'][] = "COMPLETE";
 
             return array($data, "All game details retrieved successfully.");
         }
@@ -662,6 +683,27 @@ class dummy_responder {
 
         if ($args['type'] == 'loadPlayerName') {
             return array(array('userName' => 'tester1'), NULL);
+        }
+
+        if ($args['type'] == 'loadPlayerInfo') {
+            return array(array('id' => 1,
+                               'name_ingame' => 'tester1',
+                               'name_irl' => '',
+                               'email' => null,
+                               'dob' => null,
+                               'autopass' => true,
+                               'image_path' => null,
+                               'comment' => null,
+                               'last_action_time' => "0000-00-00 00:00:00",
+                               'creation_time' => "2013-12-28 01:22:14",
+                               'fanatic_button_id' => 0,
+                               'n_games_won' => 0,
+                               'n_games_lost' => 0,
+                              ), NULL);
+        }
+
+        if ($args['type'] == 'savePlayerInfo') {
+            return array(array('playerId' => 1), 'Player info updated successfully.');
         }
 
         if ($args['type'] == 'loadPlayerNames') {
