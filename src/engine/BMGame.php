@@ -399,7 +399,9 @@ class BMGame {
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
-                $this->update_active_player();
+                if (isset($this->activePlayerIdx)) {
+                    $this->update_active_player();
+                }
 
                 break;
 
