@@ -337,7 +337,10 @@ class BMGame {
                 }
 
                 // validate attacker player idx
-                if ($this->activePlayerIdx != $this->attack['attackerPlayerIdx']) {
+
+                if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
+                    $test1 = is_int($this->activePlayerIdx);
+                    $test2 = is_int($this->attack['attackerPlayerIdx']);
                     $temp_attacker = $this->attack['attackerPlayerIdx'];
                     $this->message = 'Attacker must be current active player.';
                     $this->attack = NULL;
@@ -1324,7 +1327,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
-                $this->activePlayerIdx = $value;
+                $this->activePlayerIdx = (int)$value;
                 break;
             case 'playerWithInitiativeIdx':
                 // require a valid index

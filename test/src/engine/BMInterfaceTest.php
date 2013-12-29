@@ -389,6 +389,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][3]->value = 4;
         $dieArrayArray[1][4]->value = 1;
 
+        $game->activePlayerIdx = 1;
+
         $this->object->save_game($game);
         $game = $this->object->load_game_without_autopass($gameId);
 
