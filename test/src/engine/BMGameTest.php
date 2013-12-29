@@ -794,12 +794,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     public function test_do_next_step_start_turn() {
         $this->object->gameState = BMGameState::startTurn;
-        $this->object->activePlayerIdx = 0;
 
         $die1ValueStore = array();
         $die2ValueStore = array();
         $die4ValueStore = array();
         for ($runIdx = 0; $runIdx <= 50; $runIdx++) {
+            $this->object->activePlayerIdx = 0;
             $die1 = BMDie::create(30, array());
             $die2 = BMDie::create(20, array());
             $die3 = BMDie::create(16, array());
@@ -810,6 +810,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $die4->value = 1;
             $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                        array($die3, $die4));
+            $this->object->capturedDieArrayArray = array(array(), array());
             $this->object->attack = array(0, 1, array(1), array(0), 'Power');
             $this->object->do_next_step();
             $die1ValueStore[] = $die1->value;
@@ -819,6 +820,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // check that only dice involved in the attack have rerolled
         $this->assertEquals(1, max($die1ValueStore));
         $this->assertGreaterThan(1, count(array_flip($die2ValueStore)));
+        $this->assertCount(1, $this->object->capturedDieArrayArray[0]);
         $this->assertTrue($die3->captured);
         $this->assertEquals(1, max($die4ValueStore));
 
@@ -834,6 +836,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->attack = array(0, 1, array(0), array(0), "Power");
         $this->object->gameState = BMGameState::startTurn;
+        $this->object->activePlayerIdx = 0;
         $this->object->do_next_step();
 
         $this->assertCount(2, $this->object->activeDieArrayArray[0]);
@@ -4981,6 +4984,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $game->do_next_step();
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(1, $game->activePlayerIdx);
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::endTurn, $game->gameState);
@@ -5772,6 +5776,80 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(20, $game->capturedDieArrayArray[0][1]->max);
         $this->assertEquals(13 - $konstantValue,
                             $game->capturedDieArrayArray[0][1]->value);
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function test_surrender() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(6) (6) z(12) (20) (20)', 'Sonia');
+
+        $button2 = new BMButton;
+        $button2->load('(4) (8) (8) (12) z(20)', 'Tamiya');
+
+        // load game
+        $game = new BMGame(424242, array(123, 456), array('', ''), 2);
+        $game->proceed_to_next_user_action();
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $game->playerWithInitiativeIdx = 1;
+        $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 4;
+        $dieArrayArray[0][1]->value = 2;
+        $dieArrayArray[0][2]->value = 8;
+        $dieArrayArray[0][3]->value = 12;
+        $dieArrayArray[0][4]->value = 7;
+        $dieArrayArray[1][0]->value = 4;
+        $dieArrayArray[1][1]->value = 1;
+        $dieArrayArray[1][2]->value = 8;
+        $dieArrayArray[1][3]->value = 12;
+        $dieArrayArray[1][4]->value = 17;
+
+        // perform invalid surrender attack with dice selected
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(2), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Surrender'); // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // perform invalid surrender attack with non-active player
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(),  // attackerAttackDieIdxArray
+                              array(),  // defenderAttackDieIdxArray
+                              'Surrender'); // attackType
+
+//        $game->proceed_to_next_user_action();
+//        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+//        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+//
+//        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+//                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+//                            $game->gameScoreArrayArray);
+//        $this->assertCount(5, $game->activeDieArrayArray[0]);
+//        $this->assertCount(5, $game->activeDieArrayArray[1]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[1]);
     }
 }
 

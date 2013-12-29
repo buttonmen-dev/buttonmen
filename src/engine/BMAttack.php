@@ -169,8 +169,10 @@ class BMAttack {
 
         if ('Surrender' == $game->attack['attackType']) {
             // this logic is only designed for two players
-            $this->gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
-            $this->gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
+            $gameScoreArrayArray = $game->gameScoreArrayArray;
+            $gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
+            $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
+            $game->gameScoreArrayArray = $gameScoreArrayArray;
             $game->reset_play_state();
             $game->gameState = BMGameState::endRound;
 
