@@ -389,6 +389,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][3]->value = 4;
         $dieArrayArray[1][4]->value = 1;
 
+        $game->activePlayerIdx = 1;
+
         $this->object->save_game($game);
         $game = $this->object->load_game_without_autopass($gameId);
 
@@ -440,6 +442,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][2]->value = 3;
         $dieArrayArray[1][3]->value = 4;
         $dieArrayArray[1][4]->value = 5;
+
+        $game->activePlayerIdx = 0;
 
         $this->object->save_game($game);
         $game = $this->object->load_game_without_autopass($gameId);
@@ -1084,6 +1088,98 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // check explicitly that the konstant die does not reroll
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
         $this->assertFalse($game->activeDieArrayArray[0][1]->doesReroll);
+    }
+
+    /**
+     * The following unit tests ensure that surrender attacks work correctly.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_surrender() {
+        $retval = $this->object->create_game(array(1, 2), array('Sonia', 'Tamiya'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game_without_autopass($gameId);
+
+        $game->playerWithInitiativeIdx = 1;
+        $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 4;
+        $dieArrayArray[0][1]->value = 2;
+        $dieArrayArray[0][2]->value = 8;
+        $dieArrayArray[0][3]->value = 12;
+        $dieArrayArray[0][4]->value = 7;
+        $dieArrayArray[1][0]->value = 4;
+        $dieArrayArray[1][1]->value = 1;
+        $dieArrayArray[1][2]->value = 8;
+        $dieArrayArray[1][3]->value = 12;
+        $dieArrayArray[1][4]->value = 17;
+
+        // perform invalid surrender attack with dice selected
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(2), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Surrender'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game_without_autopass($game->gameId);
+
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // perform invalid surrender attack with non-active player
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(),  // attackerAttackDieIdxArray
+                              array(),  // defenderAttackDieIdxArray
+                              'Surrender'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game_without_autopass($game->gameId);
+
+        $this->assertEquals(1, $game->activePlayerIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // perform valid surrender attack
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(),  // attackerAttackDieIdxArray
+                              array(),  // defenderAttackDieIdxArray
+                              'Surrender'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game_without_autopass($game->gameId);
+        
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 1, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
     }
 }
 

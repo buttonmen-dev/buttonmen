@@ -336,6 +336,24 @@ class BMGame {
                     return;
                 }
 
+                // validate attacker player idx
+
+                if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
+                    $test1 = is_int($this->activePlayerIdx);
+                    $test2 = is_int($this->attack['attackerPlayerIdx']);
+                    $temp_attacker = $this->attack['attackerPlayerIdx'];
+                    $this->message = 'Attacker must be current active player.';
+                    $this->attack = NULL;
+                    return;
+                }
+
+                // validate defender player idx
+                if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
+                    $this->message = 'Attacker must be different to defender.';
+                    $this->attack = NULL;
+                    return;
+                }
+
                 // perform attack
                 $attack = BMAttack::get_instance($this->attack['attackType']);
 
@@ -373,15 +391,18 @@ class BMGame {
                   $attackerAttackDieArray, $defenderAttackDieArray
                 );
 
+                $this->turnNumberInRound++;
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
-                $this->turnNumberInRound += 1;
 
                 $postAttackDice = $this->get_action_log_data(
                   $attackerAttackDieArray, $defenderAttackDieArray
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
-                $this->update_active_player();
+                if (isset($this->activePlayerIdx)) {
+                    $this->update_active_player();
+                }
+
                 break;
 
             case BMGameState::endTurn:
@@ -1003,6 +1024,9 @@ class BMGame {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
+        // james: deliberately ignore Surrender attacks here, so that it
+        //        does not appear in the list of attack types
+
         return $validAttackTypeArray;
     }
 
@@ -1012,10 +1036,11 @@ class BMGame {
                          $activation_type.' '.$input_parameters;
     }
 
-    private function reset_play_state() {
+    public function reset_play_state() {
         $this->activePlayerIdx = NULL;
         $this->playerWithInitiativeIdx = NULL;
         $this->activeDieArrayArray = NULL;
+        $this->attack = NULL;
 
         $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
@@ -1305,7 +1330,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
-                $this->activePlayerIdx = $value;
+                $this->activePlayerIdx = (int)$value;
                 break;
             case 'playerWithInitiativeIdx':
                 // require a valid index
@@ -1471,9 +1496,17 @@ class BMGame {
                         throw new InvalidArgumentException(
                             'Invalid W/L/T array provided.');
                     }
-                    $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
-                                                   'L' => (int)$value[$playerIdx][1],
-                                                   'D' => (int)$value[$playerIdx][2]);
+                    if (array_key_exists('W', $value[$playerIdx]) &&
+                        array_key_exists('L', $value[$playerIdx]) &&
+                        array_key_exists('D', $value[$playerIdx])) {
+                        $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx]['W'],
+                                                       'L' => (int)$value[$playerIdx]['L'],
+                                                       'D' => (int)$value[$playerIdx]['D']);
+                    } else {
+                        $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
+                                                       'L' => (int)$value[$playerIdx][1],
+                                                       'D' => (int)$value[$playerIdx][2]);
+                    }
                 }
                 $this->gameScoreArrayArray = $tempArray;
                 break;
