@@ -685,7 +685,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Torch',           'p(6) p(8) z(10) z(10) zsp(V)!',              0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Totoro',          'fsvG(13) (20) (20) (20) gvz(30)',            0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('trifecta',        'm(3) m(3) m(3) m(3) p(3/33)! rn(3) rD(3)',   0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
-('Trouble',         'd(6) ^(7) @(12) (20)B @o(Z)?',               0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
+('Trouble',         'd(6) ^(7) @(12) B(20) @o(Z)?',               0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Tweedledum',      't(4,4) @(8) ^(12) z(20) fp!(Y)',             0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('TwistedRich',     'z(1,1) z(4) z^(4) z(6) (X)',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('TYFTFB',          'H(2) d(8) z(8) tp(10) G(R)',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
