@@ -16,6 +16,7 @@ CREATE TABLE button (
     # P{g,sF}10 P{f,z}12 P{f,z}12 X! +`R! ro@Z? rz(V,V) rP{m,D}8 grP{h,o,n}Y
     # which has 70 characters
     recipe      VARCHAR(100) NOT NULL,
+    btn_special BOOLEAN NOT NULL,
     tourn_legal BOOLEAN NOT NULL,
     image_path  VARCHAR(100),
     set_id      SMALLINT UNSIGNED,
