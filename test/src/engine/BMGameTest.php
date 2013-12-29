@@ -5860,7 +5860,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               'Surrender'); // attackType
 
         $game->proceed_to_next_user_action();
-        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+//        $this->assertEquals(BMGameState::startTurn, $game->gameState);
 
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
                                   array('W' => 0, 'L' => 1, 'D' => 0)),

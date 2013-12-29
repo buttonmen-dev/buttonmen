@@ -1040,6 +1040,7 @@ class BMGame {
         $this->activePlayerIdx = NULL;
         $this->playerWithInitiativeIdx = NULL;
         $this->activeDieArrayArray = NULL;
+        $this->attack = NULL;
 
         $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
