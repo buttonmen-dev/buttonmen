@@ -1178,7 +1178,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->object->save_game($game);
         $game = $this->object->load_game_without_autopass($game->gameId);
-        
+
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
 
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
@@ -1188,6 +1188,67 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(5, $game->activeDieArrayArray[1]);
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
+    }
+
+    /**
+     * The following unit tests ensure that surrender attacks work correctly.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_autoplay_bug() {
+        //'Rikachu',             '(1) (1) (1) (1) (Y)'
+        //'Wastenott',   's(4) s(8) s(10) s(20) s(X)'
+        $retval = $this->object->create_game(array(1, 2), array('Rikachu', 'Wastenott'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game_without_autopass($gameId);
+
+        // specify swing dice correctly
+        $game->swingValueArrayArray = array(array('Y' => 1), array('X' => 4));
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
+        $this->assertEquals(0, $game->activePlayerIdx);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        // artificially set die values
+        // note that all of Rikachu's dice will have a value of 1
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[1][0]->value = 3;
+        $dieArrayArray[1][1]->value = 3;
+        $dieArrayArray[1][2]->value = 8;
+        $dieArrayArray[1][3]->value = 12;
+        $dieArrayArray[1][4]->value = 4;
+
+        // perform valid attack that would fire twice with the autopass bug
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0, 1, 2), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+
+        $this->assertEquals(0, $game->activePlayerIdx);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+
+        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 0, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        $this->assertEquals(3, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(8, $game->activeDieArrayArray[1][1]->value);
+        $this->assertEquals(12, $game->activeDieArrayArray[1][2]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
+
+        $this->assertEquals(3, $game->capturedDieArrayArray[0][0]->value);
     }
 }
 
