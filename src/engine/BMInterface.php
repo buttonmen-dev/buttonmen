@@ -22,8 +22,7 @@ class BMInterface {
 
     // constructor
     public function __construct($isTest = FALSE) {
-        if (FALSE === filter_var($isTest,
-                                 FILTER_VALIDATE_BOOLEAN)) {
+        if (FALSE !== $isTest && TRUE !== $isTest) {
             throw new InvalidArgumentException('isTest must be boolean.');
         }
 
@@ -1149,16 +1148,14 @@ class BMInterface {
             $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
-                    FILTER_VALIDATE_BOOLEAN)) {
+                if (TRUE === $dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx]) {
                     $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }
             }
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
-                    FILTER_VALIDATE_BOOLEAN)) {
+                if (TRUE === $dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx]) {
                     $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
