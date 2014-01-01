@@ -22,7 +22,7 @@ class BMInterface {
 
     // constructor
     public function __construct($isTest = FALSE) {
-        if (FALSE !== $isTest && TRUE !== $isTest) {
+        if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
         }
 
