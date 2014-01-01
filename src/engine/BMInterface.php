@@ -56,6 +56,14 @@ class BMInterface {
             $statement->execute(array(':username' => $username,
                                       ':password' => crypt($password)));
             $this->message = 'User ' . $username . ' created successfully';
+
+            $query = 'SELECT id FROM player WHERE name = :name';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':name' => $username));
+            $result = $statement->fetch();
+
+            var_dump($result);
+
             return array('userName' => $username);
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
