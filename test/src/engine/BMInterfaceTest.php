@@ -6,6 +6,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @var BMInterface
      */
     protected $object;
+    private $userId1WithoutAutopass;
+    private $userId2WithoutAutopass;
+    private $userId3WithAutopass;
+    private $userId4WithAutopass;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -32,8 +36,47 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::create_user
      */
     public function test_create_user() {
-        $this->object->create_user('test3', 't');
-        $this->object->create_user('test4', 't');
+        $created_real = False;
+        $maxtries = 999;
+        $trynum = 1;
+
+        // Tests may be run multiple times.  Find a user of the
+        // form interfaceNNN which hasn't been created yet and
+        // create it in the test DB.  The dummy interface will claim
+        // success for any username of this form.
+        while (!($created_real)) {
+            $this->assertTrue($trynum < $maxtries,
+                "Internal test error: too many interfaceNNN users in the test database. " .
+                "Clean these out by hand.");
+            $username = 'interface' . sprintf('%03d', $trynum);
+            $createResult = $this->object->create_user($username, 't');
+            if (isset($createResult)) {
+                $created_real = True;
+            }
+            $trynum++;
+        }
+
+        $this->assertTrue($created_real,
+            "Creation of $username user should be reported as success");
+        $this->userId1WithoutAutopass = $createResult['playerId'];
+
+        $username = 'interface' . sprintf('%03d', $trynum);
+        $createResult = $this->object->create_user($username, 't');
+        $this->userId2WithoutAutopass = $createResult['playerId'];
+
+        $trynum++;
+        $username = 'interface' . sprintf('%03d', $trynum);
+        $createResult = $this->object->create_user($username, 't');
+        $this->object->set_player_info($createResult['playerId'],
+                                       array('autopass' => TRUE));
+        $this->userId3WithAutopass = $createResult['playerId'];
+
+        $trynum++;
+        $username = 'interface' . sprintf('%03d', $trynum);
+        $createResult = $this->object->create_user($username, 't');
+        $this->object->set_player_info($createResult['playerId'],
+                                       array('autopass' => TRUE));
+        $this->userId4WithAutopass = $createResult['playerId'];
     }
 
     /**

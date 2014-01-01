@@ -18,8 +18,17 @@ class BMInterface {
     private $timestamp;             // timestamp of last game action
     private static $conn = NULL;    // connection to database
 
+    private $isTest;         // indicates if the interface is for testing
+
     // constructor
     public function __construct($isTest = FALSE) {
+        if (FALSE === filter_var($isTest,
+                                 FILTER_VALIDATE_BOOLEAN)) {
+            throw new InvalidArgumentException('isTest must be boolean.');
+        }
+
+        $this->isTest = $isTest;
+
         if ($isTest) {
             if (file_exists('../test/src/database/mysql.test.inc.php')) {
                 require '../test/src/database/mysql.test.inc.php';
@@ -57,14 +66,16 @@ class BMInterface {
                                       ':password' => crypt($password)));
             $this->message = 'User ' . $username . ' created successfully';
 
-            $query = 'SELECT id FROM player WHERE name = :name';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':name' => $username));
-            $result = $statement->fetch();
+            $result = array('userName' => $username);
 
-            var_dump($result);
-
-            return array('userName' => $username);
+            if ($this->isTest) {
+                $query = 'SELECT id FROM player WHERE name_ingame = :name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':name' => $username));
+                $fetchResult = $statement->fetch();
+                $result['playerId'] = $fetchResult['id'];
+            }
+            return $result;
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
             $this->message = 'User create failed: ' . $errorData[2];
