@@ -63,7 +63,7 @@
 <!-- ECG: comment this out for the time being
  <target name="phploc" description="Generate phploc.csv">
   <exec executable="phploc">
-   <arg line="--log-csv ${basedir}/build/logs/phploc.csv ${source}" />
+   <arg line="XXlog-csv ${basedir}/build/logs/phploc.csv ${source}" />
   </exec>
  </target>
 -->
