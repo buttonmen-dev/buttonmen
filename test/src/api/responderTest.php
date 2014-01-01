@@ -165,6 +165,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
                          array('type' => 'createUser',
                                'username' => $username,
                                'password' => 't'));
+        
+        // remove debugging playerId attribute
+        unset($real_new['data']['playerId']);
+        
         $this->assertEquals($dummy_new, $real_new,
             "Creation of $username user should be reported as success");
     }
