@@ -1197,9 +1197,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::load_game
      */
     public function test_autoplay_bug() {
-        //'Rikachu',             '(1) (1) (1) (1) (Y)'
+        //'Rikachu',     '(1) (1) (1) (1) (Y)'
         //'Wastenott',   's(4) s(8) s(10) s(20) s(X)'
-        $retval = $this->object->create_game(array(1, 2), array('Rikachu', 'Wastenott'), 4);
+
+        // james: player 3 currently has autopass
+
+        $retval = $this->object->create_game(array(1, 3), array('Rikachu', 'Wastenott'), 4);
         $gameId = $retval['gameId'];
         $game = $this->object->load_game_without_autopass($gameId);
 
@@ -1221,15 +1224,32 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][3]->value = 12;
         $dieArrayArray[1][4]->value = 4;
 
-        // perform valid attack that would fire twice with the autopass bug
-        $game->attack = array(0,        // attackerPlayerIdx
-                              1,        // defenderPlayerIdx
-                              array(0, 1, 2), // attackerAttackDieIdxArray
-                              array(0), // defenderAttackDieIdxArray
-                              'Skill'); // attackType
-
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+
+        $this->object->submit_turn(1, $gameId, 1,
+                                   $this->object->timestamp->format(DATE_RSS),
+                                   array('playerIdx_0_dieIdx_0' => TRUE,
+                                         'playerIdx_0_dieIdx_1' => TRUE,
+                                         'playerIdx_0_dieIdx_2' => TRUE,
+                                         'playerIdx_0_dieIdx_3' => FALSE,
+                                         'playerIdx_0_dieIdx_4' => FALSE,
+                                         'playerIdx_1_dieIdx_0' => TRUE,
+                                         'playerIdx_1_dieIdx_1' => FALSE,
+                                         'playerIdx_1_dieIdx_2' => FALSE,
+                                         'playerIdx_1_dieIdx_3' => FALSE,
+                                         'playerIdx_1_dieIdx_4' => FALSE),
+                                   'Skill',
+                                   0, 1, '');
+
+        $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+
+//        // perform valid attack that would fire twice with the autopass bug
+//        $game->attack = array(0,        // attackerPlayerIdx
+//                              1,        // defenderPlayerIdx
+//                              array(0, 1, 2), // attackerAttackDieIdxArray
+//                              array(0), // defenderAttackDieIdxArray
+//                              'Skill'); // attackType
 
         $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
