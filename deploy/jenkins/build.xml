@@ -24,15 +24,14 @@
 
  <target name="parallelTasks" description="Run the pdepend, phpmd, phpcpd, phpcs, phpdoc and phploc tasks in parallel using a maximum of 2 threads.">
   <parallel threadCount="2">
-<!--   <sequential>
+   <sequential>
     <antcall target="pdepend"/>
     <antcall target="phpmd"/>
-   </sequential> -->
+   </sequential>
    <antcall target="phpcpd"/>
    <antcall target="phpcs"/>
-<!-- ECG: comment these out for now because they hang
    <antcall target="phpdoc"/>
-   <antcall target="phploc"/>  -->
+   <antcall target="phploc"/>
   </parallel>
  </target>
 
@@ -60,13 +59,11 @@
   </exec>
  </target>
 
-<!-- ECG: comment this out for the time being
  <target name="phploc" description="Generate phploc.csv">
   <exec executable="phploc">
    <arg line="XXlog-csv ${basedir}/build/logs/phploc.csv ${source}" />
   </exec>
  </target>
--->
 
  <target name="phpcs" description="Generate checkstyle.xml using PHP_CodeSniffer">
   <exec executable="phpcs" output="/dev/null">
@@ -77,13 +74,11 @@
   </exec>
  </target>
 
-<!-- ECG: comment this out for the time being
  <target name="phpdoc" description="Generate API documentation using PHPDocumentor">
   <exec executable="phpdoc">
    <arg line="-d ${source} -t ${basedir}/build/api" />
   </exec>
  </target>
--->
 
  <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
   <exec executable="phpcb">
@@ -93,5 +88,5 @@
   </exec>
  </target>
 
- <target name="build" depends="clean,parallelTasks,phpunit,phpcb"/>
+ <target name="build" depends="clean,phpunit,phpcb"/>
 </project>
