@@ -60,11 +60,13 @@
   </exec>
  </target>
 
+<!-- ECG: comment this out for the time being
  <target name="phploc" description="Generate phploc.csv">
   <exec executable="phploc">
    <arg line="--log-csv ${basedir}/build/logs/phploc.csv ${source}" />
   </exec>
  </target>
+-->
 
  <target name="phpcs" description="Generate checkstyle.xml using PHP_CodeSniffer">
   <exec executable="phpcs" output="/dev/null">
@@ -75,11 +77,13 @@
   </exec>
  </target>
 
+<!-- ECG: comment this out for the time being
  <target name="phpdoc" description="Generate API documentation using PHPDocumentor">
   <exec executable="phpdoc">
    <arg line="-d ${source} -t ${basedir}/build/api" />
   </exec>
  </target>
+-->
 
  <target name="phpcb" description="Aggregate tool output with PHP_CodeBrowser">
   <exec executable="phpcb">
