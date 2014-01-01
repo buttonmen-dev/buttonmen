@@ -88,5 +88,5 @@
   </exec>
  </target>
 
- <target name="build" depends="clean,phpunit,phpcb"/>
+ <target name="build" depends="clean,phpcb"/>
 </project>
