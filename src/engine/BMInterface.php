@@ -253,8 +253,7 @@ class BMInterface {
         }
     }
 
-    // The optional argument $autopassOverride is for testing purposes only!
-    public function load_game($gameId, $autopassOverride = NULL) {
+    public function load_game($gameId) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
@@ -285,16 +284,7 @@ class BMInterface {
 
                 $pos = $row['position'];
                 $playerIdArray[$pos] = $row['player_id'];
-
-                if (is_null($autopassOverride)) {
-                    $autopassArray[$pos] = (bool)$row['autopass'];
-                } elseif ('all_false' == $autopassOverride) {
-                    $autopassArray[$pos] = FALSE;
-                }  else {
-                    assert(is_array($autopassOverride));
-                    assert(array_key_exists($pos, $autopassOverride));
-                    $autopassArray[$pos] = $autopassOverride[$pos];
-                }
+                $autopassArray[$pos] = (bool)$row['autopass'];
 
                 if (1 == $row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
@@ -423,10 +413,6 @@ class BMInterface {
             $this->message = "Game load failed: $e";
             return NULL;
         }
-    }
-
-    public function load_game_without_autopass($gameId) {
-        return $this->load_game($gameId, 'all_false');
     }
 
     public function save_game(BMGame $game) {
