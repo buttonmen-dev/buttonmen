@@ -31,7 +31,8 @@
    <antcall target="phpcpd"/>
    <antcall target="phpcs"/>
    <antcall target="phpdoc"/>
-   <antcall target="phploc"/>
+<!-- ECG: comment this out for now because it hangs
+   <antcall target="phploc"/>  -->
   </parallel>
  </target>
 
