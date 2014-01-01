@@ -30,8 +30,8 @@
    </sequential>
    <antcall target="phpcpd"/>
    <antcall target="phpcs"/>
+<!-- ECG: comment these out for now because they hang
    <antcall target="phpdoc"/>
-<!-- ECG: comment this out for now because it hangs
    <antcall target="phploc"/>  -->
   </parallel>
  </target>
