@@ -136,7 +136,7 @@ class BMDieSwing extends BMDie {
             return FALSE;
         }
 
-        $sides = $swingList[$this->swingType];
+        $sides = (int)$swingList[$this->swingType];
 
         if ($sides < $this->swingMin || $sides > $this->swingMax) {
             return FALSE;

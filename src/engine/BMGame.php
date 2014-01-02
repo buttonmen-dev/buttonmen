@@ -1616,6 +1616,7 @@ class BMGame {
                 foreach ($activeDieArray as $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
+                    var_dump($die->value);
                     $dieMax = $die->max;
                     if (is_null($dieMax)) {
                         $swingValuesAllSpecified = FALSE;
