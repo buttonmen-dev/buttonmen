@@ -360,7 +360,9 @@ class BMInterface {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
 
                 $die = BMDie::create_from_recipe($row['recipe']);
-                $die->value = (int)$row['value'];
+                if (isset($row['value'])) {
+                    $die->value = (int)$row['value'];
+                }
                 $originalPlayerIdx = array_search($row['original_owner_id'],
                                                   $game->playerIdArray);
                 $die->originalPlayerIdx = $originalPlayerIdx;
