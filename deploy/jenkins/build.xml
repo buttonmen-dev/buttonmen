@@ -20,10 +20,15 @@
   <mkdir dir="${basedir}/build/pdepend"/>
  </target>
 
- <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml">
+ <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml" depends="testdb">
   <exec executable="phpunit" failonerror="true">
     <arg line="--bootstrap ./src/lib/bootstrap.php test/" />
   </exec>
+ </target>
+
+ <target name="testdb" description="Create a buttonmen test database">
+   <exec executable="/usr/local/bin/create_buttonmen_test_database"
+         failonerror="true" />
  </target>
 
  <target name="parallelTasks" description="Run the pdepend, phpmd, phpcpd, phpcs, phpdoc and phploc tasks in parallel using a maximum of 2 threads.">
