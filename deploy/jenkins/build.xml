@@ -42,7 +42,7 @@
    <arg line="--jdepend-xml=${basedir}/build/logs/jdepend.xml
               --jdepend-chart=${basedir}/build/pdepend/dependencies.svg
               --overview-pyramid=${basedir}/build/pdepend/overview-pyramid.svg
-              ${source_api} ${source_engine}" />
+              ${source}" />
   </exec>
  </target>
 
@@ -72,7 +72,7 @@
    <arg line="--report=checkstyle
               --report-file=${basedir}/build/logs/checkstyle.xml
               --standard=PEAR
-              ${source}" />
+              ${source_api} ${source_engine}" />
   </exec>
  </target>
 
