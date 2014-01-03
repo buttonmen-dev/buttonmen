@@ -18,8 +18,16 @@ class BMInterface {
     private $timestamp;             // timestamp of last game action
     private static $conn = NULL;    // connection to database
 
+    private $isTest;         // indicates if the interface is for testing
+
     // constructor
     public function __construct($isTest = FALSE) {
+        if (!is_bool($isTest)) {
+            throw new InvalidArgumentException('isTest must be boolean.');
+        }
+
+        $this->isTest = $isTest;
+
         if ($isTest) {
             if (file_exists('../test/src/database/mysql.test.inc.php')) {
                 require '../test/src/database/mysql.test.inc.php';
@@ -56,7 +64,17 @@ class BMInterface {
             $statement->execute(array(':username' => $username,
                                       ':password' => crypt($password)));
             $this->message = 'User ' . $username . ' created successfully';
-            return array('userName' => $username);
+
+            $result = array('userName' => $username);
+
+            if ($this->isTest) {
+                $query = 'SELECT id FROM player WHERE name_ingame = :name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':name' => $username));
+                $fetchResult = $statement->fetch();
+                $result['playerId'] = $fetchResult['id'];
+            }
+            return $result;
         } catch (Exception $e) {
             $errorData = $statement->errorInfo();
             $this->message = 'User create failed: ' . $errorData[2];
@@ -234,8 +252,7 @@ class BMInterface {
         }
     }
 
-    // The optional argument $autopassOverride is for testing purposes only!
-    public function load_game($gameId, $autopassOverride = NULL) {
+    public function load_game($gameId) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
@@ -266,16 +283,7 @@ class BMInterface {
 
                 $pos = $row['position'];
                 $playerIdArray[$pos] = $row['player_id'];
-
-                if (is_null($autopassOverride)) {
-                    $autopassArray[$pos] = (bool)$row['autopass'];
-                } elseif ('all_false' == $autopassOverride) {
-                    $autopassArray[$pos] = FALSE;
-                }  else {
-                    assert(is_array($autopassOverride));
-                    assert(array_key_exists($pos, $autopassOverride));
-                    $autopassArray[$pos] = $autopassOverride[$pos];
-                }
+                $autopassArray[$pos] = (bool)$row['autopass'];
 
                 if (1 == $row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
@@ -404,10 +412,6 @@ class BMInterface {
             $this->message = "Game load failed: $e";
             return NULL;
         }
-    }
-
-    public function load_game_without_autopass($gameId) {
-        return $this->load_game($gameId, 'all_false');
     }
 
     public function save_game(BMGame $game) {
@@ -1145,7 +1149,7 @@ class BMInterface {
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
                 if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
-                    FILTER_VALIDATE_BOOLEAN)) {
+                               FILTER_VALIDATE_BOOLEAN)) {
                     $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }
@@ -1153,7 +1157,7 @@ class BMInterface {
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
                 if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
-                    FILTER_VALIDATE_BOOLEAN)) {
+                               FILTER_VALIDATE_BOOLEAN)) {
                     $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
