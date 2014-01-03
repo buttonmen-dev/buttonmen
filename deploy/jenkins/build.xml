@@ -22,7 +22,10 @@
 
  <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml" depends="testdb">
   <exec executable="phpunit" failonerror="true">
-    <arg line="--bootstrap ./src/lib/bootstrap.php test/" />
+    <arg line="--bootstrap ./src/lib/bootstrap.php
+               --log-junit build/logs/junit.xml
+               --coverage-clover build/logs/clover.xml
+               test/" />
   </exec>
  </target>
 
