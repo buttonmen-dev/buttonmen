@@ -1,8 +1,8 @@
 <?php
 
-class BMAttackPassTest extends PHPUnit_Framework_TestCase {
+class BMAttackSurrenderTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMAttackPass
+     * @var BMAttackSurrender
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMAttackPassTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = BMAttackPass::get_instance();
+        $this->object = BMAttackSurrender::get_instance();
     }
 
     /**
@@ -24,7 +24,7 @@ class BMAttackPassTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttackPass::validate_attack
+     * @covers BMAttackSurrender::validate_attack
      */
     public function testValidate_attack()
     {

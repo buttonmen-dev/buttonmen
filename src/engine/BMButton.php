@@ -40,8 +40,11 @@ class BMButton {
 
         // set die sides and skills, one die at a time
         foreach ($dieRecipeArray as $dieIdx => $dieRecipe) {
-            $this->dieArray[] = BMDie::create_from_recipe($dieRecipe);
-            if (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
+            $die = BMDie::create_from_recipe($dieRecipe);
+            $this->dieArray[] = $die;
+            if (is_null($die)) {
+                $this->hasUnimplementedSkill = True;
+            } else if (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
                 $this->hasUnimplementedSkill = True;
             }
         }

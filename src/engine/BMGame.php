@@ -336,6 +336,24 @@ class BMGame {
                     return;
                 }
 
+                // validate attacker player idx
+
+                if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
+                    $test1 = is_int($this->activePlayerIdx);
+                    $test2 = is_int($this->attack['attackerPlayerIdx']);
+                    $temp_attacker = $this->attack['attackerPlayerIdx'];
+                    $this->message = 'Attacker must be current active player.';
+                    $this->attack = NULL;
+                    return;
+                }
+
+                // validate defender player idx
+                if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
+                    $this->message = 'Attacker must be different to defender.';
+                    $this->attack = NULL;
+                    return;
+                }
+
                 // perform attack
                 $attack = BMAttack::get_instance($this->attack['attackType']);
 
@@ -378,15 +396,18 @@ class BMGame {
                   $attackerAttackDieArray, $defenderAttackDieArray
                 );
 
+                $this->turnNumberInRound++;
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
-                $this->turnNumberInRound += 1;
 
                 $postAttackDice = $this->get_action_log_data(
                   $attackerAttackDieArray, $defenderAttackDieArray
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
-                $this->update_active_player();
+                if (isset($this->activePlayerIdx)) {
+                    $this->update_active_player();
+                }
+
                 break;
 
             case BMGameState::endTurn:
@@ -546,13 +567,16 @@ class BMGame {
                 break;
 
             case BMGameState::reactToInitiative:
+                // if everyone is out of actions, reactivate chance dice
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::startRound;
                     if (isset($this->activeDieArrayArray)) {
                         foreach ($this->activeDieArrayArray as &$activeDieArray) {
                             if (isset($activeDieArray)) {
                                 foreach($activeDieArray as &$activeDie) {
-                                    unset($activeDie->disabled);
+                                    if ($activeDie->has_skill('Chance')) {
+                                        unset($activeDie->disabled);
+                                    }
                                 }
                             }
                         }
@@ -679,7 +703,9 @@ class BMGame {
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.
 
-    public function react_to_initiative(array $args) {
+    // $gainedInitiativeOverride is used for testing purposes only
+
+    public function react_to_initiative(array $args, $gainedInitiativeOverride = NULL) {
         if (BMGameState::reactToInitiative != $this->gameState) {
             $this->message = 'Wrong game state to react to initiative.';
             return FALSE;
@@ -719,7 +745,12 @@ class BMGame {
                 }
 
                 $die->roll();
-                $die->disabled = TRUE;
+                foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
+                    if ($die->has_skill('Chance')) {
+                        $die->disabled = TRUE;
+                    }
+                }
+
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
                                           $this->activeDieArrayArray);
                 $gainedInitiative = $newInitiativeArray[$playerIdx] &&
@@ -810,7 +841,26 @@ class BMGame {
                 return FALSE;
         }
 
+        if (isset($gainedInitiativeOverride)) {
+            $gainedInitiative = $gainedInitiativeOverride;
+        }
+
+        if ($gainedInitiative) {
+            // re-enable all disabled chance dice for other players
+            foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
+                if ($playerIdx == $pIdx) {
+                    continue;
+                }
+                foreach ($activeDieArray as &$activeDie) {
+                    if ($activeDie->has_skill('Chance')) {
+                        unset($activeDie->disabled);
+                    }
+                }
+            }
+        }
+
         $this->do_next_step();
+
         return array('gained_initiative' => $gainedInitiative);
     }
 
@@ -1001,6 +1051,9 @@ class BMGame {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
+        // james: deliberately ignore Surrender attacks here, so that it
+        //        does not appear in the list of attack types
+
         return $validAttackTypeArray;
     }
 
@@ -1010,10 +1063,11 @@ class BMGame {
                          $activation_type.' '.$input_parameters;
     }
 
-    private function reset_play_state() {
+    public function reset_play_state() {
         $this->activePlayerIdx = NULL;
         $this->playerWithInitiativeIdx = NULL;
         $this->activeDieArrayArray = NULL;
+        $this->attack = NULL;
 
         $nPlayers = count($this->playerIdArray);
         $this->nRecentPasses = 0;
@@ -1065,7 +1119,8 @@ class BMGame {
     }
 
     private function get_roundNumber() {
-        return(array_sum($this->gameScoreArrayArray[0]) + 1);
+        return(min($this->maxWins,
+                   array_sum($this->gameScoreArrayArray[0]) + 1));
     }
 
     private function get_roundScoreArray() {
@@ -1303,7 +1358,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
-                $this->activePlayerIdx = $value;
+                $this->activePlayerIdx = (int)$value;
                 break;
             case 'playerWithInitiativeIdx':
                 // require a valid index
@@ -1469,9 +1524,17 @@ class BMGame {
                         throw new InvalidArgumentException(
                             'Invalid W/L/T array provided.');
                     }
-                    $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
-                                                   'L' => (int)$value[$playerIdx][1],
-                                                   'D' => (int)$value[$playerIdx][2]);
+                    if (array_key_exists('W', $value[$playerIdx]) &&
+                        array_key_exists('L', $value[$playerIdx]) &&
+                        array_key_exists('D', $value[$playerIdx])) {
+                        $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx]['W'],
+                                                       'L' => (int)$value[$playerIdx]['L'],
+                                                       'D' => (int)$value[$playerIdx]['D']);
+                    } else {
+                        $tempArray[$playerIdx] = array('W' => (int)$value[$playerIdx][0],
+                                                       'L' => (int)$value[$playerIdx][1],
+                                                       'D' => (int)$value[$playerIdx][2]);
+                    }
                 }
                 $this->gameScoreArrayArray = $tempArray;
                 break;

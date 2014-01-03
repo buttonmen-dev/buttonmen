@@ -197,7 +197,7 @@ asyncTest("test_Game.actionChooseSwingInactive", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     Game.actionChooseSwingInactive();
-    item = document.getElementById('swing_table');
+    var item = document.getElementById('swing_table');
     equal(item, null, "#swing_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
     start();
@@ -208,7 +208,7 @@ asyncTest("test_Game.actionReactToInitiativeActive", function() {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
-    item = document.getElementById('init_react_3');
+    var item = document.getElementById('init_react_3');
     ok(item, "#init_react_3 select is set");
     item = document.getElementById('init_react_4');
     ok(item, "#init_react_4 select is set");
@@ -221,7 +221,7 @@ asyncTest("test_Game.actionReactToInitiativeInactive", function() {
   BMTestUtils.GameType = 'chanceinactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
-    item = document.getElementById('die_recipe_table');
+    var item = document.getElementById('die_recipe_table');
     ok(item, "page contains die recipe table");
     item = document.getElementById('init_react_1');
     equal(item, null, "#init_react_1 select is not set");
@@ -234,7 +234,7 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
   BMTestUtils.GameType = 'turnactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
-    item = document.getElementById('attack_type_select');
+    var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
     ok(Game.form, "Game.form is set");
     start();
@@ -245,7 +245,7 @@ asyncTest("test_Game.actionPlayTurnInactive", function() {
   BMTestUtils.GameType = 'turninactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
-    item = document.getElementById('attack_type_select');
+    var item = document.getElementById('attack_type_select');
     equal(item, null, "#attack_type_select is not set");
     equal(Game.form, null, "Game.form is NULL");
     start();
@@ -293,7 +293,8 @@ asyncTest("test_Game.formReactToInitiativeActive", function() {
     $('#game_action_button').trigger('click');
     deepEqual(
       Env.message,
-      {"type": "success", "text": "Successfully gained initiative"},
+      {"type": "success",
+       "text": "Successfully gained initiative using focus dice"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();

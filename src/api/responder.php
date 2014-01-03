@@ -51,6 +51,10 @@ class responder {
             return $interface->get_all_active_games($_SESSION['user_id']);
         }
 
+        if ($args['type'] == 'loadCompletedGames') {
+            return $interface->get_all_completed_games($_SESSION['user_id']);
+        }
+
         if ($args['type'] == 'loadButtonNames') {
             return $interface->get_all_button_names();
         }
@@ -84,6 +88,16 @@ class responder {
             } else {
                 return NULL;
             }
+        }
+
+        if ($args['type'] == 'loadPlayerInfo') {
+            return $interface->get_player_info($_SESSION['user_id']);
+        }
+
+        if ($args['type'] == 'savePlayerInfo') {
+            $autopass = 'true' == $args['autopass'];
+            return $interface->set_player_info($_SESSION['user_id'],
+                                               array('autopass' => $autopass));
         }
 
         if ($args['type'] == 'loadPlayerNames') {
