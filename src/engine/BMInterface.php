@@ -641,15 +641,15 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-	    // If any game action entries were generated, load them
-	    // into the message so the calling player can see them,
-	    // then save them to the historical log
+            // If any game action entries were generated, load them
+            // into the message so the calling player can see them,
+            // then save them to the historical log
             if (count($game->actionLog) > 0) {
                 $this->load_message_from_game_actions($game);
                 $this->log_game_actions($game);
             }
-	    // If the player sent a chat message, insert it now
-	    // then save them to the historical log
+            // If the player sent a chat message, insert it now
+            // then save them to the historical log
             if ($game->chat['chat']) {
                 $this->log_game_chat($game);
             }
@@ -825,9 +825,9 @@ class BMInterface {
             $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
             $statement->execute();
 
-	    // Look for unimplemented skills in each button definition.
-	    // If we get an exception while checking, assume there's
-	    // an unimplemented skill
+            // Look for unimplemented skills in each button definition.
+            // If we get an exception while checking, assume there's
+            // an unimplemented skill
             while ($row = $statement->fetch()) {
                 $buttonNameArray[] = $row['name'];
                 $recipeArray[] = $row['recipe'];
