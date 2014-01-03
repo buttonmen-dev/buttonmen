@@ -4581,9 +4581,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('BMSkillBerserk', $skillList['Berserk']);
         $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
 
-        var_dump('test_start');
         $game->proceed_to_next_user_action();
-        var_dump('test_end');
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertCount(2, $game->activeDieArrayArray[0]);
@@ -5571,6 +5569,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        $dataArray = $game->getJsonData(234);
+        $this->assertEquals(array(array('1' => array('disabled' => 'disabled')),
+                                  array()),
+                            $dataArray['data']['diePropertiesArrayArray']);
 
         // try to use the focus die in an attack when it is disabled
         $game->attack = array(0, 1, array(1, 4), array(1), 'Skill');

@@ -340,6 +340,7 @@ class dummy_responder {
                                                        array(null,null,null,null,null)),
                             "sidesArrayArray" => array(array(4,4,10,12,null),
                                                        array(null,null,null,null,null)),
+                            "diePropertiesArrayArray" => array(array(), array()),
                             "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
                                                            array("(4)","(4)","(10)","(12)","(X)")),
                             "nCapturedDieArray" => array(0, 0),
@@ -730,7 +731,7 @@ class dummy_responder {
         }
 
         if ($args['type'] == 'reactToInitiative') {
-            return array(array('gained_initiative' => TRUE), 
+            return array(array('gained_initiative' => TRUE),
                                'Successfully gained initiative');
         }
 

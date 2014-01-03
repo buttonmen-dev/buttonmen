@@ -1612,6 +1612,7 @@ class BMGame {
         }
 
         $swingValuesAllSpecified = TRUE;
+        $diePropertiesArrayArray = array_fill(0, $this->nPlayers, array());
         if (isset($this->activeDieArrayArray)) {
             $nDieArray = array_map('count', $this->activeDieArrayArray);
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
@@ -1637,7 +1638,7 @@ class BMGame {
                 }
                 $swingRequestArrayArray[] = $playerSwingRequestArray;
 
-                foreach ($activeDieArray as $die) {
+                foreach ($activeDieArray as $dieIdx => $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
                     $dieMax = $die->max;
@@ -1654,6 +1655,9 @@ class BMGame {
                     $valueArrayArray[$playerIdx][] = $dieValue;
                     $sidesArrayArray[$playerIdx][] = $dieMax;
                     $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
+                    if ($die->disabled) {
+                        $diePropertiesArrayArray[$playerIdx][$dieIdx]['disabled'] = 'disabled';
+                    }
                 }
             }
         } else {
@@ -1723,6 +1727,7 @@ class BMGame {
                   'nDieArray'                => $nDieArray,
                   'valueArrayArray'          => $valueArrayArray,
                   'sidesArrayArray'          => $sidesArrayArray,
+                  'diePropertiesArrayArray'  => $diePropertiesArrayArray,
                   'dieRecipeArrayArray'      => $dieRecipeArrayArray,
                   'nCapturedDieArray'        => $nCapturedDieArray,
                   'capturedValueArrayArray'  => $capturedValueArrayArray,
