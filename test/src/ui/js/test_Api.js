@@ -7,6 +7,8 @@ module("Api", {
     // Delete all elements we expect this module to create
     delete Api.button;
     delete Api.player;
+    delete Api.active_games;
+    delete Api.completed_games;
     BMTestUtils.deleteEnvMessage();
 
     // Fail if any other elements were added or removed
@@ -104,3 +106,38 @@ test("test_Api.parsePlayerData", function() {
   deepEqual(Env.message, undefined,
             "Api.parseButtonData should not set Env.message");
 });
+
+asyncTest("test_Api.getActiveGamesData", function() {
+  Api.getActiveGamesData(function() {
+    equal(Api.active_games.load_status, 'ok',
+         'Successfully loaded active games data');
+    equal(Api.active_games.nGames, 8, 'Got expected number of active games');
+    start();
+  });
+});
+
+asyncTest("test_Api.parseActiveGamesData", function() {
+  Api.getActiveGamesData(function() {
+    equal(Api.active_games.games.awaitingPlayer.length, 5,
+          "expected number of games parsed as waiting for the active player");
+    start();
+  });
+});
+
+asyncTest("test_Api.getCompletedGamesData", function() {
+  Api.getCompletedGamesData(function() {
+    equal(Api.completed_games.load_status, 'ok',
+         'Successfully loaded completed games data');
+    equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
+    start();
+  });
+});
+
+asyncTest("test_Api.parseCompletedGamesData", function() {
+  Api.getCompletedGamesData(function() {
+    equal(Api.completed_games.games[0].gameId, 5,
+          "expected completed game ID exists");
+    start();
+  });
+});
+

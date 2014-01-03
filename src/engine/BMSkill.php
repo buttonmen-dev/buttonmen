@@ -88,9 +88,10 @@ class BMSkill {
                      // standard attack types
                      'Power',
                      'Skill',
-                     'Pass');
+                     'Pass',
+                     'Surrender');
     }
-    
+
     public static function incompatible_attack_types($args = NULL) {
         return array();
 }

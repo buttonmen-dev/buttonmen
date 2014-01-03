@@ -3,6 +3,10 @@ var Api = {
   'data': {},
 };
 
+// Duplicate the game settings we need from Game.js for now
+Api.GAME_STATE_END_GAME = 60;
+
+
 ////////////////////////////////////////////////////////////////////////
 // This module should not layout a page or generate any HTML.  It exists
 // only as a collection of routines which load and parse a particular
@@ -131,3 +135,145 @@ Api.parsePlayerData = function(data) {
   return true;
 }
 
+////////////////////////////////////////////////////////////////////////
+// Load and parse the current player's list of active games
+
+Api.getActiveGamesData = function(callbackfunc) {
+  Api.active_games = {
+    'load_status': 'failed',
+  };
+
+  $.post(Env.api_location,
+         { type: 'loadActiveGames', },
+         function(rs) {
+           if (rs.status == 'ok') {
+             if (Api.parseActiveGamesData(rs.data)) {
+               Api.active_games.load_status = 'ok';
+             } else {
+               Env.message = {
+                 'type': 'error',
+                 'text':
+                   'Active game list received from server could not be parsed!',
+               };
+             }
+           } else {
+             Env.message = {
+               'type': 'error',
+               'text': rs.message,
+             };
+           }
+           return callbackfunc();
+         }
+  ).fail(function() {
+    Env.message = {
+      'type': 'error',
+      'text': 'Internal error when calling loadActiveGames',
+    };
+    return callbackfunc();
+  });
+}
+
+Api.parseActiveGamesData = function(data) {
+  Api.active_games.games = {
+    'awaitingPlayer': [],
+    'awaitingOpponent': [],
+  };
+  Api.active_games.nGames = data.gameIdArray.length;
+  i = 0;
+  while (i < Api.active_games.nGames) {
+    var gameInfo = {
+      'gameId': data.gameIdArray[i],
+      'opponentId': data.opponentIdArray[i],
+      'opponentName': data.opponentNameArray[i],
+      'playerButtonName': data.myButtonNameArray[i],
+      'opponentButtonName': data.opponentButtonNameArray[i],
+      'gameScoreDict': {
+        'W': data.nWinsArray[i],
+        'L': data.nLossesArray[i],
+        'D': data.nDrawsArray[i],
+      },
+      'isAwaitingAction': data.isAwaitingActionArray[i],
+      'maxWins': data.nTargetWinsArray[i],
+      'gameState': data.gameStateArray[i],
+      'status': data.statusArray[i],
+    };
+    if (gameInfo.isAwaitingAction == "1") {
+      Api.active_games.games['awaitingPlayer'].push(gameInfo);
+    } else {
+      if (gameInfo.gameState == Api.GAME_STATE_END_GAME) {
+        Api.active_games.games['finished'].push(gameInfo);
+      } else {
+        Api.active_games.games['awaitingOpponent'].push(gameInfo);
+      }
+    }
+    i += 1;
+  }
+  return true;
+}
+
+////////////////////////////////////////////////////////////////////////
+// Load and parse the current player's list of active games
+
+Api.getCompletedGamesData = function(callbackfunc) {
+  Api.completed_games = {
+    'load_status': 'failed',
+  };
+
+  $.post(Env.api_location,
+         { type: 'loadCompletedGames', },
+         function(rs) {
+           if (rs.status == 'ok') {
+             if (Api.parseCompletedGamesData(rs.data)) {
+               Api.completed_games.load_status = 'ok';
+             } else if (Api.completed_games.load_status == 'nogames') {
+               // nothing to do, this is not an error
+             } else {
+               Env.message = {
+                 'type': 'error',
+                 'text':
+                   'Completed game list received from server could not be parsed!',
+               };
+             }
+           } else {
+             Env.message = {
+               'type': 'error',
+               'text': rs.message,
+             };
+           }
+           return callbackfunc();
+         }
+  ).fail(function() {
+    Env.message = {
+      'type': 'error',
+      'text': 'Internal error when calling loadCompletedGames',
+    };
+    return callbackfunc();
+  });
+}
+
+Api.parseCompletedGamesData = function(data) {
+  Api.completed_games.games = [];
+  Api.completed_games.nGames = data.gameIdArray.length;
+  i = 0;
+  while (i < Api.completed_games.nGames) {
+    var gameInfo = {
+      'gameId': data.gameIdArray[i],
+      'opponentId': data.opponentIdArray[i],
+      'opponentName': data.opponentNameArray[i],
+      'playerButtonName': data.myButtonNameArray[i],
+      'opponentButtonName': data.opponentButtonNameArray[i],
+      'gameScoreDict': {
+        'W': data.nWinsArray[i],
+        'L': data.nLossesArray[i],
+        'D': data.nDrawsArray[i],
+      },
+      'isAwaitingAction': data.isAwaitingActionArray[i],
+      'maxWins': data.nTargetWinsArray[i],
+      'gameState': data.gameStateArray[i],
+      'status': data.statusArray[i],
+    };
+    Api.completed_games.games.push(gameInfo);
+    i += 1;
+  }
+  return true;
+}

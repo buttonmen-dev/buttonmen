@@ -57,9 +57,12 @@ class BMAttack {
             }
         }
 
+        // james: deliberately ignore Surrender attacks here, so that it
+        //        does not appear in the list of attack types
+
         return $allAttackTypesArray;
     }
-    
+
     public function add_die(BMDie $die) {
         // need to search with strict on to avoid identical-valued
         // objects matching
@@ -163,6 +166,18 @@ class BMAttack {
 //        if (!$this->collect_contributions($game, $attackers, $defenders)) {
 //            // return FALSE;
 //        }
+
+        if ('Surrender' == $game->attack['attackType']) {
+            // this logic is only designed for two players
+            $gameScoreArrayArray = $game->gameScoreArrayArray;
+            $gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
+            $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
+            $game->gameScoreArrayArray = $gameScoreArrayArray;
+            $game->reset_play_state();
+            $game->gameState = BMGameState::endRound;
+
+            return TRUE;
+        }
 
         if ('Pass' == $game->attack['attackType']) {
             $game->nRecentPasses += 1;
@@ -300,7 +315,7 @@ class BMAttack {
         }
         return $helpers;
     }
-    
+
     public function __get($property)
     {
         if (property_exists($this, $property)) {
