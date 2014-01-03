@@ -95,7 +95,7 @@ class BMDie {
                 $this->hookList[$func][] = $skillClass;
             }
         }
-        
+
         $this->run_hooks(__FUNCTION__, array('die' => &$this));
     }
 

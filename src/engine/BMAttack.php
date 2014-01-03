@@ -195,13 +195,16 @@ class BMAttack {
             $def->captured = TRUE;
         }
 
+        $attackersDummy = $attackers;
+        $defendersDummy = $defenders;
+
         // allow attack type to modify default behaviour
         foreach ($attackers as &$att) {
-            $att->capture($this->type, $attackers, $defenders);
+            $att->capture($this->type, $attackers, $defendersDummy);
         }
 
         foreach ($defenders as &$def) {
-            $def->be_captured($this->type, $attackers, $defenders);
+            $def->be_captured($this->type, $attackersDummy, $defenders);
         }
 
         // process captured dice

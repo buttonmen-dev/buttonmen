@@ -339,9 +339,6 @@ class BMGame {
                 // validate attacker player idx
 
                 if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
-                    $test1 = is_int($this->activePlayerIdx);
-                    $test2 = is_int($this->attack['attackerPlayerIdx']);
-                    $temp_attacker = $this->attack['attackerPlayerIdx'];
                     $this->message = 'Attacker must be current active player.';
                     $this->attack = NULL;
                     return;
@@ -362,13 +359,13 @@ class BMGame {
                 $attackerAttackDieArray = array();
                 foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
                     $attackDie =
-                        &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                                   [$attackerAttackDieIdx];
+                        $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                  [$attackerAttackDieIdx];
                     if ($attackDie->disabled) {
                         $this->message = 'Attempting to attack with a disabled die.';
                         return;
                     }
-                    $attackerAttackDieArray[] = &$attackDie;
+                    $attackerAttackDieArray[] = $attackDie;
                 }
                 $defenderAttackDieArray = array();
                 foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {

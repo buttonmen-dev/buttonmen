@@ -2558,6 +2558,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->activeDieArrayArray[1]);
         $this->assertCount(1, $game->capturedDieArrayArray[0]);
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(8, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(10, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(15, $game->activeDieArrayArray[0][2]->value);
+        $this->assertEquals(2, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(3, $game->activeDieArrayArray[1][1]->value);
+        $this->assertEquals(4, $game->activeDieArrayArray[1][2]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][3]->value);
         $this->assertEquals(8, $game->capturedDieArrayArray[0][0]->max);
         $this->assertEquals(5, $game->capturedDieArrayArray[0][0]->value);
         $this->assertEquals(10, $game->capturedDieArrayArray[1][0]->max);
@@ -4574,7 +4581,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('BMSkillBerserk', $skillList['Berserk']);
         $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
 
+        var_dump('test_start');
         $game->proceed_to_next_user_action();
+        var_dump('test_end');
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::startTurn, $game->gameState);
         $this->assertCount(2, $game->activeDieArrayArray[0]);
@@ -5568,6 +5577,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(5, count($game->activeDieArrayArray[1]));
+
+        // use the non-dizzy focus die in an attack
+        $game->attack = array(0, 1, array(3), array(1), 'Power');
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(4, count($game->activeDieArrayArray[1]));
     }
 
     /**
