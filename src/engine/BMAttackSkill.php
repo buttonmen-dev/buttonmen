@@ -86,6 +86,10 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
+        if ($this->has_disabled_attackers($attackers)) {
+            return FALSE;
+        }
+
         foreach ($attackers as $attacker) {
             if ($attacker->has_skill('Berserk')) {
                 return FALSE;

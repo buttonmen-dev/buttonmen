@@ -337,7 +337,6 @@ class BMGame {
                 }
 
                 // validate attacker player idx
-
                 if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
                     $this->message = 'Attacker must be current active player.';
                     $this->attack = NULL;
@@ -363,6 +362,7 @@ class BMGame {
                                                   [$attackerAttackDieIdx];
                     if ($attackDie->disabled) {
                         $this->message = 'Attempting to attack with a disabled die.';
+                        $this->attack = NULL;
                         return;
                     }
                     $attackerAttackDieArray[] = $attackDie;
