@@ -1337,7 +1337,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Invalid game ID.');
                 }
-                $this->gameId = $value;
+                $this->gameId = (int)$value;
                 break;
             case 'playerIdArray':
                 if (!is_array($value) ||
@@ -1345,7 +1345,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'The number of players cannot be changed during a game.');
                 }
-                $this->playerIdArray = $value;
+                $this->playerIdArray = array_map('intval', $value);
                 break;
             case 'activePlayerIdx':
                 // require a valid index
@@ -1371,7 +1371,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
-                $this->playerWithInitiativeIdx = $value;
+                $this->playerWithInitiativeIdx = (int)$value;
                 break;
             case 'buttonArray':
                 if (!is_array($value) ||
@@ -1546,7 +1546,7 @@ class BMGame {
                     throw new InvalidArgumentException(
                         'maxWins must be a positive integer.');
                 }
-                $this->maxWins = $value;
+                $this->maxWins = (int)$value;
                 break;
             case 'gameState':
                 BMGameState::validate_game_state($value);
@@ -1635,7 +1635,7 @@ class BMGame {
                         } else {
                             throw new LogicException("Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie);
                         }
-                        $playerSwingRequestArray[$swingtype] = array(strval($validRange[0]), strval($validRange[1]));
+                        $playerSwingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
                     }
                 }
                 $swingRequestArrayArray[] = $playerSwingRequestArray;
