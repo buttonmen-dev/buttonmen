@@ -5,8 +5,8 @@ class buttonmen::server {
   $buttonmen_db1_user = "bmuser1"
   $buttonmen_db1_pass = "79eWZGs2RohkIZMVElU6"
   $buttonmen_db2_name = "buttonmen_test"
-  $buttonmen_db2_user = "root"
-  $buttonmen_db2_pass = "root"
+  $buttonmen_db2_user = "bmtest"
+  $buttonmen_db2_pass = "bmtestpass"
 
   file {
 
