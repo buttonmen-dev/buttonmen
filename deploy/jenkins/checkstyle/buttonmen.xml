@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<ruleset name="buttonmen">
+ <description>Custom ButtonMen coding standard.</description>
+
+ <!-- base our standard on PSR2 -->
+ <rule ref="PSR2">
+ </rule>
+</ruleset>
