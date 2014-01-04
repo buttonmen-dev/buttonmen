@@ -153,7 +153,7 @@ class BMGame {
 //                }
                 break;
 
-            case BMGameState::addAvailableDiceToGame;
+            case BMGameState::addAvailableDiceToGame:
                 // load BMGame activeDieArrayArray from BMButton dieArray
                 $this->activeDieArrayArray =
                     array_fill(0, $this->nPlayers, array());
@@ -536,7 +536,7 @@ class BMGame {
                 }
                 break;
 
-            case BMGameState::addAvailableDiceToGame;
+            case BMGameState::addAvailableDiceToGame:
                 if (isset($this->activeDieArrayArray)) {
                     $this->gameState = BMGameState::specifyDice;
                 }
