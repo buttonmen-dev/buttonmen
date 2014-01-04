@@ -1612,8 +1612,16 @@ class BMGame {
         }
 
         $swingValuesAllSpecified = TRUE;
-        $dieSkillsArrayArray = array_fill(0, $this->nPlayers, array());
-        $diePropertiesArrayArray = array_fill(0, $this->nPlayers, array());
+        $dieSkillsArrayArray = array();
+        $diePropertiesArrayArray = array();
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            $dieSkillsArrayArray[$playerIdx] =
+                array_fill(0, count($activeDieArray), array());
+            $diePropertiesArrayArray[$playerIdx] =
+                array_fill(0, count($activeDieArray), array());
+        }
+
         if (isset($this->activeDieArrayArray)) {
             $nDieArray = array_map('count', $this->activeDieArrayArray);
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
@@ -1657,10 +1665,12 @@ class BMGame {
                     $sidesArrayArray[$playerIdx][] = $dieMax;
                     $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
                     if (count($die->skillList) > 0) {
-                        $dieSkillsArrayArray[$playerIdx][$dieIdx] = $die->skillList;
+                        foreach ($die->skillList as $skillType => $skillInternal) {
+                            $dieSkillsArrayArray[$playerIdx][$dieIdx][$skillType] = TRUE;
+                        }
                     }
                     if ($die->disabled) {
-                        $diePropertiesArrayArray[$playerIdx][$dieIdx]['disabled'] = 'disabled';
+                        $diePropertiesArrayArray[$playerIdx][$dieIdx]['disabled'] = TRUE;
                     }
                 }
             }
