@@ -81,7 +81,7 @@
   <exec executable="phpcs" output="/dev/null">
    <arg line="--report=checkstyle
               --report-file=${basedir}/build/logs/checkstyle.xml
-              --standard=PHPCS
+              --standard=Squiz
               ${source_api} ${source_engine}" />
   </exec>
  </target>
