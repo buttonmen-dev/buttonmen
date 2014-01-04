@@ -479,7 +479,7 @@ class dummy_responder {
                     ),
                     'gameChatLog' => array(),
                 );
-            } else if ($args['game'] == '6') {
+            } elseif ($args['game'] == '6') {
                 $gameData['gameId'] = 6;
                 $gameData['gameState'] = 24;
                 $gameData['buttonNameArray'] = array("Buck Godot", "Von Pinn");

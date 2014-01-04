@@ -44,7 +44,7 @@ class BMButton {
             $this->dieArray[] = $die;
             if (is_null($die)) {
                 $this->hasUnimplementedSkill = True;
-            } else if (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
+            } elseif (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
                 $this->hasUnimplementedSkill = True;
             }
         }
