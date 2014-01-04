@@ -492,7 +492,7 @@ class BMGame {
                 };
                 if (isset($this->gameScoreArrayArray)) {
                     $nWins = 0;
-                    foreach($this->gameScoreArrayArray as $tempGameScoreArray) {
+                    foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
                         if ($nWins < $tempGameScoreArray['W']) {
                             $nWins = $tempGameScoreArray['W'];
                         }
@@ -570,7 +570,7 @@ class BMGame {
                     if (isset($this->activeDieArrayArray)) {
                         foreach ($this->activeDieArrayArray as &$activeDieArray) {
                             if (isset($activeDieArray)) {
-                                foreach($activeDieArray as &$activeDie) {
+                                foreach ($activeDieArray as &$activeDie) {
                                     if ($activeDie->has_skill('Chance')) {
                                         unset($activeDie->disabled);
                                     }
@@ -989,7 +989,7 @@ class BMGame {
         $dieIdx = 0;
         while (array_sum($doesPlayerHaveInitiative) >= 2) {
             $dieValues = array();
-            foreach($initiativeArrayArray as $tempInitiativeArray) {
+            foreach ($initiativeArrayArray as $tempInitiativeArray) {
                 if (isset($tempInitiativeArray[$dieIdx])) {
                     $dieValues[] = $tempInitiativeArray[$dieIdx];
                 } else {
@@ -1726,8 +1726,8 @@ class BMGame {
         }
 
         if (!$swingValuesAllSpecified) {
-            foreach($valueArrayArray as &$valueArray) {
-                foreach($valueArray as &$value) {
+            foreach ($valueArrayArray as &$valueArray) {
+                foreach ($valueArray as &$value) {
                     $value = NULL;
                 }
             }

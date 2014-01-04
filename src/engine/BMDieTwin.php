@@ -14,7 +14,7 @@ class BMDieTwin extends BMDie {
 
         $this->add_multiple_skills($skills);
 
-        foreach($sidesArray as $dieIdx => $sides) {
+        foreach ($sidesArray as $dieIdx => $sides) {
             $this->dice[$dieIdx] =
                 BMDie::create_from_string_components($sides, $skills);
         }
@@ -136,7 +136,7 @@ class BMDieTwin extends BMDie {
         $this->min = 0;
         $this->max = 0;
 
-        foreach($this->dice as $die) {
+        foreach ($this->dice as $die) {
             if (is_null($die->min) ||
                 is_null($die->max)) {
                 $this->min = NULL;

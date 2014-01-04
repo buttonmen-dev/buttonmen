@@ -17,7 +17,7 @@ class BMSkillValue extends BMSkill {
     public static function capture($args) {
         assert(array_key_exists('defenders', $args));
 
-        foreach($args['defenders'] as $defender) {
+        foreach ($args['defenders'] as $defender) {
             $defender->add_skill('Value');
         }
     }
