@@ -643,7 +643,7 @@ class BMInterface {
                                   ':value' => $activeDie->value));
     }
 
-    // Get all player games (either active or inactive) from the database 
+    // Get all player games (either active or inactive) from the database
     // No error checking - caller must do it
     protected function get_all_games($playerId, $getActiveGames) {
 

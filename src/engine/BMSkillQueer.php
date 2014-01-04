@@ -44,7 +44,7 @@ class BMSkillQueer extends BMSkill {
             return array('Shadow');
         } else {
             return array('Power');
-        }       
+        }
     }
 }
 
