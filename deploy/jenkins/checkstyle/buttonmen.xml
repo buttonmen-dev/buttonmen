@@ -4,5 +4,12 @@
 
  <!-- base our standard on PSR2 -->
  <rule ref="PSR2">
+
+   <!-- don't use Allman-style opening brace on next line -->
+   <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
  </rule>
+
+ <!-- instead use Kernighan-style opening brace on same line -->
+ <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+
 </ruleset>
