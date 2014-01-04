@@ -841,12 +841,12 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_from_id($id) {
+    public function get_player_name_from_id($playerId) {
         try {
             $query = 'SELECT name_ingame FROM player '.
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $id));
+            $statement->execute(array(':id' => $playerId));
             $result = $statement->fetch();
             if (!$result) {
                 $this->message = 'Player ID does not exist.';
