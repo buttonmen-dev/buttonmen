@@ -1726,11 +1726,11 @@ class BMGame {
         }
 
         if (!$swingValuesAllSpecified) {
-                foreach($valueArrayArray as &$valueArray) {
-                        foreach($valueArray as &$value) {
-                                $value = NULL;
-                        }
+            foreach($valueArrayArray as &$valueArray) {
+                foreach($valueArray as &$value) {
+                    $value = NULL;
                 }
+            }
         }
 
         // If it's someone's turn to attack, report the valid attack
