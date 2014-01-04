@@ -17,7 +17,7 @@ function login($username, $password) {
         $password_hashed = $result['password_hashed'];
 
         // check if the password is correct
-        if ($password_hashed == crypt($_POST['password'], $password_hashed)) {
+        if ($password_hashed == crypt($password, $password_hashed)) {
             // create authorisation key
             $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
 
