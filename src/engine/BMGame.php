@@ -135,8 +135,7 @@ class BMGame {
                 // update all button recipes and remove auxiliary markers
                 if (!empty($auxiliaryDice)) {
                     foreach ($this->buttonArray as $buttonIdx => $tempButton) {
-                        $separatedDice = BMGame::separate_out_auxiliary_dice
-                                             ($tempButton->recipe);
+                        $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
                         $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
                     }
                 }
