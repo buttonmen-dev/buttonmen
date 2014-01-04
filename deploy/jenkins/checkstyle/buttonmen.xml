@@ -8,6 +8,9 @@
    <!-- don't use default opening brace on next line -->
    <exclude
       name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+
+   <!-- we don't use namespaces within modules right now -->
+   <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
  </rule>
 
  <!-- instead use Kernighan-style opening brace on same line -->
