@@ -77,10 +77,10 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
     }
 
-//// Print long description
-//    public function describe() {
-//        $this->run_hooks(__FUNCTION__, array());
-//    }
+    // Print long description
+    public function describe() {
+        $this->run_hooks(__FUNCTION__, array());
+    }
 
     public function split() {
         $newdie = clone $this;
