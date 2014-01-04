@@ -28,7 +28,7 @@ class BMAttackSpeed extends BMAttack {
             if (!($defender->is_valid_target($this->type, $attackers, $defenders))) {
                 $areDefendersValidTargetsForThisAttack = FALSE;
                 break;
-                }
+            }
         }
 
         return ($doesAttackerHaveSkill &&
