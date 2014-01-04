@@ -3,8 +3,7 @@
 class BMDieTwin extends BMDie {
     public $dice;
 
-    public function init($sidesArray, array $skills = NULL)
-    {
+    public function init($sidesArray, array $skills = NULL) {
         if (!is_array($sidesArray)) {
             throw new InvalidArgumentException('sidesArray must be an array.');
         }

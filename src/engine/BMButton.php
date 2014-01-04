@@ -99,15 +99,13 @@ class BMButton {
     // utility methods
     // to allow array elements to be set directly, change the __get to &__get
     // to return the result by reference
-    public function __get($property)
-    {
+    public function __get($property) {
         if (property_exists($this, $property)) {
             return $this->$property;
         }
     }
 
-    public function __set($property, $value)
-    {
+    public function __set($property, $value) {
         switch ($property) {
             case 'recipe':
                 $this->load($value);

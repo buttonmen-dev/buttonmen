@@ -329,8 +329,7 @@ class BMAttack {
         return $helpers;
     }
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
                 default:
@@ -339,8 +338,7 @@ class BMAttack {
         }
     }
 
-    public function __set($property, $value)
-    {
+    public function __set($property, $value) {
         throw new LogicException(
             "BMAttack->$property cannot be set.");
 //        switch ($property) {

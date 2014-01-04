@@ -89,8 +89,7 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function make_play_die()
-    {
+    public function make_play_die() {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
         if ($this->needsSwingValue) {
@@ -100,8 +99,7 @@ class BMDieSwing extends BMDie {
         return parent::make_play_die();
     }
 
-    public function roll($successfulAttack = FALSE)
-    {
+    public function roll($successfulAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values($this, $this->swingType);
@@ -114,13 +112,11 @@ class BMDieSwing extends BMDie {
     }
 
 // Print long description
-    public function describe()
-    {
+    public function describe() {
         $this->run_hooks(__FUNCTION__, array());
     }
 
-    public function split()
-    {
+    public function split() {
         $normalDie = new BMDie();
         $normalDie->init($this->max, $this->skillList);
         $normalDie->ownerObject = $this->ownerObject;
