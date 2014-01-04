@@ -153,6 +153,16 @@ class BMAttack {
         return FALSE;
     }
 
+    // check if any of the attackers is disabled
+    public function has_disabled_attackers(array $attackers) {
+        foreach ($attackers as $attacker) {
+            if ($attacker->disabled) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
     // actually make the attack
     // Some of this should perhaps be in the game, rather than here.
     public function commit_attack($game, array &$attackers, array &$defenders) {
@@ -195,13 +205,16 @@ class BMAttack {
             $def->captured = TRUE;
         }
 
+        $attackersDummy = $attackers;
+        $defendersDummy = $defenders;
+
         // allow attack type to modify default behaviour
         foreach ($attackers as &$att) {
-            $att->capture($this->type, $attackers, $defenders);
+            $att->capture($this->type, $attackers, $defendersDummy);
         }
 
         foreach ($defenders as &$def) {
-            $def->be_captured($this->type, $attackers, $defenders);
+            $def->be_captured($this->type, $attackersDummy, $defenders);
         }
 
         // process captured dice

@@ -165,10 +165,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
                          array('type' => 'createUser',
                                'username' => $username,
                                'password' => 't'));
-        
+
         // remove debugging playerId attribute
         unset($real_new['data']['playerId']);
-        
+
         $this->assertEquals($dummy_new, $real_new,
             "Creation of $username user should be reported as success");
     }
@@ -439,8 +439,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'roundNumber' => 1,
             'timestamp' => $timestamp,
             'action' => 'focus',
-            'dieIdxArray' => array('3', '4'),
-            'dieValueArray' => array('1', '1'),
+            'dieIdxArray' => array(3, 4),
+            'dieValueArray' => array(1, 1),
         );
         $args['game'] = $real_game_id;
         $retval = $this->object->process_request($args);
