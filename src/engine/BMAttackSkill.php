@@ -75,7 +75,8 @@ class BMAttackSkill extends BMAttack {
                     }
                 }
             }
-            $j--; $i++;
+            $j--;
+            $i++;
         }
 
         return FALSE;
