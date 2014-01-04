@@ -1,6 +1,7 @@
 class buttonmen::server {
 
   # Passwords for buttonmen databases
+  # Note that buttonmen::jenkins also uses the db2 passwords
   $buttonmen_db1_name = "buttonmen"
   $buttonmen_db1_user = "bmuser1"
   $buttonmen_db1_pass = "79eWZGs2RohkIZMVElU6"
@@ -50,5 +51,20 @@ class buttonmen::server {
       command => "/usr/local/bin/create_buttonmen_databases",
       require => [ Package["mysql-server"],
                    Exec["buttonmen_src_rsync"] ];
+  }
+}
+
+class buttonmen::jenkins {
+
+  # passwords for test database, which phpunit needs
+  $buttonmen_db2_name = "buttonmen_test"
+  $buttonmen_db2_user = "bmtest"
+  $buttonmen_db2_pass = "bmtestpass"
+
+  file {
+    "/usr/local/bin/create_buttonmen_test_database":
+      ensure => file,
+      content => template("buttonmen/create_test_database.erb"),
+      mode => 0555;
   }
 }

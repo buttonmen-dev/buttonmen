@@ -13,9 +13,8 @@ node default {
   include "user::buttonmen-devs"
   include "sudo::buttonmen-devs"
 
-  # Node configuration needed for the buttonmen server
-#  include "apache::server"  
-#  include "php::base"
-#  include "mysql::server"  
-#  include "buttonmen::server"
+  # Node configuration needed for the jenkins server
+  include "jenkins::server"
+  include "mysql::server"
+  include "buttonmen::jenkins"
 }
