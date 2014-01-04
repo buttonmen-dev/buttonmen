@@ -6,12 +6,12 @@
   <mode>NORMAL</mode>
   <useSecurity>true</useSecurity>
   <authorizationStrategy class="hudson.security.GlobalMatrixAuthorizationStrategy">
-    <permission>hudson.model.Hudson.Administer:chaos</permission>
+    <permission>hudson.model.Hudson.Administer:chaosadm</permission>
     <permission>hudson.model.Hudson.Read:anonymous</permission>
     <permission>hudson.model.Item.Discover:anonymous</permission>
     <permission>hudson.model.Item.Read:anonymous</permission>
     <permission>hudson.model.Item.Workspace:anonymous</permission>
-<!--    <permission>hudson.model.Item.Build:somedev</permission>  -->
+    <permission>hudson.model.Item.Build:chaos</permission>
   </authorizationStrategy>
   <securityRealm class="hudson.security.HudsonPrivateSecurityRealm">
     <disableSignup>true</disableSignup>
