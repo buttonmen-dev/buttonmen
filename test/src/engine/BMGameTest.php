@@ -5571,9 +5571,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         $dataArray = $game->getJsonData(234);
-        $this->assertEquals(array(array('1' => array('disabled' => 'disabled')),
-                                  array()),
+        $this->assertEquals(array(array(array(), array('disabled' => TRUE), array(), array(), array()),
+                                  array(array(), array(), array(), array(), array())),
                             $dataArray['data']['diePropertiesArrayArray']);
+        $this->assertEquals(array(array(array(), array('Focus' => TRUE), array(), array('Focus' => TRUE), array()),
+                                  array(array('Poison' => TRUE), array(), array('Poison' => TRUE), array(), array())),
+                            $dataArray['data']['dieSkillsArrayArray']);
 
         // try to use the focus die in an attack when it is disabled
         $game->attack = array(0, 1, array(1, 4), array(1), 'Skill');
