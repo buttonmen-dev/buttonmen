@@ -426,6 +426,21 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMAttack::has_disabled_attackers
+     */
+    public function testHas_disabled_attackers()
+    {
+        $att = BMAttack::get_instance();
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die2->disabled = TRUE;
+        $this->assertFalse($att->has_disabled_attackers(array($die1)));
+        $this->assertTrue($att->has_disabled_attackers(array($die2)));
+        $this->assertTrue($att->has_disabled_attackers(array($die1, $die2)));
+        $this->assertTrue($att->has_disabled_attackers(array($die2, $die1)));
+    }
+
+    /**
      * @covers BMAttack::calculate_contributions()
      */
     public function testCalculate_contributions() {

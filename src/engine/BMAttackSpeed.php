@@ -8,6 +8,10 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
+        if ($this->has_disabled_attackers($attackers)) {
+            return FALSE;
+        }
+
         $attacker = $attackers[0];
         $doesAttackerHaveSkill = $attacker->has_skill($this->type);
 
