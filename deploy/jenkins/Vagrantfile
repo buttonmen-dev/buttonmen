@@ -62,7 +62,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     aws.keypair_name = "BUTTONMEN_SSH_KEYPAIR_NAME"
 
     # firewall settings
-    aws.security_groups = ["buttonmen-dev"]
+    aws.security_groups = ["buttonmen-jenkins"]
 
     #aws.ami = "ami-7747d01e"
     aws.instance_type = "t1.micro"
