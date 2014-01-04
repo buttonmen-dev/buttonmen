@@ -11,8 +11,8 @@
         $host = 'localhost';
         $port = 3306;
         $name = 'buttonmen';
-        $user = 'root';
-        $pass = 'root';
+        $user = 'bmuser';
+        $pass = 'bmuserpass';
     }
 
     try {
