@@ -294,7 +294,7 @@ class BMAttack {
     // $this may not be used in anonymous functions in PHP 5.3. Bastards.
     protected function search_onevmany($game, array $attackers, array $defenders) {
         $myself = $this;
-        $compare = function($g, $att, $def) use ($myself) {
+        $compare = function ($g, $att, $def) use ($myself) {
             return $myself->validate_attack($g, $att, $def);
         };
 
@@ -306,7 +306,7 @@ class BMAttack {
     // improved efficiency.)
     protected function search_manyvone($game, array $attackers, array $defenders) {
         $myself = $this;
-        $compare = function($g, $def, $att) use ($myself) {
+        $compare = function ($g, $def, $att) use ($myself) {
             return $myself->validate_attack($g, $att, $def);
         };
 
