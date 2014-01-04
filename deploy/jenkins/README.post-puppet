@@ -1,11 +1,21 @@
 Some of the configuration of Jenkins is easier done by hand, after
 puppet has finished running:
- 1. Setup users:
+ 1. Manually enable Jenkins authentication (you can't setup users
+    until you do this):
+    * Browse to /configureSecurity
+    * Check "Enable security".  The page should expand
+    * Click "Jenkins’ own user database"
+    * Click "Save"
+ 2. Setup users:
     * Setup configs and passwords for at least one user (yourself)
       by browsing to the UI /securityRealm/addUser item
-    * You'll want to login as yourself and setup an SSH key at /me/configure
- 2. Setup config that requires auth:
+    * You'll want to login as yourself and setup an SSH key at
+      /me/configure.  Make sure to use a public key whose private
+      key you don't mind bringing onto the jenkins system, since
+      that's the easiest place to run the jenkins CLI.
+ 3. Setup config that requires auth:
     * Copy the config file into place and restart jenkins
+sudo service jenkins stop
 sudo cp /usr/local/etc/jenkins_config.xml /var/lib/jenkins/config.xml
 sudo service jenkins restart
     * Browse to the UI and verify that you can still see anything,
