@@ -105,7 +105,7 @@ class BMAttackSkill extends BMAttack {
         // array_intersect tries to convert to strings, so we
         // use array_uintersect, which needs a comparison
         // function
-        $cmp = function ($v1,$v2) {
+        $cmp = function ($v1, $v2) {
             if ($v1===$v2) { return 0; }
             if ($v1 > $v2) { return 1; }
             return -1;
