@@ -5,9 +5,11 @@
  <!-- base our standard on PSR2 -->
  <rule ref="PSR2">
 
-   <!-- don't use default opening brace on next line -->
+   <!-- don't require opening brace on next line in functions or classes -->
    <exclude
       name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+   <exclude
+      name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" />
 
    <!-- we don't use namespaces within modules right now -->
    <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
