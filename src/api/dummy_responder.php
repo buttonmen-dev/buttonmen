@@ -411,15 +411,27 @@ class dummy_responder {
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(
                         array("timestamp" => "2013-12-22 21:09:01",
-                              "message" => "tester2 performed Power attack using [(12):1] against [(4):1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
+                              "message" =>
+                                  "tester2 performed Power attack using [(12):1] against [(4):1]; " .
+                                  "Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
                         array("timestamp" => "2013-12-22 21:08:56",
-                              "message" => "tester1 performed Power attack using [(4):2] against [(X):1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
+                              "message" =>
+                                  "tester1 performed Power attack using [(4):2] against [(X):1]; " .
+                                  "Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
                         array("timestamp" => "2013-12-22 21:03:52",
-                              "message" => "tester2 performed Skill attack using [(4):4,(X):3] against [(10):7]; Defender (10) was captured; Attacker (4) rerolled 4 => 4; Attacker (X) rerolled 3 => 1"),
+                              "message" =>
+                                  "tester2 performed Skill attack using [(4):4,(X):3] against [(10):7]; " .
+                                  "Defender (10) was captured; Attacker (4) rerolled 4 => 4; " .
+                                  "Attacker (X) rerolled 3 => 1"),
                         array("timestamp" => "2013-12-22 21:03:39",
-                              "message" => "tester1 performed Power attack using [(4):3] against [(10):3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
+                              "message" =>
+                                  "tester1 performed Power attack using [(4):3] against [(10):3]; " .
+                                  "Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
                         array("timestamp" => "2013-12-22 21:03:12",
-                              "message" => "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
+                              "message" =>
+                                  "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; " .
+                                  "Defender (12) was captured; Attacker (4) rerolled 1 => 4; " .
+                                  "Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
                     ),
                     'gameChatLog' => array(),
                 );
@@ -469,13 +481,19 @@ class dummy_responder {
                         array("timestamp" => "2013-12-20 00:52:42",
                               "message" => "End of round: tester1 won round 5 (46 vs 30)"),
                         array("timestamp" => "2013-12-20 00:52:42",
-                              "message" => "tester1 performed Power attack using [(X):7] against [(4):2]; Defender (4) was captured; Attacker (X) rerolled 7 => 4"),
+                              "message" =>
+                                  "tester1 performed Power attack using [(X):7] against [(4):2]; " .
+                                  "Defender (4) was captured; Attacker (X) rerolled 7 => 4"),
                         array("timestamp" => "2013-12-20 00:52:36",
                               "message" => "tester2 passed"),
                         array("timestamp" => "2013-12-20 00:52:33",
-                              "message" => "tester1 performed Power attack using [(X):14] against [(10):4]; Defender (10) was captured; Attacker (X) rerolled 14 => 7"),
+                              "message" =>
+                                  "tester1 performed Power attack using [(X):14] against [(10):4]; " .
+                                  "Defender (10) was captured; Attacker (X) rerolled 14 => 7"),
                         array("timestamp" => "2013-12-20 00:52:29",
-                              "message" => "tester2 performed Power attack using [(10):10] against [(4):4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
+                              "message" =>
+                                  "tester2 performed Power attack using [(10):10] against [(4):4]; " .
+                                  "Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                     ),
                     'gameChatLog' => array(),
                 );
