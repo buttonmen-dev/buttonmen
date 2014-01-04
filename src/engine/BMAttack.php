@@ -111,7 +111,7 @@ class BMAttack {
                 if ($helpMin < 0) { $helpMin += $min; }
                 else { $helpMin = $min; }
             }
-            elseif ($min > 0 && $helpMin > -1 ) {
+            elseif ($min > 0 && $helpMin > -1) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
                 $helpMin = 1;
