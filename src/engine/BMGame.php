@@ -821,6 +821,19 @@ class BMGame {
                             $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
                         }
                     }
+
+                    // re-enable opponents' disabled focus dice
+                    foreach ($this->activeDieArrayArray as $tempPlayerIdx => &$activeDieArray) {
+                        if ($playerIdx == $tempPlayerIdx) {
+                            continue;
+                        }
+
+                        foreach ($activeDieArray as &$die) {
+                            if ($die->has_skill('Focus') && isset($die->disabled)) {
+                                unset($die->disabled);
+                            }
+                        }
+                    }
                 } else {
                     // if the change does not gain initiative unambiguously, it is
                     // invalid, so reset die values to original values
