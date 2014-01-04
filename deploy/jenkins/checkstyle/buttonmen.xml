@@ -5,8 +5,9 @@
  <!-- base our standard on PSR2 -->
  <rule ref="PSR2">
 
-   <!-- don't use Allman-style opening brace on next line -->
-   <exclude name="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
+   <!-- don't use default opening brace on next line -->
+   <exclude
+      name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
  </rule>
 
  <!-- instead use Kernighan-style opening brace on same line -->
