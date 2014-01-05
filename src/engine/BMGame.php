@@ -172,7 +172,8 @@ class BMGame {
                 foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => &$activeDie) {
                         if ($activeDie instanceof BMDieSwing) {
-                            if (array_key_exists(
+                            if (
+                                array_key_exists(
                                     $activeDie->swingType,
                                     $this->swingValueArrayArray[$playerIdx]
                                 )) {
@@ -1509,7 +1510,8 @@ class BMGame {
                     );
                 }
 
-                if (!preg_match(
+                if (
+                    !preg_match(
                         '/'.
                         implode('|', BMSkill::attack_types()).
                         '/',

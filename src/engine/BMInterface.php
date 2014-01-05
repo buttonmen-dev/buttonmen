@@ -1022,7 +1022,8 @@ class BMInterface {
 
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
-            if (!$this->is_action_current(
+            if (
+                !$this->is_action_current(
                     $game,
                     BMGameState::SPECIFY_DICE,
                     $submitTimestamp,
@@ -1080,7 +1081,8 @@ class BMInterface {
     ) {
         try {
             $game = $this->load_game($gameNumber);
-            if (!$this->is_action_current(
+            if (
+                !$this->is_action_current(
                     $game,
                     BMGameState::START_TURN,
                     $submitTimestamp,
@@ -1106,7 +1108,8 @@ class BMInterface {
             $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
-                if (filter_var(
+                if (
+                    filter_var(
                         $dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
                         FILTER_VALIDATE_BOOLEAN
                     )) {
@@ -1116,7 +1119,8 @@ class BMInterface {
             }
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
-                if (filter_var(
+                if (
+                    filter_var(
                         $dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
                         FILTER_VALIDATE_BOOLEAN
                     )) {
@@ -1187,7 +1191,8 @@ class BMInterface {
     ) {
         try {
             $game = $this->load_game($gameNumber);
-            if (!$this->is_action_current(
+            if (
+                !$this->is_action_current(
                     $game,
                     BMGameState::REACT_TO_INITIATIVE,
                     $submitTimestamp,
