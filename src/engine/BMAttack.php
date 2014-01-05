@@ -48,9 +48,11 @@ class BMAttack {
             $individualAttackTypeArray = array();
             $individualAttackTypeArray['Power'] = 'Power';
             $individualAttackTypeArray['Skill'] = 'Skill';
-            $attacker->run_hooks('attack_list',
-                                 array('attackTypeArray' => &$individualAttackTypeArray,
-                                       'value' => (int)$attacker->value));
+            $attacker->run_hooks(
+                'attack_list',
+                array('attackTypeArray' => &$individualAttackTypeArray,
+                      'value' => (int)$attacker->value)
+            );
 
             foreach ($individualAttackTypeArray as $attackType) {
                 $allAttackTypesArray[$attackType] = $attackType;
@@ -89,7 +91,9 @@ class BMAttack {
     public function help_bounds(array $helpers) {
         $helpMin = $helpMax = 0;
 
-        if (count($helpers) == 0) { return array($helpMin, $helpMax); }
+        if (count($helpers) == 0) {
+            return array($helpMin, $helpMax);
+        }
 
         // Help values are sorted lowest to highest, and we enforce
         // some assumptions about the values to simplify this code a lot
@@ -98,20 +102,24 @@ class BMAttack {
             $max = end($helpVals);
 
             if ($max > 0) {
-                if ($helpMax > 0) { $helpMax += $max; }
-                else { $helpMax = $max; }
-            }
-            elseif ($max < 0 && $helpMax < 1) {
+                if ($helpMax > 0) {
+                    $helpMax += $max;
+                } else {
+                    $helpMax = $max;
+                }
+            } elseif ($max < 0 && $helpMax < 1) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
                 $helpMax = -1;
             }
 
             if ($min < 0) {
-                if ($helpMin < 0) { $helpMin += $min; }
-                else { $helpMin = $min; }
-            }
-            elseif ($min > 0 && $helpMin > -1 ) {
+                if ($helpMin < 0) {
+                    $helpMin += $min;
+                } else {
+                    $helpMin = $min;
+                }
+            } elseif ($min > 0 && $helpMin > -1) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
                 $helpMin = 1;
@@ -132,7 +140,9 @@ class BMAttack {
         $amount = $needed[0];
         $helpers = $needed[1];
 
-        if ($amount == 0) { return TRUE; }
+        if ($amount == 0) {
+            return TRUE;
+        }
         return FALSE;
     }
 
@@ -184,7 +194,7 @@ class BMAttack {
             $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
             $game->gameScoreArrayArray = $gameScoreArrayArray;
             $game->reset_play_state();
-            $game->gameState = BMGameState::endRound;
+            $game->gameState = BMGameState::END_ROUND;
 
             return TRUE;
         }
@@ -294,7 +304,7 @@ class BMAttack {
     // $this may not be used in anonymous functions in PHP 5.3. Bastards.
     protected function search_onevmany($game, array $attackers, array $defenders) {
         $myself = $this;
-        $compare = function($g, $att, $def) use ($myself) {
+        $compare = function ($g, $att, $def) use ($myself) {
             return $myself->validate_attack($g, $att, $def);
         };
 
@@ -306,7 +316,7 @@ class BMAttack {
     // improved efficiency.)
     protected function search_manyvone($game, array $attackers, array $defenders) {
         $myself = $this;
-        $compare = function($g, $def, $att) use ($myself) {
+        $compare = function ($g, $def, $att) use ($myself) {
             return $myself->validate_attack($g, $att, $def);
         };
 
@@ -329,8 +339,7 @@ class BMAttack {
         return $helpers;
     }
 
-    public function __get($property)
-    {
+    public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
                 default:
@@ -339,15 +348,13 @@ class BMAttack {
         }
     }
 
-    public function __set($property, $value)
-    {
+    public function __set($property, $value) {
         throw new LogicException(
-            "BMAttack->$property cannot be set.");
+            "BMAttack->$property cannot be set."
+        );
 //        switch ($property) {
 //            default:
 //                $this->$property = $value;
 //        }
     }
 }
-
-?>

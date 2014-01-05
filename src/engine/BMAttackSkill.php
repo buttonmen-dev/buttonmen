@@ -21,7 +21,9 @@ class BMAttackSkill extends BMAttack {
     public function find_attack($game) {
         $targets = $game->defenderAllDieArray;
 
-        if (count($targets) < 1) { return FALSE; }
+        if (count($targets) < 1) {
+            return FALSE;
+        }
 
         $this->generate_hit_table($game);
 
@@ -45,7 +47,9 @@ class BMAttackSkill extends BMAttack {
             }
         }
 
-        if (!$help_found) { return FALSE; }
+        if (!$help_found) {
+            return FALSE;
+        }
 
         $hits = $this->hit_table->list_hits();
         sort($hits);
@@ -67,7 +71,9 @@ class BMAttackSkill extends BMAttack {
                         return TRUE;
                     }
                 }
-                if ($i == $j) { continue; }
+                if ($i == $j) {
+                    continue;
+                }
                 $combos = $this->hit_table->find_hit($hits[$j]);
                 foreach ($combos as $att) {
                     if ($this->validate_attack($game, $att, $def)) {
@@ -75,7 +81,8 @@ class BMAttackSkill extends BMAttack {
                     }
                 }
             }
-            $j--; $i++;
+            $j--;
+            $i++;
         }
 
         return FALSE;
@@ -105,9 +112,13 @@ class BMAttackSkill extends BMAttack {
         // array_intersect tries to convert to strings, so we
         // use array_uintersect, which needs a comparison
         // function
-        $cmp = function ($v1,$v2) {
-            if ($v1===$v2) { return 0; }
-            if ($v1 > $v2) { return 1; }
+        $cmp = function ($v1, $v2) {
+            if ($v1===$v2) {
+                return 0;
+            }
+            if ($v1 > $v2) {
+                return 1;
+            }
             return -1;
         };
 
@@ -130,7 +141,9 @@ class BMAttackSkill extends BMAttack {
         // assisted attacks
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
         $bounds = $this->help_bounds($helpers);
-        if ($bounds[0] == 0 && $bounds[1] == 0) { return FALSE; }
+        if ($bounds[0] == 0 && $bounds[1] == 0) {
+            return FALSE;
+        }
         for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
             $combos = $this->hit_table->find_hit($dval + $i);
             if ($combos) {
@@ -151,5 +164,3 @@ class BMAttackSkill extends BMAttack {
         return array(0, array());
     }
 }
-
-?>

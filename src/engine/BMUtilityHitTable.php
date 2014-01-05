@@ -97,5 +97,3 @@ class BMUtilityHitTable {
         throw new LogicException('Private properties cannot be set.');
     }
 }
-
-?>

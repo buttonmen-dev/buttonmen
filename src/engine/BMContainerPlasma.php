@@ -2,5 +2,3 @@
 
 class BMContainerPlasma extends BMContainer {
 }
-
-?>

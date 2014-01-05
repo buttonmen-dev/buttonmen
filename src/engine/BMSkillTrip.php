@@ -40,5 +40,3 @@ class BMSkillTrip extends BMSkill {
         $defender->captured = ($defender->value <= $attacker->value);
     }
 }
-
-?>
