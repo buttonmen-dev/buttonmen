@@ -189,7 +189,7 @@ Api.parseActiveGamesData = function(data) {
     'awaitingOpponent': [],
   };
   Api.active_games.nGames = data.gameIdArray.length;
-  i = 0;
+  var i = 0;
   while (i < Api.active_games.nGames) {
     var gameInfo = {
       'gameId': data.gameIdArray[i],
@@ -265,7 +265,7 @@ Api.getCompletedGamesData = function(callbackfunc) {
 Api.parseCompletedGamesData = function(data) {
   Api.completed_games.games = [];
   Api.completed_games.nGames = data.gameIdArray.length;
-  i = 0;
+  var i = 0;
   while (i < Api.completed_games.nGames) {
     var gameInfo = {
       'gameId': data.gameIdArray[i],
