@@ -1,5 +1,5 @@
 {
-  # Restrictions for JSHint to enforce
+  // Restrictions for JSHint to enforce
   "bitwise": true,
   "camelcase": true,
   "curly": true,
@@ -15,7 +15,7 @@
   "unused": true,
   "trailing": true,
 
-  # Environment properties for jshint to assume exist
+  // Environment properties for jshint to assume exist
   "browser": true,
   "jquery": true
 }
