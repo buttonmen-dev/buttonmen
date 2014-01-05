@@ -989,9 +989,9 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values($playerId, $gameNumber,
-                                        $roundNumber, $submitTimestamp,
-                                        $swingValueArray) {
+    public function submit_swing_values(
+        $playerId, $gameNumber, $roundNumber, $submitTimestamp, $swingValueArray
+    ) {
         try {
             $game = $this->load_game($gameNumber);
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
@@ -1045,10 +1045,12 @@ class BMInterface {
         }
     }
 
-    public function submit_turn($playerId, $gameNumber, $roundNumber,
-                                $submitTimestamp,
-                                $dieSelectStatus, $attackType,
-                                $attackerIdx, $defenderIdx, $chat) {
+    public function submit_turn(
+        $playerId, $gameNumber, $roundNumber,
+        $submitTimestamp,
+        $dieSelectStatus, $attackType,
+        $attackerIdx, $defenderIdx, $chat
+    ) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
@@ -1144,10 +1146,11 @@ class BMInterface {
     // successful.
     // If it fails, $this->message will say why it has failed.
 
-    public function react_to_initiative($playerId, $gameNumber, $roundNumber,
-                                        $submitTimestamp, $action,
-                                        $dieIdxArray = NULL,
-                                        $dieValueArray = NULL) {
+    public function react_to_initiative(
+        $playerId, $gameNumber, $roundNumber,
+        $submitTimestamp, $action,
+        $dieIdxArray = NULL, $dieValueArray = NULL
+    ) {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
