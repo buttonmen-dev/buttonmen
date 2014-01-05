@@ -24,7 +24,7 @@ class BMSkill {
 
     public static function unimplemented_skill_in_string($skillString) {
         if ('' === $skillString) {
-            return False;
+            return FALSE;
         }
 
         $skillLetterArray = str_split($skillString);
@@ -32,10 +32,10 @@ class BMSkill {
         foreach ($skillLetterArray as $skillLetter) {
             $lookupSkillLetter = BMSkill::expand_skill_letter($skillLetter);
             if ($lookupSkillLetter == '') {
-                return True;
+                return TRUE;
             }
         }
-        return False;
+        return FALSE;
     }
 
     private static function expand_skill_letter($skillLetter) {

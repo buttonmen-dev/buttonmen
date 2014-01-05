@@ -234,7 +234,7 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
-            if ($game == null) {
+            if ($game == NULL) {
                 throw new Exception(
                     "Could not load newly-created game $gameId"
                 );
@@ -735,7 +735,7 @@ class BMInterface {
     public function get_all_active_games($playerId) {
         try {
             $this->message = 'All game details retrieved successfully.';
-            return $this->get_all_games($playerId, true);
+            return $this->get_all_games($playerId, TRUE);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_all_active_games: " .
@@ -749,7 +749,7 @@ class BMInterface {
     public function get_all_completed_games($playerId) {
         try {
             $this->message = 'All game details retrieved successfully.';
-            return $this->get_all_games($playerId, false);
+            return $this->get_all_games($playerId, FALSE);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_all_active_games: " .
@@ -776,7 +776,7 @@ class BMInterface {
                     $button->load($row['recipe'], $row['name']);
                     $hasUnimplementedSkillArray[] = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
-                    $hasUnimplementedSkillArray[] = True;
+                    $hasUnimplementedSkillArray[] = TRUE;
                 }
             }
             $this->message = 'All button names retrieved successfully.';
@@ -1054,7 +1054,7 @@ class BMInterface {
                 ($game->roundNumber > $roundNumber)) {
                 $this->save_game($game);
                 $this->message = 'Successfully set swing values';
-                return True;
+                return TRUE;
             } else {
                 if ($game->message) {
                     $this->message = $game->message;

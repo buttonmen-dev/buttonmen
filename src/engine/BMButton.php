@@ -29,7 +29,7 @@ class BMButton {
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;
         $this->dieArray = array();
-        $this->hasUnimplementedSkill = False;
+        $this->hasUnimplementedSkill = FALSE;
 
         if (empty($recipe)) {
             return;
@@ -43,9 +43,9 @@ class BMButton {
             $die = BMDie::create_from_recipe($dieRecipe);
             $this->dieArray[] = $die;
             if (is_null($die)) {
-                $this->hasUnimplementedSkill = True;
+                $this->hasUnimplementedSkill = TRUE;
             } elseif (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
-                $this->hasUnimplementedSkill = True;
+                $this->hasUnimplementedSkill = TRUE;
             }
         }
     }

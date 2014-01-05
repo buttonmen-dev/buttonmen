@@ -162,7 +162,7 @@ class responder {
 
         if ($args['type'] == 'logout') {
             logout();
-            return array('userName' => False);
+            return array('userName' => FALSE);
         }
 
         // no action specified
@@ -201,6 +201,6 @@ class responder {
 // If responder was called via a POST request (rather than by
 // test code), the $_POST variable will be set
 if ($_POST) {
-    $responder = new responder(False);
+    $responder = new responder(FALSE);
     $responder->process_request($_POST);
 }

@@ -30,7 +30,7 @@ function login($username, $password) {
 
             // set authorisation cookie
             setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
-            session_regenerate_id(true);
+            session_regenerate_id(TRUE);
             $_SESSION['user_id'] = $result['id'];
             $_SESSION['user_name'] = $result['name_ingame'];
             $_SESSION['user_lastactive'] = time();

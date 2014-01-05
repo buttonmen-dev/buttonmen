@@ -30,10 +30,10 @@ class BMDie {
     public $playerIdx;
     public $originalPlayerIdx;
 
-    protected $doesReroll = true;
-    public $captured = false;
+    protected $doesReroll = TRUE;
+    public $captured = FALSE;
 
-    public $hasAttacked = false;
+    public $hasAttacked = FALSE;
 
 // This is set when the button may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
@@ -43,7 +43,7 @@ class BMDie {
 // Set when the button isn't in the game for whatever reason, but
 //  could suddenly join (Warrior Dice). Prevents from being attacked,
 //  but not attacking
-    public $unavailable = false;
+    public $unavailable = FALSE;
 
     // unhooked methods
 
