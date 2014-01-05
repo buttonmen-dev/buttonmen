@@ -1077,10 +1077,15 @@ class BMInterface {
     }
 
     public function submit_turn(
-        $playerId, $gameNumber, $roundNumber,
+        $playerId,
+        $gameNumber,
+        $roundNumber,
         $submitTimestamp,
-        $dieSelectStatus, $attackType,
-        $attackerIdx, $defenderIdx, $chat
+        $dieSelectStatus,
+        $attackType,
+        $attackerIdx,
+        $defenderIdx,
+        $chat
     ) {
         try {
             $game = $this->load_game($gameNumber);
