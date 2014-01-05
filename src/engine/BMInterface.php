@@ -236,7 +236,8 @@ class BMInterface {
             $game = $this->load_game($gameId);
             if ($game == null) {
                 throw new Exception(
-                    "Could not load newly-created game $gameId");
+                    "Could not load newly-created game $gameId"
+                );
             }
             $this->save_game($game);
 
@@ -1243,7 +1244,8 @@ class BMInterface {
         switch ($property) {
             case 'message':
                 throw new LogicException(
-                    'message can only be read, not written.');
+                    'message can only be read, not written.'
+                );
             default:
                 $this->$property = $value;
         }

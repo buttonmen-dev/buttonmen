@@ -350,7 +350,8 @@ class BMAttack {
 
     public function __set($property, $value) {
         throw new LogicException(
-            "BMAttack->$property cannot be set.");
+            "BMAttack->$property cannot be set."
+        );
 //        switch ($property) {
 //            default:
 //                $this->$property = $value;

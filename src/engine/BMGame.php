@@ -1430,12 +1430,14 @@ class BMGame {
                 if (!is_array($value) ||
                     count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
-                        'Number of buttons must equal the number of players.');
+                        'Number of buttons must equal the number of players.'
+                    );
                 }
                 foreach ($value as $tempValueElement) {
                     if (!($tempValueElement instanceof BMButton)) {
                         throw new InvalidArgumentException(
-                            'Input must be an array of BMButtons.');
+                            'Input must be an array of BMButtons.'
+                        );
                     }
                 }
                 $this->buttonArray = $value;
@@ -1447,17 +1449,20 @@ class BMGame {
             case 'activeDieArrayArray':
                 if (!is_array($value)) {
                     throw new InvalidArgumentException(
-                        'Active die array array must be an array.');
+                        'Active die array array must be an array.'
+                    );
                 }
                 foreach ($value as $tempValueElement) {
                     if (!is_array($tempValueElement)) {
                         throw new InvalidArgumentException(
-                            'Individual active die arrays must be arrays.');
+                            'Individual active die arrays must be arrays.'
+                        );
                     }
                     foreach ($tempValueElement as $die) {
                         if (!($die instanceof BMDie)) {
                             throw new InvalidArgumentException(
-                                'Elements of active die arrays must be BMDice.');
+                                'Elements of active die arrays must be BMDice.'
+                            );
                         }
                     }
                 }
@@ -1467,19 +1472,23 @@ class BMGame {
                 $value = array_values($value);
                 if (!is_array($value) || (5 !== count($value))) {
                     throw new InvalidArgumentException(
-                        'There must be exactly five elements in attack.');
+                        'There must be exactly five elements in attack.'
+                    );
                 }
                 if (!is_integer($value[0])) {
                     throw new InvalidArgumentException(
-                        'The first element in attack must be an integer.');
+                        'The first element in attack must be an integer.'
+                    );
                 }
                 if (!is_integer($value[1]) && !is_null($value[1])) {
                     throw new InvalidArgumentException(
-                        'The second element in attack must be an integer or a NULL.');
+                        'The second element in attack must be an integer or a NULL.'
+                    );
                 }
                 if (!is_array($value[2]) || !is_array($value[3])) {
                     throw new InvalidArgumentException(
-                        'The third and fourth elements in attack must be arrays.');
+                        'The third and fourth elements in attack must be arrays.'
+                    );
                 }
                 if (($value[2] !== array_filter($value[2], 'is_int')) ||
                     ($value[3] !== array_filter($value[3], 'is_int'))) {
