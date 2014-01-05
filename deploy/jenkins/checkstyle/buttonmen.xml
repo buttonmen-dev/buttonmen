@@ -24,6 +24,6 @@
  <!-- instead use Kernighan-style opening brace on same line -->
  <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
 
- <!-- instead require lowercase constants -->
+ <!-- instead require uppercase constants -->
  <rule ref="Generic.PHP.UpperCaseConstant" />
 </ruleset>

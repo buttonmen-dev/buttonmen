@@ -8,7 +8,7 @@ class BMGameState {
 
     // pre-round
     const LOAD_DICE_INTO_BUTTONS = 20;
-    // const addReserveDice = 21;
+    // const ADD_RESERVE_DICE = 21;
     const ADD_AVAILABLE_DICE_TO_GAME = 22;
     const SPECIFY_DICE = 24;
     const DETERMINE_INITIATIVE = 26;
