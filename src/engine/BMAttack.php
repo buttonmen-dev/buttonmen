@@ -89,7 +89,9 @@ class BMAttack {
     public function help_bounds(array $helpers) {
         $helpMin = $helpMax = 0;
 
-        if (count($helpers) == 0) { return array($helpMin, $helpMax); }
+        if (count($helpers) == 0) {
+            return array($helpMin, $helpMax);
+        }
 
         // Help values are sorted lowest to highest, and we enforce
         // some assumptions about the values to simplify this code a lot
@@ -98,20 +100,24 @@ class BMAttack {
             $max = end($helpVals);
 
             if ($max > 0) {
-                if ($helpMax > 0) { $helpMax += $max; }
-                else { $helpMax = $max; }
-            }
-            elseif ($max < 0 && $helpMax < 1) {
+                if ($helpMax > 0) {
+                    $helpMax += $max;
+                } else {
+                    $helpMax = $max;
+                }
+            } elseif ($max < 0 && $helpMax < 1) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
                 $helpMax = -1;
             }
 
             if ($min < 0) {
-                if ($helpMin < 0) { $helpMin += $min; }
-                else { $helpMin = $min; }
-            }
-            elseif ($min > 0 && $helpMin > -1) {
+                if ($helpMin < 0) {
+                    $helpMin += $min;
+                } else {
+                    $helpMin = $min;
+                }
+            } elseif ($min > 0 && $helpMin > -1) {
                 // Simplifying assumption here, but life's a lot more
                 // complex if there can be gaps in the help coverage.
                 $helpMin = 1;
@@ -132,7 +138,9 @@ class BMAttack {
         $amount = $needed[0];
         $helpers = $needed[1];
 
-        if ($amount == 0) { return TRUE; }
+        if ($amount == 0) {
+            return TRUE;
+        }
         return FALSE;
     }
 

@@ -183,28 +183,22 @@ class BMDie {
             if (count($opt_array = explode('/', $recipe)) > 1) {
 //                $die = BMDieOption::create($opt_array, $skills);
                     throw new Exception("Option skill not implemented");
-            }
-            // Twin dice divide on a comma, can contain any type but option
-            elseif (count($twin_array = explode(',', $recipe)) > 1) {
+            } elseif (count($twin_array = explode(',', $recipe)) > 1) {
+                // Twin dice divide on a comma, can contain any type but option
                 $die = BMDieTwin::create($twin_array, $skills);
-            }
-            elseif ('C' == $recipe) {
+            } elseif ('C' == $recipe) {
                 $die = BMDieWildcard::create($recipe, $skills);
-            }
-            // Integers are normal dice
-            elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
+            } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
+                // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);
-            }
-            // Single character that's not a number is a swing die
-            elseif (strlen($recipe) == 1) {
+            } elseif (strlen($recipe) == 1) {
+                // Single character that's not a number is a swing die
                 $die = BMDieSwing::create($recipe, $skills);
-            }
-            // oops
-            else {
+            } else {
+                // oops
                 throw new UnexpectedValueException("Invalid recipe: $recipe");
             }
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             error_log(
                 "Caught exception in BMDie::create_from_string_components: " .
                 $e->getMessage());
@@ -308,8 +302,7 @@ class BMDie {
         $mult = 1;
         if ($this->captured) {
             $div = 1;
-        }
-        else {
+        } else {
             $div = 2;
         }
 
@@ -543,9 +536,8 @@ class BMDie {
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
 
-        }
-        // Twin dice divide on a comma, can contain any type but option
-        elseif ($this instanceof BMDieTwin) {
+        } elseif ($this instanceof BMDieTwin) {
+            // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {
                 $recipe .= $this->dice[0]->swingType;
             } else {
@@ -557,14 +549,11 @@ class BMDie {
             } else {
                 $recipe .= $this->dice[1]->max;
             }
-        }
-        elseif ($this instanceof BMDieWildcard) {
+        } elseif ($this instanceof BMDieWildcard) {
             $recipe .= 'C';
-        }
-        elseif ($this instanceof BMDieSwing) {
+        } elseif ($this instanceof BMDieSwing) {
             $recipe .= $this->swingType;
-        }
-        else {
+        } else {
             $recipe .= $this->max;
         }
 

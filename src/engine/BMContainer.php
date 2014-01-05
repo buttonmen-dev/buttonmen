@@ -106,8 +106,7 @@ class BMContainer {
         foreach ($this->contents as $thing) {
             if (is_a($thing, "BMDie")) {
                 $list[] = $thing;
-            }
-            else {
+            } else {
                 $list = array_merge($list, $thing->list_dice());
             }
         }
@@ -124,8 +123,7 @@ class BMContainer {
 
         if ($this->has_skill($skill)) {
             $total = $this->count_dice();
-        }
-        else {
+        } else {
             foreach ($this->contents as $thing) {
                 if (is_a($thing, "BMContainer")) {
                     $total += $thing->count_skill($skill);
@@ -151,8 +149,7 @@ class BMContainer {
         foreach ($contents as $thing) {
             if (is_array($thing)) {
                 $cont->add_thing(BMContainer::create_from_list($thing));
-            }
-            elseif (!$cont->add_thing($thing)) {
+            } elseif (!$cont->add_thing($thing)) {
                 throw new UnexpectedValueException("Invalid container contents");
             }
         }
