@@ -22,5 +22,5 @@
  <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
 
  <!-- instead require lowercase constants -->
- <exclude name="Generic.PHP.UpperCaseConstant" />
+ <rule ref="Generic.PHP.UpperCaseConstant" />
 </ruleset>
