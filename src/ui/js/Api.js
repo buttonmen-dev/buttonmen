@@ -37,33 +37,36 @@ Api.getButtonData = function(callbackfunc) {
   Api.button = {
     'load_status': 'failed',
   };
-  $.post(Env.api_location,
-         { type: 'loadButtonNames', },
-         function(rs) {
-           if (rs.status == 'ok') {
-             if (Api.parseButtonData(rs.data)) {
-               Api.button.load_status = 'ok';
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': 'Could not parse button list from server',
-               };
-             }
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message,
-             };
-           }
-           return callbackfunc();
-         }
-  ).fail(function() {
-    Env.message = {
-      'type': 'error',
-      'text': 'Internal error when calling loadButtonNames',
-    };
-    return callbackfunc();
-  });
+  $.post(
+    Env.api_location,
+    { type: 'loadButtonNames', },
+    function(rs) {
+      if (rs.status == 'ok') {
+        if (Api.parseButtonData(rs.data)) {
+          Api.button.load_status = 'ok';
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not parse button list from server',
+          };
+        }
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      return callbackfunc();
+    }
+  ).fail(
+    function() {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error when calling loadButtonNames',
+      };
+      return callbackfunc();
+    }
+  );
 }
 
 Api.parseButtonData = function(data) {
