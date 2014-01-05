@@ -207,13 +207,13 @@ Api.parseActiveGamesData = function(data) {
       'gameState': data.gameStateArray[i],
       'status': data.statusArray[i],
     };
-    if (gameInfo.isAwaitingAction == "1") {
-      Api.active_games.games['awaitingPlayer'].push(gameInfo);
+    if (gameInfo.isAwaitingAction == '1') {
+      Api.active_games.games.awaitingPlayer.push(gameInfo);
     } else {
       if (gameInfo.gameState == Api.GAME_STATE_END_GAME) {
-        Api.active_games.games['finished'].push(gameInfo);
+        Api.active_games.games.finished.push(gameInfo);
       } else {
-        Api.active_games.games['awaitingOpponent'].push(gameInfo);
+        Api.active_games.games.awaitingOpponent.push(gameInfo);
       }
     }
     i += 1;
@@ -236,9 +236,7 @@ Api.getCompletedGamesData = function(callbackfunc) {
       if (rs.status == 'ok') {
         if (Api.parseCompletedGamesData(rs.data)) {
           Api.completed_games.load_status = 'ok';
-        } else if (Api.completed_games.load_status == 'nogames') {
-          // nothing to do, this is not an error
-        } else {
+        } else if (!(Api.completed_games.load_status == 'nogames')) {
           Env.message = {
             'type': 'error',
             'text':
