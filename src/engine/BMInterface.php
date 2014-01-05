@@ -1019,7 +1019,7 @@ class BMInterface {
         $roundNumber,
         $submitTimestamp,
         $swingValueArray
-    ) 
+    ) {
         try {
             $game = $this->load_game($gameNumber);
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
