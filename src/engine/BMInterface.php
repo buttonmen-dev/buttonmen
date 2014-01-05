@@ -427,7 +427,7 @@ class BMInterface {
                 $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
             }
 
-            if (BMGameState::endGame == $game->gameState) {
+            if (BMGameState::END_GAME == $game->gameState) {
                 $status = 'COMPLETE';
             } elseif (in_array(0, $game->playerIdArray) ||
                       in_array(NULL, $game->buttonArray)) {
@@ -999,7 +999,7 @@ class BMInterface {
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
             if (!$this->is_action_current($game,
-                                          BMGameState::specifyDice,
+                                          BMGameState::SPECIFY_DICE,
                                           $submitTimestamp,
                                           $roundNumber,
                                           $playerId)) {
@@ -1024,7 +1024,7 @@ class BMInterface {
 
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
-                ($game->gameState > BMGameState::specifyDice) ||
+                ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
                 $this->save_game($game);
                 $this->message = 'Successfully set swing values';
@@ -1054,7 +1054,7 @@ class BMInterface {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
-                                          BMGameState::startTurn,
+                                          BMGameState::START_TURN,
                                           $submitTimestamp,
                                           $roundNumber,
                                           $playerId)) {
@@ -1154,7 +1154,7 @@ class BMInterface {
         try {
             $game = $this->load_game($gameNumber);
             if (!$this->is_action_current($game,
-                                          BMGameState::reactToInitiative,
+                                          BMGameState::REACT_TO_INITIATIVE,
                                           $submitTimestamp,
                                           $roundNumber,
                                           $playerId)) {

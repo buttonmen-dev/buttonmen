@@ -512,7 +512,7 @@ class BMDie {
 
     public function run_hooks_at_game_state($gameState, $args) {
         switch ($gameState) {
-            case BMGameState::endTurn:
+            case BMGameState::END_TURN:
                 if ($this->playerIdx === $args['activePlayerIdx']) {
                     $this->inactive = "";
                 }

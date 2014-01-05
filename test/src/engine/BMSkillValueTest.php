@@ -68,13 +68,13 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
 
         // load game
         $game = new BMGame(535353, array(234, 567), array('', ''), 2);
-        $this->assertEquals(BMGameState::startGame, $game->gameState);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $game->buttonArray = array($button1, $button2);
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->proceed_to_next_user_action();
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
-        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
         // artificially set initiative and values manually
         $dieArrayArray = $game->activeDieArrayArray;
@@ -95,7 +95,7 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(1, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $this->assertCount(1, $game->capturedDieArrayArray[0]);

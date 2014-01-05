@@ -192,7 +192,7 @@ class BMAttack {
             $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
             $game->gameScoreArrayArray = $gameScoreArrayArray;
             $game->reset_play_state();
-            $game->gameState = BMGameState::endRound;
+            $game->gameState = BMGameState::END_ROUND;
 
             return TRUE;
         }
