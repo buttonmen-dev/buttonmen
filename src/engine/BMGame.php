@@ -172,10 +172,9 @@ class BMGame {
                 foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => &$activeDie) {
                         if ($activeDie instanceof BMDieSwing) {
-                            if (
-                                array_key_exists(
-                                    $activeDie->swingType,
-                                    $this->swingValueArrayArray[$playerIdx]
+                            if (array_key_exists(
+                                $activeDie->swingType,
+                                $this->swingValueArrayArray[$playerIdx]
                                 )) {
                                 $activeDie->swingValue =
                                     $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
@@ -1510,12 +1509,11 @@ class BMGame {
                     );
                 }
 
-                if (
-                    !preg_match(
-                        '/'.
-                        implode('|', BMSkill::attack_types()).
-                        '/',
-                        $value[4]
+                if (!preg_match(
+                    '/'.
+                    implode('|', BMSkill::attack_types()).
+                    '/',
+                    $value[4]
                     )) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.'
