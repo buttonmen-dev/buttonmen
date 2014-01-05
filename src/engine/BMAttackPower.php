@@ -40,8 +40,7 @@ class BMAttackPower extends BMAttack {
             if ($aVal + $bounds[1] >= $defender->defense_value($this->type)) {
 
                 if ($attacker->is_valid_attacker($this->type, $attackers, $defenders) &&
-                    $defender->is_valid_target($this->type, $attackers, $defenders))
-                {
+                    $defender->is_valid_target($this->type, $attackers, $defenders)) {
                     return TRUE;
                 }
             }
@@ -56,5 +55,3 @@ class BMAttackPower extends BMAttack {
         return array(0, array());
     }
 }
-
-?>

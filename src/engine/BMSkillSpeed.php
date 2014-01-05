@@ -12,5 +12,3 @@ class BMSkillSpeed extends BMSkill {
         $attackTypeArray['Speed'] = 'Speed';
     }
 }
-
-?>

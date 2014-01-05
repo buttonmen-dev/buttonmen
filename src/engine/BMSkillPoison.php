@@ -16,5 +16,3 @@ class BMSkillPoison extends BMSkill {
         }
     }
 }
-
-?>

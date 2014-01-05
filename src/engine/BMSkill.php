@@ -24,7 +24,7 @@ class BMSkill {
 
     public static function unimplemented_skill_in_string($skillString) {
         if ('' === $skillString) {
-            return False;
+            return FALSE;
         }
 
         $skillLetterArray = str_split($skillString);
@@ -32,15 +32,17 @@ class BMSkill {
         foreach ($skillLetterArray as $skillLetter) {
             $lookupSkillLetter = BMSkill::expand_skill_letter($skillLetter);
             if ($lookupSkillLetter == '') {
-                return True;
+                return TRUE;
             }
         }
-        return False;
+        return FALSE;
     }
 
     private static function expand_skill_letter($skillLetter) {
-        $skillLetter = array_search($skillLetter,
-                                    BMSkill::skill_name_abbreviation_mapping());
+        $skillLetter = array_search(
+            $skillLetter,
+            BMSkill::skill_name_abbreviation_mapping()
+        );
         if ($skillLetter) {
             return $skillLetter;
         } else {
@@ -94,7 +96,5 @@ class BMSkill {
 
     public static function incompatible_attack_types($args = NULL) {
         return array();
+    }
 }
-}
-
-?>

@@ -6,7 +6,4 @@ class BMSkillChance extends BMSkill {
     public static function react_to_initiative($args = NULL) {
         return TRUE;
     }
-
 }
-
-?>
