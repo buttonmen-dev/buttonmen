@@ -1720,10 +1720,12 @@ class BMGame {
 
         if (isset($this->activeDieArrayArray)) {
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                $dieSkillsArrayArray[$playerIdx] =
-                    array_fill(0, count($activeDieArray), array());
-                $diePropertiesArrayArray[$playerIdx] =
-                    array_fill(0, count($activeDieArray), array());
+                if (count($activeDieArray) > 0) {
+                    $dieSkillsArrayArray[$playerIdx] =
+                        array_fill(0, count($activeDieArray), array());
+                    $diePropertiesArrayArray[$playerIdx] =
+                        array_fill(0, count($activeDieArray), array());
+                }
             }
 
             $nDieArray = array_map('count', $this->activeDieArrayArray);
