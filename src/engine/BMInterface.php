@@ -1065,11 +1065,13 @@ class BMInterface {
     ) {
         try {
             $game = $this->load_game($gameNumber);
-            if (!$this->is_action_current($game,
-                                          BMGameState::START_TURN,
-                                          $submitTimestamp,
-                                          $roundNumber,
-                                          $playerId)) {
+            if (!$this->is_action_current(
+                    $game,
+                    BMGameState::START_TURN,
+                    $submitTimestamp,
+                    $roundNumber,
+                    $playerId)
+                ) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }
@@ -1089,8 +1091,10 @@ class BMInterface {
             $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
-                               FILTER_VALIDATE_BOOLEAN)) {
+                if (filter_var(
+                        $dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
+                        FILTER_VALIDATE_BOOLEAN
+                    )) {
                     $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }

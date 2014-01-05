@@ -448,9 +448,12 @@ class BMGame {
                             $this->swingValueArrayArray[$playerIdx] = array();
                         }
                     }
-                    $this->log_action('end_winner', $this->playerIdArray[$winnerIdx],
+                    $this->log_action(
+                        'end_winner',
+                        $this->playerIdArray[$winnerIdx],
                         'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                        $roundScoreArray[0] . ' vs ' . $roundScoreArray[1] . ')' );
+                        $roundScoreArray[0] . ' vs ' . $roundScoreArray[1] . ')'
+                    );
                 }
                 $this->reset_play_state();
                 break;
@@ -1574,12 +1577,12 @@ class BMGame {
                 $this->capturedDieArrayArray = $value;
                 break;
             case 'roundNumber':
-                throw new LogicException('
-                    BMGame->roundNumber is derived automatically from BMGame.');
+                throw new LogicException(
+                    'BMGame->roundNumber is derived automatically from BMGame.');
                 break;
             case 'roundScoreArray':
-                throw new LogicException('
-                    BMGame->roundScoreArray is derived automatically from BMGame.');
+                throw new LogicException(
+                    'BMGame->roundScoreArray is derived automatically from BMGame.');
                 break;
             case 'gameScoreArrayArray':
                 $value = array_values($value);
