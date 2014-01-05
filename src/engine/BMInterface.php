@@ -1028,7 +1028,7 @@ class BMInterface {
                 $submitTimestamp,
                 $roundNumber,
                 $playerId
-                )) {
+            )) {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
@@ -1086,7 +1086,7 @@ class BMInterface {
                 $submitTimestamp,
                 $roundNumber,
                 $playerId
-                )) {
+            )) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }
@@ -1109,7 +1109,7 @@ class BMInterface {
                 if (filter_var(
                     $dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
                     FILTER_VALIDATE_BOOLEAN
-                    )) {
+                )) {
                     $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }
@@ -1119,7 +1119,7 @@ class BMInterface {
                 if (filter_var(
                     $dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
                     FILTER_VALIDATE_BOOLEAN
-                    )) {
+                )) {
                     $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
@@ -1193,7 +1193,7 @@ class BMInterface {
                 $submitTimestamp,
                 $roundNumber,
                 $playerId
-                )) {
+            )) {
                 $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }

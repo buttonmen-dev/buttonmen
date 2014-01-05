@@ -175,7 +175,7 @@ class BMGame {
                             if (array_key_exists(
                                 $activeDie->swingType,
                                 $this->swingValueArrayArray[$playerIdx]
-                                )) {
+                            )) {
                                 $activeDie->swingValue =
                                     $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
                             }
@@ -1514,7 +1514,7 @@ class BMGame {
                     implode('|', BMSkill::attack_types()).
                     '/',
                     $value[4]
-                    )) {
+                )) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.'
                     );
