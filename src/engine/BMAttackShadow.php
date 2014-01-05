@@ -41,5 +41,3 @@ class BMAttackShadow extends BMAttackPower {
                 $isDefenderValidTargetForThisAttack);
     }
 }
-
-?>

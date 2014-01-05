@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<ruleset name="buttonmen">
+ <description>Custom ButtonMen coding standard.</description>
+
+ <!-- base our standard on PSR2 -->
+ <rule ref="PSR2">
+
+   <!-- don't require opening brace on next line in functions or classes -->
+   <exclude
+      name="Squiz.Functions.MultiLineFunctionDeclaration.BraceOnSameLine"/>
+   <exclude
+      name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" />
+
+   <!-- don't require lowercase constants -->
+   <exclude name="Generic.PHP.LowerCaseConstant" />
+
+   <!-- we don't use namespaces within modules right now -->
+   <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
+
+   <!-- we don't use camelcase method names -->
+   <exclude name="PSR1.Methods.CamelCapsMethodName.NotCamelCaps" />
+ </rule>
+
+ <!-- instead use Kernighan-style opening brace on same line -->
+ <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
+
+ <!-- instead require lowercase constants -->
+ <rule ref="Generic.PHP.UpperCaseConstant" />
+</ruleset>

@@ -2,5 +2,3 @@
 
 class BMContainerReserve extends BMContainer {
 }
-
-?>

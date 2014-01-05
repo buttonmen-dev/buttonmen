@@ -30,5 +30,3 @@ class BMAttackTrip extends BMAttack {
                 $isDieLargeEnough);
     }
 }
-
-?>

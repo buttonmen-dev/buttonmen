@@ -7,5 +7,3 @@
 // within can replace other dice.
 class BMContainerSideboard extends BMContainer {
 }
-
-?>

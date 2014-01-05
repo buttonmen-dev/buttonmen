@@ -28,7 +28,7 @@ class BMAttackSpeed extends BMAttack {
             if (!($defender->is_valid_target($this->type, $attackers, $defenders))) {
                 $areDefendersValidTargetsForThisAttack = FALSE;
                 break;
-                }
+            }
         }
 
         return ($doesAttackerHaveSkill &&
@@ -38,10 +38,10 @@ class BMAttackSpeed extends BMAttack {
     }
 
     public function find_attack($game) {
-        return $this->search_onevmany($game,
-                                      $game->attackerAllDieArray,
-                                      $game->defenderAllDieArray);
+        return $this->search_onevmany(
+            $game,
+            $game->attackerAllDieArray,
+            $game->defenderAllDieArray
+        );
     }
 }
-
-?>
