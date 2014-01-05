@@ -38,8 +38,12 @@ class BMSkillKonstant extends BMSkill {
         }
 
         $initialAttackValues = $args['attackValues'];
-        $negativeAttackValues = array_map(function ($val) {return (-$val);},
-                                          $initialAttackValues);
+        $negativeAttackValues = array_map(
+            function ($val) {
+                return (-$val);
+            },
+            $initialAttackValues
+        );
 
         $args['attackValues'] = array_values(
                                     array_unique(
