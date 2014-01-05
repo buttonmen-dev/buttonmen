@@ -129,23 +129,6 @@ class BMAttack {
         return array($helpMin, $helpMax);
     }
 
-
-    // gather contributions from assisting dice to make the attack work
-    // returns FALSE if it failed to do so (user cancel or error)
-    //
-    // I don't yet understand what the guts of this function looks like
-    public function collect_contributions(BMGame $game, array $attackers, array $defenders) {
-        $needed = $this->calculate_contributions($game, $attackers, $defenders);
-
-        $amount = $needed[0];
-//        $helpers = $needed[1];
-
-        if ($amount == 0) {
-            return TRUE;
-        }
-        return FALSE;
-    }
-
     // return how much help is needed and who can contribute
     //
     // implemented in subclassed where they actually know what help they need

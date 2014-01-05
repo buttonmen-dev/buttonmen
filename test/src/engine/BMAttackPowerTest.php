@@ -309,17 +309,6 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->find_attack($game));
     }
-
-    /**
-     * @covers BMAttackPower::calculate_contributions
-     * @todo   Implement testCalculate_contributions
-     */
-    public function testCalculate_contributions() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
 }
 
 ?>

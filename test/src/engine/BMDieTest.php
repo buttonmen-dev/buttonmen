@@ -577,42 +577,32 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      */
     public function testIs_valid_attacker() {
         $attDie = new BMDie;
-        $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
 
             $this->assertFalse($this->object->is_valid_attacker($att,
-                                                                array($attDie),
-                                                                array($defDie)));
+                                                                array($attDie)));
             $this->assertTrue($this->object->is_valid_attacker($att,
-                                                               array($this->object),
-                                                               array($defDie)));
-            $this->assertFalse($this->object->is_valid_attacker($att,
-                                                                array($attDie),
-                                                                array($this->object)));
+                                                               array($this->object)));
             $this->assertTrue($this->object->is_valid_attacker($att,
-                                                               array($this->object, $attDie),
-                                                               array($defDie)));
+                                                               array($this->object, $attDie)));
         }
 
         // Inactive is a string also used to descrbe why the die cannot attack
         $this->object->inactive = "Yes";
         $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object),
-                                                            array($defDie)));
+                                                            array($this->object)));
 
         $this->object->inactive = "";
         $this->object->hasAttacked = TRUE;
         $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object),
-                                                            array($defDie)));
+                                                            array($this->object)));
 
 
         $this->object->inactive = "Yes";
         $this->object->hasAttacked = TRUE;
         $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object),
-                                                            array($defDie)));
+                                                            array($this->object)));
 
     }
 
@@ -620,28 +610,20 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testAttack_list
      */
     public function testIs_valid_target() {
-        $attDie = new BMDie;
         $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
 
             $this->assertFalse($this->object->is_valid_target($att,
-                                                              array($attDie),
-                                                              array($defDie)));
-            $this->assertFalse($this->object->is_valid_target($att,
-                                                              array($this->object),
                                                               array($defDie)));
             $this->assertTrue($this->object->is_valid_target($att,
-                                                             array($attDie),
                                                              array($this->object)));
             $this->assertTrue($this->object->is_valid_target($att,
-                                                             array($attDie),
                                                              array($this->object, $defDie)));
         }
 
         $this->object->unavailable = TRUE;
         $this->assertFalse($this->object->is_valid_target($att,
-                                                          array($attDie),
                                                           array($this->object)));
 
     }
