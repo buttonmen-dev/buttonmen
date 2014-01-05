@@ -29,9 +29,9 @@ class BMAttackShadow extends BMAttackPower {
         $isValueSmallEnough = $attackValue <= $defenseValue;
 
         $canAttackerPerformThisAttack =
-            $attacker->is_valid_attacker($this->type, $attackers, $defenders);
+            $attacker->is_valid_attacker($this->type, $attackers);
         $isDefenderValidTargetForThisAttack =
-            $defender->is_valid_target($this->type, $attackers, $defenders);
+            $defender->is_valid_target($this->type, $defenders);
 
         return (($doesAttackerHaveShadow ||
                  ($doesAttackerHaveQueer && $isAttackerOdd)) &&

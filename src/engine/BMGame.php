@@ -832,7 +832,7 @@ class BMGame {
                 }
 
                 // change specified die values
-                $oldValueArray = array();
+                $oldDieValueArray = array();
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
                     $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
@@ -1235,8 +1235,8 @@ class BMGame {
             // Add the pre-attack status of all participating dice
             $preAttackAttackers = array();
             $preAttackDefenders = array();
-            $attackerOutcomes = array();
-            $defenderOutcomes = array();
+//            $attackerOutcomes = array();
+//            $defenderOutcomes = array();
             foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
                 $preAttackAttackers[] = $attackerInfo['recipeStatus'];
             }
@@ -1772,7 +1772,7 @@ class BMGame {
                     $sidesArrayArray[$playerIdx][] = $dieMax;
                     $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
                     if (count($die->skillList) > 0) {
-                        foreach ($die->skillList as $skillType => $skillInternal) {
+                        foreach (array_keys($die->skillList) as $skillType) {
                             $dieSkillsArrayArray[$playerIdx][$dieIdx][$skillType] = TRUE;
                         }
                     }

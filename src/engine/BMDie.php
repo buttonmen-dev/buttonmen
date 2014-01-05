@@ -281,12 +281,8 @@ class BMDie {
         return $list;
     }
 
-    public function defense_value($type) {
+    public function defense_value() {
         $val = $this->value;
-
-//        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-//                                             'defenceValue' => &$val));
-
         return $val;
     }
 
@@ -407,7 +403,7 @@ class BMDie {
 // situation I can come up with off the top of my head
 //
 // These methods cannot act, they may only check: they're called a lot
-    public function is_valid_attacker($type, array $attackers, array $defenders) {
+    public function is_valid_attacker($type, array $attackers) {
         $valid = TRUE;
 
         if ($this->inactive || $this->hasAttacked) {
@@ -436,7 +432,7 @@ class BMDie {
     }
 
 
-    public function is_valid_target($type, array $attackers, array $defenders) {
+    public function is_valid_target($type, array $defenders) {
         $valid = TRUE;
 
         if ($this->unavailable) {
