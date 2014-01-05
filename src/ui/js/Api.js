@@ -93,33 +93,36 @@ Api.getPlayerData = function(callbackfunc) {
   Api.player = {
     'load_status': 'failed',
   };
-  $.post(Env.api_location,
-         { type: 'loadPlayerNames', },
-         function(rs) {
-           if (rs.status == 'ok') {
-             if (Api.parsePlayerData(rs.data)) {
-               Api.player.load_status = 'ok';
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': 'Could not parse player list from server',
-               };
-             }
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message,
-             };
-           }
-           return callbackfunc();
-         }
-  ).fail(function() {
-    Env.message = {
-      'type': 'error',
-      'text': 'Internal error when calling loadPlayerNames',
-    };
-    return callbackfunc();
-  });
+  $.post(
+    Env.api_location,
+    { type: 'loadPlayerNames', },
+    function(rs) {
+      if (rs.status == 'ok') {
+        if (Api.parsePlayerData(rs.data)) {
+          Api.player.load_status = 'ok';
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Could not parse player list from server',
+          };
+        }
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      return callbackfunc();
+    }
+  ).fail(
+    function() {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error when calling loadPlayerNames',
+      };
+      return callbackfunc();
+    }
+  );
 }
 
 // Right now, we only get a list of names, but make a dict in case
@@ -146,34 +149,37 @@ Api.getActiveGamesData = function(callbackfunc) {
     'load_status': 'failed',
   };
 
-  $.post(Env.api_location,
-         { type: 'loadActiveGames', },
-         function(rs) {
-           if (rs.status == 'ok') {
-             if (Api.parseActiveGamesData(rs.data)) {
-               Api.active_games.load_status = 'ok';
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text':
-                   'Active game list received from server could not be parsed!',
-               };
-             }
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message,
-             };
-           }
-           return callbackfunc();
-         }
-  ).fail(function() {
-    Env.message = {
-      'type': 'error',
-      'text': 'Internal error when calling loadActiveGames',
-    };
-    return callbackfunc();
-  });
+  $.post(
+    Env.api_location,
+    { type: 'loadActiveGames', },
+    function(rs) {
+      if (rs.status == 'ok') {
+        if (Api.parseActiveGamesData(rs.data)) {
+          Api.active_games.load_status = 'ok';
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Active game list received from server could not be parsed!',
+          };
+        }
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      return callbackfunc();
+    }
+  ).fail(
+    function() {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error when calling loadActiveGames',
+      };
+      return callbackfunc();
+    }
+  );
 }
 
 Api.parseActiveGamesData = function(data) {
