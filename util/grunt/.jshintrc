@@ -1,8 +1,11 @@
 {
+  # Restrictions for JSHint to enforce
   "bitwise": true,
   "camelcase": true,
   "curly": true,
+  "indent": 2,
   "latedef": true,
+  "maxlen": 80,
   "newcap": true,
   "noarg": true,
   "noempty": true,
@@ -11,6 +14,8 @@
   "undef": true,
   "unused": true,
   "trailing": true,
+
+  # Environment properties for jshint to assume exist
   "browser": true,
   "jquery": true
 }
