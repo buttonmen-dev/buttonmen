@@ -67,7 +67,7 @@ Api.getButtonData = function(callbackfunc) {
       return callbackfunc();
     }
   );
-}
+};
 
 Api.parseButtonData = function(data) {
   Api.button.list = {};
@@ -84,7 +84,7 @@ Api.parseButtonData = function(data) {
     i++;
   }
   return true;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Load and parse a list of players
@@ -123,7 +123,7 @@ Api.getPlayerData = function(callbackfunc) {
       return callbackfunc();
     }
   );
-}
+};
 
 // Right now, we only get a list of names, but make a dict in case
 // there's more data available later
@@ -139,7 +139,7 @@ Api.parsePlayerData = function(data) {
     i++;
   }
   return true;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Load and parse the current player's list of active games
@@ -180,7 +180,7 @@ Api.getActiveGamesData = function(callbackfunc) {
       return callbackfunc();
     }
   );
-}
+};
 
 Api.parseActiveGamesData = function(data) {
   Api.active_games.games = {
@@ -218,7 +218,7 @@ Api.parseActiveGamesData = function(data) {
     i += 1;
   }
   return true;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Load and parse the current player's list of active games
@@ -261,7 +261,7 @@ Api.getCompletedGamesData = function(callbackfunc) {
       return callbackfunc();
     }
   );
-}
+};
 
 Api.parseCompletedGamesData = function(data) {
   Api.completed_games.games = [];
@@ -288,4 +288,4 @@ Api.parseCompletedGamesData = function(data) {
     i += 1;
   }
   return true;
-}
+};
