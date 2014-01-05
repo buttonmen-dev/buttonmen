@@ -234,7 +234,7 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
-            if (!isset($game)) {
+            if (!($game instanceof BMGame)) {
                 throw new Exception(
                     "Could not load newly-created game $gameId"
                 );
