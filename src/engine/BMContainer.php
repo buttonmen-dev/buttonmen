@@ -68,7 +68,7 @@ class BMContainer {
     // instead name skill classes according to the expected pattern.
     // The optional argument is only for outside code which needs
     // to add skills (currently, it's used for unit testing).
-    public function add_skill($skill, $skillClass = False) {
+    public function add_skill($skill, $skillClass = FALSE) {
 
         if (!$skillClass) {
             $skillClass = "BMSkill$skill";
