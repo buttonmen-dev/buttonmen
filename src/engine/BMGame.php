@@ -609,9 +609,7 @@ class BMGame {
                     $this->gameState = BMGameState::END_TURN;
                     if (isset($this->activeDieArrayArray) &&
                         isset($this->attack['attackerPlayerIdx'])) {
-                        foreach ($this->activeDieArrayArray[
-                                     $this->attack['attackerPlayerIdx']]
-                                 as &$activeDie) {
+                        foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
                             if ($activeDie->disabled) {
                                 if ($activeDie->has_skill('Focus')) {
                                     unset($activeDie->disabled);
