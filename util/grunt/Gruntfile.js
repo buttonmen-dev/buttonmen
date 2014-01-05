@@ -1,21 +1,28 @@
 module.exports = function(grunt) {
  
-    // Project configuration.
-    grunt.initConfig({
+  // Project configuration.
+  grunt.initConfig({
  
-        //Read the package.json (optional)
-        pkg: grunt.file.readJSON('package.json'),
+    // Read the package.json (optional)
+    pkg: grunt.file.readJSON('package.json'),
  
+    clean: [],
+
+    jshint: {
+      all: ['../../src/ui/js/*.js'],
+      options: grunt.file.readJSON('.jshintrc')
+    }
+
         // Metadata.
-        meta: {
-            basePath: './../../',
-            srcPath: './../../src/',
-            deployPath: './../../deploy/'
-        },
+//        meta: {
+//            basePath: './../../',
+//            srcPath: './../../src/',
+//            deployPath: './../../deploy/'
+//        },
  
-        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-                '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-                '* Copyright (c) <%= grunt.template.today("yyyy") %> ',
+//        banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+//                '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
+//                '* Copyright (c) <%= grunt.template.today("yyyy") %> ',
  
         // Task configuration.
 //        concat: {
@@ -39,22 +46,22 @@ module.exports = function(grunt) {
 //        jshint: {
 //            all: ['Gruntfile.js', 'src/**/*.js', 'test/src/**/*.js']
 //        }
-        inlinelint: {
-            html: ['./../../src/**/*.html'],
-            options: {
-                jshintrc: '.jshintrc'
-            }
-        }
-    });
+//        inlinelint: {
+//           html: ['./../../src/**/*.html'],
+//            options: {
+//                jshintrc: '.jshintrc'
+//            }
+//        }
+  });
     
  
-    // These plugins provide necessary tasks.
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-concat');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-lint-inline'); 
+  // These plugins provide necessary tasks.
+  grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-lint-inline'); 
 
-    // Default task
-    grunt.registerTask('default', ['inlinelint']);
- 
+  // Default task
+  grunt.registerTask('default', ['inlinelint']);
+  grunt.registerTask('jenkins', ['jshint']); 
 };
