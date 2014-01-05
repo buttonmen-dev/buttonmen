@@ -174,8 +174,8 @@ class BMGame {
                         if ($activeDie instanceof BMDieSwing) {
                             if (array_key_exists(
                                     $activeDie->swingType,
-                                    $this->swingValueArrayArray[$playerIdx])
-                                ) {
+                                    $this->swingValueArrayArray[$playerIdx]
+                                )) {
                                 $activeDie->swingValue =
                                     $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
                             }
@@ -433,9 +433,9 @@ class BMGame {
                     }
                     $this->log_action(
                         'end_draw',
-                         0,
+                        0,
                         'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
-                            $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
+                        $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
                     );
                 } else {
                     $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
@@ -1358,7 +1358,8 @@ class BMGame {
         switch ($property) {
             case 'nPlayers':
                 throw new LogicException(
-                    'nPlayers is derived from BMGame->playerIdArray');
+                    'nPlayers is derived from BMGame->playerIdArray'
+                );
             case 'turnNumberInRound':
                 if (FALSE ===
                     filter_var(
@@ -1367,7 +1368,8 @@ class BMGame {
                         array("options"=> array("min_range"=>0))
                     )) {
                     throw new InvalidArgumentException(
-                        'Invalid turn number.');
+                        'Invalid turn number.'
+                    );
                 }
                 $this->turnNumberInRound = $value;
                 break;
@@ -1379,7 +1381,8 @@ class BMGame {
                         array("options"=> array("min_range"=>0))
                     )) {
                     throw new InvalidArgumentException(
-                        'Invalid game ID.');
+                        'Invalid game ID.'
+                    );
                 }
                 $this->gameId = (int)$value;
                 break;
@@ -1402,7 +1405,8 @@ class BMGame {
                                     "max_range"=>count($this->playerIdArray)))
                     )) {
                     throw new InvalidArgumentException(
-                        'Invalid player index.');
+                        'Invalid player index.'
+                    );
                 }
                 $this->activePlayerIdx = (int)$value;
                 break;
@@ -1417,7 +1421,8 @@ class BMGame {
                                   "max_range"=>count($this->playerIdArray)))
                     )) {
                     throw new InvalidArgumentException(
-                        'Invalid player index.');
+                        'Invalid player index.'
+                    );
                 }
                 $this->playerWithInitiativeIdx = (int)$value;
                 break;
@@ -1479,7 +1484,8 @@ class BMGame {
                 if (($value[2] !== array_filter($value[2], 'is_int')) ||
                     ($value[3] !== array_filter($value[3], 'is_int'))) {
                     throw new InvalidArgumentException(
-                        'The third and fourth elements in attack must contain integers.');
+                        'The third and fourth elements in attack must contain integers.'
+                    );
                 }
 
                 if (!preg_match(
@@ -1489,7 +1495,8 @@ class BMGame {
                         $value[4]
                     )) {
                     throw new InvalidArgumentException(
-                        'Invalid attack type.');
+                        'Invalid attack type.'
+                    );
                 }
 
                 if (count($value[2]) > 0 &&
@@ -1515,15 +1522,17 @@ class BMGame {
                                          'attackType' => $value[4]);
                 break;
             case 'attackerAttackDieArray':
-                throw new LogicException('
-                    BMGame->attackerAttackDieArray is derived from BMGame->attack.');
+                throw new LogicException(
+                    'BMGame->attackerAttackDieArray is derived from BMGame->attack.'
+                );
                 break;
             case 'defenderAttackDieArray':
-                throw new LogicException('
-                    BMGame->defenderAttackDieArray is derived from BMGame->attack.');
+                throw new LogicException(
+                    'BMGame->defenderAttackDieArray is derived from BMGame->attack.'
+                );
                 break;
             case 'nRecentPasses':
-                if (FALSE === 
+                if (FALSE ===
                     filter_var(
                         $value,
                         FILTER_VALIDATE_INT,
@@ -1531,7 +1540,8 @@ class BMGame {
                                                 "max_range"=>$this->nPlayers))
                     )) {
                     throw new InvalidArgumentException(
-                        'nRecentPasses must be an integer between zero and the number of players.');
+                        'nRecentPasses must be an integer between zero and the number of players.'
+                    );
                 }
                 $this->nRecentPasses = $value;
                 break;
@@ -1592,14 +1602,15 @@ class BMGame {
                 $this->gameScoreArrayArray = $tempArray;
                 break;
             case 'maxWins':
-                if (FALSE === 
+                if (FALSE ===
                     filter_var(
                         $value,
                         FILTER_VALIDATE_INT,
                         array("options"=> array("min_range"=>1))
                     )) {
                     throw new InvalidArgumentException(
-                        'maxWins must be a positive integer.');
+                        'maxWins must be a positive integer.'
+                    );
                 }
                 $this->maxWins = (int)$value;
                 break;
