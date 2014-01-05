@@ -138,7 +138,7 @@ class BMAttack {
         $needed = $this->calculate_contributions($game, $attackers, $defenders);
 
         $amount = $needed[0];
-        $helpers = $needed[1];
+//        $helpers = $needed[1];
 
         if ($amount == 0) {
             return TRUE;

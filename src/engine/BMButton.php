@@ -19,7 +19,7 @@ class BMButton {
     private $ownerObject;
     private $playerIdx;
     private $hasUnimplementedSkill;
- 
+
     // methods
     public function load($recipe, $name = NULL) {
         if (!is_null($name)) {
@@ -39,7 +39,7 @@ class BMButton {
         $dieRecipeArray = preg_split('/[[:space:]]+/', $recipe);
 
         // set die sides and skills, one die at a time
-        foreach ($dieRecipeArray as $dieIdx => $dieRecipe) {
+        foreach ($dieRecipeArray as $dieRecipe) {
             $die = BMDie::create_from_recipe($dieRecipe);
             $this->dieArray[] = $die;
             if (is_null($die)) {
