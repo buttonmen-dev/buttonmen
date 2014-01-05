@@ -47,13 +47,13 @@ Game.showGamePage = function() {
   // Find the current game, and invoke that with the "parse game state"
   // callback
   Game.getCurrentGame(Game.showStatePage);
-}
+};
 
 // the current game should be provided as a GET parameter to the page
 Game.getCurrentGame = function(callbackfunc) {
   Game.api = {
     'load_status': 'failed',
-  }
+  };
   Game.game = Env.getParameterByName('game');
   if (Game.game == null) {
     Env.message = {
@@ -107,7 +107,7 @@ Game.getCurrentGame = function(callbackfunc) {
     };
     return callbackfunc();
   });
-}
+};
 
 // Assemble and display the game portion of the page
 Game.showStatePage = function() {
@@ -152,7 +152,7 @@ Game.showStatePage = function() {
     Game.form = null;
     Game.layoutPage();
   }
-}
+};
 
 Game.layoutPage = function() {
   if ($('#game_page').length == 0) {
@@ -165,7 +165,7 @@ Game.layoutPage = function() {
   if (Game.form) {
     $('#game_action_button').click(Game.form);
   }
-}
+};
 
 /////
 // HELPERS for generic functions

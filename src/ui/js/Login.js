@@ -47,7 +47,7 @@ Login.showLoginHeader = function(callbackfunc) {
   // Find the current login header contents, and display them followed
   // by the specified callback routine
   Login.getLoginHeader();
-}
+};
 
 Login.layoutHeader = function() {
   $('#login_header').empty();
@@ -57,7 +57,7 @@ Login.layoutHeader = function() {
     $('#login_action_button').click(Login.form);
   }
   return Login.callback();
-}
+};
 
 // Get an empty form of the Login type
 Login.getLoginForm = function() {
@@ -66,7 +66,7 @@ Login.getLoginForm = function() {
                       'action': "javascript:void(0);",
                     });
   return loginform;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible logged in state
@@ -86,7 +86,7 @@ Login.stateLoggedIn = function() {
   Login.addMainNavbar();
   Login.form = Login.formLogout;
   Login.logged_in = true;
-}
+};
 
 Login.stateLoggedOut = function() {
   Login.message = $('<p>');

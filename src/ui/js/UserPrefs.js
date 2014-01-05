@@ -39,7 +39,7 @@ UserPrefs.showUserPrefsPage = function() {
     };
     UserPrefs.actionFailed();
   }
-}
+};
 
 // Assemble and display the userprefs portion of the page
 UserPrefs.assemblePage = function() {
@@ -51,7 +51,7 @@ UserPrefs.assemblePage = function() {
   } else {
     UserPrefs.actionFailed();
   }
-}
+};
 
 // Actually lay out the page
 UserPrefs.layoutPage = function() {
@@ -66,12 +66,12 @@ UserPrefs.layoutPage = function() {
   if (UserPrefs.form) {
     $('#userprefs_action_button').click(UserPrefs.form);
   }
-}
+};
 
 UserPrefs.getUserPrefsData = function(callbackfunc) {
   UserPrefs.api = {
     'load_status': 'failed',
-  }
+  };
   $.post(Env.api_location,
          { type: 'loadPlayerInfo' },
 	 function(rs) {
@@ -98,13 +98,13 @@ UserPrefs.getUserPrefsData = function(callbackfunc) {
     };
     return callbackfunc();
   });
-}
+};
 
 UserPrefs.parseUserPrefsData = function(data) {
   UserPrefs.api.load_status = 'ok';
   UserPrefs.api.autopass = data.autopass;
   return true;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
@@ -123,7 +123,7 @@ UserPrefs.actionFailed = function() {
 
   // Lay out the page
   UserPrefs.layoutPage();
-}
+};
 
 UserPrefs.actionSetPrefs = function() {
 

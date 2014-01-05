@@ -40,7 +40,7 @@ Newgame.showNewgamePage = function() {
     // Ask the API for information about buttons, then continue page layout
     Api.getButtonData(Newgame.showNewgamePageLoadedButtons);
   }
-}
+};
 
 // This function is called after Api.button has been loaded with new data
 Newgame.showNewgamePageLoadedButtons = function() {
@@ -52,7 +52,7 @@ Newgame.showNewgamePageLoadedButtons = function() {
 
   // Something went wrong - show an error and layout the page now
   Newgame.actionInternalErrorPage();
-}
+};
 
 // This function is called after Api.player has been loaded with new data
 Newgame.showNewgamePageLoadedPlayers = function() {
@@ -61,7 +61,7 @@ Newgame.showNewgamePageLoadedPlayers = function() {
   } else {
     Newgame.actionInternalErrorPage();
   }
-}
+};
 
 // Actually lay out the page
 Newgame.layoutPage = function() {
@@ -76,7 +76,7 @@ Newgame.layoutPage = function() {
   if (Newgame.form) {
     $('#newgame_action_button').click(Newgame.form);
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
@@ -95,7 +95,7 @@ Newgame.actionLoggedOut = function() {
 
   // Lay out the page
   Newgame.layoutPage();
-}
+};
 
 Newgame.actionInternalErrorPage = function() {
 
@@ -108,7 +108,7 @@ Newgame.actionInternalErrorPage = function() {
 
   // Lay out the page
   Newgame.layoutPage();
-}
+};
 
 Newgame.actionCreateGame = function() {
 
@@ -148,8 +148,8 @@ Newgame.actionCreateGame = function() {
                          null, null));
                     
   // Load buttons and recipes into a dict for use in selects
-  var buttonRecipe = {}
-  var buttonGreyed = {}
+  var buttonRecipe = {};
+  var buttonGreyed = {};
   $.each(Api.button.list, function(button, buttoninfo) {
     if (buttoninfo.hasUnimplementedSkill) {
       buttonRecipe[button] = '-- ' + button + ": " + buttoninfo.recipe;
@@ -175,7 +175,7 @@ Newgame.actionCreateGame = function() {
     Newgame.getSelectRow("Winner is first player to win", 'n_rounds',
       {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
        '4': '4 rounds', '5': '5 rounds', },
-      null, '3'))
+      null, '3'));
 
   // Form submission button
   createform.append(createtable);
@@ -198,7 +198,7 @@ Newgame.actionCreateGame = function() {
 
   // Lay out the page
   Newgame.layoutPage();
-}
+};
 
 
 ////////////////////////////////////////////////////////////////////////

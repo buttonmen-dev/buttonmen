@@ -35,7 +35,7 @@ Overview.showOverviewPage = function() {
 
   // Get all needed information, then display overview page
   Overview.getOverview(Overview.showPage);
-}
+};
 
 Overview.getOverview = function(callback) {
 
@@ -51,7 +51,7 @@ Overview.getOverview = function(callback) {
     };
     return callback();
   }
-}
+};
 
 Overview.showPage = function() {
 
@@ -72,7 +72,7 @@ Overview.showPage = function() {
 
   // Actually layout the page
   Overview.layoutPage();
-}
+};
 
 Overview.layoutPage = function() {
 
@@ -82,7 +82,7 @@ Overview.layoutPage = function() {
 
   $('#overview_page').empty();
   $('#overview_page').append(Overview.page);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
@@ -92,7 +92,7 @@ Overview.pageAddGameTables = function() {
   Overview.pageAddGameTable('awaitingPlayer', 'Games waiting for you');
   Overview.pageAddGameTable('awaitingOpponent', 'Games waiting for your opponent');
   Overview.pageAddGameTable('finished', 'Completed games');
-}
+};
 
 Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
@@ -103,7 +103,7 @@ Overview.pageAddNewgameLink = function() {
   }));
   newgameDiv.append(newgamePar);
   Overview.page.append(newgameDiv);
-}
+};
 
 Overview.pageAddGameTable = function(gameType, sectionHeader) {
   var gamesource;
@@ -148,4 +148,4 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   tableDiv.append(table);
   tableDiv.append($('<hr>'));
   Overview.page.append(tableDiv);
-}
+};

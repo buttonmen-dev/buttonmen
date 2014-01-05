@@ -12,9 +12,9 @@ Env.messageTypeColors = {
 
 // location of backend API - depends whether we're testing
 if ('unit_test' in Env) {
-  Env.api_location = "../api/dummy_responder.php"
+  Env.api_location = "../api/dummy_responder.php";
 } else {
-  Env.api_location = "../api/responder.php"
+  Env.api_location = "../api/responder.php";
 }
 
 // Courtesy of stackoverflow:
@@ -22,7 +22,7 @@ if ('unit_test' in Env) {
 Env.getParameterByName = function(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
     return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-}
+};
 
 // Make sure that the page body contains a div for displaying status
 // messages
@@ -30,7 +30,7 @@ Env.setupEnvStub = function() {
   if ($('#env_message').length == 0) {
     $('body').append($('<div>', {'id': 'env_message', }));
   }
-}
+};
 
 // Show a status message which might have been set by any module
 Env.showStatusMessage = function() {
@@ -47,4 +47,4 @@ Env.showStatusMessage = function() {
     }
     $('#env_message').append(msgobj);
   }
-}
+};

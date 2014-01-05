@@ -35,7 +35,7 @@ Newuser.showNewuserPage = function() {
   } else {
     Newuser.actionCreateUser();
   }
-}
+};
 
 // Actually lay out the page
 Newuser.layoutPage = function() {
@@ -50,7 +50,7 @@ Newuser.layoutPage = function() {
   if (Newuser.form) {
     $('#newuser_action_button').click(Newuser.form);
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
@@ -69,7 +69,7 @@ Newuser.actionLoggedIn = function() {
 
   // Lay out the page
   Newuser.layoutPage();
-}
+};
 
 Newuser.actionCreateUser = function() {
 
@@ -103,7 +103,7 @@ Newuser.actionCreateUser = function() {
       'text': 'Password (again)',
       'type': 'password',
     },
-  }
+  };
 
   $.each(entries, function(entryid, entryinfo) {
     var entryrow = $('<tr>');
@@ -134,7 +134,7 @@ Newuser.actionCreateUser = function() {
 
   // Lay out the page
   Newuser.layoutPage();
-}
+};
 
 
 ////////////////////////////////////////////////////////////////////////
