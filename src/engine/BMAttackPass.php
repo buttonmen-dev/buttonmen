@@ -12,6 +12,3 @@ class BMAttackPass extends BMAttack {
         return (empty($attackers) && empty($defenders));
     }
 }
-
-
-?>

@@ -621,5 +621,3 @@ class BMDie {
         // need to clone their subdice.
     }
 }
-
-?>

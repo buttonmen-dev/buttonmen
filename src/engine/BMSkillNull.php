@@ -17,5 +17,3 @@ class BMSkillNull extends BMSkill {
         }
     }
 }
-
-?>

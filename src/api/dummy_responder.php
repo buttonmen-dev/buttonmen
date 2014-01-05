@@ -709,4 +709,3 @@ if ($_POST) {
     $dummy_responder = new dummy_responder(False);
     $dummy_responder->process_request($_POST);
 }
-?>

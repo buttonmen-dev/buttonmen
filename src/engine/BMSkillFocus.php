@@ -34,5 +34,3 @@ class BMSkillFocus extends BMSkill {
                 1 == array_sum($doesPlayerHaveInitiativeArray));
     }
 }
-
-?>

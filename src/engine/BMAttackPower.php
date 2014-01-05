@@ -56,5 +56,3 @@ class BMAttackPower extends BMAttack {
         return array(0, array());
     }
 }
-
-?>

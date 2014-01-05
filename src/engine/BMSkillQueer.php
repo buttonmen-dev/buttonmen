@@ -47,5 +47,3 @@ class BMSkillQueer extends BMSkill {
         }
     }
 }
-
-?>

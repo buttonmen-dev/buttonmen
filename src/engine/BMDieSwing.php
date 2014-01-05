@@ -152,5 +152,3 @@ class BMDieSwing extends BMDie {
         return $valid;
     }
 }
-
-?>

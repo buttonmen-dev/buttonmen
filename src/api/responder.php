@@ -196,4 +196,3 @@ if ($_POST) {
     $responder = new responder(False);
     $responder->process_request($_POST);
 }
-?>

@@ -1231,5 +1231,3 @@ class BMInterface {
         }
     }
 }
-
-?>

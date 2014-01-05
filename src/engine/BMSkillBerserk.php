@@ -63,5 +63,3 @@ class BMSkillBerserk extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 }
-
-?>

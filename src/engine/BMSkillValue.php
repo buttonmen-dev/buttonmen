@@ -22,5 +22,3 @@ class BMSkillValue extends BMSkill {
         }
     }
 }
-
-?>

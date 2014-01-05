@@ -2,5 +2,3 @@
 
 class BMContainerSelect extends BMContainer {
 }
-
-?>

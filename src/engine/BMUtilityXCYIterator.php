@@ -115,5 +115,3 @@ class BMUtilityXCYIterator implements Iterator {
         return !is_null($this->head);
     }
 }
-
-?>

@@ -7,5 +7,3 @@ class BMSkillChance extends BMSkill {
         return TRUE;
     }
 }
-
-?>

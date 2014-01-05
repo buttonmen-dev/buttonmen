@@ -96,5 +96,3 @@ class BMSkill {
         return array();
     }
 }
-
-?>

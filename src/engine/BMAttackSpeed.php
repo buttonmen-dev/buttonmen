@@ -43,5 +43,3 @@ class BMAttackSpeed extends BMAttack {
                                       $game->defenderAllDieArray);
     }
 }
-
-?>

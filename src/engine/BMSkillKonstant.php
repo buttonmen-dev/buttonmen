@@ -74,5 +74,3 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 }
-
-?>

@@ -148,5 +148,3 @@ class BMDieTwin extends BMDie {
         }
     }
 }
-
-?>

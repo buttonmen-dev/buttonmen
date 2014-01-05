@@ -12,6 +12,3 @@ class BMAttackSurrender extends BMAttack {
         return (empty($attackers) && empty($defenders));
     }
 }
-
-
-?>
