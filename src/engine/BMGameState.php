@@ -30,7 +30,8 @@ class BMGameState {
     public static function validate_game_state($value) {
         if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
             throw new InvalidArgumentException(
-                'Game state must be an integer.');
+                'Game state must be an integer.'
+            );
         }
         if (!in_array($value, array(BMGameState::START_GAME,
                                     BMGameState::APPLY_HANDICAPS,
@@ -46,7 +47,8 @@ class BMGameState {
                                     BMGameState::END_ROUND,
                                     BMGameState::END_GAME))) {
             throw new InvalidArgumentException(
-                'Invalid game state.');
+                'Invalid game state.'
+            );
         }
     }
 }

@@ -221,7 +221,8 @@ class BMGame {
                             foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
                                 if (isset($die->swingType)) {
                                     $isSetSuccessful = $die->set_swingValue(
-                                        $this->swingValueArrayArray[$playerIdx]);
+                                        $this->swingValueArrayArray[$playerIdx]
+                                    );
                                     // act appropriately if the swing values are invalid
                                     if (!$isSetSuccessful) {
                                         $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
@@ -309,7 +310,8 @@ class BMGame {
             case BMGameState::START_ROUND:
                 if (!isset($this->playerWithInitiativeIdx)) {
                     throw new LogicException(
-                        'Player that has won initiative must already have been determined.');
+                        'Player that has won initiative must already have been determined.'
+                    );
                 }
                 // set BMGame activePlayerIdx
                 $this->activePlayerIdx = $this->playerWithInitiativeIdx;
@@ -504,7 +506,8 @@ class BMGame {
             case BMGameState::APPLY_HANDICAPS:
                 if (!isset($this->maxWins)) {
                     throw new LogicException(
-                        'maxWins must be set before applying handicaps.');
+                        'maxWins must be set before applying handicaps.'
+                    );
                 };
                 if (isset($this->gameScoreArrayArray)) {
                     $nWins = 0;
@@ -537,7 +540,8 @@ class BMGame {
             case BMGameState::LOAD_DICE_INTO_BUTTONS:
                 if (!isset($this->buttonArray)) {
                     throw new LogicException(
-                        'Button array must be set before loading dice into buttons.');
+                        'Button array must be set before loading dice into buttons.'
+                    );
                 }
 
                 $buttonsLoadedWithDice = TRUE;
@@ -690,7 +694,8 @@ class BMGame {
             }
             if ($repeatCount >= 20) {
                 throw new LogicException(
-                    'Infinite loop detected when advancing game state.');
+                    'Infinite loop detected when advancing game state.'
+                );
             }
         }
     }
@@ -922,7 +927,8 @@ class BMGame {
     public function add_die($die) {
         if (!isset($this->activeDieArrayArray)) {
             throw new LogicException(
-                'activeDieArrayArray must be set before a die can be added.');
+                'activeDieArrayArray must be set before a die can be added.'
+            );
         }
 
         $this->activeDieArrayArray[$die->playerIdx][] = $die;
@@ -931,7 +937,8 @@ class BMGame {
     public function capture_die($die, $newOwnerIdx = NULL) {
         if (!isset($this->activeDieArrayArray)) {
             throw new LogicException(
-                'activeDieArrayArray must be set before capturing dice.');
+                'activeDieArrayArray must be set before capturing dice.'
+            );
         }
 
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
@@ -942,8 +949,7 @@ class BMGame {
         }
 
         if (FALSE === $dieIdx) {
-            throw new LogicException(
-                'Captured die does not exist.');
+            throw new LogicException('Captured die does not exist.');
         }
 
         // add captured die to captured die array
@@ -1116,7 +1122,8 @@ class BMGame {
     private function update_active_player() {
         if (!isset($this->activePlayerIdx)) {
             throw new LogicException(
-                'Active player must be set before it can be updated.');
+                'Active player must be set before it can be updated.'
+            );
         }
 
         $nPlayers = count($this->playerIdArray);
@@ -1136,7 +1143,8 @@ class BMGame {
     ) {
         if (count($playerIdArray) !== count($buttonRecipeArray)) {
             throw new InvalidArgumentException(
-                'Number of buttons must equal the number of players.');
+                'Number of buttons must equal the number of players.'
+            );
         }
 
         $nPlayers = count($playerIdArray);
@@ -1393,7 +1401,8 @@ class BMGame {
                 if (!is_array($value) ||
                     count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
-                        'The number of players cannot be changed during a game.');
+                        'The number of players cannot be changed during a game.'
+                    );
                 }
                 $this->playerIdArray = array_map('intval', $value);
                 break;
@@ -1643,12 +1652,14 @@ class BMGame {
                 if (!is_array($value) ||
                     count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
-                        'Number of actions must equal the number of players.');
+                        'Number of actions must equal the number of players.'
+                    );
                 }
                 foreach ($value as $tempValueElement) {
                     if (!is_bool($tempValueElement)) {
                         throw new InvalidArgumentException(
-                            'Input must be an array of booleans.');
+                            'Input must be an array of booleans.'
+                        );
                     }
                 }
                 $this->waitingOnActionArray = $value;
@@ -1657,12 +1668,14 @@ class BMGame {
                 if (!is_array($value) ||
                     count($value) !== count($this->playerIdArray)) {
                     throw new InvalidArgumentException(
-                        'Number of settings must equal the number of players.');
+                        'Number of settings must equal the number of players.'
+                    );
                 }
                 foreach ($value as $tempValueElement) {
                     if (!is_bool($tempValueElement)) {
                         throw new InvalidArgumentException(
-                            'Input must be an array of booleans.');
+                            'Input must be an array of booleans.'
+                        );
                     }
                 }
                 $this->autopassArray = $value;
