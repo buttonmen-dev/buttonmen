@@ -1070,8 +1070,8 @@ class BMInterface {
                     BMGameState::START_TURN,
                     $submitTimestamp,
                     $roundNumber,
-                    $playerId)
-                ) {
+                    $playerId
+                )) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }

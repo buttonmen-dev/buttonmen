@@ -1518,7 +1518,8 @@ class BMGame {
                          (count($this->activeDieArrayArray[$value[0]]) - 1) ||
                      min($value[2]) < 0)) {
                     throw new LogicException(
-                        'Invalid attacker attack die indices.');
+                        'Invalid attacker attack die indices.'
+                    );
                 }
 
                 if (count($value[3]) > 0 &&
@@ -1526,7 +1527,8 @@ class BMGame {
                          (count($this->activeDieArrayArray[$value[1]]) - 1) ||
                      min($value[3]) < 0)) {
                     throw new LogicException(
-                        'Invalid defender attack die indices.');
+                        'Invalid defender attack die indices.'
+                    );
                 }
 
                 $this->$property = array('attackerPlayerIdx' => $value[0],
@@ -1562,17 +1564,20 @@ class BMGame {
             case 'capturedDieArrayArray':
                 if (!is_array($value)) {
                     throw new InvalidArgumentException(
-                        'Captured die array array must be an array.');
+                        'Captured die array array must be an array.'
+                    );
                 }
                 foreach ($value as $tempValueElement) {
                     if (!is_array($tempValueElement)) {
                         throw new InvalidArgumentException(
-                            'Individual captured die arrays must be arrays.');
+                            'Individual captured die arrays must be arrays.'
+                        );
                     }
                     foreach ($tempValueElement as $tempDie) {
                         if (!($tempDie instanceof BMDie)) {
                             throw new InvalidArgumentException(
-                                'Elements of captured die arrays must be BMDice.');
+                                'Elements of captured die arrays must be BMDice.'
+                            );
                         }
                     }
                 }
@@ -1580,18 +1585,21 @@ class BMGame {
                 break;
             case 'roundNumber':
                 throw new LogicException(
-                    'BMGame->roundNumber is derived automatically from BMGame.');
+                    'BMGame->roundNumber is derived automatically from BMGame.'
+                );
                 break;
             case 'roundScoreArray':
                 throw new LogicException(
-                    'BMGame->roundScoreArray is derived automatically from BMGame.');
+                    'BMGame->roundScoreArray is derived automatically from BMGame.'
+                );
                 break;
             case 'gameScoreArrayArray':
                 $value = array_values($value);
                 if (!is_array($value) ||
                     count($this->playerIdArray) !== count($value)) {
                     throw new InvalidArgumentException(
-                        'There must be one game score for each player.');
+                        'There must be one game score for each player.'
+                    );
                 }
                 $tempArray = array();
                 for ($playerIdx = 0; $playerIdx < count($value); $playerIdx++) {
@@ -1599,7 +1607,8 @@ class BMGame {
                     if ((3 !== count($value[$playerIdx])) ||
                         min(array_map('min', $value)) < 0) {
                         throw new InvalidArgumentException(
-                            'Invalid W/L/T array provided.');
+                            'Invalid W/L/T array provided.'
+                        );
                     }
                     if (array_key_exists('W', $value[$playerIdx]) &&
                         array_key_exists('L', $value[$playerIdx]) &&
