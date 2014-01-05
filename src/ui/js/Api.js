@@ -228,36 +228,39 @@ Api.getCompletedGamesData = function(callbackfunc) {
     'load_status': 'failed',
   };
 
-  $.post(Env.api_location,
-         { type: 'loadCompletedGames', },
-         function(rs) {
-           if (rs.status == 'ok') {
-             if (Api.parseCompletedGamesData(rs.data)) {
-               Api.completed_games.load_status = 'ok';
-             } else if (Api.completed_games.load_status == 'nogames') {
-               // nothing to do, this is not an error
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text':
-                   'Completed game list received from server could not be parsed!',
-               };
-             }
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message,
-             };
-           }
-           return callbackfunc();
-         }
-  ).fail(function() {
-    Env.message = {
-      'type': 'error',
-      'text': 'Internal error when calling loadCompletedGames',
-    };
-    return callbackfunc();
-  });
+  $.post(
+    Env.api_location,
+    { type: 'loadCompletedGames', },
+    function(rs) {
+      if (rs.status == 'ok') {
+        if (Api.parseCompletedGamesData(rs.data)) {
+          Api.completed_games.load_status = 'ok';
+        } else if (Api.completed_games.load_status == 'nogames') {
+          // nothing to do, this is not an error
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Completed game list received from server could not be parsed!',
+          };
+        }
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      return callbackfunc();
+    }
+  ).fail(
+    function() {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error when calling loadCompletedGames',
+      };
+      return callbackfunc();
+    }
+  );
 }
 
 Api.parseCompletedGamesData = function(data) {
