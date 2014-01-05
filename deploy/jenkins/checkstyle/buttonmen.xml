@@ -11,6 +11,9 @@
    <exclude
       name="PSR2.Classes.ClassDeclaration.OpenBraceNewLine" />
 
+   <!-- don't require lowercase constants -->
+   <exclude name="Generic.PHP.LowerCaseConstant" />
+
    <!-- we don't use namespaces within modules right now -->
    <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace" />
  </rule>
@@ -18,4 +21,6 @@
  <!-- instead use Kernighan-style opening brace on same line -->
  <rule ref="Generic.Functions.OpeningFunctionBraceKernighanRitchie"/>
 
+ <!-- instead require lowercase constants -->
+ <exclude name="Generic.PHP.UpperCaseConstant" />
 </ruleset>
