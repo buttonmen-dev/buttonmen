@@ -1072,8 +1072,10 @@ class BMGame {
         foreach ($attackTypeArray as $idx => $attackType) {
             $this->attack = array('attackerPlayerIdx' => $attackerIdx,
                                   'defenderPlayerIdx' => $defenderIdx,
-                                  'attackerAttackDieIdxArray' => range(0, count($this->activeDieArrayArray[$attackerIdx]) - 1),
-                                  'defenderAttackDieIdxArray' => range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
+                                  'attackerAttackDieIdxArray' =>
+                                      range(0, count($this->activeDieArrayArray[$attackerIdx]) - 1),
+                                  'defenderAttackDieIdxArray' =>
+                                      range(0, count($this->activeDieArrayArray[$defenderIdx]) - 1),
                                   'attackType' => $attackTypeArray[$idx]);
             $attack = BMAttack::get_instance($attackType);
             foreach ($this->activeDieArrayArray[$attackerIdx] as $attackDie) {
@@ -1721,7 +1723,9 @@ class BMGame {
                         if ($swingdie instanceof BMDieSwing) {
                             $validRange = $swingdie->swing_range($swingtype);
                         } else {
-                            throw new LogicException("Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie);
+                            throw new LogicException(
+                                "Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie
+                            );
                         }
                         $playerSwingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
                     }
