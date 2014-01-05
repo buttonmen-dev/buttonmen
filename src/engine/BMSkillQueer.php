@@ -33,10 +33,12 @@ class BMSkillQueer extends BMSkill {
             return array();
         }
         
-        if (FALSE === filter_var($args['value'],
-                                 FILTER_VALIDATE_INT,
-                                 array("options"=>
-                                       array("min_range"=>1)))) {
+        if (FALSE ===
+            filter_var($args['value'],
+                FILTER_VALIDATE_INT,
+                array("options"=>
+                      array("min_range"=>1))
+            )) {
             throw new InvalidArgumentException('Invalid value.');
         }
         

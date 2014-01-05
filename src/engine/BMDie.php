@@ -306,12 +306,14 @@ class BMDie {
             $div = 2;
         }
 
-        $this->run_hooks('score_value',
-                         array('scoreValue' => &$scoreValue,
-                               'value'      => $this->value,
-                               'mult'       => &$mult,
-                               'div'        => &$div,
-                               'captured'   => $this->captured));
+        $this->run_hooks(
+            'score_value',
+            array('scoreValue' => &$scoreValue,
+                  'value'      => $this->value,
+                  'mult'       => &$mult,
+                  'div'        => &$div,
+                  'captured'   => $this->captured)
+        );
 
         if (is_null($scoreValue)) {
             return NULL;

@@ -74,8 +74,12 @@ class BMButton {
     }
 
     private function validate_recipe($recipe) {
-        $dieArray = preg_split('/[[:space:]]+/', $recipe,
-                               NULL, PREG_SPLIT_NO_EMPTY);
+        $dieArray = preg_split(
+            '/[[:space:]]+/',
+            $recipe,
+            NULL,
+            PREG_SPLIT_NO_EMPTY
+        );
 
         if (empty($recipe)) {
             return;

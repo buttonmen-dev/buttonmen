@@ -141,9 +141,11 @@ class BMInterface {
 
     }
 
-    public function create_game(array $playerIdArray,
-                                array $buttonNameArray,
-                                $maxWins = 3) {
+    public function create_game(
+        array $playerIdArray,
+        array $buttonNameArray,
+        $maxWins = 3
+    ) {
         // check for nonunique player ids
         if (count(array_flip($playerIdArray)) < count($playerIdArray)) {
             $this->message = 'Game create failed because a player has been selected more than once.';
@@ -158,11 +160,14 @@ class BMInterface {
             }
         }
 
-        if (FALSE === filter_var($maxWins,
-                                 FILTER_VALIDATE_INT,
-                                 array('options'=>
-                                       array('min_range' => 1,
-                                             'max_range' => 5)))) {
+        if (FALSE ===
+            filter_var(
+                $maxWins,
+                FILTER_VALIDATE_INT,
+                array('options'=>
+                      array('min_range' => 1,
+                            'max_range' => 5))
+            )) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
@@ -371,8 +376,10 @@ class BMInterface {
                 if (isset($row['value'])) {
                     $die->value = (int)$row['value'];
                 }
-                $originalPlayerIdx = array_search($row['original_owner_id'],
-                                                  $game->playerIdArray);
+                $originalPlayerIdx = array_search(
+                    $row['original_owner_id'],
+                    $game->playerIdArray
+                );
                 $die->originalPlayerIdx = $originalPlayerIdx;
 
                 if (isset($die->swingType)) {
@@ -864,11 +871,13 @@ class BMInterface {
 
     // Check whether a requested action still needs to be taken
     // Note: it might be possible for this to be a protected function
-    public function is_action_current(BMGame $game,
-                                      $expectedGameState,
-                                      $postedTimestamp,
-                                      $roundNumber,
-                                      $currentPlayerId) {
+    public function is_action_current(
+        BMGame $game,
+        $expectedGameState,
+        $postedTimestamp,
+        $roundNumber,
+        $currentPlayerId
+    ) {
         $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
         return (($postedTimestamp == $this->timestamp->format(DATE_RSS)) &&
                 ($roundNumber == $game->roundNumber) &&
@@ -998,11 +1007,13 @@ class BMInterface {
 
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
-            if (!$this->is_action_current($game,
-                                          BMGameState::SPECIFY_DICE,
-                                          $submitTimestamp,
-                                          $roundNumber,
-                                          $playerId)) {
+            if (!$this->is_action_current(
+                    $game,
+                    BMGameState::SPECIFY_DICE,
+                    $submitTimestamp,
+                    $roundNumber,
+                    $playerId
+                )) {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
@@ -1085,8 +1096,10 @@ class BMInterface {
             }
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
-                               FILTER_VALIDATE_BOOLEAN)) {
+                if (filter_var(
+                        $dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
+                        FILTER_VALIDATE_BOOLEAN
+                    )) {
                     $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
@@ -1153,11 +1166,13 @@ class BMInterface {
     ) {
         try {
             $game = $this->load_game($gameNumber);
-            if (!$this->is_action_current($game,
-                                          BMGameState::REACT_TO_INITIATIVE,
-                                          $submitTimestamp,
-                                          $roundNumber,
-                                          $playerId)) {
+            if (!$this->is_action_current(
+                    $game,
+                    BMGameState::REACT_TO_INITIATIVE,
+                    $submitTimestamp,
+                    $roundNumber,
+                    $playerId
+                )) {
                 $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }

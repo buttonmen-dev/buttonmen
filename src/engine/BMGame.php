@@ -110,9 +110,11 @@ class BMGame {
             case BMGameState::APPLY_HANDICAPS:
                 // ignore for the moment
                 $this->gameScoreArrayArray =
-                    array_fill(0,
-                               count($this->playerIdArray),
-                               array('W' => 0, 'L' => 0, 'D' => 0));
+                    array_fill(
+                        0,
+                        count($this->playerIdArray),
+                        array('W' => 0, 'L' => 0, 'D' => 0)
+                    );
                 break;
 
             case BMGameState::CHOOSE_AUXILIARY_DICE:
@@ -122,7 +124,8 @@ class BMGame {
                 foreach ($this->buttonArray as $tempButton) {
                     if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
                         $tempSplitArray = BMGame::separate_out_auxiliary_dice(
-                                              $tempButton->recipe);
+                            $tempButton->recipe
+                        );
                         $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
                     }
                 }
@@ -169,8 +172,10 @@ class BMGame {
                 foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
                     foreach ($activeDieArray as $dieIdx => &$activeDie) {
                         if ($activeDie instanceof BMDieSwing) {
-                            if (array_key_exists($activeDie->swingType,
-                                                 $this->swingValueArrayArray[$playerIdx])) {
+                            if (array_key_exists(
+                                    $activeDie->swingType,
+                                    $this->swingValueArrayArray[$playerIdx])
+                                ) {
                                 $activeDie->swingValue =
                                     $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
                             }
@@ -281,9 +286,11 @@ class BMGame {
                             continue;
                         }
                         $hookResultArray =
-                          $activeDie->run_hooks('react_to_initiative',
-                                                array('activeDieArrayArray' => $this->activeDieArrayArray,
-                                                      'playerIdx' => $playerIdx));
+                            $activeDie->run_hooks(
+                                'react_to_initiative',
+                                array('activeDieArrayArray' => $this->activeDieArrayArray,
+                                      'playerIdx' => $playerIdx)
+                            );
                         if (is_array($hookResultArray) && count($hookResultArray) > 0) {
                             foreach ($hookResultArray as $hookResult) {
                                 if (TRUE === $hookResult) {
@@ -377,9 +384,11 @@ class BMGame {
                     $attack->add_die($attackDie);
                 }
 
-                $valid = $attack->validate_attack($this,
-                                                  $attackerAttackDieArray,
-                                                  $defenderAttackDieArray);
+                $valid = $attack->validate_attack(
+                    $this,
+                    $attackerAttackDieArray,
+                    $defenderAttackDieArray
+                );
 
                 if (!$valid) {
                     $this->activate_GUI('Invalid attack');
@@ -389,14 +398,16 @@ class BMGame {
                 }
 
                 $preAttackDice = $this->get_action_log_data(
-                  $attackerAttackDieArray, $defenderAttackDieArray
+                    $attackerAttackDieArray,
+                    $defenderAttackDieArray
                 );
 
                 $this->turnNumberInRound++;
                 $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
 
                 $postAttackDice = $this->get_action_log_data(
-                  $attackerAttackDieArray, $defenderAttackDieArray
+                    $attackerAttackDieArray,
+                    $defenderAttackDieArray
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
@@ -420,9 +431,12 @@ class BMGame {
                         $this->gameScoreArrayArray[$playerIdx]['D']++;
                         // james: currently there is no code for three draws in a row
                     }
-                    $this->log_action('end_draw', 0,
-                       'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
-                       $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')' );
+                    $this->log_action(
+                        'end_draw',
+                         0,
+                        'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
+                            $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
+                    );
                 } else {
                     $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
 
@@ -725,11 +739,14 @@ class BMGame {
                     return FALSE;
                 }
 
-                if (FALSE === filter_var($args['rerolledDieIdx'],
-                                         FILTER_VALIDATE_INT,
-                                         array("options"=>
-                                               array("min_range"=>0,
-                                                     "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1)))) {
+                if (FALSE ===
+                    filter_var(
+                        $args['rerolledDieIdx'],
+                        FILTER_VALIDATE_INT,
+                        array("options"=>
+                              array("min_range"=>0,
+                                    "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1))
+                    )) {
                     $this->message = 'Invalid die index.';
                     return FALSE;
                 }
@@ -748,7 +765,8 @@ class BMGame {
                 }
 
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
-                                          $this->activeDieArrayArray);
+                    $this->activeDieArrayArray
+                );
                 $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                                     (1 == array_sum($newInitiativeArray));
                 $this->gameState = BMGameState::DETERMINE_INITIATIVE;
@@ -775,22 +793,28 @@ class BMGame {
 
                 // focusValueArray should have the form array($dieIdx1 => $dieValue1, ...)
                 foreach ($focusValueArray as $dieIdx => $newDieValue) {
-                    if (FALSE === filter_var($dieIdx,
-                                             FILTER_VALIDATE_INT,
-                                             array("options"=>
-                                                   array("min_range"=>0,
-                                                         "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1)))) {
+                    if (FALSE ===
+                        filter_var(
+                            $dieIdx,
+                            FILTER_VALIDATE_INT,
+                            array("options"=>
+                                  array("min_range"=>0,
+                                        "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1))
+                        )) {
                         $this->message = 'Invalid die index.';
                         return FALSE;
                     }
 
                     $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
 
-                    if (FALSE === filter_var($newDieValue,
-                                             FILTER_VALIDATE_INT,
-                                             array("options"=>
-                                                   array("min_range"=>$die->min,
-                                                         "max_range"=>$die->value)))) {
+                    if (FALSE ===
+                        filter_var(
+                            $newDieValue,
+                            FILTER_VALIDATE_INT,
+                            array("options"=>
+                                  array("min_range"=>$die->min,
+                                        "max_range"=>$die->value))
+                        )) {
                         $this->message = 'Invalid value for focus die.';
                         return FALSE;
                     }
@@ -808,7 +832,8 @@ class BMGame {
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
                 }
                 $newInitiativeArray = BMGame::does_player_have_initiative_array(
-                                          $this->activeDieArrayArray);
+                    $this->activeDieArrayArray
+                );
 
                 // if the change is successful, disable focus dice that changed
                 // value
@@ -1100,10 +1125,12 @@ class BMGame {
     }
 
     // utility methods
-    public function __construct($gameID = 0,
-                                array $playerIdArray = array(0, 0),
-                                array $buttonRecipeArray = array('', ''),
-                                $maxWins = 3) {
+    public function __construct(
+        $gameID = 0,
+        array $playerIdArray = array(0, 0),
+        array $buttonRecipeArray = array('', ''),
+        $maxWins = 3
+    ) {
         if (count($playerIdArray) !== count($buttonRecipeArray)) {
             throw new InvalidArgumentException(
                 'Number of buttons must equal the number of players.');
@@ -1128,8 +1155,12 @@ class BMGame {
     }
 
     private function get_roundNumber() {
-        return(min($this->maxWins,
-                   array_sum($this->gameScoreArrayArray[0]) + 1));
+        return(
+            min(
+                $this->maxWins,
+                array_sum($this->gameScoreArrayArray[0]) + 1
+            )
+        );
     }
 
     private function get_roundScoreArray() {
@@ -1329,20 +1360,24 @@ class BMGame {
                 throw new LogicException(
                     'nPlayers is derived from BMGame->playerIdArray');
             case 'turnNumberInRound':
-                if (FALSE === filter_var($value,
-                                         FILTER_VALIDATE_INT,
-                                         array("options"=>
-                                               array("min_range"=>0)))) {
+                if (FALSE ===
+                    filter_var(
+                        $value,
+                        FILTER_VALIDATE_INT,
+                        array("options"=> array("min_range"=>0))
+                    )) {
                     throw new InvalidArgumentException(
                         'Invalid turn number.');
                 }
                 $this->turnNumberInRound = $value;
                 break;
             case 'gameId':
-                if (FALSE === filter_var($value,
-                                         FILTER_VALIDATE_INT,
-                                         array("options"=>
-                                               array("min_range"=>0)))) {
+                if (FALSE ===
+                    filter_var(
+                        $value,
+                        FILTER_VALIDATE_INT,
+                        array("options"=> array("min_range"=>0))
+                    )) {
                     throw new InvalidArgumentException(
                         'Invalid game ID.');
                 }
@@ -1359,11 +1394,13 @@ class BMGame {
             case 'activePlayerIdx':
                 // require a valid index
                 if (FALSE ===
-                    filter_var($value,
-                               FILTER_VALIDATE_INT,
-                               array("options"=>
-                                     array("min_range"=>0,
-                                           "max_range"=>count($this->playerIdArray))))) {
+                    filter_var(
+                        $value,
+                        FILTER_VALIDATE_INT,
+                        array("options"=>
+                              array("min_range"=>0,
+                                    "max_range"=>count($this->playerIdArray)))
+                    )) {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
@@ -1372,11 +1409,13 @@ class BMGame {
             case 'playerWithInitiativeIdx':
                 // require a valid index
                 if (FALSE ===
-                    filter_var($value,
-                               FILTER_VALIDATE_INT,
-                               array("options"=>
-                                     array("min_range"=>0,
-                                           "max_range"=>count($this->playerIdArray))))) {
+                    filter_var(
+                        $value,
+                        FILTER_VALIDATE_INT,
+                        array("options"=>
+                            array("min_range"=>0,
+                                  "max_range"=>count($this->playerIdArray)))
+                    )) {
                     throw new InvalidArgumentException(
                         'Invalid player index.');
                 }
@@ -1443,9 +1482,12 @@ class BMGame {
                         'The third and fourth elements in attack must contain integers.');
                 }
 
-                if (!preg_match('/'.
-                                implode('|', BMSkill::attack_types()).
-                                '/', $value[4])) {
+                if (!preg_match(
+                        '/'.
+                        implode('|', BMSkill::attack_types()).
+                        '/',
+                        $value[4]
+                    )) {
                     throw new InvalidArgumentException(
                         'Invalid attack type.');
                 }
@@ -1481,11 +1523,13 @@ class BMGame {
                     BMGame->defenderAttackDieArray is derived from BMGame->attack.');
                 break;
             case 'nRecentPasses':
-                if (FALSE === filter_var($value,
-                                         FILTER_VALIDATE_INT,
-                                         array("options"=>
-                                               array("min_range"=>0,
-                                                     "max_range"=>$this->nPlayers)))) {
+                if (FALSE === 
+                    filter_var(
+                        $value,
+                        FILTER_VALIDATE_INT,
+                        array("options"=> array("min_range"=>0,
+                                                "max_range"=>$this->nPlayers))
+                    )) {
                     throw new InvalidArgumentException(
                         'nRecentPasses must be an integer between zero and the number of players.');
                 }
@@ -1548,10 +1592,12 @@ class BMGame {
                 $this->gameScoreArrayArray = $tempArray;
                 break;
             case 'maxWins':
-                if (FALSE === filter_var($value,
-                                         FILTER_VALIDATE_INT,
-                                         array("options"=>
-                                               array("min_range"=>1)))) {
+                if (FALSE === 
+                    filter_var(
+                        $value,
+                        FILTER_VALIDATE_INT,
+                        array("options"=> array("min_range"=>1))
+                    )) {
                     throw new InvalidArgumentException(
                         'maxWins must be a positive integer.');
                 }

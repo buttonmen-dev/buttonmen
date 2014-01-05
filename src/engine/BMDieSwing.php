@@ -82,8 +82,11 @@ class BMDieSwing extends BMDie {
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values($newDie, $newDie->swingType,
-                                                          $newDie->playerIdx);
+        $this->ownerObject->request_swing_values(
+            $newDie,
+            $newDie->swingType,
+            $newDie->playerIdx
+        );
         $newDie->valueRequested = TRUE;
 
         $this->ownerObject->add_die($newDie);

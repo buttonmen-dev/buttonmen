@@ -39,8 +39,10 @@ class BMSkill {
     }
 
     private static function expand_skill_letter($skillLetter) {
-        $skillLetter = array_search($skillLetter,
-                                    BMSkill::skill_name_abbreviation_mapping());
+        $skillLetter = array_search(
+            $skillLetter,
+            BMSkill::skill_name_abbreviation_mapping()
+        );
         if ($skillLetter) {
             return $skillLetter;
         } else {

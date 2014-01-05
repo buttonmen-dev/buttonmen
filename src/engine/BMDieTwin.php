@@ -52,9 +52,11 @@ class BMDieTwin extends BMDie {
 
         foreach ($this->dice as $die) {
             if ($die instanceof BMDieSwing) {
-                $this->ownerObject->request_swing_values($newDie,
-                                                         $die->swingType,
-                                                         $newDie->playerIdx);
+                $this->ownerObject->request_swing_values(
+                    $newDie,
+                    $die->swingType,
+                    $newDie->playerIdx
+                );
             }
             $newDie->valueRequested = TRUE;
         }
