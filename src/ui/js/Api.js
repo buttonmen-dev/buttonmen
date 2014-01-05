@@ -71,8 +71,9 @@ Api.getButtonData = function(callbackfunc) {
 
 Api.parseButtonData = function(data) {
   Api.button.list = {};
-  if ((data.buttonNameArray == null) || (data.recipeArray == null)
-      || (data.hasUnimplementedSkillArray == null)) {
+  if ((data.buttonNameArray == null) ||
+      (data.recipeArray == null) ||
+      (data.hasUnimplementedSkillArray == null)) {
     return false;
   }
   var i = 0;
