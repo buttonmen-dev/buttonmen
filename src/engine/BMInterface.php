@@ -1014,8 +1014,12 @@ class BMInterface {
     }
 
     public function submit_swing_values(
-        $playerId, $gameNumber, $roundNumber, $submitTimestamp, $swingValueArray
-    ) {
+        $playerId,
+        $gameNumber,
+        $roundNumber,
+        $submitTimestamp,
+        $swingValueArray
+    ) 
         try {
             $game = $this->load_game($gameNumber);
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
@@ -1181,9 +1185,13 @@ class BMInterface {
     // If it fails, $this->message will say why it has failed.
 
     public function react_to_initiative(
-        $playerId, $gameNumber, $roundNumber,
-        $submitTimestamp, $action,
-        $dieIdxArray = NULL, $dieValueArray = NULL
+        $playerId,
+        $gameNumber,
+        $roundNumber,
+        $submitTimestamp,
+        $action,
+        $dieIdxArray = NULL,
+        $dieValueArray = NULL
     ) {
         try {
             $game = $this->load_game($gameNumber);
