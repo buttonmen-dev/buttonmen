@@ -14,6 +14,8 @@
   "unused": true,
   "trailing": true,
 
+  "es5": true,
+
   "browser": true,
-  "jquery": true
+  "jquery": true,
 }
