@@ -236,7 +236,7 @@ Api.getCompletedGamesData = function(callbackfunc) {
       if (rs.status == 'ok') {
         if (Api.parseCompletedGamesData(rs.data)) {
           Api.completed_games.load_status = 'ok';
-        } else if (!(Api.completed_games.load_status == 'nogames')) {
+        } else if (Api.completed_games.load_status != 'nogames') {
           Env.message = {
             'type': 'error',
             'text':
