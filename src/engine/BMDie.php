@@ -478,8 +478,20 @@ class BMDie {
     }
 
 // Print long description
-    public function describe() {
-        $this->run_hooks(__FUNCTION__, array());
+    public function describe($isValueRequired = FALSE) {
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $result = $this->max.'-sided die';
+
+//        $this->run_hooks(__FUNCTION__, array());
+
+        if ($isValueRequired && isset($this->value)) {
+            $result .= ' showing '.$this->value;
+        }
+
+        return $result;
     }
 
 // split a die in twain. If something needs to cut a die's size in

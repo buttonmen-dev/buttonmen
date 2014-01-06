@@ -724,7 +724,13 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     public function testDescribe() {
         $die = new BMDie;
         $die->init(6);
-        $this->assertEquals('', $die->describe());
+        $this->assertEquals('6-sided die', $die->describe(TRUE));
+        $this->assertEquals('6-sided die', $die->describe(FALSE));
+
+        $die->roll();
+        $value = $die->value;
+        $this->assertEquals('6-sided die showing '.$value, $die->describe(TRUE));
+        $this->assertEquals('6-sided die', $die->describe(FALSE));
     }
 
     /**

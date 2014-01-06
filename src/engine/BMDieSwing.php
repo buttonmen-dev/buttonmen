@@ -115,7 +115,7 @@ class BMDieSwing extends BMDie {
     }
 
 // Print long description
-    public function describe() {
+    public function describe($isValueRequired = FALSE) {
         $this->run_hooks(__FUNCTION__, array());
     }
 
