@@ -441,18 +441,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttack::calculate_contributions()
-     */
-    public function testCalculate_contributions() {
-        $help = $this->object->calculate_contributions(new BMGame, array(), array());
-
-        $this->assertNotEmpty($help);
-        $this->assertEquals(2, count($help));
-        $this->assertEquals(0, $help[0]);
-        $this->assertEmpty($help[1]);
-    }
-
-    /**
      * @covers BMAttack::commit_attack
      */
     public function testCommit_attack()

@@ -14,7 +14,7 @@ class BMAttackSkill extends BMAttack {
     // "Premature optimization is the root of all evil." -- Knuth
     protected $hit_table = NULL;
 
-    protected function generate_hit_table($game) {
+    protected function generate_hit_table() {
         $this->hit_table = new BMUtilityHitTable($this->validDice);
     }
 
@@ -25,7 +25,7 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
-        $this->generate_hit_table($game);
+        $this->generate_hit_table();
 
         // Check all precise hits before trying any with help, because
         // help is slow
@@ -124,7 +124,7 @@ class BMAttackSkill extends BMAttack {
 
         $dval = $defenders[0]->defense_value($this->type);
 
-        $this->generate_hit_table($game);
+        $this->generate_hit_table();
 
         // exact hits
         $combos = $this->hit_table->find_hit($dval);
@@ -157,10 +157,5 @@ class BMAttackSkill extends BMAttack {
             }
         }
         return FALSE;
-    }
-
-    // return how much help is needed and who can contribute
-    public function calculate_contributions($game, array $attackers, array $defenders) {
-        return array(0, array());
     }
 }

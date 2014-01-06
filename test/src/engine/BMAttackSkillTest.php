@@ -387,18 +387,6 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($sk->find_attack($game));
 
     }
-
-    /**
-     * @covers BMAttackSkill::calculate_contributions
-     * @todo   Implement testCalculate_contributions().
-     */
-    public function testCalculate_contributions()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
 }
 
 ?>

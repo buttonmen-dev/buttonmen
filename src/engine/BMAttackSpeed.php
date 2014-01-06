@@ -22,10 +22,10 @@ class BMAttackSpeed extends BMAttack {
         $areValuesEqual = $attacker->value == $defenderSum;
 
         $canAttackerPerformThisAttack =
-            $attacker->is_valid_attacker($this->type, $attackers, $defenders);
+            $attacker->is_valid_attacker($this->type, $attackers);
         $areDefendersValidTargetsForThisAttack = TRUE;
         foreach ($defenders as $defender) {
-            if (!($defender->is_valid_target($this->type, $attackers, $defenders))) {
+            if (!($defender->is_valid_target($this->type, $defenders))) {
                 $areDefendersValidTargetsForThisAttack = FALSE;
                 break;
             }

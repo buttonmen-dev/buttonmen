@@ -19,6 +19,8 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(BMGameState::SPECIFY_DICE <
                           BMGameState::DETERMINE_INITIATIVE);
         $this->assertTrue(BMGameState::DETERMINE_INITIATIVE <
+                          BMGameState::REACT_TO_INITIATIVE);
+        $this->assertTrue(BMGameState::REACT_TO_INITIATIVE <
                           BMGameState::START_ROUND);
         $this->assertTrue(BMGameState::START_ROUND <
                           BMGameState::START_TURN);

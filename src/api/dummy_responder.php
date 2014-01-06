@@ -38,12 +38,12 @@ class dummy_responder {
     // This function verifies that the set of keys provided as
     // arguments is exactly the expected set
     protected function verify_key_list($args, $keylist) {
-        foreach ($keylist as $idx => $key) {
+        foreach ($keylist as $key) {
             if (!(array_key_exists($key, $args))) {
                 return FALSE;
             }
         }
-        foreach ($args as $key => $value) {
+        foreach (array_keys($args) as $key) {
             if (!(in_array($key, $keylist))) {
                 return FALSE;
             }
@@ -636,7 +636,7 @@ class dummy_responder {
 
         if ($args['type'] == 'submitSwingValues') {
             $valid_swing = array('R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-            foreach ($args['swingValueArray'] as $letter => $value) {
+            foreach (array_keys($args['swingValueArray']) as $letter) {
                 if (!(in_array($letter, $valid_swing, TRUE))) {
                     return array(NULL, "Unknown swing letter $letter");
                 }

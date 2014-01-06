@@ -234,7 +234,7 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
-            if ($game == NULL) {
+            if (!($game instanceof BMGame)) {
                 throw new Exception(
                     "Could not load newly-created game $gameId"
                 );
@@ -903,7 +903,7 @@ class BMInterface {
                  '(game_id, game_state, action_type, acting_player, message) ' .
                  'VALUES ' .
                  '(:game_id, :game_state, :action_type, :acting_player, :message)';
-        foreach ($game->actionLog as $idx => $gameAction) {
+        foreach ($game->actionLog as $gameAction) {
             $statement = self::$conn->prepare($query);
             $statement->execute(
                 array(':game_id'     => $game->gameId,
@@ -961,7 +961,7 @@ class BMInterface {
     // Create a status message based on recent game actions
     private function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
-        foreach ($game->actionLog as $idx => $gameAction) {
+        foreach ($game->actionLog as $gameAction) {
             $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
         }
     }
