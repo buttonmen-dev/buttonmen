@@ -1116,7 +1116,7 @@ class BMInterface {
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
                 if (filter_var(
-                    $dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
+                    $dieSelectStatus["playerIdx_{$attackerIdx}_dieIdx_{$dieIdx}"],
                     FILTER_VALIDATE_BOOLEAN
                 )) {
                     $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
@@ -1126,7 +1126,7 @@ class BMInterface {
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
                 if (filter_var(
-                    $dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
+                    $dieSelectStatus["playerIdx_{$defenderIdx}_dieIdx_{$dieIdx}"],
                     FILTER_VALIDATE_BOOLEAN
                 )) {
                     $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];

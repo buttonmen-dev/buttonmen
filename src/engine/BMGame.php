@@ -1102,8 +1102,7 @@ class BMGame {
 
     private function activate_GUI($activation_type, $input_parameters = NULL) {
         // currently acts as a placeholder
-        $this->debug_message = $this->debug_message.'\n'.
-                         $activation_type.' '.$input_parameters;
+        $this->debug_message .= "\n{$activation_type} {$input_parameters}";
     }
 
     public function reset_play_state() {
