@@ -704,20 +704,22 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @covers BMDie::describe
      */
     public function testDescribe() {
-        $die = new BMDie;
-        $die->init(6);
-        $this->assertEquals('6-sided die', $die->describe(TRUE));
-        $this->assertEquals('6-sided die', $die->describe(FALSE));
+        $this->object->init(6);
+        $this->assertEquals('6-sided die', $this->object->describe(TRUE));
+        $this->assertEquals('6-sided die', $this->object->describe(FALSE));
 
-        $die->roll();
-        $value = $die->value;
-        $this->assertEquals("6-sided die showing {$value}", $die->describe(TRUE));
-        $this->assertEquals('6-sided die', $die->describe(FALSE));
+        $this->object->roll();
+        $value = $this->object->value;
+        $this->assertEquals("6-sided die showing {$value}", $this->object->describe(TRUE));
+        $this->assertEquals('6-sided die', $this->object->describe(FALSE));
 
-        $die->add_skill('Poison');
-        $die->add_skill('Shadow');
-        $this->assertEquals("Poison Shadow 6-sided die showing {$value}", $die->describe(TRUE));
-        $this->assertEquals('Poison Shadow 6-sided die', $die->describe(FALSE));
+        $this->object->add_skill('Poison');
+        $this->object->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow 6-sided die showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals('Poison Shadow 6-sided die', $this->object->describe(FALSE));
     }
 
     /**

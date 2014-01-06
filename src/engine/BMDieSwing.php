@@ -116,7 +116,30 @@ class BMDieSwing extends BMDie {
 
 // Print long description
     public function describe($isValueRequired = FALSE) {
-        $this->run_hooks(__FUNCTION__, array());
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                $skillStr .= "$skill ";
+            }
+        }
+
+        $sideStr = '';
+        if (isset($this->max)) {
+            $sideStr = " (with {$this->max} sides)";
+        }
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}{$this->swingType} Swing die{$sideStr}{$valueStr}";
+
+        return $result;
     }
 
     public function split() {

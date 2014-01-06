@@ -479,21 +479,19 @@ class BMDie {
             throw new InvalidArgumentException('isValueRequired must be boolean');
         }
 
-        $skillString = '';
+        $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                $skillString .= "$skill ";
+                $skillStr .= "$skill ";
             }
         }
 
-        $valueString = '';
+        $valueStr = '';
         if ($isValueRequired && isset($this->value)) {
-            $valueString = " showing {$this->value}";
+            $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillString}{$this->max}-sided die{$valueString}";
-
-
+        $result = "{$skillStr}{$this->max}-sided die{$valueStr}";
 
         return $result;
     }
