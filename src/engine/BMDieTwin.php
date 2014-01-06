@@ -91,11 +91,16 @@ class BMDieTwin extends BMDie {
             }
         }
 
-        $sideStr = '';
-        if ($this->dice[0] instanceof BMDieSwing ||
+        $typeStr = '';
+        if ($this->dice[0] instanceof BMDieSwing &&
             $this->dice[1] instanceof BMDieSwing) {
-
+            $typeStr = "Twin {$this->dice[0]->swingType} Swing Die";
         } else {
+            $typeStr = 'Twin Die';
+        }
+
+        $sideStr = '';
+        if (isset($this->dice[0]->max)) {
             if ($this->dice[0]->max == $this->dice[1]->max) {
                 $sideStr = " (both with {$this->dice[0]->max} sides)";
             } else {
@@ -108,7 +113,7 @@ class BMDieTwin extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}Twin Die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
 
         return $result;
     }
