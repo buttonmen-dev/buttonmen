@@ -288,10 +288,49 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
     }
 
     public function testDescribe() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $die1 = new BMDieTwin;
+        $die1->init(array(6,6));
+        $this->assertEquals('Twin Die (both with 6 sides)', $die1->describe(TRUE));
+        $this->assertEquals('Twin Die (both with 6 sides)', $die1->describe(FALSE));
+
+        $die1->roll();
+        $value = $die1->value;
+        $this->assertEquals(
+            "Twin Die (both with 6 sides) showing {$value}",
+            $die1->describe(TRUE)
         );
+        $this->assertEquals('Twin Die (both with 6 sides)', $die1->describe(FALSE));
+
+        $die1->add_skill('Poison');
+        $die1->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow Twin Die (both with 6 sides) showing {$value}",
+            $die1->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Twin Die (both with 6 sides)', $die1->describe(FALSE));
+
+        $die2 = new BMDieTwin;
+        $die2->init(array(6,12));
+        $this->assertEquals('Twin Die (with 6 and 12 sides)', $die2->describe(TRUE));
+        $this->assertEquals('Twin Die (with 6 and 12 sides)', $die2->describe(FALSE));
+
+        $die2->roll();
+        $value = $die2->value;
+        $this->assertEquals(
+            "Twin Die (with 6 and 12 sides) showing {$value}",
+            $die2->describe(TRUE)
+        );
+        $this->assertEquals('Twin Die (with 6 and 12 sides)', $die2->describe(FALSE));
+
+        $die2->add_skill('Poison');
+        $die2->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow Twin Die (with 6 and 12 sides) showing {$value}",
+            $die2->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Twin Die (with 6 and 12 sides)', $die2->describe(FALSE));
     }
 
     /**

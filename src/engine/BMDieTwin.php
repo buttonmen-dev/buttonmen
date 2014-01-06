@@ -80,7 +80,37 @@ class BMDieTwin extends BMDie {
 
     // Print long description
     public function describe($isValueRequired = FALSE) {
-        $this->run_hooks(__FUNCTION__, array());
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                $skillStr .= "$skill ";
+            }
+        }
+
+        $sideStr = '';
+        if ($this->dice[0] instanceof BMDieSwing ||
+            $this->dice[1] instanceof BMDieSwing) {
+
+        } else {
+            if ($this->dice[0]->max == $this->dice[1]->max) {
+                $sideStr = " (both with {$this->dice[0]->max} sides)";
+            } else {
+                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
+            }
+        }
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}Twin Die{$sideStr}{$valueStr}";
+
+        return $result;
     }
 
     public function split() {

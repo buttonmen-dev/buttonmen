@@ -137,7 +137,7 @@ class BMDieSwing extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}{$this->swingType} Swing die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$this->swingType} Swing Die{$sideStr}{$valueStr}";
 
         return $result;
     }
