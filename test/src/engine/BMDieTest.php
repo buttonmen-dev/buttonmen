@@ -713,6 +713,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $value = $die->value;
         $this->assertEquals('6-sided die showing '.$value, $die->describe(TRUE));
         $this->assertEquals('6-sided die', $die->describe(FALSE));
+
+        $die->add_skill('Poison');
+        $die->add_skill('Shadow');
+        $this->assertEquals('Poison Shadow 6-sided die showing '.$value, $die->describe(TRUE));
+        $this->assertEquals('Poison Shadow 6-sided die', $die->describe(FALSE));
     }
 
     /**
