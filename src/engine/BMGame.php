@@ -1174,7 +1174,7 @@ class BMGame {
     }
 
     private function get_roundScoreArray() {
-        if ($this->gameState < BMGameState::START_ROUND) {
+        if ($this->gameState <= BMGameState::SPECIFY_DICE) {
             return array_fill(0, $this->nPlayers, NULL);
         }
 
