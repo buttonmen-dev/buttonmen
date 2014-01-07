@@ -16,9 +16,9 @@ class BMUtilityXCYIterator implements Iterator {
     private $depth;
     private $tail = NULL;
 
-    public function __construct($array, $y) {
+    public function __construct($array, $maxDepth) {
         $this->baseList = $array;
-        $this->depth = $y;
+        $this->depth = $maxDepth;
         $this->basepos = 1;
         if ($this->depth > count($array)) {
             $this->depth = count($array);
