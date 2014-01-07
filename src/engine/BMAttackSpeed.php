@@ -26,7 +26,7 @@ class BMAttackSpeed extends BMAttack {
         $areDefValidTargets = TRUE;
         foreach ($defenders as $defender) {
             if (!($defender->is_valid_target($this->type, $defenders))) {
-                $areDefendersValidTargetsForThisAttack = FALSE;
+                $areDefValidTargets = FALSE;
                 break;
             }
         }

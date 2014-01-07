@@ -363,7 +363,7 @@ class BMGame {
 
                 $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
                 $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-                $attackerAttackDieArray = array();
+                $attAttackDieArray = array();
                 foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
                     $attackDie =
                         $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
@@ -373,23 +373,23 @@ class BMGame {
                         $this->attack = NULL;
                         return;
                     }
-                    $attackerAttackDieArray[] = $attackDie;
+                    $attAttackDieArray[] = $attackDie;
                 }
-                $defenderAttackDieArray = array();
+                $defAttackDieArray = array();
                 foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
-                    $defenderAttackDieArray[] =
+                    $defAttackDieArray[] =
                         &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
                                                    [$defenderAttackDieIdx];
                 }
 
-                foreach ($attackerAttackDieArray as $attackDie) {
+                foreach ($attAttackDieArray as $attackDie) {
                     $attack->add_die($attackDie);
                 }
 
                 $valid = $attack->validate_attack(
                     $this,
-                    $attackerAttackDieArray,
-                    $defenderAttackDieArray
+                    $attAttackDieArray,
+                    $defAttackDieArray
                 );
 
                 if (!$valid) {
@@ -400,16 +400,16 @@ class BMGame {
                 }
 
                 $preAttackDice = $this->get_action_log_data(
-                    $attackerAttackDieArray,
-                    $defenderAttackDieArray
+                    $attAttackDieArray,
+                    $defAttackDieArray
                 );
 
                 $this->turnNumberInRound++;
-                $attack->commit_attack($this, $attackerAttackDieArray, $defenderAttackDieArray);
+                $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
 
                 $postAttackDice = $this->get_action_log_data(
-                    $attackerAttackDieArray,
-                    $defenderAttackDieArray
+                    $attAttackDieArray,
+                    $defAttackDieArray
                 );
                 $this->log_attack($preAttackDice, $postAttackDice);
 
@@ -1182,11 +1182,11 @@ class BMGame {
         $roundScoreArray = array_fill(0, $this->nPlayers, 0);
 
         foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            $activeDieScoreTimesTen = 0;
+            $activeDieScoreX10 = 0;
             foreach ($activeDieArray as $activeDie) {
-                $activeDieScoreTimesTen += $activeDie->get_scoreValueTimesTen();
+                $activeDieScoreX10 += $activeDie->get_scoreValueTimesTen();
             }
-            $roundScoreX10Array[$playerIdx] = $activeDieScoreTimesTen;
+            $roundScoreX10Array[$playerIdx] = $activeDieScoreX10;
         }
 
         foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
@@ -1717,7 +1717,7 @@ class BMGame {
             $buttonNameArray[] = $button->name;
         }
 
-        $swingValuesAllSpecified = TRUE;
+        $swingValsSpecified = TRUE;
         $dieSkillsArrayArray = array();
         $diePropsArrayArray = array();
         $dieDescArrayArray = array();
@@ -1757,14 +1757,14 @@ class BMGame {
                         $swingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
                     }
                 }
-                $swingRequestArrayArray[] = $swingRequestArray;
+                $swingReqArrayArray[] = $swingRequestArray;
 
                 foreach ($activeDieArray as $dieIdx => $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
                     $dieMax = $die->max;
                     if (is_null($dieMax)) {
-                        $swingValuesAllSpecified = FALSE;
+                        $swingValsSpecified = FALSE;
                     }
 
                     if ($wereSwingValsReset &&
@@ -1792,7 +1792,7 @@ class BMGame {
             $valueArrayArray = array_fill(0, $this->nPlayers, array());
             $sidesArrayArray = array_fill(0, $this->nPlayers, array());
             $dieRecipeArrayArray = array_fill(0, $this->nPlayers, array());
-            $swingRequestArrayArray = array_fill(0, $this->nPlayers, array());
+            $swingReqArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
         if (isset($this->capturedDieArrayArray)) {
@@ -1825,7 +1825,7 @@ class BMGame {
             $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
-        if (!$swingValuesAllSpecified) {
+        if (!$swingValsSpecified) {
             foreach ($valueArrayArray as &$valueArray) {
                 foreach ($valueArray as &$value) {
                     $value = NULL;
@@ -1862,7 +1862,7 @@ class BMGame {
                   'capturedValueArrayArray'  => $captValueArrayArray,
                   'capturedSidesArrayArray'  => $captSidesArrayArray,
                   'capturedRecipeArrayArray' => $captRecipeArrayArray,
-                  'swingRequestArrayArray'   => $swingRequestArrayArray,
+                  'swingRequestArrayArray'   => $swingReqArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
                   'gameScoreArrayArray'      => $this->gameScoreArrayArray);
