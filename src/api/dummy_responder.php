@@ -6,7 +6,6 @@
  */
 
 class dummy_responder {
-
     // properties
 
     // N.B. this class is always used for some type of testing,
@@ -370,7 +369,7 @@ class dummy_responder {
                 "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                                array("W" => 0, "L" => 0, "D" => 0)),
             );
-            
+
             // base params for a John Kovalic vs John Kovalic game, here to
             // avoid the duplicated code warning
             $gameDataJohnKovalic = $gameData;
@@ -380,7 +379,7 @@ class dummy_responder {
             $gameDataJohnKovalic['waitingOnActionArray'] = array(TRUE, FALSE);
             $gameDataJohnKovalic['valueArrayArray'] = array(array(4, 3, 6, 5, 4), array(2, 4, 2, 3, 18));
             $gameDataJohnKovalic['sidesArrayArray'] = array(array(6, 6, 10, 12, 20), array(6, 6, 10, 12, 20));
-            $gameDataJohnKovalic['dieRecipeArrayArray'] = 
+            $gameDataJohnKovalic['dieRecipeArrayArray'] =
                 array(
                     array("(6)","c(6)","(10)","(12)","c(20)"),
                     array("(6)","c(6)","(10)","(12)","c(20)")
