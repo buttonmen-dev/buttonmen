@@ -349,7 +349,7 @@ class dummy_responder {
                 "capturedRecipeArrayArray" => array(array(), array()),
                 "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
                 "validAttackTypeArray" => array(),
-                "roundScoreArray" => array(15, 15),
+                "roundScoreArray" => array(NULL, NULL),
                 "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                                array("W" => 0, "L" => 0, "D" => 0)),
             );
@@ -506,7 +506,7 @@ class dummy_responder {
                 $gameData['dieRecipeArrayArray'] = array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
                                                          array("(4)","p(6,6)","(10)","(20)","(W)"));
                 $gameData['swingRequestArrayArray'] = array(array("W" => array(4, 12)), array("W" => array(4, 12)));
-                $gameData['roundScoreArray'] = array(27, 5);
+                $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -529,7 +529,7 @@ class dummy_responder {
                 $gameData['dieRecipeArrayArray'] = array(array("(8)","(10)","(12)","f(20)","f(20)"),
                                                          array("(8)","(10)","(12)","f(20)","f(20)"));
                 $gameData['swingRequestArrayArray'] = array(array(), array());
-                $gameData['roundScoreArray'] = array(35, 35);
+                $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -552,7 +552,7 @@ class dummy_responder {
                 $gameData['dieRecipeArrayArray'] = array(array("(6)","c(6)","(10)","(12)","c(20)"),
                                                          array("(6)","c(6)","(10)","(12)","c(20)"));
                 $gameData['swingRequestArrayArray'] = array(array(), array());
-                $gameData['roundScoreArray'] = array(27, 27);
+                $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -575,7 +575,7 @@ class dummy_responder {
                 $gameData['dieRecipeArrayArray'] = array(array("(6)","c(6)","(10)","(12)","c(20)"),
                                                          array("(6)","c(6)","(10)","(12)","c(20)"));
                 $gameData['swingRequestArrayArray'] = array(array(), array());
-                $gameData['roundScoreArray'] = array(27, 27);
+                $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",

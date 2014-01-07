@@ -1174,6 +1174,10 @@ class BMGame {
     }
 
     private function get_roundScoreArray() {
+        if ($this->gameState < BMGameState::START_ROUND) {
+            return array_fill(0, $this->nPlayers, NULL);
+        }
+
         $roundScoreTimesTenArray = array_fill(0, $this->nPlayers, 0);
         $roundScoreArray = array_fill(0, $this->nPlayers, 0);
 
