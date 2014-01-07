@@ -2345,6 +2345,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                   array('(4)', '(6)', '(8)', '(X)', '(X)')),
             $out1['data']['dieRecipeArrayArray']
         );
+        $this->assertEquals(
+            array(
+                array(
+                    '8-sided die',
+                    '10-sided die',
+                    '12-sided die',
+                    '20-sided die',
+                    'X Swing Die (with 5 sides)'
+                ),
+                array(
+                    '4-sided die',
+                    '6-sided die',
+                    '8-sided die',
+                    'X Swing Die',
+                    'X Swing Die'
+                )
+            ),
+            $out1['data']['dieDescriptionArrayArray']
+        );
         $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
         $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
         $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
@@ -2395,6 +2414,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
                   array('(4)', '(6)', '(8)', '(X)', '(X)')),
             $out2['data']['dieRecipeArrayArray']
+        );
+        $this->assertEquals(
+            array(
+                array(
+                    '8-sided die',
+                    '10-sided die',
+                    '12-sided die',
+                    '20-sided die',
+                    'X Swing Die (with 5 sides)'
+                ),
+                array(
+                    '4-sided die',
+                    '6-sided die',
+                    '8-sided die',
+                    'X Swing Die',
+                    'X Swing Die'
+                )
+            ),
+            $out2['data']['dieDescriptionArrayArray']
         );
         $this->assertEquals(array(0, 0), $out2['data']['nCapturedDieArray']);
         $this->assertEquals(array(array(), array()), $out2['data']['capturedValueArrayArray']);
@@ -2458,6 +2496,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
                   array('(4)', '(6)', '(8)', '(X)', '(X)')),
             $out3['data']['dieRecipeArrayArray']
+        );
+        $this->assertEquals(
+            array(
+                array(
+                    '8-sided die',
+                    '10-sided die',
+                    '12-sided die',
+                    '20-sided die',
+                    'X Swing Die (with 5 sides)'
+                ),
+                array(
+                    '4-sided die',
+                    '6-sided die',
+                    '8-sided die',
+                    'X Swing Die (with 7 sides)',
+                    'X Swing Die (with 7 sides)'
+                )
+            ),
+            $out3['data']['dieDescriptionArrayArray']
         );
         $this->assertEquals(array(0, 0), $out3['data']['nCapturedDieArray']);
         $this->assertEquals(array(array(), array()), $out3['data']['capturedValueArrayArray']);

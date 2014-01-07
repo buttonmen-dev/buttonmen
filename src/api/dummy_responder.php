@@ -343,6 +343,23 @@ class dummy_responder {
                                                    array(array(), array(), array(), array(), array())),
                 "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
                                                array("(4)","(4)","(10)","(12)","(X)")),
+                "dieDescriptionArrayArray" =>
+                    array(
+                        array(
+                            '4-sided die',
+                            '4-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'X Swing Die'
+                        ),
+                        array(
+                            '4-sided die',
+                            '4-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'X Swing Die'
+                        )
+                    ),
                 "nCapturedDieArray" => array(0, 0),
                 "capturedValueArrayArray" => array(array(), array()),
                 "capturedSidesArrayArray" => array(array(), array()),
@@ -394,6 +411,18 @@ class dummy_responder {
                                                      array(4,4,12));
                 $gameData['dieRecipeArrayArray'] = array(array("(4)","(X)"),
                                                          array("(4)","(4)","(12)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            '4-sided die',
+                            'X Swing Die (with 4 sides)'
+                        ),
+                        array(
+                            '4-sided die',
+                            '4-sided die',
+                            '12-sided die'
+                        )
+                    );
                 $gameData['nCapturedDieArray'] = array(2, 3);
                 $gameData['capturedValueArrayArray'] = array(array(3, 1),
                                                              array(11, 7, 1));
@@ -468,6 +497,7 @@ class dummy_responder {
                 $gameData['valueArrayArray'] = array(array(), array());
                 $gameData['sidesArrayArray'] = array(array(), array());
                 $gameData['dieRecipeArrayArray'] = array(array(), array());
+                $gameData['dieDescriptionArrayArray'] = array(array(), array());
                 $gameData['roundScoreArray'] = array(0, 0);
                 $gameData['gameScoreArrayArray'] = array(array("W" => 3, "L" => 2, "D" => 0),
                                                          array("W" => 2, "L" => 3, "D" => 0));
@@ -505,6 +535,23 @@ class dummy_responder {
                                                      array(NULL,NULL,NULL,NULL,NULL));
                 $gameData['dieRecipeArrayArray'] = array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
                                                          array("(4)","p(6,6)","(10)","(20)","(W)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            'Twin Die (both with 6 sides)',
+                            '10-sided die',
+                            '12-sided die',
+                            '20-sided die',
+                            'Twin W Swing Die'
+                        ),
+                        array(
+                            '4-sided die',
+                            'Poison Twin Die (both with 6 sides)',
+                            '10-sided die',
+                            '20-sided die',
+                            'W Swing Die'
+                        )
+                    );
                 $gameData['swingRequestArrayArray'] = array(array("W" => array(4, 12)), array("W" => array(4, 12)));
                 $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
@@ -528,6 +575,23 @@ class dummy_responder {
                                                      array(8,10,12,20,20));
                 $gameData['dieRecipeArrayArray'] = array(array("(8)","(10)","(12)","f(20)","f(20)"),
                                                          array("(8)","(10)","(12)","f(20)","f(20)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            '8-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Focus 20-sided die',
+                            'Focus 20-sided die'
+                        ),
+                        array(
+                            '8-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Focus 20-sided die',
+                            'Focus 20-sided die'
+                        )
+                    );
                 $gameData['swingRequestArrayArray'] = array(array(), array());
                 $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
@@ -551,6 +615,23 @@ class dummy_responder {
                                                      array(6,6,10,12,20));
                 $gameData['dieRecipeArrayArray'] = array(array("(6)","c(6)","(10)","(12)","c(20)"),
                                                          array("(6)","c(6)","(10)","(12)","c(20)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            '6-sided die',
+                            'Chance 6-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Chance 20-sided die'
+                        ),
+                        array(
+                            '6-sided die',
+                            'Chance 6-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Chance 20-sided die'
+                        )
+                    );
                 $gameData['swingRequestArrayArray'] = array(array(), array());
                 $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
@@ -574,6 +655,23 @@ class dummy_responder {
                                                      array(6,6,10,12,20));
                 $gameData['dieRecipeArrayArray'] = array(array("(6)","c(6)","(10)","(12)","c(20)"),
                                                          array("(6)","c(6)","(10)","(12)","c(20)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            '6-sided die',
+                            'Chance 6-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Chance 20-sided die'
+                        ),
+                        array(
+                            '6-sided die',
+                            'Chance 6-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Chance 20-sided die'
+                        )
+                    );
                 $gameData['swingRequestArrayArray'] = array(array(), array());
                 $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(

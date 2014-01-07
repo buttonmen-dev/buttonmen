@@ -1720,6 +1720,7 @@ class BMGame {
         $swingValuesAllSpecified = TRUE;
         $dieSkillsArrayArray = array();
         $diePropertiesArrayArray = array();
+        $dieDescriptionArrayArray = array();
 
         if (isset($this->activeDieArrayArray)) {
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
@@ -1736,6 +1737,7 @@ class BMGame {
                 $valueArrayArray[] = array();
                 $sidesArrayArray[] = array();
                 $dieRecipeArrayArray[] = array();
+                $dieDescriptionArrayArray[] = array();
 
                 $playerSwingRequestArray = array();
                 if (isset($this->swingRequestArrayArray[$playerIdx])) {
@@ -1774,6 +1776,7 @@ class BMGame {
                     $valueArrayArray[$playerIdx][] = $dieValue;
                     $sidesArrayArray[$playerIdx][] = $dieMax;
                     $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
+                    $dieDescriptionArrayArray[$playerIdx][] = $die->describe(FALSE);
                     if (count($die->skillList) > 0) {
                         foreach (array_keys($die->skillList) as $skillType) {
                             $dieSkillsArrayArray[$playerIdx][$dieIdx][$skillType] = TRUE;
@@ -1854,6 +1857,7 @@ class BMGame {
                   'dieSkillsArrayArray'      => $dieSkillsArrayArray,
                   'diePropertiesArrayArray'  => $diePropertiesArrayArray,
                   'dieRecipeArrayArray'      => $dieRecipeArrayArray,
+                  'dieDescriptionArrayArray' => $dieDescriptionArrayArray,
                   'nCapturedDieArray'        => $nCapturedDieArray,
                   'capturedValueArrayArray'  => $capturedValueArrayArray,
                   'capturedSidesArrayArray'  => $capturedSidesArrayArray,
