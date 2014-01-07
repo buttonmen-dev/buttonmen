@@ -13,7 +13,7 @@ class BMAttackSpeed extends BMAttack {
         }
 
         $attacker = $attackers[0];
-        $doesAttackerHaveSkill = $attacker->has_skill($this->type);
+        $hasAttackerSkill = $attacker->has_skill($this->type);
 
         $defenderSum = 0;
         foreach ($defenders as $defender) {
@@ -21,9 +21,9 @@ class BMAttackSpeed extends BMAttack {
         }
         $areValuesEqual = $attacker->value == $defenderSum;
 
-        $canAttackerPerformThisAttack =
+        $canAttDoThisAttack =
             $attacker->is_valid_attacker($this->type, $attackers);
-        $areDefendersValidTargetsForThisAttack = TRUE;
+        $areDefValidTargets = TRUE;
         foreach ($defenders as $defender) {
             if (!($defender->is_valid_target($this->type, $defenders))) {
                 $areDefendersValidTargetsForThisAttack = FALSE;
@@ -31,10 +31,10 @@ class BMAttackSpeed extends BMAttack {
             }
         }
 
-        return ($doesAttackerHaveSkill &&
+        return ($hasAttackerSkill &&
                 $areValuesEqual &&
-                $canAttackerPerformThisAttack &&
-                $areDefendersValidTargetsForThisAttack);
+                $canAttDoThisAttack &&
+                $areDefValidTargets);
     }
 
     public function find_attack($game) {

@@ -98,23 +98,23 @@ class BMInterface {
             return NULL;
         }
 
-        $playerInfoSelectArray = $result[0];
+        $infoArray = $result[0];
 
         // set the values we want to actually return
         $playerInfoArray = array(
-            'id' => (int)$playerInfoSelectArray['id'],
-            'name_ingame' => $playerInfoSelectArray['name_ingame'],
-            'name_irl' => $playerInfoSelectArray['name_irl'],
-            'email' => $playerInfoSelectArray['email'],
-            'dob' => $playerInfoSelectArray['dob'],
-            'autopass' => (bool)$playerInfoSelectArray['autopass'],
-            'image_path' => $playerInfoSelectArray['image_path'],
-            'comment' => $playerInfoSelectArray['comment'],
-            'last_action_time' => $playerInfoSelectArray['last_action_time'],
-            'creation_time' => $playerInfoSelectArray['creation_time'],
-            'fanatic_button_id' => (int)$playerInfoSelectArray['fanatic_button_id'],
-            'n_games_won' => (int)$playerInfoSelectArray['n_games_won'],
-            'n_games_lost' => (int)$playerInfoSelectArray['n_games_lost'],
+            'id' => (int)$infoArray['id'],
+            'name_ingame' => $infoArray['name_ingame'],
+            'name_irl' => $infoArray['name_irl'],
+            'email' => $infoArray['email'],
+            'dob' => $infoArray['dob'],
+            'autopass' => (bool)$infoArray['autopass'],
+            'image_path' => $infoArray['image_path'],
+            'comment' => $infoArray['comment'],
+            'last_action_time' => $infoArray['last_action_time'],
+            'creation_time' => $infoArray['creation_time'],
+            'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
+            'n_games_won' => (int)$infoArray['n_games_won'],
+            'n_games_lost' => (int)$infoArray['n_games_lost'],
         );
 
         return $playerInfoArray;
@@ -369,7 +369,7 @@ class BMInterface {
             $statement3->execute(array(':game_id' => $gameId));
 
             $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
-            $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
+            $captDieArrayArray = array_fill(0, count($playerIdArray), array());
 
             while ($row = $statement3->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
@@ -405,13 +405,13 @@ class BMInterface {
                         break;
                     case 'CAPTURED':
                         $die->captured = TRUE;
-                        $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
+                        $captDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
                 }
             }
 
             $game->activeDieArrayArray = $activeDieArrayArray;
-            $game->capturedDieArrayArray = $capturedDieArrayArray;
+            $game->capturedDieArrayArray = $captDieArrayArray;
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -694,40 +694,40 @@ class BMInterface {
         $opponentIdArray = array();
         $opponentNameArray = array();
         $myButtonNameArray = array();
-        $opponentButtonNameArray = array();
+        $oppButtonNameArray = array();
         $nWinsArray = array();
         $nDrawsArray = array();
         $nLossesArray = array();
         $nTargetWinsArray = array();
-        $isAwaitingActionArray = array();
+        $isToActArray = array();
         $gameStateArray = array();
         $statusArray = array();
 
         while ($row = $statement->fetch()) {
-            $gameIdArray[]             = $row['game_id'];
-            $opponentIdArray[]         = $row['opponent_id'];
-            $opponentNameArray[]       = $row['opponent_name'];
-            $myButtonNameArray[]       = $row['my_button_name'];
-            $opponentButtonNameArray[] = $row['opponent_button_name'];
-            $nWinsArray[]              = $row['n_wins'];
-            $nDrawsArray[]             = $row['n_draws'];
-            $nLossesArray[]            = $row['n_losses'];
-            $nTargetWinsArray[]        = $row['n_target_wins'];
-            $isAwaitingActionArray[]   = $row['is_awaiting_action'];
-            $gameStateArray[]          = $row['game_state'];
-            $statusArray[]             = $row['status'];
+            $gameIdArray[]        = $row['game_id'];
+            $opponentIdArray[]    = $row['opponent_id'];
+            $opponentNameArray[]  = $row['opponent_name'];
+            $myButtonNameArray[]  = $row['my_button_name'];
+            $oppButtonNameArray[] = $row['opponent_button_name'];
+            $nWinsArray[]         = $row['n_wins'];
+            $nDrawsArray[]        = $row['n_draws'];
+            $nLossesArray[]       = $row['n_losses'];
+            $nTargetWinsArray[]   = $row['n_target_wins'];
+            $isToActArray[]       = $row['is_awaiting_action'];
+            $gameStateArray[]     = $row['game_state'];
+            $statusArray[]        = $row['status'];
         }
 
         return array('gameIdArray'             => $gameIdArray,
                      'opponentIdArray'         => $opponentIdArray,
                      'opponentNameArray'       => $opponentNameArray,
                      'myButtonNameArray'       => $myButtonNameArray,
-                     'opponentButtonNameArray' => $opponentButtonNameArray,
+                     'opponentButtonNameArray' => $oppButtonNameArray,
                      'nWinsArray'              => $nWinsArray,
                      'nDrawsArray'             => $nDrawsArray,
                      'nLossesArray'            => $nLossesArray,
                      'nTargetWinsArray'        => $nTargetWinsArray,
-                     'isAwaitingActionArray'   => $isAwaitingActionArray,
+                     'isAwaitingActionArray'   => $isToActArray,
                      'gameStateArray'          => $gameStateArray,
                      'statusArray'             => $statusArray);
     }
@@ -774,15 +774,15 @@ class BMInterface {
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
-                    $hasUnimplementedSkillArray[] = $button->hasUnimplementedSkill;
+                    $hasUnimplSkillArray[] = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
-                    $hasUnimplementedSkillArray[] = TRUE;
+                    $hasUnimplSkillArray[] = TRUE;
                 }
             }
             $this->message = 'All button names retrieved successfully.';
             return array('buttonNameArray'            => $buttonNameArray,
                          'recipeArray'                => $recipeArray,
-                         'hasUnimplementedSkillArray' => $hasUnimplementedSkillArray);
+                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_all_button_names: " .
@@ -1038,13 +1038,13 @@ class BMInterface {
             }
 
             // try to set swing values
-            $swingLettersRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-            sort($swingLettersRequested);
-            $swingLettersSubmitted = array_keys($swingValueArray);
-            sort($swingLettersSubmitted);
+            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            sort($swingRequested);
+            $swingSubmitted = array_keys($swingValueArray);
+            sort($swingSubmitted);
 
-            if ($swingLettersRequested != $swingLettersSubmitted) {
-                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingLettersRequested);
+            if ($swingRequested != $swingSubmitted) {
+                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
                 return NULL;
             }
 

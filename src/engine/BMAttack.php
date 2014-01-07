@@ -45,16 +45,16 @@ class BMAttack {
         $allAttackTypesArray = array();
 
         foreach ($attackers as $attacker) {
-            $individualAttackTypeArray = array();
-            $individualAttackTypeArray['Power'] = 'Power';
-            $individualAttackTypeArray['Skill'] = 'Skill';
+            $attackTypeArray = array();
+            $attackTypeArray['Power'] = 'Power';
+            $attackTypeArray['Skill'] = 'Skill';
             $attacker->run_hooks(
                 'attack_list',
-                array('attackTypeArray' => &$individualAttackTypeArray,
+                array('attackTypeArray' => &$attackTypeArray,
                       'value' => (int)$attacker->value)
             );
 
-            foreach ($individualAttackTypeArray as $attackType) {
+            foreach ($attackTypeArray as $attackType) {
                 $allAttackTypesArray[$attackType] = $attackType;
             }
         }

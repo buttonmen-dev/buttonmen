@@ -2466,7 +2466,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         );
         $this->assertEquals(array(123, 456), $out3['data']['playerIdArray']);
         $this->assertEquals(array('Bauer', 'Stark'), $out3['data']['buttonNameArray']);
-        $this->assertEquals(array(FALSE, TRUE), $out3['data']['waitingOnActionArray']);
+        $this->assertEquals(
+            array(
+                0 === $out3['data']['activePlayerIdx'],
+                1 === $out3['data']['activePlayerIdx']
+            ),
+            $out3['data']['waitingOnActionArray']
+        );
         $this->assertEquals(array(5, 5), $out3['data']['nDieArray']);
         $this->assertTrue(isset($out3['data']['valueArrayArray'][0][0]));
         $this->assertTrue(isset($out3['data']['valueArrayArray'][0][1]));
@@ -2523,10 +2529,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out3['data']['swingRequestArrayArray']
-        );
-        $this->assertEquals(
-            array('Power' => 'Power', 'Skill' => 'Skill'),
-            $out3['data']['validAttackTypeArray']
         );
         $this->assertEquals(array(27.5, 16), $out3['data']['roundScoreArray']);
         $this->assertEquals(
