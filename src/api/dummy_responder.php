@@ -6,7 +6,6 @@
  */
 
 class dummy_responder {
-
     // properties
 
     // N.B. this class is always used for some type of testing,
@@ -343,16 +342,67 @@ class dummy_responder {
                                                    array(array(), array(), array(), array(), array())),
                 "dieRecipeArrayArray" => array(array("(4)","(4)","(10)","(12)","(X)"),
                                                array("(4)","(4)","(10)","(12)","(X)")),
+                "dieDescriptionArrayArray" =>
+                    array(
+                        array(
+                            '4-sided die',
+                            '4-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'X Swing Die'
+                        ),
+                        array(
+                            '4-sided die',
+                            '4-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'X Swing Die'
+                        )
+                    ),
                 "nCapturedDieArray" => array(0, 0),
                 "capturedValueArrayArray" => array(array(), array()),
                 "capturedSidesArrayArray" => array(array(), array()),
                 "capturedRecipeArrayArray" => array(array(), array()),
                 "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
                 "validAttackTypeArray" => array(),
-                "roundScoreArray" => array(15, 15),
+                "roundScoreArray" => array(NULL, NULL),
                 "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                                array("W" => 0, "L" => 0, "D" => 0)),
             );
+
+            // base params for a John Kovalic vs John Kovalic game, here to
+            // avoid the duplicated code warning
+            $gameDataJohnKovalic = $gameData;
+            $gameDataJohnKovalic['gameState'] = 27;
+            $gameDataJohnKovalic['playerWithInitiativeIdx'] = 1;
+            $gameDataJohnKovalic['buttonNameArray'] = array("John Kovalic", "John Kovalic");
+            $gameDataJohnKovalic['waitingOnActionArray'] = array(TRUE, FALSE);
+            $gameDataJohnKovalic['valueArrayArray'] = array(array(4, 3, 6, 5, 4), array(2, 4, 2, 3, 18));
+            $gameDataJohnKovalic['sidesArrayArray'] = array(array(6, 6, 10, 12, 20), array(6, 6, 10, 12, 20));
+            $gameDataJohnKovalic['dieRecipeArrayArray'] =
+                array(
+                    array("(6)","c(6)","(10)","(12)","c(20)"),
+                    array("(6)","c(6)","(10)","(12)","c(20)")
+                );
+            $gameDataJohnKovalic['dieDescriptionArrayArray'] =
+                array(
+                    array(
+                        '6-sided die',
+                        'Chance 6-sided die',
+                        '10-sided die',
+                        '12-sided die',
+                        'Chance 20-sided die'
+                    ),
+                    array(
+                        '6-sided die',
+                        'Chance 6-sided die',
+                        '10-sided die',
+                        '12-sided die',
+                        'Chance 20-sided die'
+                    )
+                );
+            $gameDataJohnKovalic['swingRequestArrayArray'] = array(array(), array());
+            $gameDataJohnKovalic['roundScoreArray'] = array(NULL, NULL);
 
             if ($args['game'] == '1') {
                 $gameData['gameId'] = 1;
@@ -394,6 +444,18 @@ class dummy_responder {
                                                      array(4,4,12));
                 $gameData['dieRecipeArrayArray'] = array(array("(4)","(X)"),
                                                          array("(4)","(4)","(12)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            '4-sided die',
+                            'X Swing Die (with 4 sides)'
+                        ),
+                        array(
+                            '4-sided die',
+                            '4-sided die',
+                            '12-sided die'
+                        )
+                    );
                 $gameData['nCapturedDieArray'] = array(2, 3);
                 $gameData['capturedValueArrayArray'] = array(array(3, 1),
                                                              array(11, 7, 1));
@@ -468,6 +530,7 @@ class dummy_responder {
                 $gameData['valueArrayArray'] = array(array(), array());
                 $gameData['sidesArrayArray'] = array(array(), array());
                 $gameData['dieRecipeArrayArray'] = array(array(), array());
+                $gameData['dieDescriptionArrayArray'] = array(array(), array());
                 $gameData['roundScoreArray'] = array(0, 0);
                 $gameData['gameScoreArrayArray'] = array(array("W" => 3, "L" => 2, "D" => 0),
                                                          array("W" => 2, "L" => 3, "D" => 0));
@@ -505,8 +568,25 @@ class dummy_responder {
                                                      array(NULL,NULL,NULL,NULL,NULL));
                 $gameData['dieRecipeArrayArray'] = array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
                                                          array("(4)","p(6,6)","(10)","(20)","(W)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            'Twin Die (both with 6 sides)',
+                            '10-sided die',
+                            '12-sided die',
+                            '20-sided die',
+                            'Twin W Swing Die'
+                        ),
+                        array(
+                            '4-sided die',
+                            'Poison Twin Die (both with 6 sides)',
+                            '10-sided die',
+                            '20-sided die',
+                            'W Swing Die'
+                        )
+                    );
                 $gameData['swingRequestArrayArray'] = array(array("W" => array(4, 12)), array("W" => array(4, 12)));
-                $gameData['roundScoreArray'] = array(27, 5);
+                $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -528,8 +608,25 @@ class dummy_responder {
                                                      array(8,10,12,20,20));
                 $gameData['dieRecipeArrayArray'] = array(array("(8)","(10)","(12)","f(20)","f(20)"),
                                                          array("(8)","(10)","(12)","f(20)","f(20)"));
+                $gameData['dieDescriptionArrayArray'] =
+                    array(
+                        array(
+                            '8-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Focus 20-sided die',
+                            'Focus 20-sided die'
+                        ),
+                        array(
+                            '8-sided die',
+                            '10-sided die',
+                            '12-sided die',
+                            'Focus 20-sided die',
+                            'Focus 20-sided die'
+                        )
+                    );
                 $gameData['swingRequestArrayArray'] = array(array(), array());
-                $gameData['roundScoreArray'] = array(35, 35);
+                $gameData['roundScoreArray'] = array(NULL, NULL);
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
@@ -540,46 +637,28 @@ class dummy_responder {
                     'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '8') {
-                $gameData['gameId'] = 8;
-                $gameData['gameState'] = 27;
-                $gameData['playerWithInitiativeIdx'] = 1;
-                $gameData['buttonNameArray'] = array("John Kovalic", "John Kovalic");
-                $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
-                $gameData['valueArrayArray'] = array(array(4, 3, 6, 5, 4),
-                                                     array(2, 4, 2, 3, 18));
-                $gameData['sidesArrayArray'] = array(array(6,6,10,12,20),
-                                                     array(6,6,10,12,20));
-                $gameData['dieRecipeArrayArray'] = array(array("(6)","c(6)","(10)","(12)","c(20)"),
-                                                         array("(6)","c(6)","(10)","(12)","c(20)"));
-                $gameData['swingRequestArrayArray'] = array(array(), array());
-                $gameData['roundScoreArray'] = array(27, 27);
+                $gameDataJohnKovalic['gameId'] = 8;
+                $gameDataJohnKovalic['playerWithInitiativeIdx'] = 1;
+                $gameDataJohnKovalic['waitingOnActionArray'] = array(TRUE, FALSE);
+                $gameDataJohnKovalic['valueArrayArray'] = array(array(4, 3, 6, 5, 4), array(2, 4, 2, 3, 18));
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
-                        "data" => $gameData,
+                        "data" => $gameDataJohnKovalic,
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),
                     'gameChatLog' => array(),
                 );
             } elseif ($args['game'] == '9') {
-                $gameData['gameId'] = 9;
-                $gameData['gameState'] = 27;
-                $gameData['playerWithInitiativeIdx'] = 0;
-                $gameData['buttonNameArray'] = array("John Kovalic", "John Kovalic");
-                $gameData['waitingOnActionArray'] = array(FALSE, TRUE);
-                $gameData['valueArrayArray'] = array(array(2, 4, 2, 3, 18),
-                                                     array(4, 3, 6, 5, 4));
-                $gameData['sidesArrayArray'] = array(array(6,6,10,12,20),
-                                                     array(6,6,10,12,20));
-                $gameData['dieRecipeArrayArray'] = array(array("(6)","c(6)","(10)","(12)","c(20)"),
-                                                         array("(6)","c(6)","(10)","(12)","c(20)"));
-                $gameData['swingRequestArrayArray'] = array(array(), array());
-                $gameData['roundScoreArray'] = array(27, 27);
+                $gameDataJohnKovalic['gameId'] = 9;
+                $gameDataJohnKovalic['playerWithInitiativeIdx'] = 0;
+                $gameDataJohnKovalic['waitingOnActionArray'] = array(FALSE, TRUE);
+                $gameDataJohnKovalic['valueArrayArray'] = array(array(2, 4, 2, 3, 18), array(4, 3, 6, 5, 4));
                 $data = array(
                     'gameData' => array(
                         "status" => "ok",
-                        "data" => $gameData,
+                        "data" => $gameDataJohnKovalic,
                     ),
                     'currentPlayerIdx' => 0,
                     'gameActionLog' => array(),

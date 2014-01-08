@@ -59,30 +59,30 @@ class BMAttackSkill extends BMAttack {
         // do so. We half-ass it by starting in the middle.
 
         // PHP, why do you have no integer division operator?
-        $i = (int)(count($hits) / 2);
-        $j = $i - 1;
-        $j += count($hits) % 2; // Start in the exact middle of an odd count
-        while ($j >= 0) {
+        $idx1 = (int)(count($hits) / 2);
+        $idx2 = $idx1 - 1;
+        $idx2 += count($hits) % 2; // Start in the exact middle of an odd count
+        while ($idx2 >= 0) {
             foreach ($targets as $t) {
                 $def = array($t);
-                $combos = $this->hit_table->find_hit($hits[$i]);
+                $combos = $this->hit_table->find_hit($hits[$idx1]);
                 foreach ($combos as $att) {
                     if ($this->validate_attack($game, $att, $def)) {
                         return TRUE;
                     }
                 }
-                if ($i == $j) {
+                if ($idx1 == $idx2) {
                     continue;
                 }
-                $combos = $this->hit_table->find_hit($hits[$j]);
+                $combos = $this->hit_table->find_hit($hits[$idx2]);
                 foreach ($combos as $att) {
                     if ($this->validate_attack($game, $att, $def)) {
                         return TRUE;
                     }
                 }
             }
-            $j--;
-            $i++;
+            $idx2--;
+            $idx1++;
         }
 
         return FALSE;
@@ -112,11 +112,11 @@ class BMAttackSkill extends BMAttack {
         // array_intersect tries to convert to strings, so we
         // use array_uintersect, which needs a comparison
         // function
-        $cmp = function ($v1, $v2) {
-            if ($v1===$v2) {
+        $cmp = function ($var1, $var2) {
+            if ($var1===$var2) {
                 return 0;
             }
-            if ($v1 > $v2) {
+            if ($var1 > $var2) {
                 return 1;
             }
             return -1;

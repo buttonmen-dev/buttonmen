@@ -45,16 +45,16 @@ class BMAttack {
         $allAttackTypesArray = array();
 
         foreach ($attackers as $attacker) {
-            $individualAttackTypeArray = array();
-            $individualAttackTypeArray['Power'] = 'Power';
-            $individualAttackTypeArray['Skill'] = 'Skill';
+            $attackTypeArray = array();
+            $attackTypeArray['Power'] = 'Power';
+            $attackTypeArray['Skill'] = 'Skill';
             $attacker->run_hooks(
                 'attack_list',
-                array('attackTypeArray' => &$individualAttackTypeArray,
+                array('attackTypeArray' => &$attackTypeArray,
                       'value' => (int)$attacker->value)
             );
 
-            foreach ($individualAttackTypeArray as $attackType) {
+            foreach ($attackTypeArray as $attackType) {
                 $allAttackTypesArray[$attackType] = $attackType;
             }
         }
@@ -287,8 +287,8 @@ class BMAttack {
     // $this may not be used in anonymous functions in PHP 5.3. Bastards.
     protected function search_onevmany($game, array $attackers, array $defenders) {
         $myself = $this;
-        $compare = function ($g, $att, $def) use ($myself) {
-            return $myself->validate_attack($g, $att, $def);
+        $compare = function ($gameVar, $att, $def) use ($myself) {
+            return $myself->validate_attack($gameVar, $att, $def);
         };
 
         return $this->search_ovm_helper($game, $attackers, $defenders, $compare);
@@ -299,8 +299,8 @@ class BMAttack {
     // improved efficiency.)
     protected function search_manyvone($game, array $attackers, array $defenders) {
         $myself = $this;
-        $compare = function ($g, $def, $att) use ($myself) {
-            return $myself->validate_attack($g, $att, $def);
+        $compare = function ($gameVar, $def, $att) use ($myself) {
+            return $myself->validate_attack($gameVar, $att, $def);
         };
 
         return $this->search_ovm_helper($game, $defenders, $attackers, $compare);

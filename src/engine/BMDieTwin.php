@@ -78,10 +78,45 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
     }
 
-//// Print long description
-//    public function describe() {
-//        $this->run_hooks(__FUNCTION__, array());
-//    }
+    // Print long description
+    public function describe($isValueRequired = FALSE) {
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                $skillStr .= "$skill ";
+            }
+        }
+
+        $typeStr = '';
+        if ($this->dice[0] instanceof BMDieSwing &&
+            $this->dice[1] instanceof BMDieSwing) {
+            $typeStr = "Twin {$this->dice[0]->swingType} Swing Die";
+        } else {
+            $typeStr = 'Twin Die';
+        }
+
+        $sideStr = '';
+        if (isset($this->dice[0]->max)) {
+            if ($this->dice[0]->max == $this->dice[1]->max) {
+                $sideStr = " (both with {$this->dice[0]->max} sides)";
+            } else {
+                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
+            }
+        }
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
+
+        return $result;
+    }
 
     public function split() {
         $newdie = clone $this;
