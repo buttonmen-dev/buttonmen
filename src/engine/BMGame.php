@@ -604,6 +604,21 @@ class BMGame {
             case BMGameState::START_ROUND:
                 if (isset($this->activePlayerIdx)) {
                     $this->gameState = BMGameState::START_TURN;
+
+                    // re-enable focus dice for everyone apart from the active player
+                    foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+                        if ($this->activePlayerIdx == $playerIdx) {
+                            continue;
+                        }
+                        if (count($activeDieArray) > 0) {
+                            foreach ($activeDieArray as &$activeDie) {
+                                if ($activeDie->has_skill('Focus') &&
+                                    isset($activeDie->disabled)) {
+                                    unset($activeDie->disabled);
+                                }
+                            }
+                        }
+                    }
                 }
                 break;
 
@@ -849,19 +864,6 @@ class BMGame {
                         if ($oldDieValue >
                             $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
                             $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
-                        }
-                    }
-
-                    // re-enable opponents' disabled focus dice
-                    foreach ($this->activeDieArrayArray as $tempPlayerIdx => &$activeDieArray) {
-                        if ($playerIdx == $tempPlayerIdx) {
-                            continue;
-                        }
-
-                        foreach ($activeDieArray as &$die) {
-                            if ($die->has_skill('Focus') && isset($die->disabled)) {
-                                unset($die->disabled);
-                            }
                         }
                     }
                 } else {
