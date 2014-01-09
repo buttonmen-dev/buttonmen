@@ -10,13 +10,13 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        $attCountValid = count($attackers) != 1;
-        $defCountValid = count($defenders) != 1;
-        $attDisabled   = $this->has_disabled_attackers($attackers);
+        $attCountValid = count($attackers) == 1;
+        $defCountValid = count($defenders) == 1;
+        $attAllEnabled = !$this->has_disabled_attackers($attackers);
 
-        $inputVarValid = $attCountValid && $defCountValid && !$attDisabled;
+        $inputVarValid = $attCountValid && $defCountValid && $attAllEnabled;
 
-        if ($inputVarValid) {
+        if (!$inputVarValid) {
             return FALSE;
         }
 
@@ -27,9 +27,9 @@ class BMAttackPower extends BMAttack {
         $attHasKonstant = $attacker->has_skill('Konstant');
         $attHasOddQueer = $attacker->has_skill('Queer') &&
                           (1 == $attacker->value % 2);
-        $attValid = !$attHasShadow && !attHasKonstant && !attHasOddQueer;
+        $attValid = !$attHasShadow && !$attHasKonstant && !$attHasOddQueer;
 
-        if (!attValid) {
+        if (!$attValid) {
             return FALSE;
         }
 
@@ -38,9 +38,12 @@ class BMAttackPower extends BMAttack {
         $bounds = $this->help_bounds($helpers);
 
         foreach ($attacker->attack_values($this->type) as $aVal) {
-            if (($aVal + $bounds[1] >= $defender->defense_value($this->type)) &&
-                $attacker->is_valid_attacker($this->type, $attackers) &&
-                $defender->is_valid_target($this->type, $defenders)) {
+            $isValLargeEnough =
+                $aVal + $bounds[1] >= $defender->defense_value($this->type);
+            $isValidAttacker = $attacker->is_valid_attacker($this->type, $attackers);
+            $isValidTarget = $defender->is_valid_target($this->type, $defenders);
+            $isValidAttack = $isValLargeEnough && $isValidAttacker && $isValidTarget;
+            if ($isValidAttack) {
                     return TRUE;
             }
         }
