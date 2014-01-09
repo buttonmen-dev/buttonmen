@@ -23,13 +23,7 @@ class BMAttackPower extends BMAttack {
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        $attHasShadow = $attacker->has_skill('Shadow');
-        $attHasKonstant = $attacker->has_skill('Konstant');
-        $attHasOddQueer = $attacker->has_skill('Queer') &&
-                          (1 == $attacker->value % 2);
-        $attValid = !$attHasShadow && !$attHasKonstant && !$attHasOddQueer;
-
-        if (!$attValid) {
+        if (!is_attacker_valid($attacker)) {
             return FALSE;
         }
 
@@ -49,5 +43,13 @@ class BMAttackPower extends BMAttack {
         }
 
         return FALSE;
+    }
+
+    protected function is_attacker_valid(BMDie $attacker) {
+        $attHasShadow = $attacker->has_skill('Shadow');
+        $attHasKonstant = $attacker->has_skill('Konstant');
+        $attHasOddQueer = $attacker->has_skill('Queer') &&
+                          (1 == $attacker->value % 2);
+        return !$attHasShadow && !$attHasKonstant && !$attHasOddQueer;
     }
 }
