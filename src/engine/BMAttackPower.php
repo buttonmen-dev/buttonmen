@@ -10,18 +10,26 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) != 1 ||
-            count($defenders) != 1 ||
-            $this->has_disabled_attackers($attackers)) {
+        $attCountValid = count($attackers) != 1;
+        $defCountValid = count($defenders) != 1;
+        $attDisabled   = $this->has_disabled_attackers($attackers);
+
+        $inputVarValid = $attCountValid && $defCountValid && !$attDisabled;
+
+        if ($inputVarValid) {
             return FALSE;
         }
 
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        if ($attacker->has_skill('Shadow') ||
-            $attacker->has_skill('Konstant') ||
-            ($attacker->has_skill('Queer') && (1 == $attacker->value % 2))) {
+        $attHasShadow = $attacker->has_skill('Shadow');
+        $attHasKonstant = $attacker->has_skill('Konstant');
+        $attHasOddQueer = $attacker->has_skill('Queer') &&
+                          (1 == $attacker->value % 2);
+        $attValid = !$attHasShadow && !attHasKonstant && !attHasOddQueer;
+
+        if (!attValid) {
             return FALSE;
         }
 
