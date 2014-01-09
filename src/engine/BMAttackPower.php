@@ -10,20 +10,16 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        $attCountValid = count($attackers) == 1;
-        $defCountValid = count($defenders) == 1;
-        $attAllEnabled = !$this->has_disabled_attackers($attackers);
-
-        $inputVarValid = $attCountValid && $defCountValid && $attAllEnabled;
-
-        if (!$inputVarValid) {
+        if (1 != count($attackers) ||
+            1 != count($defenders) ||
+            $this->has_disabled_attackers($attackers)) {
             return FALSE;
         }
 
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        if (!is_attacker_valid($attacker)) {
+        if (!BMAttackPower::is_attacker_valid($attacker)) {
             return FALSE;
         }
 
@@ -36,20 +32,23 @@ class BMAttackPower extends BMAttack {
                 $aVal + $bounds[1] >= $defender->defense_value($this->type);
             $isValidAttacker = $attacker->is_valid_attacker($this->type, $attackers);
             $isValidTarget = $defender->is_valid_target($this->type, $defenders);
+
             $isValidAttack = $isValLargeEnough && $isValidAttacker && $isValidTarget;
+
             if ($isValidAttack) {
-                    return TRUE;
+                return TRUE;
             }
         }
 
         return FALSE;
     }
 
-    protected function is_attacker_valid(BMDie $attacker) {
-        $attHasShadow = $attacker->has_skill('Shadow');
-        $attHasKonstant = $attacker->has_skill('Konstant');
-        $attHasOddQueer = $attacker->has_skill('Queer') &&
+    protected static function is_attacker_valid($attacker) {
+        $hasAttShadow = $attacker->has_skill('Shadow');
+        $hasAttKonstant = $attacker->has_skill('Konstant');
+        $hasAttOddQueer = $attacker->has_skill('Queer') &&
                           (1 == $attacker->value % 2);
-        return !$attHasShadow && !$attHasKonstant && !$attHasOddQueer;
+
+        return !$hasAttShadow && !$hasAttKonstant && !$hasAttOddQueer;
     }
 }
