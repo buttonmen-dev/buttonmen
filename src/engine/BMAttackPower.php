@@ -10,11 +10,9 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) != 1 || count($defenders) != 1) {
-            return FALSE;
-        }
-
-        if ($this->has_disabled_attackers($attackers)) {
+        if (count($attackers) != 1 ||
+            count($defenders) != 1 ||
+            $this->has_disabled_attackers($attackers)) {
             return FALSE;
         }
 
@@ -22,12 +20,8 @@ class BMAttackPower extends BMAttack {
         $defender = $defenders[0];
 
         if ($attacker->has_skill('Shadow') ||
-            $attacker->has_skill('Konstant')) {
-            return FALSE;
-        }
-
-        if ($attacker->has_skill('Queer') &&
-            (1 == $attacker->value % 2)) {
+            $attacker->has_skill('Konstant') ||
+            ($attacker->has_skill('Queer') && (1 == $attacker->value % 2))) {
             return FALSE;
         }
 
@@ -36,15 +30,11 @@ class BMAttackPower extends BMAttack {
         $bounds = $this->help_bounds($helpers);
 
         foreach ($attacker->attack_values($this->type) as $aVal) {
-
-            if ($aVal + $bounds[1] >= $defender->defense_value($this->type)) {
-
-                if ($attacker->is_valid_attacker($this->type, $attackers) &&
-                    $defender->is_valid_target($this->type, $defenders)) {
+            if (($aVal + $bounds[1] >= $defender->defense_value($this->type)) &&
+                $attacker->is_valid_attacker($this->type, $attackers) &&
+                $defender->is_valid_target($this->type, $defenders)) {
                     return TRUE;
-                }
             }
-
         }
 
         return FALSE;
