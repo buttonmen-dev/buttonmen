@@ -36,6 +36,10 @@ class TestDummyBMAttTesting extends BMAttack {
         $this->attackLog[] = array($attackers, $defenders);
         return $this->validate;
     }
+
+    public function find_attack($game) {
+        return FALSE;
+    }
 }
 
 ?>

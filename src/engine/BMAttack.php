@@ -5,7 +5,7 @@
  *
  * @author Julian
  */
-class BMAttack {
+abstract class BMAttack {
     protected static $instance = array();
 
     // True for attacks that do something besides simple capture,
@@ -132,19 +132,13 @@ class BMAttack {
     // return how much help is needed and who can contribute
     //
     // implemented in subclassed where they actually know what help they need
-    public function calculate_contributions($game, array $attackers, array $defenders) {
-        return array(0, array());
-    }
+//    abstract public function calculate_contributions($game, array $attackers, array $defenders);
 
     // uses the dice in validDice to find a single valid attack within the game
-    public function find_attack($game) {
-        return FALSE;
-    }
+    abstract public function find_attack($game);
 
     // confirm that an attack is legal
-    public function validate_attack($game, array $attackers, array $defenders) {
-        return FALSE;
-    }
+    abstract public function validate_attack($game, array $attackers, array $defenders);
 
     // check if any of the attackers is disabled
     public function has_disabled_attackers(array $attackers) {
@@ -320,10 +314,6 @@ class BMAttack {
             }
         }
         return $helpers;
-    }
-
-    protected static function are_skills_compatible(array $attArray, array $defArray) {
-        return TRUE;
     }
 
     public function __get($property) {
