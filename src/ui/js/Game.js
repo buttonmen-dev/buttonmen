@@ -273,6 +273,8 @@ Game.parseValidInitiativeActions = function() {
   if (Game.api.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
     var focus = {};
     var chance = {};
+    var hasFocus = false;
+    var hasChance = false;
 
     $.each(Game.api.player.dieRecipeArray, function(i) {
       var tdvals = Game.dieValidTurndownValues(
@@ -280,16 +282,19 @@ Game.parseValidInitiativeActions = function() {
         Game.api.player.valueArray[i]);
       if (tdvals.length > 0) {
         focus[i] = tdvals;
+        hasFocus = true;
       }
 
       if (Game.dieCanRerollForInitiative(Game.api.player.dieRecipeArray[i])) {
         chance[i] = true;
+        hasChance = true;
       }
     });
-    if (Object.keys(focus).length > 0) {
+
+    if (hasFocus) {
       Game.api.player.initiativeActions['focus'] = focus;
     }
-    if (Object.keys(chance).length > 0) {
+    if (hasChance) {
       Game.api.player.initiativeActions['chance'] = chance;
     }
     Game.api.player.initiativeActions['decline'] = true;
