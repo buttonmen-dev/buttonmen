@@ -16,10 +16,7 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        $attacker = $attackers[0];
-        $defender = $defenders[0];
-
-        if (!BMAttackPower::is_attacker_valid($attacker)) {
+        if (!BMAttackPower::are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -27,11 +24,13 @@ class BMAttackPower extends BMAttack {
 
         $bounds = $this->help_bounds($helpers);
 
-        foreach ($attacker->attack_values($this->type) as $aVal) {
-            $isValLargeEnough =
-                $aVal + $bounds[1] >= $defender->defense_value($this->type);
-            $isValidAttacker = $attacker->is_valid_attacker($this->type, $attackers);
-            $isValidTarget = $defender->is_valid_target($this->type, $defenders);
+        $att = $attackers[0];
+        $def = $defenders[0];
+
+        foreach ($att->attack_values($this->type) as $aVal) {
+            $isValLargeEnough = $aVal + $bounds[1] >= $def->defense_value($this->type);
+            $isValidAttacker = $att->is_valid_attacker($this->type, $attackers);
+            $isValidTarget = $def->is_valid_target($this->type, $defenders);
 
             $isValidAttack = $isValLargeEnough && $isValidAttacker && $isValidTarget;
 
@@ -43,12 +42,21 @@ class BMAttackPower extends BMAttack {
         return FALSE;
     }
 
-    protected static function is_attacker_valid($attacker) {
-        $hasAttShadow = $attacker->has_skill('Shadow');
-        $hasAttKonstant = $attacker->has_skill('Konstant');
-        $hasAttOddQueer = $attacker->has_skill('Queer') &&
-                          (1 == $attacker->value % 2);
+    protected static function are_skills_compatible(array $attArray, array $defArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attArray must have one element.');
+        }
 
-        return !$hasAttShadow && !$hasAttKonstant && !$hasAttOddQueer;
+        $att = $attArray[0];
+
+        if (
+            $att->has_skill('Shadow') ||
+            $att->has_skill('Konstant') ||
+            ($att->has_skill('Queer') && (1 == $att->value % 2))
+        ) {
+            return FALSE;
+        }
+
+        return TRUE;
     }
 }

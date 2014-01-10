@@ -10,26 +10,26 @@ class BMAttackShadow extends BMAttackPower {
             return FALSE;
         }
 
-        $attacker = $attackers[0];
-        $defender = $defenders[0];
-
-        if (!BMAttackShadow::is_attacker_valid($attacker)) {
+        if (!BMAttackShadow::are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
-        $isDieLargeEnough = $attacker->max >=
-                            $defender->defense_value('Shadow');
+        $att = $attackers[0];
+        $def = $defenders[0];
 
-        $attackValueArray = $attacker->attack_values($this->type);
+        $isDieLargeEnough = $att->max >=
+                            $def->defense_value('Shadow');
+
+        $attackValueArray = $att->attack_values($this->type);
         assert(1 == count($attackValueArray));
         $attackValue = $attackValueArray[0];
-        $defenseValue = $defender->defense_value($this->type);
+        $defenseValue = $def->defense_value($this->type);
         $isValueSmallEnough = $attackValue <= $defenseValue;
 
         $canAttDoThisAttack =
-            $attacker->is_valid_attacker($this->type, $attackers);
+            $att->is_valid_attacker($this->type, $attackers);
         $isDefValidTarget =
-            $defender->is_valid_target($this->type, $defenders);
+            $def->is_valid_target($this->type, $defenders);
 
         $isValidAttack = $isDieLargeEnough &&
                          $isValueSmallEnough &&
@@ -39,11 +39,20 @@ class BMAttackShadow extends BMAttackPower {
         return $isValidAttack;
     }
 
-    protected static function is_attacker_valid($attacker) {
-        $hasAttackerShadow = $attacker->has_skill('Shadow');
-        $hasAttackerQueer = $attacker->has_skill('Queer');
-        $isAttackerOdd = (1 == $attacker->value % 2);
+    protected static function are_skills_compatible(array $attArray, array $defArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attArray must have one element.');
+        }
 
-        return ($hasAttackerShadow || ($hasAttackerQueer && $isAttackerOdd));
+        $att = $attArray[0];
+
+        if (
+            $att->has_skill('Shadow') ||
+            ($att->has_skill('Queer') && (1 == $att->value % 2))
+        ) {
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }

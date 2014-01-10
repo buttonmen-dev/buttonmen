@@ -322,6 +322,10 @@ class BMAttack {
         return $helpers;
     }
 
+    protected static function are_skills_compatible(array $attArray, array $defArray) {
+        return TRUE;
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
