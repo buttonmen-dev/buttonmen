@@ -42,6 +42,8 @@
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
  *
+ * @SuppressWarnings(PMD.TooManyFields)
+ * @SuppressWarnings(PMD.TooManyMethods)
  * @SuppressWarnings(PMD.UnusedPrivateField)
  */
 
