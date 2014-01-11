@@ -37,7 +37,7 @@ class BMInterface {
         } else {
             require '../database/mysql.inc.php';
         }
-        self::$conn = $conn;
+        self::$conn = $conn;  //NOPMD
     }
 
     // methods

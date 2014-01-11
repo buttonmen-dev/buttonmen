@@ -46,7 +46,7 @@ function logout() {
 
     $sql = 'DELETE FROM player_auth
             WHERE id = :id';
-    $query = $conn->prepare($sql);
+    $query = $conn->prepare($sql);  //NOPMD
     $query->execute(array(':id' => $_SESSION['user_id']));
 
     $_SESSION = array();
