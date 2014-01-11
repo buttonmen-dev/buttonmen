@@ -15,7 +15,7 @@ class responder {
 
         if (!($this->isTest)) {
             session_start();
-            require 'api_core.php';
+            require_once 'api_core.php';
             require_once('../lib/bootstrap.php');
         }
     }

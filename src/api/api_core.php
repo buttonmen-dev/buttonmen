@@ -1,6 +1,6 @@
 <?php
 function login($username, $password) {
-    require '../database/mysql.inc.php';
+    require_once '../database/mysql.inc.php';
     $conn = conn();
 
     $sql = 'SELECT id, name_ingame, password_hashed FROM player
@@ -43,7 +43,7 @@ function login($username, $password) {
 }
 
 function logout() {
-    require '../database/mysql.inc.php';
+    require_once '../database/mysql.inc.php';
 
     $sql = 'DELETE FROM player_auth
             WHERE id = :id';

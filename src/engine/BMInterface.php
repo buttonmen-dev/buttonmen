@@ -37,7 +37,7 @@ class BMInterface {
                 require_once 'test/src/database/mysql.test.inc.php';
             }
         } else {
-            require '../database/mysql.inc.php';
+            require_once '../database/mysql.inc.php';
         }
         self::$conn = conn();
     }
