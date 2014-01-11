@@ -43,7 +43,7 @@ class BMAttackPower extends BMAttack {
     }
 
     /*
-     * @inheritdoc
+     * {@inheritDoc}
      */
     protected static function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
