@@ -27,7 +27,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_apply_handicaps
      */
     public function test_do_next_step_apply_handicaps() {
         $this->object->gameState = BMGameState::APPLY_HANDICAPS;
@@ -38,7 +38,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_choose_auxiliary_dice
      */
     public function test_do_next_step_choose_auxiliary_dice() {
         $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
@@ -79,7 +79,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_load_dice_into_buttons
      */
     public function test_do_next_step_load_dice_into_buttons() {
 //        $this->object->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
@@ -102,7 +102,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_add_available_dice_to_game
      */
     public function test_do_next_step_add_available_dice_to_game() {
         $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
@@ -134,7 +134,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_specify_dice
      */
     public function test_do_next_step_specify_dice() {
         // no swing dice
@@ -216,7 +216,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_determine_initiative
      */
     public function test_do_next_step_determine_initiative() {
         $this->object->gameState = BMGameState::DETERMINE_INITIATIVE;
@@ -276,7 +276,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
         /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_react_to_initiative
      * @covers BMGame::react_to_initiative
      */
     public function test_do_next_step_react_to_initiative_decline_chance() {
@@ -338,7 +338,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_react_to_initiative
      * @covers BMGame::react_to_initiative
      */
     public function test_do_next_step_react_to_initiative_perform_chance() {
@@ -446,7 +446,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_react_to_initiative
      * @covers BMGame::react_to_initiative
      */
     public function test_do_next_step_react_to_initiative_multiple_chance() {
@@ -581,7 +581,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_react_to_initiative
      * @covers BMGame::react_to_initiative
      */
     public function test_do_next_step_react_to_initiative_decline_focus() {
@@ -643,7 +643,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_react_to_initiative
      * @covers BMGame::react_to_initiative
      */
     public function test_do_next_step_react_to_initiative_perform_focus() {
@@ -881,7 +881,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_start_round
      */
     public function test_do_next_step_start_round() {
         $this->object->gameState = BMGameState::START_ROUND;
@@ -906,7 +906,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_start_turn
      */
     public function test_do_next_step_start_turn() {
         $this->object->gameState = BMGameState::START_TURN;
@@ -960,7 +960,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_end_turn
      */
     public function test_do_next_step_end_turn() {
         // Remove the following lines when you implement this test.
@@ -970,7 +970,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_end_round
      */
     public function test_do_next_step_end_round() {
         // test for end turn with one player without dice
@@ -1040,7 +1040,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step
+     * @covers BMGame::do_next_step_end_game
      */
     public function test_do_next_step_end_game() {
         $this->object->gameState = BMGameState::END_GAME;
@@ -1063,7 +1063,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_start_game
      */
     public function test_update_game_state_start_game() {
         $this->object->gameState = BMGameState::START_GAME;
@@ -1094,7 +1094,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_apply_handicaps
      */
     public function test_update_game_state_apply_handicaps() {
         $this->object->gameState = BMGameState::APPLY_HANDICAPS;
@@ -1130,7 +1130,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_choose_auxiliary_dice
      */
     public function test_update_game_state_choose_auxiliary_dice() {
         $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
@@ -1163,7 +1163,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_load_dice_into_buttons
      */
     public function test_update_game_state_load_dice_into_buttons() {
         $this->object->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
@@ -1185,6 +1185,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::ADD_AVAILABLE_DICE_TO_GAME, $this->object->gameState);
     }
 
+    /**
+     * @covers BMGame::update_game_state_add_available_dice_to_game
+     */
     public function test_update_game_state_add_available_dice_to_game() {
         $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
         $this->object->update_game_state();
@@ -1203,7 +1206,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_specify_dice
      */
     public function test_update_game_state_specify_dice() {
         $this->object->gameState = BMGameState::SPECIFY_DICE;
@@ -1241,7 +1244,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_determine_initiative
      */
     public function test_update_game_state_determine_initiative() {
         $this->object->gameState = BMGameState::DETERMINE_INITIATIVE;
@@ -1256,7 +1259,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_react_to_initiative
      */
     public function test_update_game_state_react_to_initiative() {
         $this->object->gameState = BMGameState::REACT_TO_INITIATIVE;
@@ -1266,7 +1269,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_start_round
      */
     public function test_update_game_state_start_round() {
         $this->object->gameState = BMGameState::START_ROUND;
@@ -1281,7 +1284,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_start_turn
      */
     public function test_update_game_state_start_turn() {
         $this->object->gameState = BMGameState::START_TURN;
@@ -1296,7 +1299,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_end_turn
      */
     public function test_update_game_state_end_turn() {
         $die1 = new BMDie;
@@ -1359,7 +1362,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_end_round
      */
     public function test_update_game_state_end_round() {
         $this->object->gameState = BMGameState::END_ROUND;
@@ -1382,7 +1385,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state
+     * @covers BMGame::update_game_state_end_game
      */
     public function test_update_game_state_end_game() {
         $this->object->gameState = BMGameState::END_GAME;
@@ -2438,7 +2441,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             $out1['data']['gameScoreArrayArray']
         );
 
-        
+
         $out2 = $game1->getJsonData(456);
         $this->assertEquals(424242, $out2['data']['gameId']);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $out2['data']['gameState']);
