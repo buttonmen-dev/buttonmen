@@ -798,7 +798,8 @@ class BMGame {
 
         if (!in_array($args['action'], array('chance', 'decline', 'focus'))) {
             throw new InvalidArgumentException(
-                'Reaction must be chance, decline or focus.');
+                'Reaction must be chance, decline or focus.'
+            );
         }
 
         $reactFuncName = 'react_to_initiative_'.$args['action'];
