@@ -157,8 +157,7 @@ class BMAttackSkill extends BMAttack {
         }
 
         foreach ($attArray as $att) {
-            if (
-                $att->has_skill('Berserk') ||
+            if ($att->has_skill('Berserk') ||
                 // do not allow single-die skill attacks from konstant dice
                 ($att->has_skill('Konstant') && (1 == count($attArray)))
             ) {

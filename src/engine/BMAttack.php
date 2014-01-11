@@ -329,7 +329,7 @@ abstract class BMAttack {
 
     public function __set($property, $value) {
         throw new LogicException(
-            "BMAttack->$property cannot be set."
+            "BMAttack->$property cannot be set (attempting to set value $value)."
         );
 //        switch ($property) {
 //            default:
