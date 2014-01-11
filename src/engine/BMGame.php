@@ -162,6 +162,66 @@ class BMGame {
         }
     }
 
+    public function update_game_state() {
+        if (!isset($this->gameState)) {
+            throw new LogicException('Game state must be set.');
+        }
+
+        switch ($this->gameState) {
+            case BMGameState::START_GAME:
+                $this->update_game_state_start_game();
+                break;
+
+            case BMGameState::APPLY_HANDICAPS:
+                $this->update_game_state_apply_handicaps();
+                break;
+
+            case BMGameState::CHOOSE_AUXILIARY_DICE:
+                $this->update_game_state_choose_auxiliary_dice();
+                break;
+
+            case BMGameState::LOAD_DICE_INTO_BUTTONS:
+                $this->update_game_state_load_dice_into_buttons();
+                break;
+
+            case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
+                $this->update_game_state_add_available_dice_to_game();
+                break;
+
+            case BMGameState::SPECIFY_DICE:
+                $this->update_game_state_specify_dice();
+                break;
+
+            case BMGameState::DETERMINE_INITIATIVE:
+                $this->update_game_state_determine_initiative();
+                break;
+
+            case BMGameState::REACT_TO_INITIATIVE:
+                $this->update_game_state_react_to_initiative();
+                break;
+
+            case BMGameState::START_ROUND:
+                $this->update_game_state_start_round();
+                break;
+
+            case BMGameState::START_TURN:
+                $this->update_game_state_start_turn();
+                break;
+
+            case BMGameState::END_TURN:
+                $this->update_game_state_end_turn();
+                break;
+
+            case BMGameState::END_ROUND:
+                $this->update_game_state_end_round();
+                break;
+
+            case BMGameState::END_GAME:
+                $this->update_game_state_end_game();
+                break;
+        }
+    }
+
     protected function do_next_step_start_game() {
     }
 
@@ -241,7 +301,7 @@ class BMGame {
 
         // update all button recipes and remove auxiliary markers
         if (!empty($auxiliaryDice)) {
-            foreach ($this->buttonArray as $buttonIdx => $tempButton) {
+            foreach ($this->buttonArray as $tempButton) {
                 $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
                 $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
             }
@@ -306,7 +366,7 @@ class BMGame {
         }
 
         foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
-            foreach ($activeDieArray as $dieIdx => &$activeDie) {
+            foreach ($activeDieArray as &$activeDie) {
                 if ($activeDie instanceof BMDieSwing) {
                     if (array_key_exists(
                         $activeDie->swingType,
@@ -714,66 +774,6 @@ class BMGame {
     }
 
     protected function update_game_state_end_game() {
-    }
-
-    public function update_game_state() {
-        if (!isset($this->gameState)) {
-            throw new LogicException('Game state must be set.');
-        }
-
-        switch ($this->gameState) {
-            case BMGameState::START_GAME:
-                $this->update_game_state_start_game();
-                break;
-
-            case BMGameState::APPLY_HANDICAPS:
-                $this->update_game_state_apply_handicaps();
-                break;
-
-            case BMGameState::CHOOSE_AUXILIARY_DICE:
-                $this->update_game_state_choose_auxiliary_dice();
-                break;
-
-            case BMGameState::LOAD_DICE_INTO_BUTTONS:
-                $this->update_game_state_load_dice_into_buttons();
-                break;
-
-            case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
-                $this->update_game_state_add_available_dice_to_game();
-                break;
-
-            case BMGameState::SPECIFY_DICE:
-                $this->update_game_state_specify_dice();
-                break;
-
-            case BMGameState::DETERMINE_INITIATIVE:
-                $this->update_game_state_determine_initiative();
-                break;
-
-            case BMGameState::REACT_TO_INITIATIVE:
-                $this->update_game_state_react_to_initiative();
-                break;
-
-            case BMGameState::START_ROUND:
-                $this->update_game_state_start_round();
-                break;
-
-            case BMGameState::START_TURN:
-                $this->update_game_state_start_turn();
-                break;
-
-            case BMGameState::END_TURN:
-                $this->update_game_state_end_turn();
-                break;
-
-            case BMGameState::END_ROUND:
-                $this->update_game_state_end_round();
-                break;
-
-            case BMGameState::END_GAME:
-                $this->update_game_state_end_game();
-                break;
-        }
     }
 
     // The variable $gameStateBreakpoint is used for debugging purposes only.
