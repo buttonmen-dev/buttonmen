@@ -39,9 +39,6 @@ class BMAttackShadow extends BMAttackPower {
         return $isValidAttack;
     }
 
-    /*
-     * @inheritdoc
-     */
     protected static function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');

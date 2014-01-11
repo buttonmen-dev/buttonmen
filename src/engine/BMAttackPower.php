@@ -42,10 +42,7 @@ class BMAttackPower extends BMAttack {
         return FALSE;
     }
 
-    /*
-     * {@inheritDoc}
-     */
-    protected static function are_skills_compatible(array $attArray, array $defArray) {
+    protected static function are_skills_compatible(array $attArray, array $defArray) { //NOPMD
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
         }
