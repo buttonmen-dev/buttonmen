@@ -20,7 +20,12 @@ class BMInterface {
 
     private $isTest;         // indicates if the interface is for testing
 
+
+
     // constructor
+    /*
+     * @SuppressWarnings(PMD.UnusedLocalVariable)
+     */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
@@ -37,7 +42,7 @@ class BMInterface {
         } else {
             require '../database/mysql.inc.php';
         }
-        self::$conn = $conn;  //NOPMD
+        self::$conn = $conn;
     }
 
     // methods

@@ -42,7 +42,9 @@
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
  *
+ * @SuppressWarnings(PMD.UnusedPrivateField)
  */
+
 class BMGame {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters
