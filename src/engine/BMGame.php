@@ -329,7 +329,7 @@ class BMGame {
                 } else {
 
                     // apply swing values
-                    foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
+                    foreach ($this->activeDieArrayArray[$playerIdx] as $die) {
                         if (isset($die->swingType)) {
                             $isSetSuccessful = $die->set_swingValue(
                                 $this->swingValueArrayArray[$playerIdx]
@@ -490,7 +490,44 @@ class BMGame {
     }
 
     protected function do_next_step_start_turn() {
-        // deal with autopass
+        $this->perform_autopass();
+
+        // display dice
+        $this->activate_GUI('show_active_dice');
+
+        if (!$this->are_attack_params_reasonable()) {
+            return;
+        }
+
+        $instance = $this->create_attack_instance();
+        if (FALSE === $instance) {
+            return;
+        }
+
+        $attack = $instance['attack'];
+        $attAttackDieArray = $instance['attAttackDieArray'];
+        $defAttackDieArray = $instance['defAttackDieArray'];
+
+        $preAttackDice = $this->get_action_log_data(
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+
+        $this->turnNumberInRound++;
+        $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
+
+        $postAttackDice = $this->get_action_log_data(
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+        $this->log_attack($preAttackDice, $postAttackDice);
+
+        if (isset($this->activePlayerIdx)) {
+            $this->update_active_player();
+        }
+    }
+
+    protected function perform_autopass() {
         if (!isset($this->attack) &&
             $this->autopassArray[$this->activePlayerIdx] &&
             $this->turnNumberInRound > 1) {
@@ -504,32 +541,34 @@ class BMGame {
                                       'attackType' => 'Pass');
             }
         }
+    }
 
-        // display dice
-        $this->activate_GUI('show_active_dice');
-
-        // while attack has not been set {ask player to select attack}
-        while (!isset($this->attack)) {
+    protected function are_attack_params_reasonable() {
+        // if attack has not been set, ask player to select attack
+        if (!isset($this->attack)) {
             $this->activate_GUI('wait_for_attack');
             $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-            return;
+            return FALSE;
         }
 
         // validate attacker player idx
         if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
             $this->message = 'Attacker must be current active player.';
             $this->attack = NULL;
-            return;
+            return FALSE;
         }
 
         // validate defender player idx
         if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
             $this->message = 'Attacker must be different to defender.';
             $this->attack = NULL;
-            return;
+            return FALSE;
         }
 
-        // perform attack
+        return TRUE;
+    }
+
+    protected function create_attack_instance() {
         $attack = BMAttack::get_instance($this->attack['attackType']);
 
         $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
@@ -542,7 +581,7 @@ class BMGame {
             if ($attackDie->disabled) {
                 $this->message = 'Attempting to attack with a disabled die.';
                 $this->attack = NULL;
-                return;
+                return FALSE;
             }
             $attAttackDieArray[] = $attackDie;
         }
@@ -567,26 +606,12 @@ class BMGame {
             $this->activate_GUI('Invalid attack');
             $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
             $this->attack = NULL;
-            return;
+            return FALSE;
         }
 
-        $preAttackDice = $this->get_action_log_data(
-            $attAttackDieArray,
-            $defAttackDieArray
-        );
-
-        $this->turnNumberInRound++;
-        $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
-
-        $postAttackDice = $this->get_action_log_data(
-            $attAttackDieArray,
-            $defAttackDieArray
-        );
-        $this->log_attack($preAttackDice, $postAttackDice);
-
-        if (isset($this->activePlayerIdx)) {
-            $this->update_active_player();
-        }
+        return array('attack' => $attack,
+                     'attAttackDieArray' => $attAttackDieArray,
+                     'defAttackDieArray' => $defAttackDieArray);
     }
 
     protected function update_game_state_start_turn() {
