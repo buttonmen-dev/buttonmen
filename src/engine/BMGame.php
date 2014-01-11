@@ -109,370 +109,420 @@ class BMGame {
         switch ($this->gameState) {
             case BMGameState::START_GAME:
                 // do_next_step is normally never run for BMGameState::START_GAME
+                $this->do_next_step_start_game();
                 break;
 
             case BMGameState::APPLY_HANDICAPS:
-                // ignore for the moment
-                $this->gameScoreArrayArray =
-                    array_fill(
-                        0,
-                        count($this->playerIdArray),
-                        array('W' => 0, 'L' => 0, 'D' => 0)
-                    );
+                $this->do_next_step_apply_handicaps();
                 break;
 
             case BMGameState::CHOOSE_AUXILIARY_DICE:
-                // james: this game state will probably move to after LOAD_DICE_INTO_BUTTONS
-                $auxiliaryDice = '';
-                // create list of auxiliary dice
-                foreach ($this->buttonArray as $tempButton) {
-                    if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-                        $tempSplitArray = BMGame::separate_out_auxiliary_dice(
-                            $tempButton->recipe
-                        );
-                        $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
-                    }
-                }
-                $auxiliaryDice = trim($auxiliaryDice);
-                // update $auxiliaryDice based on player choices
-                $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
-
-                //james: current default is to accept all auxiliary dice
-
-                // update all button recipes and remove auxiliary markers
-                if (!empty($auxiliaryDice)) {
-                    foreach ($this->buttonArray as $buttonIdx => $tempButton) {
-                        $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
-                        $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
-                    }
-                }
+                $this->do_next_step_choose_auxiliary_dice();
                 break;
 
             case BMGameState::LOAD_DICE_INTO_BUTTONS:
-            //james: this will be replaced with a call to the database
-                // load clean version of the buttons from their recipes
-                // if the player has not just won a round
+                $this->do_next_step_load_dice_into_buttons();
+                break;
+
+            case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
+                $this->do_next_step_add_available_dice_to_game();
+                break;
+
+            case BMGameState::SPECIFY_DICE:
+                $this->do_next_step_specify_dice();
+                break;
+
+            case BMGameState::DETERMINE_INITIATIVE:
+                $this->do_next_step_determine_initiative();
+                break;
+
+            case BMGameState::REACT_TO_INITIATIVE:
+                $this->do_next_step_react_to_initiative();
+                break;
+
+            case BMGameState::START_ROUND:
+                $this->do_next_step_start_round();
+                break;
+
+            case BMGameState::START_TURN:
+                $this->do_next_step_start_turn();
+                break;
+
+            case BMGameState::END_TURN:
+                $this->do_next_step_end_turn();
+                break;
+
+            case BMGameState::END_ROUND:
+                $this->do_next_step_end_round();
+                break;
+
+            case BMGameState::END_GAME:
+                $this->do_next_step_end_game();
+                break;
+        }
+    }
+
+    protected function do_next_step_start_game() {
+    }
+
+    protected function do_next_step_apply_handicaps() {
+        // ignore for the moment
+        $this->gameScoreArrayArray =
+            array_fill(
+                0,
+                count($this->playerIdArray),
+                array('W' => 0, 'L' => 0, 'D' => 0)
+            );
+    }
+
+    protected function do_next_step_choose_auxiliary_dice() {
+        // james: this game state will probably move to after LOAD_DICE_INTO_BUTTONS
+        $auxiliaryDice = '';
+        // create list of auxiliary dice
+        foreach ($this->buttonArray as $tempButton) {
+            if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
+                $tempSplitArray = BMGame::separate_out_auxiliary_dice(
+                    $tempButton->recipe
+                );
+                $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
+            }
+        }
+        $auxiliaryDice = trim($auxiliaryDice);
+        // update $auxiliaryDice based on player choices
+        $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
+
+        //james: current default is to accept all auxiliary dice
+
+        // update all button recipes and remove auxiliary markers
+        if (!empty($auxiliaryDice)) {
+            foreach ($this->buttonArray as $buttonIdx => $tempButton) {
+                $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
+                $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
+            }
+        }
+    }
+
+    protected function do_next_step_load_dice_into_buttons() {
+        //james: this will be replaced with a call to the database
+        // load clean version of the buttons from their recipes
+        // if the player has not just won a round
 //                foreach ($this->buttonArray as $playerIdx => $tempButton) {
 //                    if (!$this->isPrevRoundWinnerArray[$playerIdx]) {
 //                        $tempButton->reload();
 //                    }
 //                }
-                break;
+    }
 
-            case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
-                // load BMGame activeDieArrayArray from BMButton dieArray
-                $this->activeDieArrayArray =
-                    array_fill(0, $this->nPlayers, array());
+    protected function do_next_step_add_available_dice_to_game() {
+        // load BMGame activeDieArrayArray from BMButton dieArray
+        $this->activeDieArrayArray =
+            array_fill(0, $this->nPlayers, array());
 
-                foreach ($this->buttonArray as $buttonIdx => $tempButton) {
-                    $tempButton->activate();
-                }
+        foreach ($this->buttonArray as $tempButton) {
+            $tempButton->activate();
+        }
 
-                // load swing values that are carried across from a previous round
-                if (!isset($this->swingValueArrayArray)) {
-                    break;
-                }
+        // load swing values that are carried across from a previous round
+        if (!isset($this->swingValueArrayArray)) {
+            return;
+        }
 
-                foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
-                    foreach ($activeDieArray as $dieIdx => &$activeDie) {
-                        if ($activeDie instanceof BMDieSwing) {
-                            if (array_key_exists(
-                                $activeDie->swingType,
-                                $this->swingValueArrayArray[$playerIdx]
-                            )) {
-                                $activeDie->swingValue =
-                                    $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
-                            }
-                        }
+        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => &$activeDie) {
+                if ($activeDie instanceof BMDieSwing) {
+                    if (array_key_exists(
+                        $activeDie->swingType,
+                        $this->swingValueArrayArray[$playerIdx]
+                    )) {
+                        $activeDie->swingValue =
+                            $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
                     }
                 }
-                break;
+            }
+        }
+    }
 
-            case BMGameState::SPECIFY_DICE:
-                $this->waitingOnActionArray =
-                    array_fill(0, count($this->playerIdArray), FALSE);
+    protected function do_next_step_specify_dice() {
+        $this->waitingOnActionArray =
+            array_fill(0, count($this->playerIdArray), FALSE);
 
-                if (isset($this->swingRequestArrayArray)) {
-                    foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
-                        $keyArray = array_keys($swingRequestArray);
+        if (isset($this->swingRequestArrayArray)) {
+            foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
+                $keyArray = array_keys($swingRequestArray);
 
-                        // initialise swingValueArrayArray if necessary
-                        if (!isset($this->swingValueArrayArray[$playerIdx])) {
-                            $this->swingValueArrayArray[$playerIdx] = array();
-                        }
-
-                        foreach ($keyArray as $key) {
-                            // copy swing request keys to swing value keys if they
-                            // do not already exist
-                            if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
-                                $this->swingValueArrayArray[$playerIdx][$key] = NULL;
-                            }
-
-                            // set waitingOnActionArray based on if there are
-                            // unspecified swing dice for that player
-                            if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
-                                $this->waitingOnActionArray[$playerIdx] = TRUE;
-                            }
-                        }
-                    }
-
-                    foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                        if ($waitingOnAction) {
-                            $this->activate_GUI('Waiting on player action.', $playerIdx);
-                        } else {
-
-                            // apply swing values
-                            foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
-                                if (isset($die->swingType)) {
-                                    $isSetSuccessful = $die->set_swingValue(
-                                        $this->swingValueArrayArray[$playerIdx]
-                                    );
-                                    // act appropriately if the swing values are invalid
-                                    if (!$isSetSuccessful) {
-                                        $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
-                                        $this->swingValueArrayArray[$playerIdx] = array();
-                                        $this->waitingOnActionArray[$playerIdx] = TRUE;
-                                        break 3;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                // initialise swingValueArrayArray if necessary
+                if (!isset($this->swingValueArrayArray[$playerIdx])) {
+                    $this->swingValueArrayArray[$playerIdx] = array();
                 }
 
-                // roll dice
-                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                    foreach ($activeDieArray as $dieIdx => $die) {
-                        if ($die instanceof BMDieSwing) {
-                            if ($die->needsSwingValue) {
-                                // swing value has not yet been set
-                                continue;
-                            }
-                        }
-                        $this->activeDieArrayArray[$playerIdx][$dieIdx] =
-                            $die->make_play_die(FALSE);
+                foreach ($keyArray as $key) {
+                    // copy swing request keys to swing value keys if they
+                    // do not already exist
+                    if (!array_key_exists($key, $this->swingValueArrayArray[$playerIdx])) {
+                        $this->swingValueArrayArray[$playerIdx][$key] = NULL;
+                    }
+
+                    // set waitingOnActionArray based on if there are
+                    // unspecified swing dice for that player
+                    if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
+                        $this->waitingOnActionArray[$playerIdx] = TRUE;
                     }
                 }
-                break;
+            }
 
-            case BMGameState::DETERMINE_INITIATIVE:
-                $hasInitiativeArray =
-                  BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
-
-                if (array_sum($hasInitiativeArray) > 1) {
-                    $playersWithInit = array();
-                    foreach ($hasInitiativeArray as $playerIdx => $tempHasInitiative) {
-                        if ($tempHasInitiative) {
-                            $playersWithInit[] = $playerIdx;
-                        }
-                    }
-                    $tempInitiativeIdx = array_rand($playersWithInit);
+            foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+                if ($waitingOnAction) {
+                    $this->activate_GUI('Waiting on player action.', $playerIdx);
                 } else {
-                    $tempInitiativeIdx =
-                        array_search(TRUE, $hasInitiativeArray, TRUE);
+
+                    // apply swing values
+                    foreach ($this->activeDieArrayArray[$playerIdx] as $dieIdx => $die) {
+                        if (isset($die->swingType)) {
+                            $isSetSuccessful = $die->set_swingValue(
+                                $this->swingValueArrayArray[$playerIdx]
+                            );
+                            // act appropriately if the swing values are invalid
+                            if (!$isSetSuccessful) {
+                                $this->message = 'Invalid value submitted for swing die ' . $die->recipe;
+                                $this->swingValueArrayArray[$playerIdx] = array();
+                                $this->waitingOnActionArray[$playerIdx] = TRUE;
+                                return;
+                            }
+                        }
+                    }
                 }
+            }
+        }
 
-                $this->playerWithInitiativeIdx = $tempInitiativeIdx;
-                break;
-
-            case BMGameState::REACT_TO_INITIATIVE:
-                $canReactArray = array_fill(0, $this->nPlayers, FALSE);
-
-                foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                    // do nothing if a player has won initiative
-                    if ($this->playerWithInitiativeIdx == $playerIdx) {
+        // roll dice
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => $die) {
+                if ($die instanceof BMDieSwing) {
+                    if ($die->needsSwingValue) {
+                        // swing value has not yet been set
                         continue;
                     }
+                }
+                $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                    $die->make_play_die(FALSE);
+            }
+        }
+    }
 
-                    // find out if any of the dice have the ability to react
-                    // when the player loses initiative
-                    foreach ($activeDieArray as $activeDie) {
-                        if ($activeDie->disabled) {
+    protected function do_next_step_determine_initiative() {
+        $hasInitiativeArray =
+            BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
+
+        if (array_sum($hasInitiativeArray) > 1) {
+            $playersWithInit = array();
+            foreach ($hasInitiativeArray as $playerIdx => $tempHasInitiative) {
+                if ($tempHasInitiative) {
+                    $playersWithInit[] = $playerIdx;
+                }
+            }
+            $tempInitiativeIdx = array_rand($playersWithInit);
+        } else {
+            $tempInitiativeIdx =
+                array_search(TRUE, $hasInitiativeArray, TRUE);
+        }
+
+        $this->playerWithInitiativeIdx = $tempInitiativeIdx;
+    }
+
+    protected function do_next_step_react_to_initiative() {
+        $canReactArray = array_fill(0, $this->nPlayers, FALSE);
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            // do nothing if a player has won initiative
+            if ($this->playerWithInitiativeIdx == $playerIdx) {
+                continue;
+            }
+
+            // find out if any of the dice have the ability to react
+            // when the player loses initiative
+            foreach ($activeDieArray as $activeDie) {
+                if ($activeDie->disabled) {
+                    continue;
+                }
+                $hookResultArray =
+                    $activeDie->run_hooks(
+                        'react_to_initiative',
+                        array('activeDieArrayArray' => $this->activeDieArrayArray,
+                              'playerIdx' => $playerIdx)
+                    );
+                if (is_array($hookResultArray) && count($hookResultArray) > 0) {
+                    foreach ($hookResultArray as $hookResult) {
+                        if (TRUE === $hookResult) {
+                            $canReactArray[$playerIdx] = TRUE;
                             continue;
                         }
-                        $hookResultArray =
-                            $activeDie->run_hooks(
-                                'react_to_initiative',
-                                array('activeDieArrayArray' => $this->activeDieArrayArray,
-                                      'playerIdx' => $playerIdx)
-                            );
-                        if (is_array($hookResultArray) && count($hookResultArray) > 0) {
-                            foreach ($hookResultArray as $hookResult) {
-                                if (TRUE === $hookResult) {
-                                    $canReactArray[$playerIdx] = TRUE;
-                                    continue;
-                                }
-                            }
-                        }
                     }
                 }
-
-                $this->waitingOnActionArray = $canReactArray;
-
-                break;
-
-            case BMGameState::START_ROUND:
-                if (!isset($this->playerWithInitiativeIdx)) {
-                    throw new LogicException(
-                        'Player that has won initiative must already have been determined.'
-                    );
-                }
-                // set BMGame activePlayerIdx
-                $this->activePlayerIdx = $this->playerWithInitiativeIdx;
-                $this->turnNumberInRound = 1;
-                break;
-
-            case BMGameState::START_TURN:
-                // deal with autopass
-                if (!isset($this->attack) &&
-                    $this->autopassArray[$this->activePlayerIdx] &&
-                    $this->turnNumberInRound > 1) {
-                    $validAttackTypes = $this->valid_attack_types();
-                    if (array_search('Pass', $validAttackTypes) &&
-                        (1 == count($validAttackTypes))) {
-                        $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
-                                              'defenderPlayerIdx' => NULL,
-                                              'attackerAttackDieIdxArray' => array(),
-                                              'defenderAttackDieIdxArray' => array(),
-                                              'attackType' => 'Pass');
-                    }
-                }
-
-                // display dice
-                $this->activate_GUI('show_active_dice');
-
-                // while attack has not been set {ask player to select attack}
-                while (!isset($this->attack)) {
-                    $this->activate_GUI('wait_for_attack');
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    return;
-                }
-
-                // validate attacker player idx
-                if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
-                    $this->message = 'Attacker must be current active player.';
-                    $this->attack = NULL;
-                    return;
-                }
-
-                // validate defender player idx
-                if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
-                    $this->message = 'Attacker must be different to defender.';
-                    $this->attack = NULL;
-                    return;
-                }
-
-                // perform attack
-                $attack = BMAttack::get_instance($this->attack['attackType']);
-
-                $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
-                $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-                $attAttackDieArray = array();
-                foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
-                    $attackDie =
-                        $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                                  [$attackerAttackDieIdx];
-                    if ($attackDie->disabled) {
-                        $this->message = 'Attempting to attack with a disabled die.';
-                        $this->attack = NULL;
-                        return;
-                    }
-                    $attAttackDieArray[] = $attackDie;
-                }
-                $defAttackDieArray = array();
-                foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
-                    $defAttackDieArray[] =
-                        &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
-                                                   [$defenderAttackDieIdx];
-                }
-
-                foreach ($attAttackDieArray as $attackDie) {
-                    $attack->add_die($attackDie);
-                }
-
-                $valid = $attack->validate_attack(
-                    $this,
-                    $attAttackDieArray,
-                    $defAttackDieArray
-                );
-
-                if (!$valid) {
-                    $this->activate_GUI('Invalid attack');
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                    $this->attack = NULL;
-                    return;
-                }
-
-                $preAttackDice = $this->get_action_log_data(
-                    $attAttackDieArray,
-                    $defAttackDieArray
-                );
-
-                $this->turnNumberInRound++;
-                $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
-
-                $postAttackDice = $this->get_action_log_data(
-                    $attAttackDieArray,
-                    $defAttackDieArray
-                );
-                $this->log_attack($preAttackDice, $postAttackDice);
-
-                if (isset($this->activePlayerIdx)) {
-                    $this->update_active_player();
-                }
-
-                break;
-
-            case BMGameState::END_TURN:
-                break;
-
-            case BMGameState::END_ROUND:
-                $roundScoreArray = $this->get_roundScoreArray();
-
-                // check for draw currently assumes only two players
-                $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
-
-                if ($isDraw) {
-                    for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
-                        $this->gameScoreArrayArray[$playerIdx]['D']++;
-                        // james: currently there is no code for three draws in a row
-                    }
-                    $this->log_action(
-                        'end_draw',
-                        0,
-                        'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
-                        $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
-                    );
-                } else {
-                    $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
-
-                    for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
-                        if ($playerIdx == $winnerIdx) {
-                            $this->gameScoreArrayArray[$playerIdx]['W']++;
-                        } else {
-                            $this->gameScoreArrayArray[$playerIdx]['L']++;
-                            $this->swingValueArrayArray[$playerIdx] = array();
-                        }
-                    }
-                    $this->log_action(
-                        'end_winner',
-                        $this->playerIdArray[$winnerIdx],
-                        'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                        $roundScoreArray[0] . ' vs ' . $roundScoreArray[1] . ')'
-                    );
-                }
-                $this->reset_play_state();
-                break;
-
-            case BMGameState::END_GAME:
-                $this->reset_play_state();
-                // swingValueArrayArray must be reset to clear entries in the
-                // database table game_swing_map
-                $this->swingValueArrayArray = array_fill(0, $this->nPlayers, array());
-
-                $this->activate_GUI('Show end-of-game screen.');
-                break;
+            }
         }
+
+        $this->waitingOnActionArray = $canReactArray;
+    }
+
+    protected function do_next_step_start_round() {
+        if (!isset($this->playerWithInitiativeIdx)) {
+            throw new LogicException(
+                'Player that has won initiative must already have been determined.'
+            );
+        }
+        // set BMGame activePlayerIdx
+        $this->activePlayerIdx = $this->playerWithInitiativeIdx;
+        $this->turnNumberInRound = 1;
+    }
+
+    protected function do_next_step_start_turn() {
+        // deal with autopass
+        if (!isset($this->attack) &&
+            $this->autopassArray[$this->activePlayerIdx] &&
+            $this->turnNumberInRound > 1) {
+            $validAttackTypes = $this->valid_attack_types();
+            if (array_search('Pass', $validAttackTypes) &&
+                (1 == count($validAttackTypes))) {
+                $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
+                                      'defenderPlayerIdx' => NULL,
+                                      'attackerAttackDieIdxArray' => array(),
+                                      'defenderAttackDieIdxArray' => array(),
+                                      'attackType' => 'Pass');
+            }
+        }
+
+        // display dice
+        $this->activate_GUI('show_active_dice');
+
+        // while attack has not been set {ask player to select attack}
+        while (!isset($this->attack)) {
+            $this->activate_GUI('wait_for_attack');
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+            return;
+        }
+
+        // validate attacker player idx
+        if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
+            $this->message = 'Attacker must be current active player.';
+            $this->attack = NULL;
+            return;
+        }
+
+        // validate defender player idx
+        if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
+            $this->message = 'Attacker must be different to defender.';
+            $this->attack = NULL;
+            return;
+        }
+
+        // perform attack
+        $attack = BMAttack::get_instance($this->attack['attackType']);
+
+        $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+        $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        $attAttackDieArray = array();
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+            $attackDie =
+                $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                          [$attackerAttackDieIdx];
+            if ($attackDie->disabled) {
+                $this->message = 'Attempting to attack with a disabled die.';
+                $this->attack = NULL;
+                return;
+            }
+            $attAttackDieArray[] = $attackDie;
+        }
+        $defAttackDieArray = array();
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+            $defAttackDieArray[] =
+                &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                           [$defenderAttackDieIdx];
+        }
+
+        foreach ($attAttackDieArray as $attackDie) {
+            $attack->add_die($attackDie);
+        }
+
+        $valid = $attack->validate_attack(
+            $this,
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+
+        if (!$valid) {
+            $this->activate_GUI('Invalid attack');
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+            $this->attack = NULL;
+            return;
+        }
+
+        $preAttackDice = $this->get_action_log_data(
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+
+        $this->turnNumberInRound++;
+        $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
+
+        $postAttackDice = $this->get_action_log_data(
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+        $this->log_attack($preAttackDice, $postAttackDice);
+
+        if (isset($this->activePlayerIdx)) {
+            $this->update_active_player();
+        }
+    }
+
+    protected function do_next_step_end_turn() {
+    }
+
+    protected function do_next_step_end_round() {
+        $roundScoreArray = $this->get_roundScoreArray();
+
+        // check for draw currently assumes only two players
+        $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+
+        if ($isDraw) {
+            for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                $this->gameScoreArrayArray[$playerIdx]['D']++;
+                // james: currently there is no code for three draws in a row
+            }
+            $this->log_action(
+                'end_draw',
+                0,
+                'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
+                $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
+            );
+        } else {
+            $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+
+            for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                if ($playerIdx == $winnerIdx) {
+                    $this->gameScoreArrayArray[$playerIdx]['W']++;
+                } else {
+                    $this->gameScoreArrayArray[$playerIdx]['L']++;
+                    $this->swingValueArrayArray[$playerIdx] = array();
+                }
+            }
+            $this->log_action(
+                'end_winner',
+                $this->playerIdArray[$winnerIdx],
+                'won round ' . ($this->get_roundNumber() - 1) . ' (' .
+                $roundScoreArray[0] . ' vs ' . $roundScoreArray[1] . ')'
+            );
+        }
+        $this->reset_play_state();
+    }
+
+    protected function do_next_step_end_game() {
+        $this->reset_play_state();
+        // swingValueArrayArray must be reset to clear entries in the
+        // database table game_swing_map
+        $this->swingValueArrayArray = array_fill(0, $this->nPlayers, array());
+
+        $this->activate_GUI('Show end-of-game screen.');
     }
 
     public function update_game_state() {
