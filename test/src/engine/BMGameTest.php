@@ -311,11 +311,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         // test invalid action
-        $this->assertFalse(
+        try {
             $game->react_to_initiative(array('action' => 'blargl',
                                              'playerIdx' => 0,
                                              'dieIdxArray' => NULL,
-                                             'dieValueArray' => NULL)));
+                                             'dieValueArray' => NULL));
+            $this->fail('Bad reaction to initiative did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
 
         // test invalid 'decline' action
         $this->assertFalse(
@@ -616,11 +619,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         // test invalid action
-        $this->assertFalse(
+        try {
             $game->react_to_initiative(array('action' => 'blargl',
                                              'playerIdx' => 0,
                                              'dieIdxArray' => NULL,
-                                             'dieValueArray' => NULL)));
+                                             'dieValueArray' => NULL));
+            $this->fail('Bad reaction to initiative did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+
+        }
 
         // test invalid 'decline' action
         $this->assertFalse(
@@ -887,7 +894,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameState = BMGameState::START_ROUND;
         try {
             $this->object->do_next_step();
-            fail('The player who has won initiative must already have been determined.');
+            $this->fail('The player who has won initiative must already have been determined.');
         }
         catch (LogicException $expected) {
         }
@@ -1056,7 +1063,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         unset($this->object->gameState);
         try {
             $this->object->do_next_step();
-            fail('Game state must be set.');
+            $this->fail('Game state must be set.');
         }
         catch (LogicException $expected) {
         }
@@ -1101,7 +1108,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         unset($this->object->maxWins);
         try {
             $this->object->update_game_state();
-            fail('Max wins must exist.');
+            $this->fail('Max wins must exist.');
         }
         catch (LogicException $expected) {
         }
@@ -1969,8 +1976,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $game->buttonArray = array($button1, $button2, $button3);
             $this->fail('The number of buttons must match the number of players.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
@@ -1997,15 +2003,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->gameScoreArrayArray = array(array(2,1,1), array(1,2));
             $this->fail('W/L/D must be three numbers.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->gameScoreArrayArray = array(array(2,1,1));
             $this->fail('There must be the same number of players and game scores.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2024,22 +2028,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->activeDieArrayArray = 'abc';
             $this->fail('Active die array array must be an array.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->activeDieArrayArray = array(1, 2);
             $this->fail('Active die arrays must be arrays.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->activeDieArrayArray = array(array(1), array(2));
             $this->fail('Active die arrays must be arrays of BM dice.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2050,71 +2051,61 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->attack = array(array(1), array(2));
             $this->fail('There must be exactly five elements in attack.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(array(1), 2, array(array(1,3)), array(array(2,5)), '');
             $this->fail('The first element of attack must be an integer.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, array(2), array(array(1,3)), array(array(2,5)), '');
             $this->fail('The second element of attack must be an integer.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, 2, 1, array(array(1,3)), '');
             $this->fail('The third element of attack must be an array.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
             $this->fail('The fourth element of attack must be an array.');
-        }
-        catch (InvalidArgumentException $expected) {
-        }
-
-        try {
-            $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
-            $this->fail('The third element of attack must be a 1-D array of indices.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
             $this->fail('The third element of attack must be a 1-D array of indices.');
+        } catch (InvalidArgumentException $expected) {
         }
-        catch (InvalidArgumentException $expected) {
+
+        try {
+            $this->object->attack = array(1, 2, array(array(1,3)), 12, '');
+            $this->fail('The third element of attack must be a 1-D array of indices.');
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, 2, array('hello'), array(0), '');
             $this->fail('The third element of attack must be a 1-D array of indices.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, 2, array(0), array('hello'), '');
             $this->fail('The fourth element of attack must be a 1-D array of indices.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->attack = array(1, 2, array(1), array(0), 'xxyyzz');
             $this->fail('The fifth element of attack must be a valid string.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         // check that attacker die indices are validated
@@ -2123,8 +2114,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->attack = array(0, 1, array(2), array(0), 'Pass');
             $this->fail('Invalid attacker die indices.');
-        }
-        catch (LogicException $expected) {
+        } catch (LogicException $expected) {
         }
 
         // check that defender die indices are validated
@@ -2133,8 +2123,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->attack = array(0, 1, array(0), array(2), 'Pass');
             $this->fail('Invalid defender die indices.');
-        }
-        catch (LogicException $expected) {
+        } catch (LogicException $expected) {
         }
 
         // check that a pass attack is valid
@@ -2149,8 +2138,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->attack = array(1, 2, array(0, 1), 0, 'xxyyzz');
             $this->fail('Invalid attack type.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2161,8 +2149,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->attackerAttackDieArray = array();
             $this->fail('AttackerAttackDieArray cannot be set.');
-        }
-        catch (LogicException $expected) {
+        } catch (LogicException $expected) {
         }
     }
 
@@ -2173,8 +2160,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->defenderAttackDieArray = array();
             $this->fail('DefenderAttackDieArray cannot be set.');
-        }
-        catch (LogicException $expected) {
+        } catch (LogicException $expected) {
         }
     }
 
@@ -2189,22 +2175,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->nRecentPasses = -1;
             $this->fail('Pass status array must be non-negative.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->nRecentPasses = 5;
             $this->fail('Pass status array must be no more than the number of players.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->nRecentPasses = array(TRUE, TRUE, TRUE);
             $this->fail('Pass status array must be an integer.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2223,22 +2206,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->capturedDieArrayArray = 'abc';
             $this->fail('Active die array array must be an array.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->capturedDieArrayArray = array(1, 2);
             $this->fail('Active die arrays must be arrays.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->capturedDieArrayArray = array(array(1), array(2));
             $this->fail('Active die arrays must be arrays of BM dice.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2250,8 +2230,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->roundScoreArray = array(22, 35);
             $this->fail('Round score array cannot be set directly.');
-        }
-        catch (LogicException $expected) {
+        } catch (LogicException $expected) {
         }
     }
 
@@ -2266,15 +2245,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->maxWins = 0;
             $this->fail('maxWins must be a positive integer.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->maxWins = 2.5;
             $this->fail('maxWins must be a positive integer.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2289,15 +2266,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $this->object->gameState = 'abcd';
             $this->fail('Game state must be an integer.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $this->object->gameState = 0;
             $this->fail('Invalid game state.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 
@@ -2314,15 +2289,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         try {
             $game->waitingOnActionArray = array(TRUE, FALSE, FALSE);
             $this->fail('The action array must match the number of players.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
 
         try {
             $game->waitingOnActionArray = array(1, 2);
             $this->fail('The action array must contain booleans.');
-        }
-        catch (InvalidArgumentException $expected) {
+        } catch (InvalidArgumentException $expected) {
         }
     }
 

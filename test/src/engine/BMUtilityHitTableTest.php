@@ -383,9 +383,8 @@ class BMUtilityHitTableTest extends PHPUnit_Framework_TestCase {
     {
         try {
             $this->object->hits = NULL;
-            throw new LogicException('Cannot set private properties.');
+            $this->fail('Cannot set private properties.');
         } catch (LogicException $e) {
-
         }
     }
 }

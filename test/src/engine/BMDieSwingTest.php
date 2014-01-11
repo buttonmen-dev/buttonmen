@@ -124,23 +124,20 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         // try some more bad values
         try {
             $die = BMDieSwing::create(6, array());
-            $this->assertFail('Creating with bad swing type did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+            $this->fail('Creating with bad swing type did not throw an exception.');
+        } catch (UnexpectedValueException $e) {
         }
 
         try {
             $die = BMDieSwing::create("RT", array());
-            $this->assertFail('Creating with bad swing type did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+            $this->fail('Creating with bad swing type did not throw an exception.');
+        } catch (UnexpectedValueException $e) {
         }
 
         try {
             $die = BMDieSwing::create("0.A", array());
-            $this->assertFail('Creating with bad swing type did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+            $this->fail('Creating with bad swing type did not throw an exception.');
+        } catch (UnexpectedValueException $e) {
         }
     }
 

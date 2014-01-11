@@ -796,21 +796,13 @@ class BMGame {
         $waitingOnActionArray = &$this->waitingOnActionArray;
         $waitingOnActionArray[$playerIdx] = FALSE;
 
-
-        switch ($args['action']) {
-            case 'chance':
-                $reactResponse = $this->react_to_initiative_chance($args);
-                break;
-            case 'decline':
-                $reactResponse = $this->react_to_initiative_decline($args);
-                break;
-            case 'focus':
-                $reactResponse = $this->react_to_initiative_focus($args);
-                break;
-            default:
-                $this->message = 'Invalid reaction to initiative.';
-                return FALSE;
+        if (!in_array($args['action'], array('chance', 'decline', 'focus'))) {
+            throw new InvalidArgumentException(
+                'Reaction must be chance, decline or focus.');
         }
+
+        $reactFuncName = 'react_to_initiative_'.$args['action'];
+        $reactResponse = $this->$reactFuncName($args);
 
         if (FALSE === $reactResponse) {
             return FALSE;
