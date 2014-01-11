@@ -140,6 +140,8 @@ abstract class BMAttack {
     // confirm that an attack is legal
     abstract public function validate_attack($game, array $attackers, array $defenders);
 
+    abstract protected function are_skills_compatible(array $attArray);
+
     // check if any of the attackers is disabled
     public function has_disabled_attackers(array $attackers) {
         foreach ($attackers as $attacker) {

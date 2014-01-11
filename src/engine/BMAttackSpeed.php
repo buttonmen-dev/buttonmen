@@ -12,8 +12,11 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
+        if (!$this->are_skills_compatible($attackers)) {
+            return FALSE;
+        }
+
         $attacker = $attackers[0];
-        $hasAttackerSkill = $attacker->has_skill($this->type);
 
         $defenderSum = 0;
         foreach ($defenders as $defender) {
@@ -31,8 +34,7 @@ class BMAttackSpeed extends BMAttack {
             }
         }
 
-        return ($hasAttackerSkill &&
-                $areValuesEqual &&
+        return ($areValuesEqual &&
                 $canAttDoThisAttack &&
                 $areDefValidTargets);
     }
@@ -43,5 +45,19 @@ class BMAttackSpeed extends BMAttack {
             $game->attackerAllDieArray,
             $game->defenderAllDieArray
         );
+    }
+
+    protected function are_skills_compatible(array $attArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attArray must have one element.');
+        }
+
+        $att = $attArray[0];
+
+        if ($att->has_skill('Speed')) {
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }

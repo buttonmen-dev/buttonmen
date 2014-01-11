@@ -10,7 +10,7 @@ class BMAttackShadow extends BMAttackPower {
             return FALSE;
         }
 
-        if (!BMAttackShadow::are_skills_compatible($attackers)) {
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -39,7 +39,7 @@ class BMAttackShadow extends BMAttackPower {
         return $isValidAttack;
     }
 
-    protected static function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
         }

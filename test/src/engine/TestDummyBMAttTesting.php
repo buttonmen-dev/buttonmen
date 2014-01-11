@@ -40,6 +40,10 @@ class TestDummyBMAttTesting extends BMAttack {
     public function find_attack($game) {
         return FALSE;
     }
+
+    protected function are_skills_compatible(array $attArray) {
+        return TRUE;
+    }
 }
 
 ?>
