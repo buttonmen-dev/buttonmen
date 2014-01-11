@@ -289,6 +289,12 @@ class BMGame {
         $this->waitingOnActionArray =
             array_fill(0, count($this->playerIdArray), FALSE);
 
+        $this->initialise_swing_value_array_array();
+        $this->set_swing_values();
+        $this->roll_active_dice();
+    }
+
+    protected function initialise_swing_value_array_array() {
         if (isset($this->swingRequestArrayArray)) {
             foreach ($this->swingRequestArrayArray as $playerIdx => $swingRequestArray) {
                 $keyArray = array_keys($swingRequestArray);
@@ -312,7 +318,11 @@ class BMGame {
                     }
                 }
             }
+        }
+    }
 
+    protected function set_swing_values() {
+        if (isset($this->swingRequestArrayArray)) {
             foreach ($this->waitingOnActionArray as $playerIdx => $waitingOnAction) {
                 if ($waitingOnAction) {
                     $this->activate_GUI('Waiting on player action.', $playerIdx);
@@ -336,8 +346,9 @@ class BMGame {
                 }
             }
         }
+    }
 
-        // roll dice
+    protected function roll_active_dice() {
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
                 if ($die instanceof BMDieSwing) {
