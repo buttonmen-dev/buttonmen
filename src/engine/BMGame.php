@@ -799,168 +799,27 @@ class BMGame {
 
         switch ($args['action']) {
             case 'chance':
-                if (!array_key_exists('rerolledDieIdx', $args)) {
-                    $this->message = 'rerolledDieIdx must exist.';
-                    return FALSE;
-                }
-
-                if (FALSE ===
-                    filter_var(
-                        $args['rerolledDieIdx'],
-                        FILTER_VALIDATE_INT,
-                        array("options"=>
-                              array("min_range"=>0,
-                                    "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1))
-                    )) {
-                    $this->message = 'Invalid die index.';
-                    return FALSE;
-                }
-
-                $die = $this->activeDieArrayArray[$playerIdx][$args['rerolledDieIdx']];
-                if (FALSE === array_search('BMSkillChance', $die->skillList)) {
-                    $this->message = 'Can only apply chance action to chance die.';
-                    return FALSE;
-                }
-
-                $die->roll();
-                foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
-                    if ($die->has_skill('Chance')) {
-                        $die->disabled = TRUE;
-                    }
-                }
-
-                $newInitiativeArray = BMGame::does_player_have_initiative_array(
-                    $this->activeDieArrayArray
-                );
-                $gainedInitiative = $newInitiativeArray[$playerIdx] &&
-                                    (1 == array_sum($newInitiativeArray));
-                $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+                $reactResponse = $this->react_to_initiative_chance($args);
                 break;
             case 'decline':
-                // if there is die information sent, check that it signals
-                // no change
-                if (!array_key_exists('dieIdxArray', $args) ||
-                    !array_key_exists('dieValueArray', $args)) {
-                    $this->message = 'dieIdxArray and dieValueArray must exist.';
-                    return FALSE;
-                }
-
-                $dieIdxArray = $args['dieIdxArray'];
-                $dieValueArray = $args['dieValueArray'];
-
-                // validate decline action
-                if (is_array($dieIdxArray) &&
-                    count($dieIdxArray) > 0) {
-                    foreach ($dieIdxArray as $listIdx => $dieIdx) {
-                        $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
-
-                        // check for ANY selected dice, not just a single die
-                        $possChanceAction = $die->has_skill('Chance') &&
-                                            !isset($dieValueArray) &&
-                                            (count($dieIdxArray) >= 1);
-                        // check for ANY change in die value, also invalid changes
-                        $possFocusAction = $die->has_skill('Focus') &&
-                                           is_array($dieValueArray) &&
-                                           (count($dieIdxArray) == count($dieValueArray)) &&
-                                           ($die->value != $dieValueArray[$listIdx]);
-                        if ($possChanceAction || $possFocusAction) {
-                            return FALSE;
-                        }
-                    }
-                }
-
-                $gainedInitiative = FALSE;
-                if (0 == array_sum($this->waitingOnActionArray)) {
-                    $this->gameState = BMGameState::START_ROUND;
-                }
+                $reactResponse = $this->react_to_initiative_decline($args);
                 break;
             case 'focus':
-                if (!array_key_exists('focusValueArray', $args)) {
-                    $this->message = 'focusValueArray must exist.';
-                    return FALSE;
-                }
-
-                // check new die values
-                $focusValueArray = $args['focusValueArray'];
-
-                if (!is_array($focusValueArray) || (0 == count($focusValueArray))) {
-                    $this->message = 'focusValueArray must be a non-empty array.';
-                    return FALSE;
-                }
-
-                // focusValueArray should have the form array($dieIdx1 => $dieValue1, ...)
-                foreach ($focusValueArray as $dieIdx => $newDieValue) {
-                    if (FALSE ===
-                        filter_var(
-                            $dieIdx,
-                            FILTER_VALIDATE_INT,
-                            array("options"=>
-                                  array("min_range"=>0,
-                                        "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1))
-                        )) {
-                        $this->message = 'Invalid die index.';
-                        return FALSE;
-                    }
-
-                    $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
-
-                    if (FALSE ===
-                        filter_var(
-                            $newDieValue,
-                            FILTER_VALIDATE_INT,
-                            array("options"=>
-                                  array("min_range"=>$die->min,
-                                        "max_range"=>$die->value))
-                        )) {
-                        $this->message = 'Invalid value for focus die.';
-                        return FALSE;
-                    }
-
-                    if (FALSE === array_search('BMSkillFocus', $die->skillList)) {
-                        $this->message = 'Can only apply focus action to focus die.';
-                        return FALSE;
-                    }
-                }
-
-                // change specified die values
-                $oldDieValueArray = array();
-                foreach ($focusValueArray as $dieIdx => $newDieValue) {
-                    $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
-                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
-                }
-                $newInitiativeArray = BMGame::does_player_have_initiative_array(
-                    $this->activeDieArrayArray
-                );
-
-                // if the change is successful, disable focus dice that changed
-                // value
-                if ($newInitiativeArray[$playerIdx] &&
-                    1 == array_sum($newInitiativeArray)) {
-                    foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
-                        if ($oldDieValue >
-                            $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
-                            $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
-                        }
-                    }
-                } else {
-                    // if the change does not gain initiative unambiguously, it is
-                    // invalid, so reset die values to original values
-                    foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
-                        $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
-                    }
-                    $this->message = 'Focus dice not set low enough.';
-                    return FALSE;
-                }
-                $this->gameState = BMGameState::DETERMINE_INITIATIVE;
-                $gainedInitiative = TRUE;
+                $reactResponse = $this->react_to_initiative_focus($args);
                 break;
             default:
                 $this->message = 'Invalid reaction to initiative.';
                 return FALSE;
         }
 
+        if (FALSE === $reactResponse) {
+            return FALSE;
+        }
+
         if (isset($gainedInitOverride)) {
             $gainedInitiative = $gainedInitOverride;
+        } else {
+            $gainedInitiative = $reactResponse['gainedInitiative'];
         }
 
         if ($gainedInitiative) {
@@ -980,6 +839,174 @@ class BMGame {
         $this->do_next_step();
 
         return array('gained_initiative' => $gainedInitiative);
+    }
+
+    protected function react_to_initiative_chance($args) {
+        if (!array_key_exists('rerolledDieIdx', $args)) {
+            $this->message = 'rerolledDieIdx must exist.';
+            return FALSE;
+        }
+
+        $playerIdx = $args['playerIdx'];
+
+        if (FALSE ===
+            filter_var(
+                $args['rerolledDieIdx'],
+                FILTER_VALIDATE_INT,
+                array("options"=>
+                      array("min_range"=>0,
+                            "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1))
+            )) {
+            $this->message = 'Invalid die index.';
+            return FALSE;
+        }
+
+        $die = $this->activeDieArrayArray[$playerIdx][$args['rerolledDieIdx']];
+        if (FALSE === array_search('BMSkillChance', $die->skillList)) {
+            $this->message = 'Can only apply chance action to chance die.';
+            return FALSE;
+        }
+
+        $die->roll();
+        foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
+            if ($die->has_skill('Chance')) {
+                $die->disabled = TRUE;
+            }
+        }
+
+        $newInitiativeArray = BMGame::does_player_have_initiative_array(
+            $this->activeDieArrayArray
+        );
+
+        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        $gainedInitiative = $newInitiativeArray[$playerIdx] &&
+                            (1 == array_sum($newInitiativeArray));
+
+        return array('gainedInitiative' => $gainedInitiative);
+    }
+
+    protected function react_to_initiative_decline($args) {
+        // if there is die information sent, check that it signals
+        // no change
+        if (!array_key_exists('dieIdxArray', $args) ||
+            !array_key_exists('dieValueArray', $args)) {
+            $this->message = 'dieIdxArray and dieValueArray must exist.';
+            return FALSE;
+        }
+
+        $playerIdx = $args['playerIdx'];
+        $dieIdxArray = $args['dieIdxArray'];
+        $dieValueArray = $args['dieValueArray'];
+
+        // validate decline action
+        if (is_array($dieIdxArray) &&
+            count($dieIdxArray) > 0) {
+            foreach ($dieIdxArray as $listIdx => $dieIdx) {
+                $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
+
+                // check for ANY selected dice, not just a single die
+                $possChanceAction = $die->has_skill('Chance') &&
+                                    !isset($dieValueArray) &&
+                                    (count($dieIdxArray) >= 1);
+                // check for ANY change in die value, also invalid changes
+                $possFocusAction = $die->has_skill('Focus') &&
+                                   is_array($dieValueArray) &&
+                                   (count($dieIdxArray) == count($dieValueArray)) &&
+                                   ($die->value != $dieValueArray[$listIdx]);
+                if ($possChanceAction || $possFocusAction) {
+                    return FALSE;
+                }
+            }
+        }
+
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            $this->gameState = BMGameState::START_ROUND;
+        }
+
+        return array('gainedInitiative' => FALSE);
+    }
+
+    protected function react_to_initiative_focus($args) {
+        if (!array_key_exists('focusValueArray', $args)) {
+            $this->message = 'focusValueArray must exist.';
+            return FALSE;
+        }
+
+        // check new die values
+        $focusValueArray = $args['focusValueArray'];
+
+        if (!is_array($focusValueArray) || (0 == count($focusValueArray))) {
+            $this->message = 'focusValueArray must be a non-empty array.';
+            return FALSE;
+        }
+
+        $playerIdx = $args['playerIdx'];
+
+        // focusValueArray should have the form array($dieIdx1 => $dieValue1, ...)
+        foreach ($focusValueArray as $dieIdx => $newDieValue) {
+            if (FALSE ===
+                filter_var(
+                    $dieIdx,
+                    FILTER_VALIDATE_INT,
+                    array("options"=>
+                          array("min_range"=>0,
+                                "max_range"=>count($this->activeDieArrayArray[$playerIdx]) - 1))
+                )) {
+                $this->message = 'Invalid die index.';
+                return FALSE;
+            }
+
+            $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
+
+            if (FALSE ===
+                filter_var(
+                    $newDieValue,
+                    FILTER_VALIDATE_INT,
+                    array("options"=>
+                          array("min_range"=>$die->min,
+                                "max_range"=>$die->value))
+                )) {
+                $this->message = 'Invalid value for focus die.';
+                return FALSE;
+            }
+
+            if (FALSE === array_search('BMSkillFocus', $die->skillList)) {
+                $this->message = 'Can only apply focus action to focus die.';
+                return FALSE;
+            }
+        }
+
+        // change specified die values
+        $oldDieValueArray = array();
+        foreach ($focusValueArray as $dieIdx => $newDieValue) {
+            $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
+            $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
+        }
+        $newInitiativeArray = BMGame::does_player_have_initiative_array(
+            $this->activeDieArrayArray
+        );
+
+        // if the change is successful, disable focus dice that changed
+        // value
+        if ($newInitiativeArray[$playerIdx] &&
+            1 == array_sum($newInitiativeArray)) {
+            foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                if ($oldDieValue >
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
+                }
+            }
+        } else {
+            // if the change does not gain initiative unambiguously, it is
+            // invalid, so reset die values to original values
+            foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
+            }
+            $this->message = 'Focus dice not set low enough.';
+            return FALSE;
+        }
+        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        return array('gainedInitiative' => TRUE);
     }
 
     protected function run_die_hooks($gameState, array $args = array()) {

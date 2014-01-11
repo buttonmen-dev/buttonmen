@@ -275,9 +275,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(in_array(1, $playerWithInitiativeStore));
     }
 
-        /**
+    /**
      * @covers BMGame::do_next_step_react_to_initiative
-     * @covers BMGame::react_to_initiative
+     * @covers BMGame::react_to_initiative_decline
      */
     public function test_do_next_step_react_to_initiative_decline_chance() {
         // load buttons
@@ -339,7 +339,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::do_next_step_react_to_initiative
-     * @covers BMGame::react_to_initiative
+     * @covers BMGame::react_to_initiative_chance
      */
     public function test_do_next_step_react_to_initiative_perform_chance() {
         // load buttons
@@ -447,7 +447,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::do_next_step_react_to_initiative
-     * @covers BMGame::react_to_initiative
+     * @covers BMGame::react_to_initiative_chance
      */
     public function test_do_next_step_react_to_initiative_multiple_chance() {
         // load buttons
@@ -582,7 +582,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::do_next_step_react_to_initiative
-     * @covers BMGame::react_to_initiative
+     * @covers BMGame::react_to_initiative_decline
      */
     public function test_do_next_step_react_to_initiative_decline_focus() {
         // load buttons
@@ -644,7 +644,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::do_next_step_react_to_initiative
-     * @covers BMGame::react_to_initiative
+     * @covers BMGame::react_to_initiative_focus
      */
     public function test_do_next_step_react_to_initiative_perform_focus() {
         // load buttons
