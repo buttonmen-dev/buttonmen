@@ -23,9 +23,6 @@ class BMInterface {
 
 
     // constructor
-    /*
-     * @SuppressWarnings(PMD.UnusedLocalVariable)
-     */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
@@ -35,14 +32,14 @@ class BMInterface {
 
         if ($isTest) {
             if (file_exists('../test/src/database/mysql.test.inc.php')) {
-                require '../test/src/database/mysql.test.inc.php';
+                require_once '../test/src/database/mysql.test.inc.php';
             } else {
-                require 'test/src/database/mysql.test.inc.php';
+                require_once 'test/src/database/mysql.test.inc.php';
             }
         } else {
             require '../database/mysql.inc.php';
         }
-        self::$conn = $conn;
+        self::$conn = conn();
     }
 
     // methods

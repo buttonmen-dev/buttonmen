@@ -22,9 +22,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // environments that we have, and their different assumptions about
         // which directory is the unit test run directory.
         if (file_exists('../test/src/database/mysql.test.inc.php')) {
-            require '../test/src/database/mysql.test.inc.php';
+            require_once '../test/src/database/mysql.test.inc.php';
         } else {
-            require 'test/src/database/mysql.test.inc.php';
+            require_once 'test/src/database/mysql.test.inc.php';
         }
 
         if (file_exists('../src/api/responder.php')) {

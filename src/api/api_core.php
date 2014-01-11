@@ -1,6 +1,7 @@
 <?php
 function login($username, $password) {
     require '../database/mysql.inc.php';
+    $conn = conn();
 
     $sql = 'SELECT id, name_ingame, password_hashed FROM player
             WHERE name_ingame = :username';
@@ -41,9 +42,6 @@ function login($username, $password) {
     return $returnValue;
 }
 
-/*
- * @SuppressWarnings(PMD.UnusedLocalVariable)
- */
 function logout() {
     require '../database/mysql.inc.php';
 
