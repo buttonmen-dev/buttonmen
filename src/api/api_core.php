@@ -44,6 +44,7 @@ function login($username, $password) {
 
 function logout() {
     require_once '../database/mysql.inc.php';
+    $conn = conn();
 
     $sql = 'DELETE FROM player_auth
             WHERE id = :id';
