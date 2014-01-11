@@ -258,13 +258,13 @@ class BMGame {
                   BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
 
                 if (array_sum($hasInitiativeArray) > 1) {
-                    $playersWithInitiative = array();
+                    $playersWithInit = array();
                     foreach ($hasInitiativeArray as $playerIdx => $tempHasInitiative) {
                         if ($tempHasInitiative) {
-                            $playersWithInitiative[] = $playerIdx;
+                            $playersWithInit[] = $playerIdx;
                         }
                     }
-                    $tempInitiativeIdx = array_rand($playersWithInitiative);
+                    $tempInitiativeIdx = array_rand($playersWithInit);
                 } else {
                     $tempInitiativeIdx =
                         array_search(TRUE, $hasInitiativeArray, TRUE);
