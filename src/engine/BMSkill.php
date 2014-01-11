@@ -94,7 +94,7 @@ class BMSkill {
                      'Surrender');
     }
 
-    public static function incompatible_attack_types($args = NULL) {
+    public static function incompatible_attack_types() {
         return array();
     }
 }

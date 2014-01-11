@@ -94,6 +94,8 @@ class BMUtilityHitTable {
     }
 
     public function __set($property, $value) {
-        throw new LogicException('Private properties cannot be set.');
+        throw new LogicException(
+            "BMUtilityHitTable->$property cannot be set (attempting to set value $value)."
+        );
     }
 }
