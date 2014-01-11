@@ -165,6 +165,31 @@ class BMGame {
     protected function do_next_step_start_game() {
     }
 
+    protected function update_game_state_start_game() {
+        $this->reset_play_state();
+
+        // if buttons are unspecified, allow players to choose buttons
+        for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+             $playerIdx <= $nPlayers - 1;
+             $playerIdx++) {
+            if (!isset($this->buttonArray[$playerIdx])) {
+                $this->waitingOnActionArray[$playerIdx] = TRUE;
+                $this->activate_GUI('Prompt for button ID', $playerIdx);
+            }
+        }
+
+        // require both players and buttons to be specified
+        $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
+
+        if (!in_array(0, $this->playerIdArray) &&
+            $allButtonsSet) {
+            $this->gameState = BMGameState::APPLY_HANDICAPS;
+            $this->nRecentPasses = 0;
+            $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+            $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
+        }
+    }
+
     protected function do_next_step_apply_handicaps() {
         // ignore for the moment
         $this->gameScoreArrayArray =
@@ -173,6 +198,27 @@ class BMGame {
                 count($this->playerIdArray),
                 array('W' => 0, 'L' => 0, 'D' => 0)
             );
+    }
+
+    protected function update_game_state_apply_handicaps() {
+        if (!isset($this->maxWins)) {
+            throw new LogicException(
+                'maxWins must be set before applying handicaps.'
+            );
+        };
+        if (isset($this->gameScoreArrayArray)) {
+            $nWins = 0;
+            foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
+                if ($nWins < $tempGameScoreArray['W']) {
+                    $nWins = $tempGameScoreArray['W'];
+                }
+            }
+            if ($nWins >= $this->maxWins) {
+                $this->gameState = BMGameState::END_GAME;
+            } else {
+                $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+            }
+        }
     }
 
     protected function do_next_step_choose_auxiliary_dice() {
@@ -202,6 +248,19 @@ class BMGame {
         }
     }
 
+    protected function update_game_state_choose_auxiliary_dice() {
+        $hasAuxiliaryDice = FALSE;
+        foreach ($this->buttonArray as $tempButton) {
+            if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
+                $hasAuxiliaryDice = TRUE;
+                break;
+            }
+        }
+        if (!$hasAuxiliaryDice) {
+            $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        }
+    }
+
     protected function do_next_step_load_dice_into_buttons() {
         //james: this will be replaced with a call to the database
         // load clean version of the buttons from their recipes
@@ -211,6 +270,25 @@ class BMGame {
 //                        $tempButton->reload();
 //                    }
 //                }
+    }
+
+    protected function update_game_state_load_dice_into_buttons() {
+        if (!isset($this->buttonArray)) {
+            throw new LogicException(
+                'Button array must be set before loading dice into buttons.'
+            );
+        }
+
+        $buttonsHaveDice = TRUE;
+        foreach ($this->buttonArray as $tempButton) {
+            if (!isset($tempButton->dieArray)) {
+                $buttonsHaveDice = FALSE;
+                break;
+            }
+        }
+        if ($buttonsHaveDice) {
+            $this->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
+        }
     }
 
     protected function do_next_step_add_available_dice_to_game() {
@@ -239,6 +317,12 @@ class BMGame {
                     }
                 }
             }
+        }
+    }
+
+    protected function update_game_state_add_available_dice_to_game() {
+        if (isset($this->activeDieArrayArray)) {
+            $this->gameState = BMGameState::SPECIFY_DICE;
         }
     }
 
@@ -309,6 +393,21 @@ class BMGame {
         }
     }
 
+    protected function update_game_state_specify_dice() {
+        $areAllDiceSpecified = TRUE;
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $tempDie) {
+                if (!$this->is_die_specified($tempDie)) {
+                    $areAllDiceSpecified = FALSE;
+                    break 2;
+                }
+            }
+        }
+        if ($areAllDiceSpecified) {
+            $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        }
+    }
+
     protected function do_next_step_determine_initiative() {
         $hasInitiativeArray =
             BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
@@ -327,6 +426,12 @@ class BMGame {
         }
 
         $this->playerWithInitiativeIdx = $tempInitiativeIdx;
+    }
+
+    protected function update_game_state_determine_initiative() {
+        if (isset($this->playerWithInitiativeIdx)) {
+            $this->gameState = BMGameState::REACT_TO_INITIATIVE;
+        }
     }
 
     protected function do_next_step_react_to_initiative() {
@@ -364,6 +469,24 @@ class BMGame {
         $this->waitingOnActionArray = $canReactArray;
     }
 
+    protected function update_game_state_react_to_initiative() {
+        // if everyone is out of actions, reactivate chance dice
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            $this->gameState = BMGameState::START_ROUND;
+            if (isset($this->activeDieArrayArray)) {
+                foreach ($this->activeDieArrayArray as &$activeDieArray) {
+                    if (isset($activeDieArray)) {
+                        foreach ($activeDieArray as &$activeDie) {
+                            if ($activeDie->has_skill('Chance')) {
+                                unset($activeDie->disabled);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected function do_next_step_start_round() {
         if (!isset($this->playerWithInitiativeIdx)) {
             throw new LogicException(
@@ -373,6 +496,27 @@ class BMGame {
         // set BMGame activePlayerIdx
         $this->activePlayerIdx = $this->playerWithInitiativeIdx;
         $this->turnNumberInRound = 1;
+    }
+
+    protected function update_game_state_start_round() {
+        if (isset($this->activePlayerIdx)) {
+            $this->gameState = BMGameState::START_TURN;
+
+            // re-enable focus dice for everyone apart from the active player
+            foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+                if ($this->activePlayerIdx == $playerIdx) {
+                    continue;
+                }
+                if (count($activeDieArray) > 0) {
+                    foreach ($activeDieArray as &$activeDie) {
+                        if ($activeDie->has_skill('Focus') &&
+                            isset($activeDie->disabled)) {
+                            unset($activeDie->disabled);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     protected function do_next_step_start_turn() {
@@ -475,7 +619,37 @@ class BMGame {
         }
     }
 
+    protected function update_game_state_start_turn() {
+        if ((isset($this->attack)) &&
+            FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
+            $this->gameState = BMGameState::END_TURN;
+            if (isset($this->activeDieArrayArray) &&
+                isset($this->attack['attackerPlayerIdx'])) {
+                foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
+                    if ($activeDie->disabled) {
+                        if ($activeDie->has_skill('Focus')) {
+                            unset($activeDie->disabled);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     protected function do_next_step_end_turn() {
+    }
+
+    protected function update_game_state_end_turn() {
+        $nDice = array_map("count", $this->activeDieArrayArray);
+        // check if any player has no dice, or if everyone has passed
+        if ((0 === min($nDice)) ||
+            ($this->nPlayers == $this->nRecentPasses)) {
+            $this->gameState = BMGameState::END_ROUND;
+        } else {
+            $this->gameState = BMGameState::START_TURN;
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+        }
+        $this->attack = NULL;
     }
 
     protected function do_next_step_end_round() {
@@ -516,6 +690,20 @@ class BMGame {
         $this->reset_play_state();
     }
 
+    protected function update_game_state_end_round() {
+        if (isset($this->activePlayerIdx)) {
+            return;
+        }
+        // james: still need to deal with reserve dice
+        $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+        foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
+            if ($tempGameScoreArray['W'] >= $this->maxWins) {
+                $this->gameState = BMGameState::END_GAME;
+                return;
+            }
+        }
+    }
+
     protected function do_next_step_end_game() {
         $this->reset_play_state();
         // swingValueArrayArray must be reset to clear entries in the
@@ -525,6 +713,9 @@ class BMGame {
         $this->activate_GUI('Show end-of-game screen.');
     }
 
+    protected function update_game_state_end_game() {
+    }
+
     public function update_game_state() {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
@@ -532,195 +723,55 @@ class BMGame {
 
         switch ($this->gameState) {
             case BMGameState::START_GAME:
-                $this->reset_play_state();
-
-                // if buttons are unspecified, allow players to choose buttons
-                for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
-                     $playerIdx <= $nPlayers - 1;
-                     $playerIdx++) {
-                    if (!isset($this->buttonArray[$playerIdx])) {
-                        $this->waitingOnActionArray[$playerIdx] = TRUE;
-                        $this->activate_GUI('Prompt for button ID', $playerIdx);
-                    }
-                }
-
-                // require both players and buttons to be specified
-                $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
-
-                if (!in_array(0, $this->playerIdArray) &&
-                    $allButtonsSet) {
-                    $this->gameState = BMGameState::APPLY_HANDICAPS;
-                    $this->nRecentPasses = 0;
-                    $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
-                    $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
-                }
-
+                $this->update_game_state_start_game();
                 break;
 
             case BMGameState::APPLY_HANDICAPS:
-                if (!isset($this->maxWins)) {
-                    throw new LogicException(
-                        'maxWins must be set before applying handicaps.'
-                    );
-                };
-                if (isset($this->gameScoreArrayArray)) {
-                    $nWins = 0;
-                    foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
-                        if ($nWins < $tempGameScoreArray['W']) {
-                            $nWins = $tempGameScoreArray['W'];
-                        }
-                    }
-                    if ($nWins >= $this->maxWins) {
-                        $this->gameState = BMGameState::END_GAME;
-                    } else {
-                        $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-                    }
-                }
+                $this->update_game_state_apply_handicaps();
                 break;
 
             case BMGameState::CHOOSE_AUXILIARY_DICE:
-                $hasAuxiliaryDice = FALSE;
-                foreach ($this->buttonArray as $tempButton) {
-                    if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-                        $hasAuxiliaryDice = TRUE;
-                        break;
-                    }
-                }
-                if (!$hasAuxiliaryDice) {
-                    $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
-                }
+                $this->update_game_state_choose_auxiliary_dice();
                 break;
 
             case BMGameState::LOAD_DICE_INTO_BUTTONS:
-                if (!isset($this->buttonArray)) {
-                    throw new LogicException(
-                        'Button array must be set before loading dice into buttons.'
-                    );
-                }
-
-                $buttonsHaveDice = TRUE;
-                foreach ($this->buttonArray as $tempButton) {
-                    if (!isset($tempButton->dieArray)) {
-                        $buttonsHaveDice = FALSE;
-                        break;
-                    }
-                }
-                if ($buttonsHaveDice) {
-                    $this->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
-                }
+                $this->update_game_state_load_dice_into_buttons();
                 break;
 
             case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
-                if (isset($this->activeDieArrayArray)) {
-                    $this->gameState = BMGameState::SPECIFY_DICE;
-                }
+                $this->update_game_state_add_available_dice_to_game();
                 break;
 
             case BMGameState::SPECIFY_DICE:
-                $areAllDiceSpecified = TRUE;
-                foreach ($this->activeDieArrayArray as $activeDieArray) {
-                    foreach ($activeDieArray as $tempDie) {
-                        if (!$this->is_die_specified($tempDie)) {
-                            $areAllDiceSpecified = FALSE;
-                            break 2;
-                        }
-                    }
-                }
-                if ($areAllDiceSpecified) {
-                    $this->gameState = BMGameState::DETERMINE_INITIATIVE;
-                }
+                $this->update_game_state_specify_dice();
                 break;
 
             case BMGameState::DETERMINE_INITIATIVE:
-                if (isset($this->playerWithInitiativeIdx)) {
-                    $this->gameState = BMGameState::REACT_TO_INITIATIVE;
-                }
+                $this->update_game_state_determine_initiative();
                 break;
 
             case BMGameState::REACT_TO_INITIATIVE:
-                // if everyone is out of actions, reactivate chance dice
-                if (0 == array_sum($this->waitingOnActionArray)) {
-                    $this->gameState = BMGameState::START_ROUND;
-                    if (isset($this->activeDieArrayArray)) {
-                        foreach ($this->activeDieArrayArray as &$activeDieArray) {
-                            if (isset($activeDieArray)) {
-                                foreach ($activeDieArray as &$activeDie) {
-                                    if ($activeDie->has_skill('Chance')) {
-                                        unset($activeDie->disabled);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                $this->update_game_state_react_to_initiative();
                 break;
 
             case BMGameState::START_ROUND:
-                if (isset($this->activePlayerIdx)) {
-                    $this->gameState = BMGameState::START_TURN;
-
-                    // re-enable focus dice for everyone apart from the active player
-                    foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
-                        if ($this->activePlayerIdx == $playerIdx) {
-                            continue;
-                        }
-                        if (count($activeDieArray) > 0) {
-                            foreach ($activeDieArray as &$activeDie) {
-                                if ($activeDie->has_skill('Focus') &&
-                                    isset($activeDie->disabled)) {
-                                    unset($activeDie->disabled);
-                                }
-                            }
-                        }
-                    }
-                }
+                $this->update_game_state_start_round();
                 break;
 
             case BMGameState::START_TURN:
-                if ((isset($this->attack)) &&
-                    FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
-                    $this->gameState = BMGameState::END_TURN;
-                    if (isset($this->activeDieArrayArray) &&
-                        isset($this->attack['attackerPlayerIdx'])) {
-                        foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
-                            if ($activeDie->disabled) {
-                                if ($activeDie->has_skill('Focus')) {
-                                    unset($activeDie->disabled);
-                                }
-                            }
-                        }
-                    }
-                }
+                $this->update_game_state_start_turn();
                 break;
 
             case BMGameState::END_TURN:
-                $nDice = array_map("count", $this->activeDieArrayArray);
-                // check if any player has no dice, or if everyone has passed
-                if ((0 === min($nDice)) ||
-                    ($this->nPlayers == $this->nRecentPasses)) {
-                    $this->gameState = BMGameState::END_ROUND;
-                } else {
-                    $this->gameState = BMGameState::START_TURN;
-                    $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-                }
-                $this->attack = NULL;
+                $this->update_game_state_end_turn();
                 break;
 
             case BMGameState::END_ROUND:
-                if (isset($this->activePlayerIdx)) {
-                    break;
-                }
-                // james: still need to deal with reserve dice
-                $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
-                foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
-                    if ($tempGameScoreArray['W'] >= $this->maxWins) {
-                        $this->gameState = BMGameState::END_GAME;
-                        break;
-                    }
-                }
+                $this->update_game_state_end_round();
                 break;
 
             case BMGameState::END_GAME:
+                $this->update_game_state_end_game();
                 break;
         }
     }
