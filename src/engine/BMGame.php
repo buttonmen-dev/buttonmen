@@ -106,60 +106,9 @@ class BMGame {
 
         $this->run_die_hooks($this->gameState);
 
-        switch ($this->gameState) {
-            case BMGameState::START_GAME:
-                // do_next_step is normally never run for BMGameState::START_GAME
-                $this->do_next_step_start_game();
-                break;
-
-            case BMGameState::APPLY_HANDICAPS:
-                $this->do_next_step_apply_handicaps();
-                break;
-
-            case BMGameState::CHOOSE_AUXILIARY_DICE:
-                $this->do_next_step_choose_auxiliary_dice();
-                break;
-
-            case BMGameState::LOAD_DICE_INTO_BUTTONS:
-                $this->do_next_step_load_dice_into_buttons();
-                break;
-
-            case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
-                $this->do_next_step_add_available_dice_to_game();
-                break;
-
-            case BMGameState::SPECIFY_DICE:
-                $this->do_next_step_specify_dice();
-                break;
-
-            case BMGameState::DETERMINE_INITIATIVE:
-                $this->do_next_step_determine_initiative();
-                break;
-
-            case BMGameState::REACT_TO_INITIATIVE:
-                $this->do_next_step_react_to_initiative();
-                break;
-
-            case BMGameState::START_ROUND:
-                $this->do_next_step_start_round();
-                break;
-
-            case BMGameState::START_TURN:
-                $this->do_next_step_start_turn();
-                break;
-
-            case BMGameState::END_TURN:
-                $this->do_next_step_end_turn();
-                break;
-
-            case BMGameState::END_ROUND:
-                $this->do_next_step_end_round();
-                break;
-
-            case BMGameState::END_GAME:
-                $this->do_next_step_end_game();
-                break;
-        }
+        $funcName = 'do_next_step_'.
+                    strtolower(BMGameState::as_string($this->gameState));
+        $this->$funcName();
     }
 
     public function update_game_state() {
@@ -167,59 +116,9 @@ class BMGame {
             throw new LogicException('Game state must be set.');
         }
 
-        switch ($this->gameState) {
-            case BMGameState::START_GAME:
-                $this->update_game_state_start_game();
-                break;
-
-            case BMGameState::APPLY_HANDICAPS:
-                $this->update_game_state_apply_handicaps();
-                break;
-
-            case BMGameState::CHOOSE_AUXILIARY_DICE:
-                $this->update_game_state_choose_auxiliary_dice();
-                break;
-
-            case BMGameState::LOAD_DICE_INTO_BUTTONS:
-                $this->update_game_state_load_dice_into_buttons();
-                break;
-
-            case BMGameState::ADD_AVAILABLE_DICE_TO_GAME:
-                $this->update_game_state_add_available_dice_to_game();
-                break;
-
-            case BMGameState::SPECIFY_DICE:
-                $this->update_game_state_specify_dice();
-                break;
-
-            case BMGameState::DETERMINE_INITIATIVE:
-                $this->update_game_state_determine_initiative();
-                break;
-
-            case BMGameState::REACT_TO_INITIATIVE:
-                $this->update_game_state_react_to_initiative();
-                break;
-
-            case BMGameState::START_ROUND:
-                $this->update_game_state_start_round();
-                break;
-
-            case BMGameState::START_TURN:
-                $this->update_game_state_start_turn();
-                break;
-
-            case BMGameState::END_TURN:
-                $this->update_game_state_end_turn();
-                break;
-
-            case BMGameState::END_ROUND:
-                $this->update_game_state_end_round();
-                break;
-
-            case BMGameState::END_GAME:
-                $this->update_game_state_end_game();
-                break;
-        }
+        $funcName = 'update_game_state_'.
+                    strtolower(BMGameState::as_string($this->gameState));
+        $this->$funcName();
     }
 
     protected function do_next_step_start_game() {

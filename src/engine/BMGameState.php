@@ -43,6 +43,28 @@ class BMGameState {
                      'END_GAME');
     }
 
+    public static function all_game_state_values() {
+        $gameStateValueArray = array();
+        foreach (BMGameState::all_game_state_strings() as $gameStateStr) {
+            $gameStateValueArray[] = constant('BMGameState::'.$gameStateStr);
+        }
+        return $gameStateValueArray;
+    }
+
+    public static function as_string($gameState) {
+        $gameStateStrings = BMGameState::all_game_state_strings();
+        $gameStateValues = BMGameState::all_game_state_values();
+
+        $gameStateIdx = array_search($gameState, $gameStateValues);
+
+        $gameStateString = '';
+        if (FALSE !== $gameStateIdx) {
+            $gameStateString = $gameStateStrings[$gameStateIdx];
+        }
+
+        return $gameStateString;
+    }
+
     public static function validate_game_state($value) {
         if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
             throw new InvalidArgumentException(
@@ -50,12 +72,7 @@ class BMGameState {
             );
         }
 
-        $gameStateValueArray = array();
-        foreach (BMGameState::all_game_state_strings() as $gameStateStr) {
-            $gameStateValueArray[] = constant('BMGameState::'.$gameStateStr);
-        }
-
-        if (!in_array($value, $gameStateValueArray)) {
+        if (!in_array($value, BMGameState::all_game_state_values())) {
             throw new InvalidArgumentException(
                 'Invalid game state.'
             );
