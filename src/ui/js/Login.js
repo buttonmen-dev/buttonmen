@@ -95,13 +95,13 @@ Login.stateLoggedOut = function() {
   if (Login.status_type == Login.STATUS_ACTION_FAILED) {
     Login.message.append(
       $('<font>', {
-        'color': Env.messageTypeColors['error'],
+        'color': Env.messageTypeColors.error,
         'text': 'Login failed - username or password invalid',
       }));
   } else if (Login.status_type == Login.STATUS_ACTION_SUCCEEDED) {
     Login.message.append(
       $('<font>', {
-        'color': Env.messageTypeColors['success'],
+        'color': Env.messageTypeColors.success,
         'text': 'Logout succeeded - login again?',
       }));
   } else {

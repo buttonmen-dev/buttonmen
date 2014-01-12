@@ -138,9 +138,9 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gameRow.append($('<td>', {'text': gameInfo.opponentName, }));
     gameRow.append($('<td>', {'text': gameInfo.playerButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.opponentButtonName, }));
-    gameRow.append($('<td>', {'text': gameInfo.gameScoreDict['W'] + '/' +
-                                      gameInfo.gameScoreDict['L'] + '/' +
-                                      gameInfo.gameScoreDict['D'] +
+    gameRow.append($('<td>', {'text': gameInfo.gameScoreDict.W + '/' +
+                                      gameInfo.gameScoreDict.L + '/' +
+                                      gameInfo.gameScoreDict.D +
                                       ' (' + gameInfo.maxWins + ')', }));
     i += 1;
     table.append(gameRow);

@@ -328,7 +328,7 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
       'text': value,
     };
     if (selectedval == key) {
-      selectopts['selected'] = "selected";
+      selectopts.selected = "selected";
     }
     if ((greydict !== null) && (greydict[key])) {
       selectopts['class'] = "greyed";

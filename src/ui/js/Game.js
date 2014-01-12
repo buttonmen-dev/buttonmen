@@ -142,8 +142,8 @@ Game.showStatePage = function() {
     } else if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
     } else {
-      Game.page
-        = $('<p>', {'text': 'Can\'t figure out what action to take next', });
+      Game.page =
+        $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
       Game.layoutPage();
     }
@@ -182,24 +182,24 @@ Game.layoutPage = function() {
 Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
 
   // Do some sanity-checking of the gameData object we have
-  if (Game.api.gameData['status'] != 'ok') {
+  if (Game.api.gameData.status != 'ok') {
     return false;
   };
-  if (Game.game != Game.api.gameData['data']['gameId']) {
+  if (Game.game != Game.api.gameData.data.gameId) {
     return false;
   };
   if (!($.isNumeric(currentPlayerIdx))) {
     return false;
   }
  
-  Game.api.gameId =  Game.api.gameData['data']['gameId'];
-  Game.api.roundNumber = Game.api.gameData['data']['roundNumber'];
-  Game.api.maxWins = Game.api.gameData['data']['maxWins'];
-  Game.api.gameState = Game.api.gameData['data']['gameState'];
+  Game.api.gameId =  Game.api.gameData.data.gameId;
+  Game.api.roundNumber = Game.api.gameData.data.roundNumber;
+  Game.api.maxWins = Game.api.gameData.data.maxWins;
+  Game.api.gameState = Game.api.gameData.data.gameState;
   Game.api.playerIdx = currentPlayerIdx;
   Game.api.opponentIdx = 1 - currentPlayerIdx;
   Game.api.validAttackTypeArray = 
-    Game.api.gameData['data']['validAttackTypeArray'];
+    Game.api.gameData.data.validAttackTypeArray;
 
   // Set defaults for both players
   Game.api.player = Game.parsePlayerData(
@@ -208,8 +208,8 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
                         Game.api.opponentIdx, playerNameArray);
 
   // Parse game WLT text into a string for convenience
-  Game.api.player['gameScoreStr'] = Game.playerWLTText('player');
-  Game.api.opponent['gameScoreStr'] = Game.playerWLTText('opponent');
+  Game.api.player.gameScoreStr = Game.playerWLTText('player');
+  Game.api.opponent.gameScoreStr = Game.playerWLTText('opponent');
 
   return true;
 }
@@ -219,53 +219,53 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
 // player or the opponent.
 Game.parsePlayerData = function(playerIdx, playerNameArray) {
   var data = {
-    'playerId': Game.api.gameData['data']['playerIdArray'][playerIdx],
+    'playerId': Game.api.gameData.data.playerIdArray[playerIdx],
     'playerName': playerNameArray[playerIdx],
-    'buttonName': Game.api.gameData['data']['buttonNameArray'][playerIdx],
+    'buttonName': Game.api.gameData.data.buttonNameArray[playerIdx],
     'waitingOnAction':
-      Game.api.gameData['data']['waitingOnActionArray'][playerIdx],
-    'roundScore': Game.api.gameData['data']['roundScoreArray'][playerIdx],
+      Game.api.gameData.data.waitingOnActionArray[playerIdx],
+    'roundScore': Game.api.gameData.data.roundScoreArray[playerIdx],
     'gameScoreDict':
-      Game.api.gameData['data']['gameScoreArrayArray'][playerIdx],
-    'nDie': Game.api.gameData['data']['nDieArray'][playerIdx],
-    'valueArray': Game.api.gameData['data']['valueArrayArray'][playerIdx],
-    'sidesArray': Game.api.gameData['data']['sidesArrayArray'][playerIdx],
+      Game.api.gameData.data.gameScoreArrayArray[playerIdx],
+    'nDie': Game.api.gameData.data.nDieArray[playerIdx],
+    'valueArray': Game.api.gameData.data.valueArrayArray[playerIdx],
+    'sidesArray': Game.api.gameData.data.sidesArrayArray[playerIdx],
     'dieRecipeArray':
-      Game.api.gameData['data']['dieRecipeArrayArray'][playerIdx],
+      Game.api.gameData.data.dieRecipeArrayArray[playerIdx],
 
      // N.B. These arrays describe the other player's dice which this
      // player has captured
-    'nCapturedDie': Game.api.gameData['data']['nCapturedDieArray'][playerIdx],
+    'nCapturedDie': Game.api.gameData.data.nCapturedDieArray[playerIdx],
     'capturedValueArray':
-      Game.api.gameData['data']['capturedValueArrayArray'][playerIdx],
+      Game.api.gameData.data.capturedValueArrayArray[playerIdx],
     'capturedSidesArray':
-      Game.api.gameData['data']['capturedSidesArrayArray'][playerIdx],
+      Game.api.gameData.data.capturedSidesArrayArray[playerIdx],
     'capturedRecipeArray':
-      Game.api.gameData['data']['capturedRecipeArrayArray'][playerIdx],
+      Game.api.gameData.data.capturedRecipeArrayArray[playerIdx],
 
     'swingRequestArray': {},
   }
 
-  $.each(Game.api.gameData['data']['swingRequestArrayArray'][playerIdx],
+  $.each(Game.api.gameData.data.swingRequestArrayArray[playerIdx],
          function(letter, range) {
-           data['swingRequestArray'][letter] = {
+           data.swingRequestArray[letter] = {
              'min': parseInt(range[0]),
              'max': parseInt(range[1])
            }
          })
 
   // activePlayerIdx may be either player or may be null
-  if (Game.api.gameData['data']['activePlayerIdx'] == playerIdx) {
-    data['isActive'] = true;
+  if (Game.api.gameData.data.activePlayerIdx == playerIdx) {
+    data.isActive = true;
   } else {
-    data['isActive'] = false;
+    data.isActive = false;
   }
 
   // playerWithInitiativeIdx may be either player or may be null
-  if (Game.api.gameData['data']['playerWithInitiativeIdx'] == playerIdx) {
-    data['hasInitiative'] = true;
+  if (Game.api.gameData.data.playerWithInitiativeIdx == playerIdx) {
+    data.hasInitiative = true;
   } else {
-    data['hasInitiative'] = false;
+    data.hasInitiative = false;
   }
 
   return data;
@@ -291,12 +291,12 @@ Game.parseValidInitiativeActions = function() {
       }
     });
     if (Object.keys(focus).length > 0) {
-      Game.api.player.initiativeActions['focus'] = focus;
+      Game.api.player.initiativeActions.focus = focus;
     }
     if (Object.keys(chance).length > 0) {
-      Game.api.player.initiativeActions['chance'] = chance;
+      Game.api.player.initiativeActions.chance = chance;
     }
-    Game.api.player.initiativeActions['decline'] = true;
+    Game.api.player.initiativeActions.decline = true;
   }
 }
 
@@ -322,8 +322,7 @@ Game.actionChooseSwingActive = function() {
   $.each (Game.api.player.swingRequestArray,
           function(letter, range) {
             var swingrow = $('<tr>', {});
-            var swingtext = letter + ': (' + range['min'] + '-' +
-                            range['max'] + ')'
+            var swingtext = letter + ': (' + range.min + '-' + range.max + ')'
             swingrow.append($('<td>', { 'text': swingtext, }));
             var swinginput = $('<td>', {});
             swinginput.append($('<input>', {

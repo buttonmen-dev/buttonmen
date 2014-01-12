@@ -156,13 +156,13 @@ UserPrefs.actionSetPrefs = function() {
 
   $.each(entries, function(entrykey, entryinfo) {
     var entryrow = $('<tr>');
-    entryrow.append($('<td>', { 'text': entryinfo['text'] + ':' }));
+    entryrow.append($('<td>', { 'text': entryinfo.text + ':' }));
     entryinput = $('<td>');
     entryinput.append($('<input>', {
-      'type': entryinfo['type'],
+      'type': entryinfo.type,
       'name': entrykey,
       'id': 'userprefs_' + entrykey,
-      'checked': entryinfo['checked'],
+      'checked': entryinfo.checked,
     }));
     entryrow.append(entryinput);
     prefstable.append(entryrow);
