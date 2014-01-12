@@ -98,7 +98,7 @@ class dummy_responder {
         return array(array('userName' => $username), "User $username created successfully");
     }
 
-    protected function get_interface_response_createGame($args) {
+    protected function get_interface_response_createGame() {
         // for verisimilitude, choose a game ID of one greater than
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
