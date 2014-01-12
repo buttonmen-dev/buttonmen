@@ -118,13 +118,13 @@ Newgame.actionCreateGame = function() {
 
   var creatediv = $('<div>');
   creatediv.append($('<div>', {
-                      'class': 'title2',
-                      'text': 'Create a new game',
-                    }));
+    'class': 'title2',
+    'text': 'Create a new game',
+  }));
   var createform = $('<form>', {
-                       'id': 'newgame_action_form',
-                       'action': 'javascript:void(0);',
-                     });
+    'id': 'newgame_action_form',
+    'action': 'javascript:void(0);',
+  });
 
   // Table of game creation options
   var createtable = $('<table>', {'id': 'newgame_create_table', });
@@ -181,9 +181,9 @@ Newgame.actionCreateGame = function() {
   createform.append(createtable);
   createform.append($('<br>'));
   createform.append($('<button>', {
-                                    'id': 'newgame_action_button',
-                                    'text': 'Start game!',
-                                   }));
+    'id': 'newgame_action_button',
+    'text': 'Start game!',
+  }));
   creatediv.append(createform);
 
   Newgame.page.append(creatediv);
@@ -192,7 +192,8 @@ Newgame.actionCreateGame = function() {
   warningpar.append($('<i>', {
     'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
             'contain unimplemented skills.  Selecting these buttons is not ' +
-            'recommended.'}));
+            'recommended.'
+  }));
   Newgame.page.append(warningpar);
 
   // Function to invoke on button click
@@ -235,43 +236,46 @@ Newgame.formCreateGame = function() {
 
     var maxWins = $('#n_rounds').val();
 
-    $.post(Env.api_location, {
-             type: 'createGame',
-             playerNameArray: playerNameArray,
-             buttonNameArray: buttonNameArray,
-             maxWins: maxWins,
-           },
-           function(rs) {
-             if ('ok' == rs.status) {
-               var gameId = rs.data.gameId;
-               var gameLink = $('<a>', {
-                                  'href': 'game.html?game=' + gameId,
-                                  'text': 'Go to game page',
-                                });
-               var gamePar = $('<p>',
-                                {'text': rs.message + ' ', });
-               gamePar.append(gameLink);
-               Env.message = {
-                 'type': 'success',
-                 'text': '',
-                 'obj': gamePar,
-               };
-               Newgame.showNewgamePage();
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': rs.message,
-               };
-               Newgame.showNewgamePage();
-             }
-           }
-    ).fail(function() {
-             Env.message = { 
-               'type': 'error',
-               'text': 'Internal error when calling createGame',
-             };
-             Newgame.showNewgamePage();
-           });
+    $.post(
+      Env.api_location, {
+        type: 'createGame',
+        playerNameArray: playerNameArray,
+        buttonNameArray: buttonNameArray,
+        maxWins: maxWins,
+      },
+      function(rs) {
+        if ('ok' == rs.status) {
+          var gameId = rs.data.gameId;
+          var gameLink = $('<a>', {
+            'href': 'game.html?game=' + gameId,
+            'text': 'Go to game page',
+          });
+          var gamePar = $('<p>',
+            {'text': rs.message + ' ', });
+          gamePar.append(gameLink);
+          Env.message = {
+            'type': 'success',
+            'text': '',
+            'obj': gamePar,
+          };
+          Newgame.showNewgamePage();
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': rs.message,
+          };
+          Newgame.showNewgamePage();
+        }
+      }
+    ).fail(
+      function() {
+        Env.message = { 
+          'type': 'error',
+          'text': 'Internal error when calling createGame',
+        };
+        Newgame.showNewgamePage();
+      }
+    );
   }
 }
 
@@ -304,9 +308,9 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
   selectRow.append($('<th>', {'text': rowname + ':', }));
 
   var select = $('<select>', {
-                   'id': selectname,
-                   'name': selectname,
-                 });
+    'id': selectname,
+    'name': selectname,
+  });
 
   // If there's no default, put an invalid default value first
   if (selectedval == null) {

@@ -72,26 +72,28 @@ UserPrefs.getUserPrefsData = function(callbackfunc) {
   UserPrefs.api = {
     'load_status': 'failed',
   };
-  $.post(Env.api_location,
-         { type: 'loadPlayerInfo' },
-         function(rs) {
-           if (rs.status == 'ok') {
-             if (UserPrefs.parseUserPrefsData(rs.data)) {
-               UserPrefs.api.load_status = 'ok';
-             } else {
-               Env.message = {
-                 'type': 'error', 'text':
-                   'User preferences received from server could not be parsed',
-               };
-             }
-           } else {
-             Env.message = {
-               'type': 'error', 'text': rs.message,
-             };
-           }
-           return callbackfunc();
-         }
-  ).fail(function () {
+  $.post(
+    Env.api_location,
+    { type: 'loadPlayerInfo' },
+    function(rs) {
+      if (rs.status == 'ok') {
+        if (UserPrefs.parseUserPrefsData(rs.data)) {
+          UserPrefs.api.load_status = 'ok';
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'User preferences received from server could not be parsed',
+          };
+        }
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      return callbackfunc();
+    }
+  ).fail(function() {
     Env.message = {
       'type': 'error',
       'text': 'Internal error when calling loadPlayerInfo',
@@ -133,13 +135,13 @@ UserPrefs.actionSetPrefs = function() {
 
   var prefsdiv = $('<div>');
   prefsdiv.append($('<div>', {
-                     'class': 'title2',
-                     'text': 'Change player details'
-                    }));
+    'class': 'title2',
+    'text': 'Change player details'
+  }));
   var prefsform = $('<form>', {
-                      'id': 'userprefs_action_form',
-                      'action': 'javascript:void(0);'
-                    });
+    'id': 'userprefs_action_form',
+    'action': 'javascript:void(0);'
+  });
 
   // Table of user preferences
   var prefstable = $('<table>', {'id': 'userprefs_set_table' });
@@ -157,11 +159,11 @@ UserPrefs.actionSetPrefs = function() {
     entryrow.append($('<td>', { 'text': entryinfo['text'] + ':' }));
     entryinput = $('<td>');
     entryinput.append($('<input>', {
-                          'type': entryinfo['type'],
-                          'name': entrykey,
-                          'id': 'userprefs_' + entrykey,
-                          'checked': entryinfo['checked'],
-                        }));
+      'type': entryinfo['type'],
+      'name': entrykey,
+      'id': 'userprefs_' + entrykey,
+      'checked': entryinfo['checked'],
+    }));
     entryrow.append(entryinput);
     prefstable.append(entryrow);
   });
@@ -170,9 +172,9 @@ UserPrefs.actionSetPrefs = function() {
   // Form submission button
   prefsform.append($('<br>'));
   prefsform.append($('<button>', {
-                       'id': 'userprefs_action_button',
-                       'text': 'Save preferences'
-                     }));
+    'id': 'userprefs_action_button',
+    'text': 'Save preferences'
+  }));
   prefsdiv.append(prefsform);
 
   UserPrefs.page.append(prefsdiv);
@@ -190,27 +192,30 @@ UserPrefs.actionSetPrefs = function() {
 UserPrefs.formSetPrefs = function() {
   var autopass = $('#userprefs_autopass').prop('checked');
 
-  $.post(Env.api_location,
-         { type: 'savePlayerInfo', autopass: autopass },
-         function(rs) {
-           if ('ok' == rs.status) {
-             Env.message = {
-               'type': 'success',
-               'text': 'User details set successfully.'
-             };
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message
-             };
-           }
-           UserPrefs.showUserPrefsPage();
-         }
-  ).fail(function() {
-           Env.message = {
-             'type': 'error',
-             'text': 'Internal error when calling formSetPrefs.'
-           };
-           UserPrefs.showUserPrefsPage();
-         });
+  $.post(
+    Env.api_location,
+    { type: 'savePlayerInfo', autopass: autopass },
+    function(rs) {
+      if ('ok' == rs.status) {
+        Env.message = {
+          'type': 'success',
+          'text': 'User details set successfully.'
+        };
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message
+        };
+      }
+      UserPrefs.showUserPrefsPage();
+    }
+  ).fail(
+    function() {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error when calling formSetPrefs.'
+      };
+      UserPrefs.showUserPrefsPage();
+    }
+  );
 }

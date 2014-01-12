@@ -57,7 +57,8 @@ Game.getCurrentGame = function(callbackfunc) {
   Game.game = Env.getParameterByName('game');
   if (Game.game == null) {
     Env.message = {
-      'type': 'error', 'text': 'No game specified.  Nothing to do.'
+      'type': 'error',
+      'text': 'No game specified.  Nothing to do.'
     };
     return callbackfunc();
   }
@@ -76,31 +77,32 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  $.post(Env.api_location,
-         { type: 'loadGameData', game: Game.game, },
-         function(rs) {
-           if (rs.status == 'ok') {
-             Game.api.gameData = rs.data.gameData;
-             Game.api.timestamp = rs.data.timestamp;
-             Game.api.actionLog = rs.data.gameActionLog;
-             Game.api.chatLog = rs.data.gameChatLog;
-             if (Game.parseGameData(rs.data.currentPlayerIdx,
-                                    rs.data.playerNameArray)) {
-               Game.api.load_status = 'ok';
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': 'Game data received from server could not be parsed!',
-               };
-             }
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message,
-             };
-           }
-           return callbackfunc();
-         }
+  $.post(
+    Env.api_location,
+    { type: 'loadGameData', game: Game.game, },
+    function(rs) {
+      if (rs.status == 'ok') {
+        Game.api.gameData = rs.data.gameData;
+        Game.api.timestamp = rs.data.timestamp;
+        Game.api.actionLog = rs.data.gameActionLog;
+        Game.api.chatLog = rs.data.gameChatLog;
+        if (Game.parseGameData(rs.data.currentPlayerIdx,
+                               rs.data.playerNameArray)) {
+          Game.api.load_status = 'ok';
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Game data received from server could not be parsed!',
+          };
+        }
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      return callbackfunc();
+    }
   ).fail(function() {
     Env.message = {
       'type': 'error',

@@ -79,13 +79,13 @@ Newuser.actionCreateUser = function() {
 
   var creatediv = $('<div>');
   creatediv.append($('<div>', {
-                      'class': 'title2',
-                      'text': 'Create a new user account',
-                    }));
+    'class': 'title2',
+    'text': 'Create a new user account',
+  }));
   var createform = $('<form>', {
-                       'id': 'newuser_action_form',
-                       'action': 'javascript:void(0);',
-                     });
+    'id': 'newuser_action_form',
+    'action': 'javascript:void(0);',
+  });
 
   // Table of user creation options
   var createtable = $('<table>', {'id': 'newuser_create_table', });
@@ -110,10 +110,10 @@ Newuser.actionCreateUser = function() {
     entryrow.append($('<td>', { 'text': entryinfo['text'] + ':', }));
     entryinput = $('<td>');
     entryinput.append($('<input>', {
-                          'type': entryinfo['type'],
-                          'name': entryid,
-                          'id': 'newuser_' + entryid,
-                        }));
+      'type': entryinfo['type'],
+      'name': entryid,
+      'id': 'newuser_' + entryid,
+    }));
     entryrow.append(entryinput);
     createtable.append(entryrow);
   });
@@ -122,9 +122,9 @@ Newuser.actionCreateUser = function() {
   // Form submission button
   createform.append($('<br>'));
   createform.append($('<button>', {
-                        'id': 'newuser_action_button',
-                        'text': 'Create user!',
-                      }));
+    'id': 'newuser_action_button',
+    'text': 'Create user!',
+  }));
   creatediv.append(createform);
 
   Newuser.page.append(creatediv);
@@ -166,44 +166,46 @@ Newuser.formCreateUser = function() {
       };
       Newuser.showNewuserPage();
     } else {
-      $.post(Env.api_location, {
-               type: 'createUser',
-               username: username,
-               password: password,
-             },
-             function(rs) {
-               if ('ok' == rs.status) {
-                 var userName = rs.data.userName;
-                 var indexLink = $('<a>', {
-                   'href': 'index.html',
-                   'text': 'Go back to the homepage, login, and start ' + 
-                           'beating people up',
-                 });
-               var userPar = $('<p>',
-                                {'text': rs.message + ' ', });
-               userPar.append($('<br>'));
-               userPar.append(indexLink);
-               Env.message = {
-                 'type': 'success',
-                 'text': '',
-                 'obj': userPar,
-               };
-               Newuser.showNewuserPage();
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': rs.message,
-               };
-               Newuser.showNewuserPage();
-             }
-           }
-    ).fail(function() {
-             Env.message = { 
-               'type': 'error',
-               'text': 'Internal error when calling createUser',
-             };
-             Newuser.showNewuserPage();
-           });
+      $.post(
+        Env.api_location, {
+          type: 'createUser',
+          username: username,
+          password: password,
+        },
+        function(rs) {
+          if ('ok' == rs.status) {
+            var userName = rs.data.userName;
+            var indexLink = $('<a>', {
+              'href': 'index.html',
+              'text': 'Go back to the homepage, login, and start ' + 
+                      'beating people up',
+            });
+            var userPar = $('<p>', {'text': rs.message + ' ', });
+            userPar.append($('<br>'));
+            userPar.append(indexLink);
+            Env.message = {
+              'type': 'success',
+              'text': '',
+              'obj': userPar,
+            };
+            Newuser.showNewuserPage();
+          } else {
+            Env.message = {
+              'type': 'error',
+              'text': rs.message,
+            };
+            Newuser.showNewuserPage();
+          }
+        }
+      ).fail(
+        function() {
+          Env.message = { 
+            'type': 'error',
+            'text': 'Internal error when calling createUser',
+          };
+          Newuser.showNewuserPage();
+        }
+      );
     }
   }
 }

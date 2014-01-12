@@ -19,8 +19,8 @@ if ('unit_test' in Env) {
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
-    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
 
 // Make sure that the page body contains a div for displaying status
@@ -36,11 +36,11 @@ Env.showStatusMessage = function() {
   $('#env_message').empty();
   if (Env.message) {
     var msgobj = $('<p>');
-    msgobj.append($('<font>',
-                  {
-                    'color': Env.messageTypeColors[Env.message.type],
-                    'text': Env.message.text,
-                  }));
+    msgobj.append(
+      $('<font>', {
+        'color': Env.messageTypeColors[Env.message.type],
+        'text': Env.message.text,
+      }));
     if ('obj' in Env.message) {
       msgobj.append(Env.message.obj);
     }
