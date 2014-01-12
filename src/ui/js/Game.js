@@ -373,8 +373,11 @@ Game.actionChooseSwingInactive = function() {
   Game.page.append(dietable);
   Game.page.append($('<br>'));
 
-  Game.page.append($('<p>', {'text':
-    'Your swing dice are set.  Please wait patiently for your opponent to set swing dice.' }));
+  Game.page.append($('<p>', {
+    'text':
+      'Your swing dice are set. ' +
+      'Please wait patiently for your opponent to set swing dice.'
+  }));
 
   Game.pageAddFooter();
 
@@ -515,7 +518,7 @@ Game.actionPlayTurnActive = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
@@ -531,7 +534,7 @@ Game.actionPlayTurnInactive = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionShowFinishedGame = function() {
   Game.page = $('<div>');
@@ -549,7 +552,7 @@ Game.actionShowFinishedGame = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Form submission functions
@@ -595,7 +598,7 @@ Game.formChooseSwingActive = function() {
       }
     ).fail(
       function() {
-        Env.message = { 
+        Env.message = {
           'type': 'error',
           'text': 'Internal error when calling submitSwingValues',
         };
@@ -603,13 +606,13 @@ Game.formChooseSwingActive = function() {
       }
     );
   } else {
-    Env.message = { 
+    Env.message = {
       'type': 'error',
       'text': 'Some swing values missing or nonnumeric',
     };
     Game.showGamePage();
   }
-}
+};
 
 // Form submission action for reacting to initiative
 Game.formReactToInitiativeActive = function() {
@@ -639,14 +642,14 @@ Game.formReactToInitiativeActive = function() {
           }
         }
       });
-      if (dieIdxArray.length == 0) {
+      if (dieIdxArray.length === 0) {
         error = 'Specified focus action but did not turn down any dice';
         formValid = false;
       }
     } else {
       error = 'No focus dice to turn down';
       formValid = false;
-    } 
+    }
     break;
 
   case 'chance':
@@ -663,7 +666,7 @@ Game.formReactToInitiativeActive = function() {
           }
         }
       });
-      if (dieIdxArray.length == 0) {
+      if (dieIdxArray.length === 0) {
         error =
           'Specified chance action but did not choose any dice to reroll';
         formValid = false;
@@ -675,11 +678,11 @@ Game.formReactToInitiativeActive = function() {
     } else {
       error = 'No chance dice to reroll';
       formValid = false;
-    } 
+    }
     break;
 
   default:
-    error = 'Specified action is not valid'
+    error = 'Specified action is not valid';
     formValid = false;
   }
 
@@ -696,22 +699,22 @@ Game.formReactToInitiativeActive = function() {
         dieValueArray: dieValueArray,
       },
       function(rs) {
+        var message;
         if ('ok' == rs.status) {
           switch (action) {
           case 'chance':
             if (rs.data.gained_initiative) {
-              var message = 
+              message =
                 'Successfully gained initiative by rerolling chance die';
             } else {
-              var message = 
-                'Rerolled chance die, but did not gain initiative';
+              message = 'Rerolled chance die, but did not gain initiative';
             }
             break;
           case 'decline':
-            var message = 'Declined to use chance/focus dice';
+            message = 'Declined to use chance/focus dice';
             break;
           case 'focus':
-            var message = 'Successfully gained initiative using focus dice';
+            message = 'Successfully gained initiative using focus dice';
             break;
           }
 
@@ -729,7 +732,7 @@ Game.formReactToInitiativeActive = function() {
       }
     ).fail(
       function() {
-        Env.message = { 
+        Env.message = {
           'type': 'error',
           'text': 'Internal error when calling reactToInitiative',
         };
@@ -737,13 +740,13 @@ Game.formReactToInitiativeActive = function() {
       }
     );
   } else {
-    Env.message = { 
+    Env.message = {
       'type': 'error',
       'text': error,
     };
     Game.showGamePage();
   }
-}
+};
 
 // Form submission action for playing a turn
 Game.formPlayTurnActive = function() {
@@ -797,14 +800,14 @@ Game.formPlayTurnActive = function() {
     }
   ).fail(
     function() {
-      Env.message = { 
+      Env.message = {
         'type': 'error',
         'text': 'Internal error when calling submitTurn',
       };
       Game.showGamePage();
     }
   );
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Page layout helper routines
@@ -820,22 +823,23 @@ Game.pageAddGameHeader = function(action_desc) {
                                'text': action_desc}));
   Game.page.append($('<br>'));
   return true;
-}
+};
 
 // Display common page footer data
 Game.pageAddFooter = function() {
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
-}
+};
 
 // Display a footer-style message with the last action timestamp
 Game.pageAddTimestampFooter = function() {
 
   // Timestamp has a different meaning if the game is over
+  var timestamptext;
   if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
-    var timestamptext = 'Game completed at';
+    timestamptext = 'Game completed at';
   } else {
-    var timestamptext = 'Last action time';
+    timestamptext = 'Last action time';
   }
 
   Game.page.append($('<br>'));
@@ -843,7 +847,7 @@ Game.pageAddTimestampFooter = function() {
                       'text': timestamptext + ': ' + Game.api.timestamp,
                      }));
   return true;
-}
+};
 
 // Display recent game data from the action log at the foot of the page
 Game.pageAddLogFooter = function() {
@@ -857,7 +861,7 @@ Game.pageAddLogFooter = function() {
       actiontd.append($('<p>', {'text': 'Recent game activity', }));
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Game.api.actionLog, function(logindex, logentry) {
-        if (logentry.message.indexOf(Game.api.player.playerName + ' ') == 0) {
+        if (logentry.message.indexOf(Game.api.player.playerName + ' ') === 0) {
           nameclass = 'chatplayer';
         } else {
           nameclass = 'chatopponent';
@@ -865,10 +869,10 @@ Game.pageAddLogFooter = function() {
         var actionrow = $('<tr>');
         actionrow.append($('<td>', {
           'class': nameclass,
-          'nowrap': 'nowrap', 
+          'nowrap': 'nowrap',
           'text': '(' + logentry.timestamp + ')', }));
         actionrow.append($('<td>', {
-          'class': 'left', 
+          'class': 'left',
           'text': logentry.message, }));
         actiontable.append(actionrow);
       });
@@ -888,12 +892,12 @@ Game.pageAddLogFooter = function() {
           nameclass = 'chatopponent';
         }
         chatrow.append($('<td>', {
-          'class': nameclass, 
-          'nowrap': 'nowrap', 
+          'class': nameclass,
+          'nowrap': 'nowrap',
           'text': logentry.player + ' (' + logentry.timestamp + ')',
         }));
         chatrow.append($('<td>', {
-          'class': 'left', 
+          'class': 'left',
           'text': logentry.message, }));
         chattable.append(chatrow);
       });
@@ -907,7 +911,7 @@ Game.pageAddLogFooter = function() {
     Game.page.append($('<hr>'));
     Game.page.append(logdiv);
   }
-}
+};
 
 
 // Generate and return a two-column table of the dice in each player's recipe
@@ -985,7 +989,7 @@ Game.dieRecipeTable = function(react_initiative, active) {
     dietable.append(focusrow);
   }
   return dietable;
-}
+};
 
 Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
   if (i < nDie) {
@@ -993,7 +997,7 @@ Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
     return $('<td>', {'text': dieval, });
   }
     return $('<td>', {});
-}
+};
 
 // Display each player's dice in "battle" layout
 Game.pageAddDieBattleTable = function(clickable) {
@@ -1004,7 +1008,7 @@ Game.pageAddDieBattleTable = function(clickable) {
   Game.pageAddGamePlayerDice('opponent', clickable);
   Game.pageAddGamePlayerStatus('opponent', true, true);
   return true;
-}
+};
 
 // Add a brief mid-game status listing for the requested player
 Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
@@ -1030,23 +1034,24 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
       'text': "Score: " + Game.api[player].roundScore, }));
 
     // Dice captured this round, only applicable in active games
+    var capturedDieText;
     if (Game.api[player].nCapturedDie > 0) {
       var capturedDieDescs = [];
       $.each(Game.api[player].capturedRecipeArray, function(idx, recipe) {
         capturedDieDescs.push(
           Game.dieRecipeText(recipe, Game.api[player].capturedSidesArray[idx]));
       });
-      var capturedDieText = capturedDieDescs.join(', ');
+      capturedDieText = capturedDieDescs.join(', ');
     } else {
-      var capturedDieText = 'none'
+      capturedDieText = 'none';
     }
     var capturedDiceDiv = $('<div>');
     capturedDiceDiv.append($('<span>', {
-      'text': "Dice captured: " + capturedDieText, })); 
+      'text': "Dice captured: " + capturedDieText, }));
   }
 
   // Order the elements depending on the "reversed" flag
-  if (reversed == true) {
+  if (reversed) {
     if (game_active) {
       Game.page.append(capturedDiceDiv);
       Game.page.append(roundScoreDiv);
@@ -1105,17 +1110,19 @@ Game.pageAddGameWinner = function() {
 
   var playerWins = Game.api.player.gameScoreDict['W'];
   var opponentWins = Game.api.opponent.gameScoreDict['W'];
+  var winnerName;
   if (playerWins > opponentWins) {
-    var winnerName = Game.api.player.playerName;
+    winnerName = Game.api.player.playerName;
   } else if (playerWins < opponentWins) {
-    var winnerName = Game.api.opponent.playerName;
+    winnerName = Game.api.opponent.playerName;
   } else {
-    var winnerName = false;
+    winnerName = false;
   }
+  var winnerText;
   if (winnerName) {
-    var winnerText = winnerName + ' won!';
+    winnerText = winnerName + ' won!';
   } else {
-    var winnerText = 'TIE';
+    winnerText = 'TIE';
   }
 
   var winnerDiv = $('<div>');
@@ -1126,10 +1133,11 @@ Game.pageAddGameWinner = function() {
 }
 
 Game.dieIndexId = function(player, dieidx) {
+  var playerIdx;
   if (player == 'player') {
-    var playerIdx = Game.api.playerIdx;
+    playerIdx = Game.api.playerIdx;
   } else {
-    var playerIdx = Game.api.opponentIdx;
+    playerIdx = Game.api.opponentIdx;
   }
   return ('playerIdx_' + playerIdx + '_dieIdx_' + dieidx);
 }
@@ -1251,4 +1259,4 @@ Game.chatBox = function() {
                  }));
   chattable.append(chatrow);
   return chattable;
-}
+};
