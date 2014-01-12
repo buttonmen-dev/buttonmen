@@ -18,7 +18,7 @@ class BMSkillFocus extends BMSkill {
         }
 
         // calculate initiative now, with all focus dice set to minimum
-        $doesPlayerHaveInitiativeArray =
+        $hasPlayerInitArray =
           BMGame::does_player_have_initiative_array($activeDieArrayArray);
 
         // reset die values
@@ -30,10 +30,7 @@ class BMSkillFocus extends BMSkill {
 
         // the player must be able to win initiative unambiguously to be able to
         // change the value of focus dice
-        return ($doesPlayerHaveInitiativeArray[$playerIdx] &&
-                1 == array_sum($doesPlayerHaveInitiativeArray));
+        return ($hasPlayerInitArray[$playerIdx] &&
+                1 == array_sum($hasPlayerInitArray));
     }
-
 }
-
-?>

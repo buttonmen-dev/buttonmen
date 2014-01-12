@@ -39,9 +39,8 @@ class BMAttackPower extends BMAttack {
 
             if ($aVal + $bounds[1] >= $defender->defense_value($this->type)) {
 
-                if ($attacker->is_valid_attacker($this->type, $attackers, $defenders) &&
-                    $defender->is_valid_target($this->type, $attackers, $defenders))
-                {
+                if ($attacker->is_valid_attacker($this->type, $attackers) &&
+                    $defender->is_valid_target($this->type, $defenders)) {
                     return TRUE;
                 }
             }
@@ -50,11 +49,4 @@ class BMAttackPower extends BMAttack {
 
         return FALSE;
     }
-
-    // return how much help is needed and who can contribute
-    public function calculate_contributions($game, array $attackers, array $defenders) {
-        return array(0, array());
-    }
 }
-
-?>

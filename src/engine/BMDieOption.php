@@ -2,5 +2,3 @@
 
 class BMDieOption extends BMDie {
 }
-
-?>

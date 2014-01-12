@@ -23,5 +23,3 @@ class BMSkillShadow extends BMSkill {
         return array('Power');
     }
 }
-
-?>

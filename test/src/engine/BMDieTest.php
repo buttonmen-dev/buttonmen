@@ -26,6 +26,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /*
+     * @covers BMDie::add_skill
+     */
     public function testAdd_skill() {
         // Check that the skill list is indeed empty
         $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
@@ -89,6 +92,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::has_skill
+     *
      * @depends testAdd_skill
      */
     public function testHas_skill() {
@@ -100,6 +105,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::remove_skill
+     *
      * @depends testAdd_skill
      * @depends testHas_skill
      */
@@ -139,6 +146,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::run_hooks
+     *
      * @depends testAdd_skill
      * @depends testHas_skill
      * @depends testRemove_skill
@@ -167,6 +176,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
 
     /**
+     * @covers BMDie::init
+     *
      * @depends testAdd_skill
      * @depends testHas_skill
      * @depends testRemove_skill
@@ -192,6 +203,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::create
+     *
      * @depends testInit
      */
     public function testCreate() {
@@ -304,6 +317,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::create_from_string_components
+     *
      * @depends testCreate
      */
     public function testCreate_from_string_components() {
@@ -363,6 +378,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::roll
+     *
      * @depends testInit
      */
     public function testRoll() {
@@ -408,6 +425,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::make_play_die
+     *
      * @depends testRoll
      * @depends testInit
      */
@@ -428,6 +447,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(($this->object === $newDie), "make_play_die returned the same object.");
     }
 
+    /*
+     * @covers BMDie::attack_list
+     */
     public function testAttack_list() {
         $this->assertNotEmpty($this->object->attack_list());
         $this->assertContains("Skill", $this->object->attack_list());
@@ -437,6 +459,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::attack_values
+     *
      * @depends testInit
      * @depends testAttack_list
      */
@@ -464,6 +488,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::defense_value
+     *
      * @depends testInit
      * @depends testRoll
      * @depends testAttack_list
@@ -481,6 +507,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::get_scoreValueTimesTen
+     *
      * @depends testInit
      */
     public function testGet_scoreValueTimesTen() {
@@ -496,6 +524,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
 
     /**
+     * @covers BMDie::initiative_value
+     *
      * @depends testInit
      * @depends testRoll
      */
@@ -508,6 +538,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::assist_values
+     *
      * @depends testAttack_list
      */
     public function testAssist_values() {
@@ -552,6 +584,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::attack_contribute
+     *
      * @depends testAttack_list
      * @depends testAssist_values
      */
@@ -573,80 +607,68 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
 
     /**
+     * @covers BMDie::is_valid_attacker
+     *
      * @depends testAttack_list
      */
     public function testIs_valid_attacker() {
         $attDie = new BMDie;
-        $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
 
             $this->assertFalse($this->object->is_valid_attacker($att,
-                                                                array($attDie),
-                                                                array($defDie)));
+                                                                array($attDie)));
             $this->assertTrue($this->object->is_valid_attacker($att,
-                                                               array($this->object),
-                                                               array($defDie)));
-            $this->assertFalse($this->object->is_valid_attacker($att,
-                                                                array($attDie),
-                                                                array($this->object)));
+                                                               array($this->object)));
             $this->assertTrue($this->object->is_valid_attacker($att,
-                                                               array($this->object, $attDie),
-                                                               array($defDie)));
+                                                               array($this->object, $attDie)));
         }
 
         // Inactive is a string also used to descrbe why the die cannot attack
         $this->object->inactive = "Yes";
         $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object),
-                                                            array($defDie)));
+                                                            array($this->object)));
 
         $this->object->inactive = "";
         $this->object->hasAttacked = TRUE;
         $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object),
-                                                            array($defDie)));
+                                                            array($this->object)));
 
 
         $this->object->inactive = "Yes";
         $this->object->hasAttacked = TRUE;
         $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object),
-                                                            array($defDie)));
+                                                            array($this->object)));
 
     }
 
     /**
+     * @covers BMDie::is_valid_target
+     *
      * @depends testAttack_list
      */
     public function testIs_valid_target() {
-        $attDie = new BMDie;
         $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
 
             $this->assertFalse($this->object->is_valid_target($att,
-                                                              array($attDie),
-                                                              array($defDie)));
-            $this->assertFalse($this->object->is_valid_target($att,
-                                                              array($this->object),
                                                               array($defDie)));
             $this->assertTrue($this->object->is_valid_target($att,
-                                                             array($attDie),
                                                              array($this->object)));
             $this->assertTrue($this->object->is_valid_target($att,
-                                                             array($attDie),
                                                              array($this->object, $defDie)));
         }
 
         $this->object->unavailable = TRUE;
         $this->assertFalse($this->object->is_valid_target($att,
-                                                          array($attDie),
                                                           array($this->object)));
 
     }
 
     /**
+     * @covers BMDie::capture
+     *
      * @depends testAttack_list
      */
     public function testCapture() {
@@ -662,6 +684,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMDie::be_captured
+     *
      * @depends testAttack_list
      */
     public function testBe_captured() {
@@ -676,14 +700,31 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /*
+     * @covers BMDie::describe
+     */
     public function testDescribe() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+        $this->object->init(6);
+        $this->assertEquals('6-sided die', $this->object->describe(TRUE));
+        $this->assertEquals('6-sided die', $this->object->describe(FALSE));
+
+        $this->object->roll();
+        $value = $this->object->value;
+        $this->assertEquals("6-sided die showing {$value}", $this->object->describe(TRUE));
+        $this->assertEquals('6-sided die', $this->object->describe(FALSE));
+
+        $this->object->add_skill('Poison');
+        $this->object->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow 6-sided die showing {$value}",
+            $this->object->describe(TRUE)
         );
+        $this->assertEquals('Poison Shadow 6-sided die', $this->object->describe(FALSE));
     }
 
     /**
+     * @covers BMDie::split
+     *
      * @depends testInit
      * @depends testRoll
      */
@@ -727,46 +768,49 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /*
+     * @covers BMDie::run_hooks_at_game_state
+     */
     public function testRun_hooks_at_game_state() {
         $this->object->playerIdx = 0;
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 0));
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 1));
         $this->assertNotEquals("", $this->object->inactive);
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 0));
         $this->assertEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertNotEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::endTurn,
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
                                                array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertEquals("", $this->object->inactive);

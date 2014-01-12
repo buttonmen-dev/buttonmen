@@ -6,28 +6,30 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
      * @coversNothing
      */
     public function testBMGameStateOrder() {
-        $this->assertTrue(BMGameState::startGame <
-                          BMGameState::applyHandicaps);
-        $this->assertTrue(BMGameState::applyHandicaps <
-                          BMGameState::chooseAuxiliaryDice);
-        $this->assertTrue(BMGameState::chooseAuxiliaryDice <
-                          BMGameState::loadDiceIntoButtons);
-        $this->assertTrue(BMGameState::loadDiceIntoButtons <
-                          BMGameState::addAvailableDiceToGame);
-        $this->assertTrue(BMGameState::addAvailableDiceToGame <
-                          BMGameState::specifyDice);
-        $this->assertTrue(BMGameState::specifyDice <
-                          BMGameState::determineInitiative);
-        $this->assertTrue(BMGameState::determineInitiative <
-                          BMGameState::startRound);
-        $this->assertTrue(BMGameState::startRound <
-                          BMGameState::startTurn);
-        $this->assertTrue(BMGameState::startTurn <
-                          BMGameState::endTurn);
-        $this->assertTrue(BMGameState::endTurn <
-                          BMGameState::endRound);
-        $this->assertTrue(BMGameState::endRound <
-                          BMGameState::endGame);
+        $this->assertTrue(BMGameState::START_GAME <
+                          BMGameState::APPLY_HANDICAPS);
+        $this->assertTrue(BMGameState::APPLY_HANDICAPS <
+                          BMGameState::CHOOSE_AUXILIARY_DICE);
+        $this->assertTrue(BMGameState::CHOOSE_AUXILIARY_DICE <
+                          BMGameState::LOAD_DICE_INTO_BUTTONS);
+        $this->assertTrue(BMGameState::LOAD_DICE_INTO_BUTTONS <
+                          BMGameState::ADD_AVAILABLE_DICE_TO_GAME);
+        $this->assertTrue(BMGameState::ADD_AVAILABLE_DICE_TO_GAME <
+                          BMGameState::SPECIFY_DICE);
+        $this->assertTrue(BMGameState::SPECIFY_DICE <
+                          BMGameState::DETERMINE_INITIATIVE);
+        $this->assertTrue(BMGameState::DETERMINE_INITIATIVE <
+                          BMGameState::REACT_TO_INITIATIVE);
+        $this->assertTrue(BMGameState::REACT_TO_INITIATIVE <
+                          BMGameState::START_ROUND);
+        $this->assertTrue(BMGameState::START_ROUND <
+                          BMGameState::START_TURN);
+        $this->assertTrue(BMGameState::START_TURN <
+                          BMGameState::END_TURN);
+        $this->assertTrue(BMGameState::END_TURN <
+                          BMGameState::END_ROUND);
+        $this->assertTrue(BMGameState::END_ROUND <
+                          BMGameState::END_GAME);
     }
 
     /**
@@ -35,7 +37,7 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
      */
     public function test_validate_game_state() {
         // valid set
-        BMGameState::validate_game_state(BMGameState::startRound);
+        BMGameState::validate_game_state(BMGameState::START_ROUND);
 
         // invalid set
         try {

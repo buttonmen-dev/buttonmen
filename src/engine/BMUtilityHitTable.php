@@ -32,7 +32,7 @@ class BMUtilityHitTable {
             $this->dice[] = $die;
 
             foreach (array_keys($this->hits) as $target) {
-                foreach ($this->hits[$target] as $key => $combo) {
+                foreach (array_keys($this->hits[$target]) as $key) {
                     // We've already been used in this combo
                     if (FALSE !== strpos($key, $die_id)) {
                         continue;
@@ -97,5 +97,3 @@ class BMUtilityHitTable {
         throw new LogicException('Private properties cannot be set.');
     }
 }
-
-?>

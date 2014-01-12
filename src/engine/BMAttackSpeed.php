@@ -13,7 +13,7 @@ class BMAttackSpeed extends BMAttack {
         }
 
         $attacker = $attackers[0];
-        $doesAttackerHaveSkill = $attacker->has_skill($this->type);
+        $hasAttackerSkill = $attacker->has_skill($this->type);
 
         $defenderSum = 0;
         foreach ($defenders as $defender) {
@@ -21,27 +21,27 @@ class BMAttackSpeed extends BMAttack {
         }
         $areValuesEqual = $attacker->value == $defenderSum;
 
-        $canAttackerPerformThisAttack =
-            $attacker->is_valid_attacker($this->type, $attackers, $defenders);
-        $areDefendersValidTargetsForThisAttack = TRUE;
+        $canAttDoThisAttack =
+            $attacker->is_valid_attacker($this->type, $attackers);
+        $areDefValidTargets = TRUE;
         foreach ($defenders as $defender) {
-            if (!($defender->is_valid_target($this->type, $attackers, $defenders))) {
-                $areDefendersValidTargetsForThisAttack = FALSE;
+            if (!($defender->is_valid_target($this->type, $defenders))) {
+                $areDefValidTargets = FALSE;
                 break;
-                }
+            }
         }
 
-        return ($doesAttackerHaveSkill &&
+        return ($hasAttackerSkill &&
                 $areValuesEqual &&
-                $canAttackerPerformThisAttack &&
-                $areDefendersValidTargetsForThisAttack);
+                $canAttDoThisAttack &&
+                $areDefValidTargets);
     }
 
     public function find_attack($game) {
-        return $this->search_onevmany($game,
-                                      $game->attackerAllDieArray,
-                                      $game->defenderAllDieArray);
+        return $this->search_onevmany(
+            $game,
+            $game->attackerAllDieArray,
+            $game->defenderAllDieArray
+        );
     }
 }
-
-?>

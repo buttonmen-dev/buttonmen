@@ -82,15 +82,17 @@ class BMDieSwing extends BMDie {
 
         // The clone is the one going into the game, so it's the one
         // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values($newDie, $newDie->swingType,
-                                                          $newDie->playerIdx);
+        $this->ownerObject->request_swing_values(
+            $newDie,
+            $newDie->swingType,
+            $newDie->playerIdx
+        );
         $newDie->valueRequested = TRUE;
 
         $this->ownerObject->add_die($newDie);
     }
 
-    public function make_play_die()
-    {
+    public function make_play_die() {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
         if ($this->needsSwingValue) {
@@ -100,8 +102,7 @@ class BMDieSwing extends BMDie {
         return parent::make_play_die();
     }
 
-    public function roll($successfulAttack = FALSE)
-    {
+    public function roll($successfulAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values($this, $this->swingType);
@@ -114,13 +115,34 @@ class BMDieSwing extends BMDie {
     }
 
 // Print long description
-    public function describe()
-    {
-        $this->run_hooks(__FUNCTION__, array());
+    public function describe($isValueRequired = FALSE) {
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                $skillStr .= "$skill ";
+            }
+        }
+
+        $sideStr = '';
+        if (isset($this->max)) {
+            $sideStr = " (with {$this->max} sides)";
+        }
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}{$this->swingType} Swing Die{$sideStr}{$valueStr}";
+
+        return $result;
     }
 
-    public function split()
-    {
+    public function split() {
         $normalDie = new BMDie();
         $normalDie->init($this->max, $this->skillList);
         $normalDie->ownerObject = $this->ownerObject;
@@ -156,5 +178,3 @@ class BMDieSwing extends BMDie {
         return $valid;
     }
 }
-
-?>

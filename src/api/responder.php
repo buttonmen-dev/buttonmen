@@ -96,8 +96,10 @@ class responder {
 
         if ($args['type'] == 'savePlayerInfo') {
             $autopass = 'true' == $args['autopass'];
-            return $interface->set_player_info($_SESSION['user_id'],
-                                               array('autopass' => $autopass));
+            return $interface->set_player_info(
+                $_SESSION['user_id'],
+                array('autopass' => $autopass)
+            );
         }
 
         if ($args['type'] == 'loadPlayerNames') {
@@ -105,11 +107,13 @@ class responder {
         }
 
         if ($args['type'] == 'submitSwingValues') {
-            return $interface->submit_swing_values($_SESSION['user_id'],
-                                                   $args['game'],
-                                                   $args['roundNumber'],
-                                                   $args['timestamp'],
-                                                   $args['swingValueArray']);
+            return $interface->submit_swing_values(
+                $_SESSION['user_id'],
+                $args['game'],
+                $args['roundNumber'],
+                $args['timestamp'],
+                $args['swingValueArray']
+            );
         }
 
         if ($args['type'] == 'reactToInitiative') {
@@ -119,28 +123,32 @@ class responder {
             if (!(array_key_exists('dieValueArray', $args))) {
                 $args['dieValueArray'] = NULL;
             }
-            return $interface->react_to_initiative($_SESSION['user_id'],
-                                                   $args['game'],
-                                                   $args['roundNumber'],
-                                                   $args['timestamp'],
-                                                   $args['action'],
-                                                   $args['dieIdxArray'],
-                                                   $args['dieValueArray']);
+            return $interface->react_to_initiative(
+                $_SESSION['user_id'],
+                $args['game'],
+                $args['roundNumber'],
+                $args['timestamp'],
+                $args['action'],
+                $args['dieIdxArray'],
+                $args['dieValueArray']
+            );
         }
 
         if ($args['type'] == 'submitTurn') {
             if (!(array_key_exists('chat', $args))) {
                 $args['chat'] = '';
             }
-            return $interface->submit_turn($_SESSION['user_id'],
-                                           $args['game'],
-                                           $args['roundNumber'],
-                                           $args['timestamp'],
-                                           $args['dieSelectStatus'],
-                                           $args['attackType'],
-                                           (int)$args['attackerIdx'],
-                                           (int)$args['defenderIdx'],
-                                           $args['chat']);
+            return $interface->submit_turn(
+                $_SESSION['user_id'],
+                $args['game'],
+                $args['roundNumber'],
+                $args['timestamp'],
+                $args['dieSelectStatus'],
+                $args['attackType'],
+                (int)$args['attackerIdx'],
+                (int)$args['defenderIdx'],
+                $args['chat']
+            );
         }
 
         if ($args['type'] == 'login') {
@@ -154,7 +162,7 @@ class responder {
 
         if ($args['type'] == 'logout') {
             logout();
-            return array('userName' => False);
+            return array('userName' => FALSE);
         }
 
         // no action specified
@@ -193,7 +201,6 @@ class responder {
 // If responder was called via a POST request (rather than by
 // test code), the $_POST variable will be set
 if ($_POST) {
-    $responder = new responder(False);
+    $responder = new responder(FALSE);
     $responder->process_request($_POST);
 }
-?>

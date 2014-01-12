@@ -30,10 +30,10 @@ class BMDie {
     public $playerIdx;
     public $originalPlayerIdx;
 
-    protected $doesReroll = true;
-    public $captured = false;
+    protected $doesReroll = TRUE;
+    public $captured = FALSE;
 
-    public $hasAttacked = false;
+    public $hasAttacked = FALSE;
 
 // This is set when the button may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
@@ -43,7 +43,7 @@ class BMDie {
 // Set when the button isn't in the game for whatever reason, but
 //  could suddenly join (Warrior Dice). Prevents from being attacked,
 //  but not attacking
-    public $unavailable = false;
+    public $unavailable = FALSE;
 
     // unhooked methods
 
@@ -183,31 +183,26 @@ class BMDie {
             if (count($opt_array = explode('/', $recipe)) > 1) {
 //                $die = BMDieOption::create($opt_array, $skills);
                     throw new Exception("Option skill not implemented");
-                }
-            // Twin dice divide on a comma, can contain any type but option
-            elseif (count($twin_array = explode(',', $recipe)) > 1) {
+            } elseif (count($twin_array = explode(',', $recipe)) > 1) {
+                // Twin dice divide on a comma, can contain any type but option
                 $die = BMDieTwin::create($twin_array, $skills);
-                }
-            elseif ('C' == $recipe) {
+            } elseif ('C' == $recipe) {
                 $die = BMDieWildcard::create($recipe, $skills);
-            }
-            // Integers are normal dice
-            elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
+            } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
+                // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);
-            }
-            // Single character that's not a number is a swing die
-            elseif (strlen($recipe) == 1) {
+            } elseif (strlen($recipe) == 1) {
+                // Single character that's not a number is a swing die
                 $die = BMDieSwing::create($recipe, $skills);
-            }
-            // oops
-            else {
+            } else {
+                // oops
                 throw new UnexpectedValueException("Invalid recipe: $recipe");
             }
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
             error_log(
                 "Caught exception in BMDie::create_from_string_components: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             return NULL;
         }
 
@@ -286,12 +281,8 @@ class BMDie {
         return $list;
     }
 
-    public function defense_value($type) {
+    public function defense_value() {
         $val = $this->value;
-
-//        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-//                                             'defenceValue' => &$val));
-
         return $val;
     }
 
@@ -308,17 +299,18 @@ class BMDie {
         $mult = 1;
         if ($this->captured) {
             $div = 1;
-        }
-        else {
+        } else {
             $div = 2;
         }
 
-        $this->run_hooks('score_value',
-                         array('scoreValue' => &$scoreValue,
-                               'value'      => $this->value,
-                               'mult'       => &$mult,
-                               'div'        => &$div,
-                               'captured'   => $this->captured));
+        $this->run_hooks(
+            'score_value',
+            array('scoreValue' => &$scoreValue,
+                  'value'      => $this->value,
+                  'mult'       => &$mult,
+                  'div'        => &$div,
+                  'captured'   => $this->captured)
+        );
 
         if (is_null($scoreValue)) {
             return NULL;
@@ -411,7 +403,7 @@ class BMDie {
 // situation I can come up with off the top of my head
 //
 // These methods cannot act, they may only check: they're called a lot
-    public function is_valid_attacker($type, array $attackers, array $defenders) {
+    public function is_valid_attacker($type, array $attackers) {
         $valid = TRUE;
 
         if ($this->inactive || $this->hasAttacked) {
@@ -440,7 +432,7 @@ class BMDie {
     }
 
 
-    public function is_valid_target($type, array $attackers, array $defenders) {
+    public function is_valid_target($type, array $defenders) {
         $valid = TRUE;
 
         if ($this->unavailable) {
@@ -482,8 +474,26 @@ class BMDie {
     }
 
 // Print long description
-    public function describe() {
-        $this->run_hooks(__FUNCTION__, array());
+    public function describe($isValueRequired = FALSE) {
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                $skillStr .= "$skill ";
+            }
+        }
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}{$this->max}-sided die{$valueStr}";
+
+        return $result;
     }
 
 // split a die in twain. If something needs to cut a die's size in
@@ -519,7 +529,7 @@ class BMDie {
 
     public function run_hooks_at_game_state($gameState, $args) {
         switch ($gameState) {
-            case BMGameState::endTurn:
+            case BMGameState::END_TURN:
                 if ($this->playerIdx === $args['activePlayerIdx']) {
                     $this->inactive = "";
                 }
@@ -543,28 +553,24 @@ class BMDie {
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
 
-        }
-        // Twin dice divide on a comma, can contain any type but option
-        elseif ($this instanceof BMDieTwin) {
+        } elseif ($this instanceof BMDieTwin) {
+            // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {
                 $recipe .= $this->dice[0]->swingType;
             } else {
                 $recipe .= $this->dice[0]->max;
-        }
+            }
             $recipe .= ',';
             if ($this->dice[1] instanceof BMDieSwing) {
                 $recipe .= $this->dice[1]->swingType;
             } else {
                 $recipe .= $this->dice[1]->max;
             }
-        }
-        elseif ($this instanceof BMDieWildcard) {
+        } elseif ($this instanceof BMDieWildcard) {
             $recipe .= 'C';
-        }
-        elseif ($this instanceof BMDieSwing) {
+        } elseif ($this instanceof BMDieSwing) {
             $recipe .= $this->swingType;
-        }
-        else {
+        } else {
             $recipe .= $this->max;
         }
 
@@ -578,16 +584,16 @@ class BMDie {
     // This function exists so that BMGame can easily compare the
     // die state before the attack to the die state after the attack.
     public function get_action_log_data() {
-       $recipe = $this->get_recipe();
-       return(array(
-           'recipe' => $recipe,
-           'min' => $this->min,
-           'max' => $this->max,
-           'value' => $this->value,
-           'doesReroll' => $this->doesReroll,
-           'captured' => $this->captured,
-           'recipeStatus' => $recipe . ':' . $this->value,
-       ));
+        $recipe = $this->get_recipe();
+        return(array(
+            'recipe' => $recipe,
+            'min' => $this->min,
+            'max' => $this->max,
+            'value' => $this->value,
+            'doesReroll' => $this->doesReroll,
+            'captured' => $this->captured,
+            'recipeStatus' => $recipe . ':' . $this->value,
+        ));
     }
 
 
@@ -621,5 +627,3 @@ class BMDie {
         // need to clone their subdice.
     }
 }
-
-?>

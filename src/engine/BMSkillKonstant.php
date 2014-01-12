@@ -38,19 +38,29 @@ class BMSkillKonstant extends BMSkill {
         }
 
         $initialAttackValues = $args['attackValues'];
-        $negativeAttackValues = array_map(function ($val) {return (-$val);},
-                                          $initialAttackValues);
+        $negativeAttackValues = array_map(
+            function ($val) {
+                return (-$val);
+            },
+            $initialAttackValues
+        );
 
         $args['attackValues'] = array_values(
-                                    array_unique(
-                                        array_merge($initialAttackValues,
-                                                    $negativeAttackValues)));
+            array_unique(
+                array_merge(
+                    $initialAttackValues,
+                    $negativeAttackValues
+                )
+            )
+        );
     }
 
     public static function hit_table($args) {
         // validate arguments
-        assert(array_key_exists('hits', $args) &&
-               array_key_exists('dieLetter', $args));
+        assert(
+            array_key_exists('hits', $args) &&
+            array_key_exists('dieLetter', $args)
+        );
 
         // remove hits that are the result of single-die skill attacks by
         // konstant dice
@@ -74,5 +84,3 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 }
-
-?>
