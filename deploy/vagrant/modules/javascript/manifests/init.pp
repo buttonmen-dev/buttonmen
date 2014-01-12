@@ -10,6 +10,7 @@ class javascript::type::jenkins {
   exec {
     "javascript_npm_install_grunt":
       command => "/usr/bin/npm install -g grunt-cli",
-      require => Package["npm"];
+      require => Package["npm"],
+      creates => "/usr/bin/grunt";
   }
 }
