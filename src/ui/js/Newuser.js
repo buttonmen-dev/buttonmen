@@ -208,7 +208,7 @@ Newuser.formCreateUser = function() {
       );
     }
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions add pieces of HTML to Newuser.page
@@ -217,13 +217,13 @@ Newuser.addLoggedInPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
     'text': "Can't create a user because you are already logged in",
-  }))
+  }));
   errorDiv.append($('<a>', {
     'href': 'index.html',
     'text': 'Go back to the homepage and beat some people up',
   }));
   Newuser.page.append(errorDiv);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions generate and return pieces of HTML

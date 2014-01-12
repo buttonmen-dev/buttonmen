@@ -277,7 +277,7 @@ Newgame.formCreateGame = function() {
       }
     );
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions add pieces of HTML to Newgame.page
@@ -286,18 +286,18 @@ Newgame.addLoggedOutPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
     'text': "Can't create a game because you are not logged in",
-  }))
+  }));
   Newgame.page.append(errorDiv);
-}
+};
 
 Newgame.addInternalErrorPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
     'text': "Can't create a game.  Something went wrong when " +
             "loading data from server.",
-  }))
+  }));
   Newgame.page.append(errorDiv);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions generate and return pieces of HTML
@@ -339,4 +339,4 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
   selectTd.append(select);
   selectRow.append(selectTd);
   return selectRow;
-}
+};

@@ -152,7 +152,7 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'checkbox',
       'checked': UserPrefs.api.autopass,
     }
-  }
+  };
 
   $.each(entries, function(entrykey, entryinfo) {
     var entryrow = $('<tr>');
@@ -184,7 +184,7 @@ UserPrefs.actionSetPrefs = function() {
 
   // Lay out the page
   UserPrefs.layoutPage();
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions define form submissions, one per action type
@@ -218,4 +218,4 @@ UserPrefs.formSetPrefs = function() {
       UserPrefs.showUserPrefsPage();
     }
   );
-}
+};

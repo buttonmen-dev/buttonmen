@@ -212,7 +212,7 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
   Game.api.opponent.gameScoreStr = Game.playerWLTText('opponent');
 
   return true;
-}
+};
 
 // Given a player index, parse all data out of the appropriate arrays,
 // and return it.  This function can be used for either the logged-in
@@ -244,15 +244,15 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
       Game.api.gameData.data.capturedRecipeArrayArray[playerIdx],
 
     'swingRequestArray': {},
-  }
+  };
 
   $.each(Game.api.gameData.data.swingRequestArrayArray[playerIdx],
          function(letter, range) {
            data.swingRequestArray[letter] = {
              'min': parseInt(range[0]),
              'max': parseInt(range[1])
-           }
-         })
+           };
+         });
 
   // activePlayerIdx may be either player or may be null
   if (Game.api.gameData.data.activePlayerIdx == playerIdx) {
@@ -269,7 +269,7 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
   }
 
   return data;
-}
+};
 
 // What actions can this player take during the react to initiative phase
 Game.parseValidInitiativeActions = function() {
@@ -298,7 +298,7 @@ Game.parseValidInitiativeActions = function() {
     }
     Game.api.player.initiativeActions.decline = true;
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Routines for each type of game action that could be taken
@@ -322,7 +322,7 @@ Game.actionChooseSwingActive = function() {
   $.each (Game.api.player.swingRequestArray,
           function(letter, range) {
             var swingrow = $('<tr>', {});
-            var swingtext = letter + ': (' + range.min + '-' + range.max + ')'
+            var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
             swingrow.append($('<td>', { 'text': swingtext, }));
             var swinginput = $('<td>', {});
             swinginput.append($('<input>', {
@@ -360,7 +360,7 @@ Game.actionChooseSwingActive = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionChooseSwingInactive = function() {
   Game.page = $('<div>');
@@ -379,7 +379,7 @@ Game.actionChooseSwingInactive = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionReactToInitiativeActive = function() {
   Game.parseValidInitiativeActions();
@@ -439,7 +439,7 @@ Game.actionReactToInitiativeActive = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionReactToInitiativeInactive = function() {
   Game.page = $('<div>');
@@ -462,7 +462,7 @@ Game.actionReactToInitiativeInactive = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');

@@ -136,7 +136,7 @@ Login.stateLoggedOut = function() {
   Login.message.append(loginform);
   Login.form = Login.formLogin;
   Login.logged_in = false;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Helper functions which add text to the existing message
@@ -158,7 +158,7 @@ Login.addMainNavbar = function() {
   navtable.append(navrow);
   Login.message.append(navtable);
   Login.message.append($('<br>'));
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible form action
@@ -188,14 +188,14 @@ Login.postToResponder = function(responder_args) {
       Login.showLoginHeader(Login.callback);
     }
   );
-}
+};
 
 Login.formLogout = function() {
   var logoutargs = {
     'type': 'logout',
   };
   Login.postToResponder(logoutargs);
-}
+};
 
 Login.formLogin = function() {
   var username = null;
@@ -213,4 +213,4 @@ Login.formLogin = function() {
     'password': password,
   };
   Login.postToResponder(loginargs);
-}
+};
