@@ -17,7 +17,7 @@ Login.getLoginHeader = function() {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
   $.post(
-    Env.api_location, 
+    Env.api_location,
     { type: 'loadPlayerName' },
     function(rs) {
       var player_name = null;

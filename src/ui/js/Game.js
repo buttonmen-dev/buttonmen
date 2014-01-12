@@ -184,21 +184,21 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
   // Do some sanity-checking of the gameData object we have
   if (Game.api.gameData.status != 'ok') {
     return false;
-  };
+  }
   if (Game.game != Game.api.gameData.data.gameId) {
     return false;
-  };
+  }
   if (!($.isNumeric(currentPlayerIdx))) {
     return false;
   }
- 
+
   Game.api.gameId =  Game.api.gameData.data.gameId;
   Game.api.roundNumber = Game.api.gameData.data.roundNumber;
   Game.api.maxWins = Game.api.gameData.data.maxWins;
   Game.api.gameState = Game.api.gameData.data.gameState;
   Game.api.playerIdx = currentPlayerIdx;
   Game.api.opponentIdx = 1 - currentPlayerIdx;
-  Game.api.validAttackTypeArray = 
+  Game.api.validAttackTypeArray =
     Game.api.gameData.data.validAttackTypeArray;
 
   // Set defaults for both players

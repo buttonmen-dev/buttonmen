@@ -177,7 +177,7 @@ Newuser.formCreateUser = function() {
             var userName = rs.data.userName;
             var indexLink = $('<a>', {
               'href': 'index.html',
-              'text': 'Go back to the homepage, login, and start ' + 
+              'text': 'Go back to the homepage, login, and start ' +
                       'beating people up',
             });
             var userPar = $('<p>', {'text': rs.message + ' ', });
@@ -199,7 +199,7 @@ Newuser.formCreateUser = function() {
         }
       ).fail(
         function() {
-          Env.message = { 
+          Env.message = {
             'type': 'error',
             'text': 'Internal error when calling createUser',
           };

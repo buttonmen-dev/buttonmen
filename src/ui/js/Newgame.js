@@ -45,7 +45,7 @@ Newgame.showNewgamePage = function() {
 // This function is called after Api.button has been loaded with new data
 Newgame.showNewgamePageLoadedButtons = function() {
   if (Api.button.load_status == 'ok') {
- 
+
     // Ask the API for information about players, then continue page layout
     return Api.getPlayerData(Newgame.showNewgamePageLoadedPlayers);
   }
@@ -146,7 +146,7 @@ Newgame.actionCreateGame = function() {
   createtable.append(
     Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
                          null, null));
-                    
+
   // Load buttons and recipes into a dict for use in selects
   var buttonRecipe = {};
   var buttonGreyed = {};
@@ -223,13 +223,13 @@ Newgame.formCreateGame = function() {
       'text':
         'Please select an opponent, your button, and your opponent\'s button',
     };
-    Newgame.showNewgamePage(); 
+    Newgame.showNewgamePage();
   } else if (!(opponentName in Api.player.list)) {
     Env.message = {
       'type': 'error',
       'text': 'Specified opponent ' + opponentName + ' is not recognized',
     };
-    Newgame.showNewgamePage(); 
+    Newgame.showNewgamePage();
 
   } else {
     playerNameArray.push(opponentName);
@@ -269,7 +269,7 @@ Newgame.formCreateGame = function() {
       }
     ).fail(
       function() {
-        Env.message = { 
+        Env.message = {
           'type': 'error',
           'text': 'Internal error when calling createGame',
         };

@@ -117,7 +117,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   if (gamesource.length === 0) {
     return;
   }
-  var tableDiv = $('<div>');  
+  var tableDiv = $('<div>');
   tableDiv.append($('<h2>', {'text': sectionHeader, }));
   var table = $('<table>');
   headerRow = $('<tr>');
