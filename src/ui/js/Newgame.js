@@ -168,7 +168,7 @@ Newgame.actionCreateGame = function() {
   // Opponent button selection
   createtable.append(
     Newgame.getSelectRow("Opponent's button", 'opponent_button',
-			 buttonRecipe, buttonGreyed, null));
+                         buttonRecipe, buttonGreyed, null));
 
   // Round selection
   createtable.append(

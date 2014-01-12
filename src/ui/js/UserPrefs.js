@@ -74,23 +74,23 @@ UserPrefs.getUserPrefsData = function(callbackfunc) {
   };
   $.post(Env.api_location,
          { type: 'loadPlayerInfo' },
-	 function(rs) {
-	   if (rs.status == 'ok') {
-	     if (UserPrefs.parseUserPrefsData(rs.data)) {
-	       UserPrefs.api.load_status = 'ok';
-	     } else {
-	       Env.message = {
-		 'type': 'error', 'text':
-		   "User preferences received from server could not be parsed",
-	       };
-	     }
-	   } else {
-	     Env.message = {
-	       'type': 'error', 'text': rs.message,
-	     };
-	   }
-	   return callbackfunc();
-	 }
+         function(rs) {
+           if (rs.status == 'ok') {
+             if (UserPrefs.parseUserPrefsData(rs.data)) {
+               UserPrefs.api.load_status = 'ok';
+             } else {
+               Env.message = {
+                 'type': 'error', 'text':
+                   "User preferences received from server could not be parsed",
+               };
+             }
+           } else {
+             Env.message = {
+               'type': 'error', 'text': rs.message,
+             };
+           }
+           return callbackfunc();
+         }
   ).fail(function () {
     Env.message = {
       'type': 'error',
