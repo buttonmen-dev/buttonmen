@@ -216,7 +216,7 @@ Newuser.formCreateUser = function() {
 Newuser.addLoggedInPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
-    'text': "Can't create a user because you are already logged in",
+    'text': 'Can\'t create a user because you are already logged in',
   }));
   errorDiv.append($('<a>', {
     'href': 'index.html',

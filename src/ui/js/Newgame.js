@@ -285,7 +285,7 @@ Newgame.formCreateGame = function() {
 Newgame.addLoggedOutPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
-    'text': "Can't create a game because you are not logged in",
+    'text': 'Can\'t create a game because you are not logged in',
   }));
   Newgame.page.append(errorDiv);
 };
@@ -293,8 +293,8 @@ Newgame.addLoggedOutPage = function() {
 Newgame.addInternalErrorPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
-    'text': "Can't create a game.  Something went wrong when " +
-            "loading data from server.",
+    'text': 'Can\'t create a game.  Something went wrong when ' +
+            'loading data from server.',
   }));
   Newgame.page.append(errorDiv);
 };
@@ -316,7 +316,7 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
   if (selectedval === null) {
     select.append($('<option>', {
       'value': '',
-      'class': "yellowed",
+      'class': 'yellowed',
       'text': 'Choose ' + rowname.toLowerCase(),
     }));
   }
@@ -328,10 +328,10 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
       'text': value,
     };
     if (selectedval == key) {
-      selectopts.selected = "selected";
+      selectopts.selected = 'selected';
     }
     if ((greydict !== null) && (greydict[key])) {
-      selectopts['class'] = "greyed";
+      selectopts['class'] = 'greyed';
     }
     select.append($('<option>', selectopts));
   });

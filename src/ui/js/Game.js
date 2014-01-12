@@ -246,13 +246,15 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
     'swingRequestArray': {},
   };
 
-  $.each(Game.api.gameData.data.swingRequestArrayArray[playerIdx],
-         function(letter, range) {
-           data.swingRequestArray[letter] = {
-             'min': parseInt(range[0]),
-             'max': parseInt(range[1])
-           };
-         });
+  $.each(
+    Game.api.gameData.data.swingRequestArrayArray[playerIdx],
+    function(letter, range) {
+      data.swingRequestArray[letter] = {
+        'min': parseInt(range[0]),
+        'max': parseInt(range[1])
+      };
+    }
+  );
 
   // activePlayerIdx may be either player or may be null
   if (Game.api.gameData.data.activePlayerIdx == playerIdx) {
@@ -315,32 +317,33 @@ Game.actionChooseSwingActive = function() {
 
   // Create a form for submitting swing values
   var swingform = $('<form>', {
-                      'id': 'game_action_form',
-                      'action': "javascript:void(0);",
-                    });
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
   var swingtable = $('<table>', {'id': 'swing_table', });
-  $.each (Game.api.player.swingRequestArray,
-          function(letter, range) {
-            var swingrow = $('<tr>', {});
-            var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
-            swingrow.append($('<td>', { 'text': swingtext, }));
-            var swinginput = $('<td>', {});
-            swinginput.append($('<input>', {
-                               'type': 'text',
-                               'class': 'swing',
-                               'id': 'swing_' + letter,
-                               'size': '2',
-                               'maxlength': '2',
-                              }));
-            swingrow.append(swinginput);
-            swingtable.append(swingrow);
-          });
+  $.each(
+    Game.api.player.swingRequestArray,
+    function(letter, range) {
+      var swingrow = $('<tr>', {});
+      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      swingrow.append($('<td>', { 'text': swingtext, }));
+      var swinginput = $('<td>', {});
+      swinginput.append($('<input>', {
+        'type': 'text',
+        'class': 'swing',
+        'id': 'swing_' + letter,
+        'size': '2',
+        'maxlength': '2',
+      }));
+      swingrow.append(swinginput);
+      swingtable.append(swingrow);
+    });
   swingform.append(swingtable);
   swingform.append($('<br>'));
   swingform.append($('<button>', {
-                                  'id': 'game_action_button',
-                                  'text': 'Submit',
-                                 }));
+    'id': 'game_action_button',
+    'text': 'Submit',
+  }));
 
   // Add the swing die form to the left column of the die table
   var formtd = $('<td>', {});
@@ -364,7 +367,7 @@ Game.actionChooseSwingActive = function() {
 
 Game.actionChooseSwingInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader("Opponent's turn to choose swing dice");
+  Game.pageAddGameHeader('Opponent\'s turn to choose swing dice');
 
   dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
@@ -389,9 +392,9 @@ Game.actionReactToInitiativeActive = function() {
 
   // Create a form for reacting to initiative
   var reactform = $('<form>', {
-                      'id': 'game_action_form',
-                      'action': "javascript:void(0);",
-                    });
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
 
   // Get a table containing the existing die recipes
   dietable = Game.dieRecipeTable(true, true);
@@ -400,27 +403,28 @@ Game.actionReactToInitiativeActive = function() {
   reactform.append($('<br>'));
 
   var reacttypeselect = $('<select>', {
-                             'id': 'react_type_select',
-                             'name': 'react_type_select',
-                           });
-  $.each(Game.api.player.initiativeActions, function(typename, typedice) {
+    'id': 'react_type_select',
+    'name': 'react_type_select',
+  });
+  $.each(
+    Game.api.player.initiativeActions, function(typename, typedice) {
     switch(typename) {
-      case 'focus':
-        typetext = 'Turn down focus dice';
-        break;
-      case 'chance':
-        typetext = 'Reroll one chance die';
-        break;
-      case 'decline':
-        typetext = 'Take no action';
-        break;
+    case 'focus':
+      typetext = 'Turn down focus dice';
+      break;
+    case 'chance':
+      typetext = 'Reroll one chance die';
+      break;
+    case 'decline':
+      typetext = 'Take no action';
+      break;
     }
     reacttypeselect.append(
       $('<option>', {
-          'value': typename,
-          'label': typetext,
-          'text': typetext,
-        }));
+        'value': typename,
+        'label': typetext,
+        'text': typetext,
+      }));
   });
   reactform.append(reacttypeselect);
 
@@ -444,7 +448,7 @@ Game.actionReactToInitiativeActive = function() {
 Game.actionReactToInitiativeInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader(
-    "Opponent's turn to try to gain initiative using die skills");
+    'Opponent\'s turn to try to gain initiative using die skills');
 
   // Get a table containing the existing die recipes
   dietable = Game.dieRecipeTable(true, false);
@@ -466,7 +470,7 @@ Game.actionReactToInitiativeInactive = function() {
 
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader("Your turn to attack");
+  Game.pageAddGameHeader('Your turn to attack');
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(true);
   Game.page.append($('<br>'));
@@ -474,14 +478,14 @@ Game.actionPlayTurnActive = function() {
   var attackdiv = $('<div>');
   attackdiv.append(Game.chatBox());
   var attackform = $('<form>', {
-                       'id': 'game_action_form',
-                       'action': "javascript:void(0);",
-                     });
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
 
   var attacktypeselect = $('<select>', {
-                             'id': 'attack_type_select',
-                             'name': 'attack_type_select',
-                           });
+    'id': 'attack_type_select',
+    'name': 'attack_type_select',
+  });
   $.each(Game.api.validAttackTypeArray, function(typename, typevalue) {
     if (typename == 'Pass') {
       typetext = typename;
@@ -490,17 +494,17 @@ Game.actionPlayTurnActive = function() {
     }
     attacktypeselect.append(
       $('<option>', {
-          'value': typevalue,
-          'label': typename,
-          'text': typetext,
-        }));
+        'value': typevalue,
+        'label': typename,
+        'text': typetext,
+      }));
   });
   attackform.append(attacktypeselect);
 
   attackform.append($('<button>', {
-                        'id': 'game_action_button',
-                        'text': 'Submit',
-                      }));
+    'id': 'game_action_button',
+    'text': 'Submit',
+  }));
   attackdiv.append(attackform);
   Game.page.append(attackdiv);
 
@@ -515,11 +519,11 @@ Game.actionPlayTurnActive = function() {
 
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader("Opponent's turn to attack");
+  Game.pageAddGameHeader('Opponent\'s turn to attack');
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<p>', {'text':
-    "It is your opponent's turn to attack right now." }));
+    'It is your opponent\'s turn to attack right now.' }));
 
   Game.pageAddFooter();
 
@@ -531,7 +535,7 @@ Game.actionPlayTurnInactive = function() {
 
 Game.actionShowFinishedGame = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader("This game is over");
+  Game.pageAddGameHeader('This game is over');
   Game.page.append($('<br>'));
   Game.pageAddGamePlayerStatus('player', false, false);
   Game.page.append($('<br>'));
@@ -566,34 +570,38 @@ Game.formChooseSwingActive = function() {
   });
 
   if (textFieldsFilled) {
-    $.post(Env.api_location, {
-             type: 'submitSwingValues',
-             game: Game.game,
-             swingValueArray: swingValueArray,
-             roundNumber: Game.api.roundNumber,
-             timestamp: Game.api.timestamp,
-           },
-           function(rs) {
-             if ('ok' == rs.status) {
-               Env.message = {
-                 'type': 'success',
-                 'text': 'Successfully set swing values',
-               };
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': rs.message,
-               };
-             }
-             Game.showGamePage();
-           }
-    ).fail(function() {
-             Env.message = { 
-               'type': 'error',
-               'text': 'Internal error when calling submitSwingValues',
-             };
-             Game.showGamePage();
-           });
+    $.post(
+      Env.api_location,
+      {
+        type: 'submitSwingValues',
+        game: Game.game,
+        swingValueArray: swingValueArray,
+        roundNumber: Game.api.roundNumber,
+        timestamp: Game.api.timestamp,
+      },
+      function(rs) {
+        if ('ok' == rs.status) {
+          Env.message = {
+            'type': 'success',
+            'text': 'Successfully set swing values',
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': rs.message,
+          };
+        }
+        Game.showGamePage();
+      }
+    ).fail(
+      function() {
+        Env.message = { 
+          'type': 'error',
+          'text': 'Internal error when calling submitSwingValues',
+        };
+        Game.showGamePage();
+      }
+    );
   } else {
     Env.message = { 
       'type': 'error',
@@ -613,119 +621,121 @@ Game.formReactToInitiativeActive = function() {
 
   switch (action) {
 
-    // valid action, nothing special to do
-    case 'decline':
-      break;
+  // valid action, nothing special to do
+  case 'decline':
+    break;
 
-    case 'focus':
-      if ('focus' in Game.api.player.initiativeActions) {
-        $.each(Game.api.player.initiativeActions.focus, function(i, vals) {
-          var value = parseInt($('#init_react_' + i).val());
-          if (value != Game.api.player.valueArray[i]) {
-            if (vals.indexOf(value) >= 0) {
-              dieIdxArray.push(i);
-              dieValueArray.push(value);
-            } else {
-              error = "Invalid turndown value specified for focus die";
-              formValid = false;
-            }
+  case 'focus':
+    if ('focus' in Game.api.player.initiativeActions) {
+      $.each(Game.api.player.initiativeActions.focus, function(i, vals) {
+        var value = parseInt($('#init_react_' + i).val());
+        if (value != Game.api.player.valueArray[i]) {
+          if (vals.indexOf(value) >= 0) {
+            dieIdxArray.push(i);
+            dieValueArray.push(value);
+          } else {
+            error = 'Invalid turndown value specified for focus die';
+            formValid = false;
           }
-        });
-        if (dieIdxArray.length == 0) {
-          error = "Specified focus action but did not turn down any dice";
-          formValid = false;
         }
-      } else {
-        error = "No focus dice to turn down";
+      });
+      if (dieIdxArray.length == 0) {
+        error = 'Specified focus action but did not turn down any dice';
         formValid = false;
-      } 
-      break;
-
-    case 'chance':
-      if ('chance' in Game.api.player.initiativeActions) {
-        $.each(Game.api.player.initiativeActions.chance, function(i, vals) {
-          var value = $('#init_react_' + i).val();
-          if (value != Game.api.player.valueArray[i]) {
-            if (value == 'reroll') {
-              dieIdxArray.push(i);
-              dieValueArray.push(value);
-            } else {
-              error = "Bad value specified for chance action - choose 'reroll'";
-              formValid = false;
-            }
-          }
-        });
-        if (dieIdxArray.length == 0) {
-          error =
-            "Specified chance action but did not choose any dice to reroll";
-          formValid = false;
-        } else if (dieIdxArray.length > 1) {
-          error =
-            "Specified chance action but chose more than one die to reroll";
-          formValid = false;
-        }
-      } else {
-        error = "No chance dice to reroll";
-        formValid = false;
-      } 
-      break;
-
-    default:
-      error = "Specified action is not valid"
+      }
+    } else {
+      error = 'No focus dice to turn down';
       formValid = false;
+    } 
+    break;
+
+  case 'chance':
+    if ('chance' in Game.api.player.initiativeActions) {
+      $.each(Game.api.player.initiativeActions.chance, function(i, vals) {
+        var value = $('#init_react_' + i).val();
+        if (value != Game.api.player.valueArray[i]) {
+          if (value == 'reroll') {
+            dieIdxArray.push(i);
+            dieValueArray.push(value);
+          } else {
+            error = 'Bad value specified for chance action - choose "reroll"';
+            formValid = false;
+          }
+        }
+      });
+      if (dieIdxArray.length == 0) {
+        error =
+          'Specified chance action but did not choose any dice to reroll';
+        formValid = false;
+      } else if (dieIdxArray.length > 1) {
+        error =
+          'Specified chance action but chose more than one die to reroll';
+        formValid = false;
+      }
+    } else {
+      error = 'No chance dice to reroll';
+      formValid = false;
+    } 
+    break;
+
+  default:
+    error = 'Specified action is not valid'
+    formValid = false;
   }
 
   if (formValid) {
-    $.post(Env.api_location, {
-             type: 'reactToInitiative',
-             game: Game.game,
-             roundNumber: Game.api.roundNumber,
-             timestamp: Game.api.timestamp,
-             action: action,
-             dieIdxArray: dieIdxArray,
-             dieValueArray: dieValueArray,
-           },
-           function(rs) {
-             if ('ok' == rs.status) {
-               switch (action) {
-                 case 'chance':
-                   if (rs.data.gained_initiative) {
-                     var message = 
-                       "Successfully gained initiative by rerolling chance die";
-                   } else {
-                     var message = 
-                       "Rerolled chance die, but did not gain initiative";
-                   }
-                   break;
-                 case 'decline':
-                   var message = 
-                     "Declined to use chance/focus dice";
-                   break;
-                 case 'focus':
-                   var message = 
-                     "Successfully gained initiative using focus dice";
-                   break;
-               }
+    $.post(
+      Env.api_location,
+      {
+        type: 'reactToInitiative',
+        game: Game.game,
+        roundNumber: Game.api.roundNumber,
+        timestamp: Game.api.timestamp,
+        action: action,
+        dieIdxArray: dieIdxArray,
+        dieValueArray: dieValueArray,
+      },
+      function(rs) {
+        if ('ok' == rs.status) {
+          switch (action) {
+          case 'chance':
+            if (rs.data.gained_initiative) {
+              var message = 
+                'Successfully gained initiative by rerolling chance die';
+            } else {
+              var message = 
+                'Rerolled chance die, but did not gain initiative';
+            }
+            break;
+          case 'decline':
+            var message = 'Declined to use chance/focus dice';
+            break;
+          case 'focus':
+            var message = 'Successfully gained initiative using focus dice';
+            break;
+          }
 
-               Env.message = {
-                 'type': 'success',
-                 'text': message,
-               };
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': rs.message,
-               };
-             }
-             Game.showGamePage();
-           }
-    ).fail(function() {
-             Env.message = { 
-               'type': 'error',
-               'text': 'Internal error when calling reactToInitiative',
-             };
-             Game.showGamePage();
-           });
+          Env.message = {
+            'type': 'success',
+            'text': message,
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': rs.message,
+          };
+        }
+        Game.showGamePage();
+      }
+    ).fail(
+      function() {
+        Env.message = { 
+          'type': 'error',
+          'text': 'Internal error when calling reactToInitiative',
+        };
+        Game.showGamePage();
+      }
+    );
   } else {
     Env.message = { 
       'type': 'error',
@@ -758,38 +768,42 @@ Game.formPlayTurnActive = function() {
   var chat = $('#game_chat').val();
 
   // Now try submitting the result
-  $.post(Env.api_location, {
-           type: 'submitTurn',
-           game: Game.game,
-           attackerIdx: Game.api.playerIdx,
-           defenderIdx: Game.api.opponentIdx,
-           dieSelectStatus: dieSelectStatus,
-           attackType: attackType,
-           chat: chat,
-           roundNumber: Game.api.roundNumber,
-           timestamp: Game.api.timestamp,
-         },
-         function(rs) {
-           if (rs.status == 'ok') {
-             Env.message = {
-               'type': 'success',
-               'text': rs.message,
-             };
-           } else {
-             Env.message = {
-               'type': 'error',
-               'text': rs.message,
-             };
-           }
-           Game.showGamePage();
-         }
-    ).fail(function() {
-             Env.message = { 
-               'type': 'error',
-               'text': 'Internal error when calling submitTurn',
-             };
-             Game.showGamePage();
-           });
+  $.post(
+    Env.api_location,
+    {
+      type: 'submitTurn',
+      game: Game.game,
+      attackerIdx: Game.api.playerIdx,
+      defenderIdx: Game.api.opponentIdx,
+      dieSelectStatus: dieSelectStatus,
+      attackType: attackType,
+      chat: chat,
+      roundNumber: Game.api.roundNumber,
+      timestamp: Game.api.timestamp,
+    },
+    function(rs) {
+      if (rs.status == 'ok') {
+        Env.message = {
+          'type': 'success',
+          'text': rs.message,
+        };
+      } else {
+        Env.message = {
+          'type': 'error',
+          'text': rs.message,
+        };
+      }
+      Game.showGamePage();
+    }
+  ).fail(
+    function() {
+      Env.message = { 
+        'type': 'error',
+        'text': 'Internal error when calling submitTurn',
+      };
+      Game.showGamePage();
+    }
+  );
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -944,7 +958,7 @@ Game.dieRecipeTable = function(react_initiative, active) {
       }
       if ((active) && (initopts.length > 0)) {
         dieLRow.append(
-          Game.dieValueSelectTd("init_react_" + i, initopts,
+          Game.dieValueSelectTd('init_react_' + i, initopts,
                                 Game.api.player.valueArray[i]));
       } else {
         dieLRow.append($('<td>', { 'text': Game.api.player.valueArray[i] }));
