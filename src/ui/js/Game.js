@@ -40,7 +40,7 @@ Game.showGamePage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#game_page').length == 0) {
+  if ($('#game_page').length === 0) {
     $('body').append($('<div>', {'id': 'game_page', }));
   }
 
@@ -55,21 +55,21 @@ Game.getCurrentGame = function(callbackfunc) {
     'load_status': 'failed',
   };
   Game.game = Env.getParameterByName('game');
-  if (Game.game == null) {
+  if (Game.game === null) {
     Env.message = {
       'type': 'error',
       'text': 'No game specified.  Nothing to do.'
     };
     return callbackfunc();
   }
-  if ($.isNumeric(Game.game) == false) {
+  if ($.isNumeric(Game.game) === false) {
     Env.message = {
       'type': 'error',
       'text': 'Specified game is not a valid number.  Nothing to do.'
     };
     return callbackfunc();
   }
-  if (Login.logged_in == false) {
+  if (Login.logged_in === false) {
     Env.message = {
       'type': 'error',
       'text': 'Not logged in.  Nothing to do.'
@@ -158,7 +158,7 @@ Game.showStatePage = function() {
 };
 
 Game.layoutPage = function() {
-  if ($('#game_page').length == 0) {
+  if ($('#game_page').length === 0) {
     throw('Internal error: #game_page not defined in layoutPage()');
   }
 
@@ -188,7 +188,7 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
   if (Game.game != Game.api.gameData['data']['gameId']) {
     return false;
   };
-  if ($.isNumeric(currentPlayerIdx) == false) {
+  if (!($.isNumeric(currentPlayerIdx))) {
     return false;
   }
  

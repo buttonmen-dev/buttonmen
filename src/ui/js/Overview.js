@@ -29,7 +29,7 @@ Overview.showOverviewPage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#overview_page').length == 0) {
+  if ($('#overview_page').length === 0) {
     $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
@@ -57,10 +57,10 @@ Overview.showPage = function() {
 
   Overview.page = $('<div>');
 
-  if (Login.logged_in == true) {
+  if (Login.logged_in === true) {
     Overview.pageAddNewgameLink();
 
-    if ((Api.active_games.nGames == 0) && (Api.completed_games.nGames == 0)) {
+    if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
       Env.message = {
         'type': 'none',
         'text': 'You have no games',
@@ -114,7 +114,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gamesource = Api.active_games.games[gameType];
   }
 
-  if (gamesource.length == 0) {
+  if (gamesource.length === 0) {
     return;
   }
   var tableDiv = $('<div>');  

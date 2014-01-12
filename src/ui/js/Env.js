@@ -19,14 +19,16 @@ if ('unit_test' in Env) {
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
-  var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+  var match = new RegExp('[?&]' + name + '=([^&]*)').exec(
+    window.location.search
+  );
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
 
 // Make sure that the page body contains a div for displaying status
 // messages
 Env.setupEnvStub = function() {
-  if ($('#env_message').length == 0) {
+  if ($('#env_message').length === 0) {
     $('body').append($('<div>', {'id': 'env_message', }));
   }
 };

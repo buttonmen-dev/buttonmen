@@ -71,9 +71,9 @@ Api.getButtonData = function(callbackfunc) {
 
 Api.parseButtonData = function(data) {
   Api.button.list = {};
-  if ((data.buttonNameArray == null) ||
-      (data.recipeArray == null) ||
-      (data.hasUnimplementedSkillArray == null)) {
+  if ((!($.isArray(data.buttonNameArray))) ||
+      (!($.isArray(data.recipeArray))) ||
+      (!($.isArray(data.hasUnimplementedSkillArray)))) {
     return false;
   }
   var i = 0;
@@ -130,7 +130,7 @@ Api.getPlayerData = function(callbackfunc) {
 // there's more data available later
 Api.parsePlayerData = function(data) {
   Api.player.list = {};
-  if (data.nameArray == null) {
+  if (!($.isArray(data.nameArray))) {
     return false;
   }
   var i = 0;

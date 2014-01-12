@@ -27,11 +27,11 @@ Newgame.showNewgamePage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#newgame_page').length == 0) {
+  if ($('#newgame_page').length === 0) {
     $('body').append($('<div>', {'id': 'newgame_page', }));
   }
 
-  if (Login.logged_in == false) {
+  if (Login.logged_in === false) {
 
     // The player needs to be logged in for anything good to happen here
     Newgame.actionLoggedOut();
@@ -313,7 +313,7 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
   });
 
   // If there's no default, put an invalid default value first
-  if (selectedval == null) {
+  if (selectedval === null) {
     select.append($('<option>', {
       'value': '',
       'class': "yellowed",
@@ -330,7 +330,7 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
     if (selectedval == key) {
       selectopts['selected'] = "selected";
     }
-    if ((greydict != null) && (greydict[key])) {
+    if ((greydict !== null) && (greydict[key])) {
       selectopts['class'] = "greyed";
     }
     select.append($('<option>', selectopts));

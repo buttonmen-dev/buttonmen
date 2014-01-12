@@ -13,7 +13,7 @@ Login.STATUS_ACTION_FAILED    = 3;
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
-  if (Login.status_type == 0) {
+  if (Login.status_type === 0) {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
   $.post(
@@ -25,7 +25,7 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
-      if (Login.player == null) {
+      if (Login.player === null) {
         Login.stateLoggedOut();
       } else {
         Login.stateLoggedIn();
@@ -40,7 +40,7 @@ Login.showLoginHeader = function(callbackfunc) {
   Login.callback = callbackfunc;
 
   // Make sure div elements that we will need exist in the page body
-  if ($('#login_header').length == 0) {
+  if ($('#login_header').length === 0) {
     $('body').append($('<div>', {'id': 'login_header', }));
     $('body').append($('<hr>'));
   }

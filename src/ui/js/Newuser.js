@@ -25,12 +25,12 @@ Newuser.showNewuserPage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#newuser_page').length == 0) {
+  if ($('#newuser_page').length === 0) {
     $('body').append($('<div>', {'id': 'newuser_page', }));
   }
 
   // Don't allow logged-in users to create new accounts
-  if (Login.logged_in == true) {
+  if (Login.logged_in === true) {
     Newuser.actionLoggedIn();
   } else {
     Newuser.actionCreateUser();
@@ -153,7 +153,7 @@ Newuser.formCreateUser = function() {
   } else {
     var password = $('#newuser_password').val();
     var password_confirm = $('#newuser_password_confirm').val();
-    if (password.length == 0) {
+    if (password.length === 0) {
       Env.message = {
         'type': 'error',
         'text': 'Password may not be null',

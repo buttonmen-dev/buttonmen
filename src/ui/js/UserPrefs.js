@@ -25,7 +25,7 @@ UserPrefs.showUserPrefsPage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#userprefs_page').length == 0) {
+  if ($('#userprefs_page').length === 0) {
     $('body').append($('<div>', {'id': 'userprefs_page' }));
   }
 
