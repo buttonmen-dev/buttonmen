@@ -90,7 +90,8 @@ Overview.layoutPage = function() {
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
   Overview.pageAddGameTable('awaitingPlayer', 'Games waiting for you');
-  Overview.pageAddGameTable('awaitingOpponent', 'Games waiting for your opponent');
+  Overview.pageAddGameTable('awaitingOpponent',
+                            'Games waiting for your opponent');
   Overview.pageAddGameTable('finished', 'Completed games');
 };
 

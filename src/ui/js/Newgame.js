@@ -190,7 +190,9 @@ Newgame.actionCreateGame = function() {
 
   warningpar = $('<p>');
   warningpar.append($('<i>', {
-    'text': 'Note to testers: buttons whose names are prefixed with "--" contain unimplemented skills.  Selecting these buttons is not recommended.'}));
+    'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
+            'contain unimplemented skills.  Selecting these buttons is not ' +
+            'recommended.'}));
   Newgame.page.append(warningpar);
 
   // Function to invoke on button click

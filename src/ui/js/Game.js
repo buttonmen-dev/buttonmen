@@ -84,7 +84,8 @@ Game.getCurrentGame = function(callbackfunc) {
              Game.api.timestamp = rs.data.timestamp;
              Game.api.actionLog = rs.data.gameActionLog;
              Game.api.chatLog = rs.data.gameChatLog;
-             if (Game.parseGameData(rs.data.currentPlayerIdx, rs.data.playerNameArray)) {
+             if (Game.parseGameData(rs.data.currentPlayerIdx,
+                                    rs.data.playerNameArray)) {
                Game.api.load_status = 'ok';
              } else {
                Env.message = {
@@ -195,7 +196,8 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
   Game.api.gameState = Game.api.gameData['data']['gameState'];
   Game.api.playerIdx = currentPlayerIdx;
   Game.api.opponentIdx = 1 - currentPlayerIdx;
-  Game.api.validAttackTypeArray = Game.api.gameData['data']['validAttackTypeArray'];
+  Game.api.validAttackTypeArray = 
+    Game.api.gameData['data']['validAttackTypeArray'];
 
   // Set defaults for both players
   Game.api.player = Game.parsePlayerData(
