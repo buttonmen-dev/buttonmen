@@ -160,7 +160,10 @@ class responder {
         );
     }
 
-    protected function get_interface_response_login($interface, $args) { //NOPMD
+    /*
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    protected function get_interface_response_login($interface, $args) {
         $login_success = login($args['username'], $args['password']);
         if ($login_success) {
             return array('userName' => $args['username']);
