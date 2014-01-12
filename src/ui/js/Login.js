@@ -63,7 +63,7 @@ Login.layoutHeader = function() {
 Login.getLoginForm = function() {
   var loginform = $('<form>', {
                       'id': 'login_action_form',
-                      'action': "javascript:void(0);",
+                      'action': 'javascript:void(0);',
                     });
   return loginform;
 };

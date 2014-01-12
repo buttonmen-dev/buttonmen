@@ -84,7 +84,7 @@ Newuser.actionCreateUser = function() {
                     }));
   var createform = $('<form>', {
                        'id': 'newuser_action_form',
-                       'action': "javascript:void(0);",
+                       'action': 'javascript:void(0);',
                      });
 
   // Table of user creation options

@@ -35,7 +35,7 @@ UserPrefs.showUserPrefsPage = function() {
   } else {
     Env.message = {
       'type': 'error',
-      'text': "Can't view/set preferences because you are not logged in",
+      'text': 'Can\'t view/set preferences because you are not logged in',
     };
     UserPrefs.actionFailed();
   }
@@ -81,7 +81,7 @@ UserPrefs.getUserPrefsData = function(callbackfunc) {
              } else {
                Env.message = {
                  'type': 'error', 'text':
-                   "User preferences received from server could not be parsed",
+                   'User preferences received from server could not be parsed',
                };
              }
            } else {
@@ -138,7 +138,7 @@ UserPrefs.actionSetPrefs = function() {
                     }));
   var prefsform = $('<form>', {
                       'id': 'userprefs_action_form',
-                      'action': "javascript:void(0);"
+                      'action': 'javascript:void(0);'
                     });
 
   // Table of user preferences

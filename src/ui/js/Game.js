@@ -140,7 +140,7 @@ Game.showStatePage = function() {
       Game.actionShowFinishedGame();
     } else {
       Game.page
-        = $('<p>', {'text': "Can't figure out what action to take next", });
+        = $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
       Game.layoutPage();
     }
@@ -156,7 +156,7 @@ Game.showStatePage = function() {
 
 Game.layoutPage = function() {
   if ($('#game_page').length == 0) {
-    throw("Internal error: #game_page not defined in layoutPage()");
+    throw('Internal error: #game_page not defined in layoutPage()');
   }
 
   $('#game_page').empty();

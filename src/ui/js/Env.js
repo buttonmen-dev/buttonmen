@@ -12,9 +12,9 @@ Env.messageTypeColors = {
 
 // location of backend API - depends whether we're testing
 if ('unit_test' in Env) {
-  Env.api_location = "../api/dummy_responder.php";
+  Env.api_location = '../api/dummy_responder.php';
 } else {
-  Env.api_location = "../api/responder.php";
+  Env.api_location = '../api/responder.php';
 }
 
 // Courtesy of stackoverflow:

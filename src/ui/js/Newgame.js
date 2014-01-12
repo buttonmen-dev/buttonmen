@@ -123,7 +123,7 @@ Newgame.actionCreateGame = function() {
                     }));
   var createform = $('<form>', {
                        'id': 'newgame_action_form',
-                       'action': "javascript:void(0);",
+                       'action': 'javascript:void(0);',
                      });
 
   // Table of game creation options
@@ -152,10 +152,10 @@ Newgame.actionCreateGame = function() {
   var buttonGreyed = {};
   $.each(Api.button.list, function(button, buttoninfo) {
     if (buttoninfo.hasUnimplementedSkill) {
-      buttonRecipe[button] = '-- ' + button + ": " + buttoninfo.recipe;
+      buttonRecipe[button] = '-- ' + button + ': ' + buttoninfo.recipe;
       buttonGreyed[button] = true;
     } else {
-      buttonRecipe[button] = button + ": " + buttoninfo.recipe;
+      buttonRecipe[button] = button + ': ' + buttoninfo.recipe;
       buttonGreyed[button] = false;
     }
   });
@@ -167,12 +167,12 @@ Newgame.actionCreateGame = function() {
 
   // Opponent button selection
   createtable.append(
-    Newgame.getSelectRow("Opponent's button", 'opponent_button',
+    Newgame.getSelectRow('Opponent\'s button', 'opponent_button',
                          buttonRecipe, buttonGreyed, null));
 
   // Round selection
   createtable.append(
-    Newgame.getSelectRow("Winner is first player to win", 'n_rounds',
+    Newgame.getSelectRow('Winner is first player to win', 'n_rounds',
       {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
        '4': '4 rounds', '5': '5 rounds', },
       null, '3'));
@@ -218,7 +218,7 @@ Newgame.formCreateGame = function() {
     Env.message = {
       'type': 'error',
       'text':
-        "Please select an opponent, your button, and your opponent's button",
+        'Please select an opponent, your button, and your opponent\'s button',
     };
     Newgame.showNewgamePage(); 
   } else if (!(opponentName in Api.player.list)) {

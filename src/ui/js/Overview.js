@@ -123,7 +123,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   headerRow.append($('<th>', {'text': 'Game #', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
   headerRow.append($('<th>', {'text': 'Your Button', }));
-  headerRow.append($('<th>', {'text': "Opponent's Button", }));
+  headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
   headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
   table.append(headerRow);
   var i = 0;
