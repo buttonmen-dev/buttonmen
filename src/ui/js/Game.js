@@ -409,7 +409,7 @@ Game.actionReactToInitiativeActive = function() {
   });
   $.each(
     Game.api.player.initiativeActions,
-    function(typename, typedice) {
+    function(typename) {
       var typetext;
       switch(typename) {
       case 'focus':
@@ -564,7 +564,7 @@ Game.formChooseSwingActive = function() {
   var swingValueArray = {};
 
   // Iterate over expected swing values
-  $.each(Game.api.player.swingRequestArray, function(letter, range) {
+  $.each(Game.api.player.swingRequestArray, function(letter) {
     var value = $('#swing_' + letter).val();
     if ($.isNumeric(value)) {
       swingValueArray[letter] = value;
@@ -655,7 +655,7 @@ Game.formReactToInitiativeActive = function() {
 
   case 'chance':
     if ('chance' in Game.api.player.initiativeActions) {
-      $.each(Game.api.player.initiativeActions.chance, function(i, vals) {
+      $.each(Game.api.player.initiativeActions.chance, function(i) {
         var value = $('#init_react_' + i).val();
         if (value != Game.api.player.valueArray[i]) {
           if (value == 'reroll') {
@@ -1043,7 +1043,7 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
   gameScoreDiv.append($('<span>', { 'text': Game.api[player].gameScoreStr, }));
 
   var roundScoreDiv;
-  var capturedDieDiv;
+  var capturedDiceDiv;
   if (game_active) {
     // Round score, only applicable in active games
     roundScoreDiv = $('<div>');
