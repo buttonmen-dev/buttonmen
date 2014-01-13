@@ -250,8 +250,8 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
     Game.api.gameData.data.swingRequestArrayArray[playerIdx],
     function(letter, range) {
       data.swingRequestArray[letter] = {
-        'min': parseInt(range[0]),
-        'max': parseInt(range[1])
+        'min': parseInt(range[0], 10),
+        'max': parseInt(range[1], 10)
       };
     }
   );
@@ -632,7 +632,7 @@ Game.formReactToInitiativeActive = function() {
   case 'focus':
     if ('focus' in Game.api.player.initiativeActions) {
       $.each(Game.api.player.initiativeActions.focus, function(i, vals) {
-        var value = parseInt($('#init_react_' + i).val());
+        var value = parseInt($('#init_react_' + i).val(), 10);
         if (value != Game.api.player.valueArray[i]) {
           if (vals.indexOf(value) >= 0) {
             dieIdxArray.push(i);
@@ -1191,7 +1191,7 @@ Game.dieRecipeText = function(recipe, sides) {
     var sidesum = 0;
     var swingcount = 0;
     for (var i = 0; i < recipeSideStrings.length; i++) {
-      var itemSides = parseInt(recipeSideStrings[i]);
+      var itemSides = parseInt(recipeSideStrings[i], 10);
       if (itemSides > 0) {
         sidesum += itemSides;
       } else {
