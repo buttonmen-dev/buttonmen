@@ -723,7 +723,11 @@ class BMGame {
     //       where the index of the rerolled chance die is in $rerolledDieIdx
     //
     //   2.  array('action' => 'decline',
-    //             'playerIdx' => $playerIdx)
+    //             'playerIdx' => $playerIdx,
+    //             'dieIdxArray' => $dieIdxArray,
+    //             'dieValueArray' => $dieValueArray)
+    //       where $dieIdxArray and $dieValueArray are the raw inputs to
+    //       BMInterface->react_to_initiative()
     //
     //   3.  array('action' => 'focus',
     //             'playerIdx' => $playerIdx,
@@ -793,6 +797,38 @@ class BMGame {
                 $this->gameState = BMGameState::DETERMINE_INITIATIVE;
                 break;
             case 'decline':
+                // if there is die information sent, check that it signals
+                // no change
+                if (!array_key_exists('dieIdxArray', $args) ||
+                    !array_key_exists('dieValueArray', $args)) {
+                    $this->message = 'dieIdxArray and dieValueArray must exist.';
+                    return FALSE;
+                }
+
+                $dieIdxArray = $args['dieIdxArray'];
+                $dieValueArray = $args['dieValueArray'];
+
+                // validate decline action
+                if (is_array($dieIdxArray) &&
+                    count($dieIdxArray) > 0) {
+                    foreach ($dieIdxArray as $listIdx => $dieIdx) {
+                        $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
+
+                        // check for ANY selected dice, not just a single die
+                        $possChanceAction = $die->has_skill('Chance') &&
+                                            !isset($dieValueArray) &&
+                                            (count($dieIdxArray) >= 1);
+                        // check for ANY change in die value, also invalid changes
+                        $possFocusAction = $die->has_skill('Focus') &&
+                                           is_array($dieValueArray) &&
+                                           (count($dieIdxArray) == count($dieValueArray)) &&
+                                           ($die->value != $dieValueArray[$listIdx]);
+                        if ($possChanceAction || $possFocusAction) {
+                            return FALSE;
+                        }
+                    }
+                }
+
                 $gainedInitiative = FALSE;
                 if (0 == array_sum($this->waitingOnActionArray)) {
                     $this->gameState = BMGameState::START_ROUND;
