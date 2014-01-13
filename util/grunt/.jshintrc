@@ -9,6 +9,7 @@
   "noempty": true,
   "nonew": true,
   "quotmark": true,
+  "scripturl": true,
   "undef": true,
   "unused": true,
   "trailing": true,
