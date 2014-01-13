@@ -67,9 +67,10 @@ class BMSkill {
 
     protected static function skill_name_abbreviation_mapping() {
         return array('Berserk'  => 'B',
-                     'Chance'  => 'c',
-                     'Focus'   => 'f',
+                     'Chance'   => 'c',
+                     'Focus'    => 'f',
                      'Konstant' => 'k',
+                     'Morphing' => 'm',
                      'Null'     => 'n',
                      'Poison'   => 'p',
                      'Queer'    => 'q',
