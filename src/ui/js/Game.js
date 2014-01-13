@@ -755,10 +755,11 @@ Game.formPlayTurnActive = function() {
   // Initialize the array of die select statuses to all false, then
   // turn on the dice which have been selected
   var dieSelectStatus = {};
-  for (var i = 0 ; i < Game.api.player.nDie; i++) {
+  var i;
+  for (i = 0 ; i < Game.api.player.nDie; i++) {
     dieSelectStatus[Game.dieIndexId('player', i)] = false;
   }
-  for (var i = 0 ; i < Game.api.opponent.nDie; i++) {
+  for (i = 0 ; i < Game.api.opponent.nDie; i++) {
     dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
   }
   $('div.selected').each(function(index, element) {
@@ -925,6 +926,10 @@ Game.pageAddLogFooter = function() {
 // Generate and return a two-column table of the dice in each player's recipe
 Game.dieRecipeTable = function(react_initiative, active) {
 
+  // variables only needed in the react_initiative case
+  var focusLTable;
+  var focusRTable;
+
   var dietable = $('<table>', {'id': 'die_recipe_table', });
   dietable.append(Game.playerOpponentHeaderRow('Player', 'playerName'));
   dietable.append(Game.playerOpponentHeaderRow('Button', 'buttonName'));
@@ -936,8 +941,8 @@ Game.dieRecipeTable = function(react_initiative, active) {
     focusHeaderLRow.append($('<th>', { 'text': 'Value' }));
     var focusHeaderRRow = focusHeaderLRow.clone();
 
-    var focusLTable = $('<table>');
-    var focusRTable = $('<table>');
+    focusLTable = $('<table>');
+    focusRTable = $('<table>');
 
     focusLTable.append(focusHeaderLRow);
     focusRTable.append(focusHeaderRRow);
@@ -957,8 +962,8 @@ Game.dieRecipeTable = function(react_initiative, active) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
       dieLRow.append(playerEnt);
+      var initopts = [];
       if (active) {
-        var initopts = [];
         if (('focus' in Game.api.player.initiativeActions) &&
             (i in Game.api.player.initiativeActions.focus)) {
           initopts = Game.api.player.initiativeActions.focus[i].concat();
@@ -1037,9 +1042,11 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
   var gameScoreDiv = $('<div>');
   gameScoreDiv.append($('<span>', { 'text': Game.api[player].gameScoreStr, }));
 
+  var roundScoreDiv;
+  var capturedDieDiv;
   if (game_active) {
     // Round score, only applicable in active games
-    var roundScoreDiv = $('<div>');
+    roundScoreDiv = $('<div>');
     roundScoreDiv.append($('<span>', {
       'text': 'Score: ' + Game.api[player].roundScore,
     }));
@@ -1056,7 +1063,7 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
     } else {
       capturedDieText = 'none';
     }
-    var capturedDiceDiv = $('<div>');
+    capturedDiceDiv = $('<div>');
     capturedDiceDiv.append($('<span>', {
       'text': 'Dice captured: ' + capturedDieText,
     }));
