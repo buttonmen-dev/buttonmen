@@ -174,7 +174,6 @@ Newuser.formCreateUser = function() {
         },
         function(rs) {
           if ('ok' == rs.status) {
-            var userName = rs.data.userName;
             var indexLink = $('<a>', {
               'href': 'index.html',
               'text': 'Go back to the homepage, login, and start ' +
