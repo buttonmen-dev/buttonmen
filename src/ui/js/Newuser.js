@@ -108,7 +108,7 @@ Newuser.actionCreateUser = function() {
   $.each(entries, function(entryid, entryinfo) {
     var entryrow = $('<tr>');
     entryrow.append($('<td>', { 'text': entryinfo.text + ':', }));
-    entryinput = $('<td>');
+    var entryinput = $('<td>');
     entryinput.append($('<input>', {
       'type': entryinfo.type,
       'name': entryid,

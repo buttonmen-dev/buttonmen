@@ -157,7 +157,7 @@ UserPrefs.actionSetPrefs = function() {
   $.each(entries, function(entrykey, entryinfo) {
     var entryrow = $('<tr>');
     entryrow.append($('<td>', { 'text': entryinfo.text + ':' }));
-    entryinput = $('<td>');
+    var entryinput = $('<td>');
     entryinput.append($('<input>', {
       'type': entryinfo.type,
       'name': entrykey,

@@ -120,7 +120,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   var tableDiv = $('<div>');
   tableDiv.append($('<h2>', {'text': sectionHeader, }));
   var table = $('<table>');
-  headerRow = $('<tr>');
+  var headerRow = $('<tr>');
   headerRow.append($('<th>', {'text': 'Game #', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
   headerRow.append($('<th>', {'text': 'Your Button', }));
@@ -130,7 +130,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   var i = 0;
   while (i < gamesource.length) {
     var gameInfo = gamesource[i];
-    gameRow = $('<tr>');
+    var gameRow = $('<tr>');
     var gameLinkTd = $('<td>');
     gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                 'text': gameInfo.gameId,}));
