@@ -13,6 +13,11 @@
   "undef": true,
   "unused": true,
   "trailing": true,
+  "globals": {
+    "Api": true,
+    "Env": true,
+    "Login": true
+  },
 
   "es5": true,
 
