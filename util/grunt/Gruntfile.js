@@ -62,6 +62,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-lint-inline'); 
 
   // Default task
-  grunt.registerTask('default', ['inlinelint']);
+  grunt.registerTask('default', ['jshint']);
   grunt.registerTask('jenkins', ['jshint']); 
 };
