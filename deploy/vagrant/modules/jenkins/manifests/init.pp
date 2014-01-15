@@ -14,6 +14,9 @@ class jenkins::server {
 
   # Jenkins server uses PHP PEAR and some jenkins-related modules
   include "php::type::jenkins"
+  
+  # Jenkins server uses JS NPM and some jenkins-related modules
+  include "javascript::type::jenkins"
 
   package {
     "jenkins": require => Class["apt::repo::jenkins-ci"];
