@@ -313,13 +313,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test invalid action
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'blargl',
-                                             'playerIdx' => 0)));
+                                             'playerIdx' => 0,
+                                             'dieIdxArray' => NULL,
+                                             'dieValueArray' => NULL)));
 
-        // test 'decline' action
+        // test invalid 'decline' action
+        $this->assertFalse(
+            $game->react_to_initiative(array('action' => 'decline',
+                                             'playerIdx' => 0,
+                                             'dieIdxArray' => array(3),
+                                             'dieValueArray' => NULL)));
+
+        // test valid 'decline' action
         $this->assertEquals(
             array('gained_initiative' => FALSE),
             $game->react_to_initiative(array('action' => 'decline',
-                                             'playerIdx' => 0)));
+                                             'playerIdx' => 0,
+                                             'dieIdxArray' => NULL,
+                                             'dieValueArray' => NULL)));
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -607,13 +618,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test invalid action
         $this->assertFalse(
             $game->react_to_initiative(array('action' => 'blargl',
-                                             'playerIdx' => 0)));
+                                             'playerIdx' => 0,
+                                             'dieIdxArray' => NULL,
+                                             'dieValueArray' => NULL)));
 
-        // test 'decline' action
+        // test invalid 'decline' action
+        $this->assertFalse(
+            $game->react_to_initiative(array('action' => 'decline',
+                                             'playerIdx' => 0,
+                                             'dieIdxArray' => array(1, 3),
+                                             'dieValueArray' => array(3, 4))));
+
+        // test valid 'decline' action
         $this->assertEquals(
             array('gained_initiative' => FALSE),
             $game->react_to_initiative(array('action' => 'decline',
-                                             'playerIdx' => 0)));
+                                             'playerIdx' => 0,
+                                             'dieIdxArray' => NULL,
+                                             'dieValueArray' => NULL)));
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -828,7 +850,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             array('gained_initiative' => FALSE),
             $game->react_to_initiative(array('action' => 'decline',
-                                             'playerIdx' => 1)));
+                                             'playerIdx' => 1,
+                                             'dieIdxArray' => NULL,
+                                             'dieValueArray' => NULL)));
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);

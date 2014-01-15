@@ -1240,6 +1240,8 @@ class BMInterface {
                     }
                     break;
                 case 'decline':
+                    $argArray['dieIdxArray'] = $dieIdxArray;
+                    $argArray['dieValueArray'] = $dieValueArray;
                     break;
                 default:
                     $this->message = 'Invalid action to respond to initiative.';
