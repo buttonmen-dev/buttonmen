@@ -29,13 +29,13 @@ Overview.showOverviewPage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#overview_page').length == 0) {
+  if ($('#overview_page').length === 0) {
     $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
   // Get all needed information, then display overview page
   Overview.getOverview(Overview.showPage);
-}
+};
 
 Overview.getOverview = function(callback) {
 
@@ -51,16 +51,16 @@ Overview.getOverview = function(callback) {
     };
     return callback();
   }
-}
+};
 
 Overview.showPage = function() {
 
   Overview.page = $('<div>');
 
-  if (Login.logged_in == true) {
+  if (Login.logged_in === true) {
     Overview.pageAddNewgameLink();
 
-    if ((Api.active_games.nGames == 0) && (Api.completed_games.nGames == 0)) {
+    if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
       Env.message = {
         'type': 'none',
         'text': 'You have no games',
@@ -72,7 +72,7 @@ Overview.showPage = function() {
 
   // Actually layout the page
   Overview.layoutPage();
-}
+};
 
 Overview.layoutPage = function() {
 
@@ -82,7 +82,7 @@ Overview.layoutPage = function() {
 
   $('#overview_page').empty();
   $('#overview_page').append(Overview.page);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
@@ -90,9 +90,10 @@ Overview.layoutPage = function() {
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
   Overview.pageAddGameTable('awaitingPlayer', 'Games waiting for you');
-  Overview.pageAddGameTable('awaitingOpponent', 'Games waiting for your opponent');
+  Overview.pageAddGameTable('awaitingOpponent',
+                            'Games waiting for your opponent');
   Overview.pageAddGameTable('finished', 'Completed games');
-}
+};
 
 Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
@@ -103,7 +104,7 @@ Overview.pageAddNewgameLink = function() {
   }));
   newgameDiv.append(newgamePar);
   Overview.page.append(newgameDiv);
-}
+};
 
 Overview.pageAddGameTable = function(gameType, sectionHeader) {
   var gamesource;
@@ -113,23 +114,23 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gamesource = Api.active_games.games[gameType];
   }
 
-  if (gamesource.length == 0) {
-     return;
+  if (gamesource.length === 0) {
+    return;
   }
-  var tableDiv = $('<div>');  
+  var tableDiv = $('<div>');
   tableDiv.append($('<h2>', {'text': sectionHeader, }));
   var table = $('<table>');
-  headerRow = $('<tr>');
+  var headerRow = $('<tr>');
   headerRow.append($('<th>', {'text': 'Game #', }));
   headerRow.append($('<th>', {'text': 'Opponent', }));
   headerRow.append($('<th>', {'text': 'Your Button', }));
-  headerRow.append($('<th>', {'text': "Opponent's Button", }));
+  headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
   headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
   table.append(headerRow);
   var i = 0;
   while (i < gamesource.length) {
     var gameInfo = gamesource[i];
-    gameRow = $('<tr>');
+    var gameRow = $('<tr>');
     var gameLinkTd = $('<td>');
     gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                 'text': gameInfo.gameId,}));
@@ -137,9 +138,9 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gameRow.append($('<td>', {'text': gameInfo.opponentName, }));
     gameRow.append($('<td>', {'text': gameInfo.playerButtonName, }));
     gameRow.append($('<td>', {'text': gameInfo.opponentButtonName, }));
-    gameRow.append($('<td>', {'text': gameInfo.gameScoreDict['W'] + '/' +
-                                      gameInfo.gameScoreDict['L'] + '/' +
-                                      gameInfo.gameScoreDict['D'] +
+    gameRow.append($('<td>', {'text': gameInfo.gameScoreDict.W + '/' +
+                                      gameInfo.gameScoreDict.L + '/' +
+                                      gameInfo.gameScoreDict.D +
                                       ' (' + gameInfo.maxWins + ')', }));
     i += 1;
     table.append(gameRow);
@@ -148,4 +149,4 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   tableDiv.append(table);
   tableDiv.append($('<hr>'));
   Overview.page.append(tableDiv);
-}
+};
