@@ -37,13 +37,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
      */
     public function testGet_instance()
     {
-        // Baseline version
-        $test1 = BMAttack::get_instance();
-        $test2 = BMAttack::get_instance();
+        $test1 = BMAttack::get_instance('Power');
+        $test2 = BMAttack::get_instance('Power');
 
         $this->assertTrue($test1 === $test2);
 
-        // Specific type lookup
         $this->assertNull(BMAttack::get_instance("NotAnAttack"));
 
         $power = BMAttack::get_instance("Power");
@@ -386,51 +384,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttack::find_attack
-     */
-    public function testFind_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->find_attack(new BMGame));
-    }
-
-    /**
-     * @coversNothing
-     */
-    public function testInteractionFind_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->find_attack(new BMGame));
-    }
-
-    /**
-     * @covers BMAttack::validate_attack
-     */
-    public function testValidate_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->validate_attack(new TestDummyGame,
-                                                 array(new BMDie),
-                                                 array(new BMDie)));
-    }
-
-    /**
-     * @coversNothing
-     */
-    public function testInteractionValidate_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->validate_attack(new BMGame,
-                                                 array(new BMDie),
-                                                 array(new BMDie)));
-    }
-
-    /**
      * @covers BMAttack::has_disabled_attackers
      */
     public function testHas_disabled_attackers()
     {
-        $att = BMAttack::get_instance();
+        $att = BMAttack::get_instance('Power');
         $die1 = new BMDie;
         $die2 = new BMDie;
         $die2->disabled = TRUE;

@@ -14,4 +14,8 @@ class BMAttackPass extends BMAttack {
     public function validate_attack($game, array $attackers, array $defenders) {
         return (empty($attackers) && empty($defenders));
     }
+
+    protected function are_skills_compatible(array $attArray) {
+        return TRUE;
+    }
 }

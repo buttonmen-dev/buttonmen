@@ -47,19 +47,30 @@
 
   function verify_php_file_classes(&$problems, $subdir) {
     foreach (glob("$subdir/*.php") as $phpfile) {
-      unset($output);
-      exec('grep "^class .* {" ' . $phpfile, $output);
-      $numlines = count($output);
-      if ($numlines == 0) {
+      unset($concrete_output);
+      exec('grep "^class .* {" ' . $phpfile, $concrete_output);
+      $concrete_classes = count($concrete_output);
+      unset($abstract_output);
+      exec('grep "^abstract class .* {" ' . $phpfile, $abstract_output);
+      $abstract_classes = count($abstract_output);
+      $classes = $concrete_classes + $abstract_classes;
+      if ($classes == 0) {
         $problems[] = "PHP file contains no classes: $phpfile";
-      } elseif ($numlines > 1) {
+      } elseif ($classes > 1) {
         $problems[] = "PHP file contains more than one class: $phpfile";
-      } else {
-        $classinfo = explode(" ", $output[0]);
+      } elseif ($concrete_classes == 1) {
+        $classinfo = explode(" ", $concrete_output[0]);
         $expected_class = basename($phpfile, ".php");
         $found_class = $classinfo[1];
         if ($expected_class != $found_class) {
           $problems[] = "Class in PHP file doesn't match file name: $phpfile";
+        }
+      } elseif ($abstract_classes == 1) {
+        $classinfo = explode(" ", $abstract_output[0]);
+        $expected_class = basename($phpfile, ".php");
+        $found_class = $classinfo[2];
+        if ($expected_class != $found_class) {
+          $problems[] = "Abstract class in PHP file doesn't match file name: $phpfile";
         }
       }
     }

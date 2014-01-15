@@ -27,25 +27,52 @@ class BMGameState {
     // end game
     const END_GAME = 60;
 
+    public static function all_game_state_strings() {
+        return array('START_GAME',
+                     'APPLY_HANDICAPS',
+                     'CHOOSE_AUXILIARY_DICE',
+                     'LOAD_DICE_INTO_BUTTONS',
+                     'ADD_AVAILABLE_DICE_TO_GAME',
+                     'SPECIFY_DICE',
+                     'DETERMINE_INITIATIVE',
+                     'REACT_TO_INITIATIVE',
+                     'START_ROUND',
+                     'START_TURN',
+                     'END_TURN',
+                     'END_ROUND',
+                     'END_GAME');
+    }
+
+    public static function all_game_state_values() {
+        $gameStateValueArray = array();
+        foreach (BMGameState::all_game_state_strings() as $gameStateStr) {
+            $gameStateValueArray[] = constant('BMGameState::'.$gameStateStr);
+        }
+        return $gameStateValueArray;
+    }
+
+    public static function as_string($gameState) {
+        $gameStateStrings = BMGameState::all_game_state_strings();
+        $gameStateValues = BMGameState::all_game_state_values();
+
+        $gameStateIdx = array_search($gameState, $gameStateValues);
+
+        $gameStateString = '';
+        if (FALSE !== $gameStateIdx) {
+            $gameStateString = $gameStateStrings[$gameStateIdx];
+        }
+
+        return $gameStateString;
+    }
+
     public static function validate_game_state($value) {
         if (FALSE === filter_var($value, FILTER_VALIDATE_INT)) {
             throw new InvalidArgumentException(
                 'Game state must be an integer.'
             );
         }
-        if (!in_array($value, array(BMGameState::START_GAME,
-                                    BMGameState::APPLY_HANDICAPS,
-                                    BMGameState::CHOOSE_AUXILIARY_DICE,
-                                    BMGameState::LOAD_DICE_INTO_BUTTONS,
-                                    BMGameState::ADD_AVAILABLE_DICE_TO_GAME,
-                                    BMGameState::SPECIFY_DICE,
-                                    BMGameState::DETERMINE_INITIATIVE,
-                                    BMGameState::REACT_TO_INITIATIVE,
-                                    BMGameState::START_ROUND,
-                                    BMGameState::START_TURN,
-                                    BMGameState::END_TURN,
-                                    BMGameState::END_ROUND,
-                                    BMGameState::END_GAME))) {
+
+        if (!in_array($value, BMGameState::all_game_state_values())) {
             throw new InvalidArgumentException(
                 'Invalid game state.'
             );

@@ -18,15 +18,29 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
+        if (!$this->are_skills_compatible($attackers)) {
+            return FALSE;
+        }
+
         $attacker = $attackers[0];
         $defender = $defenders[0];
 
-        $doesAttackerHaveTrip = $attacker->has_skill('Trip');
         $isDieLargeEnough = ($attacker->max >= $defender->min);
 
-        // james: add something about not being able to attack stealth dice
+        return $isDieLargeEnough;
+    }
 
-        return ($doesAttackerHaveTrip &&
-                $isDieLargeEnough);
+    protected function are_skills_compatible(array $attArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attArray must have one element.');
+        }
+
+        $att = $attArray[0];
+
+        if ($att->has_skill('Trip')) {
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }
