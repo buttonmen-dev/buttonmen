@@ -13,24 +13,25 @@ Login.STATUS_ACTION_FAILED    = 3;
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
-  if (Login.status_type == 0) {
+  if (Login.status_type === 0) {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
-  $.post(Env.api_location, 
-         {type: 'loadPlayerName'},
-         function(rs) {
-           var player_name = null;
-           if (rs.status == 'ok') {
-             player_name = rs.data.userName;
-           }
-           Login.player = player_name;
-           if (Login.player == null) {
-             Login.stateLoggedOut();
-           } else {
-             Login.stateLoggedIn();
-           }
-           return Login.layoutHeader();
-         }
+  $.post(
+    Env.api_location,
+    { type: 'loadPlayerName' },
+    function(rs) {
+      var player_name = null;
+      if (rs.status == 'ok') {
+        player_name = rs.data.userName;
+      }
+      Login.player = player_name;
+      if (Login.player === null) {
+        Login.stateLoggedOut();
+      } else {
+        Login.stateLoggedIn();
+      }
+      return Login.layoutHeader();
+    }
   );
 };
 
@@ -39,7 +40,7 @@ Login.showLoginHeader = function(callbackfunc) {
   Login.callback = callbackfunc;
 
   // Make sure div elements that we will need exist in the page body
-  if ($('#login_header').length == 0) {
+  if ($('#login_header').length === 0) {
     $('body').append($('<div>', {'id': 'login_header', }));
     $('body').append($('<hr>'));
   }
@@ -47,7 +48,7 @@ Login.showLoginHeader = function(callbackfunc) {
   // Find the current login header contents, and display them followed
   // by the specified callback routine
   Login.getLoginHeader();
-}
+};
 
 Login.layoutHeader = function() {
   $('#login_header').empty();
@@ -57,16 +58,16 @@ Login.layoutHeader = function() {
     $('#login_action_button').click(Login.form);
   }
   return Login.callback();
-}
+};
 
 // Get an empty form of the Login type
 Login.getLoginForm = function() {
   var loginform = $('<form>', {
-                      'id': 'login_action_form',
-                      'action': "javascript:void(0);",
-                    });
+    'id': 'login_action_form',
+    'action': 'javascript:void(0);',
+  });
   return loginform;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible logged in state
@@ -78,15 +79,15 @@ Login.stateLoggedIn = function() {
     'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
   );
   loginform.append($('<button>', {
-                       'id': 'login_action_button',
-                       'text': 'Logout?',
-                     }));
+    'id': 'login_action_button',
+    'text': 'Logout?',
+  }));
 
   Login.message = loginform;
   Login.addMainNavbar();
   Login.form = Login.formLogout;
   Login.logged_in = true;
-}
+};
 
 Login.stateLoggedOut = function() {
   Login.message = $('<p>');
@@ -94,15 +95,15 @@ Login.stateLoggedOut = function() {
   if (Login.status_type == Login.STATUS_ACTION_FAILED) {
     Login.message.append(
       $('<font>', {
-          'color': Env.messageTypeColors['error'],
-          'text': 'Login failed - username or password invalid',
-        }));
+        'color': Env.messageTypeColors.error,
+        'text': 'Login failed - username or password invalid',
+      }));
   } else if (Login.status_type == Login.STATUS_ACTION_SUCCEEDED) {
     Login.message.append(
       $('<font>', {
-          'color': Env.messageTypeColors['success'],
-          'text': 'Logout succeeded - login again?',
-        }));
+        'color': Env.messageTypeColors.success,
+        'text': 'Logout succeeded - login again?',
+      }));
   } else {
     Login.message.append('You are not logged in. ');
   }
@@ -110,32 +111,32 @@ Login.stateLoggedOut = function() {
   var loginform = Login.getLoginForm();
   loginform.append('Username: ');
   loginform.append($('<input>', {
-                       'type': 'text',
-                       'id': 'login_name',
-                       'name': 'login_name',
-                     }));
+    'type': 'text',
+    'id': 'login_name',
+    'name': 'login_name',
+  }));
   loginform.append(' Password: ');
   loginform.append($('<input>', {
-                       'type': 'password',
-                       'id': 'login_pass',
-                       'name': 'login_pass',
-                     }));
+    'type': 'password',
+    'id': 'login_pass',
+    'name': 'login_pass',
+  }));
   loginform.append(' ');
   loginform.append($('<button>', {
-                       'id': 'login_action_button',
-                       'text': 'Login',
-                     }));
+    'id': 'login_action_button',
+    'text': 'Login',
+  }));
   var createoption = $('<font>', { 'text': ' or ', });
   createoption.append($('<a>', {
-                       'href': 'create_user.html',
-                       'text': 'Create an account',
-                     }));
+    'href': 'create_user.html',
+    'text': 'Create an account',
+  }));
   loginform.append(createoption);
 
   Login.message.append(loginform);
   Login.form = Login.formLogin;
   Login.logged_in = false;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Helper functions which add text to the existing message
@@ -147,7 +148,8 @@ Login.addMainNavbar = function() {
   var links = {
     'index.html': 'Overview',
     'create_game.html': 'Create game',
-    'prefs.html': 'Preferences' };
+    'prefs.html': 'Preferences',
+  };
   $.each(links, function(url, text) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
@@ -156,7 +158,7 @@ Login.addMainNavbar = function() {
   navtable.append(navrow);
   Login.message.append(navtable);
   Login.message.append($('<br>'));
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible form action
@@ -168,29 +170,32 @@ Login.addMainNavbar = function() {
 // of attempts to contact responder, so, for now, don't give the user
 // any feedback, just redisplay the header no matter what.  (Fix this later.)
 Login.postToResponder = function(responder_args) {
-  $.post(Env.api_location,
-         responder_args,
-         function(rs) {
-           if (rs.status == 'ok') {
-             Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
-             Env.message = null;
-           } else {
-             Login.status_type = Login.STATUS_ACTION_FAILED;
-           }
-           Login.showLoginHeader(Login.callback);
-         }
-  ).fail(function() {
-           Login.status_type = Login.STATUS_ACTION_FAILED;
-           Login.showLoginHeader(Login.callback);
-         });
-}
+  $.post(
+    Env.api_location,
+    responder_args,
+    function(rs) {
+      if (rs.status == 'ok') {
+        Login.status_type = Login.STATUS_ACTION_SUCCEEDED;
+        Env.message = null;
+      } else {
+        Login.status_type = Login.STATUS_ACTION_FAILED;
+      }
+      Login.showLoginHeader(Login.callback);
+    }
+  ).fail(
+    function() {
+      Login.status_type = Login.STATUS_ACTION_FAILED;
+      Login.showLoginHeader(Login.callback);
+    }
+  );
+};
 
 Login.formLogout = function() {
   var logoutargs = {
     'type': 'logout',
   };
   Login.postToResponder(logoutargs);
-}
+};
 
 Login.formLogin = function() {
   var username = null;
@@ -208,4 +213,4 @@ Login.formLogin = function() {
     'password': password,
   };
   Login.postToResponder(loginargs);
-}
+};
