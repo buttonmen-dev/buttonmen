@@ -1,16 +1,26 @@
 {
   "bitwise": true,
-  "camelcase": true,
   "curly": true,
+  "indent": 2,
   "latedef": true,
+  "maxlen": 80,
   "newcap": true,
   "noarg": true,
   "noempty": true,
   "nonew": true,
   "quotmark": true,
+  "scripturl": true,
   "undef": true,
   "unused": true,
   "trailing": true,
+  "globals": {
+    "Api": true,
+    "Env": true,
+    "Login": true
+  },
+
+  "es5": true,
+
   "browser": true,
   "jquery": true
 }
