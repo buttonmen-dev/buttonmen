@@ -298,10 +298,10 @@ Game.parseValidInitiativeActions = function() {
     });
 
     if (hasFocus) {
-      Game.api.player.initiativeActions['focus'] = focus;
+      Game.api.player.initiativeActions.focus = focus;
     }
     if (hasChance) {
-      Game.api.player.initiativeActions['chance'] = chance;
+      Game.api.player.initiativeActions.chance = chance;
     }
     Game.api.player.initiativeActions.decline = true;
   }
