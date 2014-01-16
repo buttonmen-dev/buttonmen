@@ -882,9 +882,10 @@ class BMInterface {
         }
     }
 
-    // Check whether a requested action still needs to be taken
-    // Note: it might be possible for this to be a protected function
-    public function is_action_current(
+    // Check whether a requested action still needs to be taken.
+    // If the time stamp is not important, use the string 'ignore'
+    // for $postedTimestamp.
+    protected function is_action_current(
         BMGame $game,
         $expectedGameState,
         $postedTimestamp,
@@ -892,10 +893,17 @@ class BMInterface {
         $currentPlayerId
     ) {
         $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
-        return (($postedTimestamp == $this->timestamp->format(DATE_RSS)) &&
-                ($roundNumber == $game->roundNumber) &&
-                ($expectedGameState == $game->gameState) &&
-                (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
+        $doesTimeStampAgree =
+            ('ignore' === $postedTimestamp) ||
+            $postedTimestamp == $this->timestamp->format(DATE_RSS);
+        $doesRoundNumberAgree = $roundNumber == $game->roundNumber;
+        $doesGameStateAgree = $expectedGameState == $game->gameState;
+        $isCurrentPlayerActive =
+            TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
+        return ($doesTimeStampAgree &&
+                $doesRoundNumberAgree &&
+                $doesGameStateAgree &&
+                $isCurrentPlayerActive);
     }
 
     // Enter recent game actions into the action log
@@ -1031,7 +1039,7 @@ class BMInterface {
             if (!$this->is_action_current(
                 $game,
                 BMGameState::SPECIFY_DICE,
-                $submitTimestamp,
+                'ignore',
                 $roundNumber,
                 $playerId
             )) {
