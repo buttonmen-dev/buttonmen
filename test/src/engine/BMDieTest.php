@@ -671,16 +671,34 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      *
      * @depends testAttack_list
      */
-    public function testCapture() {
-        // How does one test a function that doesn't do anything, but
-        // exists solely to be modified?
-        $defDie = new BMDie;
-        $attackers = array($this->object);
+    public function testCapture_normal() {
+        $attDie = BMDie::create(7);
+        $defDie = BMDie::create(11);
+        $attackers = array($attDie);
         $defenders = array($defDie);
 
         foreach ($this->object->attack_list() as $att) {
             $this->object->capture($att, $attackers, $defenders);
+            $this->assertEquals(7, $attDie->max);
         }
+    }
+
+    /**
+     * @covers BMDie::capture
+     *
+     * @depends testAttack_list
+     */
+    public function testCapture_morphing() {
+        $attDie = BMDie::create(8);
+        $attDie->add_skill('Morphing');
+        $defDie = BMDie::create_from_recipe('(6,6)');
+        $attackers = array(&$attDie);
+        $defenders = array($defDie);
+
+        $attDie->capture('Power', $attackers, $defenders);
+        $this->assertInstanceOf('BMDieTwin', $attDie);
+        $this->assertEquals(2, $attDie->min);
+        $this->assertEquals(12, $attDie->max);
     }
 
     /**
