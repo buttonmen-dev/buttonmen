@@ -32,9 +32,11 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
 
         $def = BMDie::create(17);
 
-        BMSkillMorphing::capture(array('type' => 'Power',
-                                       'attackers' => array($att),
-                                       'defenders' => array($def)));
+        $parArray = array('type' => 'Power',
+                          'attackers' => array(&$att),
+                          'defenders' => array($def));
+        BMSkillMorphing::capture($parArray);
+
         $this->assertEquals(17, $att->max);
     }
 }

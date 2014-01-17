@@ -8,13 +8,11 @@ class BMSkillMorphing extends BMSkill {
             return;
         }
 
-        var_dump($args);
-
         $attackers = &$args['attackers'];
-        $cloneTarget = $args['defenders'];
+        $cloneTarget = $args['defenders'][0];
 
-        foreach ($attackers as &$att) {
-            if ($att->has_skill('Morphing') {
+        foreach ($attackers as $dieIdx => &$att) {
+            if ($att->has_skill('Morphing')) {
                 $attBackup = clone $att;
                 $att = clone $cloneTarget;
                 $att->copy_skills_from_die($attBackup);
