@@ -40,6 +40,12 @@ class BMSkillMorphing extends BMSkill {
     protected static function create_morphing_clone_target($die) {
         if ($die instanceof BMDieSwing) {
             $die = $die->cast_as_BMDie();
+        } elseif ($die instanceof BMDieTwin) {
+            foreach ($die->dice as &$subDie) {
+                if ($subDie instanceof BMDieSwing) {
+                    $subDie = $subDie->cast_as_BMDie();
+                }
+            }
         }
 
         return $die;

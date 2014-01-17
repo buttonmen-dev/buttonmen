@@ -110,6 +110,25 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($att1->has_skill('Morphing'));
         $this->assertTrue($att1->has_skill('Trip'));
         $this->assertFalse($att1->has_skill('Konstant'));
+
+        // morphing swing die capturing normal die
+        $att2 = BMDie::create_from_recipe('(X)');
+        $att2->add_skill('Morphing');
+        $att2->add_skill('Trip');
+        $att2->set_swingValue(array('X' => 7));
+        $def2 = BMDie::create(11);
+        $def2->add_skill('Konstant');
+
+        $parArray = array('type' => 'Power',
+                          'attackers' => array(&$att2),
+                          'defenders' => array($def2));
+        BMSkillMorphing::capture($parArray);
+
+        $this->assertEquals(11, $att2->max);
+        $this->assertNotInstanceOf('BMDieSwing', $att2);
+        $this->assertTrue($att2->has_skill('Morphing'));
+        $this->assertTrue($att2->has_skill('Trip'));
+        $this->assertFalse($att2->has_skill('Konstant'));
     }
 }
 
