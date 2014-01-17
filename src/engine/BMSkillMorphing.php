@@ -38,6 +38,7 @@ class BMSkillMorphing extends BMSkill {
     }
 
     protected static function create_morphing_clone_target($die) {
+        // convert swing and option dice back to normal dice
         if ($die instanceof BMDieSwing ||
             $die instanceof BMDieOption) {
             $die = $die->cast_as_BMDie();
