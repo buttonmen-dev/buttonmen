@@ -9,7 +9,8 @@ class BMSkillMorphing extends BMSkill {
         }
 
         $attackers = &$args['attackers'];
-        $cloneTarget = $args['defenders'][0];
+
+        $cloneTarget = self::create_morphing_clone_target($args['defenders'][0]);
 
         foreach ($attackers as $dieIdx => &$att) {
             if ($att->has_skill('Morphing')) {
@@ -34,5 +35,13 @@ class BMSkillMorphing extends BMSkill {
         }
 
         return TRUE;
+    }
+
+    protected static function create_morphing_clone_target($die) {
+        if ($die instanceof BMDieSwing) {
+            $die = $die->cast_as_BMDie();
+        }
+
+        return $die;
     }
 }

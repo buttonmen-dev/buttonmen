@@ -620,7 +620,18 @@ class BMDie {
         ));
     }
 
+    public function cast_as_BMDie() {
+        if (!($this instanceof BMDie)) {
+            return NULL;
+        }
 
+        $newDie = new BMDie;
+
+        foreach (get_object_vars($this) as $key => $value) {
+            $newDie->$key = $value;
+        }
+        return $newDie;
+    }
 
     // utility methods
 
