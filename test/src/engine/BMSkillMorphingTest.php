@@ -44,6 +44,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($att1->has_skill('Trip'));
         $this->assertFalse($att1->has_skill('Konstant'));
 
+        // normal morphing die takes a twin die
         $att2 = BMDie::create(6);
         $att2->add_skill('Morphing');
         $att2->add_skill('Trip');
@@ -62,6 +63,24 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($att2->has_skill('Morphing'));
         $this->assertTrue($att2->has_skill('Trip'));
         $this->assertFalse($att2->has_skill('Konstant'));
+
+        // twin morphing die takes a normal die
+        $att3 = BMDieTwin::create(array(7,4));
+        $att3->add_skill('Morphing');
+        $att3->add_skill('Trip');
+        $def3 = BMDie::create(15);
+
+        $parArray = array('type' => 'Power',
+                          'attackers' => array(&$att3),
+                          'defenders' => array($def3));
+        BMSkillMorphing::capture($parArray);
+
+        $this->assertFalse($att3 instanceof BMDieTwin);
+        $this->assertEquals(1, $att3->min);
+        $this->assertEquals(15, $att3->max);
+        $this->assertTrue($att3->has_skill('Morphing'));
+        $this->assertTrue($att3->has_skill('Trip'));
+        $this->assertFalse($att3->has_skill('Konstant'));
     }
 }
 
