@@ -27,17 +27,41 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
      * @covers BMSkillMorphing::capture
      */
     public function testCapture() {
-        $att = BMDie::create(6);
-        $att->add_skill('Morphing');
-
-        $def = BMDie::create(17);
+        // normal morphing die capturing normal die
+        $att1 = BMDie::create(6);
+        $att1->add_skill('Morphing');
+        $att1->add_skill('Trip');
+        $def1 = BMDie::create(17);
+        $def1->add_skill('Konstant');
 
         $parArray = array('type' => 'Power',
-                          'attackers' => array(&$att),
-                          'defenders' => array($def));
+                          'attackers' => array(&$att1),
+                          'defenders' => array($def1));
         BMSkillMorphing::capture($parArray);
 
-        $this->assertEquals(17, $att->max);
+        $this->assertEquals(17, $att1->max);
+        $this->assertTrue($att1->has_skill('Morphing'));
+        $this->assertTrue($att1->has_skill('Trip'));
+        $this->assertFalse($att1->has_skill('Konstant'));
+
+        $att2 = BMDie::create(6);
+        $att2->add_skill('Morphing');
+        $att2->add_skill('Trip');
+        $def2 = BMDieTwin::create(array(5,13));
+
+        $parArray = array('type' => 'Power',
+                          'attackers' => array(&$att2),
+                          'defenders' => array($def2));
+        BMSkillMorphing::capture($parArray);
+
+        $this->assertTrue($att2 instanceof BMDieTwin);
+        $this->assertEquals(2, $att2->min);
+        $this->assertEquals(18, $att2->max);
+        $this->assertEquals(5, $att2->dice[0]->max);
+        $this->assertEquals(13, $att2->dice[1]->max);
+        $this->assertTrue($att2->has_skill('Morphing'));
+        $this->assertTrue($att2->has_skill('Trip'));
+        $this->assertFalse($att2->has_skill('Konstant'));
     }
 }
 
