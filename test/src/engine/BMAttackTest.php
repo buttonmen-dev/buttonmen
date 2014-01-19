@@ -406,10 +406,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1 = new BMDie;
         $die1->init(6);
         $die1->value = 6;
+        $die1->playerIdx = 0;
 
         $die2 = new BMDie;
         $die2->init(6);
         $die2->value = 6;
+        $die2->playerIdx = 1;
 
         $game = new TestDummyGame;
 
@@ -486,10 +488,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die3 = new BMDie;
         $die3->init(6);
         $die3->value = 6;
+        $die3->playerIdx = 0;
 
         $die4 = new BMDie;
         $die4->init(6);
         $die4->value = 6;
+        $die4->playerIdx = 0;
 
         $att[] = $die3;
         $def[] = $die4;
@@ -591,10 +595,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1 = new BMDie;
         $die1->init(6);
         $die1->value = 6;
+        $die1->playerIdx = 0;
 
         $die2 = new BMDie;
         $die2->init(6);
         $die2->value = 6;
+        $die2->playerIdx = 1;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1), array($die2));
@@ -672,10 +678,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die3 = new BMDie;
         $die3->init(6);
         $die3->value = 6;
+        $die3->playerIdx = 0;
 
         $die4 = new BMDie;
         $die4->init(6);
         $die4->value = 6;
+        $die4->playerIdx = 1;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1, $die3), array($die2, $die4));

@@ -484,10 +484,17 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array &$attackers, array &$defenders) {
-        $this->run_hooks(__FUNCTION__, array('type' => $type,
-                                             'attackers' => &$attackers,
-                                             'defenders' => $defenders));
+    public function capture($type, array $attackers, array $defenders) {
+        $result = $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                                       'attackers' => $attackers,
+                                                       'defenders' => $defenders,
+                                                       'caller' => $this));
+
+        if (isset($result) && array_key_exists('BMSkillMorphing', $result)) {
+            return $result['BMSkillMorphing'];
+        } else {
+            return NULL;
+        }
     }
 
 

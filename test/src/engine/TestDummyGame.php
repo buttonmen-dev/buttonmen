@@ -39,6 +39,8 @@ class TestDummyGame {
 
     public $defenderAllDieArray = array();
 
+    public $activeDieArrayArray = array(array(), array());
+
     public $captures = array();
 
     public function capture_die($defender, $player = NULL) {

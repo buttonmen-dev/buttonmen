@@ -3,27 +3,21 @@
 class BMSkillMorphing extends BMSkill {
     public static $hooked_methods = array('capture');
 
-    public static function capture($args) {
+    public static function capture(&$args) {
         if (!self::are_dice_in_attack_valid($args)) {
             return;
         }
 
-        $attackers = &$args['attackers'];
+        $attBackup = clone $args['caller'];
+        $att = self::create_morphing_clone_target($args['defenders'][0]);
+        $att->copy_skills_from_die($attBackup);
+        $att->ownerObject = $attBackup->ownerObject;
+        $att->playerIdx = $attBackup->playerIdx;
+        $att->originalPlayerIdx = $attBackup->originalPlayerIdx;
+        $att->hasAttacked = TRUE;
+        $att->roll(TRUE);
 
-        $cloneTarget = self::create_morphing_clone_target($args['defenders'][0]);
-
-        foreach ($attackers as $dieIdx => &$att) {
-            if ($att->has_skill('Morphing')) {
-                $attBackup = clone $att;
-                $att = clone $cloneTarget;
-                $att->copy_skills_from_die($attBackup);
-                $att->ownerObject = $attBackup->ownerObject;
-                $att->playerIdx = $attBackup->playerIdx;
-                $att->originalPlayerIdx = $attBackup->originalPlayerIdx;
-                $att->hasAttacked = TRUE;
-                $att->roll(TRUE);
-            }
-        }
+        return $att;
     }
 
     protected static function are_dice_in_attack_valid($args) {
@@ -38,18 +32,22 @@ class BMSkillMorphing extends BMSkill {
     }
 
     protected static function create_morphing_clone_target($die) {
+        $newDie = clone $die;
+
         // convert swing and option dice back to normal dice
-        if ($die instanceof BMDieSwing ||
-            $die instanceof BMDieOption) {
-            $die = $die->cast_as_BMDie();
-        } elseif ($die instanceof BMDieTwin) {
-            foreach ($die->dice as &$subDie) {
+        if ($newDie instanceof BMDieSwing ||
+            $newDie instanceof BMDieOption) {
+            $newDie = $newDie->cast_as_BMDie();
+        } elseif ($newDie instanceof BMDieTwin) {
+            foreach ($newDie->dice as &$subDie) {
                 if ($subDie instanceof BMDieSwing) {
                     $subDie = $subDie->cast_as_BMDie();
                 }
             }
         }
 
-        return $die;
+        $newDie->captured = FALSE;
+
+        return $newDie;
     }
 }

@@ -692,13 +692,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $attDie = BMDie::create(8);
         $attDie->add_skill('Morphing');
         $defDie = BMDie::create_from_recipe('(6,6)');
-        $attackers = array(&$attDie);
+        $attackers = array($attDie);
         $defenders = array($defDie);
 
-        $attDie->capture('Power', $attackers, $defenders);
-        $this->assertInstanceOf('BMDieTwin', $attDie);
-        $this->assertEquals(2, $attDie->min);
-        $this->assertEquals(12, $attDie->max);
+        $newDie = $attDie->capture('Power', $attackers, $defenders);
+
+        $this->assertInstanceOf('BMDieTwin', $newDie);
+        $this->assertEquals(2, $newDie->min);
+        $this->assertEquals(12, $newDie->max);
     }
 
     /**
