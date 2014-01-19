@@ -12,12 +12,7 @@ class BMSkillDoppleganger extends BMSkillMorphing {
             return;
         }
 
-        $attBackup = clone $args['caller'];
-        $att = self::create_morphing_clone_target($args['defenders'][0]);
-        $att->ownerObject = $attBackup->ownerObject;
-        $att->playerIdx = $attBackup->playerIdx;
-        $att->originalPlayerIdx = $attBackup->originalPlayerIdx;
-        $att->hasAttacked = TRUE;
+        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
         $att->roll(TRUE);
 
         return $att;
