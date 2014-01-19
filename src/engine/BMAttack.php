@@ -195,7 +195,7 @@ abstract class BMAttack {
         }
 
         // allow attack type to modify default behaviour
-        $activeDieArrayArrayNewDice = array();
+        $activeDiceNew = array();
         foreach ($attackers as &$att) {
             $playerIdx = $att->playerIdx;
             $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx]);
@@ -203,7 +203,7 @@ abstract class BMAttack {
             $newDie = $att->capture($this->type, $attackers, $defenders);
 
             if (isset($newDie)) {
-                $activeDieArrayArrayNewDice[$playerIdx][$dieIdx] = $newDie;
+                $activeDiceNew[$playerIdx][$dieIdx] = $newDie;
             }
         }
 
@@ -212,14 +212,14 @@ abstract class BMAttack {
             $def->be_captured($this->type, $attackers, $defenders);
         }
 
-        if (isset($activeDieArrayArrayNewDice)) {
-            $activeDieArrayArrayCopy = $game->activeDieArrayArray;
-            foreach ($activeDieArrayArrayNewDice as $playerIdx => $activeDieArray) {
+        if (isset($activeDiceNew)) {
+            $activeDiceCopy = $game->activeDieArrayArray;
+            foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
                 foreach ($activeDieArray as $dieIdx => $newDie) {
-                    $activeDieArrayArrayCopy[$playerIdx][$dieIdx] = $newDie;
+                    $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
                 }
             }
-            $game->activeDieArrayArray = $activeDieArrayArrayCopy;
+            $game->activeDieArrayArray = $activeDiceCopy;
         }
 
         // process captured dice

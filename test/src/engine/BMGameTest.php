@@ -6372,41 +6372,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(20, $game->capturedDieArrayArray[0][0]->max);
         $this->assertEquals(12, $game->capturedDieArrayArray[0][0]->value);
         $this->assertEquals(20, $game->activeDieArrayArray[0][1]->max);
-//
-//        // player 2 performs simple attack
-//        $game->attack = array(1,        // attackerPlayerIdx
-//                              0,        // defenderPlayerIdx
-//                              array(3), // attackerAttackDieIdxArray
-//                              array(0), // defenderAttackDieIdxArray
-//                              'Power'); // attackType
-//
-//        $game->proceed_to_next_user_action();
-//        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-//        $this->assertCount(4, $game->activeDieArrayArray[0]);
-//        $this->assertCount(4, $game->activeDieArrayArray[1]);
-//        $this->assertCount(1, $game->capturedDieArrayArray[0]);
-//        $this->assertCount(1, $game->capturedDieArrayArray[1]);
-//        $this->assertEquals(4, $game->capturedDieArrayArray[1][0]->max);
-//        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
-//
-//        // player 1 performs valid subtractive attack
-//        $game->attack = array(0,        // attackerPlayerIdx
-//                              1,        // defenderPlayerIdx
-//                              array(0, 3), // attackerAttackDieIdxArray
-//                              array(2), // defenderAttackDieIdxArray
-//                              'Skill'); // attackType
-//
-//        $game->proceed_to_next_user_action();
-//        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-//        $this->assertCount(4, $game->activeDieArrayArray[0]);
-//        $this->assertCount(3, $game->activeDieArrayArray[1]);
-//        $this->assertCount(2, $game->capturedDieArrayArray[0]);
-//        $this->assertCount(1, $game->capturedDieArrayArray[1]);
-//        $this->assertEquals(20, $game->capturedDieArrayArray[0][1]->max);
-//        $this->assertEquals(13 - $konstantValue,
-//                            $game->capturedDieArrayArray[0][1]->value);
     }
 }
 
