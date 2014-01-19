@@ -55,6 +55,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $att1->add_skill('Morphing');
         $att1->add_skill('Trip');
         $def1 = BMDieTwin::create(array(5,13));
+        $def1->add_skill('Konstant');
 
         $parArray = array('type' => 'Power',
                           'attackers' => array($att1),
@@ -76,6 +77,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $att2->add_skill('Morphing');
         $att2->add_skill('Trip');
         $def2 = BMDie::create(15);
+        $def2->add_skill('Konstant');
 
         $parArray = array('type' => 'Power',
                           'attackers' => array($att2),
