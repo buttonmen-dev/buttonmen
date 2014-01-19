@@ -10,11 +10,11 @@ class BMSkillMorphing extends BMSkill {
 
         $attBackup = clone $args['caller'];
         $att = self::create_morphing_clone_target($args['defenders'][0]);
-        $att->copy_skills_from_die($attBackup);
         $att->ownerObject = $attBackup->ownerObject;
         $att->playerIdx = $attBackup->playerIdx;
         $att->originalPlayerIdx = $attBackup->originalPlayerIdx;
         $att->hasAttacked = TRUE;
+        $att->copy_skills_from_die($attBackup);
         $att->roll(TRUE);
 
         return $att;

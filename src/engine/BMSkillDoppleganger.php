@@ -1,6 +1,6 @@
 <?php
 
-class BMSkillDoppleganger extends BMSkill {
+class BMSkillDoppleganger extends BMSkillMorphing {
     public static $hooked_methods = array('capture');
 
     public static function capture(&$args) {
@@ -13,8 +13,7 @@ class BMSkillDoppleganger extends BMSkill {
         }
 
         $attBackup = clone $args['caller'];
-        $att = clone $args['defenders'][0];
-        $att->captured = FALSE;
+        $att = self::create_morphing_clone_target($args['defenders'][0]);
         $att->ownerObject = $attBackup->ownerObject;
         $att->playerIdx = $attBackup->playerIdx;
         $att->originalPlayerIdx = $attBackup->originalPlayerIdx;
@@ -22,16 +21,5 @@ class BMSkillDoppleganger extends BMSkill {
         $att->roll(TRUE);
 
         return $att;
-    }
-
-    protected static function are_dice_in_attack_valid($args) {
-        if (!is_array($args['attackers']) ||
-            (0 == count($args['attackers'])) ||
-            !is_array($args['defenders']) ||
-            (0 == count($args['defenders']))) {
-            return FALSE;
-        }
-
-        return TRUE;
     }
 }
