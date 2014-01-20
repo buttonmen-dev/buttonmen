@@ -21,6 +21,18 @@
   <mkdir dir="${basedir}/build/pdepend"/>
  </target>
 
+ <target name="php-audit" description="Audit layout of .php files in the tree to match ButtonMen standard">
+  <exec executable="php" failonerror="true">
+   <arg line="./deploy/pagodabox/audit_php_files.php ." />
+  </exec>
+ </target>
+
+ <target name="js-audit" description="Audit test coverage of .js files in the tree to match ButtonMen standard">
+  <exec executable="python" failonerror="true">
+   <arg line="./deploy/jenkins/audit_js_unit_test_coverage.py" />
+  </exec>
+ </target>
+
  <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml" depends="testdb">
   <exec executable="phpunit" failonerror="true">
     <arg line="--bootstrap ./src/lib/bootstrap.php
@@ -159,6 +171,5 @@
   <antcall target="jstest-jenkins-report"/>
  </target>
 
-
- <target name="build" depends="clean,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit"/>
+ <target name="build" depends="clean,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
 </project>

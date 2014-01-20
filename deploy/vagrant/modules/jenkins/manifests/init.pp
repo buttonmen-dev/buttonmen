@@ -79,6 +79,7 @@ class jenkins::server {
     "build-name-setter": ;
     "checkstyle": ;
     "cloverphp": ;
+    "cobertura": ;
     "dry": ;
     "htmlpublisher": ;
     "jdepend": ;
