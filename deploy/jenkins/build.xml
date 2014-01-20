@@ -29,7 +29,7 @@
 
  <target name="js-audit" description="Audit test coverage of .js files in the tree to match ButtonMen standard">
   <exec executable="python" failonerror="true">
-   <arg line="./deploy/jenkins/udit_js_unit_test_coverage.py" />
+   <arg line="./deploy/jenkins/audit_js_unit_test_coverage.py" />
   </exec>
  </target>
 
