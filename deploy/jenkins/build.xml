@@ -145,7 +145,7 @@
 
  <target name="jstest-jenkins-report">
   <exec executable="/usr/bin/java" failonerror="true">
-   <arg line="-cp /opt/JSCover/target/dist/JSCover-all.jar jscover.report.Main --format=COBERTURAXML ./phantom ."/>
+   <arg line="-cp /opt/JSCover/target/dist/JSCover-all.jar jscover.report.Main --format=COBERTURAXML ./build/js-coverage ."/>
   </exec>
  </target>
 
