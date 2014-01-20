@@ -13,7 +13,8 @@ Env.messageTypeColors = {
 // location of backend API - depends whether we're testing
 if ('unit_test' in Env) {
   if (Env.unit_test == 'phantom') {
-    // PhantomJS unit test uses a separate local server solely to run dummy_responder.php
+    // PhantomJS unit test uses a separate local server solely to
+    // run dummy_responder.php
     Env.api_location = 'http://localhost:8082/dummy_responder.php';
   } else {
     Env.api_location = '../api/dummy_responder.php';
