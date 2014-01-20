@@ -10,12 +10,13 @@
   <delete dir="${basedir}/build/api"/>
   <delete dir="${basedir}/build/code-browser"/>
   <delete dir="${basedir}/build/coverage"/>
+  <delete dir="${basedir}/build/js-coverage"/>
   <delete dir="${basedir}/build/logs"/>
   <delete dir="${basedir}/build/pdepend"/>
 
   <mkdir dir="${basedir}/build/api"/>
   <mkdir dir="${basedir}/build/code-browser"/>
-  <mkdir dir="${basedir}/build/coverage"/>
+  <mkdir dir="${basedir}/build/js-coverage"/>
   <mkdir dir="${basedir}/build/logs"/>
   <mkdir dir="${basedir}/build/pdepend"/>
  </target>
@@ -99,6 +100,65 @@
               --output ${basedir}/build/code-browser" />
   </exec>
  </target>
+
+ <target name="jstest-jscover-start">
+  <java jar="/opt/JSCover/target/dist/JSCover-all.jar" fork="true" spawn="true">
+   <arg value="-ws"/>
+   <arg value="--report-dir=build"/>
+   <arg value="--document-root=."/>
+   <arg value="--only-instrument-reg=/src/ui/js/[A-Za-z]*.js"/>
+   <arg value="--port=8081"/>
+  </java>
+  <waitfor maxwait="20" maxwaitunit="second" checkevery="250" checkeveryunit="millisecond" timeoutproperty="failed">
+   <http url="http://localhost:8081/jscoverage.html"/>
+  </waitfor>
+  <fail if="failed"/>
+ </target>
+
+ <target name="jstest-lighttpd-configure">
+  <exec executable="/bin/cp" failonerror="true">
+   <arg line="-f ./src/api/dummy_responder.php /usr/local/share/jenkins-lighttpd/www/dummy_responder.php"/>
+  </exec>
+ </target>
+
+ <target name="jstest-lighttpd-start">
+  <exec executable="/usr/sbin/lighttpd" failonerror="true">
+   <arg line="-f /usr/local/etc/jenkins-lighttpd.conf"/>
+  </exec>
+ </target>
+
+ <target name="jstest-run">
+  <exec dir="." executable="/opt/phantomjs/bin/phantomjs" failonerror="true">
+   <arg line="--web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost:8081/test/src/ui/phantom-index.html"/>
+  </exec>
+ </target>
+
+ <target name="jstest-lighttpd-stop">
+  <exec executable="/usr/bin/killall" failonerror="true">
+   <arg line="/usr/sbin/lighttpd"/>
+  </exec>
+ </target>
+
+ <target name="jstest-jscover-stop">
+  <get src="http://localhost:8081/stop" dest="stop.txt" />
+ </target>
+
+ <target name="jstest-jenkins-report">
+  <exec executable="/usr/bin/java" failonerror="true">
+   <arg line="-cp /opt/JSCover/target/dist/JSCover-all.jar jscover.report.Main --format=COBERTURAXML ./build/js-coverage ."/>
+  </exec>
+ </target>
+
+ <target name="jstest" description="Run javascript tests">
+  <antcall target="jstest-jscover-start"/>
+  <antcall target="jstest-lighttpd-configure"/>
+  <antcall target="jstest-lighttpd-start"/>
+  <antcall target="jstest-run"/>
+  <antcall target="jstest-lighttpd-stop"/>
+  <antcall target="jstest-jscover-stop"/>
+  <antcall target="jstest-jenkins-report"/>
+ </target>
+
 
  <target name="build" depends="clean,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit"/>
 </project>
