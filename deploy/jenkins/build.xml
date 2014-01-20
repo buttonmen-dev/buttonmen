@@ -117,13 +117,13 @@
 
  <target name="jstest-lighttpd-configure">
   <exec executable="/bin/cp" failonerror="true">
-   <arg line="-f ./src/api/dummy_responder.php /usr/local/share/jenkins-lighttpd/www/dummy_responder.php">
+   <arg line="-f ./src/api/dummy_responder.php /usr/local/share/jenkins-lighttpd/www/dummy_responder.php"/>
   </exec>
  </target>
 
  <target name="jstest-lighttpd-start">
   <exec executable="/usr/sbin/lighttpd" failonerror="true">
-   <arg line="-f /usr/local/etc/jenkins-lighttpd.conf">
+   <arg line="-f /usr/local/etc/jenkins-lighttpd.conf"/>
   </exec>
  </target>
 
