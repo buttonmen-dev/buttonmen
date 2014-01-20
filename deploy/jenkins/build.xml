@@ -143,6 +143,12 @@
   <get src="http://localhost:8081/stop" dest="stop.txt" />
  </target>
 
+ <target name="jstest-jenkins-report">
+  <exec executable="/usr/bin/java" failonerror="true">
+   <arg line="-cp /opt/JSCover/target/dist/JSCover-all.jar jscover.report.Main --format=COBERTURAXML ./phantom ."/>
+  </exec>
+ </target>
+
  <target name="jstest" description="Run javascript tests">
   <antcall target="jstest-jscover-start"/>
   <antcall target="jstest-lighttpd-configure"/>
@@ -150,6 +156,7 @@
   <antcall target="jstest-run"/>
   <antcall target="jstest-lighttpd-stop"/>
   <antcall target="jstest-jscover-stop"/>
+  <antcall target="jstest-jenkins-report"/>
  </target>
 
 
