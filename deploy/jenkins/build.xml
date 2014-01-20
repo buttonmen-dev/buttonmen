@@ -135,7 +135,7 @@
 
  <target name="jstest-lighttpd-stop">
   <exec executable="/usr/bin/killall" failonerror="true">
-   <arg line="/usr/sbin/lighttpd">
+   <arg line="/usr/sbin/lighttpd"/>
   </exec>
  </target>
 
