@@ -160,5 +160,5 @@
  </target>
 
 
- <target name="build" depends="clean,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit"/>
+ <target name="build" depends="clean,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
 </project>
