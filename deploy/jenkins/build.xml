@@ -101,7 +101,7 @@
   </exec>
  </target>
 
- <target name="jstest-start">
+ <target name="jstest-jscover-start">
   <java jar="/opt/JSCover/target/dist/JSCover-all.jar" fork="true" spawn="true">
    <arg value="-ws"/>
    <arg value="--report-dir=build"/>
@@ -115,21 +115,41 @@
   <fail if="failed"/>
  </target>
 
+ <target name="jstest-lighttpd-configure">
+  <exec executable="/bin/cp" failonerror="true">
+   <arg line="-f ./src/api/dummy_responder.php /usr/local/share/jenkins-lighttpd/www/dummy_responder.php">
+  </exec>
+ </target>
+
+ <target name="jstest-lighttpd-start">
+  <exec executable="/usr/sbin/lighttpd" failonerror="true">
+   <arg line="-f /usr/local/etc/jenkins-lighttpd.conf">
+  </exec>
+ </target>
+
  <target name="jstest-run">
-    <exec dir="." executable="/opt/phantomjs/bin/phantomjs" failonerror="true">
-        <arg line="--web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost:8081/test/src/ui/phantom-index.html"/>
-    </exec>
-</target>
+  <exec dir="." executable="/opt/phantomjs/bin/phantomjs" failonerror="true">
+   <arg line="--web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost:8081/test/src/ui/phantom-index.html"/>
+  </exec>
+ </target>
 
+ <target name="jstest-lighttpd-stop">
+  <exec executable="/usr/bin/killall" failonerror="true">
+   <arg line="/usr/sbin/lighttpd">
+  </exec>
+ </target>
 
- <target name="jstest-stop">
+ <target name="jstest-jscover-stop">
   <get src="http://localhost:8081/stop" dest="stop.txt" />
  </target>
 
  <target name="jstest" description="Run javascript tests">
-  <antcall target="jstest-start"/>
+  <antcall target="jstest-jscover-start"/>
+  <antcall target="jstest-lighttpd-configure"/>
+  <antcall target="jstest-lighttpd-start"/>
   <antcall target="jstest-run"/>
-  <antcall target="jstest-stop"/>
+  <antcall target="jstest-lighttpd-stop"/>
+  <antcall target="jstest-jscover-stop"/>
  </target>
 
 
