@@ -171,5 +171,5 @@
   <antcall target="jstest-jenkins-report"/>
  </target>
 
- <target name="build" depends="clean,php-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
+ <target name="build" depends="clean,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
 </project>

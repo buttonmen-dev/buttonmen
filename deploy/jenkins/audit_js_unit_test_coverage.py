@@ -99,6 +99,7 @@ def check_phantom_index_file_inclusions(testpairs):
       % (JSTESTPHANTOMINDEX, file_included, includes_missing[file_included]))
 
 testpairs = find_test_files()
+print "Looking for JavaScript unit tests to match ButtonMen spec: " + testpairs
 for [modname, srcpath, testpath] in testpairs:
   check_test_file_functions(modname, srcpath, testpath)
 check_index_file_inclusions(testpairs)
@@ -109,4 +110,5 @@ if len(errors) > 0:
   for errtext in errors:
     print "  " + errtext
   sys.exit(1)
+print "OK"
 sys.exit(0)
