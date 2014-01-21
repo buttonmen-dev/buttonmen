@@ -154,7 +154,7 @@ abstract class BMAttack {
 
     // actually make the attack
     // Some of this should perhaps be in the game, rather than here.
-    public function commit_attack($game, array &$attackers, array &$defenders) {
+    public function commit_attack(&$game, array &$attackers, array &$defenders) {
         // Paranoia
         if (!$this->validate_attack($game, $attackers, $defenders)) {
             return FALSE;
@@ -194,16 +194,32 @@ abstract class BMAttack {
             $def->captured = TRUE;
         }
 
-        $attackersDummy = $attackers;
-        $defendersDummy = $defenders;
-
         // allow attack type to modify default behaviour
+        $activeDiceNew = array();
         foreach ($attackers as &$att) {
-            $att->capture($this->type, $attackers, $defendersDummy);
+            $playerIdx = $att->playerIdx;
+            $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx]);
+
+            $newDie = $att->capture($this->type, $attackers, $defenders);
+
+            if (isset($newDie)) {
+                $activeDiceNew[$playerIdx][$dieIdx] = $newDie;
+            }
         }
 
+
         foreach ($defenders as &$def) {
-            $def->be_captured($this->type, $attackersDummy, $defenders);
+            $def->be_captured($this->type, $attackers, $defenders);
+        }
+
+        if (isset($activeDiceNew)) {
+            $activeDiceCopy = $game->activeDieArrayArray;
+            foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $dieIdx => $newDie) {
+                    $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
+                }
+            }
+            $game->activeDieArrayArray = $activeDiceCopy;
         }
 
         // process captured dice

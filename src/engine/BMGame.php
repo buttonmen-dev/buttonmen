@@ -576,8 +576,8 @@ class BMGame {
         $attAttackDieArray = array();
         foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
             $attackDie =
-                $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                          [$attackerAttackDieIdx];
+                &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                           [$attackerAttackDieIdx];
             if ($attackDie->disabled) {
                 $this->message = 'Attempting to attack with a disabled die.';
                 $this->attack = NULL;

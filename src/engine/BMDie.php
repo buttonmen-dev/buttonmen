@@ -133,6 +133,30 @@ class BMDie {
         return TRUE;
     }
 
+    public function remove_all_skills() {
+        if (!isset($this->skillList) ||
+            0 == count($this->skillList)) {
+            return;
+        }
+
+        foreach (array_keys($this->skillList) as $skill) {
+            $this->remove_skill($skill);
+        }
+    }
+
+    public function copy_skills_from_die($die) {
+        $this->remove_all_skills();
+
+        if (!isset($die->skillList) ||
+            0 == count($die->skillList)) {
+            return;
+        }
+
+        foreach (array_keys($die->skillList) as $skill) {
+            $this->add_skill($skill);
+        }
+    }
+
     public function has_skill($skill) {
         return array_key_exists($skill, $this->skillList);
     }
@@ -460,10 +484,17 @@ class BMDie {
         return $valid;
     }
 
-    public function capture($type, array &$attackers, array &$defenders) {
-        $this->run_hooks(__FUNCTION__, array('type' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders));
+    public function capture($type, array $attackers, array $defenders) {
+        $result = $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                                       'attackers' => $attackers,
+                                                       'defenders' => $defenders,
+                                                       'caller' => $this));
+
+        if (isset($result) && array_key_exists('BMSkillMorphing', $result)) {
+            return $result['BMSkillMorphing'];
+        } else {
+            return NULL;
+        }
     }
 
 
@@ -596,7 +627,18 @@ class BMDie {
         ));
     }
 
+    public function cast_as_BMDie() {
+        if (!($this instanceof BMDie)) {
+            return NULL;
+        }
 
+        $newDie = new BMDie;
+
+        foreach (get_object_vars($this) as $key => $value) {
+            $newDie->$key = $value;
+        }
+        return $newDie;
+    }
 
     // utility methods
 
