@@ -66,18 +66,19 @@ class BMSkill {
     }
 
     protected static function skill_name_abbreviation_mapping() {
-        return array('Berserk'  => 'B',
-                     'Chance'   => 'c',
-                     'Focus'    => 'f',
-                     'Konstant' => 'k',
-                     'Morphing' => 'm',
-                     'Null'     => 'n',
-                     'Poison'   => 'p',
-                     'Queer'    => 'q',
-                     'Shadow'   => 's',
-                     'Speed'    => 'z',
-                     'Trip'     => 't',
-                     'Value'    => 'v');
+        return array('Berserk'      => 'B',
+                     'Chance'       => 'c',
+                     'Doppleganger' => 'D',
+                     'Focus'        => 'f',
+                     'Konstant'     => 'k',
+                     'Morphing'     => 'm',
+                     'Null'         => 'n',
+                     'Poison'       => 'p',
+                     'Queer'        => 'q',
+                     'Shadow'       => 's',
+                     'Speed'        => 'z',
+                     'Trip'         => 't',
+                     'Value'        => 'v');
     }
 
     public static function attack_types() {

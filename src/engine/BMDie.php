@@ -490,10 +490,12 @@ class BMDie {
                                                        'defenders' => $defenders,
                                                        'caller' => $this));
 
-        if (isset($result) && array_key_exists('BMSkillMorphing', $result)) {
-            return $result['BMSkillMorphing'];
-        } else {
-            return NULL;
+        if (isset($result)) {
+            if (array_key_exists('BMSkillMorphing', $result)) {
+                return $result['BMSkillMorphing'];
+            } elseif (array_key_exists('BMSkillDoppleganger', $result)) {
+                return $result['BMSkillDoppleganger'];
+            }
         }
     }
 

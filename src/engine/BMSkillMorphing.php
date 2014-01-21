@@ -8,13 +8,8 @@ class BMSkillMorphing extends BMSkill {
             return;
         }
 
-        $attBackup = clone $args['caller'];
-        $att = self::create_morphing_clone_target($args['defenders'][0]);
-        $att->copy_skills_from_die($attBackup);
-        $att->ownerObject = $attBackup->ownerObject;
-        $att->playerIdx = $attBackup->playerIdx;
-        $att->originalPlayerIdx = $attBackup->originalPlayerIdx;
-        $att->hasAttacked = TRUE;
+        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
+        $att->copy_skills_from_die($args['caller']);
         $att->roll(TRUE);
 
         return $att;
@@ -31,8 +26,8 @@ class BMSkillMorphing extends BMSkill {
         return TRUE;
     }
 
-    protected static function create_morphing_clone_target($die) {
-        $newDie = clone $die;
+    protected static function create_morphing_clone_target($att, $def) {
+        $newDie = clone $def;
 
         // convert swing and option dice back to normal dice
         if ($newDie instanceof BMDieSwing ||
@@ -47,6 +42,10 @@ class BMSkillMorphing extends BMSkill {
         }
 
         $newDie->captured = FALSE;
+        $newDie->ownerObject = $att->ownerObject;
+        $newDie->playerIdx = $att->playerIdx;
+        $newDie->originalPlayerIdx = $att->originalPlayerIdx;
+        $newDie->hasAttacked = TRUE;
 
         return $newDie;
     }
