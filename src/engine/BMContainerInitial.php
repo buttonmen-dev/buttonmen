@@ -7,5 +7,3 @@
 // at the start of games.
 class BMContainerInitial extends BMContainer {
 }
-
-?>

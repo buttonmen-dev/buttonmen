@@ -20,6 +20,8 @@ class BMInterface {
 
     private $isTest;         // indicates if the interface is for testing
 
+
+
     // constructor
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
@@ -30,14 +32,14 @@ class BMInterface {
 
         if ($isTest) {
             if (file_exists('../test/src/database/mysql.test.inc.php')) {
-                require '../test/src/database/mysql.test.inc.php';
+                require_once '../test/src/database/mysql.test.inc.php';
             } else {
-                require 'test/src/database/mysql.test.inc.php';
+                require_once 'test/src/database/mysql.test.inc.php';
             }
         } else {
-            require '../database/mysql.inc.php';
+            require_once '../database/mysql.inc.php';
         }
-        self::$conn = $conn;
+        self::$conn = conn();
     }
 
     // methods
@@ -98,23 +100,23 @@ class BMInterface {
             return NULL;
         }
 
-        $playerInfoSelectArray = $result[0];
+        $infoArray = $result[0];
 
         // set the values we want to actually return
         $playerInfoArray = array(
-            'id' => (int)$playerInfoSelectArray['id'],
-            'name_ingame' => $playerInfoSelectArray['name_ingame'],
-            'name_irl' => $playerInfoSelectArray['name_irl'],
-            'email' => $playerInfoSelectArray['email'],
-            'dob' => $playerInfoSelectArray['dob'],
-            'autopass' => (bool)$playerInfoSelectArray['autopass'],
-            'image_path' => $playerInfoSelectArray['image_path'],
-            'comment' => $playerInfoSelectArray['comment'],
-            'last_action_time' => $playerInfoSelectArray['last_action_time'],
-            'creation_time' => $playerInfoSelectArray['creation_time'],
-            'fanatic_button_id' => (int)$playerInfoSelectArray['fanatic_button_id'],
-            'n_games_won' => (int)$playerInfoSelectArray['n_games_won'],
-            'n_games_lost' => (int)$playerInfoSelectArray['n_games_lost'],
+            'id' => (int)$infoArray['id'],
+            'name_ingame' => $infoArray['name_ingame'],
+            'name_irl' => $infoArray['name_irl'],
+            'email' => $infoArray['email'],
+            'dob' => $infoArray['dob'],
+            'autopass' => (bool)$infoArray['autopass'],
+            'image_path' => $infoArray['image_path'],
+            'comment' => $infoArray['comment'],
+            'last_action_time' => $infoArray['last_action_time'],
+            'creation_time' => $infoArray['creation_time'],
+            'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
+            'n_games_won' => (int)$infoArray['n_games_won'],
+            'n_games_lost' => (int)$infoArray['n_games_lost'],
         );
 
         return $playerInfoArray;
@@ -141,9 +143,11 @@ class BMInterface {
 
     }
 
-    public function create_game(array $playerIdArray,
-                                array $buttonNameArray,
-                                $maxWins = 3) {
+    public function create_game(
+        array $playerIdArray,
+        array $buttonNameArray,
+        $maxWins = 3
+    ) {
         // check for nonunique player ids
         if (count(array_flip($playerIdArray)) < count($playerIdArray)) {
             $this->message = 'Game create failed because a player has been selected more than once.';
@@ -158,11 +162,14 @@ class BMInterface {
             }
         }
 
-        if (FALSE === filter_var($maxWins,
-                                 FILTER_VALIDATE_INT,
-                                 array('options'=>
-                                       array('min_range' => 1,
-                                             'max_range' => 5)))) {
+        if (FALSE ===
+            filter_var(
+                $maxWins,
+                FILTER_VALIDATE_INT,
+                array('options'=>
+                      array('min_range' => 1,
+                            'max_range' => 5))
+            )) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return NULL;
         }
@@ -229,9 +236,10 @@ class BMInterface {
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
-            if ($game == null) {
+            if (!($game instanceof BMGame)) {
                 throw new Exception(
-                    "Could not load newly-created game $gameId");
+                    "Could not load newly-created game $gameId"
+                );
             }
             $this->save_game($game);
 
@@ -247,7 +255,8 @@ class BMInterface {
             }
             error_log(
                 "Caught exception in BMInterface::create_game: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             return NULL;
         }
     }
@@ -362,15 +371,20 @@ class BMInterface {
             $statement3->execute(array(':game_id' => $gameId));
 
             $activeDieArrayArray = array_fill(0, count($playerIdArray), array());
-            $capturedDieArrayArray = array_fill(0, count($playerIdArray), array());
+            $captDieArrayArray = array_fill(0, count($playerIdArray), array());
 
             while ($row = $statement3->fetch()) {
                 $playerIdx = array_search($row['owner_id'], $game->playerIdArray);
 
                 $die = BMDie::create_from_recipe($row['recipe']);
-                $die->value = $row['value'];
-                $originalPlayerIdx = array_search($row['original_owner_id'],
-                                                  $game->playerIdArray);
+                $die->playerIdx = $playerIdx;
+                if (isset($row['value'])) {
+                    $die->value = (int)$row['value'];
+                }
+                $originalPlayerIdx = array_search(
+                    $row['original_owner_id'],
+                    $game->playerIdArray
+                );
                 $die->originalPlayerIdx = $originalPlayerIdx;
 
                 if (isset($die->swingType)) {
@@ -394,13 +408,13 @@ class BMInterface {
                         break;
                     case 'CAPTURED':
                         $die->captured = TRUE;
-                        $capturedDieArrayArray[$playerIdx][$row['position']] = $die;
+                        $captDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
                 }
             }
 
             $game->activeDieArrayArray = $activeDieArrayArray;
-            $game->capturedDieArrayArray = $capturedDieArrayArray;
+            $game->capturedDieArrayArray = $captDieArrayArray;
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -408,7 +422,8 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::load_game: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = "Game load failed: $e";
             return NULL;
         }
@@ -425,7 +440,7 @@ class BMInterface {
                 $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
             }
 
-            if (BMGameState::endGame == $game->gameState) {
+            if (BMGameState::END_GAME == $game->gameState) {
                 $status = 'COMPLETE';
             } elseif (in_array(0, $game->playerIdArray) ||
                       in_array(NULL, $game->buttonArray)) {
@@ -564,33 +579,7 @@ class BMInterface {
                             $status = 'DISABLED';
                         }
 
-                        $query = 'INSERT INTO die '.
-                                 '    (owner_id, '.
-                                 '     original_owner_id, '.
-                                 '     game_id, '.
-                                 '     status_id, '.
-                                 '     recipe, '.
-                                 '     swing_value, '.
-                                 '     position, '.
-                                 '     value) '.
-                                 'VALUES '.
-                                 '    (:owner_id, '.
-                                 '     :original_owner_id, '.
-                                 '     :game_id, '.
-                                 '     (SELECT id FROM die_status WHERE name = :status), '.
-                                 '     :recipe, '.
-                                 '     :swing_value, '.
-                                 '     :position, '.
-                                 '     :value);';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
-                                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                                  ':game_id' => $game->gameId,
-                                                  ':status' => $status,
-                                                  ':recipe' => $activeDie->recipe,
-                                                  ':swing_value' => $activeDie->swingValue,
-                                                  ':position' => $dieIdx,
-                                                  ':value' => $activeDie->value));
+                        $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
                     }
                 }
             }
@@ -602,33 +591,7 @@ class BMInterface {
                         // james: set status, this is currently INCOMPLETE
                         $status = 'CAPTURED';
 
-                        $query = 'INSERT INTO die '.
-                                 '    (owner_id, '.
-                                 '     original_owner_id, '.
-                                 '     game_id, '.
-                                 '     status_id, '.
-                                 '     recipe, '.
-                                 '     swing_value, '.
-                                 '     position, '.
-                                 '     value) '.
-                                 'VALUES '.
-                                 '    (:owner_id, '.
-                                 '     :original_owner_id, '.
-                                 '     :game_id, '.
-                                 '     (SELECT id FROM die_status WHERE name = :status), '.
-                                 '     :recipe, '.
-                                 '     :swing_value, '.
-                                 '     :position, '.
-                                 '     :value);';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
-                                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                                  ':game_id' => $game->gameId,
-                                                  ':status' => $status,
-                                                  ':recipe' => $activeDie->recipe,
-                                                  ':swing_value' => $activeDie->swingValue,
-                                                  ':position' => $dieIdx,
-                                                  ':value' => $activeDie->value));
+                        $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
                     }
                 }
             }
@@ -641,15 +604,15 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-	    // If any game action entries were generated, load them
-	    // into the message so the calling player can see them,
-	    // then save them to the historical log
+            // If any game action entries were generated, load them
+            // into the message so the calling player can see them,
+            // then save them to the historical log
             if (count($game->actionLog) > 0) {
                 $this->load_message_from_game_actions($game);
                 $this->log_game_actions($game);
             }
-	    // If the player sent a chat message, insert it now
-	    // then save them to the historical log
+            // If the player sent a chat message, insert it now
+            // then save them to the historical log
             if ($game->chat['chat']) {
                 $this->log_game_chat($game);
             }
@@ -657,85 +620,130 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::save_game: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = "Game save failed: $e";
         }
     }
 
+    // Actually insert a die into the database - all error checking to be done by caller
+    protected function db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx) {
+        $query = 'INSERT INTO die '.
+                 '    (owner_id, '.
+                 '     original_owner_id, '.
+                 '     game_id, '.
+                 '     status_id, '.
+                 '     recipe, '.
+                 '     swing_value, '.
+                 '     position, '.
+                 '     value) '.
+                 'VALUES '.
+                 '    (:owner_id, '.
+                 '     :original_owner_id, '.
+                 '     :game_id, '.
+                 '     (SELECT id FROM die_status WHERE name = :status), '.
+                 '     :recipe, '.
+                 '     :swing_value, '.
+                 '     :position, '.
+                 '     :value);';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+                                  ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
+                                  ':game_id' => $game->gameId,
+                                  ':status' => $status,
+                                  ':recipe' => $activeDie->recipe,
+                                  ':swing_value' => $activeDie->swingValue,
+                                  ':position' => $dieIdx,
+                                  ':value' => $activeDie->value));
+    }
+
+    // Get all player games (either active or inactive) from the database
+    // No error checking - caller must do it
+    protected function get_all_games($playerId, $getActiveGames) {
+
+        // the following SQL logic assumes that there are only two players per game
+        $query = 'SELECT v1.game_id,'.
+                 'v1.player_id AS opponent_id,'.
+                 'v1.player_name AS opponent_name,'.
+                 'v2.button_name AS my_button_name,'.
+                 'v1.button_name AS opponent_button_name,'.
+                 'v2.n_rounds_won AS n_wins,'.
+                 'v2.n_rounds_drawn AS n_draws,'.
+                 'v1.n_rounds_won AS n_losses,'.
+                 'v1.n_target_wins,'.
+                 'v2.is_awaiting_action,'.
+                 'g.game_state,'.
+                 's.name AS status '.
+                 'FROM game_player_view AS v1 '.
+                 'LEFT JOIN game_player_view AS v2 '.
+                 'ON v1.game_id = v2.game_id '.
+                 'LEFT JOIN game AS g '.
+                 'ON g.id = v1.game_id '.
+                 'LEFT JOIN game_status AS s '.
+                 'ON g.status_id = s.id '.
+                 'WHERE v2.player_id = :player_id '.
+                 'AND v1.player_id != v2.player_id ';
+        if ($getActiveGames) {
+            $query .= 'AND s.name != "COMPLETE" ';
+        } else {
+            $query .= 'AND s.name = "COMPLETE" ';
+        }
+        $query .= 'ORDER BY v1.game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $playerId));
+
+        // Initialize the arrays
+        $gameIdArray = array();
+        $opponentIdArray = array();
+        $opponentNameArray = array();
+        $myButtonNameArray = array();
+        $oppButtonNameArray = array();
+        $nWinsArray = array();
+        $nDrawsArray = array();
+        $nLossesArray = array();
+        $nTargetWinsArray = array();
+        $isToActArray = array();
+        $gameStateArray = array();
+        $statusArray = array();
+
+        while ($row = $statement->fetch()) {
+            $gameIdArray[]        = $row['game_id'];
+            $opponentIdArray[]    = $row['opponent_id'];
+            $opponentNameArray[]  = $row['opponent_name'];
+            $myButtonNameArray[]  = $row['my_button_name'];
+            $oppButtonNameArray[] = $row['opponent_button_name'];
+            $nWinsArray[]         = $row['n_wins'];
+            $nDrawsArray[]        = $row['n_draws'];
+            $nLossesArray[]       = $row['n_losses'];
+            $nTargetWinsArray[]   = $row['n_target_wins'];
+            $isToActArray[]       = $row['is_awaiting_action'];
+            $gameStateArray[]     = $row['game_state'];
+            $statusArray[]        = $row['status'];
+        }
+
+        return array('gameIdArray'             => $gameIdArray,
+                     'opponentIdArray'         => $opponentIdArray,
+                     'opponentNameArray'       => $opponentNameArray,
+                     'myButtonNameArray'       => $myButtonNameArray,
+                     'opponentButtonNameArray' => $oppButtonNameArray,
+                     'nWinsArray'              => $nWinsArray,
+                     'nDrawsArray'             => $nDrawsArray,
+                     'nLossesArray'            => $nLossesArray,
+                     'nTargetWinsArray'        => $nTargetWinsArray,
+                     'isAwaitingActionArray'   => $isToActArray,
+                     'gameStateArray'          => $gameStateArray,
+                     'statusArray'             => $statusArray);
+    }
+
     public function get_all_active_games($playerId) {
         try {
-            // the following SQL logic assumes that there are only two players per game
-            $query = 'SELECT v1.game_id,'.
-                     'v1.player_id AS opponent_id,'.
-                     'v1.player_name AS opponent_name,'.
-                     'v2.button_name AS my_button_name,'.
-                     'v1.button_name AS opponent_button_name,'.
-                     'v2.n_rounds_won AS n_wins,'.
-                     'v2.n_rounds_drawn AS n_draws,'.
-                     'v1.n_rounds_won AS n_losses,'.
-                     'v1.n_target_wins,'.
-                     'v2.is_awaiting_action,'.
-                     'g.game_state,'.
-                     's.name AS status '.
-                     'FROM game_player_view AS v1 '.
-                     'LEFT JOIN game_player_view AS v2 '.
-                     'ON v1.game_id = v2.game_id '.
-                     'LEFT JOIN game AS g '.
-                     'ON g.id = v1.game_id '.
-                     'LEFT JOIN game_status AS s '.
-                     'ON g.status_id = s.id '.
-                     'WHERE v2.player_id = :player_id '.
-                     'AND v1.player_id != v2.player_id '.
-                     'AND s.name != "COMPLETE" '.
-                     'ORDER BY v1.game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId));
-
-            // Initialize the arrays
-            $gameIdArray = array();
-            $opponentIdArray = array();
-            $opponentNameArray = array();
-            $myButtonNameArray = array();
-            $opponentButtonNameArray = array();
-            $nWinsArray = array();
-            $nDrawsArray = array();
-            $nLossesArray = array();
-            $nTargetWinsArray = array();
-            $isAwaitingActionArray = array();
-            $gameStateArray = array();
-            $statusArray = array();
-
-            while ($row = $statement->fetch()) {
-                $gameIdArray[]             = $row['game_id'];
-                $opponentIdArray[]         = $row['opponent_id'];
-                $opponentNameArray[]       = $row['opponent_name'];
-                $myButtonNameArray[]       = $row['my_button_name'];
-                $opponentButtonNameArray[] = $row['opponent_button_name'];
-                $nWinsArray[]              = $row['n_wins'];
-                $nDrawsArray[]             = $row['n_draws'];
-                $nLossesArray[]            = $row['n_losses'];
-                $nTargetWinsArray[]        = $row['n_target_wins'];
-                $isAwaitingActionArray[]   = $row['is_awaiting_action'];
-                $gameStateArray[]          = $row['game_state'];
-                $statusArray[]             = $row['status'];
-            }
             $this->message = 'All game details retrieved successfully.';
-            return array('gameIdArray'             => $gameIdArray,
-                         'opponentIdArray'         => $opponentIdArray,
-                         'opponentNameArray'       => $opponentNameArray,
-                         'myButtonNameArray'       => $myButtonNameArray,
-                         'opponentButtonNameArray' => $opponentButtonNameArray,
-                         'nWinsArray'              => $nWinsArray,
-                         'nDrawsArray'             => $nDrawsArray,
-                         'nLossesArray'            => $nLossesArray,
-                         'nTargetWinsArray'        => $nTargetWinsArray,
-                         'isAwaitingActionArray'   => $isAwaitingActionArray,
-                         'gameStateArray'          => $gameStateArray,
-                         'statusArray'             => $statusArray);
+            return $this->get_all_games($playerId, TRUE);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_all_active_games: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Game detail get failed.';
             return NULL;
         }
@@ -743,78 +751,13 @@ class BMInterface {
 
     public function get_all_completed_games($playerId) {
         try {
-            // the following SQL logic assumes that there are only two players per game
-            $query = 'SELECT v1.game_id,'.
-                     'v1.player_id AS opponent_id,'.
-                     'v1.player_name AS opponent_name,'.
-                     'v2.button_name AS my_button_name,'.
-                     'v1.button_name AS opponent_button_name,'.
-                     'v2.n_rounds_won AS n_wins,'.
-                     'v2.n_rounds_drawn AS n_draws,'.
-                     'v1.n_rounds_won AS n_losses,'.
-                     'v1.n_target_wins,'.
-                     'v2.is_awaiting_action,'.
-                     'g.game_state,'.
-                     's.name AS status '.
-                     'FROM game_player_view AS v1 '.
-                     'LEFT JOIN game_player_view AS v2 '.
-                     'ON v1.game_id = v2.game_id '.
-                     'LEFT JOIN game AS g '.
-                     'ON g.id = v1.game_id '.
-                     'LEFT JOIN game_status AS s '.
-                     'ON g.status_id = s.id '.
-                     'WHERE v2.player_id = :player_id '.
-                     'AND v1.player_id != v2.player_id '.
-                     'AND s.name = "COMPLETE" '.
-                     'ORDER BY v1.game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId));
-
-            // Initialize the arrays
-            $gameIdArray = array();
-            $opponentIdArray = array();
-            $opponentNameArray = array();
-            $myButtonNameArray = array();
-            $opponentButtonNameArray = array();
-            $nWinsArray = array();
-            $nDrawsArray = array();
-            $nLossesArray = array();
-            $nTargetWinsArray = array();
-            $isAwaitingActionArray = array();
-            $gameStateArray = array();
-            $statusArray = array();
-
-            while ($row = $statement->fetch()) {
-                $gameIdArray[]             = $row['game_id'];
-                $opponentIdArray[]         = $row['opponent_id'];
-                $opponentNameArray[]       = $row['opponent_name'];
-                $myButtonNameArray[]       = $row['my_button_name'];
-                $opponentButtonNameArray[] = $row['opponent_button_name'];
-                $nWinsArray[]              = $row['n_wins'];
-                $nDrawsArray[]             = $row['n_draws'];
-                $nLossesArray[]            = $row['n_losses'];
-                $nTargetWinsArray[]        = $row['n_target_wins'];
-                $isAwaitingActionArray[]   = $row['is_awaiting_action'];
-                $gameStateArray[]          = $row['game_state'];
-                $statusArray[]             = $row['status'];
-            }
             $this->message = 'All game details retrieved successfully.';
-            return array('gameIdArray'             => $gameIdArray,
-                         'opponentIdArray'         => $opponentIdArray,
-                         'opponentNameArray'       => $opponentNameArray,
-                         'myButtonNameArray'       => $myButtonNameArray,
-                         'opponentButtonNameArray' => $opponentButtonNameArray,
-                         'nWinsArray'              => $nWinsArray,
-                         'nDrawsArray'             => $nDrawsArray,
-                         'nLossesArray'            => $nLossesArray,
-                         'nTargetWinsArray'        => $nTargetWinsArray,
-                         'isAwaitingActionArray'   => $isAwaitingActionArray,
-                         'gameStateArray'          => $gameStateArray,
-                         'statusArray'             => $statusArray);
+            return $this->get_all_games($playerId, FALSE);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_all_active_games: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Game detail get failed.';
             return NULL;
         }
@@ -825,28 +768,29 @@ class BMInterface {
             $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
             $statement->execute();
 
-	    // Look for unimplemented skills in each button definition.
-	    // If we get an exception while checking, assume there's
-	    // an unimplemented skill
+            // Look for unimplemented skills in each button definition.
+            // If we get an exception while checking, assume there's
+            // an unimplemented skill
             while ($row = $statement->fetch()) {
                 $buttonNameArray[] = $row['name'];
                 $recipeArray[] = $row['recipe'];
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
-                    $hasUnimplementedSkillArray[] = $button->hasUnimplementedSkill;
+                    $hasUnimplSkillArray[] = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
-                    $hasUnimplementedSkillArray[] = True;
+                    $hasUnimplSkillArray[] = TRUE;
                 }
             }
             $this->message = 'All button names retrieved successfully.';
             return array('buttonNameArray'            => $buttonNameArray,
                          'recipeArray'                => $recipeArray,
-                         'hasUnimplementedSkillArray' => $hasUnimplementedSkillArray);
+                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_all_button_names: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Button name get failed.';
             return NULL;
         }
@@ -864,7 +808,8 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_button_recipe_from_name: "
-                . $e->getMessage());
+                . $e->getMessage()
+            );
             $this->message = 'Button recipe get failed.';
         }
     }
@@ -886,7 +831,8 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_player_names_like: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Player name get failed.';
             return NULL;
         }
@@ -909,17 +855,18 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_player_id_from_name: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Player ID get failed.';
         }
     }
 
-    public function get_player_name_from_id($id) {
+    public function get_player_name_from_id($playerId) {
         try {
             $query = 'SELECT name_ingame FROM player '.
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $id));
+            $statement->execute(array(':id' => $playerId));
             $result = $statement->fetch();
             if (!$result) {
                 $this->message = 'Player ID does not exist.';
@@ -930,23 +877,34 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_player_name_from_id: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Player name get failed.';
         }
     }
 
-    // Check whether a requested action still needs to be taken
-    // Note: it might be possible for this to be a protected function
-    public function is_action_current(BMGame $game,
-                                      $expectedGameState,
-                                      $postedTimestamp,
-                                      $roundNumber,
-                                      $currentPlayerId) {
+    // Check whether a requested action still needs to be taken.
+    // If the time stamp is not important, use the string 'ignore'
+    // for $postedTimestamp.
+    protected function is_action_current(
+        BMGame $game,
+        $expectedGameState,
+        $postedTimestamp,
+        $roundNumber,
+        $currentPlayerId
+    ) {
         $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
-        return (($postedTimestamp == $this->timestamp->format(DATE_RSS)) &&
-                ($roundNumber == $game->roundNumber) &&
-                ($expectedGameState == $game->gameState) &&
-                (TRUE == $game->waitingOnActionArray[$currentPlayerIdx]));
+        $doesTimeStampAgree =
+            ('ignore' === $postedTimestamp) ||
+            $postedTimestamp == $this->timestamp->format(DATE_RSS);
+        $doesRoundNumberAgree = $roundNumber == $game->roundNumber;
+        $doesGameStateAgree = $expectedGameState == $game->gameState;
+        $isCurrentPlayerActive =
+            TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
+        return ($doesTimeStampAgree &&
+                $doesRoundNumberAgree &&
+                $doesGameStateAgree &&
+                $isCurrentPlayerActive);
     }
 
     // Enter recent game actions into the action log
@@ -956,14 +914,15 @@ class BMInterface {
                  '(game_id, game_state, action_type, acting_player, message) ' .
                  'VALUES ' .
                  '(:game_id, :game_state, :action_type, :acting_player, :message)';
-        foreach ($game->actionLog as $idx => $gameAction) {
+        foreach ($game->actionLog as $gameAction) {
             $statement = self::$conn->prepare($query);
             $statement->execute(
                 array(':game_id'     => $game->gameId,
                       ':game_state' => $gameAction['gameState'],
                       ':action_type' => $gameAction['actionType'],
                       ':acting_player' => $gameAction['actingPlayerIdx'],
-                      ':message'    => $gameAction['message']));
+                      ':message'    => $gameAction['message'])
+            );
         }
         $game->empty_action_log();
     }
@@ -990,7 +949,8 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::load_game_action_log: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Internal error while reading log entries';
             return NULL;
         }
@@ -1012,7 +972,7 @@ class BMInterface {
     // Create a status message based on recent game actions
     private function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
-        foreach ($game->actionLog as $idx => $gameAction) {
+        foreach ($game->actionLog as $gameAction) {
             $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
         }
     }
@@ -1035,7 +995,8 @@ class BMInterface {
         $statement->execute(
             array(':game_id'         => $game->gameId,
                   ':chatting_player' => $game->chat['playerIdx'],
-                  ':message'         => $mysqlchat));
+                  ':message'         => $mysqlchat)
+        );
     }
 
     public function load_game_chat_log(BMGame $game, $n_entries = 5) {
@@ -1056,38 +1017,45 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::load_game_chat_log: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Internal error while reading chat entries';
             return NULL;
         }
     }
 
-    public function submit_swing_values($playerId, $gameNumber,
-                                        $roundNumber, $submitTimestamp,
-                                        $swingValueArray) {
+    public function submit_swing_values(
+        $playerId,
+        $gameNumber,
+        $roundNumber,
+        $submitTimestamp,
+        $swingValueArray
+    ) {
         try {
             $game = $this->load_game($gameNumber);
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
             // the swing values still need to be set
-            if (!$this->is_action_current($game,
-                                          BMGameState::specifyDice,
-                                          $submitTimestamp,
-                                          $roundNumber,
-                                          $playerId)) {
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::SPECIFY_DICE,
+                'ignore',
+                $roundNumber,
+                $playerId
+            )) {
                 $this->message = 'Swing dice no longer need to be set';
                 return NULL;
             }
 
             // try to set swing values
-            $swingLettersRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-            sort($swingLettersRequested);
-            $swingLettersSubmitted = array_keys($swingValueArray);
-            sort($swingLettersSubmitted);
+            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            sort($swingRequested);
+            $swingSubmitted = array_keys($swingValueArray);
+            sort($swingSubmitted);
 
-            if ($swingLettersRequested != $swingLettersSubmitted) {
-                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingLettersRequested);
+            if ($swingRequested != $swingSubmitted) {
+                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
                 return NULL;
             }
 
@@ -1097,11 +1065,11 @@ class BMInterface {
 
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
-                ($game->gameState > BMGameState::specifyDice) ||
+                ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
                 $this->save_game($game);
                 $this->message = 'Successfully set swing values';
-                return True;
+                return TRUE;
             } else {
                 if ($game->message) {
                     $this->message = $game->message;
@@ -1113,22 +1081,32 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::submit_swing_values: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Internal error while setting swing values';
         }
     }
 
-    public function submit_turn($playerId, $gameNumber, $roundNumber,
-                                $submitTimestamp,
-                                $dieSelectStatus, $attackType,
-                                $attackerIdx, $defenderIdx, $chat) {
+    public function submit_turn(
+        $playerId,
+        $gameNumber,
+        $roundNumber,
+        $submitTimestamp,
+        $dieSelectStatus,
+        $attackType,
+        $attackerIdx,
+        $defenderIdx,
+        $chat
+    ) {
         try {
             $game = $this->load_game($gameNumber);
-            if (!$this->is_action_current($game,
-                                          BMGameState::startTurn,
-                                          $submitTimestamp,
-                                          $roundNumber,
-                                          $playerId)) {
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::START_TURN,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
                 $this->message = 'It is not your turn to attack right now';
                 return NULL;
             }
@@ -1148,16 +1126,20 @@ class BMInterface {
             $nDefenderDice = count($game->activeDieArrayArray[$defenderIdx]);
 
             for ($dieIdx = 0; $dieIdx < $nAttackerDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$attackerIdx.'_dieIdx_'.$dieIdx],
-                               FILTER_VALIDATE_BOOLEAN)) {
+                if (filter_var(
+                    $dieSelectStatus["playerIdx_{$attackerIdx}_dieIdx_{$dieIdx}"],
+                    FILTER_VALIDATE_BOOLEAN
+                )) {
                     $attackers[] = $game->activeDieArrayArray[$attackerIdx][$dieIdx];
                     $attackerDieIdx[] = $dieIdx;
                 }
             }
 
             for ($dieIdx = 0; $dieIdx < $nDefenderDice; $dieIdx++) {
-                if (filter_var($dieSelectStatus['playerIdx_'.$defenderIdx.'_dieIdx_'.$dieIdx],
-                               FILTER_VALIDATE_BOOLEAN)) {
+                if (filter_var(
+                    $dieSelectStatus["playerIdx_{$defenderIdx}_dieIdx_{$dieIdx}"],
+                    FILTER_VALIDATE_BOOLEAN
+                )) {
                     $defenders[] = $game->activeDieArrayArray[$defenderIdx][$dieIdx];
                     $defenderDieIdx[] = $dieIdx;
                 }
@@ -1188,7 +1170,8 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::submit_turn: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Internal error while submitting turn';
         }
     }
@@ -1217,17 +1200,24 @@ class BMInterface {
     // successful.
     // If it fails, $this->message will say why it has failed.
 
-    public function react_to_initiative($playerId, $gameNumber, $roundNumber,
-                                        $submitTimestamp, $action,
-                                        $dieIdxArray = NULL,
-                                        $dieValueArray = NULL) {
+    public function react_to_initiative(
+        $playerId,
+        $gameNumber,
+        $roundNumber,
+        $submitTimestamp,
+        $action,
+        $dieIdxArray = NULL,
+        $dieValueArray = NULL
+    ) {
         try {
             $game = $this->load_game($gameNumber);
-            if (!$this->is_action_current($game,
-                                          BMGameState::reactToInitiative,
-                                          $submitTimestamp,
-                                          $roundNumber,
-                                          $playerId)) {
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::REACT_TO_INITIATIVE,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
                 $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }
@@ -1261,6 +1251,8 @@ class BMInterface {
                     }
                     break;
                 case 'decline':
+                    $argArray['dieIdxArray'] = $dieIdxArray;
+                    $argArray['dieValueArray'] = $dieValueArray;
                     break;
                 default:
                     $this->message = 'Invalid action to respond to initiative.';
@@ -1279,7 +1271,8 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::react_to_initiative: " .
-                $e->getMessage());
+                $e->getMessage()
+            );
             $this->message = 'Internal error while reacting to initiative';
             return FALSE;
         }
@@ -1298,11 +1291,10 @@ class BMInterface {
         switch ($property) {
             case 'message':
                 throw new LogicException(
-                    'message can only be read, not written.');
+                    'message can only be read, not written.'
+                );
             default:
                 $this->$property = $value;
         }
     }
 }
-
-?>

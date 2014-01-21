@@ -37,13 +37,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
      */
     public function testGet_instance()
     {
-        // Baseline version
-        $test1 = BMAttack::get_instance();
-        $test2 = BMAttack::get_instance();
+        $test1 = BMAttack::get_instance('Power');
+        $test2 = BMAttack::get_instance('Power');
 
         $this->assertTrue($test1 === $test2);
 
-        // Specific type lookup
         $this->assertNull(BMAttack::get_instance("NotAnAttack"));
 
         $power = BMAttack::get_instance("Power");
@@ -386,55 +384,18 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttack::find_attack
+     * @covers BMAttack::has_disabled_attackers
      */
-    public function testFind_attack()
+    public function testHas_disabled_attackers()
     {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->find_attack(new BMGame));
-    }
-
-    /**
-     * @coversNothing
-     */
-    public function testInteractionFind_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->find_attack(new BMGame));
-    }
-
-    /**
-     * @covers BMAttack::validate_attack
-     */
-    public function testValidate_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->validate_attack(new TestDummyGame,
-                                                 array(new BMDie),
-                                                 array(new BMDie)));
-    }
-
-    /**
-     * @coversNothing
-     */
-    public function testInteractionValidate_attack()
-    {
-        $att = BMAttack::get_instance();
-        $this->assertFalse($att->validate_attack(new BMGame,
-                                                 array(new BMDie),
-                                                 array(new BMDie)));
-    }
-
-    /**
-     * @covers BMAttack::calculate_contributions()
-     */
-    public function testCalculate_contributions() {
-        $help = $this->object->calculate_contributions(new BMGame, array(), array());
-
-        $this->assertNotEmpty($help);
-        $this->assertEquals(2, count($help));
-        $this->assertEquals(0, $help[0]);
-        $this->assertEmpty($help[1]);
+        $att = BMAttack::get_instance('Power');
+        $die1 = new BMDie;
+        $die2 = new BMDie;
+        $die2->disabled = TRUE;
+        $this->assertFalse($att->has_disabled_attackers(array($die1)));
+        $this->assertTrue($att->has_disabled_attackers(array($die2)));
+        $this->assertTrue($att->has_disabled_attackers(array($die1, $die2)));
+        $this->assertTrue($att->has_disabled_attackers(array($die2, $die1)));
     }
 
     /**
@@ -445,10 +406,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1 = new BMDie;
         $die1->init(6);
         $die1->value = 6;
+        $die1->playerIdx = 0;
 
         $die2 = new BMDie;
         $die2->init(6);
         $die2->value = 6;
+        $die2->playerIdx = 1;
 
         $game = new TestDummyGame;
 
@@ -525,10 +488,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die3 = new BMDie;
         $die3->init(6);
         $die3->value = 6;
+        $die3->playerIdx = 0;
 
         $die4 = new BMDie;
         $die4->init(6);
         $die4->value = 6;
+        $die4->playerIdx = 0;
 
         $att[] = $die3;
         $def[] = $die4;
@@ -630,10 +595,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1 = new BMDie;
         $die1->init(6);
         $die1->value = 6;
+        $die1->playerIdx = 0;
 
         $die2 = new BMDie;
         $die2->init(6);
         $die2->value = 6;
+        $die2->playerIdx = 1;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1), array($die2));
@@ -711,10 +678,12 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die3 = new BMDie;
         $die3->init(6);
         $die3->value = 6;
+        $die3->playerIdx = 0;
 
         $die4 = new BMDie;
         $die4->init(6);
         $die4->value = 6;
+        $die4->playerIdx = 1;
 
         $game = new BMGame;
         $game->activeDieArrayArray = array(array($die1, $die3), array($die2, $die4));

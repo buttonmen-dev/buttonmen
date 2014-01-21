@@ -3,8 +3,7 @@
 class BMDieTwin extends BMDie {
     public $dice;
 
-    public function init($sidesArray, array $skills = NULL)
-    {
+    public function init($sidesArray, array $skills = NULL) {
         if (!is_array($sidesArray)) {
             throw new InvalidArgumentException('sidesArray must be an array.');
         }
@@ -15,7 +14,7 @@ class BMDieTwin extends BMDie {
 
         $this->add_multiple_skills($skills);
 
-        foreach($sidesArray as $dieIdx => $sides) {
+        foreach ($sidesArray as $dieIdx => $sides) {
             $this->dice[$dieIdx] =
                 BMDie::create_from_string_components($sides, $skills);
         }
@@ -53,9 +52,11 @@ class BMDieTwin extends BMDie {
 
         foreach ($this->dice as $die) {
             if ($die instanceof BMDieSwing) {
-                $this->ownerObject->request_swing_values($newDie,
-                                                         $die->swingType,
-                                                         $newDie->playerIdx);
+                $this->ownerObject->request_swing_values(
+                    $newDie,
+                    $die->swingType,
+                    $newDie->playerIdx
+                );
             }
             $newDie->valueRequested = TRUE;
         }
@@ -77,10 +78,45 @@ class BMDieTwin extends BMDie {
         $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
     }
 
-//// Print long description
-//    public function describe() {
-//        $this->run_hooks(__FUNCTION__, array());
-//    }
+    // Print long description
+    public function describe($isValueRequired = FALSE) {
+        if (!is_bool($isValueRequired)) {
+            throw new InvalidArgumentException('isValueRequired must be boolean');
+        }
+
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                $skillStr .= "$skill ";
+            }
+        }
+
+        $typeStr = '';
+        if ($this->dice[0] instanceof BMDieSwing &&
+            $this->dice[1] instanceof BMDieSwing) {
+            $typeStr = "Twin {$this->dice[0]->swingType} Swing Die";
+        } else {
+            $typeStr = 'Twin Die';
+        }
+
+        $sideStr = '';
+        if (isset($this->dice[0]->max)) {
+            if ($this->dice[0]->max == $this->dice[1]->max) {
+                $sideStr = " (both with {$this->dice[0]->max} sides)";
+            } else {
+                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
+            }
+        }
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
+
+        return $result;
+    }
 
     public function split() {
         $newdie = clone $this;
@@ -137,7 +173,7 @@ class BMDieTwin extends BMDie {
         $this->min = 0;
         $this->max = 0;
 
-        foreach($this->dice as $die) {
+        foreach ($this->dice as $die) {
             if (is_null($die->min) ||
                 is_null($die->max)) {
                 $this->min = NULL;
@@ -149,5 +185,3 @@ class BMDieTwin extends BMDie {
         }
     }
 }
-
-?>

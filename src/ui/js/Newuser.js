@@ -25,17 +25,17 @@ Newuser.showNewuserPage = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if ($('#newuser_page').length == 0) {
+  if ($('#newuser_page').length === 0) {
     $('body').append($('<div>', {'id': 'newuser_page', }));
   }
 
   // Don't allow logged-in users to create new accounts
-  if (Login.logged_in == true) {
+  if (Login.logged_in === true) {
     Newuser.actionLoggedIn();
   } else {
     Newuser.actionCreateUser();
   }
-}
+};
 
 // Actually lay out the page
 Newuser.layoutPage = function() {
@@ -50,7 +50,7 @@ Newuser.layoutPage = function() {
   if (Newuser.form) {
     $('#newuser_action_button').click(Newuser.form);
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
@@ -69,7 +69,7 @@ Newuser.actionLoggedIn = function() {
 
   // Lay out the page
   Newuser.layoutPage();
-}
+};
 
 Newuser.actionCreateUser = function() {
 
@@ -79,13 +79,13 @@ Newuser.actionCreateUser = function() {
 
   var creatediv = $('<div>');
   creatediv.append($('<div>', {
-                      'class': 'title2',
-                      'text': 'Create a new user account',
-                    }));
+    'class': 'title2',
+    'text': 'Create a new user account',
+  }));
   var createform = $('<form>', {
-                       'id': 'newuser_action_form',
-                       'action': "javascript:void(0);",
-                     });
+    'id': 'newuser_action_form',
+    'action': 'javascript:void(0);',
+  });
 
   // Table of user creation options
   var createtable = $('<table>', {'id': 'newuser_create_table', });
@@ -103,17 +103,17 @@ Newuser.actionCreateUser = function() {
       'text': 'Password (again)',
       'type': 'password',
     },
-  }
+  };
 
   $.each(entries, function(entryid, entryinfo) {
     var entryrow = $('<tr>');
-    entryrow.append($('<td>', { 'text': entryinfo['text'] + ':', }));
-    entryinput = $('<td>');
+    entryrow.append($('<td>', { 'text': entryinfo.text + ':', }));
+    var entryinput = $('<td>');
     entryinput.append($('<input>', {
-                          'type': entryinfo['type'],
-                          'name': entryid,
-                          'id': 'newuser_' + entryid,
-                        }));
+      'type': entryinfo.type,
+      'name': entryid,
+      'id': 'newuser_' + entryid,
+    }));
     entryrow.append(entryinput);
     createtable.append(entryrow);
   });
@@ -122,9 +122,9 @@ Newuser.actionCreateUser = function() {
   // Form submission button
   createform.append($('<br>'));
   createform.append($('<button>', {
-                        'id': 'newuser_action_button',
-                        'text': 'Create user!',
-                      }));
+    'id': 'newuser_action_button',
+    'text': 'Create user!',
+  }));
   creatediv.append(createform);
 
   Newuser.page.append(creatediv);
@@ -134,7 +134,7 @@ Newuser.actionCreateUser = function() {
 
   // Lay out the page
   Newuser.layoutPage();
-}
+};
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -153,7 +153,7 @@ Newuser.formCreateUser = function() {
   } else {
     var password = $('#newuser_password').val();
     var password_confirm = $('#newuser_password_confirm').val();
-    if (password.length == 0) {
+    if (password.length === 0) {
       Env.message = {
         'type': 'error',
         'text': 'Password may not be null',
@@ -166,47 +166,48 @@ Newuser.formCreateUser = function() {
       };
       Newuser.showNewuserPage();
     } else {
-      $.post(Env.api_location, {
-               type: 'createUser',
-               username: username,
-               password: password,
-             },
-             function(rs) {
-               if ('ok' == rs.status) {
-                 var userName = rs.data.userName;
-                 var indexLink = $('<a>', {
-                   'href': 'index.html',
-                   'text': 'Go back to the homepage, login, and start ' + 
-                           'beating people up',
-                 });
-               var userPar = $('<p>',
-                                {'text': rs.message + ' ', });
-               userPar.append($('<br>'));
-               userPar.append(indexLink);
-               Env.message = {
-                 'type': 'success',
-                 'text': '',
-                 'obj': userPar,
-               };
-               Newuser.showNewuserPage();
-             } else {
-               Env.message = {
-                 'type': 'error',
-                 'text': rs.message,
-               };
-               Newuser.showNewuserPage();
-             }
-           }
-    ).fail(function() {
-             Env.message = { 
-               'type': 'error',
-               'text': 'Internal error when calling createUser',
-             };
-             Newuser.showNewuserPage();
-           });
+      $.post(
+        Env.api_location, {
+          type: 'createUser',
+          username: username,
+          password: password,
+        },
+        function(rs) {
+          if ('ok' == rs.status) {
+            var indexLink = $('<a>', {
+              'href': 'index.html',
+              'text': 'Go back to the homepage, login, and start ' +
+                      'beating people up',
+            });
+            var userPar = $('<p>', {'text': rs.message + ' ', });
+            userPar.append($('<br>'));
+            userPar.append(indexLink);
+            Env.message = {
+              'type': 'success',
+              'text': '',
+              'obj': userPar,
+            };
+            Newuser.showNewuserPage();
+          } else {
+            Env.message = {
+              'type': 'error',
+              'text': rs.message,
+            };
+            Newuser.showNewuserPage();
+          }
+        }
+      ).fail(
+        function() {
+          Env.message = {
+            'type': 'error',
+            'text': 'Internal error when calling createUser',
+          };
+          Newuser.showNewuserPage();
+        }
+      );
     }
   }
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions add pieces of HTML to Newuser.page
@@ -214,14 +215,14 @@ Newuser.formCreateUser = function() {
 Newuser.addLoggedInPage = function() {
   var errorDiv = $('<div>');
   errorDiv.append($('<p>', {
-    'text': "Can't create a user because you are already logged in",
-  }))
+    'text': 'Can\'t create a user because you are already logged in',
+  }));
   errorDiv.append($('<a>', {
     'href': 'index.html',
     'text': 'Go back to the homepage and beat some people up',
   }));
   Newuser.page.append(errorDiv);
-}
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions generate and return pieces of HTML

@@ -10,20 +10,13 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) != 1 || count($defenders) != 1) {
+        if (1 != count($attackers) ||
+            1 != count($defenders) ||
+            $this->has_disabled_attackers($attackers)) {
             return FALSE;
         }
 
-        $attacker = $attackers[0];
-        $defender = $defenders[0];
-
-        if ($attacker->has_skill('Shadow') ||
-            $attacker->has_skill('Konstant')) {
-            return FALSE;
-        }
-
-        if ($attacker->has_skill('Queer') &&
-            (1 == $attacker->value % 2)) {
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -31,26 +24,38 @@ class BMAttackPower extends BMAttack {
 
         $bounds = $this->help_bounds($helpers);
 
-        foreach ($attacker->attack_values($this->type) as $aVal) {
+        $att = $attackers[0];
+        $def = $defenders[0];
 
-            if ($aVal + $bounds[1] >= $defender->defense_value($this->type)) {
+        foreach ($att->attack_values($this->type) as $aVal) {
+            $isValLargeEnough = $aVal + $bounds[1] >= $def->defense_value($this->type);
+            $isValidAttacker = $att->is_valid_attacker($this->type, $attackers);
+            $isValidTarget = $def->is_valid_target($this->type, $defenders);
 
-                if ($attacker->is_valid_attacker($this->type, $attackers, $defenders) &&
-                    $defender->is_valid_target($this->type, $attackers, $defenders))
-                {
-                    return TRUE;
-                }
+            $isValidAttack = $isValLargeEnough && $isValidAttacker && $isValidTarget;
+
+            if ($isValidAttack) {
+                return TRUE;
             }
-
         }
 
         return FALSE;
     }
 
-    // return how much help is needed and who can contribute
-    public function calculate_contributions($game, array $attackers, array $defenders) {
-        return array(0, array());
+    protected function are_skills_compatible(array $attArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attArray must have one element.');
+        }
+
+        $att = $attArray[0];
+
+        if ($att->has_skill('Shadow') ||
+            $att->has_skill('Konstant') ||
+            ($att->has_skill('Queer') && (1 == $att->value % 2))
+        ) {
+            return FALSE;
+        }
+
+        return TRUE;
     }
 }
-
-?>

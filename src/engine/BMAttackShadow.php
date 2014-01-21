@@ -4,38 +4,54 @@ class BMAttackShadow extends BMAttackPower {
     public $type = 'Shadow';
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (1 != count($attackers) || 1 != count($defenders)) {
+        if (1 != count($attackers) ||
+            1 != count($defenders) ||
+            $this->has_disabled_attackers($attackers)) {
             return FALSE;
         }
 
-        $attacker = $attackers[0];
-        $defender = $defenders[0];
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
+            return FALSE;
+        }
 
-        $doesAttackerHaveShadow = $attacker->has_skill('Shadow');
-        $doesAttackerHaveQueer = $attacker->has_skill('Queer');
-        $isAttackerOdd = (1 == $attacker->value % 2);
+        $att = $attackers[0];
+        $def = $defenders[0];
 
-        $isDieLargeEnough = $attacker->max >=
-                            $defender->defense_value($this->type);
+        $isDieLargeEnough = $att->max >=
+                            $def->defense_value('Shadow');
 
-        $attackValueArray = $attacker->attack_values($this->type);
+        $attackValueArray = $att->attack_values($this->type);
         assert(1 == count($attackValueArray));
         $attackValue = $attackValueArray[0];
-        $defenseValue = $defender->defense_value($this->type);
+        $defenseValue = $def->defense_value($this->type);
         $isValueSmallEnough = $attackValue <= $defenseValue;
 
-        $canAttackerPerformThisAttack =
-            $attacker->is_valid_attacker($this->type, $attackers, $defenders);
-        $isDefenderValidTargetForThisAttack =
-            $defender->is_valid_target($this->type, $attackers, $defenders);
+        $canAttDoThisAttack =
+            $att->is_valid_attacker($this->type, $attackers);
+        $isDefValidTarget =
+            $def->is_valid_target($this->type, $defenders);
 
-        return (($doesAttackerHaveShadow ||
-                 ($doesAttackerHaveQueer && $isAttackerOdd)) &&
-                $isDieLargeEnough &&
-                $isValueSmallEnough &&
-                $canAttackerPerformThisAttack &&
-                $isDefenderValidTargetForThisAttack);
+        $isValidAttack = $isDieLargeEnough &&
+                         $isValueSmallEnough &&
+                         $canAttDoThisAttack &&
+                         $isDefValidTarget;
+
+        return $isValidAttack;
+    }
+
+    protected function are_skills_compatible(array $attArray) {
+        if (1 != count($attArray)) {
+            throw new InvalidArgumentException('attArray must have one element.');
+        }
+
+        $att = $attArray[0];
+
+        if ($att->has_skill('Shadow') ||
+            ($att->has_skill('Queer') && (1 == $att->value % 2))
+        ) {
+            return TRUE;
+        }
+
+        return FALSE;
     }
 }
-
-?>

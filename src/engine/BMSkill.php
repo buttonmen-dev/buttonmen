@@ -24,7 +24,7 @@ class BMSkill {
 
     public static function unimplemented_skill_in_string($skillString) {
         if ('' === $skillString) {
-            return False;
+            return FALSE;
         }
 
         $skillLetterArray = str_split($skillString);
@@ -32,15 +32,17 @@ class BMSkill {
         foreach ($skillLetterArray as $skillLetter) {
             $lookupSkillLetter = BMSkill::expand_skill_letter($skillLetter);
             if ($lookupSkillLetter == '') {
-                return True;
+                return TRUE;
             }
         }
-        return False;
+        return FALSE;
     }
 
     private static function expand_skill_letter($skillLetter) {
-        $skillLetter = array_search($skillLetter,
-                                    BMSkill::skill_name_abbreviation_mapping());
+        $skillLetter = array_search(
+            $skillLetter,
+            BMSkill::skill_name_abbreviation_mapping()
+        );
         if ($skillLetter) {
             return $skillLetter;
         } else {
@@ -64,17 +66,19 @@ class BMSkill {
     }
 
     protected static function skill_name_abbreviation_mapping() {
-        return array('Berserk'  => 'B',
-                     'Chance'  => 'c',
-                     'Focus'   => 'f',
-                     'Konstant' => 'k',
-                     'Null'     => 'n',
-                     'Poison'   => 'p',
-                     'Queer'    => 'q',
-                     'Shadow'   => 's',
-                     'Speed'    => 'z',
-                     'Trip'     => 't',
-                     'Value'    => 'v');
+        return array('Berserk'      => 'B',
+                     'Chance'       => 'c',
+                     'Doppleganger' => 'D',
+                     'Focus'        => 'f',
+                     'Konstant'     => 'k',
+                     'Morphing'     => 'm',
+                     'Null'         => 'n',
+                     'Poison'       => 'p',
+                     'Queer'        => 'q',
+                     'Shadow'       => 's',
+                     'Speed'        => 'z',
+                     'Trip'         => 't',
+                     'Value'        => 'v');
     }
 
     public static function attack_types() {
@@ -92,9 +96,7 @@ class BMSkill {
                      'Surrender');
     }
 
-    public static function incompatible_attack_types($args = NULL) {
+    public static function incompatible_attack_types() {
         return array();
+    }
 }
-}
-
-?>

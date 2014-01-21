@@ -124,23 +124,20 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         // try some more bad values
         try {
             $die = BMDieSwing::create(6, array());
-            $this->assertFail('Creating with bad swing type did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+            $this->fail('Creating with bad swing type did not throw an exception.');
+        } catch (UnexpectedValueException $e) {
         }
 
         try {
             $die = BMDieSwing::create("RT", array());
-            $this->assertFail('Creating with bad swing type did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+            $this->fail('Creating with bad swing type did not throw an exception.');
+        } catch (UnexpectedValueException $e) {
         }
 
         try {
             $die = BMDieSwing::create("0.A", array());
-            $this->assertFail('Creating with bad swing type did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+            $this->fail('Creating with bad swing type did not throw an exception.');
+        } catch (UnexpectedValueException $e) {
         }
     }
 
@@ -530,11 +527,32 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieSwing::describe
      */
     public function testDescribe() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->object->init('X');
+        $this->assertEquals('X Swing Die', $this->object->describe(TRUE));
+        $this->assertEquals('X Swing Die', $this->object->describe(FALSE));
 
+        $this->object->set_swingValue(array('X' => 5));
+        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(TRUE));
+        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
+
+        $this->object->roll();
+        $value = $this->object->value;
+        $this->assertEquals(
+            "X Swing Die (with 5 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
+
+        $this->object->add_skill('Poison');
+        $this->object->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow X Swing Die (with 5 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow X Swing Die (with 5 sides)',
+            $this->object->describe(FALSE)
+        );
     }
 
     /*

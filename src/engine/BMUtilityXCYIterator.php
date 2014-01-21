@@ -16,9 +16,9 @@ class BMUtilityXCYIterator implements Iterator {
     private $depth;
     private $tail = NULL;
 
-    public function __construct($array, $y) {
+    public function __construct($array, $maxDepth) {
         $this->baseList = $array;
-        $this->depth = $y;
+        $this->depth = $maxDepth;
         $this->basepos = 1;
         if ($this->depth > count($array)) {
             $this->depth = count($array);
@@ -58,8 +58,7 @@ class BMUtilityXCYIterator implements Iterator {
             $tmp = $this->tail->current();
             array_push($tmp, $this->head);
             return $tmp;
-        }
-        else {
+        } else {
             return array($this->head);
         }
     }
@@ -70,8 +69,7 @@ class BMUtilityXCYIterator implements Iterator {
     public function key() {
         if ($this->tail) {
             return $this->tail->key() . $this->position;
-        }
-        else {
+        } else {
             return $this->position;
         }
     }
@@ -103,8 +101,7 @@ class BMUtilityXCYIterator implements Iterator {
                     $this->tail->rewind();
                 }
             }
-        }
-        else {
+        } else {
             $this->head = array_pop($this->list);
             $this->position++;
         }
@@ -115,5 +112,3 @@ class BMUtilityXCYIterator implements Iterator {
         return !is_null($this->head);
     }
 }
-
-?>

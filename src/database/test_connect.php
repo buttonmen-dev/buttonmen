@@ -17,6 +17,7 @@
     <?php
         $name = 'Bauer';
         require_once('mysql.inc.php');
+        $conn = conn();
         $statement = $conn->prepare('SELECT * FROM button_view WHERE name = :name');
         $statement->execute(array('name' => $name));
 

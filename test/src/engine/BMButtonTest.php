@@ -206,7 +206,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         // invalid button recipe with no die sides for one die
         try {
             $method->invoke(new BMButton, 'p(4) s(10) ps (8)');
-            //$this->fail('The number of sides must be specified for each die.');
+            $this->fail('The number of sides must be specified for each die.');
         }
         catch (InvalidArgumentException $expected) {
         }

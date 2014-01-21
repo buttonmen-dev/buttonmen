@@ -2,5 +2,3 @@
 
 class BMDieWildcard extends BMDie {
 }
-
-?>

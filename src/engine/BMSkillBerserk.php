@@ -18,12 +18,12 @@ class BMSkillBerserk extends BMSkill {
 
         $attackTypeArray['Berserk'] = 'Berserk';
     }
-    
+
     public static function incompatible_attack_types($args = NULL) {
         return array('Skill');
     }
 
-    public static function capture(&$args) {
+    public static function capture($args) {
         if (!is_array($args)) {
             return;
         }
@@ -43,16 +43,25 @@ class BMSkillBerserk extends BMSkill {
         assert(1 == count($args['attackers']));
 
         $attacker = $args['attackers'][0];
+        $game = $attacker->ownerObject;
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $attackerPlayerIdx = $game->attack['attackerPlayerIdx'];
+
+        $dieIdx = array_search(
+            $attacker,
+            $activeDieArrayArray[$attackerPlayerIdx],
+            TRUE
+        );
+        assert(FALSE !== $dieIdx);
 
         // james: which other skills need to be lost after a Berserk attack?
         $attacker->remove_skill('Berserk');
 
         // force removal of swing, twin die, and option status
         $splitDieArray = $attacker->split();
-        $newAttacker = $splitDieArray[0];
-        $newAttacker->roll(TRUE);
-        $args['attackers'][0] = $newAttacker;
+        $newAttackDie = $splitDieArray[0];
+        $newAttackDie->roll(TRUE);
+        $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
+        $game->activeDieArrayArray = $activeDieArrayArray;
     }
 }
-
-?>

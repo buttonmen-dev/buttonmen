@@ -1,6 +1,7 @@
 <?php
 function login($username, $password) {
-    require '../database/mysql.inc.php';
+    require_once '../database/mysql.inc.php';
+    $conn = conn();
 
     $sql = 'SELECT id, name_ingame, password_hashed FROM player
             WHERE name_ingame = :username';
@@ -17,7 +18,7 @@ function login($username, $password) {
         $password_hashed = $result['password_hashed'];
 
         // check if the password is correct
-        if ($password_hashed == crypt($_POST['password'], $password_hashed)) {
+        if ($password_hashed == crypt($password, $password_hashed)) {
             // create authorisation key
             $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
 
@@ -30,7 +31,7 @@ function login($username, $password) {
 
             // set authorisation cookie
             setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
-            session_regenerate_id(true);
+            session_regenerate_id(TRUE);
             $_SESSION['user_id'] = $result['id'];
             $_SESSION['user_name'] = $result['name_ingame'];
             $_SESSION['user_lastactive'] = time();
@@ -42,7 +43,8 @@ function login($username, $password) {
 }
 
 function logout() {
-    require '../database/mysql.inc.php';
+    require_once '../database/mysql.inc.php';
+    $conn = conn();
 
     $sql = 'DELETE FROM player_auth
             WHERE id = :id';
@@ -54,11 +56,16 @@ function logout() {
     setcookie('auth_key', '', time()-3600, '/');
 
     $params = session_get_cookie_params();
-    setcookie(session_name(), '', time()-3600,
-              $params["path"], $params["domain"],
-              $params["secure"], $params["httponly"]);
+    setcookie(
+        session_name(),
+        '',
+        time()-3600,
+        $params["path"],
+        $params["domain"],
+        $params["secure"],
+        $params["httponly"]
+    );
 
     session_destroy();
     session_write_close();
 }
-?>
