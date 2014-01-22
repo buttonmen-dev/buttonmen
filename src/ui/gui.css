@@ -87,6 +87,11 @@ select.center {
     /*border: 5px solid white;*/
 }
 
+.die_greyed {
+    background-color: #eeeeee;
+    color:darkslateblue;
+}
+
 .die_overlay {
     position:relative;
     top:16px
@@ -98,14 +103,16 @@ select.center {
     color:black;
 }
 
-.selected {
-    border: 2px solid red;
-}
-
 .title2 {
     font-size: 1.1em;
     font-weight: bold;
     padding: 0.2em;
+}
+
+/* border to indicate dice selected in attacks */
+
+.selected {
+    border: 2px solid red;
 }
 
 .unselected {
