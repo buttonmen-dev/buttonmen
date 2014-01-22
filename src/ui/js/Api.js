@@ -1,6 +1,7 @@
 // namespace for this "module"
 var Api = {
-  'data': {},
+  'active_games': {},
+  'completed_games': {},
 };
 
 // Duplicate the game settings we need from Game.js for now
