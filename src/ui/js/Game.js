@@ -1111,7 +1111,7 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
     var clickable;
     if (player_active) {
       if (('disabled' in Game.api[player].diePropertiesArray[i]) &&
-          Game.api[player].diePropertiesArray[i]['disabled']) {
+          Game.api[player].diePropertiesArray[i].disabled) {
         clickable = false;
       } else {
         clickable = true;

@@ -1,4 +1,5 @@
 // namespace for this "module"
+/* exported Api */
 var Api = (function () {
 
   // all public methods and variables should be defined under 'my'
@@ -220,15 +221,15 @@ var Api = (function () {
     }
     return true;
   };
-  
+
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the current player's list of active games
-  
+
   my.getCompletedGamesData = function(callbackfunc) {
     my.completed_games = {
       'load_status': 'failed',
     };
-  
+
     $.post(
       Env.api_location,
       { type: 'loadCompletedGames', },
@@ -261,7 +262,7 @@ var Api = (function () {
       }
     );
   };
-  
+
   my.parseCompletedGamesData = function(data) {
     my.completed_games.games = [];
     my.completed_games.nGames = data.gameIdArray.length;
@@ -289,5 +290,5 @@ var Api = (function () {
     return true;
   };
 
-  return my;  
+  return my;
 }());
