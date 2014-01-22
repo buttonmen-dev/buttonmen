@@ -88,6 +88,12 @@ test("test_Api.parseButtonData", function() {
             "Api.parseButtonData should not set Env.message");
 });
 
+test("test_Api.parseButtonData_failure", function() {
+  Api.button = {};
+  var retval = Api.parseButtonData({});
+  equal(retval, false, "Api.parseButtonData({}) returns false");
+});
+
 test("test_Api.parsePlayerData", function() {
   expect(4); // number of tests plus 1 for the teardown test
 
@@ -105,6 +111,12 @@ test("test_Api.parsePlayerData", function() {
   );
   deepEqual(Env.message, undefined,
             "Api.parseButtonData should not set Env.message");
+});
+
+test("test_Api.parsePlayerData_failure", function() {
+  Api.player = {};
+  var retval = Api.parsePlayerData({});
+  equal(retval, false, "Api.parsePlayerData({}) returns false");
 });
 
 asyncTest("test_Api.getActiveGamesData", function() {

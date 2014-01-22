@@ -211,11 +211,7 @@ var Api = (function () {
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
       } else {
-        if (gameInfo.gameState == GAME_STATE_END_GAME) {
-          my.active_games.games.finished.push(gameInfo);
-        } else {
-          my.active_games.games.awaitingOpponent.push(gameInfo);
-        }
+        my.active_games.games.awaitingOpponent.push(gameInfo);
       }
       i += 1;
     }
