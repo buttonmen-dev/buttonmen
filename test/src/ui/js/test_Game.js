@@ -301,6 +301,24 @@ asyncTest("test_Game.formReactToInitiativeActive", function() {
   });
 });
 
+asyncTest("test_Game.formReactToInitiativeActive_decline_invalid", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeActive();
+    $('#react_type_select').val('decline');
+    $('#init_react_3').val('5');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "error",
+       "text": "Chose not to react to initiative, but modified a die value"},
+      "Game action failed when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Game.formPlayTurnActive", function() {
   BMTestUtils.GameType = 'turnactive';
   Game.getCurrentGame(function() {

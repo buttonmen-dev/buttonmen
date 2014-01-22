@@ -630,8 +630,26 @@ Game.formReactToInitiativeActive = function() {
 
   switch (action) {
 
-  // valid action, nothing special to do
+  // valid action, nothing special to do, but validate selections just in case
   case 'decline':
+    if ('focus' in Game.api.player.initiativeActions) {
+      $.each(Game.api.player.initiativeActions.focus, function(i, vals) {
+        var value = $('#init_react_' + i).val();
+        if (value != Game.api.player.valueArray[i]) {
+          error = 'Chose not to react to initiative, but modified a die value';
+          formValid = false;
+        }
+      });
+    }
+    if ('chance' in Game.api.player.initiativeActions) {
+      $.each(Game.api.player.initiativeActions.chance, function(i, vals) {
+        var value = $('#init_react_' + i).val();
+        if (value != Game.api.player.valueArray[i]) {
+          error = 'Chose not to react to initiative, but modified a die value';
+          formValid = false;
+        }
+      });
+    }
     break;
 
   case 'focus':
