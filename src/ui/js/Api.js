@@ -5,9 +5,6 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
-  // Duplicate the game settings we need from Game.js for now
-  var GAME_STATE_END_GAME = 60;
-
   ////////////////////////////////////////////////////////////////////////
   // This module should not layout a page or generate any HTML.  It exists
   // only as a collection of routines which load and parse a particular
