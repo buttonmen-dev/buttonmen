@@ -232,6 +232,10 @@ Game.parsePlayerData = function(playerIdx, playerNameArray) {
     'sidesArray': Game.api.gameData.data.sidesArrayArray[playerIdx],
     'dieRecipeArray':
       Game.api.gameData.data.dieRecipeArrayArray[playerIdx],
+    'dieSkillsArray':
+      Game.api.gameData.data.dieSkillsArrayArray[playerIdx],
+    'diePropertiesArray':
+      Game.api.gameData.data.diePropertiesArrayArray[playerIdx],
 
      // N.B. These arrays describe the other player's dice which this
      // player has captured
@@ -1098,16 +1102,43 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
 
 // Add a display of all dice for the requested player, specifying whether
 // the dice should be selectable
-Game.pageAddGamePlayerDice = function(player, clickable) {
+Game.pageAddGamePlayerDice = function(player, player_active) {
   var i = 0;
   while (i < Game.api[player].nDie) {
-    var dieDiv = $('<div>', {
-      'id': Game.dieIndexId(player, i),
-      'class': 'die_img unselected',
-      'style':
-        'background-image: url(images/Circle.png);' +
-        'height:70px;width:70px;background-size:100%',
-    });
+
+    // Find out whether this die is clickable: it is if the player
+    // is active and this particular die is not disabled
+    var clickable;
+    if (player_active) {
+      if (('disabled' in Game.api[player].diePropertiesArray[i]) &&
+          Game.api[player].diePropertiesArray[i]['disabled']) {
+        clickable = false;
+      } else {
+        clickable = true;
+      }
+    } else {
+      clickable = false;
+    }
+
+    var dieDiv;
+    if (clickable) {
+      dieDiv = $('<div>', {
+        'id': Game.dieIndexId(player, i),
+        'class': 'die_img unselected',
+        'style':
+          'background-image: url(images/Circle.png);' +
+          'height:70px;width:70px;background-size:100%',
+      });
+      dieDiv.click(Game.dieBorderToggleHandler);
+    } else {
+      dieDiv = $('<div>', {
+        'id': Game.dieIndexId(player, i),
+        'class': 'die_img die_greyed',
+        'style':
+          'background-image: url(images/Circle.png);' +
+          'height:70px;width:70px;background-size:100%',
+      });
+    }
     dieDiv.append($('<span>', {
       'class': 'die_overlay',
       'text': Game.api[player].valueArray[i],
@@ -1121,9 +1152,6 @@ Game.pageAddGamePlayerDice = function(player, clickable) {
       'class': 'die_recipe',
       'text': dieRecipeText,
     }));
-    if (clickable) {
-      dieDiv.click(Game.dieBorderToggleHandler);
-    }
     Game.page.append(dieDiv);
     i += 1;
   }
