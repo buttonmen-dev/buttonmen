@@ -1,5 +1,7 @@
 // namespace for this "module"
 var Api = {
+  'button': {},
+  'player': {},
   'active_games': {},
   'completed_games': {},
 };
