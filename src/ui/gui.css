@@ -89,6 +89,7 @@ select.center {
 
 .die_greyed {
     background-color: #eeeeee;
+    border-radius: 50%;
     color:darkslateblue;
 }
 
