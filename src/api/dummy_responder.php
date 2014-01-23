@@ -103,7 +103,7 @@ class dummy_responder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = '10';
+        $gameId = '11';
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -675,10 +675,26 @@ class dummy_responder {
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
+        } elseif ($args['game'] == '10') {
+            $gameData['gameId'] = 10;
+            $gameData['gameState'] = 24;
+            $gameData['playerIdArray'] = array(2, 3);
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameData,
+                ),
+                'currentPlayerIdx' => false,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
         }
 
         if ($data) {
-            $data['playerNameArray'] = array('tester1', 'tester2');
+            if (!(array_key_exists('playerNameArray', $data))) {
+                $data['playerNameArray'] = array('tester1', 'tester2');
+            }
             $timestamp = new DateTime();
             $data['timestamp'] = $timestamp->format(DATE_RSS);
             return array($data, "Loaded data for game " . $args['game']);

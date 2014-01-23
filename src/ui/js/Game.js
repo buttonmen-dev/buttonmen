@@ -122,22 +122,34 @@ Game.showStatePage = function() {
   // Figure out what to do next based on the game state
   if (Game.api.load_status == 'ok') {
     if (Game.api.gameState == Game.GAME_STATE_SPECIFY_DICE) {
-      if (Game.api.player.waitingOnAction) {
-        Game.actionChooseSwingActive();
+      if (Game.api.isParticipant) {
+        if (Game.api.player.waitingOnAction) {
+          Game.actionChooseSwingActive();
+        } else {
+          Game.actionChooseSwingInactive();
+        }
       } else {
-        Game.actionChooseSwingInactive();
+        Game.actionChooseSwingNonplayer();
       }
     } else if (Game.api.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
-      if (Game.api.player.waitingOnAction) {
-        Game.actionReactToInitiativeActive();
+      if (Game.api.isParticipant) {
+        if (Game.api.player.waitingOnAction) {
+          Game.actionReactToInitiativeActive();
+        } else {
+          Game.actionReactToInitiativeInactive();
+        }
       } else {
-        Game.actionReactToInitiativeInactive();
+        Game.actionReactToInitiativeNonplayer();
       }
     } else if (Game.api.gameState == Game.GAME_STATE_START_TURN) {
-      if (Game.api.player.waitingOnAction) {
-        Game.actionPlayTurnActive();
+      if (Game.api.isParticipant) {
+        if (Game.api.player.waitingOnAction) {
+          Game.actionPlayTurnActive();
+        } else {
+          Game.actionPlayTurnInactive();
+        }
       } else {
-        Game.actionPlayTurnInactive();
+        Game.actionPlayTurnNonplayer();
       }
     } else if (Game.api.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
@@ -188,20 +200,28 @@ Game.parseGameData = function(currentPlayerIdx, playerNameArray) {
   if (Game.game != Game.api.gameData.data.gameId) {
     return false;
   }
-  if (!($.isNumeric(currentPlayerIdx))) {
-    return false;
+
+  if ($.isNumeric(currentPlayerIdx)) {
+    Game.api.isParticipant = true;
+  } else {
+    Game.api.isParticipant = false;
   }
 
   Game.api.gameId =  Game.api.gameData.data.gameId;
   Game.api.roundNumber = Game.api.gameData.data.roundNumber;
   Game.api.maxWins = Game.api.gameData.data.maxWins;
   Game.api.gameState = Game.api.gameData.data.gameState;
-  Game.api.playerIdx = currentPlayerIdx;
-  Game.api.opponentIdx = 1 - currentPlayerIdx;
   Game.api.validAttackTypeArray =
     Game.api.gameData.data.validAttackTypeArray;
 
-  // Set defaults for both players
+  if (Game.api.isParticipant) {
+    Game.api.playerIdx = currentPlayerIdx;
+    Game.api.opponentIdx = 1 - currentPlayerIdx;
+  } else {
+    Game.api.playerIdx = 0;
+    Game.api.opponentIdx = 1;
+  }
+
   Game.api.player = Game.parsePlayerData(
                       Game.api.playerIdx, playerNameArray);
   Game.api.opponent = Game.parsePlayerData(
@@ -393,6 +413,23 @@ Game.actionChooseSwingInactive = function() {
   // Now layout the page
   Game.layoutPage();
 };
+
+Game.actionChooseSwingNonplayer = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Waiting for players to set swing dice (you are not in this game)'
+  );
+
+  var dietable = Game.dieRecipeTable(false);
+  Game.page.append(dietable);
+  Game.page.append($('<br>'));
+
+  Game.pageAddFooter();
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+}
 
 Game.actionReactToInitiativeActive = function() {
   Game.parseValidInitiativeActions();

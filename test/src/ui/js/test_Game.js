@@ -13,7 +13,8 @@ module("Game", {
         if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
         if (BMTestUtils.GameType == 'focus') { return '7'; }
         if (BMTestUtils.GameType == 'chanceactive') { return '8'; }
-        if (BMTestUtils.GameType == 'chanceinactive') { return '8'; }
+        if (BMTestUtils.GameType == 'chanceinactive') { return '9'; }
+        if (BMTestUtils.GameType == 'newgame_nonplayer') { return '10'; }
       }
     }
 
@@ -117,10 +118,17 @@ asyncTest("test_Game.layoutPage", function() {
 asyncTest("test_Game.parseGameData", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
-    equal(Game.parseGameData(false, ["tester1", "tester2"]), false,
-          "parseGameData() fails if currentPlayerIdx is not set");
     equal(Game.api.gameId, '1', "parseGameData() set gameId");
     equal(Game.api.opponentIdx, 1, "parseGameData() set opponentIdx");
+    start();
+  });
+});
+
+asyncTest("test_Game.parseGameData", function() {
+  BMTestUtils.GameType = 'newgame_nonplayer';
+  Game.getCurrentGame(function() {
+    equal(Game.api.gameId, '10', 
+          "parseGameData() set gameId for nonparticipant");
     start();
   });
 });
@@ -197,6 +205,17 @@ asyncTest("test_Game.actionChooseSwingInactive", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     Game.actionChooseSwingInactive();
+    var item = document.getElementById('swing_table');
+    equal(item, null, "#swing_table is NULL");
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseSwingNonplayer", function() {
+  BMTestUtils.GameType = 'newgame_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionChooseSwingNonplayer();
     var item = document.getElementById('swing_table');
     equal(item, null, "#swing_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
