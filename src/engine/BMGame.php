@@ -1941,7 +1941,7 @@ class BMGame {
 
         $dataArray =
             array('gameId'                   => $this->gameId,
-                  'gameState'                => $this->gameState,
+                  'gameState'                => BMGameState::as_string($this->gameState),
                   'roundNumber'              => $this->get_roundNumber(),
                   'maxWins'                  => $this->maxWins,
                   'activePlayerIdx'          => $this->activePlayerIdx,
