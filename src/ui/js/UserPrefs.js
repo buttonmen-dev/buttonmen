@@ -150,30 +150,12 @@ UserPrefs.actionSetPrefs = function() {
 UserPrefs.formSetPrefs = function() {
   var autopass = $('#userprefs_autopass').prop('checked');
 
-  $.post(
-    Env.api_location,
+  Api.apiFormPost(
     { type: 'savePlayerInfo', autopass: autopass },
-    function(rs) {
-      if ('ok' == rs.status) {
-        Env.message = {
-          'type': 'success',
-          'text': 'User details set successfully.'
-        };
-      } else {
-        Env.message = {
-          'type': 'error',
-          'text': rs.message
-        };
-      }
-      UserPrefs.showUserPrefsPage();
-    }
-  ).fail(
-    function() {
-      Env.message = {
-        'type': 'error',
-        'text': 'Internal error when calling formSetPrefs.'
-      };
-      UserPrefs.showUserPrefsPage();
-    }
+    { 'ok': { 'type': 'fixed', 'text': 'User details set successfully.', },
+      'notok': { 'type': 'server', }
+    },
+    UserPrefs.showUserPrefsPage,
+    UserPrefs.showUserPrefsPage
   );
 };

@@ -29,14 +29,12 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////
-  // Generic routine for API POST
+  // Generic routine for API POST used to parse data
 
-  my.apiPost = function(args, apikey, parser, callback, failcallback) {
-    if (apikey) {
-      my[apikey] = {
-        'load_status': 'failed',
-      };
-    }
+  my.apiParsePost = function(args, apikey, parser, callback, failcallback) {
+    my[apikey] = {
+      'load_status': 'failed',
+    };
     $.post(
       Env.api_location,
       args,
@@ -49,22 +47,75 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (apikey) {
-            if (parser(rs.data)) {
-              my[apikey].load_status = 'ok';
-              return callback();
-            } else {
-              Env.message = {
-                'type': 'error',
-                'text':
-                  'Internal error: Could not parse ' + apikey +
-                  'data from server',
-              };
-              return failcallback();
-            }
-          } else {
+          if (parser(rs.data)) {
+            my[apikey].load_status = 'ok';
             return callback();
+          } else {
+            Env.message = {
+              'type': 'error',
+              'text':
+                'Internal error: Could not parse ' + apikey +
+                'data from server',
+            };
+            return failcallback();
           }
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': 'Error from ' + args.type + ': ' + rs.message,
+          };
+          return failcallback();
+        }
+      }
+    ).fail(
+      function() {
+        Env.message = {
+          'type': 'error',
+          'text': 'Internal error when calling ' + args.type,
+        };
+        return failcallback();
+      }
+    );
+  };
+
+  my.apiFormPost = function(args, messages, callback, failcallback) {
+    $.post(
+      Env.api_location,
+      args,
+      function(rs) {
+        if (typeof rs === 'string') {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Internal error: got unparseable response from ' + args.type,
+          };
+          return failcallback();
+        } else if (rs.status == 'ok') {
+          if (messages.ok.type == 'fixed') {
+            Env.message = {
+              'type': 'success',
+              'text': messages.ok.text,
+            };
+          } else if (messages.ok.type == 'server') {
+            Env.message = {
+              'type': 'success',
+              'text': rs.message,
+            };
+          }
+          return callback();
+        } else {
+          if (messages.notok.type == 'fixed') {
+            Env.message = {
+              'type': 'error',
+              'text': messages.notok.text,
+            };
+          } else if (messages.notok.type == 'server') {
+            Env.message = {
+              'type': 'error',
+              'text': rs.message,
+            };
+          }
+          return failcallback();
         }
       }
     ).fail(
@@ -82,7 +133,7 @@ var Api = (function () {
   // Load and parse a list of buttons
 
   my.getButtonData = function(callbackfunc) {
-    my.apiPost(
+    my.apiParsePost(
       {'type': 'loadButtonNames', },
       'button',
       my.parseButtonData,
@@ -113,7 +164,7 @@ var Api = (function () {
   // Load and parse a list of players
 
   my.getPlayerData = function(callbackfunc) {
-    my.apiPost(
+    my.apiParsePost(
       {'type': 'loadPlayerNames', },
       'player',
       my.parsePlayerData,
@@ -142,7 +193,7 @@ var Api = (function () {
   // Load and parse the current player's list of active games
 
   my.getActiveGamesData = function(callbackfunc) {
-    my.apiPost(
+    my.apiParsePost(
       {'type': 'loadActiveGames', },
       'active_games',
       my.parseActiveGamesData,
@@ -189,7 +240,7 @@ var Api = (function () {
   // Load and parse the current player's list of active games
 
   my.getCompletedGamesData = function(callbackfunc) {
-    my.apiPost(
+    my.apiParsePost(
       {'type': 'loadCompletedGames', },
       'completed_games',
       my.parseCompletedGamesData,
@@ -226,7 +277,7 @@ var Api = (function () {
   };
 
   my.getUserPrefsData = function(callbackfunc) {
-    my.apiPost(
+    my.apiParsePost(
       {'type': 'loadPlayerInfo', },
       'user_prefs',
       my.parseUserPrefsData,
