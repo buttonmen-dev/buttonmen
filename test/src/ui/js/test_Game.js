@@ -7,14 +7,16 @@ module("Game", {
       if (name == 'game') {
         if (BMTestUtils.GameType == 'newgame') { return '1'; }
         if (BMTestUtils.GameType == 'swingset') { return '2'; }
-        if (BMTestUtils.GameType == 'turnactive') { return '3'; }
-        if (BMTestUtils.GameType == 'turninactive') { return '4'; }
+        if (BMTestUtils.GameType == 'turn_active') { return '3'; }
+        if (BMTestUtils.GameType == 'turn_inactive') { return '4'; }
         if (BMTestUtils.GameType == 'finished') { return '5'; }
         if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
         if (BMTestUtils.GameType == 'focus') { return '7'; }
-        if (BMTestUtils.GameType == 'chanceactive') { return '8'; }
-        if (BMTestUtils.GameType == 'chanceinactive') { return '9'; }
+        if (BMTestUtils.GameType == 'chance_active') { return '8'; }
+        if (BMTestUtils.GameType == 'chance_inactive') { return '9'; }
         if (BMTestUtils.GameType == 'newgame_nonplayer') { return '10'; }
+        if (BMTestUtils.GameType == 'turn_nonplayer') { return '11'; }
+        if (BMTestUtils.GameType == 'chance_nonplayer') { return '12'; }
       }
     }
 
@@ -177,7 +179,7 @@ asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
 });
 
 asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
-  BMTestUtils.GameType = 'chanceactive';
+  BMTestUtils.GameType = 'chance_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     deepEqual(
@@ -237,7 +239,7 @@ asyncTest("test_Game.actionReactToInitiativeActive", function() {
 });
 
 asyncTest("test_Game.actionReactToInitiativeInactive", function() {
-  BMTestUtils.GameType = 'chanceinactive';
+  BMTestUtils.GameType = 'chance_inactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
     var item = document.getElementById('die_recipe_table');
@@ -249,8 +251,21 @@ asyncTest("test_Game.actionReactToInitiativeInactive", function() {
   });
 });
 
+asyncTest("test_Game.actionReactToInitiativeNonplayer", function() {
+  BMTestUtils.GameType = 'chance_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeNonplayer();
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "page contains die recipe table");
+    item = document.getElementById('init_react_1');
+    equal(item, null, "#init_react_1 select is not set");
+    equal(Game.form, null, "Game.form is not set");
+    start();
+  });
+});
+
 asyncTest("test_Game.actionPlayTurnActive", function() {
-  BMTestUtils.GameType = 'turnactive';
+  BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('attack_type_select');
@@ -261,9 +276,20 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
 });
 
 asyncTest("test_Game.actionPlayTurnInactive", function() {
-  BMTestUtils.GameType = 'turninactive';
+  BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
+    var item = document.getElementById('attack_type_select');
+    equal(item, null, "#attack_type_select is not set");
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionPlayTurnNonplayer", function() {
+  BMTestUtils.GameType = 'turn_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnNonplayer();
     var item = document.getElementById('attack_type_select');
     equal(item, null, "#attack_type_select is not set");
     equal(Game.form, null, "Game.form is NULL");
@@ -339,7 +365,7 @@ asyncTest("test_Game.formReactToInitiativeActive_decline_invalid", function() {
 });
 
 asyncTest("test_Game.formPlayTurnActive", function() {
-  BMTestUtils.GameType = 'turnactive';
+  BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     $.ajaxSetup({ async: false });
@@ -452,7 +478,7 @@ asyncTest("test_Game.dieRecipeTable_focus", function() {
 });
 
 asyncTest("test_Game.dieRecipeTable_chance", function() {
-  BMTestUtils.GameType = 'chanceactive';
+  BMTestUtils.GameType = 'chance_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
@@ -492,7 +518,7 @@ asyncTest("test_Game.dieTableEntry", function() {
 });
 
 asyncTest("test_Game.pageAddDieBattleTable", function() {
-  BMTestUtils.GameType = 'turnactive';
+  BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
@@ -503,7 +529,7 @@ asyncTest("test_Game.pageAddDieBattleTable", function() {
 });
 
 asyncTest("test_Game.pageAddGamePlayerStatus", function() {
-  BMTestUtils.GameType = 'turnactive';
+  BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGamePlayerStatus('player', false, true);
@@ -518,7 +544,7 @@ asyncTest("test_Game.pageAddGamePlayerStatus", function() {
 });
 
 asyncTest("test_Game.pageAddGamePlayerDice", function() {
-  BMTestUtils.GameType = 'turnactive';
+  BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGamePlayerDice('opponent', true);
@@ -629,7 +655,7 @@ test("test_Game.chatBox", function() {
 });
 
 asyncTest("test_Game.dieBorderToggleHandler", function() {
-  BMTestUtils.GameType = 'turnactive';
+  BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGamePlayerDice('player', true);
@@ -654,8 +680,19 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
   });
 });
 
+asyncTest("test_Game.waitingOnPlayerNames", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    var namesString = Game.waitingOnPlayerNames();
+    equal(namesString, "tester1 and tester2",
+      "String with name(s) of active player(s) has expected contents");
+    start();
+  });
+});
+
 test("test_Game.dieValueSelectTd", function() {
   var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1);
   var html = td.html();
   ok(html.match(/<select /), "select row should contain a select");
 });
+

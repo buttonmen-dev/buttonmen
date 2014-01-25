@@ -416,8 +416,10 @@ Game.actionChooseSwingInactive = function() {
 
 Game.actionChooseSwingNonplayer = function() {
   Game.page = $('<div>');
+
   Game.pageAddGameHeader(
-    'Waiting for players to set swing dice (you are not in this game)'
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to set swing dice (you are not in this game)'
   );
 
   var dietable = Game.dieRecipeTable(false);
@@ -517,6 +519,27 @@ Game.actionReactToInitiativeInactive = function() {
   Game.layoutPage();
 };
 
+Game.actionReactToInitiativeNonplayer = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to gain initiative using die skills (you are not in this game)'
+  );
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable(true, false);
+
+  Game.page.append(dietable);
+
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = null,
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('Your turn to attack');
@@ -575,6 +598,24 @@ Game.actionPlayTurnInactive = function() {
   Game.page.append($('<p>', {'text':
     'It is your opponent\'s turn to attack right now.' }));
 
+  Game.pageAddFooter();
+
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
+Game.actionPlayTurnNonplayer = function() {
+  Game.page = $('<div>');
+
+  Game.pageAddGameHeader(
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to attack (you are not in this game)'
+  );
+
+  Game.page.append($('<br>'));
+  Game.pageAddDieBattleTable(false);
   Game.pageAddFooter();
 
   Game.form = null;
@@ -1369,3 +1410,18 @@ Game.chatBox = function() {
   chattable.append(chatrow);
   return chattable;
 };
+
+// Return a friendly string with the names of the players for whom
+// the game is currently waiting
+Game.waitingOnPlayerNames = function() {
+
+  var waitingPlayers = [];
+  if (Game.api.player.waitingOnAction) {
+    waitingPlayers.push(Game.api.player.playerName);
+  }
+  if (Game.api.opponent.waitingOnAction) {
+    waitingPlayers.push(Game.api.opponent.playerName);
+  }
+
+  return (waitingPlayers.join(' and '));
+}
