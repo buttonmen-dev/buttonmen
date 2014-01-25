@@ -447,12 +447,12 @@ class dummy_responder {
                 'gameChatLog' => array(),
             );
         } elseif (($args['game'] == '3') || ($args['game'] == '11')) {
-	    // these two examples use the same somewhat-involved
-	    // game state, but in game 3, tester1 is the active player,
-	    // while in game 11, tester1 is not a participant
+            // these two examples use the same somewhat-involved
+            // game state, but in game 3, tester1 is the active player,
+            // while in game 11, tester1 is not a participant
             if ($args['game'] == '3') {
                 $gameData['gameId'] = 3;
-            } else if ($args['game'] == '11') {
+            } elseif ($args['game'] == '11') {
                 $gameData['gameId'] = 11;
             }
             $gameData['gameState'] = 40;
@@ -521,7 +521,7 @@ class dummy_responder {
             if ($args['game'] == '3') {
                 $data['currentPlayerIdx'] = 0;
             } elseif ($args['game'] == '11') {
-                $data['currentPlayerIdx'] = false;
+                $data['currentPlayerIdx'] = FALSE;
                 $data['playerNameArray'] = array('tester2', 'tester3');
             }
         } elseif ($args['game'] == '4') {
@@ -699,12 +699,12 @@ class dummy_responder {
                     "status" => "ok",
                     "data" => $gameData,
                 ),
-                'currentPlayerIdx' => false,
+                'currentPlayerIdx' => FALSE,
                 'playerNameArray' => array('tester2', 'tester3'),
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
-        // game 11 is grouped with game 3 above 
+        // game 11 is grouped with game 3 above
         } elseif ($args['game'] == '12') {
             $gameDataJohnKovalic['gameId'] = 12;
             $gameDataJohnKovalic['playerWithInitiativeIdx'] = 1;
@@ -715,7 +715,7 @@ class dummy_responder {
                     "status" => "ok",
                     "data" => $gameDataJohnKovalic,
                 ),
-                'currentPlayerIdx' => false,
+                'currentPlayerIdx' => FALSE,
                 'playerNameArray' => array('tester2', 'tester3'),
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
