@@ -225,5 +225,20 @@ var Api = (function () {
     return true;
   };
 
+  my.getUserPrefsData = function(callbackfunc) {
+    my.apiPost(
+      {'type': 'loadPlayerInfo', },
+      'user_prefs',
+      my.parseUserPrefsData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseUserPrefsData = function(data) {
+    my.user_prefs.autopass = data.autopass;
+    return true;
+  };
+
   return my;
 }());

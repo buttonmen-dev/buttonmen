@@ -5,8 +5,6 @@ var UserPrefs = {};
 // Action flow through this page:
 // * UserPrefs.showUserPrefsPage() is the landing function.  Always call
 //   this first
-// * UserPrefs.getUserPrefs() asks the API for the user's current
-//   preferences.  It clobbers UserPrefs.api, then calls
 // * UserPrefs.assemblePage(), which calls one of a number of functions
 //   UserPrefs.action<SomeAction>()
 // * each UserPrefs.action<SomeAction>() function must set UserPrefs.page and
@@ -31,7 +29,7 @@ UserPrefs.showUserPrefsPage = function() {
 
   // Only allow logged-in users to view and change preferences
   if (Login.logged_in) {
-    UserPrefs.getUserPrefsData(UserPrefs.assemblePage);
+    Api.getUserPrefsData(UserPrefs.assemblePage);
   } else {
     Env.message = {
       'type': 'error',
@@ -43,7 +41,7 @@ UserPrefs.showUserPrefsPage = function() {
 
 // Assemble and display the userprefs portion of the page
 UserPrefs.assemblePage = function() {
-  if (UserPrefs.api.load_status == 'ok') {
+  if (Api.user_prefs.load_status == 'ok') {
 
     // There's only one possible action, allowing the user to change
     // the preferences
@@ -66,46 +64,6 @@ UserPrefs.layoutPage = function() {
   if (UserPrefs.form) {
     $('#userprefs_action_button').click(UserPrefs.form);
   }
-};
-
-UserPrefs.getUserPrefsData = function(callbackfunc) {
-  UserPrefs.api = {
-    'load_status': 'failed',
-  };
-  $.post(
-    Env.api_location,
-    { type: 'loadPlayerInfo' },
-    function(rs) {
-      if (rs.status == 'ok') {
-        if (UserPrefs.parseUserPrefsData(rs.data)) {
-          UserPrefs.api.load_status = 'ok';
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': 'User preferences received from server could not be parsed',
-          };
-        }
-      } else {
-        Env.message = {
-          'type': 'error',
-          'text': rs.message,
-        };
-      }
-      return callbackfunc();
-    }
-  ).fail(function() {
-    Env.message = {
-      'type': 'error',
-      'text': 'Internal error when calling loadPlayerInfo',
-    };
-    return callbackfunc();
-  });
-};
-
-UserPrefs.parseUserPrefsData = function(data) {
-  UserPrefs.api.load_status = 'ok';
-  UserPrefs.api.autopass = data.autopass;
-  return true;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -150,7 +108,7 @@ UserPrefs.actionSetPrefs = function() {
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
-      'checked': UserPrefs.api.autopass,
+      'checked': Api.user_prefs.autopass,
     }
   };
 
