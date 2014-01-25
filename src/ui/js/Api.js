@@ -101,6 +101,8 @@ var Api = (function () {
               'type': 'success',
               'text': rs.message,
             };
+          } else if (messages.ok.type == 'function') {
+            messages.ok.msgfunc(rs.message, rs.data);
           }
           return callback();
         } else {

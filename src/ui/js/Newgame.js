@@ -236,45 +236,22 @@ Newgame.formCreateGame = function() {
 
     var maxWins = $('#n_rounds').val();
 
-    $.post(
-      Env.api_location, {
+    Api.apiFormPost(
+      {
         type: 'createGame',
         playerNameArray: playerNameArray,
         buttonNameArray: buttonNameArray,
         maxWins: maxWins,
       },
-      function(rs) {
-        if ('ok' == rs.status) {
-          var gameId = rs.data.gameId;
-          var gameLink = $('<a>', {
-            'href': 'game.html?game=' + gameId,
-            'text': 'Go to game page',
-          });
-          var gamePar = $('<p>',
-            {'text': rs.message + ' ', });
-          gamePar.append(gameLink);
-          Env.message = {
-            'type': 'success',
-            'text': '',
-            'obj': gamePar,
-          };
-          Newgame.showNewgamePage();
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-          Newgame.showNewgamePage();
-        }
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling createGame',
-        };
-        Newgame.showNewgamePage();
-      }
+      { 'ok':
+        {
+          'type': 'function',
+          'msgfunc': Newgame.setCreateGameSuccessMessage,
+        },
+        'notok': { 'type': 'server', },
+      },
+      Newgame.showNewgamePage,
+      Newgame.showNewgamePage
     );
   }
 };
@@ -297,6 +274,21 @@ Newgame.addInternalErrorPage = function() {
             'loading data from server.',
   }));
   Newgame.page.append(errorDiv);
+};
+
+Newgame.setCreateGameSuccessMessage = function(message, data) {
+  var gameId = data.gameId;
+  var gameLink = $('<a>', {
+    'href': 'game.html?game=' + gameId,
+    'text': 'Go to game page',
+  });
+  var gamePar = $('<p>', {'text': message + ' ', });
+  gamePar.append(gameLink);
+  Env.message = {
+    'type': 'success',
+    'text': '',
+    'obj': gamePar,
+  };
 };
 
 ////////////////////////////////////////////////////////////////////////
