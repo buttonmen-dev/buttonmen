@@ -102,6 +102,61 @@ asyncTest("test_Game.showStatePage", function() {
   });
 });
 
+asyncTest("test_Game.showStatePage_swingset", function() {
+  BMTestUtils.GameType = 'swingset';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_newgame_nonplayer", function() {
+  BMTestUtils.GameType = 'newgame_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_turn_active", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_turn_inactive", function() {
+  BMTestUtils.GameType = 'turn_inactive';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_turn_nonplayer", function() {
+  BMTestUtils.GameType = 'turn_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
 asyncTest("test_Game.layoutPage", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
@@ -685,6 +740,16 @@ asyncTest("test_Game.waitingOnPlayerNames", function() {
   Game.getCurrentGame(function() {
     var namesString = Game.waitingOnPlayerNames();
     equal(namesString, "tester1 and tester2",
+      "String with name(s) of active player(s) has expected contents");
+    start();
+  });
+});
+
+asyncTest("test_Game.waitingOnPlayerNames_inactive", function() {
+  BMTestUtils.GameType = 'swingset';
+  Game.getCurrentGame(function() {
+    var namesString = Game.waitingOnPlayerNames();
+    equal(namesString, "tester2",
       "String with name(s) of active player(s) has expected contents");
     start();
   });
