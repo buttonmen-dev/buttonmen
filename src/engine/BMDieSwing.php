@@ -49,15 +49,7 @@ class BMDieSwing extends BMDie {
         $this->swingMin = $range[0];
         $this->swingMax = $range[1];
 
-        if ($skills) {
-            foreach ($skills as $skillClass => $skill) {
-                if (is_string($skillClass)) {
-                    $this->add_skill($skill, $skillClass);
-                } else {
-                    $this->add_skill($skill);
-                }
-            }
-        }
+        $this->add_multiple_skills($skills);
     }
 
     public static function create($recipe, array $skills = NULL) {
@@ -144,7 +136,8 @@ class BMDieSwing extends BMDie {
 
     public function split() {
         $normalDie = new BMDie();
-        $normalDie->init($this->max, $this->skillList);
+        // note: init requires an array without string keys
+        $normalDie->init($this->max, array_keys($this->skillList));
         $normalDie->ownerObject = $this->ownerObject;
         $normalDie->playerIdx = $this->playerIdx;
         $normalDie->originalPlayerIdx = $this->originalPlayerIdx;

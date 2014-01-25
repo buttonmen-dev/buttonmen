@@ -386,6 +386,7 @@ class BMInterface {
                     $game->playerIdArray
                 );
                 $die->originalPlayerIdx = $originalPlayerIdx;
+                $die->ownerObject = $game;
 
                 if (isset($die->swingType)) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
