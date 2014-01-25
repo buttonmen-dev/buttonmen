@@ -103,8 +103,6 @@ class BMDie {
         if ($skills) {
             foreach ($skills as $skillClass => $skill) {
                 if (is_string($skillClass)) {
-                    var_dump('multiple');
-                    var_dump($skills);
                     $this->add_skill($skill, $skillClass);
                 } else {
                     $this->add_skill($skill);
