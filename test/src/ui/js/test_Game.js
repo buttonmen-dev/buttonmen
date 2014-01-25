@@ -485,6 +485,18 @@ asyncTest("test_Game.pageAddLogFooter", function() {
   });
 });
 
+asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddLogFooter();
+    var htmlout = Game.page.html();
+    ok(htmlout.match("tester2 performed Power attack"), 
+       "Action log footer for a game in progress should contain entries");
+    start();
+  });
+});
+
 asyncTest("test_Game.dieRecipeTable", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
@@ -572,6 +584,23 @@ asyncTest("test_Game.dieTableEntry", function() {
   });
 });
 
+asyncTest("test_Game.dieTableEntry_empty", function() {
+  BMTestUtils.GameType = 'swingset';
+  Game.getCurrentGame(function() {
+    var htmlobj = Game.dieTableEntry(
+      6,
+      Game.api.player.nDie,
+      Game.api.player.dieRecipeArray,
+      Game.api.player.sidesArray
+    );
+    // jQuery trick to get the full HTML including the object itself
+    var html = $('<div>').append(htmlobj.clone()).remove().html();
+    deepEqual(html, "<td></td>",
+      "Empty die table entry has expected contents");
+    start();
+  });
+});
+
 asyncTest("test_Game.pageAddDieBattleTable", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
@@ -605,6 +634,18 @@ asyncTest("test_Game.pageAddGamePlayerDice", function() {
     Game.pageAddGamePlayerDice('opponent', true);
     var htmlout = Game.page.html();
     ok(htmlout.match('die_img unselected'),
+       "dice should include some text with the correct CSS class");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGamePlayerDice_disabled", function() {
+  BMTestUtils.GameType = 'turn_inactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGamePlayerDice('player', false);
+    var htmlout = Game.page.html();
+    ok(htmlout.match('die_img die_greyed'),
        "dice should include some text with the correct CSS class");
     start();
   });
