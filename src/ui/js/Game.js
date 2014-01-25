@@ -431,7 +431,7 @@ Game.actionChooseSwingNonplayer = function() {
 
   // Now layout the page
   Game.layoutPage();
-}
+};
 
 Game.actionReactToInitiativeActive = function() {
   Game.parseValidInitiativeActions();
@@ -1424,4 +1424,4 @@ Game.waitingOnPlayerNames = function() {
   }
 
   return (waitingPlayers.join(' and '));
-}
+};
