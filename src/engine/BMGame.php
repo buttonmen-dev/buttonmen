@@ -1967,4 +1967,5 @@ class BMGame {
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
+
 }
