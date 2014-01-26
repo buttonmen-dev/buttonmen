@@ -1118,14 +1118,6 @@ Game.playerOpponentHeaderRow = function(label, field) {
   return headerrow;
 };
 
-Game.playerWLTText = function(player) {
-  var text = 'W/L/T: ' + Api.game[player].gameScoreDict.W +
-              '/' + Api.game[player].gameScoreDict.L +
-              '/' + Api.game[player].gameScoreDict.D +
-              ' (' + Api.game.maxWins + ')';
-  return text;
-};
-
 // If the recipe doesn't contain (sides), assume there are swing
 // dice in the recipe, so we need to specify the current number
 // of sides

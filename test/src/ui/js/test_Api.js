@@ -207,3 +207,12 @@ asyncTest("test_Api.parseGamePlayerData", function() {
   });
 });
 
+asyncTest("test_Api.playerWLTText", function() {
+  Api.getGameData('5', function() {
+    var text = Api.playerWLTText('opponent');
+    ok(text.match('2/3/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
+    start();
+  });
+});
+

@@ -5,6 +5,9 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
+  // private methods and variables should be defined separately
+  var activity = {};
+
   ////////////////////////////////////////////////////////////////////////
   // This module should not layout a page or generate any HTML.  It exists
   // only as a collection of routines which load and parse a particular
@@ -294,6 +297,7 @@ var Api = (function () {
   };
 
   my.getGameData = function(game, callback) {
+    activity.gameId = game;
     Api.apiParsePost(
       { type: 'loadGameData', game: game, },
       'game',
@@ -326,7 +330,7 @@ var Api = (function () {
     if (my.game.gameData.status != 'ok') {
       return false;
     }
-    if (Game.game != my.game.gameData.data.gameId) {
+    if (activity.gameId != my.game.gameData.data.gameId) {
       return false;
     }
 
@@ -357,8 +361,8 @@ var Api = (function () {
                          my.game.opponentIdx, data.playerNameArray);
 
     // Parse game WLT text into a string for convenience
-    my.game.player.gameScoreStr = Game.playerWLTText('player');
-    my.game.opponent.gameScoreStr = Game.playerWLTText('opponent');
+    my.game.player.gameScoreStr = my.playerWLTText('player');
+    my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
 
     return true;
   };
@@ -424,6 +428,14 @@ var Api = (function () {
     }
 
     return data;
+  };
+
+  my.playerWLTText = function(player) {
+    var text = 'W/L/T: ' + Api.game[player].gameScoreDict.W +
+               '/' + Api.game[player].gameScoreDict.L +
+               '/' + Api.game[player].gameScoreDict.D +
+               ' (' + Api.game.maxWins + ')';
+    return text;
   };
 
   return my;

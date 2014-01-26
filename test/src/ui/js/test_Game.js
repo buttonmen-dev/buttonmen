@@ -658,21 +658,6 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
   });
 });
 
-asyncTest("test_Game.playerWLTText", function() {
-  BMTestUtils.GameType = 'finished';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    var text = Game.playerWLTText('opponent');
-    Game.page.append(text);
-    Game.layoutPage();
-
-    var item = document.getElementById('game_page');
-    ok(item.innerHTML.match('2/3/0'),
-       "opponent WLT text should contain opponent's view of WLT state");
-    start();
-  });
-});
-
 test("test_Game.dieRecipeText", function() {
   var text = Game.dieRecipeText("p(4)", "4");
   equal(text, "p(4)", "text for non-swing die with skills should be correct");
