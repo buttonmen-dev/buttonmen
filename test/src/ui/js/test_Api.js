@@ -9,6 +9,7 @@ module("Api", {
     delete Api.player;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.user_prefs;
     BMTestUtils.deleteEnvMessage();
 
     // Fail if any other elements were added or removed
@@ -149,6 +150,20 @@ asyncTest("test_Api.parseCompletedGamesData", function() {
   Api.getCompletedGamesData(function() {
     equal(Api.completed_games.games[0].gameId, 5,
           "expected completed game ID exists");
+    start();
+  });
+});
+
+asyncTest("test_Api.getUserPrefsData", function() {
+  Api.getUserPrefsData(function() {
+    equal(Api.user_prefs.load_status, 'ok', "Successfully loaded user data");
+    start();
+  });
+});
+
+asyncTest("test_Api.parseUserPrefsData", function() {
+  Api.getUserPrefsData(function() {
+    equal(Api.user_prefs.autopass, true, "Successfully parsed autopass value");
     start();
   });
 });

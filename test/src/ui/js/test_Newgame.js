@@ -94,3 +94,11 @@ asyncTest("test_Newgame.getSelectRow", function() {
   ok(true, "INCOMPLETE: Test of Newgame.getSelectRow not implemented");
   start();
 });
+
+test("test_Newgame.setCreateGameSuccessMessage", function() {
+  Newgame.setCreateGameSuccessMessage(
+    'test invocation succeeded',
+    { 'gameId': 8, }
+  );
+  equal(Env.message.type, 'success', "set Env.message to a successful type");
+});
