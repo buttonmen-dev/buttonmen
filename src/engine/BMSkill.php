@@ -132,6 +132,7 @@ class BMSkill {
                      'BMSkillSpeed',
                      'BMSkillShadow',
                      'BMSkillTrip',
+                     'BMSkillStealth',
                      'BMSkillDoppleganger',
                      'BMSkillValue',
                      'BMSkillPoison',

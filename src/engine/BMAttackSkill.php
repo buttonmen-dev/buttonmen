@@ -157,7 +157,7 @@ class BMAttackSkill extends BMAttack {
         }
 
         if (1 == count($attArray) &&
-            $att->has_skill('Stealth')) {
+            $attArray[0]->has_skill('Stealth')) {
             return FALSE;
         }
 

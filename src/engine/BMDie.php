@@ -293,8 +293,19 @@ class BMDie {
     public function attack_list() {
         $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
+        $nAttDice = 0;
+        $owner = $this->ownerObject;
+
+        if (isset($owner)) {
+            $attDice = $owner->attackerAttackDieArray;
+            if (is_array($attDice)) {
+                $nAttDice = count($attDice);
+            }
+        }
+
         $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list,
-                                             'value' => (int)$this->value));
+                                             'value' => (int)$this->value,
+                                             'nAttDice' => $nAttDice));
 
         return $list;
     }

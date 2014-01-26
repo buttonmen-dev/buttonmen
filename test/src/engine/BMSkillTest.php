@@ -21,10 +21,12 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_skill_order_comparator() {
+        // check equality
         $this->assertEquals(0,
             BMSkill::skill_order_comparator('BMSkillPoison',
                                             'BMSkillPoison'));
 
+        // check that the comparator works in the correct direction
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillDoppleganger',
                                             'BMSkillNull'));
@@ -33,6 +35,7 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
             BMSkill::skill_order_comparator('BMSkillNull',
                                             'BMSkillDoppleganger'));
 
+        // check that unknown skills are applied last
         $this->assertEquals(1,
             BMSkill::skill_order_comparator('Test',
                                             'BMSkillDoppleganger'));
@@ -40,6 +43,31 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillDoppleganger',
                                             'Test'));
+
+        // check specific orderings of skills
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+                                            'BMSkillValue'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillStealth'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillStealth'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillStealth'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBerserk',
+                                            'BMSkillStealth'));
+
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillStealth'));
     }
 }
 
