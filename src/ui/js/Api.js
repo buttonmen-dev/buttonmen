@@ -293,5 +293,138 @@ var Api = (function () {
     return true;
   };
 
+  my.getGameData = function(game, callback) {
+    Api.apiParsePost(
+      { type: 'loadGameData', game: game, },
+      'game',
+      my.parseGameData,
+      callback,
+      callback
+    );
+  };
+
+  // Utility routine to parse the game data returned by the server
+  // Adds three types of game data:
+  //   Api.game.*: metadata about the entire game
+  //   Api.game.player: data about the logged in player (or about
+  //                    the first player, if the logged in player
+  //                    is not in this game)
+  //   Api.game.opponent: data about the opposing player
+  // The "player" and "opponent" items should be identically formatted
+  my.parseGameData = function(data) {
+
+    // Store some initial high-level game elements
+    my.game.gameData = data.gameData;
+    my.game.timestamp = data.timestamp;
+    my.game.actionLog = data.gameActionLog;
+    my.game.chatLog = data.gameChatLog;
+
+    // Do some sanity-checking of the gameData object we have
+
+    // This is not the same as rs.status --- it's a second status
+    // value within the gameData object
+    if (my.game.gameData.status != 'ok') {
+      return false;
+    }
+    if (Game.game != my.game.gameData.data.gameId) {
+      return false;
+    }
+
+    if ($.isNumeric(data.currentPlayerIdx)) {
+      my.game.isParticipant = true;
+    } else {
+      my.game.isParticipant = false;
+    }
+
+    // Parse some top-level items from gameData
+    my.game.gameId =  my.game.gameData.data.gameId;
+    my.game.roundNumber = my.game.gameData.data.roundNumber;
+    my.game.maxWins = my.game.gameData.data.maxWins;
+    my.game.gameState = my.game.gameData.data.gameState;
+    my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
+
+    if (my.game.isParticipant) {
+      my.game.playerIdx = data.currentPlayerIdx;
+      my.game.opponentIdx = 1 - data.currentPlayerIdx;
+    } else {
+      my.game.playerIdx = 0;
+      my.game.opponentIdx = 1;
+    }
+
+    my.game.player = my.parseGamePlayerData(
+                       my.game.playerIdx, data.playerNameArray);
+    my.game.opponent = my.parseGamePlayerData(
+                         my.game.opponentIdx, data.playerNameArray);
+
+    // Parse game WLT text into a string for convenience
+    my.game.player.gameScoreStr = Game.playerWLTText('player');
+    my.game.opponent.gameScoreStr = Game.playerWLTText('opponent');
+
+    return true;
+  };
+
+  // Given a player index, parse all data out of the appropriate arrays,
+  // and return it.  This function can be used for either the logged-in
+  // player or the opponent.
+  my.parseGamePlayerData = function(playerIdx, playerNameArray) {
+    var data = {
+      'playerId': my.game.gameData.data.playerIdArray[playerIdx],
+      'playerName': playerNameArray[playerIdx],
+      'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
+      'waitingOnAction':
+        my.game.gameData.data.waitingOnActionArray[playerIdx],
+      'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
+      'gameScoreDict':
+        my.game.gameData.data.gameScoreArrayArray[playerIdx],
+      'nDie': my.game.gameData.data.nDieArray[playerIdx],
+      'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
+      'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
+      'dieRecipeArray':
+        my.game.gameData.data.dieRecipeArrayArray[playerIdx],
+      'dieSkillsArray':
+        my.game.gameData.data.dieSkillsArrayArray[playerIdx],
+      'diePropertiesArray':
+        my.game.gameData.data.diePropertiesArrayArray[playerIdx],
+
+       // N.B. These arrays describe the other player's dice which this
+       // player has captured
+      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
+      'capturedValueArray':
+        my.game.gameData.data.capturedValueArrayArray[playerIdx],
+      'capturedSidesArray':
+        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
+      'capturedRecipeArray':
+        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+
+      'swingRequestArray': {},
+    };
+
+    $.each(
+      my.game.gameData.data.swingRequestArrayArray[playerIdx],
+      function(letter, range) {
+        data.swingRequestArray[letter] = {
+          'min': parseInt(range[0], 10),
+          'max': parseInt(range[1], 10)
+        };
+      }
+    );
+
+    // activePlayerIdx may be either player or may be null
+    if (my.game.gameData.data.activePlayerIdx == playerIdx) {
+      data.isActive = true;
+    } else {
+      data.isActive = false;
+    }
+
+    // playerWithInitiativeIdx may be either player or may be null
+    if (my.game.gameData.data.playerWithInitiativeIdx == playerIdx) {
+      data.hasInitiative = true;
+    } else {
+      data.hasInitiative = false;
+    }
+
+    return data;
+  };
+
   return my;
 }());
