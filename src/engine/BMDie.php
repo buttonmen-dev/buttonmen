@@ -67,7 +67,13 @@ class BMDie {
 
         $resultArray = array();
 
-        foreach ($this->hookList[$func] as $skillClass) {
+        $hookList = $this->hookList[$func];
+
+        if (isset($hookList) && (count($hookList) > 1)) {
+            usort($hookList, 'BMSkill::skill_order_comparator');
+        }
+
+        foreach ($hookList as $skillClass) {
             $resultArray[$skillClass] = $skillClass::$func($args);
         }
 
