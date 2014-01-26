@@ -186,7 +186,7 @@ Newuser.formCreateUser = function() {
   }
 };
 
-Newuser.setCreateUserSuccessMessage = function(message, data) {
+Newuser.setCreateUserSuccessMessage = function(message) {
   var indexLink = $('<a>', {
     'href': 'index.html',
     'text': 'Go back to the homepage, login, and start beating people up',
