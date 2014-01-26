@@ -815,16 +815,26 @@ Game.formPlayTurnActive = function() {
       timestamp: Game.api.timestamp,
     },
     function(rs) {
-      if (rs.status == 'ok') {
-        Env.message = {
-          'type': 'success',
-          'text': rs.message,
-        };
-      } else {
+      // A fatal PHP error on the backend will result in a string
+      // response.  The server will log the error: tell the user
+      // something went wrong
+      if (typeof rs === 'string') {
         Env.message = {
           'type': 'error',
-          'text': rs.message,
+          'text': 'Internal error: got unreadable response from submitTurn',
         };
+      } else {
+        if (rs.status == 'ok') {
+          Env.message = {
+            'type': 'success',
+            'text': rs.message,
+          };
+        } else {
+          Env.message = {
+            'type': 'error',
+            'text': rs.message,
+          };
+        }
       }
       Game.showGamePage();
     }
