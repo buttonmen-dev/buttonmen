@@ -37,6 +37,10 @@ class BMAttackTrip extends BMAttack {
 
         $att = $attArray[0];
 
+        if ($att->has_skill('Stealth')) {
+            return FALSE;
+        }
+
         if ($att->has_skill('Trip')) {
             return TRUE;
         }

@@ -51,6 +51,7 @@ class BMAttackPower extends BMAttack {
 
         if ($att->has_skill('Shadow') ||
             $att->has_skill('Konstant') ||
+            $att->has_skill('Stealth') ||
             ($att->has_skill('Queer') && (1 == $att->value % 2))
         ) {
             return FALSE;

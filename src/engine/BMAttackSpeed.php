@@ -54,6 +54,10 @@ class BMAttackSpeed extends BMAttack {
 
         $att = $attArray[0];
 
+        if ($att->has_skill('Stealth')) {
+            return FALSE;
+        }
+
         if ($att->has_skill('Speed')) {
             return TRUE;
         }

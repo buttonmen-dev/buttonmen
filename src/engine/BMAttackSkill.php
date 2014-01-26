@@ -156,6 +156,11 @@ class BMAttackSkill extends BMAttack {
             throw new InvalidArgumentException('attArray must have at least one element.');
         }
 
+        if (1 == count($attArray) &&
+            $att->has_skill('Stealth')) {
+            return FALSE;
+        }
+
         foreach ($attArray as $att) {
             if ($att->has_skill('Berserk') ||
                 // do not allow single-die skill attacks from konstant dice

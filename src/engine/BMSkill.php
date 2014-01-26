@@ -77,6 +77,7 @@ class BMSkill {
                      'Queer'        => 'q',
                      'Shadow'       => 's',
                      'Speed'        => 'z',
+                     'Stealth'      => 'd',
                      'Trip'         => 't',
                      'Value'        => 'v');
     }
