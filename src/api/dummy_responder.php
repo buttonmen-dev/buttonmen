@@ -782,7 +782,7 @@ class dummy_responder {
     }
 
     protected function get_interface_response_reactToInitiative() {
-        return array(array('gainedinitiative' => TRUE),
+        return array(array('gainedInitiative' => TRUE),
                      'Successfully gained initiative');
     }
 

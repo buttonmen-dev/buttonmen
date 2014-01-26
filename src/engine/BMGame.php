@@ -831,7 +831,7 @@ class BMGame {
 
         $this->do_next_step();
 
-        return array('gainedinitiative' => $gainedInitiative);
+        return array('gainedInitiative' => $gainedInitiative);
     }
 
     protected function react_to_initiative_chance($args) {

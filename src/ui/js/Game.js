@@ -810,7 +810,7 @@ Game.formReactToInitiativeActive = function() {
         if ('ok' == rs.status) {
           switch (action) {
           case 'chance':
-            if (rs.data.gained_initiative) {
+            if (rs.data.gainedInitiative) {
               message =
                 'Successfully gained initiative by rerolling chance die';
             } else {
