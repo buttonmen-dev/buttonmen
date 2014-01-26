@@ -440,7 +440,7 @@ Game.actionPlayTurnActive = function() {
     };
     if (('attackType' in Game.activity) &&
         (Game.activity.attackType == typename)) {
-      attacktypeopts.selected = 'selected'
+      attacktypeopts.selected = 'selected';
     }
     attacktypeselect.append($('<option>', attacktypeopts));
   });
