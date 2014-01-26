@@ -166,47 +166,39 @@ Newuser.formCreateUser = function() {
       };
       Newuser.showNewuserPage();
     } else {
-      $.post(
-        Env.api_location, {
+      Api.apiFormPost(
+        {
           type: 'createUser',
           username: username,
           password: password,
         },
-        function(rs) {
-          if ('ok' == rs.status) {
-            var indexLink = $('<a>', {
-              'href': 'index.html',
-              'text': 'Go back to the homepage, login, and start ' +
-                      'beating people up',
-            });
-            var userPar = $('<p>', {'text': rs.message + ' ', });
-            userPar.append($('<br>'));
-            userPar.append(indexLink);
-            Env.message = {
-              'type': 'success',
-              'text': '',
-              'obj': userPar,
-            };
-            Newuser.showNewuserPage();
-          } else {
-            Env.message = {
-              'type': 'error',
-              'text': rs.message,
-            };
-            Newuser.showNewuserPage();
-          }
-        }
-      ).fail(
-        function() {
-          Env.message = {
-            'type': 'error',
-            'text': 'Internal error when calling createUser',
-          };
-          Newuser.showNewuserPage();
-        }
+        { 'ok':
+          {
+            'type': 'function',
+            'msgfunc': Newuser.setCreateUserSuccessMessage,
+          },
+          'notok': { 'type': 'server', },
+        },
+        Newuser.showNewuserPage,
+        Newuser.showNewuserPage
       );
     }
   }
+};
+
+Newuser.setCreateUserSuccessMessage = function(message, data) {
+  var indexLink = $('<a>', {
+    'href': 'index.html',
+    'text': 'Go back to the homepage, login, and start beating people up',
+  });
+  var userPar = $('<p>', {'text': message + ' ', });
+  userPar.append($('<br>'));
+  userPar.append(indexLink);
+  Env.message = {
+    'type': 'success',
+    'text': '',
+    'obj': userPar,
+  };
 };
 
 ////////////////////////////////////////////////////////////////////////
