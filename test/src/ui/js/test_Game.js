@@ -311,14 +311,46 @@ asyncTest("test_Game.actionReactToInitiativeNonplayer", function() {
 
 asyncTest("test_Game.actionPlayTurnActive", function() {
   BMTestUtils.GameType = 'turn_active';
-  Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    var item = document.getElementById('playerIdx_0_dieIdx_0');
+    equal(item.innerHTML.match('selected'), null,
+      'No attacking die is initially selected');
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
+    equal(item.innerHTML.match('selected'), null,
+      'No attack type is initially selected');
+    var item = document.getElementById('game_chat');
+    equal(item.innerHTML, '',
+      'Chat box is empty when there is no previous text');
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.activity.chat = 'I had previously typed some text';
+  Game.activity.attackType = 'Skill';
+  Game.activity.dieSelectStatus = {
+    'playerIdx_0_dieIdx_0': true,
+    'playerIdx_0_dieIdx_1': false,
+    'playerIdx_1_dieIdx_0': false,
+    'playerIdx_1_dieIdx_1': false,
+    'playerIdx_1_dieIdx_2': true,
+  };
+
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    var item = document.getElementById('playerIdx_0_dieIdx_0');
+    deepEqual(item.className, 'die_img selected',
+      'Previous attacking die selection is retained');
+    var item = document.getElementById('attack_type_select');
+    ok(item.innerHTML.match('selected'),
+      'Previous attack type selection is retained');
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, 'I had previously typed some text',
-       'Previous text is retained by game chat');
+      'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
   });
