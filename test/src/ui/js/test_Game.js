@@ -66,6 +66,30 @@ asyncTest("test_Game.showGamePage", function() {
   start();
 });
 
+asyncTest("test_Game.redrawGamePageSuccess", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.activity.chat = "Some chat text";
+  Game.redrawGamePageSuccess();
+  var item = document.getElementById('game_page');
+  equal(item.nodeName, "DIV",
+        "#game_page is a div after redrawGamePageSuccess() is called");
+  deepEqual(Game.activity, {},
+        "Game.activity is cleared by redrawGamePageSuccess()");
+  start();
+});
+
+asyncTest("test_Game.redrawGamePageFailure", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.activity.chat = "Some chat text";
+  Game.redrawGamePageFailure();
+  var item = document.getElementById('game_page');
+  equal(item.nodeName, "DIV",
+        "#game_page is a div after redrawGamePageSuccess() is called");
+  equal(Game.activity.chat, "Some chat text",
+        "Game.activity.chat is retained by redrawGamePageSuccess()");
+  start();
+});
+
 // N.B. Almost all of these tests should use asyncTest, set a test
 // game type, and invoke Game.getCurrentGame(), because that's the
 // way to get the dummy responder data which all the other functions
@@ -287,10 +311,14 @@ asyncTest("test_Game.actionReactToInitiativeNonplayer", function() {
 
 asyncTest("test_Game.actionPlayTurnActive", function() {
   BMTestUtils.GameType = 'turn_active';
+  Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
+    var item = document.getElementById('game_chat');
+    equal(item.innerHTML, 'I had previously typed some text',
+       'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
   });

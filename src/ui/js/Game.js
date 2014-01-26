@@ -51,6 +51,19 @@ Game.showGamePage = function() {
   Game.getCurrentGame(Game.showStatePage);
 };
 
+// Redraw the page after a previous action succeeded: to do this,
+// clear all activity variables set by the previous invocation
+Game.redrawGamePageSuccess = function() {
+  Game.activity = {};
+  Game.showGamePage();
+};
+
+// Redraw the page after a previous action failed: to do this,
+// retain activity variables where it makes sense to do so
+Game.redrawGamePageFailure = function() {
+  Game.showGamePage();
+};
+
 // the current game should be provided as a GET parameter to the page
 Game.getCurrentGame = function(callbackfunc) {
   Game.game = Env.getParameterByName('game');
@@ -705,8 +718,8 @@ Game.formPlayTurnActive = function() {
   // Get the specified attack type
   var attackType = $('#attack_type_select').val();
 
-  // Get the game chat
-  var chat = $('#game_chat').val();
+  // Store the game chat in recent activity
+  Game.activity.chat = $('#game_chat').val();
 
   // Now try submitting the result
   Api.apiFormPost(
@@ -717,13 +730,13 @@ Game.formPlayTurnActive = function() {
       defenderIdx: Api.game.opponentIdx,
       dieSelectStatus: dieSelectStatus,
       attackType: attackType,
-      chat: chat,
+      chat: Game.activity.chat,
       roundNumber: Api.game.roundNumber,
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    Game.showGamePage,
-    Game.showGamePage
+    Game.redrawGamePageSuccess,
+    Game.redrawGamePageFailure
   );
 };
 
@@ -1203,12 +1216,18 @@ Game.chatBox = function() {
   var chattable = $('<table>');
   var chatrow = $('<tr>');
   chatrow.append($('<td>', {'text': 'Chat:', }));
-  chatrow.append($('<textarea>', {
+  var chatarea = $('<textarea>', {
     'id': 'game_chat',
     'rows': '3',
     'cols': '50',
     'maxlength': '500',
-  }));
+  });
+
+  // Add previous chat contents from a rejected turn submission if any
+  if ('chat' in Game.activity) {
+    chatarea.append(Game.activity.chat);
+  }
+  chatrow.append(chatarea);
   chattable.append(chatrow);
   return chattable;
 };
