@@ -15,6 +15,7 @@ module("UserPrefs", {
     // JS objects
     delete Api.button;
     delete Api.player;
+    delete Api.user_prefs;
 
     // Page elements
     $('#userprefs_page').remove();
@@ -44,22 +45,8 @@ asyncTest("test_UserPrefs.showUserPrefsPage", function() {
   start();
 });
 
-asyncTest("test_UserPrefs.getUserPrefsData", function() {
-  UserPrefs.getUserPrefsData(function() {
-    equal(UserPrefs.api.load_status, 'ok', "Successfully loaded user data");
-    start();
-  });
-});
-
-asyncTest("test_UserPrefs.parseUserPrefsData", function() {
-  UserPrefs.getUserPrefsData(function() {
-    equal(UserPrefs.api.autopass, true, "Successfully parsed autopass value");
-    start();
-  });
-});
-
 asyncTest("test_UserPrefs.assemblePage", function() {
-  UserPrefs.getUserPrefsData(function() {
+  Api.getUserPrefsData(function() {
     UserPrefs.assemblePage();
     var htmlout = UserPrefs.page.html();
     ok(htmlout.length > 0,
@@ -69,7 +56,7 @@ asyncTest("test_UserPrefs.assemblePage", function() {
 });
 
 asyncTest("test_UserPrefs.layoutPage", function() {
-  UserPrefs.getUserPrefsData(function() {
+  Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
     UserPrefs.layoutPage();
@@ -86,7 +73,7 @@ test("test_UserPrefs.actionFailed", function() {
 });
 
 asyncTest("test_UserPrefs.actionSetPrefs", function() {
-  UserPrefs.getUserPrefsData(function() {
+  Api.getUserPrefsData(function() {
     UserPrefs.actionSetPrefs();
     var autopass_checked = $('#userprefs_autopass').prop('checked');
     ok(autopass_checked,
@@ -95,14 +82,14 @@ asyncTest("test_UserPrefs.actionSetPrefs", function() {
   });
 });
 
-// The logic here is a little hairy: since UserPrefs.getUserPrefsData()
+// The logic here is a little hairy: since Api.getUserPrefsData()
 // takes a callback, we can use the normal asynchronous logic there.
 // However, the POST done by our forms doesn't take a callback (it
 // just redraws the page), so turn off asynchronous handling in
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
 asyncTest("test_UserPrefs.formSetPrefs", function() {
-  UserPrefs.getUserPrefsData(function() {
+  Api.getUserPrefsData(function() {
     UserPrefs.actionSetPrefs();
     $.ajaxSetup({ async: false });
     $('#userprefs_action_button').trigger('click');

@@ -64,3 +64,11 @@ asyncTest("test_Newuser.addLoggedInPage", function() {
   ok(true, "INCOMPLETE: Test of Newuser.addLoggedInPage not implemented");
   start();
 });
+
+test("test_Newuser.setCreateUserSuccessMessage", function() {
+  Newuser.setCreateUserSuccessMessage(
+    'test invocation succeeded',
+    { }
+  );
+  equal(Env.message.type, 'success', "set Env.message to a successful type");
+});

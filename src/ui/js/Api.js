@@ -29,41 +29,118 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse a list of buttons
+  // Generic routine for API POST used to parse data
 
-  my.getButtonData = function(callbackfunc) {
-    my.button = {
+  my.apiParsePost = function(args, apikey, parser, callback, failcallback) {
+    my[apikey] = {
       'load_status': 'failed',
     };
     $.post(
       Env.api_location,
-      { type: 'loadButtonNames', },
+      args,
       function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parseButtonData(rs.data)) {
-            my.button.load_status = 'ok';
+        if (typeof rs === 'string') {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Internal error: got unparseable response from ' + args.type,
+          };
+          return failcallback();
+        } else if (rs.status == 'ok') {
+          if (parser(rs.data)) {
+            my[apikey].load_status = 'ok';
+            return callback();
           } else {
             Env.message = {
               'type': 'error',
-              'text': 'Could not parse button list from server',
+              'text':
+                'Internal error: Could not parse ' + apikey +
+                'data from server',
             };
+            return failcallback();
           }
         } else {
           Env.message = {
             'type': 'error',
-            'text': rs.message,
+            'text': 'Error from ' + args.type + ': ' + rs.message,
           };
+          return failcallback();
         }
-        return callbackfunc();
       }
     ).fail(
       function() {
         Env.message = {
           'type': 'error',
-          'text': 'Internal error when calling loadButtonNames',
+          'text': 'Internal error when calling ' + args.type,
         };
-        return callbackfunc();
+        return failcallback();
       }
+    );
+  };
+
+  my.apiFormPost = function(args, messages, callback, failcallback) {
+    $.post(
+      Env.api_location,
+      args,
+      function(rs) {
+        if (typeof rs === 'string') {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Internal error: got unparseable response from ' + args.type,
+          };
+          return failcallback();
+        } else if (rs.status == 'ok') {
+          if (messages.ok.type == 'fixed') {
+            Env.message = {
+              'type': 'success',
+              'text': messages.ok.text,
+            };
+          } else if (messages.ok.type == 'server') {
+            Env.message = {
+              'type': 'success',
+              'text': rs.message,
+            };
+          } else if (messages.ok.type == 'function') {
+            messages.ok.msgfunc(rs.message, rs.data);
+          }
+          return callback();
+        } else {
+          if (messages.notok.type == 'fixed') {
+            Env.message = {
+              'type': 'error',
+              'text': messages.notok.text,
+            };
+          } else if (messages.notok.type == 'server') {
+            Env.message = {
+              'type': 'error',
+              'text': rs.message,
+            };
+          }
+          return failcallback();
+        }
+      }
+    ).fail(
+      function() {
+        Env.message = {
+          'type': 'error',
+          'text': 'Internal error when calling ' + args.type,
+        };
+        return failcallback();
+      }
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse a list of buttons
+
+  my.getButtonData = function(callbackfunc) {
+    my.apiParsePost(
+      {'type': 'loadButtonNames', },
+      'button',
+      my.parseButtonData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -89,38 +166,12 @@ var Api = (function () {
   // Load and parse a list of players
 
   my.getPlayerData = function(callbackfunc) {
-    my.player = {
-      'load_status': 'failed',
-    };
-    $.post(
-      Env.api_location,
-      { type: 'loadPlayerNames', },
-      function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parsePlayerData(rs.data)) {
-            my.player.load_status = 'ok';
-          } else {
-            Env.message = {
-              'type': 'error',
-              'text': 'Could not parse player list from server',
-            };
-          }
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-        }
-        return callbackfunc();
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling loadPlayerNames',
-        };
-        return callbackfunc();
-      }
+    my.apiParsePost(
+      {'type': 'loadPlayerNames', },
+      'player',
+      my.parsePlayerData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -144,40 +195,12 @@ var Api = (function () {
   // Load and parse the current player's list of active games
 
   my.getActiveGamesData = function(callbackfunc) {
-    my.active_games = {
-      'load_status': 'failed',
-    };
-
-    $.post(
-      Env.api_location,
-      { type: 'loadActiveGames', },
-      function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parseActiveGamesData(rs.data)) {
-            my.active_games.load_status = 'ok';
-          } else {
-            Env.message = {
-              'type': 'error',
-              'text':
-                'Active game list received from server could not be parsed!',
-            };
-          }
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-        }
-        return callbackfunc();
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling loadActiveGames',
-        };
-        return callbackfunc();
-      }
+    my.apiParsePost(
+      {'type': 'loadActiveGames', },
+      'active_games',
+      my.parseActiveGamesData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -219,40 +242,12 @@ var Api = (function () {
   // Load and parse the current player's list of active games
 
   my.getCompletedGamesData = function(callbackfunc) {
-    my.completed_games = {
-      'load_status': 'failed',
-    };
-
-    $.post(
-      Env.api_location,
-      { type: 'loadCompletedGames', },
-      function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parseCompletedGamesData(rs.data)) {
-            my.completed_games.load_status = 'ok';
-          } else if (my.completed_games.load_status != 'nogames') {
-            Env.message = {
-              'type': 'error',
-              'text':
-                'Completed game list received from server could not be parsed!',
-            };
-          }
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-        }
-        return callbackfunc();
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling loadCompletedGames',
-        };
-        return callbackfunc();
-      }
+    my.apiParsePost(
+      {'type': 'loadCompletedGames', },
+      'completed_games',
+      my.parseCompletedGamesData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -280,6 +275,21 @@ var Api = (function () {
       my.completed_games.games.push(gameInfo);
       i += 1;
     }
+    return true;
+  };
+
+  my.getUserPrefsData = function(callbackfunc) {
+    my.apiParsePost(
+      {'type': 'loadPlayerInfo', },
+      'user_prefs',
+      my.parseUserPrefsData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseUserPrefsData = function(data) {
+    my.user_prefs.autopass = data.autopass;
     return true;
   };
 
