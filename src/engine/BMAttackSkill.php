@@ -162,6 +162,8 @@ class BMAttackSkill extends BMAttack {
 
         $returnVal = TRUE;
 
+        $def = $defArray[0];
+
         if (1 == count($attArray) &&
             $attArray[0]->has_skill('Stealth')) {
             $returnVal = FALSE;
@@ -174,6 +176,11 @@ class BMAttackSkill extends BMAttack {
             ) {
                 $returnVal = FALSE;
             }
+        }
+
+        if ($def->has_skill('Stealth') &&
+            1 == count($attArray)) {
+            $returnVal = FALSE;
         }
 
         return $returnVal;
