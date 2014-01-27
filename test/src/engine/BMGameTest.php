@@ -422,7 +422,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $reactResponse = $game->react_to_initiative(array('action' => 'chance',
                                                           'playerIdx' => 0,
                                                           'rerolledDieIdx' => 4));
-        var_dump($reactResponse);
         $this->assertTrue(array_key_exists('gainedInitiative', $reactResponse));
         if ($game->activeDieArrayArray[0][4]->value < 4) {
             $this->assertTrue($reactResponse['gainedInitiative']);
