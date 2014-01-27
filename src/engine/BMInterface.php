@@ -981,7 +981,7 @@ class BMInterface {
     protected function log_game_chat(BMGame $game) {
 
         // We're going to display this in user browsers, so first clean up all HTML tags
-        $mysqlchat = htmlspecialchars($game->chat['chat']);
+        $mysqlchat = $game->chat['chat'];
 
         // Now, if the string is too long, truncate it
         if (strlen($mysqlchat) > 1020) {
