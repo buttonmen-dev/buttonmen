@@ -1816,6 +1816,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::get_roundNumber
+     */
+    public function testGet_roundNumber() {
+        $this->object->maxWins = 4;
+
+        $this->object->gameScoreArrayArray = array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                                   array('W' => 0, 'L' => 0, 'D' => 0));
+        $this->assertEquals(1, $this->object->roundNumber);
+
+        $this->object->gameScoreArrayArray = array(array('W' => 2, 'L' => 1, 'D' => 2),
+                                                   array('W' => 1, 'L' => 2, 'D' => 2));
+        $this->assertEquals(6, $this->object->roundNumber);
+
+        $this->object->gameScoreArrayArray = array(array('W' => 4, 'L' => 1, 'D' => 2),
+                                                   array('W' => 1, 'L' => 4, 'D' => 2));
+        $this->assertEquals(7, $this->object->roundNumber);
+    }
+
+    /**
      * @covers BMGame::__get
      */
     public function test__get_round_score_array() {

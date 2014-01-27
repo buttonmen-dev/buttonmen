@@ -1263,12 +1263,14 @@ class BMGame {
     }
 
     private function get_roundNumber() {
-        return(
-            min(
-                $this->maxWins,
-                array_sum($this->gameScoreArrayArray[0]) + 1
-            )
-        );
+        $roundNumber = array_sum($this->gameScoreArrayArray[0]) + 1;
+
+        if (max($this->gameScoreArrayArray[0]['W'], $this->gameScoreArrayArray[0]['L']) >=
+            $this->maxWins) {
+            $roundNumber--;
+        }
+
+        return $roundNumber;
     }
 
     private function get_roundScoreArray() {
