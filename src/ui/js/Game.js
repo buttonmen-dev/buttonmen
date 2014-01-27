@@ -338,12 +338,16 @@ Game.actionReactToInitiativeActive = function() {
         typetext = 'Take no action';
         break;
       }
-      reacttypeselect.append(
-        $('<option>', {
-          'value': typename,
-          'label': typetext,
-          'text': typetext,
-        }));
+      var reacttypeopts = {
+        'value': typename,
+        'label': typetext,
+        'text': typetext,
+      };
+      if (('initiativeReactType' in Game.activity) &&
+          (Game.activity.initiativeReactType == typename)) {
+        reacttypeopts.selected = 'selected';
+      }
+      reacttypeselect.append($('<option>', reacttypeopts));
     });
   reactform.append(reacttypeselect);
 
@@ -560,11 +564,11 @@ Game.formChooseSwingActive = function() {
 Game.formReactToInitiativeActive = function() {
   var formValid = true;
   var error = false;
-  var action = $('#react_type_select').val();
-  var dieIdxArray = [];
-  var dieValueArray = [];
+  Game.activity.initiativeReactType = $('#react_type_select').val();
+  Game.activity.initiativeDieIdxArray = [];
+  Game.activity.initiativeDieValueArray = [];
 
-  switch (action) {
+  switch (Game.activity.initiativeReactType) {
 
   // valid action, nothing special to do, but validate selections just in case
   case 'decline':
@@ -595,15 +599,15 @@ Game.formReactToInitiativeActive = function() {
         var value = parseInt($('#init_react_' + i).val(), 10);
         if (value != Api.game.player.valueArray[i]) {
           if (vals.indexOf(value) >= 0) {
-            dieIdxArray.push(i);
-            dieValueArray.push(value);
+            Game.activity.initiativeDieIdxArray.push(i);
+            Game.activity.initiativeDieValueArray.push(value);
           } else {
             error = 'Invalid turndown value specified for focus die';
             formValid = false;
           }
         }
       });
-      if (dieIdxArray.length === 0) {
+      if (Game.activity.initiativeDieIdxArray.length === 0) {
         error = 'Specified focus action but did not turn down any dice';
         formValid = false;
       }
@@ -619,19 +623,19 @@ Game.formReactToInitiativeActive = function() {
         var value = $('#init_react_' + i).val();
         if (value != Api.game.player.valueArray[i]) {
           if (value == 'reroll') {
-            dieIdxArray.push(i);
-            dieValueArray.push(value);
+            Game.activity.initiativeDieIdxArray.push(i);
+            Game.activity.initiativeDieValueArray.push(value);
           } else {
             error = 'Bad value specified for chance action - choose "reroll"';
             formValid = false;
           }
         }
       });
-      if (dieIdxArray.length === 0) {
+      if (Game.activity.initiativeDieIdxArray.length === 0) {
         error =
           'Specified chance action but did not choose any dice to reroll';
         formValid = false;
-      } else if (dieIdxArray.length > 1) {
+      } else if (Game.activity.initiativeDieIdxArray.length > 1) {
         error =
           'Specified chance action but chose more than one die to reroll';
         formValid = false;
@@ -648,16 +652,15 @@ Game.formReactToInitiativeActive = function() {
   }
 
   if (formValid) {
-    Game.activity.initiativeReactType = action;
     Api.apiFormPost(
       {
         type: 'reactToInitiative',
         game: Game.game,
         roundNumber: Api.game.roundNumber,
         timestamp: Api.game.timestamp,
-        action: action,
-        dieIdxArray: dieIdxArray,
-        dieValueArray: dieValueArray,
+        action: Game.activity.initiativeReactType,
+        dieIdxArray: Game.activity.initiativeDieIdxArray,
+        dieValueArray: Game.activity.initiativeDieValueArray,
       },
       { 'ok':
         {
@@ -907,9 +910,17 @@ Game.dieRecipeTable = function(react_initiative, active) {
         }
       }
       if ((active) && (initopts.length > 0)) {
+        var defaultval = Api.game.player.valueArray[i];
+        if ('initiativeDieIdxArray' in Game.activity) {
+          $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
+            if (val == i) {
+              defaultval = Game.activity.initiativeDieValueArray[idx];
+            }
+          });
+        }
         dieLRow.append(
           Game.dieValueSelectTd('init_react_' + i, initopts,
-                                Api.game.player.valueArray[i]));
+            Api.game.player.valueArray[i], defaultval));
       } else {
         dieLRow.append($('<td>', { 'text': Api.game.player.valueArray[i] }));
       }
@@ -1195,25 +1206,33 @@ Game.dieBorderToggleHandler = function() {
 // The selected value is the first value provided, and is not part
 // of the array
 Game.dieValueSelectTd = function(
-     selectname, valuearray, selectedval) {
+     selectname, valuearray, maxval, selectedval) {
   var selectTd = $('<td>');
   var select = $('<select>', {
     'id': selectname,
     'name': selectname,
     'class': 'center',
   });
-  select.append($('<option>', {
-    'value': selectedval,
-    'label': selectedval,
-    'text': selectedval,
-    'selected': 'selected',
-  }));
+  var valoption = {
+    'value': maxval,
+    'label': maxval,
+    'text': maxval,
+  };
+  if (maxval == selectedval) {
+    valoption.selected = 'selected';
+  }
+  select.append($('<option>', valoption));
+
   $.each(valuearray, function(idx) {
-    select.append($('<option>', {
+    valoption = {
       'value': valuearray[idx],
       'label': valuearray[idx],
       'text': valuearray[idx],
-    }));
+    };
+    if (valuearray[idx] == selectedval) {
+      valoption.selected = 'selected';
+    }
+    select.append($('<option>', valoption));
   });
   selectTd.append(select);
   return selectTd;

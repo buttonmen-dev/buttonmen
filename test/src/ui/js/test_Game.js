@@ -276,6 +276,33 @@ asyncTest("test_Game.actionReactToInitiativeActive", function() {
     Game.actionReactToInitiativeActive();
     var item = document.getElementById('init_react_3');
     ok(item, "#init_react_3 select is set");
+    $.each(item.childNodes, function(childid, child) {
+      if (child.getAttribute('label') == '6') {
+        deepEqual(child.getAttribute('selected'), 'selected',
+         'Focus die is initially set to maximum value');
+      }
+    });
+    item = document.getElementById('init_react_4');
+    ok(item, "#init_react_4 select is set");
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionReactToInitiativeActive_prevvals", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.activity.initiativeDieIdxArray = [ 3, ];
+  Game.activity.initiativeDieValueArray = [ 2, ];
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeActive();
+    var item = document.getElementById('init_react_3');
+    ok(item, "#init_react_3 select is set");
+    $.each(item.childNodes, function(childid, child) {
+      if (child.getAttribute('label') == '2') {
+        deepEqual(child.getAttribute('selected'), 'selected',
+         'Focus die is turned down to previously chosen value');
+      }
+    });
     item = document.getElementById('init_react_4');
     ok(item, "#init_react_4 select is set");
     ok(Game.form, "Game.form is set");
@@ -808,7 +835,7 @@ asyncTest("test_Game.waitingOnPlayerNames_inactive", function() {
 });
 
 test("test_Game.dieValueSelectTd", function() {
-  var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1);
+  var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1, 3);
   var html = td.html();
   ok(html.match(/<select /), "select row should contain a select");
 });
