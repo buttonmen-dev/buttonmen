@@ -97,7 +97,7 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
-        if (!$this->are_skills_compatible($attackers)) {
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -151,14 +151,20 @@ class BMAttackSkill extends BMAttack {
         return FALSE;
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         if (0 == count($attArray)) {
             throw new InvalidArgumentException('attArray must have at least one element.');
         }
 
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
+        $returnVal = TRUE;
+
         if (1 == count($attArray) &&
             $attArray[0]->has_skill('Stealth')) {
-            return FALSE;
+            $returnVal = FALSE;
         }
 
         foreach ($attArray as $att) {
@@ -166,10 +172,10 @@ class BMAttackSkill extends BMAttack {
                 // do not allow single-die skill attacks from konstant dice
                 ($att->has_skill('Konstant') && (1 == count($attArray)))
             ) {
-                return FALSE;
+                $returnVal = FALSE;
             }
         }
 
-        return TRUE;
+        return $returnVal;
     }
 }

@@ -12,7 +12,7 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
-        if (!$this->are_skills_compatible($attackers)) {
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -47,21 +47,33 @@ class BMAttackSpeed extends BMAttack {
         );
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
         }
 
+        if (0 == count($defArray)) {
+            throw new InvalidArgumentException('defArray must be nonempty.');
+        }
+
+        $returnVal = TRUE;
+
         $att = $attArray[0];
 
         if ($att->has_skill('Stealth')) {
-            return FALSE;
+            $returnVal =  FALSE;
         }
 
-        if ($att->has_skill('Speed')) {
-            return TRUE;
+        if (!$att->has_skill('Speed')) {
+            $returnVal = FALSE;
         }
 
-        return FALSE;
+        foreach ($defArray as $def) {
+            if ($def->has_skill('Stealth')) {
+                $returnVal = FALSE;
+            }
+        }
+
+        return $returnVal;
     }
 }

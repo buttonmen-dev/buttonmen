@@ -39,23 +39,30 @@ class BMAttackShadow extends BMAttackPower {
         return $isValidAttack;
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
         }
 
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
         $att = $attArray[0];
+        $def = $defArray[0];
+
+        $returnVal = TRUE;
 
         if ($att->has_skill('Stealth')) {
             return FALSE;
         }
 
-        if ($att->has_skill('Shadow') ||
-            ($att->has_skill('Queer') && (1 == $att->value % 2))
+        if (!($att->has_skill('Shadow') ||
+            ($att->has_skill('Queer') && (1 == $att->value % 2)))
         ) {
-            return TRUE;
+            return FALSE;
         }
 
-        return FALSE;
+        return $returnVal;
     }
 }
