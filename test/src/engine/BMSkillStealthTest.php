@@ -26,35 +26,39 @@ class BMSkillStealthTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMSkillStealth::attack_list
      */
-    public function testAttack_list()
-    {
-//        $a = array();
-//        $b = array('attackTypeArray' => &$a);
-//
-//        $this->object->attack_list($b);
-//        // Test adding Speed
-//        $this->assertNotEmpty($a);
-//        $this->assertContains('Speed', $a);
-//        // Only once
-//        $this->assertEquals(1, count($a));
-//
-//        // Test adding Speed to a non-empty array
-//        $a = array('Power' => 'Power', 'Skill' => 'Skill');
-//        $this->object->attack_list($b);
-//        $this->assertNotEmpty($a);
-//        $this->assertEquals(3, count($a));
-//        $this->assertContains('Speed', $a);
-//        // Confirm other contents intact
-//        $this->assertContains('Power', $a);
-//        $this->assertContains('Skill', $a);
-//
-//        // Check adding Speed to an array already containing Speed
-//        $a = array('Speed' => 'Speed', 'Skill' => 'Skill');
-//        $this->object->attack_list($b);
-//        $this->assertNotEmpty($a);
-//        $this->assertContains('Speed', $a);
-//        $this->assertEquals(2, count($a));
+    public function testAttack_list_invalid() {
+        // check that an illegal input is handled gracefully
+        $this->object->attack_list(NULL);
+    }
 
+    /**
+     * @covers BMSkillStealth::attack_list
+     */
+    public function testAttack_list_one_attacker() {
+        $a = array('Power'   => 'Power',
+                   'Skill'   => 'Skill',
+                   'Speed'   => 'Speed',
+                   'Berserk' => 'Berserk');
+        $b = array('attackTypeArray' => &$a,
+                   'nAttDice' => 1);
+        $this->object->attack_list($b);
+        $this->assertEmpty($a);
+    }
+
+    /**
+     * @covers BMSkillStealth::attack_list
+     */
+    public function testAttack_list_two_attackers() {
+        $a = array('Power' => 'Power',
+                   'Skill' => 'Skill',
+                   'Speed' => 'Speed',
+                   'Berserk' => 'Berserk');
+        $b = array('attackTypeArray' => &$a,
+                   'nAttDice' => 2);
+        $this->object->attack_list($b);
+        $this->assertContains('Skill', $a);
+        // Only once
+        $this->assertEquals(1, count($a));
     }
 }
 

@@ -49,6 +49,8 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
             BMSkill::skill_order_comparator('BMSkillDoppleganger',
                                             'BMSkillValue'));
 
+        // stealth must come after all others that set attack types,
+        // so that it can override them all
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillShadow',
                                             'BMSkillStealth'));

@@ -125,6 +125,7 @@ class BMSkill {
     }
 
     protected static function skill_order_array() {
+        // fires first
         return array('BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillQueer',
@@ -139,5 +140,6 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillKonstant',
                      'BMSkillMorphing');
+        // fires last
     }
 }
