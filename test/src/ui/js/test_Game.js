@@ -30,10 +30,11 @@ module("Game", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
-    delete Game.api;
+    delete Api.game;
     delete Game.game;
     delete Game.page;
     delete Game.form;
+    Game.activity = {};
 
     // Page elements
     // FIXME: why do we have to remove this twice?
@@ -65,6 +66,30 @@ asyncTest("test_Game.showGamePage", function() {
   start();
 });
 
+asyncTest("test_Game.redrawGamePageSuccess", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.activity.chat = "Some chat text";
+  Game.redrawGamePageSuccess();
+  var item = document.getElementById('game_page');
+  equal(item.nodeName, "DIV",
+        "#game_page is a div after redrawGamePageSuccess() is called");
+  deepEqual(Game.activity, {},
+        "Game.activity is cleared by redrawGamePageSuccess()");
+  start();
+});
+
+asyncTest("test_Game.redrawGamePageFailure", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.activity.chat = "Some chat text";
+  Game.redrawGamePageFailure();
+  var item = document.getElementById('game_page');
+  equal(item.nodeName, "DIV",
+        "#game_page is a div after redrawGamePageSuccess() is called");
+  equal(Game.activity.chat, "Some chat text",
+        "Game.activity.chat is retained by redrawGamePageSuccess()");
+  start();
+});
+
 // N.B. Almost all of these tests should use asyncTest, set a test
 // game type, and invoke Game.getCurrentGame(), because that's the
 // way to get the dummy responder data which all the other functions
@@ -85,8 +110,8 @@ asyncTest("test_Game.getCurrentGame", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     equal(Game.game, '1', "Set expected game number");
-    equal(Game.api.load_status, 'ok', 'Successfully loaded game data');
-    equal(Game.api.gameId, Game.game, 'Parsed correct game number from API');
+    equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
+    equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
     start();
   });
 });
@@ -172,46 +197,11 @@ asyncTest("test_Game.layoutPage", function() {
   });
 });
 
-asyncTest("test_Game.parseGameData", function() {
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    equal(Game.api.gameId, '1', "parseGameData() set gameId");
-    equal(Game.api.opponentIdx, 1, "parseGameData() set opponentIdx");
-    start();
-  });
-});
-
-asyncTest("test_Game.parseGameData", function() {
-  BMTestUtils.GameType = 'newgame_nonplayer';
-  Game.getCurrentGame(function() {
-    equal(Game.api.gameId, '10', 
-          "parseGameData() set gameId for nonparticipant");
-    start();
-  });
-});
-
-// N.B. use Game.getCurrentGame() to query dummy_responder, but
-// test any details of parsePlayerData()'s processing here
-asyncTest("test_Game.parsePlayerData", function() {
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    deepEqual(Game.api.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
-              "player die recipe array should be parsed correctly");
-    deepEqual(Game.api.player.capturedValueArray, [],
-              "array of captured dice should be parsed");
-    deepEqual(
-      Game.api.player.swingRequestArray['X'],
-      {'min': 4, 'max': 20},
-      "swing request array should contain X entry with correct min/max");
-    start();
-  });
-});
-
 asyncTest("test_Game.parseValidInitiativeActions", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
-    deepEqual(Game.api.player.initiativeActions, {},
+    deepEqual(Api.game.player.initiativeActions, {},
               "No valid initiative actions during choose swing phase");
     start();
   });
@@ -222,7 +212,7 @@ asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     deepEqual(
-      Game.api.player.initiativeActions,
+      Api.game.player.initiativeActions,
         {'focus': {
           '3': [5, 4, 3, 2, 1],
           '4': [17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -238,7 +228,7 @@ asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     deepEqual(
-      Game.api.player.initiativeActions,
+      Api.game.player.initiativeActions,
         {'chance': { '1': true, '4': true }, 'decline': true },
         "Correct valid initiative actions identified for John Kovalic");
     start();
@@ -286,6 +276,33 @@ asyncTest("test_Game.actionReactToInitiativeActive", function() {
     Game.actionReactToInitiativeActive();
     var item = document.getElementById('init_react_3');
     ok(item, "#init_react_3 select is set");
+    $.each(item.childNodes, function(childid, child) {
+      if (child.getAttribute('label') == '6') {
+        deepEqual(child.getAttribute('selected'), 'selected',
+         'Focus die is initially set to maximum value');
+      }
+    });
+    item = document.getElementById('init_react_4');
+    ok(item, "#init_react_4 select is set");
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionReactToInitiativeActive_prevvals", function() {
+  BMTestUtils.GameType = 'focus';
+  Game.activity.initiativeDieIdxArray = [ 3, ];
+  Game.activity.initiativeDieValueArray = [ 2, ];
+  Game.getCurrentGame(function() {
+    Game.actionReactToInitiativeActive();
+    var item = document.getElementById('init_react_3');
+    ok(item, "#init_react_3 select is set");
+    $.each(item.childNodes, function(childid, child) {
+      if (child.getAttribute('label') == '2') {
+        deepEqual(child.getAttribute('selected'), 'selected',
+         'Focus die is turned down to previously chosen value');
+      }
+    });
     item = document.getElementById('init_react_4');
     ok(item, "#init_react_4 select is set");
     ok(Game.form, "Game.form is set");
@@ -323,8 +340,44 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    var item = document.getElementById('playerIdx_0_dieIdx_0');
+    equal(item.innerHTML.match('selected'), null,
+      'No attacking die is initially selected');
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
+    equal(item.innerHTML.match('selected'), null,
+      'No attack type is initially selected');
+    var item = document.getElementById('game_chat');
+    equal(item.innerHTML, '',
+      'Chat box is empty when there is no previous text');
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.activity.chat = 'I had previously typed some text';
+  Game.activity.attackType = 'Skill';
+  Game.activity.dieSelectStatus = {
+    'playerIdx_0_dieIdx_0': true,
+    'playerIdx_0_dieIdx_1': false,
+    'playerIdx_1_dieIdx_0': false,
+    'playerIdx_1_dieIdx_1': false,
+    'playerIdx_1_dieIdx_2': true,
+  };
+
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    var item = document.getElementById('playerIdx_0_dieIdx_0');
+    deepEqual(item.className, 'die_img selected',
+      'Previous attacking die selection is retained');
+    var item = document.getElementById('attack_type_select');
+    ok(item.innerHTML.match('selected'),
+      'Previous attack type selection is retained');
+    var item = document.getElementById('game_chat');
+    equal(item.innerHTML, 'I had previously typed some text',
+      'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
   });
@@ -572,9 +625,9 @@ asyncTest("test_Game.dieTableEntry", function() {
   Game.getCurrentGame(function() {
     var htmlobj = Game.dieTableEntry(
       4,
-      Game.api.player.nDie,
-      Game.api.player.dieRecipeArray,
-      Game.api.player.sidesArray
+      Api.game.player.nDie,
+      Api.game.player.dieRecipeArray,
+      Api.game.player.sidesArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
@@ -589,9 +642,9 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
   Game.getCurrentGame(function() {
     var htmlobj = Game.dieTableEntry(
       6,
-      Game.api.player.nDie,
-      Game.api.player.dieRecipeArray,
-      Game.api.player.sidesArray
+      Api.game.player.nDie,
+      Api.game.player.dieRecipeArray,
+      Api.game.player.sidesArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
@@ -692,21 +745,6 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
   });
 });
 
-asyncTest("test_Game.playerWLTText", function() {
-  BMTestUtils.GameType = 'finished';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    var text = Game.playerWLTText('opponent');
-    Game.page.append(text);
-    Game.layoutPage();
-
-    var item = document.getElementById('game_page');
-    ok(item.innerHTML.match('2/3/0'),
-       "opponent WLT text should contain opponent's view of WLT state");
-    start();
-  });
-});
-
 test("test_Game.dieRecipeText", function() {
   var text = Game.dieRecipeText("p(4)", "4");
   equal(text, "p(4)", "text for non-swing die with skills should be correct");
@@ -797,8 +835,40 @@ asyncTest("test_Game.waitingOnPlayerNames_inactive", function() {
 });
 
 test("test_Game.dieValueSelectTd", function() {
-  var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1);
+  var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1, 3);
   var html = td.html();
   ok(html.match(/<select /), "select row should contain a select");
 });
 
+test("test_Game.reactToInitiativeSuccessMsg", function() {
+  Game.activity.initiativeReactType = 'chance';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': false, });
+  equal(
+    Env.message.type, 'success',
+    'Env.message is set to success when initiative action does not fail');
+  equal(
+    Env.message.text, 'Rerolled chance die, but did not gain initiative',
+    'Correct message text when chance reroll does not gain initiative');
+
+  Game.activity.initiativeReactType = 'chance';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': true, });
+  equal(
+    Env.message.text, 'Successfully gained initiative by rerolling chance die',
+    'Correct message text when chance reroll gains initiative');
+
+  Game.activity.initiativeReactType = 'decline';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': false, });
+  equal(
+    Env.message.text, 'Declined to use chance/focus dice',
+    'Correct message text when initiative action is declined');
+
+  Game.activity.initiativeReactType = 'focus';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': true, });
+  equal(
+    Env.message.text, 'Successfully gained initiative using focus dice',
+    'Correct message text when focus turndown gains initiative');
+});

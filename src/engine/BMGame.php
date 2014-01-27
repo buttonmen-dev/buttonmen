@@ -831,7 +831,7 @@ class BMGame {
 
         $this->do_next_step();
 
-        return array('gainedinitiative' => $gainedInitiative);
+        return array('gainedInitiative' => $gainedInitiative);
     }
 
     protected function react_to_initiative_chance($args) {
@@ -995,7 +995,7 @@ class BMGame {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
             }
-            $this->message = 'Focus dice not set low enough.';
+            $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
             return FALSE;
         }
         $this->gameState = BMGameState::DETERMINE_INITIATIVE;
