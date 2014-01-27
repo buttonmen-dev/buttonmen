@@ -915,12 +915,12 @@ Game.dieRecipeTable = function(react_initiative, active) {
           $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
             if (val == i) {
               defaultval = Game.activity.initiativeDieValueArray[idx];
-            };
+            }
           });
         }
         dieLRow.append(
-	  Game.dieValueSelectTd('init_react_' + i, initopts,
-	    Api.game.player.valueArray[i], defaultval));
+          Game.dieValueSelectTd('init_react_' + i, initopts,
+            Api.game.player.valueArray[i], defaultval));
       } else {
         dieLRow.append($('<td>', { 'text': Api.game.player.valueArray[i] }));
       }
