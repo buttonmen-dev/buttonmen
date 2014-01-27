@@ -2355,7 +2355,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $out1 = $game1->getJsonData(123);
         $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $out1['data']['gameState']);
+        $this->assertEquals("SPECIFY_DICE", $out1['data']['gameState']);
         $this->assertEquals(1, $out1['data']['roundNumber']);
         $this->assertEquals(3, $out1['data']['maxWins']);
         $this->assertNull($out1['data']['activePlayerIdx']);
