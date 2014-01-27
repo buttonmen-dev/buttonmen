@@ -433,12 +433,16 @@ Game.actionPlayTurnActive = function() {
     } else {
       typetext = typename + ' Attack';
     }
-    attacktypeselect.append(
-      $('<option>', {
-        'value': typevalue,
-        'label': typename,
-        'text': typetext,
-      }));
+    var attacktypeopts = {
+      'value': typevalue,
+      'label': typename,
+      'text': typetext,
+    };
+    if (('attackType' in Game.activity) &&
+        (Game.activity.attackType == typename)) {
+      attacktypeopts.selected = 'selected';
+    }
+    attacktypeselect.append($('<option>', attacktypeopts));
   });
   attackform.append(attacktypeselect);
 
@@ -703,20 +707,20 @@ Game.formPlayTurnActive = function() {
 
   // Initialize the array of die select statuses to all false, then
   // turn on the dice which have been selected
-  var dieSelectStatus = {};
+  Game.activity.dieSelectStatus = {};
   var i;
   for (i = 0 ; i < Api.game.player.nDie; i++) {
-    dieSelectStatus[Game.dieIndexId('player', i)] = false;
+    Game.activity.dieSelectStatus[Game.dieIndexId('player', i)] = false;
   }
   for (i = 0 ; i < Api.game.opponent.nDie; i++) {
-    dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
+    Game.activity.dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
   }
   $('div.selected').each(function(index, element) {
-    dieSelectStatus[$(element).attr('id')] = true;
+    Game.activity.dieSelectStatus[$(element).attr('id')] = true;
   });
 
   // Get the specified attack type
-  var attackType = $('#attack_type_select').val();
+  Game.activity.attackType = $('#attack_type_select').val();
 
   // Store the game chat in recent activity
   Game.activity.chat = $('#game_chat').val();
@@ -728,8 +732,8 @@ Game.formPlayTurnActive = function() {
       game: Game.game,
       attackerIdx: Api.game.playerIdx,
       defenderIdx: Api.game.opponentIdx,
-      dieSelectStatus: dieSelectStatus,
-      attackType: attackType,
+      dieSelectStatus: Game.activity.dieSelectStatus,
+      attackType: Game.activity.attackType,
       chat: Game.activity.chat,
       roundNumber: Api.game.roundNumber,
       timestamp: Api.game.timestamp,
@@ -1041,23 +1045,26 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
     }
 
     var dieDiv;
+    var dieIndex = Game.dieIndexId(player, i);
+    var divOpts = {
+      'id': dieIndex,
+      'style':
+        'background-image: url(images/Circle.png);' +
+        'height:70px;width:70px;background-size:100%',
+    };
     if (clickable) {
-      dieDiv = $('<div>', {
-        'id': Game.dieIndexId(player, i),
-        'class': 'die_img unselected',
-        'style':
-          'background-image: url(images/Circle.png);' +
-          'height:70px;width:70px;background-size:100%',
-      });
+      if (('dieSelectStatus' in Game.activity) &&
+          (dieIndex in Game.activity.dieSelectStatus) &&
+          (Game.activity.dieSelectStatus[dieIndex])) {
+        divOpts.class = 'die_img selected';
+      } else {
+        divOpts.class = 'die_img unselected';
+      }
+      dieDiv = $('<div>', divOpts);
       dieDiv.click(Game.dieBorderToggleHandler);
     } else {
-      dieDiv = $('<div>', {
-        'id': Game.dieIndexId(player, i),
-        'class': 'die_img die_greyed',
-        'style':
-          'background-image: url(images/Circle.png);' +
-          'height:70px;width:70px;background-size:100%',
-      });
+      divOpts.class = 'die_img die_greyed';
+      dieDiv = $('<div>', divOpts);
     }
     dieDiv.append($('<span>', {
       'class': 'die_overlay',
