@@ -30,10 +30,11 @@ module("Game", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
-    delete Game.api;
+    delete Api.game;
     delete Game.game;
     delete Game.page;
     delete Game.form;
+    Game.activity = {};
 
     // Page elements
     // FIXME: why do we have to remove this twice?
@@ -85,8 +86,8 @@ asyncTest("test_Game.getCurrentGame", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     equal(Game.game, '1', "Set expected game number");
-    equal(Game.api.load_status, 'ok', 'Successfully loaded game data');
-    equal(Game.api.gameId, Game.game, 'Parsed correct game number from API');
+    equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
+    equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
     start();
   });
 });
@@ -172,46 +173,11 @@ asyncTest("test_Game.layoutPage", function() {
   });
 });
 
-asyncTest("test_Game.parseGameData", function() {
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    equal(Game.api.gameId, '1', "parseGameData() set gameId");
-    equal(Game.api.opponentIdx, 1, "parseGameData() set opponentIdx");
-    start();
-  });
-});
-
-asyncTest("test_Game.parseGameData", function() {
-  BMTestUtils.GameType = 'newgame_nonplayer';
-  Game.getCurrentGame(function() {
-    equal(Game.api.gameId, '10', 
-          "parseGameData() set gameId for nonparticipant");
-    start();
-  });
-});
-
-// N.B. use Game.getCurrentGame() to query dummy_responder, but
-// test any details of parsePlayerData()'s processing here
-asyncTest("test_Game.parsePlayerData", function() {
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    deepEqual(Game.api.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
-              "player die recipe array should be parsed correctly");
-    deepEqual(Game.api.player.capturedValueArray, [],
-              "array of captured dice should be parsed");
-    deepEqual(
-      Game.api.player.swingRequestArray['X'],
-      {'min': 4, 'max': 20},
-      "swing request array should contain X entry with correct min/max");
-    start();
-  });
-});
-
 asyncTest("test_Game.parseValidInitiativeActions", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
-    deepEqual(Game.api.player.initiativeActions, {},
+    deepEqual(Api.game.player.initiativeActions, {},
               "No valid initiative actions during choose swing phase");
     start();
   });
@@ -222,7 +188,7 @@ asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     deepEqual(
-      Game.api.player.initiativeActions,
+      Api.game.player.initiativeActions,
         {'focus': {
           '3': [5, 4, 3, 2, 1],
           '4': [17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]
@@ -238,7 +204,7 @@ asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     deepEqual(
-      Game.api.player.initiativeActions,
+      Api.game.player.initiativeActions,
         {'chance': { '1': true, '4': true }, 'decline': true },
         "Correct valid initiative actions identified for John Kovalic");
     start();
@@ -572,9 +538,9 @@ asyncTest("test_Game.dieTableEntry", function() {
   Game.getCurrentGame(function() {
     var htmlobj = Game.dieTableEntry(
       4,
-      Game.api.player.nDie,
-      Game.api.player.dieRecipeArray,
-      Game.api.player.sidesArray
+      Api.game.player.nDie,
+      Api.game.player.dieRecipeArray,
+      Api.game.player.sidesArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
@@ -589,9 +555,9 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
   Game.getCurrentGame(function() {
     var htmlobj = Game.dieTableEntry(
       6,
-      Game.api.player.nDie,
-      Game.api.player.dieRecipeArray,
-      Game.api.player.sidesArray
+      Api.game.player.nDie,
+      Api.game.player.dieRecipeArray,
+      Api.game.player.sidesArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
@@ -692,21 +658,6 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
   });
 });
 
-asyncTest("test_Game.playerWLTText", function() {
-  BMTestUtils.GameType = 'finished';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    var text = Game.playerWLTText('opponent');
-    Game.page.append(text);
-    Game.layoutPage();
-
-    var item = document.getElementById('game_page');
-    ok(item.innerHTML.match('2/3/0'),
-       "opponent WLT text should contain opponent's view of WLT state");
-    start();
-  });
-});
-
 test("test_Game.dieRecipeText", function() {
   var text = Game.dieRecipeText("p(4)", "4");
   equal(text, "p(4)", "text for non-swing die with skills should be correct");
@@ -802,3 +753,35 @@ test("test_Game.dieValueSelectTd", function() {
   ok(html.match(/<select /), "select row should contain a select");
 });
 
+test("test_Game.reactToInitiativeSuccessMsg", function() {
+  Game.activity.initiativeReactType = 'chance';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': false, });
+  equal(
+    Env.message.type, 'success',
+    'Env.message is set to success when initiative action does not fail');
+  equal(
+    Env.message.text, 'Rerolled chance die, but did not gain initiative',
+    'Correct message text when chance reroll does not gain initiative');
+
+  Game.activity.initiativeReactType = 'chance';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': true, });
+  equal(
+    Env.message.text, 'Successfully gained initiative by rerolling chance die',
+    'Correct message text when chance reroll gains initiative');
+
+  Game.activity.initiativeReactType = 'decline';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': false, });
+  equal(
+    Env.message.text, 'Declined to use chance/focus dice',
+    'Correct message text when initiative action is declined');
+
+  Game.activity.initiativeReactType = 'focus';
+  Game.reactToInitiativeSuccessMsg(
+    'look, a message', { 'gainedInitiative': true, });
+  equal(
+    Env.message.text, 'Successfully gained initiative using focus dice',
+    'Correct message text when focus turndown gains initiative');
+});
