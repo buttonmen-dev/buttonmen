@@ -6587,8 +6587,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_stealth_round() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('(6) d(6) (10) (12) d(12)', 'White Tiger');
-        $this->assertEquals('(6) d(6) (10) (12) d(12)', $button1->recipe);
+        $button1->load('(6) d(6) (10) (12) dz(12)', 'White Tiger Altered');
+        $this->assertEquals('(6) d(6) (10) (12) dz(12)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertCount(5, $button1->dieArray);
         $this->assertEquals( 6, $button1->dieArray[0]->max);
@@ -6602,7 +6602,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $button1->dieArray[1]->hookList['attack_list']);
         $this->assertEquals(array('attack_list'),
                             array_keys($button1->dieArray[4]->hookList));
-        $this->assertEquals(array('BMSkillStealth'),
+        $this->assertEquals(array('BMSkillStealth', 'BMSkillSpeed'),
                             $button1->dieArray[4]->hookList['attack_list']);
 
         $button2 = new BMButton;
@@ -6691,7 +6691,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $game->activeDieArrayArray[0][1]->hookList['attack_list']);
         $this->assertEquals(array('attack_list'),
                             array_keys($game->activeDieArrayArray[0][4]->hookList));
-        $this->assertEquals(array('BMSkillStealth'),
+        $this->assertEquals(array('BMSkillStealth', 'BMSkillSpeed'),
                             $game->activeDieArrayArray[0][4]->hookList['attack_list']);
 
         $this->assertEquals(array('score_value'),
@@ -6726,23 +6726,55 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(1), // attackerAttackDieIdxArray
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
-//        $this->assertEquals(12, $game->activeDieArrayArray[0][3]->max);
-//        $this->assertEquals(20, $game->activeDieArrayArray[1][2]->max);
-//
-//        $game->proceed_to_next_user_action();
-//        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-//        $this->assertCount(5, $game->activeDieArrayArray[0]);
-//        $this->assertCount(4, $game->activeDieArrayArray[1]);
-//        $this->assertCount(1, $game->capturedDieArrayArray[0]);
-//        $this->assertCount(0, $game->capturedDieArrayArray[1]);
-//        $this->assertEquals(20, $game->capturedDieArrayArray[0][0]->max);
-//        $this->assertEquals(12, $game->capturedDieArrayArray[0][0]->value);
-//        $this->assertEquals(20, $game->activeDieArrayArray[0][3]->max);
-//        $this->assertFalse($game->activeDieArrayArray[0][3]->has_skill('Doppleganger'));
-//        $this->assertFalse($game->activeDieArrayArray[0][3]->has_skill('Value'));
-//        $this->assertFalse($game->activeDieArrayArray[0][3]->has_skill('Null'));
-//        $this->assertTrue($game->activeDieArrayArray[0][3]->has_skill('Poison'));
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // invalid single-die skill attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(4), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // invalid single-die skill attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(4), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Speed'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // valid multidie skill attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0, 1), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
     }
 }
 
