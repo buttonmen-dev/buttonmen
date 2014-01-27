@@ -135,7 +135,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "24";
+        $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 2
@@ -149,7 +149,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "24";
+        $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 3
@@ -163,7 +163,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "40";
+        $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
 
         // game 4
@@ -177,7 +177,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "40";
+        $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
 
         // fake game 5 is completed
@@ -193,7 +193,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "24";
+        $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 7
@@ -207,7 +207,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "27";
+        $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 8
@@ -221,7 +221,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "27";
+        $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 9
@@ -235,7 +235,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "27";
+        $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // tester1 is not a participant in fake game 10
@@ -272,7 +272,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "60";
+        $data['gameStateArray'][] = "END_GAME";
         $data['statusArray'][] = "COMPLETE";
 
         return array($data, "All game details retrieved successfully.");
