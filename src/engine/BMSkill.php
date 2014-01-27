@@ -99,4 +99,43 @@ class BMSkill {
     public static function incompatible_attack_types() {
         return array();
     }
+
+    public static function skill_order_comparator($skill1, $skill2) {
+        $skill1Pos = array_search($skill1, self::skill_order_array());
+        $skill2Pos = array_search($skill2, self::skill_order_array());
+
+        if (FALSE === $skill1Pos) {
+            $skill1Pos = PHP_INT_MAX;
+        }
+
+        if (FALSE === $skill2Pos) {
+            $skill2Pos = PHP_INT_MAX;
+        }
+
+        if ($skill1Pos < $skill2Pos) {
+            $cmp = -1;
+        } elseif ($skill1Pos > $skill2Pos) {
+            $cmp = 1;
+        } else {
+            $cmp = 0;
+        }
+
+        return $cmp;
+    }
+
+    protected static function skill_order_array() {
+        return array('BMSkillChance',
+                     'BMSkillFocus',
+                     'BMSkillQueer',
+                     'BMSkillBerserk',
+                     'BMSkillSpeed',
+                     'BMSkillShadow',
+                     'BMSkillTrip',
+                     'BMSkillDoppleganger',
+                     'BMSkillValue',
+                     'BMSkillPoison',
+                     'BMSkillNull',
+                     'BMSkillKonstant',
+                     'BMSkillMorphing');
+    }
 }

@@ -5,6 +5,9 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
+  // private methods and variables should be defined separately
+  var activity = {};
+
   ////////////////////////////////////////////////////////////////////////
   // This module should not layout a page or generate any HTML.  It exists
   // only as a collection of routines which load and parse a particular
@@ -29,41 +32,118 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse a list of buttons
+  // Generic routine for API POST used to parse data
 
-  my.getButtonData = function(callbackfunc) {
-    my.button = {
+  my.apiParsePost = function(args, apikey, parser, callback, failcallback) {
+    my[apikey] = {
       'load_status': 'failed',
     };
     $.post(
       Env.api_location,
-      { type: 'loadButtonNames', },
+      args,
       function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parseButtonData(rs.data)) {
-            my.button.load_status = 'ok';
+        if (typeof rs === 'string') {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Internal error: got unparseable response from ' + args.type,
+          };
+          return failcallback();
+        } else if (rs.status == 'ok') {
+          if (parser(rs.data)) {
+            my[apikey].load_status = 'ok';
+            return callback();
           } else {
             Env.message = {
               'type': 'error',
-              'text': 'Could not parse button list from server',
+              'text':
+                'Internal error: Could not parse ' + apikey +
+                'data from server',
             };
+            return failcallback();
           }
         } else {
           Env.message = {
             'type': 'error',
-            'text': rs.message,
+            'text': 'Error from ' + args.type + ': ' + rs.message,
           };
+          return failcallback();
         }
-        return callbackfunc();
       }
     ).fail(
       function() {
         Env.message = {
           'type': 'error',
-          'text': 'Internal error when calling loadButtonNames',
+          'text': 'Internal error when calling ' + args.type,
         };
-        return callbackfunc();
+        return failcallback();
       }
+    );
+  };
+
+  my.apiFormPost = function(args, messages, callback, failcallback) {
+    $.post(
+      Env.api_location,
+      args,
+      function(rs) {
+        if (typeof rs === 'string') {
+          Env.message = {
+            'type': 'error',
+            'text':
+              'Internal error: got unparseable response from ' + args.type,
+          };
+          return failcallback();
+        } else if (rs.status == 'ok') {
+          if (messages.ok.type == 'fixed') {
+            Env.message = {
+              'type': 'success',
+              'text': messages.ok.text,
+            };
+          } else if (messages.ok.type == 'server') {
+            Env.message = {
+              'type': 'success',
+              'text': rs.message,
+            };
+          } else if (messages.ok.type == 'function') {
+            messages.ok.msgfunc(rs.message, rs.data);
+          }
+          return callback();
+        } else {
+          if (messages.notok.type == 'fixed') {
+            Env.message = {
+              'type': 'error',
+              'text': messages.notok.text,
+            };
+          } else if (messages.notok.type == 'server') {
+            Env.message = {
+              'type': 'error',
+              'text': rs.message,
+            };
+          }
+          return failcallback();
+        }
+      }
+    ).fail(
+      function() {
+        Env.message = {
+          'type': 'error',
+          'text': 'Internal error when calling ' + args.type,
+        };
+        return failcallback();
+      }
+    );
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse a list of buttons
+
+  my.getButtonData = function(callbackfunc) {
+    my.apiParsePost(
+      {'type': 'loadButtonNames', },
+      'button',
+      my.parseButtonData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -89,38 +169,12 @@ var Api = (function () {
   // Load and parse a list of players
 
   my.getPlayerData = function(callbackfunc) {
-    my.player = {
-      'load_status': 'failed',
-    };
-    $.post(
-      Env.api_location,
-      { type: 'loadPlayerNames', },
-      function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parsePlayerData(rs.data)) {
-            my.player.load_status = 'ok';
-          } else {
-            Env.message = {
-              'type': 'error',
-              'text': 'Could not parse player list from server',
-            };
-          }
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-        }
-        return callbackfunc();
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling loadPlayerNames',
-        };
-        return callbackfunc();
-      }
+    my.apiParsePost(
+      {'type': 'loadPlayerNames', },
+      'player',
+      my.parsePlayerData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -144,40 +198,12 @@ var Api = (function () {
   // Load and parse the current player's list of active games
 
   my.getActiveGamesData = function(callbackfunc) {
-    my.active_games = {
-      'load_status': 'failed',
-    };
-
-    $.post(
-      Env.api_location,
-      { type: 'loadActiveGames', },
-      function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parseActiveGamesData(rs.data)) {
-            my.active_games.load_status = 'ok';
-          } else {
-            Env.message = {
-              'type': 'error',
-              'text':
-                'Active game list received from server could not be parsed!',
-            };
-          }
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-        }
-        return callbackfunc();
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling loadActiveGames',
-        };
-        return callbackfunc();
-      }
+    my.apiParsePost(
+      {'type': 'loadActiveGames', },
+      'active_games',
+      my.parseActiveGamesData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -219,40 +245,12 @@ var Api = (function () {
   // Load and parse the current player's list of active games
 
   my.getCompletedGamesData = function(callbackfunc) {
-    my.completed_games = {
-      'load_status': 'failed',
-    };
-
-    $.post(
-      Env.api_location,
-      { type: 'loadCompletedGames', },
-      function(rs) {
-        if (rs.status == 'ok') {
-          if (my.parseCompletedGamesData(rs.data)) {
-            my.completed_games.load_status = 'ok';
-          } else if (my.completed_games.load_status != 'nogames') {
-            Env.message = {
-              'type': 'error',
-              'text':
-                'Completed game list received from server could not be parsed!',
-            };
-          }
-        } else {
-          Env.message = {
-            'type': 'error',
-            'text': rs.message,
-          };
-        }
-        return callbackfunc();
-      }
-    ).fail(
-      function() {
-        Env.message = {
-          'type': 'error',
-          'text': 'Internal error when calling loadCompletedGames',
-        };
-        return callbackfunc();
-      }
+    my.apiParsePost(
+      {'type': 'loadCompletedGames', },
+      'completed_games',
+      my.parseCompletedGamesData,
+      callbackfunc,
+      callbackfunc
     );
   };
 
@@ -281,6 +279,163 @@ var Api = (function () {
       i += 1;
     }
     return true;
+  };
+
+  my.getUserPrefsData = function(callbackfunc) {
+    my.apiParsePost(
+      {'type': 'loadPlayerInfo', },
+      'user_prefs',
+      my.parseUserPrefsData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseUserPrefsData = function(data) {
+    my.user_prefs.autopass = data.autopass;
+    return true;
+  };
+
+  my.getGameData = function(game, callback) {
+    activity.gameId = game;
+    Api.apiParsePost(
+      { type: 'loadGameData', game: game, },
+      'game',
+      my.parseGameData,
+      callback,
+      callback
+    );
+  };
+
+  // Utility routine to parse the game data returned by the server
+  // Adds three types of game data:
+  //   Api.game.*: metadata about the entire game
+  //   Api.game.player: data about the logged in player (or about
+  //                    the first player, if the logged in player
+  //                    is not in this game)
+  //   Api.game.opponent: data about the opposing player
+  // The "player" and "opponent" items should be identically formatted
+  my.parseGameData = function(data) {
+
+    // Store some initial high-level game elements
+    my.game.gameData = data.gameData;
+    my.game.timestamp = data.timestamp;
+    my.game.actionLog = data.gameActionLog;
+    my.game.chatLog = data.gameChatLog;
+
+    // Do some sanity-checking of the gameData object we have
+
+    // This is not the same as rs.status --- it's a second status
+    // value within the gameData object
+    if (my.game.gameData.status != 'ok') {
+      return false;
+    }
+    if (activity.gameId != my.game.gameData.data.gameId) {
+      return false;
+    }
+
+    if ($.isNumeric(data.currentPlayerIdx)) {
+      my.game.isParticipant = true;
+    } else {
+      my.game.isParticipant = false;
+    }
+
+    // Parse some top-level items from gameData
+    my.game.gameId =  my.game.gameData.data.gameId;
+    my.game.roundNumber = my.game.gameData.data.roundNumber;
+    my.game.maxWins = my.game.gameData.data.maxWins;
+    my.game.gameState = my.game.gameData.data.gameState;
+    my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
+
+    if (my.game.isParticipant) {
+      my.game.playerIdx = data.currentPlayerIdx;
+      my.game.opponentIdx = 1 - data.currentPlayerIdx;
+    } else {
+      my.game.playerIdx = 0;
+      my.game.opponentIdx = 1;
+    }
+
+    my.game.player = my.parseGamePlayerData(
+                       my.game.playerIdx, data.playerNameArray);
+    my.game.opponent = my.parseGamePlayerData(
+                         my.game.opponentIdx, data.playerNameArray);
+
+    // Parse game WLT text into a string for convenience
+    my.game.player.gameScoreStr = my.playerWLTText('player');
+    my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
+
+    return true;
+  };
+
+  // Given a player index, parse all data out of the appropriate arrays,
+  // and return it.  This function can be used for either the logged-in
+  // player or the opponent.
+  my.parseGamePlayerData = function(playerIdx, playerNameArray) {
+    var data = {
+      'playerId': my.game.gameData.data.playerIdArray[playerIdx],
+      'playerName': playerNameArray[playerIdx],
+      'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
+      'waitingOnAction':
+        my.game.gameData.data.waitingOnActionArray[playerIdx],
+      'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
+      'gameScoreDict':
+        my.game.gameData.data.gameScoreArrayArray[playerIdx],
+      'nDie': my.game.gameData.data.nDieArray[playerIdx],
+      'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
+      'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
+      'dieRecipeArray':
+        my.game.gameData.data.dieRecipeArrayArray[playerIdx],
+      'dieSkillsArray':
+        my.game.gameData.data.dieSkillsArrayArray[playerIdx],
+      'diePropertiesArray':
+        my.game.gameData.data.diePropertiesArrayArray[playerIdx],
+
+       // N.B. These arrays describe the other player's dice which this
+       // player has captured
+      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
+      'capturedValueArray':
+        my.game.gameData.data.capturedValueArrayArray[playerIdx],
+      'capturedSidesArray':
+        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
+      'capturedRecipeArray':
+        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+
+      'swingRequestArray': {},
+    };
+
+    $.each(
+      my.game.gameData.data.swingRequestArrayArray[playerIdx],
+      function(letter, range) {
+        data.swingRequestArray[letter] = {
+          'min': parseInt(range[0], 10),
+          'max': parseInt(range[1], 10)
+        };
+      }
+    );
+
+    // activePlayerIdx may be either player or may be null
+    if (my.game.gameData.data.activePlayerIdx == playerIdx) {
+      data.isActive = true;
+    } else {
+      data.isActive = false;
+    }
+
+    // playerWithInitiativeIdx may be either player or may be null
+    if (my.game.gameData.data.playerWithInitiativeIdx == playerIdx) {
+      data.hasInitiative = true;
+    } else {
+      data.hasInitiative = false;
+    }
+
+    return data;
+  };
+
+  my.playerWLTText = function(player) {
+    var text = 'W/L/T: ' + Api.game[player].gameScoreDict.W +
+               '/' + Api.game[player].gameScoreDict.L +
+               '/' + Api.game[player].gameScoreDict.D +
+               ' (' + Api.game.maxWins + ')';
+    return text;
   };
 
   return my;

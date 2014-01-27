@@ -103,7 +103,7 @@ class dummy_responder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = '10';
+        $gameId = '13';
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -237,6 +237,10 @@ class dummy_responder {
         $data['isAwaitingActionArray'][] = "0";
         $data['gameStateArray'][] = "27";
         $data['statusArray'][] = "ACTIVE";
+
+        // tester1 is not a participant in fake game 10
+        // tester1 is not a participant in fake game 11
+        // tester1 is not a participant in fake game 12
 
         return array($data, "All game details retrieved successfully.");
     }
@@ -442,8 +446,15 @@ class dummy_responder {
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
-        } elseif ($args['game'] == '3') {
-            $gameData['gameId'] = 3;
+        } elseif (($args['game'] == '3') || ($args['game'] == '11')) {
+            // these two examples use the same somewhat-involved
+            // game state, but in game 3, tester1 is the active player,
+            // while in game 11, tester1 is not a participant
+            if ($args['game'] == '3') {
+                $gameData['gameId'] = 3;
+            } elseif ($args['game'] == '11') {
+                $gameData['gameId'] = 11;
+            }
             $gameData['gameState'] = 40;
             $gameData['activePlayerIdx'] = 0;
             $gameData['playerWithInitiativeIdx'] = 1;
@@ -481,7 +492,6 @@ class dummy_responder {
                     "status" => "ok",
                     "data" => $gameData,
                 ),
-                'currentPlayerIdx' => 0,
                 'gameActionLog' => array(
                     array("timestamp" => "2013-12-22 21:09:01",
                           "message" =>
@@ -508,7 +518,12 @@ class dummy_responder {
                 ),
                 'gameChatLog' => array(),
             );
-
+            if ($args['game'] == '3') {
+                $data['currentPlayerIdx'] = 0;
+            } elseif ($args['game'] == '11') {
+                $data['currentPlayerIdx'] = FALSE;
+                $data['playerNameArray'] = array('tester2', 'tester3');
+            }
         } elseif ($args['game'] == '4') {
             $gameData['gameId'] = 4;
             $gameData['gameState'] = 40;
@@ -675,10 +690,42 @@ class dummy_responder {
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
+        } elseif ($args['game'] == '10') {
+            $gameData['gameId'] = 10;
+            $gameData['gameState'] = 24;
+            $gameData['playerIdArray'] = array(2, 3);
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameData,
+                ),
+                'currentPlayerIdx' => FALSE,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        // game 11 is grouped with game 3 above
+        } elseif ($args['game'] == '12') {
+            $gameDataJohnKovalic['gameId'] = 12;
+            $gameDataJohnKovalic['playerWithInitiativeIdx'] = 1;
+            $gameDataJohnKovalic['waitingOnActionArray'] = array(TRUE, FALSE);
+            $gameDataJohnKovalic['valueArrayArray'] = array(array(4, 3, 6, 5, 4), array(2, 4, 2, 3, 18));
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataJohnKovalic,
+                ),
+                'currentPlayerIdx' => FALSE,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
         }
 
         if ($data) {
-            $data['playerNameArray'] = array('tester1', 'tester2');
+            if (!(array_key_exists('playerNameArray', $data))) {
+                $data['playerNameArray'] = array('tester1', 'tester2');
+            }
             $timestamp = new DateTime();
             $data['timestamp'] = $timestamp->format(DATE_RSS);
             return array($data, "Loaded data for game " . $args['game']);
@@ -735,7 +782,7 @@ class dummy_responder {
     }
 
     protected function get_interface_response_reactToInitiative() {
-        return array(array('gainedinitiative' => TRUE),
+        return array(array('gainedInitiative' => TRUE),
                      'Successfully gained initiative');
     }
 

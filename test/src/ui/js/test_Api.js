@@ -9,6 +9,8 @@ module("Api", {
     delete Api.player;
     delete Api.active_games;
     delete Api.completed_games;
+    delete Api.user_prefs;
+    delete Api.game;
     BMTestUtils.deleteEnvMessage();
 
     // Fail if any other elements were added or removed
@@ -149,6 +151,67 @@ asyncTest("test_Api.parseCompletedGamesData", function() {
   Api.getCompletedGamesData(function() {
     equal(Api.completed_games.games[0].gameId, 5,
           "expected completed game ID exists");
+    start();
+  });
+});
+
+asyncTest("test_Api.getUserPrefsData", function() {
+  Api.getUserPrefsData(function() {
+    equal(Api.user_prefs.load_status, 'ok', "Successfully loaded user data");
+    start();
+  });
+});
+
+asyncTest("test_Api.parseUserPrefsData", function() {
+  Api.getUserPrefsData(function() {
+    equal(Api.user_prefs.autopass, true, "Successfully parsed autopass value");
+    start();
+  });
+});
+
+asyncTest("test_Api.getGameData", function() {
+  Game.game = '1';
+  Api.getGameData(Game.game, function() {
+    equal(Api.game.gameId, '1', "parseGameData() set gameId");
+    equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx");
+    delete Game.game;
+    start();
+  });
+});
+
+asyncTest("test_Api.getGameData_nonplayer", function() {
+  Game.game = '10';
+  Api.getGameData(Game.game, function() {
+    equal(Api.game.gameId, '10', 
+          "parseGameData() set gameId for nonparticipant");
+    delete Game.game;
+    start();
+  });
+});
+
+// N.B. use Api.getGameData() to query dummy_responder, but
+// test any details of parsePlayerData()'s processing here
+asyncTest("test_Api.parseGamePlayerData", function() {
+  Game.game = '1';
+  Api.getGameData(Game.game, function() {
+    deepEqual(Api.game.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
+              "player die recipe array should be parsed correctly");
+    deepEqual(Api.game.player.capturedValueArray, [],
+              "array of captured dice should be parsed");
+    deepEqual(
+      Api.game.player.swingRequestArray['X'],
+      {'min': 4, 'max': 20},
+      "swing request array should contain X entry with correct min/max");
+    delete Game.game;
+    start();
+  });
+});
+
+asyncTest("test_Api.playerWLTText", function() {
+  Api.getGameData('5', function() {
+    var text = Api.playerWLTText('opponent');
+    ok(text.match('2/3/0'),
+       "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
 });

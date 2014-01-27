@@ -38,12 +38,19 @@ test("test_Overview_is_loaded", function() {
   ok(Overview, "The Overview namespace exists");
 });
 
-asyncTest("test_Overview.showOverviewPage", function() {
+// Overview.showOverviewPage() does not directly take a callback,
+// but, under the hood, it calls a function (Overview.getOverview())
+// which calls a chain of two callbacks in succession.
+// It appears that QUnit's asynchronous testing framework can't
+// handle that situation, so don't use it --- instead turn off
+// asynchronous processing in AJAX while we test this one.
+test("test_Overview.showOverviewPage", function() {
+  $.ajaxSetup({ async: false });
   Overview.showOverviewPage();
   var item = document.getElementById('overview_page');
   equal(item.nodeName, "DIV",
         "#overview_page is a div after showOverviewPage() is called");
-  start();
+  $.ajaxSetup({ async: true });
 });
 
 asyncTest("test_Overview.getOverview", function() {
