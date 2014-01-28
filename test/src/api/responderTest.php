@@ -424,7 +424,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval = $this->object->process_request($dataargs);
             $timestamp = $retval['data']['timestamp'];
 
-            if (($retval['data']['gameData']['data']['gameState'] != 27) ||
+            if (($retval['data']['gameData']['data']['gameState'] != "REACT_TO_INITIATIVE") ||
                 ($retval['data']['gameData']['data']['playerWithInitiativeIdx'] != 1)) {
                 $real_game_id = NULL;
                 $thistry++;
