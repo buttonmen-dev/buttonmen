@@ -422,7 +422,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $reactResponse = $game->react_to_initiative(array('action' => 'chance',
                                                           'playerIdx' => 0,
                                                           'rerolledDieIdx' => 4));
-        var_dump($reactResponse);
         $this->assertTrue(array_key_exists('gainedInitiative', $reactResponse));
         if ($game->activeDieArrayArray[0][4]->value < 4) {
             $this->assertTrue($reactResponse['gainedInitiative']);
@@ -1814,6 +1813,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                                    array($die3, $die4));
         $this->object->attack = array(1, 0, array(1), array(0), 'Power');
         $this->assertEquals(array($die2), $this->object->defenderAttackDieArray);
+    }
+
+    /**
+     * @covers BMGame::get_roundNumber
+     */
+    public function testGet_roundNumber() {
+        $this->object->maxWins = 4;
+
+        $this->object->gameScoreArrayArray = array(array('W' => 0, 'L' => 0, 'D' => 0),
+                                                   array('W' => 0, 'L' => 0, 'D' => 0));
+        $this->assertEquals(1, $this->object->roundNumber);
+
+        $this->object->gameScoreArrayArray = array(array('W' => 2, 'L' => 1, 'D' => 2),
+                                                   array('W' => 1, 'L' => 2, 'D' => 2));
+        $this->assertEquals(6, $this->object->roundNumber);
+
+        $this->object->gameScoreArrayArray = array(array('W' => 4, 'L' => 1, 'D' => 2),
+                                                   array('W' => 1, 'L' => 4, 'D' => 2));
+        $this->assertEquals(7, $this->object->roundNumber);
     }
 
     /**
