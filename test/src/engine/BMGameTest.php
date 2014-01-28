@@ -6713,7 +6713,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[0][1]->value = 2;
         $dieArrayArray[0][2]->value = 3;
         $dieArrayArray[0][3]->value = 12;
-        $dieArrayArray[0][4]->value = 3;
+        $dieArrayArray[0][4]->value = 8;
         $dieArrayArray[1][0]->value = 1;
         $dieArrayArray[1][1]->value = 3;
         $dieArrayArray[1][2]->value = 12;
@@ -6775,6 +6775,56 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->activeDieArrayArray[1]);
         $this->assertCount(1, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[0][1]->value = 1;
+
+        // invalid single die power attack
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // invalid single die skill attack
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        // valid multidie skill attack
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(0, 3), // attackerAttackDieIdxArray
+                              array(4), // defenderAttackDieIdxArray
+                              'Skill'); // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(1, $game->capturedDieArrayArray[1]);
     }
 }
 
