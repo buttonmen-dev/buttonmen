@@ -183,7 +183,7 @@ class BMDie {
         $this->add_multiple_skills($skills);
     }
 
-    public static function parse_recipe_for_sides($recipe) {
+    protected static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
             return $match[1];
         } else {
@@ -191,7 +191,7 @@ class BMDie {
         }
     }
 
-    public static function parse_recipe_for_skills($recipe) {
+    protected static function parse_recipe_for_skills($recipe) {
         return BMSkill::expand_skill_string(preg_replace('/\(.*\)/', '', $recipe));
     }
 
