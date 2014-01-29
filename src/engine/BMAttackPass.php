@@ -15,7 +15,7 @@ class BMAttackPass extends BMAttack {
         return (empty($attackers) && empty($defenders));
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         return TRUE;
     }
 }

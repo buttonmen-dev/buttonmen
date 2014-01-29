@@ -120,7 +120,6 @@ class responder {
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
-            $args['timestamp'],
             $args['swingValueArray']
         );
     }

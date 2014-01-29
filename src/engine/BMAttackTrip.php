@@ -18,7 +18,7 @@ class BMAttackTrip extends BMAttack {
             return FALSE;
         }
 
-        if (!$this->are_skills_compatible($attackers)) {
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -30,17 +30,32 @@ class BMAttackTrip extends BMAttack {
         return $isDieLargeEnough;
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         if (1 != count($attArray)) {
             throw new InvalidArgumentException('attArray must have one element.');
         }
 
-        $att = $attArray[0];
-
-        if ($att->has_skill('Trip')) {
-            return TRUE;
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
         }
 
-        return FALSE;
+        $returnVal = TRUE;
+
+        $att = $attArray[0];
+        $def = $defArray[0];
+
+        if ($att->has_skill('Stealth')) {
+            $returnVal = FALSE;
+        }
+
+        if (!$att->has_skill('Trip')) {
+            $returnVal = FALSE;
+        }
+
+        if ($def->has_skill('Stealth')) {
+            $returnVal = FALSE;
+        }
+
+        return $returnVal;
     }
 }

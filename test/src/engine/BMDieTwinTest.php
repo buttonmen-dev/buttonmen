@@ -23,6 +23,13 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    protected static function getMethod($name) {
+        $class = new ReflectionClass('BMDieTwin');
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
+    }
+
     /**
      * @covers BMDieTwin::init
      */
@@ -200,7 +207,9 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
      * @depends testCreate
      */
     public function testCreate_from_string_components() {
-        $die = BMDie::create_from_string_components('4,6', array('Shadow'));
+        $create = self::getMethod('create_from_string_components');
+
+        $die = $create->invokeArgs(NULL, array('4,6', array('Shadow')));
         $this->assertInstanceOf('BMDieTwin', $die);
         $this->assertCount(2, $die->dice);
         $this->assertTrue($die->has_skill('Shadow'));
