@@ -1090,6 +1090,10 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       dieDiv.click(Game.dieBorderToggleHandler);
     } else {
       divOpts.class = 'die_img die_greyed';
+      if (player_active) {
+        divOpts.title = 'This focus die is dizzy because it was turned ' +
+        'down.  It can\'t be used during this attack.';
+      }
       dieDiv = $('<div>', divOpts);
     }
     dieDiv.append($('<span>', {
