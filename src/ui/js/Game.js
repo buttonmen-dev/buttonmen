@@ -889,11 +889,13 @@ Game.dieRecipeTable = function(react_initiative, active) {
     var playerEnt = Game.dieTableEntry(
       i, Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray);
+      Api.game.player.sidesArray,
+      Api.game.player.diePropertiesArray);
     var opponentEnt = Game.dieTableEntry(
       i, Api.game.opponent.nDie,
       Api.game.opponent.dieRecipeArray,
-      Api.game.opponent.sidesArray);
+      Api.game.opponent.sidesArray,
+      Api.game.opponent.diePropertiesArray);
     if (react_initiative) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
@@ -948,10 +950,23 @@ Game.dieRecipeTable = function(react_initiative, active) {
   return dietable;
 };
 
-Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
+Game.dieTableEntry = function(
+  i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray
+) {
   if (i < nDie) {
     var dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
-    return $('<td>', {'text': dieval, });
+    var dieopts = {
+      'text': dieval,
+    };
+    if ((diePropertiesArray[i]) &&
+        ('disabled' in diePropertiesArray[i]) &&
+        (diePropertiesArray[i]['disabled'])) {
+      dieopts.class = 'recipe_greyed';
+      dieopts.title = 'This focus die is dizzy because it has been turned ' +
+        'down.  If the owner wins initiative, this die can\'t be used in ' +
+        'their first attack.';
+    }
+    return $('<td>', dieopts);
   }
   return $('<td>', {});
 };
