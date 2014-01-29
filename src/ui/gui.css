@@ -93,6 +93,10 @@ select.center {
     color:darkslateblue;
 }
 
+.recipe_greyed {
+    background-color: #eeeeee;
+}
+
 .die_overlay {
     position:relative;
     top:16px
