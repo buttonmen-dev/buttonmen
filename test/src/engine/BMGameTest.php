@@ -990,7 +990,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test for end turn with one player without dice
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::END_ROUND;
-        $die = BMDie::create_from_string_components('12');
+        $die = BMDie::create_from_recipe('(12)');
         $this->object->activeDieArrayArray = array(array(), array($die));
         $this->object->swingValueArrayArray = array(array('X' => 5), array('Y' => 2));
         $this->object->maxWins = 6;
@@ -1010,8 +1010,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test for draw
         $this->object->playerIdArray = array(12345, 54321);
         $this->object->gameState = BMGameState::END_ROUND;
-        $die1 = BMDie::create_from_string_components('12');
-        $die2 = BMDie::create_from_string_components('12');
+        $die1 = BMDie::create_from_recipe('(12)');
+        $die2 = BMDie::create_from_recipe('(12)');
         $this->object->activeDieArrayArray = array(array($die1), array($die2));
         $this->object->swingValueArrayArray = array(array('X' => 5), array('Y' => 2));
         $this->object->maxWins = 6;

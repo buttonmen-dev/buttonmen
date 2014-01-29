@@ -205,7 +205,7 @@ class BMDie {
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
 
-    public static function create_from_string_components($recipe, array $skills = NULL) {
+    protected static function create_from_string_components($recipe, array $skills = NULL) {
         $die = NULL;
 
         try {

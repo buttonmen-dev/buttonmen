@@ -335,20 +335,22 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         // The complex types can work this function out in their own
         // test suites
 
-        $die = BMDie::create_from_string_components("72");
+        $create = self::getMethod('create_from_string_components');
+
+        $die = $create->invokeArgs(NULL, array('72'));
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(72, $die->max);
 
-        $die = BMDie::create_from_string_components("himom!");
+        $die = $create->invokeArgs(NULL, array('himom!'));
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string_components("75.3");
+        $die = $create->invokeArgs(NULL, array('75.3'));
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string_components("trombones76");
+        $die = $create->invokeArgs(NULL, array('trombones76'));
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string_components("76trombones");
+        $die = $create->invokeArgs(NULL, array('76trombones'));
         $this->assertNull($die);
     }
 
