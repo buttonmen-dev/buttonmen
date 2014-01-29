@@ -57,6 +57,10 @@ class BMAttackShadow extends BMAttackPower {
             return FALSE;
         }
 
+        if ($def->has_skill('Stealth')) {
+            return FALSE;
+        }
+
         if (!($att->has_skill('Shadow') ||
             ($att->has_skill('Queer') && (1 == $att->value % 2)))
         ) {
