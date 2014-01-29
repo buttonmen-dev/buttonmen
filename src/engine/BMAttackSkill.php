@@ -26,31 +26,6 @@ class BMAttackSkill extends BMAttack {
         }
 
         $this->generate_hit_table();
-
-        // Check all precise hits before trying any with help, because
-        // help is slow
-        foreach ($targets as $def) {
-            if ($this->hit_table->find_hit($def->defense_value($this->type))) {
-                return TRUE;
-            }
-        }
-
-        // Potentially save some time by checking for the possibility of help
-
-        $help_found = FALSE;
-        foreach ($targets as $def) {
-            foreach ($game->attackerAllDieArray as $att) {
-                if ($this->collect_helpers($game, array($att), array($def))) {
-                    $help_found = TRUE;
-                    break 2;
-                }
-            }
-        }
-
-        if (!$help_found) {
-            return FALSE;
-        }
-
         $hits = $this->hit_table->list_hits();
         sort($hits);
 
@@ -166,6 +141,11 @@ class BMAttackSkill extends BMAttack {
 
         if (1 == count($attArray) &&
             $attArray[0]->has_skill('Stealth')) {
+            $returnVal = FALSE;
+        }
+
+        if (1 == count($attArray) &&
+            $def->has_skill('Stealth')) {
             $returnVal = FALSE;
         }
 
