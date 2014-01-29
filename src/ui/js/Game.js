@@ -960,7 +960,7 @@ Game.dieTableEntry = function(
     };
     if ((diePropertiesArray[i]) &&
         ('disabled' in diePropertiesArray[i]) &&
-        (diePropertiesArray[i]['disabled'])) {
+        (diePropertiesArray[i].disabled)) {
       dieopts.class = 'recipe_greyed';
       dieopts.title = 'This focus die is dizzy because it has been turned ' +
         'down.  If the owner wins initiative, this die can\'t be used in ' +
