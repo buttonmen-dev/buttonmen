@@ -383,7 +383,26 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $die3->value = 5;
         $die4->value = 5;
 
+        $this->assertFalse($sk->find_attack($game));
 
+        // test with stealth dice
+        $sk->reset();
+        $this->assertCount(0, $sk->validDice);
+
+        $die8 = BMDie::create(4);
+        $die8->value = 2;
+        $die9 = BMDie::create(6, array('Stealth'));
+        $die9->value = 2;
+        $sk->add_die($die8);
+        $this->assertCount(1, $sk->validDice);
+
+        $game->defenderArrayDieArray = array();
+        $this->assertFalse($sk->find_attack($game));
+
+        // Basic attacks
+        $game->defenderAllDieArray[] = $die9;
+
+        // Invalid single die skill attack targeting single stealth die
         $this->assertFalse($sk->find_attack($game));
 
     }
