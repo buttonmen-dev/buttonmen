@@ -439,7 +439,7 @@ Game.actionPlayTurnActive = function() {
     }
     var attacktypeopts = {
       'value': typevalue,
-      'label': typename,
+      'label': typetext,
       'text': typetext,
     };
     if (('attackType' in Game.activity) &&
