@@ -135,7 +135,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "24";
+        $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 2
@@ -149,7 +149,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "24";
+        $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 3
@@ -163,7 +163,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "40";
+        $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
 
         // game 4
@@ -177,7 +177,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "40";
+        $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
 
         // fake game 5 is completed
@@ -193,7 +193,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "24";
+        $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 7
@@ -207,7 +207,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "27";
+        $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 8
@@ -221,7 +221,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "1";
-        $data['gameStateArray'][] = "27";
+        $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 9
@@ -235,7 +235,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "27";
+        $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // tester1 is not a participant in fake game 10
@@ -272,7 +272,7 @@ class dummy_responder {
         $data['nDrawsArray'][] = "0";
         $data['nTargetWinsArray'][] = "3";
         $data['isAwaitingActionArray'][] = "0";
-        $data['gameStateArray'][] = "60";
+        $data['gameStateArray'][] = "END_GAME";
         $data['statusArray'][] = "COMPLETE";
 
         return array($data, "All game details retrieved successfully.");
@@ -388,7 +388,7 @@ class dummy_responder {
         // base params for a John Kovalic vs John Kovalic game, here to
         // avoid the duplicated code warning
         $gameDataJohnKovalic = $gameData;
-        $gameDataJohnKovalic['gameState'] = 27;
+        $gameDataJohnKovalic['gameState'] = "REACT_TO_INITIATIVE";
         $gameDataJohnKovalic['playerWithInitiativeIdx'] = 1;
         $gameDataJohnKovalic['buttonNameArray'] = array("John Kovalic", "John Kovalic");
         $gameDataJohnKovalic['waitingOnActionArray'] = array(TRUE, FALSE);
@@ -421,7 +421,7 @@ class dummy_responder {
 
         if ($args['game'] == '1') {
             $gameData['gameId'] = 1;
-            $gameData['gameState'] = 24;
+            $gameData['gameState'] = "SPECIFY_DICE";
             $data = array(
                 'gameData' => array(
                     "status" => "ok",
@@ -433,7 +433,7 @@ class dummy_responder {
             );
         } elseif ($args['game'] == '2') {
             $gameData['gameId'] = 2;
-            $gameData['gameState'] = 24;
+            $gameData['gameState'] = "SPECIFY_DICE";
             $gameData['waitingOnActionArray'] = array(FALSE, TRUE);
             $gameData['sidesArrayArray'] = array(array(4,4,10,12,4),
                                                  array(NULL,NULL,NULL,NULL,NULL));
@@ -455,7 +455,7 @@ class dummy_responder {
             } elseif ($args['game'] == '11') {
                 $gameData['gameId'] = 11;
             }
-            $gameData['gameState'] = 40;
+            $gameData['gameState'] = "START_TURN";
             $gameData['activePlayerIdx'] = 0;
             $gameData['playerWithInitiativeIdx'] = 1;
             $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
@@ -526,7 +526,7 @@ class dummy_responder {
             }
         } elseif ($args['game'] == '4') {
             $gameData['gameId'] = 4;
-            $gameData['gameState'] = 40;
+            $gameData['gameState'] = "START_TURN";
             $gameData['activePlayerIdx'] = 1;
             $gameData['playerWithInitiativeIdx'] = 1;
             $gameData['waitingOnActionArray'] = array(FALSE, TRUE);
@@ -548,7 +548,7 @@ class dummy_responder {
 
         } elseif ($args['game'] == '5') {
             $gameData['gameId'] = 5;
-            $gameData['gameState'] = 60;
+            $gameData['gameState'] = "END_GAME";
             $gameData['roundNumber'] = 6;
             $gameData['playerWithInitiativeIdx'] = 1;
             $gameData['waitingOnActionArray'] = array(FALSE, FALSE);
@@ -588,7 +588,7 @@ class dummy_responder {
             );
         } elseif ($args['game'] == '6') {
             $gameData['gameId'] = 6;
-            $gameData['gameState'] = 24;
+            $gameData['gameState'] = "SPECIFY_DICE";
             $gameData['buttonNameArray'] = array("Buck Godot", "Von Pinn");
             $gameData['sidesArrayArray'] = array(array(12,10,12,20,NULL),
                                                  array(NULL,NULL,NULL,NULL,NULL));
@@ -624,7 +624,7 @@ class dummy_responder {
             );
         } elseif ($args['game'] == '7') {
             $gameData['gameId'] = 7;
-            $gameData['gameState'] = 27;
+            $gameData['gameState'] = "REACT_TO_INITIATIVE";
             $gameData['playerWithInitiativeIdx'] = 1;
             $gameData['buttonNameArray'] = array("Crab", "Crab");
             $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
@@ -692,7 +692,7 @@ class dummy_responder {
             );
         } elseif ($args['game'] == '10') {
             $gameData['gameId'] = 10;
-            $gameData['gameState'] = 24;
+            $gameData['gameState'] = "SPECIFY_DICE";
             $gameData['playerIdArray'] = array(2, 3);
             $data = array(
                 'gameData' => array(
