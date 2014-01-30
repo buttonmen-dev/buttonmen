@@ -198,6 +198,8 @@ asyncTest("test_Api.parseGamePlayerData", function() {
               "player die recipe array should be parsed correctly");
     deepEqual(Api.game.player.capturedValueArray, [],
               "array of captured dice should be parsed");
+    deepEqual(Api.game.player.dieDescriptionArray[0], '4-sided die',
+              "array of die descriptions should be parsed");
     deepEqual(
       Api.game.player.swingRequestArray['X'],
       {'min': 4, 'max': 20},

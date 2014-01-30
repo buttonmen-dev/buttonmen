@@ -389,6 +389,8 @@ var Api = (function () {
         my.game.gameData.data.dieSkillsArrayArray[playerIdx],
       'diePropertiesArray':
         my.game.gameData.data.diePropertiesArrayArray[playerIdx],
+      'dieDescriptionArray':
+        my.game.gameData.data.dieDescriptionArrayArray[playerIdx],
 
        // N.B. These arrays describe the other player's dice which this
        // player has captured
