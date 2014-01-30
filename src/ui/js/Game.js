@@ -548,6 +548,7 @@ Game.formChooseSwingActive = function() {
       { 'ok': { 'type': 'fixed', 'text': 'Successfully set swing values', },
         'notok': {'type': 'server', },
       },
+      'game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -669,6 +670,7 @@ Game.formReactToInitiativeActive = function() {
         },
         'notok': { 'type': 'server', },
       },
+      'game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -742,6 +744,7 @@ Game.formPlayTurnActive = function() {
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
+    'game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );

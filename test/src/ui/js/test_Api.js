@@ -13,6 +13,10 @@ module("Api", {
     delete Api.game;
     BMTestUtils.deleteEnvMessage();
 
+    // Page elements (for test use only)
+    $('#api_page').remove();
+    $('#api_page').empty();
+
     // Fail if any other elements were added or removed
     BMTestUtils.ApiPost = BMTestUtils.getAllElements();
     deepEqual(
@@ -218,3 +222,14 @@ asyncTest("test_Api.playerWLTText", function() {
   });
 });
 
+test("test_Api.disableSubmitButton", function() {
+  $('body').append($('<div>', {'id': 'api_page', }));
+  $('#api_page').append($('<button>', {
+    'id': 'api_action_button',
+    'text': 'Submit',
+  }));
+  Api.disableSubmitButton('api_action_button');
+  var item = document.getElementById('api_action_button');
+  equal(item.getAttribute('disabled'), 'disabled',
+        "After a submit button has been clicked, it should be disabled");
+});

@@ -81,7 +81,8 @@ var Api = (function () {
     );
   };
 
-  my.apiFormPost = function(args, messages, callback, failcallback) {
+  my.apiFormPost = function(args, messages, submitid, callback, failcallback) {
+    my.disableSubmitButton(submitid);
     $.post(
       Env.api_location,
       args,
@@ -438,6 +439,10 @@ var Api = (function () {
                '/' + Api.game[player].gameScoreDict.D +
                ' (' + Api.game.maxWins + ')';
     return text;
+  };
+
+  my.disableSubmitButton = function(button_id) {
+    $('#' + button_id).attr('disabled', 'disabled');
   };
 
   return my;
