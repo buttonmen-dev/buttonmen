@@ -452,7 +452,7 @@ Game.actionPlayTurnActive = function() {
 
   attackform.append($('<button>', {
     'id': 'game_action_button',
-    'text': 'Submit',
+    'text': 'Beat People UP!',
   }));
   attackdiv.append(attackform);
   Game.page.append(attackdiv);

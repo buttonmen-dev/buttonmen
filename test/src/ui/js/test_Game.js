@@ -350,6 +350,9 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
+    var item = document.getElementById('game_action_button');
+    ok(item.innerHTML.match('Beat People UP!'),
+       "Attack submit button says Beat People UP!");
     ok(Game.form, "Game.form is set");
     start();
   });
