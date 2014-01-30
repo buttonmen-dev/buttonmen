@@ -893,12 +893,14 @@ Game.dieRecipeTable = function(react_initiative, active) {
       i, Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray);
+      Api.game.player.diePropertiesArray,
+      Api.game.player.dieDescriptionArray);
     var opponentEnt = Game.dieTableEntry(
       i, Api.game.opponent.nDie,
       Api.game.opponent.dieRecipeArray,
       Api.game.opponent.sidesArray,
-      Api.game.opponent.diePropertiesArray);
+      Api.game.opponent.diePropertiesArray,
+      Api.game.opponent.dieDescriptionArray);
     if (react_initiative) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
@@ -954,20 +956,22 @@ Game.dieRecipeTable = function(react_initiative, active) {
 };
 
 Game.dieTableEntry = function(
-  i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray
+  i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray,
+  dieDescriptionArray
 ) {
   if (i < nDie) {
     var dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
     var dieopts = {
       'text': dieval,
+      'title': dieDescriptionArray[i],
     };
     if ((diePropertiesArray[i]) &&
         ('disabled' in diePropertiesArray[i]) &&
         (diePropertiesArray[i].disabled)) {
       dieopts.class = 'recipe_greyed';
-      dieopts.title = 'This focus die is dizzy because it has been turned ' +
+      dieopts.title += '. (This die is dizzy because it has been turned ' +
         'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.';
+        'their first attack.)';
     }
     return $('<td>', dieopts);
   }
@@ -1080,6 +1084,7 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       'style':
         'background-image: url(images/Circle.png);' +
         'height:70px;width:70px;background-size:100%',
+      'title': Api.game[player].dieDescriptionArray[i],
     };
     if (clickable) {
       if (('dieSelectStatus' in Game.activity) &&
@@ -1094,8 +1099,8 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
     } else {
       divOpts.class = 'die_img die_greyed';
       if (player_active) {
-        divOpts.title = 'This focus die is dizzy because it was turned ' +
-        'down.  It can\'t be used during this attack.';
+        divOpts.title += '. (This die is dizzy because it was turned ' +
+        'down.  It can\'t be used during this attack.)';
       }
       dieDiv = $('<div>', divOpts);
     }
