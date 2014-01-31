@@ -196,9 +196,45 @@ asyncTest("test_Newgame.formCreateGame_no_vals", function() {
   });
 });
 
+asyncTest("test_Newgame.formCreateGame_no_buttons", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('tester2');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when expected arguments were not set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Newgame.formCreateGame_no_opponent_button", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('tester2');
+    $('#player_button').val('Crab');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when expected arguments were not set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Newgame.formCreateGame_invalid_player", function() {
   Newgame.getNewgameData(function() {
     Newgame.actionCreateGame();
+    $('#opponent_name').append(
+      $('<option>', {
+        'value': 'nontester1',
+        'text': 'nontester1',
+        'label': 'nontester1',
+      })
+    );
     $('#opponent_name').val('nontester1');
     $('#player_button').val('Crab');
     $('#opponent_button').val('John Kovalic');
@@ -206,6 +242,9 @@ asyncTest("test_Newgame.formCreateGame_invalid_player", function() {
     $('#newgame_action_button').trigger('click');
     equal(
       Env.message.type, "error",
+      "Newgame action failed when opponent was not a known player");
+    equal(
+      Env.message.text, "Specified opponent nontester1 is not recognized",
       "Newgame action failed when opponent was not a known player");
     $.ajaxSetup({ async: true });
     start();
