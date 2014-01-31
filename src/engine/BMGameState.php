@@ -3,13 +3,13 @@
 class BMGameState {
     // pre-game
     const START_GAME = 10;
-    const APPLY_HANDICAPS = 13;
-    const CHOOSE_AUXILIARY_DICE = 16;
+    const APPLY_HANDICAPS = 12;
 
     // pre-round
-    const LOAD_DICE_INTO_BUTTONS = 20;
-    // const ADD_RESERVE_DICE = 21;
-    const ADD_AVAILABLE_DICE_TO_GAME = 22;
+    const LOAD_DICE_INTO_BUTTONS = 15;
+    const ADD_AVAILABLE_DICE_TO_GAME = 17;
+    const CHOOSE_AUXILIARY_DICE = 20;
+    // const ADD_RESERVE_DICE = 22;
     const SPECIFY_DICE = 24;
     const DETERMINE_INITIATIVE = 26;
     const REACT_TO_INITIATIVE = 27;
