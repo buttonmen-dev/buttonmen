@@ -54,6 +54,20 @@ test("test_Newgame.showNewgamePage", function() {
   $.ajaxSetup({ async: true });
 });
 
+test("test_Newgame.showNewgamePage_logged_out", function() {
+
+  // Undo the fake login data
+  Login.player = null;
+  Login.logged_in = false;
+
+  $.ajaxSetup({ async: false });
+  Newgame.showNewgamePage();
+  var item = document.getElementById('newgame_page');
+  equal(item.nodeName, "DIV",
+        "#newgame_page is a div after showNewgamePage() is called");
+  $.ajaxSetup({ async: true });
+});
+
 asyncTest("test_Newgame.getNewgameData", function() {
   Newgame.getNewgameData(function() {
     ok(Api.player, "player list is parsed from server");
@@ -64,6 +78,17 @@ asyncTest("test_Newgame.getNewgameData", function() {
 
 asyncTest("test_Newgame.showPage", function() {
   Newgame.getNewgameData(function() {
+    Newgame.showPage();
+    var htmlout = Newgame.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Newgame.showPage_load_failed", function() {
+  Newgame.getNewgameData(function() {
+    Api.player.load_status = 'failed';
     Newgame.showPage();
     var htmlout = Newgame.page.html();
     ok(htmlout.length > 0,
@@ -111,9 +136,26 @@ asyncTest("test_Newgame.actionCreateGame", function() {
   });     
 });
 
+// The logic here is a little hairy: since Newgame.getNewgameData()
+// takes a callback, we can use the normal asynchronous logic there.
+// However, the POST done by our forms doesn't take a callback (it
+// just redraws the page), so turn off asynchronous handling in
+// AJAX while we test that, to make sure the test sees the return
+// from the POST.
 asyncTest("test_Newgame.formCreateGame", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.formCreateGame not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('tester2');
+    $('#player_button').val('Crab');
+    $('#opponent_button').val('John Kovalic');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "success",
+      "Newgame action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
 });
 
 asyncTest("test_Newgame.addLoggedOutPage", function() {
