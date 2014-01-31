@@ -49,7 +49,7 @@ Newgame.getNewgameData = function(callback) {
     // The player needs to be logged in for anything good to happen here
     Newgame.actionLoggedOut();
   }
-}
+};
 
 // This function is called after Api.player has been loaded with new data
 Newgame.showPage = function() {
