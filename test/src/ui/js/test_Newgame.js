@@ -54,6 +54,20 @@ test("test_Newgame.showNewgamePage", function() {
   $.ajaxSetup({ async: true });
 });
 
+test("test_Newgame.showNewgamePage_no_page_element", function() {
+
+  // Remove page element to make sure the function readds it
+  $('#newgame_page').remove();
+  $('#newgame_page').empty();
+
+  $.ajaxSetup({ async: false });
+  Newgame.showNewgamePage();
+  var item = document.getElementById('newgame_page');
+  equal(item.nodeName, "DIV",
+        "#newgame_page is a div after showNewgamePage() is called");
+  $.ajaxSetup({ async: true });
+});
+
 test("test_Newgame.showNewgamePage_logged_out", function() {
 
   // Undo the fake login data
@@ -86,7 +100,18 @@ asyncTest("test_Newgame.showPage", function() {
   });
 });
 
-asyncTest("test_Newgame.showPage_load_failed", function() {
+asyncTest("test_Newgame.showPage_button_load_failed", function() {
+  Newgame.getNewgameData(function() {
+    Api.button.load_status = 'failed';
+    Newgame.showPage();
+    var htmlout = Newgame.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Newgame.showPage_player_load_failed", function() {
   Newgame.getNewgameData(function() {
     Api.player.load_status = 'failed';
     Newgame.showPage();
@@ -153,6 +178,35 @@ asyncTest("test_Newgame.formCreateGame", function() {
     equal(
       Env.message.type, "success",
       "Newgame action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Newgame.formCreateGame_no_vals", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when expected arguments were not set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Newgame.formCreateGame_invalid_player", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('nontester1');
+    $('#player_button').val('Crab');
+    $('#opponent_button').val('John Kovalic');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when opponent was not a known player");
     $.ajaxSetup({ async: true });
     start();
   });
