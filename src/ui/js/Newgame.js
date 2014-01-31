@@ -1,5 +1,7 @@
 // namespace for this "module"
-var Newgame = {};
+var Newgame = {
+  'activity': {},
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -31,32 +33,27 @@ Newgame.showNewgamePage = function() {
     $('body').append($('<div>', {'id': 'newgame_page', }));
   }
 
-  if (Login.logged_in === false) {
+  // Get all needed information, then display newgame page
+  Newgame.getNewgameData(Newgame.showPage);
+
+};
+
+Newgame.getNewgameData = function(callback) {
+  if (Login.logged_in) {
+
+    Api.getButtonData(function() {
+      Api.getPlayerData(callback);
+    });
+  } else {
 
     // The player needs to be logged in for anything good to happen here
     Newgame.actionLoggedOut();
-  } else {
-
-    // Ask the API for information about buttons, then continue page layout
-    Api.getButtonData(Newgame.showNewgamePageLoadedButtons);
   }
-};
-
-// This function is called after Api.button has been loaded with new data
-Newgame.showNewgamePageLoadedButtons = function() {
-  if (Api.button.load_status == 'ok') {
-
-    // Ask the API for information about players, then continue page layout
-    return Api.getPlayerData(Newgame.showNewgamePageLoadedPlayers);
-  }
-
-  // Something went wrong - show an error and layout the page now
-  Newgame.actionInternalErrorPage();
-};
+}
 
 // This function is called after Api.player has been loaded with new data
-Newgame.showNewgamePageLoadedPlayers = function() {
-  if (Api.player.load_status == 'ok') {
+Newgame.showPage = function() {
+  if ((Api.button.load_status == 'ok') && (Api.player.load_status == 'ok')) {
     Newgame.actionCreateGame();
   } else {
     Newgame.actionInternalErrorPage();

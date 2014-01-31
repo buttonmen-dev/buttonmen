@@ -16,6 +16,8 @@ module("Newgame", {
     // JS objects
     delete Api.button;
     delete Api.player;
+    delete Newgame.page;
+    delete Newgame.form;
 
     // Page elements
     $('#newgame_page').remove();
@@ -37,42 +39,76 @@ test("test_Newgame_is_loaded", function() {
   ok(Newgame, "The Newgame namespace exists");
 });
 
-asyncTest("test_Newgame.showNewgamePage", function() {
-  ok(true,
-    "INCOMPLETE: Test of Newgame.showNewgamePage not implemented");
-  start();
+// Newgame.showNewgamePage() does not directly take a callback,
+// but, under the hood, it calls a function (Newgame.getNewgameData())
+// which calls a chain of two callbacks in succession.
+// It appears that QUnit's asynchronous testing framework can't
+// handle that situation, so don't use it --- instead turn off
+// asynchronous processing in AJAX while we test this one.
+test("test_Newgame.showNewgamePage", function() {
+  $.ajaxSetup({ async: false });
+  Newgame.showNewgamePage();
+  var item = document.getElementById('newgame_page');
+  equal(item.nodeName, "DIV",
+        "#newgame_page is a div after showNewgamePage() is called");
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Newgame.showNewgamePageLoadedButtons", function() {
-  ok(true,
-    "INCOMPLETE: Test of Newgame.showNewgamePageLoadedButtons not implemented");
-  start();
+asyncTest("test_Newgame.getNewgameData", function() {
+  Newgame.getNewgameData(function() {
+    ok(Api.player, "player list is parsed from server");
+    ok(Api.button, "button list is parsed from server");
+    start();
+  });
 });
 
-asyncTest("test_Newgame.showNewgamePageLoadedPlayers", function() {
-  ok(true,
-    "INCOMPLETE: Test of Newgame.showNewgamePageLoadedPlayers not implemented");
-  start();
+asyncTest("test_Newgame.showPage", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.showPage();
+    var htmlout = Newgame.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
 });
 
 asyncTest("test_Newgame.layoutPage", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.layoutPage not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.page = $('<div>');
+    Newgame.page.append($('<p>', {'text': 'hi world', }));
+    Newgame.layoutPage();
+    var item = document.getElementById('newgame_page');
+    equal(item.nodeName, "DIV",
+          "#newgame_page is a div after layoutPage() is called");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.actionLoggedOut", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.actionLoggedOut not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionLoggedOut();
+    equal(Newgame.form, null,
+          "Form is null after the 'logged out' action is processed");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.actionInternalErrorPage", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.actionInternalErrorPage not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionInternalErrorPage();
+    equal(Newgame.form, null,
+          "Form is null after the 'internal error' action is processed");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.actionCreateGame", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.actionCreateGame not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    equal(Newgame.form, Newgame.formCreateGame,
+          "Form is set after the 'create game' action is processed");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.formCreateGame", function() {
