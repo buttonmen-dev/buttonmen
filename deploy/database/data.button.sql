@@ -180,7 +180,8 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Jellybean',   'p(20) s(20) (V) (X)',                 0, 1, (SELECT id FROM buttonset WHERE name="BROM")),
 ('Bluff',       'ps(6) ps(12) (16) (20) (X)',          0, 1, (SELECT id FROM buttonset WHERE name="BROM")),
 ('Strik',       '(8) p(10) s(16) (16) (X)',            0, 1, (SELECT id FROM buttonset WHERE name="BROM")),
-('Giant',       'w(20) w(20) w(20) w(20) w(20) w(20)', 0, 1, (SELECT id FROM buttonset WHERE name="BROM")),
+# Giant never goes first
+('Giant',       '(20) (20) (20) (20) (20) (20)',       1, 1, (SELECT id FROM buttonset WHERE name="BROM")),
 # Echo does not have it's own recipe - it copies the recipe of the opposing button
 ('Echo',        'none',                                1, 1, (SELECT id FROM buttonset WHERE name="BROM"));
 
@@ -431,7 +432,8 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # RENAISSANCE (Stone Press)                 SKILLS: Mood swing(?); Ornery(o); Poison(p); Speed(z); Option; Unique(u)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Dr. Speculo',    '(6) (8) (12) o(Y) o(Y)',       0, 1, (SELECT id FROM buttonset WHERE name="Renaissance")),
-('Guillermo',      '(6) (10) (20) u(X) u(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Renaissance")),
+# Guillermo: X and Y cannot be the same size
+('Guillermo',      '(6) (10) (20) (X) (Y)',        1, 1, (SELECT id FROM buttonset WHERE name="Renaissance")),
 ('Harry Pudding',  '(4) (7) (2/20) (2/20) (10)',   0, 1, (SELECT id FROM buttonset WHERE name="Renaissance")),
 ('Lascivia',       '(4) zp(12) (20) p(X)',         0, 0, (SELECT id FROM buttonset WHERE name="Renaissance")),
 ('MothMan',        '(8) (8) (12) (16) (Y)?',       0, 1, (SELECT id FROM buttonset WHERE name="Renaissance"));
