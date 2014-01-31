@@ -248,6 +248,23 @@ class BMGame {
     }
 
     protected function do_next_step_choose_auxiliary_dice() {
+        $this->waitingOnActionArray =
+            array_fill(0, count($this->playerIdArray), FALSE);
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                if ($die->has_skill('Auxiliary')) {
+                    $this->waitingOnActionArray[$playerIdx] = TRUE;
+                    break;
+                }
+            }
+        }
+
+//        $this->initialise_swing_value_array_array();
+//        $this->set_swing_values();
+//        $this->roll_active_dice();
+
+
 //        $auxiliaryDice = '';
 //        // create list of auxiliary dice
 //        foreach ($this->buttonArray as $tempButton) {
