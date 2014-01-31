@@ -250,6 +250,7 @@ Newgame.formCreateGame = function() {
         },
         'notok': { 'type': 'server', },
       },
+      'newgame_action_button',
       Newgame.showNewgamePage,
       Newgame.showNewgamePage
     );

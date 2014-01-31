@@ -41,7 +41,7 @@ class TestDummyBMAttTesting extends BMAttack {
         return FALSE;
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         return TRUE;
     }
 }

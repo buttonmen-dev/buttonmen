@@ -4,19 +4,19 @@ var Game = {
 };
 
 // Game states must match those reported by the API
-Game.GAME_STATE_START_GAME = "START_GAME";
-Game.GAME_STATE_APPLY_HANDICAPS = "APPLY_HANDICAPS";
-Game.GAME_STATE_CHOOSE_AUXILIARY_DICE = "CHOOSE_AUXILIARY_DICE";
-Game.GAME_STATE_LOAD_DICE_INTO_BUTTONS = "LOAD_DICE_INTO_BUTTONS";
-Game.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = "ADD_AVAILABLE_DICE_TO_GAME";
-Game.GAME_STATE_SPECIFY_DICE = "SPECIFY_DICE";
-Game.GAME_STATE_DETERMINE_INITIATIVE = "DETERMINE_INITIATIVE";
-Game.GAME_STATE_REACT_TO_INITIATIVE = "REACT_TO_INITIATIVE";
-Game.GAME_STATE_START_ROUND = "START_ROUND";
-Game.GAME_STATE_START_TURN = "START_TURN";
-Game.GAME_STATE_END_TURN = "END_TURN";
-Game.GAME_STATE_END_ROUND = "END_ROUND";
-Game.GAME_STATE_END_GAME = "END_GAME";
+Game.GAME_STATE_START_GAME = 'START_GAME';
+Game.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
+Game.GAME_STATE_CHOOSE_AUXILIARY_DICE = 'CHOOSE_AUXILIARY_DICE';
+Game.GAME_STATE_LOAD_DICE_INTO_BUTTONS = 'LOAD_DICE_INTO_BUTTONS';
+Game.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = 'ADD_AVAILABLE_DICE_TO_GAME';
+Game.GAME_STATE_SPECIFY_DICE = 'SPECIFY_DICE';
+Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
+Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
+Game.GAME_STATE_START_ROUND = 'START_ROUND';
+Game.GAME_STATE_START_TURN = 'START_TURN';
+Game.GAME_STATE_END_TURN = 'END_TURN';
+Game.GAME_STATE_END_ROUND = 'END_ROUND';
+Game.GAME_STATE_END_GAME = 'END_GAME';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -439,7 +439,7 @@ Game.actionPlayTurnActive = function() {
     }
     var attacktypeopts = {
       'value': typevalue,
-      'label': typename,
+      'label': typetext,
       'text': typetext,
     };
     if (('attackType' in Game.activity) &&
@@ -452,7 +452,7 @@ Game.actionPlayTurnActive = function() {
 
   attackform.append($('<button>', {
     'id': 'game_action_button',
-    'text': 'Submit',
+    'text': 'Beat People UP!',
   }));
   attackdiv.append(attackform);
   Game.page.append(attackdiv);
@@ -548,6 +548,7 @@ Game.formChooseSwingActive = function() {
       { 'ok': { 'type': 'fixed', 'text': 'Successfully set swing values', },
         'notok': {'type': 'server', },
       },
+      'game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -669,6 +670,7 @@ Game.formReactToInitiativeActive = function() {
         },
         'notok': { 'type': 'server', },
       },
+      'game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -742,6 +744,7 @@ Game.formPlayTurnActive = function() {
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
+    'game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
@@ -889,11 +892,15 @@ Game.dieRecipeTable = function(react_initiative, active) {
     var playerEnt = Game.dieTableEntry(
       i, Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray);
+      Api.game.player.sidesArray,
+      Api.game.player.diePropertiesArray,
+      Api.game.player.dieDescriptionArray);
     var opponentEnt = Game.dieTableEntry(
       i, Api.game.opponent.nDie,
       Api.game.opponent.dieRecipeArray,
-      Api.game.opponent.sidesArray);
+      Api.game.opponent.sidesArray,
+      Api.game.opponent.diePropertiesArray,
+      Api.game.opponent.dieDescriptionArray);
     if (react_initiative) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
@@ -948,10 +955,25 @@ Game.dieRecipeTable = function(react_initiative, active) {
   return dietable;
 };
 
-Game.dieTableEntry = function(i, nDie, dieRecipeArray, dieSidesArray) {
+Game.dieTableEntry = function(
+  i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray,
+  dieDescriptionArray
+) {
   if (i < nDie) {
     var dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
-    return $('<td>', {'text': dieval, });
+    var dieopts = {
+      'text': dieval,
+      'title': dieDescriptionArray[i],
+    };
+    if ((diePropertiesArray[i]) &&
+        ('disabled' in diePropertiesArray[i]) &&
+        (diePropertiesArray[i].disabled)) {
+      dieopts.class = 'recipe_greyed';
+      dieopts.title += '. (This die is dizzy because it has been turned ' +
+        'down.  If the owner wins initiative, this die can\'t be used in ' +
+        'their first attack.)';
+    }
+    return $('<td>', dieopts);
   }
   return $('<td>', {});
 };
@@ -1062,6 +1084,7 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       'style':
         'background-image: url(images/Circle.png);' +
         'height:70px;width:70px;background-size:100%',
+      'title': Api.game[player].dieDescriptionArray[i],
     };
     if (clickable) {
       if (('dieSelectStatus' in Game.activity) &&
@@ -1075,6 +1098,10 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       dieDiv.click(Game.dieBorderToggleHandler);
     } else {
       divOpts.class = 'die_img die_greyed';
+      if (player_active) {
+        divOpts.title += '. (This die is dizzy because it was turned ' +
+        'down.  It can\'t be used during this attack.)';
+      }
       dieDiv = $('<div>', divOpts);
     }
     dieDiv.append($('<span>', {

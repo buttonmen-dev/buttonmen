@@ -900,12 +900,12 @@ class BMInterface {
             $postedTimestamp == $this->timestamp->format(DATE_RSS);
         $doesRoundNumberAgree = $roundNumber == $game->roundNumber;
         $doesGameStateAgree = $expectedGameState == $game->gameState;
-        $isCurrentPlayerActive =
+        $isCurrPlayerActive =
             TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
         return ($doesTimeStampAgree &&
                 $doesRoundNumberAgree &&
                 $doesGameStateAgree &&
-                $isCurrentPlayerActive);
+                $isCurrPlayerActive);
     }
 
     // Enter recent game actions into the action log
@@ -1029,7 +1029,6 @@ class BMInterface {
         $playerId,
         $gameNumber,
         $roundNumber,
-        $submitTimestamp,
         $swingValueArray
     ) {
         try {

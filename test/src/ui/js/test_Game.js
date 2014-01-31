@@ -350,6 +350,9 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
+    var item = document.getElementById('game_action_button');
+    ok(item.innerHTML.match('Beat People UP!'),
+       "Attack submit button says Beat People UP!");
     ok(Game.form, "Game.form is set");
     start();
   });
@@ -627,11 +630,13 @@ asyncTest("test_Game.dieTableEntry", function() {
       4,
       Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray
+      Api.game.player.sidesArray,
+      Api.game.player.diePropertiesArray,
+      Api.game.player.dieDescriptionArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, "<td>(X=4)</td>",
+    deepEqual(html, '<td title="X Swing Die">(X=4)</td>',
       "Die table entry has expected contents");
     start();
   });
@@ -644,7 +649,8 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
       6,
       Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray
+      Api.game.player.sidesArray,
+      Api.game.player.diePropertiesArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();

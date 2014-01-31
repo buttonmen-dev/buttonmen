@@ -77,6 +77,7 @@ class BMSkill {
                      'Queer'        => 'q',
                      'Shadow'       => 's',
                      'Speed'        => 'z',
+                     'Stealth'      => 'd',
                      'Trip'         => 't',
                      'Value'        => 'v');
     }
@@ -124,6 +125,7 @@ class BMSkill {
     }
 
     protected static function skill_order_array() {
+        // fires first
         return array('BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillQueer',
@@ -131,11 +133,13 @@ class BMSkill {
                      'BMSkillSpeed',
                      'BMSkillShadow',
                      'BMSkillTrip',
+                     'BMSkillStealth',
                      'BMSkillDoppleganger',
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
                      'BMSkillKonstant',
                      'BMSkillMorphing');
+        // fires last
     }
 }
