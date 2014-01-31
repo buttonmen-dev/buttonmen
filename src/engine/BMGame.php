@@ -1072,35 +1072,6 @@ class BMGame {
         $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
     }
 
-    public static function does_recipe_have_auxiliary_dice($recipe) {
-        if (FALSE === strpos($recipe, '+')) {
-            return FALSE;
-        } else {
-            return TRUE;
-        }
-    }
-
-    public static function separate_out_auxiliary_dice($recipe) {
-        $dieRecipeArray = explode(' ', $recipe);
-
-        $nonAuxiliaryDice = '';
-        $auxiliaryDice = '';
-
-        foreach ($dieRecipeArray as $tempDieRecipe) {
-            if (FALSE === strpos($tempDieRecipe, '+')) {
-                $nonAuxiliaryDice = $nonAuxiliaryDice.$tempDieRecipe.' ';
-            } else {
-                $strippedDieRecipe = str_replace('+', '', $tempDieRecipe);
-                $auxiliaryDice = $auxiliaryDice.$strippedDieRecipe.' ';
-            }
-        }
-
-        $nonAuxiliaryDice = trim($nonAuxiliaryDice);
-        $auxiliaryDice = trim($auxiliaryDice);
-
-        return array($nonAuxiliaryDice, $auxiliaryDice);
-    }
-
     public static function does_player_have_initiative_array(array $activeDieArrayArray) {
         $initiativeArrayArray = array();
         foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {

@@ -1506,28 +1506,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::does_recipe_have_auxiliary_dice
-     */
-    public function test_does_recipe_have_auxiliary_dice() {
-        $this->assertFalse(BMGame::does_recipe_have_auxiliary_dice('(4) (8) (12) (20)'));
-
-        $this->assertTrue(BMGame::does_recipe_have_auxiliary_dice('(4) (8) (12) +(20)'));
-    }
-
-    /**
-     * @covers BMGame::separate_out_auxiliary_dice
-     */
-    public function test_separate_out_auxiliary_dice() {
-        $recipe = '(4) (12) (16) (20)';
-        $this->assertEquals(array($recipe, ''),
-                            BMGame::separate_out_auxiliary_dice($recipe));
-
-        $recipe = '(4) +(12) (16) (20)+';
-        $this->assertEquals(array('(4) (16)', '(12) (20)'),
-                            BMGame::separate_out_auxiliary_dice($recipe));
-    }
-
-    /**
      * @covers BMGame::is_die_specified
      */
     public function test_is_die_specified() {
