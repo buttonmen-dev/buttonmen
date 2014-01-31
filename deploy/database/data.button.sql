@@ -67,12 +67,13 @@ INSERT INTO buttonset (name) VALUES
 ('Nodwick'),
 ('High School Drama!'),
 ('Unexploded Cow'),
-# unofficial (?) ButtonMen sets not on old site
+# unofficial ButtonMen sets not on old site
 #('Japanese Beetle (unofficial)'),
 #('Blademasters'),
 #('Blademasters: The Second Shot'),
 #('Blademasters 3'),
 #('Order of the Dolls'),
+
 #('50 States'),
 
 #
