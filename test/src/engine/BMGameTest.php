@@ -1132,7 +1132,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameScoreArrayArray = array(array(0, 0, 0),array(0, 0, 0));
         $this->object->maxWins = 3;
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE,
+        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS,
                             $this->object->gameState);
 
         $this->object->playerIdArray = array('12345', '54321');
@@ -1161,7 +1161,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->buttonArray = array($button1, $button2);
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS, $this->object->gameState);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
 
 //        $button3 = new BMButton;
 //        $button3->recipe = '(4) (4) (8) +(20)';
@@ -1216,7 +1216,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray = array(array($die1, $die2),
                                                    array($die3, $die4));
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $this->object->gameState);
     }
 
     /**

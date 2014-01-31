@@ -175,49 +175,12 @@ class BMGame {
             if ($nWins >= $this->maxWins) {
                 $this->gameState = BMGameState::END_GAME;
             } else {
-                $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+                $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
             }
         }
     }
 
-    protected function do_next_step_choose_auxiliary_dice() {
-//        $auxiliaryDice = '';
-//        // create list of auxiliary dice
-//        foreach ($this->buttonArray as $tempButton) {
-//            if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-//                $tempSplitArray = BMGame::separate_out_auxiliary_dice(
-//                    $tempButton->recipe
-//                );
-//                $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
-//            }
-//        }
-//        $auxiliaryDice = trim($auxiliaryDice);
-//        // update $auxiliaryDice based on player choices
-//        $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
-//
-//        //james: current default is to accept all auxiliary dice
-//
-//        // update all button recipes and remove auxiliary markers
-//        if (!empty($auxiliaryDice)) {
-//            foreach ($this->buttonArray as $tempButton) {
-//                $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
-//                $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
-//            }
-//        }
-    }
 
-    protected function update_game_state_choose_auxiliary_dice() {
-        $hasAuxiliaryDice = FALSE;
-//        foreach ($this->buttonArray as $tempButton) {
-//            if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-//                $hasAuxiliaryDice = TRUE;
-//                break;
-//            }
-//        }
-        if (!$hasAuxiliaryDice) {
-            $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
-        }
-    }
 
     protected function do_next_step_load_dice_into_buttons() {
         //james: this will be replaced with a call to the database
@@ -280,6 +243,45 @@ class BMGame {
 
     protected function update_game_state_add_available_dice_to_game() {
         if (isset($this->activeDieArrayArray)) {
+            $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+        }
+    }
+
+    protected function do_next_step_choose_auxiliary_dice() {
+//        $auxiliaryDice = '';
+//        // create list of auxiliary dice
+//        foreach ($this->buttonArray as $tempButton) {
+//            if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
+//                $tempSplitArray = BMGame::separate_out_auxiliary_dice(
+//                    $tempButton->recipe
+//                );
+//                $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
+//            }
+//        }
+//        $auxiliaryDice = trim($auxiliaryDice);
+//        // update $auxiliaryDice based on player choices
+//        $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
+//
+//        //james: current default is to accept all auxiliary dice
+//
+//        // update all button recipes and remove auxiliary markers
+//        if (!empty($auxiliaryDice)) {
+//            foreach ($this->buttonArray as $tempButton) {
+//                $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
+//                $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
+//            }
+//        }
+    }
+
+    protected function update_game_state_choose_auxiliary_dice() {
+        $hasAuxiliaryDice = FALSE;
+//        foreach ($this->buttonArray as $tempButton) {
+//            if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
+//                $hasAuxiliaryDice = TRUE;
+//                break;
+//            }
+//        }
+        if (!$hasAuxiliaryDice) {
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
     }
