@@ -306,7 +306,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # FIGHTBALL (Cheapass Games) NOTE: special die selection rules - choose 5 dice out of all available (not implemented)
 # ASSUMED ALL TO BE TL
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+#INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 #('Brie',      '(4) (6) (8) (10) (12) (12) (20)',       0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
 #('Domino',    '(4) (4) (8) (8) (8) (10) (12)',         0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
 #('Echo(p)',   '(4) (6) (6) (6) (12) (12) (12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
