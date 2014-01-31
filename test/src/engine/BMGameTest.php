@@ -38,47 +38,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::do_next_step_choose_auxiliary_dice
-     */
-    public function test_do_next_step_choose_auxiliary_dice() {
-        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-        $button1 = new BMButton;
-        $button2 = new BMButton;
-        $recipe1 = '(4) (8) (12) (30)';
-        $recipe2 = '(6) (12) (20) (20)';
-        $button1->load($recipe1);
-        $button2->load($recipe2);
-        $this->object->buttonArray = array($button1, $button2);
-        $this->object->do_next_step();
-        $this->assertEquals($recipe1, $this->object->buttonArray[0]->recipe);
-        $this->assertEquals($recipe2, $this->object->buttonArray[1]->recipe);
-
-//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-//        $button1 = new BMButton;
-//        $button2 = new BMButton;
-//        $recipe1 = '(4) (8) (12) +(30)';
-//        $recipe2 = '(6) (12) (20) (20)';
-//        $button1->load($recipe1);
-//        $button2->load($recipe2);
-//        $this->object->buttonArray = array($button1, $button2);
-//        $this->object->do_next_step();
-//        $this->assertEquals('(4) (8) (12) (30)', $this->object->buttonArray[0]->recipe);
-//        $this->assertEquals('(6) (12) (20) (20) (30)', $this->object->buttonArray[1]->recipe);
-//
-//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-//        $button1 = new BMButton;
-//        $button2 = new BMButton;
-//        $recipe1 = '(4) (8) (12) +(30)';
-//        $recipe2 = '(6)+ (12) (20) (20)';
-//        $button1->load($recipe1);
-//        $button2->load($recipe2);
-//        $this->object->buttonArray = array($button1, $button2);
-//        $this->object->do_next_step();
-//        $this->assertEquals('(4) (8) (12) (30) (6)', $this->object->buttonArray[0]->recipe);
-//        $this->assertEquals('(12) (20) (20) (30) (6)', $this->object->buttonArray[1]->recipe);
-    }
-
-    /**
      * @covers BMGame::do_next_step_load_dice_into_buttons
      */
     public function test_do_next_step_load_dice_into_buttons() {
@@ -131,6 +90,47 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array($dieArray1, $dieArray2),
                             $this->object->activeDieArrayArray);
         $this->assertNull($this->object->activeDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * @covers BMGame::do_next_step_choose_auxiliary_dice
+     */
+    public function test_do_next_step_choose_auxiliary_dice() {
+        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) (12) (30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load($recipe1);
+        $button2->load($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+        $this->assertEquals($recipe1, $this->object->buttonArray[0]->recipe);
+        $this->assertEquals($recipe2, $this->object->buttonArray[1]->recipe);
+
+//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+//        $button1 = new BMButton;
+//        $button2 = new BMButton;
+//        $recipe1 = '(4) (8) (12) +(30)';
+//        $recipe2 = '(6) (12) (20) (20)';
+//        $button1->load($recipe1);
+//        $button2->load($recipe2);
+//        $this->object->buttonArray = array($button1, $button2);
+//        $this->object->do_next_step();
+//        $this->assertEquals('(4) (8) (12) (30)', $this->object->buttonArray[0]->recipe);
+//        $this->assertEquals('(6) (12) (20) (20) (30)', $this->object->buttonArray[1]->recipe);
+//
+//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+//        $button1 = new BMButton;
+//        $button2 = new BMButton;
+//        $recipe1 = '(4) (8) (12) +(30)';
+//        $recipe2 = '(6)+ (12) (20) (20)';
+//        $button1->load($recipe1);
+//        $button2->load($recipe2);
+//        $this->object->buttonArray = array($button1, $button2);
+//        $this->object->do_next_step();
+//        $this->assertEquals('(4) (8) (12) (30) (6)', $this->object->buttonArray[0]->recipe);
+//        $this->assertEquals('(12) (20) (20) (30) (6)', $this->object->buttonArray[1]->recipe);
     }
 
     /**
@@ -1144,39 +1144,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state_choose_auxiliary_dice
-     */
-    public function test_update_game_state_choose_auxiliary_dice() {
-        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-        $button1 = new BMButton;
-        $button1->recipe = '(4) (8) (12) (20)';
-        if (isset($button1->dieArray)) {
-            unset($button1->dieArray);
-        }
-        $button2 = new BMButton;
-        $button2->recipe = '(4) (4) (4) (20)';
-        if (isset($button2->dieArray)) {
-            unset($button2->dieArray);
-        }
-
-        $this->object->buttonArray = array($button1, $button2);
-        $this->object->update_game_state();
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
-
-//        $button3 = new BMButton;
-//        $button3->recipe = '(4) (4) (8) +(20)';
-//        if (isset($button3->dieArray)) {
-//            unset($button3->dieArray);
-//        }
-//
-//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-//        $this->object->buttonArray = array($button1, $button3);
-//        $this->object->update_game_state();
-//        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE,
-//                            $this->object->gameState);
-    }
-
-    /**
      * @covers BMGame::update_game_state_load_dice_into_buttons
      */
     public function test_update_game_state_load_dice_into_buttons() {
@@ -1217,6 +1184,39 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                                    array($die3, $die4));
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::update_game_state_choose_auxiliary_dice
+     */
+    public function test_update_game_state_choose_auxiliary_dice() {
+        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+        $button1 = new BMButton;
+        $button1->recipe = '(4) (8) (12) (20)';
+        if (isset($button1->dieArray)) {
+            unset($button1->dieArray);
+        }
+        $button2 = new BMButton;
+        $button2->recipe = '(4) (4) (4) (20)';
+        if (isset($button2->dieArray)) {
+            unset($button2->dieArray);
+        }
+
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+
+//        $button3 = new BMButton;
+//        $button3->recipe = '(4) (4) (8) +(20)';
+//        if (isset($button3->dieArray)) {
+//            unset($button3->dieArray);
+//        }
+//
+//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+//        $this->object->buttonArray = array($button1, $button3);
+//        $this->object->update_game_state();
+//        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE,
+//                            $this->object->gameState);
     }
 
     /**
