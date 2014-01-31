@@ -50,7 +50,7 @@ INSERT INTO buttonset (name) VALUES
 ('Space Girlz'),
 ('Bridge and Tunnel'),
 ('2005 Rare Promo'),
-#
+# fan sets, vanity sets, sets made for the old site (?)
 ('Geekz'),
 ('Iron Chef'),
 ('7 deadly sins'),
@@ -59,6 +59,22 @@ INSERT INTO buttonset (name) VALUES
 ('Free Radicals'),
 ('Hodge Podge'),
 ('Victorian Horror'),
+
+# official (?) ButtonMen sets not on old site
+('Everything to Gain'),
+('Gaming Guardians'),
+('Fightball'),
+('Nodwick'),
+('High School Drama!'),
+('Unexploded Cow'),
+# unofficial (?) ButtonMen sets not on old site
+#('Japanese Beetle (unofficial)'),
+#('Blademasters'),
+#('Blademasters: The Second Shot'),
+#('Blademasters 3'),
+#('Order of the Dolls'),
+#('50 States'),
+
 #
 ('Classic Fanatics');
 
@@ -254,6 +270,12 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Ken',         '(8) (10) z(12) (20) (V)',       0, 1, (SELECT id FROM buttonset WHERE name="Dork Victory")),
 ('Matt',        'z(8) (10) (10) z(10) (V)?',     0, 1, (SELECT id FROM buttonset WHERE name="Dork Victory"));
 
+# EVERYTHING TO GAIN (2001 Seattle Kotei) introduces Thief Dice; poison(p); shadow(s); speed(z)
+# ASSUMED NOT TL
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Kolat',        '(20) $(10) (8) (6) ps(4)',         0, 0, (SELECT id FROM buttonset WHERE name="Everything to Gain")),
+('Ninja',        '$(12) (10) (6) z(4) (1)',          0, 0, (SELECT id FROM buttonset WHERE name="Everything to Gain"));
+
 # FAIRIES (Cool Tuna)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Sven's recipe had a slight error on the old site - Little Sven is added to keep the old site recipe
@@ -281,12 +303,49 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Nightmare',   '(4) (8) (10) (20) (20)',             1, 1, (SELECT id FROM buttonset WHERE name="Fantasy"));
 # ('Dead Guy',    '(0) (0) (0) (0) (0)',                0, 0, (SELECT id FROM buttonset WHERE name="Fantasy")),
 
+# FIGHTBALL (Cheapass Games) NOTE: special die selection rules - choose 5 dice out of all available (not implemented)
+# ASSUMED ALL TO BE TL
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+#('Brie',      '(4) (6) (8) (10) (12) (12) (20)',       0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Domino',    '(4) (4) (8) (8) (8) (10) (12)',         0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Echo(p)',   '(4) (6) (6) (6) (12) (12) (12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Georgia',   '(6) (6) (8) (8) (12) (20) (20)',        0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Gordo(p)',  '(4) (6) (6) (8) (8) (10) (20)',         0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Mel',       '(4) (4) (8) (10) (10) (20) (20)',       0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Pavel',     '(6) (10) (10) (12) (12) (20) (20)',     0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Rocq',      '(6) (10) (10) (12) (20) (20) (20)',     0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Skinny',    '(4) (4) (4) (6) (8) (8) (10)',          0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+#('Tex',       '(4) (4) (6) (8) (10) (10) (12) (12)',   0, 1, (SELECT id FROM buttonset WHERE name="Fightball"));
+
 # FREAKS (Cheapass Games)              INTRODUCES Queer(q) dice; Poison(p); Shadow(s); Speed(z)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Max',  'p(12) p(12) p(20) p(20) p(30) p(30) p(X) p(X)',  0, 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Mister Peach','(6) z(8,8) ps(12,12) (V,V)!',    0, 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Simon',       'q(4) q(6) q(12) q(20) q(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Werner',      '(8) (10) (10) (12) pzs(V)!',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks"));
+
+# GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded(M), Evil(E)
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Dream Wyrm',      'T(8) (20) (20) (20,8) (U)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('EDG',             'I(6) I(8) I(10) 20 (X)',                     0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Randarch',        'M(6) M(6) (10) (10) (X)',                    0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Scarlet Jester',  'n(4) E(10) n(12) E(20) E(20)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Shane Hensley',   'E(6) E(6) E(6) E(6) E(6) E(6)',              0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians"));
+
+# HIGH SCHOOL DRAMA!  (Shifting Skies)     INTRODUCES Sideboard(S) dice
+# ASSUMED ALL TO BE TL
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('cheerleader',    '(4) (4) (6) (8) (12) S(10)',      0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('dumb blonde',    '(6) (6) (8) (10) (12) S(20)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('meathead',       '(8) (10) (12) (20) (20) S(6)',    0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('tennis star',    '(4) (6) (10) (12) (20) S(8)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('1337 h4Xx0r',    '(4) (4) (12) (12) (20) S(6)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('game master',    '(8) (8) (10) (12) (20) S(20)',    0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('emo boy',        '(4) (8) (8) (10) (20) S(12)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('goth chick',     '(6) (6) (6) (10) (20) S(4)',      0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!"));
 
 # The Japanese Beetle! (The Japanese Beetle)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -416,6 +475,15 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Spencer',   '(8) (8) (12) m(20) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Metamorphers")),
 ('Talus',     '(4) m(12) (20) (20) (X)',     0, 1, (SELECT id FROM buttonset WHERE name="Metamorphers"));
 
+# NODWICK (4th Blade)                     INTRODUCES Armor(A) dice 
+# ASSUMED ALL TO BE NON-TL
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Artax',            'A(4) (8) (8) (12) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Nodwick")),
+('Count Repugsive',  'A(4) A(4) (10) (10) s(12)',    0, 0, (SELECT id FROM buttonset WHERE name="Nodwick")),
+('Nodwick',          '(4) (4) (10) (10) A(W)',       0, 0, (SELECT id FROM buttonset WHERE name="Nodwick")),
+('Piffany',          'A(6) A(6) (6) (8) (W)',        0, 0, (SELECT id FROM buttonset WHERE name="Nodwick")),
+('Yeagar',           'A(6) (10) (20) (20) (X)',      0, 0, (SELECT id FROM buttonset WHERE name="Nodwick"));
+
 # POLYCON (Polycon)                   INTRODUCES Fire(F)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Poly',        '(4) (6) F(8) (20) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Polycon")),
@@ -522,6 +590,18 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # SYDCON 10 (SydCon)               INTRODUCES Rage(G)    (2001 Rare / Promo on old site)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Gripen',     '(4) (6) (8) G(12) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="SydCon 10"));
+
+# UNEXPLODED COW (Cheapass Games)   INTRODUCES Boom(b) Dice AND Mad Swing(&) Dice
+# ASSUMED ALL TO BE TL
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('George',     '(4) (6) b(6) b(20) (&)',       0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Violette',   '(8) (8)  b(10) b(12) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Elsie',      '(4) b(4) (10) b(12) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Kasper',     '(6) b(8) (12) b(20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Montague',   'b(4) b(10) (12) (20) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Neville',    ' b(4) (8) b(8) (20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Thaddeus',   '(10) (14) (14) (18) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Buckley',    '(4) (4) (18) (X) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow"));
 
 # WONDERLAND                                        SKILLS Null; Option; Poison; Queer; Stinger; Turbo; Twin
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
