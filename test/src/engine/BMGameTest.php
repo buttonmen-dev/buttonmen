@@ -1190,33 +1190,31 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::update_game_state_choose_auxiliary_dice
      */
     public function test_update_game_state_choose_auxiliary_dice() {
-        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-        $button1 = new BMButton;
-        $button1->recipe = '(4) (8) (12) (20)';
-        if (isset($button1->dieArray)) {
-            unset($button1->dieArray);
-        }
-        $button2 = new BMButton;
-        $button2->recipe = '(4) (4) (4) (20)';
-        if (isset($button2->dieArray)) {
-            unset($button2->dieArray);
-        }
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('(8)');
 
-        $this->object->buttonArray = array($button1, $button2);
+        $die3 = BMDie::create_from_recipe('(10)');
+        $die4 = BMDie::create_from_recipe('(20)');
+
+        $die5 = BMDie::create_from_recipe('+(20)');
+
+        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
 
-//        $button3 = new BMButton;
-//        $button3->recipe = '(4) (4) (8) +(20)';
-//        if (isset($button3->dieArray)) {
-//            unset($button3->dieArray);
-//        }
-//
-//        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-//        $this->object->buttonArray = array($button1, $button3);
-//        $this->object->update_game_state();
-//        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE,
-//                            $this->object->gameState);
+        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die5), array($die3, $die4));
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $this->object->gameState);
+
+        $this->object->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die5));
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $this->object->gameState);
     }
 
     /**

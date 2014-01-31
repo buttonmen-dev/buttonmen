@@ -275,12 +275,15 @@ class BMGame {
 
     protected function update_game_state_choose_auxiliary_dice() {
         $hasAuxiliaryDice = FALSE;
-//        foreach ($this->buttonArray as $tempButton) {
-//            if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-//                $hasAuxiliaryDice = TRUE;
-//                break;
-//            }
-//        }
+
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                if ($die->has_skill('Auxiliary')) {
+                    $hasAuxiliaryDice = TRUE;
+                    break 2;
+                }
+            }
+        }
         if (!$hasAuxiliaryDice) {
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
