@@ -291,19 +291,36 @@ class BMGame {
     }
 
     protected function update_game_state_choose_auxiliary_dice() {
-        $hasAuxiliaryDice = FALSE;
-
-        foreach ($this->activeDieArrayArray as $activeDieArray) {
-            foreach ($activeDieArray as $die) {
-                if ($die->has_skill('Auxiliary')) {
-                    $hasAuxiliaryDice = TRUE;
-                    break 2;
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+                $areAuxDiceRemoved = FALSE;
+                foreach ($activeDieArray as $dieIdx => &$die) {
+                    if ($die->has_skill('Auxiliary')) {
+                        $areAuxDiceRemoved = TRUE;
+                        unset($activeDieArray[$dieIdx]);
+                    }
+                }
+                if ($areAuxDiceRemoved) {
+                    $this->activeDieArrayArray[$playerIdx] = array_values($activeDieArray);
                 }
             }
-        }
-        if (!$hasAuxiliaryDice) {
+
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
+
+//        $hasAuxiliaryDice = FALSE;
+//
+//        foreach ($this->activeDieArrayArray as $activeDieArray) {
+//            foreach ($activeDieArray as $die) {
+//                if ($die->has_skill('Auxiliary')) {
+//                    $hasAuxiliaryDice = TRUE;
+//                    break 2;
+//                }
+//            }
+//        }
+//        if (!$hasAuxiliaryDice) {
+//            $this->gameState = BMGameState::SPECIFY_DICE;
+//        }
     }
 
     protected function do_next_step_specify_dice() {
