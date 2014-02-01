@@ -84,7 +84,7 @@ asyncTest("test_Game.redrawGamePageFailure", function() {
   Game.redrawGamePageFailure();
   var item = document.getElementById('game_page');
   equal(item.nodeName, "DIV",
-        "#game_page is a div after redrawGamePageSuccess() is called");
+        "#game_page is a div after redrawGamePageFailure() is called");
   equal(Game.activity.chat, "Some chat text",
         "Game.activity.chat is retained by redrawGamePageSuccess()");
   start();
