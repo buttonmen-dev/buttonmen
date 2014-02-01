@@ -1234,6 +1234,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
+     * @covers BMGame::remove_auxiliary_dice
      */
     public function test_update_game_state_choose_auxiliary_dice() {
         $die1 = BMDie::create_from_recipe('(4)');
