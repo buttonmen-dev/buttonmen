@@ -104,6 +104,26 @@ class BMButton {
         }
     }
 
+    public function update_button_recipe() {
+        $recipe = '';
+
+        $playerIdx = array_search($this, $this->ownerObject->buttonArray);
+        if (FALSE === $playerIdx) {
+            return;
+        }
+
+        foreach ($this->ownerObject->activeDieArrayArray[$playerIdx] as $die) {
+            $recipe .= ' ' . $die->recipe;
+        }
+
+        $recipe = ltrim($recipe);
+
+        if ($this->recipe != $recipe) {
+            $this->recipe = $recipe;
+            $this->hasAlteredRecipe = TRUE;
+        }
+    }
+
     // utility methods
     // to allow array elements to be set directly, change the __get to &__get
     // to return the result by reference

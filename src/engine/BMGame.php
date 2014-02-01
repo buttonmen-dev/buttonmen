@@ -298,7 +298,7 @@ class BMGame {
             // update button recipes
             foreach ($areAnyDiceChanged as $playerIdx => $changed) {
                 if ($changed) {
-
+                    $this->buttonArray[$playerIdx]->update_button_recipe();
                 }
             }
 
