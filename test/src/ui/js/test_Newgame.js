@@ -18,6 +18,7 @@ module("Newgame", {
     delete Api.player;
     delete Newgame.page;
     delete Newgame.form;
+    Newgame.activity = {};
 
     // Page elements
     $('#newgame_page').remove();
@@ -161,6 +162,29 @@ asyncTest("test_Newgame.actionCreateGame", function() {
   });     
 });
 
+asyncTest("test_Newgame.actionCreateGame_prevvals", function() {
+  Newgame.activity = {
+    'opponentName': 'tester2',
+    'playerButton': 'Avis',
+    'opponentButton': 'Crab',
+    'nRounds': '4',
+  };
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    equal(Newgame.form, Newgame.formCreateGame,
+          "Form is set after the 'create game' action is processed");
+    equal($('#opponent_name').val(), 'tester2',
+          "Opponent name is retained from previous page activity");
+    equal($('#player_button').val(), 'Avis',
+          "Player button is retained from previous page activity");
+    equal($('#opponent_button').val(), 'Crab',
+          "Opponent button is retained from previous page activity");
+    equal($('#n_rounds').val(), '4',
+          "Number of rounds is retained from previous page activity");
+    start();
+  });     
+});
+
 // The logic here is a little hairy: since Newgame.getNewgameData()
 // takes a callback, we can use the normal asynchronous logic there.
 // However, the POST done by our forms doesn't take a callback (it
@@ -251,19 +275,16 @@ asyncTest("test_Newgame.formCreateGame_invalid_player", function() {
   });
 });
 
-asyncTest("test_Newgame.addLoggedOutPage", function() {
+test("test_Newgame.addLoggedOutPage", function() {
   ok(true, "INCOMPLETE: Test of Newgame.addLoggedOutPage not implemented");
-  start();
 });
 
-asyncTest("test_Newgame.addInternalErrorPage", function() {
+test("test_Newgame.addInternalErrorPage", function() {
   ok(true, "INCOMPLETE: Test of Newgame.addInternalErrorPage not implemented");
-  start();
 });
 
-asyncTest("test_Newgame.getSelectRow", function() {
+test("test_Newgame.getSelectRow", function() {
   ok(true, "INCOMPLETE: Test of Newgame.getSelectRow not implemented");
-  start();
 });
 
 test("test_Newgame.setCreateGameSuccessMessage", function() {
