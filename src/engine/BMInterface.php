@@ -1,8 +1,5 @@
 <?php
 
-require_once 'BMButton.php';
-require_once 'BMGame.php';
-
 /**
  * BMInterface: interface between GUI and BMGame
  *
