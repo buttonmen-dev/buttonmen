@@ -1,5 +1,7 @@
 // namespace for this "module"
-var Newgame = {};
+var Newgame = {
+  'activity': {},
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -31,32 +33,27 @@ Newgame.showNewgamePage = function() {
     $('body').append($('<div>', {'id': 'newgame_page', }));
   }
 
-  if (Login.logged_in === false) {
+  // Get all needed information, then display newgame page
+  Newgame.getNewgameData(Newgame.showPage);
+
+};
+
+Newgame.getNewgameData = function(callback) {
+  if (Login.logged_in) {
+
+    Api.getButtonData(function() {
+      Api.getPlayerData(callback);
+    });
+  } else {
 
     // The player needs to be logged in for anything good to happen here
     Newgame.actionLoggedOut();
-  } else {
-
-    // Ask the API for information about buttons, then continue page layout
-    Api.getButtonData(Newgame.showNewgamePageLoadedButtons);
   }
-};
-
-// This function is called after Api.button has been loaded with new data
-Newgame.showNewgamePageLoadedButtons = function() {
-  if (Api.button.load_status == 'ok') {
-
-    // Ask the API for information about players, then continue page layout
-    return Api.getPlayerData(Newgame.showNewgamePageLoadedPlayers);
-  }
-
-  // Something went wrong - show an error and layout the page now
-  Newgame.actionInternalErrorPage();
 };
 
 // This function is called after Api.player has been loaded with new data
-Newgame.showNewgamePageLoadedPlayers = function() {
-  if (Api.player.load_status == 'ok') {
+Newgame.showPage = function() {
+  if ((Api.button.load_status == 'ok') && (Api.player.load_status == 'ok')) {
     Newgame.actionCreateGame();
   } else {
     Newgame.actionInternalErrorPage();
@@ -143,9 +140,12 @@ Newgame.actionCreateGame = function() {
       playerNames[playerName] = playerName;
     }
   }
+  if (!('opponentName' in Newgame.activity)) {
+    Newgame.activity.opponentName = null;
+  }
   createtable.append(
     Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
-                         null, null));
+                         null, Newgame.activity.opponentName));
 
   // Load buttons and recipes into a dict for use in selects
   var buttonRecipe = {};
@@ -161,21 +161,32 @@ Newgame.actionCreateGame = function() {
   });
 
   // Player button selection
+  if (!('playerButton' in Newgame.activity)) {
+    Newgame.activity.playerButton = null;
+  }
   createtable.append(
-    Newgame.getSelectRow('Your button', 'player_button', buttonRecipe,
-                         buttonGreyed, null));
+    Newgame.getSelectRow(
+      'Your button', 'player_button', buttonRecipe,
+      buttonGreyed, Newgame.activity.playerButton));
 
   // Opponent button selection
+  if (!('opponentButton' in Newgame.activity)) {
+    Newgame.activity.opponentButton = null;
+  }
   createtable.append(
-    Newgame.getSelectRow('Opponent\'s button', 'opponent_button',
-                         buttonRecipe, buttonGreyed, null));
+    Newgame.getSelectRow(
+      'Opponent\'s button', 'opponent_button', buttonRecipe,
+      buttonGreyed, Newgame.activity.opponentButton));
 
   // Round selection
+  if (!('nRounds' in Newgame.activity)) {
+    Newgame.activity.nRounds = '3';
+  }
   createtable.append(
     Newgame.getSelectRow('Winner is first player to win', 'n_rounds',
       {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
        '4': '4 rounds', '5': '5 rounds', },
-      null, '3'));
+      null, Newgame.activity.nRounds));
 
   // Form submission button
   createform.append(createtable);
@@ -208,40 +219,51 @@ Newgame.actionCreateGame = function() {
 // These functions define form submissions, one per action type
 
 Newgame.formCreateGame = function() {
-  var playerNameArray = [];
-  playerNameArray.push(Login.player);
 
-  var opponentName = $('#opponent_name').val();
-  var buttonNameArray = [
-    $('#player_button').val(),
-    $('#opponent_button').val(),
-  ];
+  Newgame.activity.opponentName = $('#opponent_name').val();
+  Newgame.activity.playerButton = $('#player_button').val();
+  Newgame.activity.opponentButton = $('#opponent_button').val();
 
-  if ((!opponentName) || (!buttonNameArray[0]) || (!buttonNameArray[1])) {
+  if ((!Newgame.activity.opponentName) ||
+      (!Newgame.activity.playerButton) ||
+      (!Newgame.activity.opponentButton)) {
     Env.message = {
       'type': 'error',
       'text':
         'Please select an opponent, your button, and your opponent\'s button',
     };
     Newgame.showNewgamePage();
-  } else if (!(opponentName in Api.player.list)) {
+  } else if (!(Newgame.activity.opponentName in Api.player.list)) {
     Env.message = {
       'type': 'error',
-      'text': 'Specified opponent ' + opponentName + ' is not recognized',
+      'text': 'Specified opponent ' + Newgame.activity.opponentName +
+              ' is not recognized',
     };
     Newgame.showNewgamePage();
 
   } else {
-    playerNameArray.push(opponentName);
+    var playerNameArray = [
+      Login.player,
+      Newgame.activity.opponentName,
+    ];
+    var buttonNameArray = [
+      Newgame.activity.playerButton,
+      Newgame.activity.opponentButton,
+    ];
 
-    var maxWins = $('#n_rounds').val();
+    Newgame.activity.nRounds = $('#n_rounds').val();
 
+    // N.B. Newgame.activity is always retained between loads: on
+    // failure so the player can correct selections, on success in
+    // case the player wants to create another similar game.
+    // Therefore, it's fine to pass the form post the same function
+    // (showNewgamePage) for both success and failure conditions.
     Api.apiFormPost(
       {
         type: 'createGame',
         playerNameArray: playerNameArray,
         buttonNameArray: buttonNameArray,
-        maxWins: maxWins,
+        maxWins: Newgame.activity.nRounds,
       },
       { 'ok':
         {

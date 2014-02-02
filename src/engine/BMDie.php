@@ -1,7 +1,5 @@
 <?php
 
-require_once('BMSkill.php');
-
 /*
  * BMDie: the fundamental unit of game mechanics
  *
