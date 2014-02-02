@@ -345,6 +345,7 @@ class DummyApiResponder {
             "playerWithInitiativeIdx" => NULL,
             "playerIdArray" => array(1, 2),
             "buttonNameArray" => array("Avis", "Avis"),
+            "buttonRecipeArray" => array("(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"),
             "waitingOnActionArray" => array(TRUE, TRUE),
             "nDieArray" => array(5, 5),
             "valueArrayArray" => array(array(NULL,NULL,NULL,NULL,NULL),
@@ -391,6 +392,7 @@ class DummyApiResponder {
         $gameDataJohnKovalic['gameState'] = "REACT_TO_INITIATIVE";
         $gameDataJohnKovalic['playerWithInitiativeIdx'] = 1;
         $gameDataJohnKovalic['buttonNameArray'] = array("John Kovalic", "John Kovalic");
+        $gameDataJohnKovalic['buttonRecipeArray'] = array("(6) c(6) (10) (12) c(20)", "(6) c(6) (10) (12) c(20)");
         $gameDataJohnKovalic['waitingOnActionArray'] = array(TRUE, FALSE);
         $gameDataJohnKovalic['valueArrayArray'] = array(array(4, 3, 6, 5, 4), array(2, 4, 2, 3, 18));
         $gameDataJohnKovalic['sidesArrayArray'] = array(array(6, 6, 10, 12, 20), array(6, 6, 10, 12, 20));
@@ -590,6 +592,7 @@ class DummyApiResponder {
             $gameData['gameId'] = 6;
             $gameData['gameState'] = "SPECIFY_DICE";
             $gameData['buttonNameArray'] = array("Buck Godot", "Von Pinn");
+            $gameData['buttonRecipeArray'] = array("(6,6) (10) (12) (20) (W,W)", "(4) p(6,6) (10) (20) (W)");
             $gameData['sidesArrayArray'] = array(array(12,10,12,20,NULL),
                                                  array(NULL,NULL,NULL,NULL,NULL));
             $gameData['dieRecipeArrayArray'] = array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
@@ -627,6 +630,7 @@ class DummyApiResponder {
             $gameData['gameState'] = "REACT_TO_INITIATIVE";
             $gameData['playerWithInitiativeIdx'] = 1;
             $gameData['buttonNameArray'] = array("Crab", "Crab");
+            $gameData['buttonRecipeArray'] = array("(8) (10) (12) f(20) f(20)", "(8) (10) (12) f(20) f(20)");
             $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
             $gameData['valueArrayArray'] = array(array(1, 8, 10, 6, 18),
                                                  array(4, 7, 5, 1, 12));
