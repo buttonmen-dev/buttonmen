@@ -1202,7 +1202,7 @@ class BMInterface {
                 $roundNumber,
                 $playerId
             )) {
-                $this->message = 'You cannot make an auxiliary decision at the moment';
+                $this->message = 'You cannot make an auxiliary choice at the moment';
                 return FALSE;
             }
 
@@ -1214,7 +1214,7 @@ class BMInterface {
             }
 
             if (!$game->waitingOnActionArray[$playerIdx]) {
-                $this->message = 'You have already made your auxiliary decision';
+                $this->message = 'You have already made your auxiliary choice';
                 return FALSE;
             }
 
