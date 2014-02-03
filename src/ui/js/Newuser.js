@@ -143,7 +143,14 @@ Newuser.actionCreateUser = function() {
 Newuser.formCreateUser = function() {
   var username = $('#newuser_username').val();
 
-  if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
+  if (username.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to set a username',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
@@ -156,7 +163,7 @@ Newuser.formCreateUser = function() {
     if (password.length === 0) {
       Env.message = {
         'type': 'error',
-        'text': 'Password may not be null',
+        'text': 'You need to set a password',
       };
       Newuser.showNewuserPage();
     } else if (password != password_confirm) {
