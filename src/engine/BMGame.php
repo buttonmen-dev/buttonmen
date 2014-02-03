@@ -278,7 +278,7 @@ class BMGame {
     protected function get_all_auxiliary_dice() {
         $auxiliaryDice = array();
 
-        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
             foreach ($activeDieArray as $die) {
                 if ($die->has_skill('Auxiliary')) {
                     $auxiliaryDice[] = $die;

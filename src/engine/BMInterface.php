@@ -1173,6 +1173,85 @@ class BMInterface {
         }
     }
 
+    // react_to_auxiliary expects the following inputs:
+    //
+    //   $action:
+    //       One of {'add', 'decline'}.
+    //
+    //   $dieIdx:
+    //       (i)  If this is an 'add' action, then this is the die index of the
+    //            die to be added.
+    //       (ii) If this is a 'decline' action, then this will be ignored.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function react_to_auxiliary(
+        $playerId,
+        $gameNumber,
+        $action,
+        $dieIdx = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameNumber);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_AUXILIARY_DICE,
+                'ignore',
+                $roundNumber,
+                $playerId
+            )) {
+                $this->message = 'You cannot make an auxiliary decision at the moment';
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            if (FALSE === $playerIdx) {
+                $this->message = 'You are not a participant in this game';
+                return FALSE;
+            }
+
+            if (!$game->waitingOnActionArray[$playerIdx]) {
+                $this->message = 'You have already made your auxiliary decision';
+                return FALSE;
+            }
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'add':
+                    if (!is_int($dieIdx) ||
+                        !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
+                        $this->message = 'Invalid auxiliary choice';
+                        return;
+                    }
+                    $game->activeDieArrayArray[$playerIdx][$dieIdx]->remove_skill('Auxiliary');
+                    break;
+                case 'decline':
+                    break;
+                default:
+                    $this->message = 'Invalid response to auxiliary choice.';
+                    return FALSE;
+            }
+
+            $game->waitingOnActionArray[$playerIdx] = FALSE;
+            $this->save_game($game);
+            $this->message = 'Successful auxiliary choice';
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::react_to_auxiliary: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while making auxiliary decision';
+            return FALSE;
+        }
+    }
+
     // react_to_initiative expects the following inputs:
     //
     //   $action:
