@@ -573,7 +573,9 @@ class BMInterface {
                     foreach ($activeDieArray as $dieIdx => $activeDie) {
                         // james: set status, this is currently INCOMPLETE
                         $status = 'NORMAL';
-                        if ($activeDie->disabled) {
+                        if ($activeDie->selected) {
+                            $status = 'SELECTED';
+                        } elseif ($activeDie->disabled) {
                             $status = 'DISABLED';
                         }
 
@@ -1228,7 +1230,7 @@ class BMInterface {
                         $this->message = 'Invalid auxiliary choice';
                         return;
                     }
-                    $game->activeDieArrayArray[$playerIdx][$dieIdx]->remove_skill('Auxiliary');
+                    $game->activeDieArrayArray[$playerIdx][$dieIdx]->selected  = TRUE;
                     break;
                 case 'decline':
                     break;
