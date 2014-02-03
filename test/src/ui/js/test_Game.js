@@ -244,6 +244,10 @@ asyncTest("test_Game.actionChooseSwingActive", function() {
           "#swing_table is a table after actionChooseSwingActive() is called");
     ok(item.innerHTML.match(/X: \(4-20\)/),
        "swing table should contain request to set X swing");
+
+    var item = document.getElementById('opponent_swing');
+    equal(item.nodeName, "TABLE",
+          "#opponent_swing is a table after actionChooseSwingActive() is called");
     start();
   });
 });
