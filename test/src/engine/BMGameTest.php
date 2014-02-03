@@ -76,15 +76,81 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // synchronise values
         $dieArray1 = array();
-        foreach ($this->object->activeDieArrayArray[0] as $dieIdx => $die) {
-            $tempDie = clone $button1->dieArray[$dieIdx];
-            $dieArray1[] = clone $tempDie;
+        foreach ($button1->dieArray as $die) {
+            $dieArray1[] = clone $die;
         }
 
         $dieArray2 = array();
-        foreach ($this->object->activeDieArrayArray[1] as $dieIdx => $die) {
-            $tempDie = clone $button2->dieArray[$dieIdx];
-            $dieArray2[] = clone $tempDie;
+        foreach ($button2->dieArray as $die) {
+            $dieArray2[] = clone $die;
+        }
+
+        $this->assertEquals(array($dieArray1, $dieArray2),
+                            $this->object->activeDieArrayArray);
+        $this->assertNull($this->object->activeDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * @covers BMGame::do_next_step_add_available_dice_to_game
+     * @covers BMGame::offer_courtesy_auxiliary_dice
+     * @covers BMGame::do_players_have_auxiliary_dice
+     * @covers BMGame::get_all_auxiliary_dice
+     */
+    public function test_do_next_step_add_available_dice_to_game_one_aux() {
+        $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) +(6) (12) +(30)';
+        $recipe2 = '(6) (12) (20) (20)';
+        $button1->load($recipe1);
+        $button2->load($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+
+        // synchronise values
+        $dieArray1 = array();
+        foreach ($button1->dieArray as $die) {
+            $dieArray1[] = clone $die;
+        }
+
+        $dieArray2 = array();
+        foreach ($button2->dieArray as $die) {
+            $dieArray2[] = clone $die;
+        }
+        $dieArray2[] = clone $button1->dieArray[2];
+        $dieArray2[] = clone $button1->dieArray[4];
+
+        $this->assertEquals(array($dieArray1, $dieArray2),
+                            $this->object->activeDieArrayArray);
+        $this->assertNull($this->object->activeDieArrayArray[0][0]->value);
+    }
+
+    /**
+     * @covers BMGame::do_next_step_add_available_dice_to_game
+     * @covers BMGame::offer_courtesy_auxiliary_dice
+     * @covers BMGame::do_players_have_auxiliary_dice
+     * @covers BMGame::get_all_auxiliary_dice
+     */
+    public function test_do_next_step_add_available_dice_to_game_both_aux() {
+        $this->object->gameState = BMGameState::ADD_AVAILABLE_DICE_TO_GAME;
+        $button1 = new BMButton;
+        $button2 = new BMButton;
+        $recipe1 = '(4) (8) +(6) (12) +(30)';
+        $recipe2 = '(6) +(12) (20) (20)';
+        $button1->load($recipe1);
+        $button2->load($recipe2);
+        $this->object->buttonArray = array($button1, $button2);
+        $this->object->do_next_step();
+
+        // synchronise values
+        $dieArray1 = array();
+        foreach ($button1->dieArray as $die) {
+            $dieArray1[] = clone $die;
+        }
+
+        $dieArray2 = array();
+        foreach ($button2->dieArray as $die) {
+            $dieArray2[] = clone $die;
         }
 
         $this->assertEquals(array($dieArray1, $dieArray2),
