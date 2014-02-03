@@ -55,6 +55,10 @@ td.chatopponent {
     background-color: #00ff00;
 }
 
+td.chooseswing {
+    vertical-align: top;
+}
+
 td.button_player {
     vertical-align: top;
 }

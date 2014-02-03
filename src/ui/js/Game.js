@@ -215,7 +215,7 @@ Game.actionChooseSwingActive = function() {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var swingtable = $('<table>', {'id': 'swing_table', });
+  var swingtable = $('<table>', { 'id': 'swing_table', });
   $.each(
     Api.game.player.swingRequestArray,
     function(letter, range) {
@@ -240,12 +240,27 @@ Game.actionChooseSwingActive = function() {
     'text': 'Submit',
   }));
 
+  // If the opponent has any swing dice to set, make a table for those
+  var opponentswing = $('<table>', { 'id': 'opponent_swing', });
+  $.each(
+    Api.game.opponent.swingRequestArray,
+    function(letter, range) {
+      var swingrow = $('<tr>', {});
+      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      swingrow.append($('<td>', { 'text': swingtext, }));
+      opponentswing.append(swingrow);
+    });
+
   // Add the swing die form to the left column of the die table
-  var formtd = $('<td>', {});
+  var formtd = $('<td>', { 'class': 'chooseswing', });
   formtd.append($('<br>'));
   formtd.append(swingform);
+  var opponenttd = $('<td>', { 'class': 'chooseswing', });
+  opponenttd.append($('<br>'));
+  opponenttd.append(opponentswing);
   var formrow = $('<tr>', {});
   formrow.append(formtd);
+  formrow.append(opponenttd);
   formrow.append($('<td>', {}));
   dietable.append(formrow);
 
