@@ -1826,6 +1826,7 @@ class BMGame {
 
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
+            $buttonRecipeArray[] = $button->recipe;
         }
 
         $swingValsSpecified = TRUE;
@@ -1961,6 +1962,7 @@ class BMGame {
                   'playerWithInitiativeIdx'  => $this->playerWithInitiativeIdx,
                   'playerIdArray'            => $this->playerIdArray,
                   'buttonNameArray'          => $buttonNameArray,
+                  'buttonRecipeArray'        => $buttonRecipeArray,
                   'waitingOnActionArray'     => $this->waitingOnActionArray,
                   'nDieArray'                => $nDieArray,
                   'valueArrayArray'          => $valueArrayArray,

@@ -244,6 +244,10 @@ asyncTest("test_Game.actionChooseSwingActive", function() {
           "#swing_table is a table after actionChooseSwingActive() is called");
     ok(item.innerHTML.match(/X: \(4-20\)/),
        "swing table should contain request to set X swing");
+
+    var item = document.getElementById('opponent_swing');
+    equal(item.nodeName, "TABLE",
+          "#opponent_swing is a table after actionChooseSwingActive() is called");
     start();
   });
 });
@@ -498,7 +502,7 @@ asyncTest("test_Game.pageAddGameHeader", function() {
     var html = Game.page.html();
 
     ok(html.match(/Game #1/), "Game header should contain game number");
-    ok(html.match(/round_number/), "Game header should contain round number");
+    ok(html.match(/Round #1/), "Game header should contain round number");
     ok(html.match(/class="action_desc"/),
        "Action description class should be defined");
     ok(html.match(/Howdy, world/),
@@ -671,11 +675,11 @@ asyncTest("test_Game.pageAddDieBattleTable", function() {
   });
 });
 
-asyncTest("test_Game.pageAddGamePlayerStatus", function() {
+asyncTest("test_Game.gamePlayerStatus", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddGamePlayerStatus('player', false, true);
+    Game.page.append(Game.gamePlayerStatus('player', false, true));
     var htmlout = Game.page.html();
     ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
     ok(htmlout.match('Dice captured'),
@@ -686,11 +690,11 @@ asyncTest("test_Game.pageAddGamePlayerStatus", function() {
   });
 });
 
-asyncTest("test_Game.pageAddGamePlayerDice", function() {
+asyncTest("test_Game.gamePlayerDice", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddGamePlayerDice('opponent', true);
+    Game.page.append(Game.gamePlayerDice('opponent', true));
     var htmlout = Game.page.html();
     ok(htmlout.match('die_img unselected'),
        "dice should include some text with the correct CSS class");
@@ -698,11 +702,11 @@ asyncTest("test_Game.pageAddGamePlayerDice", function() {
   });
 });
 
-asyncTest("test_Game.pageAddGamePlayerDice_disabled", function() {
+asyncTest("test_Game.gamePlayerDice_disabled", function() {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddGamePlayerDice('player', false);
+    Game.page.append(Game.gamePlayerDice('player', false));
     var htmlout = Game.page.html();
     ok(htmlout.match('die_img die_greyed'),
        "dice should include some text with the correct CSS class");
@@ -710,11 +714,23 @@ asyncTest("test_Game.pageAddGamePlayerDice_disabled", function() {
   });
 });
 
-asyncTest("test_Game.pageAddGameWinner", function() {
+asyncTest("test_Game.buttonImageDisplay", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.buttonImageDisplay('player'));
+    var htmlout = Game.page.html();
+    ok(htmlout.match('avis.jpg'),
+       "page should include a link to the button image");
+    start();
+  });
+});
+
+asyncTest("test_Game.gameWinner", function() {
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddGameWinner();
+    Game.page.append(Game.gameWinner());
     var htmlout = Game.page.html();
     ok(htmlout.match('tester1 won!'),
        "correct game winner should be displayed");
@@ -798,7 +814,7 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddGamePlayerDice('player', true);
+    Game.page.append(Game.gamePlayerDice('player', true));
     Game.layoutPage();
 
     // test the toggle handler by seeing if a die becomes selected

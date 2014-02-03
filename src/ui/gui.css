@@ -21,10 +21,24 @@ table {
     margin: auto;
 }
 
+table.spaced {
+    border-collapse: separate;
+    empty-cells: show;
+}
+
+table.dice {
+    padding: 0px;
+    spacing: 0px;
+}
+
 td {
     text-align: center;
     /*border: 1px solid black;*/
     padding: 0.2em 0.2em;
+}
+
+td.empty {
+    width: 80px;
 }
 
 td.left {
@@ -39,6 +53,18 @@ td.chatplayer {
 td.chatopponent {
     text-align: right;
     background-color: #00ff00;
+}
+
+td.chooseswing {
+    vertical-align: top;
+}
+
+td.button_player {
+    vertical-align: top;
+}
+
+td.button_opponent {
+    vertical-align: bottom;
 }
 
 td.logtable {
@@ -82,9 +108,8 @@ select.center {
     width:50px;
     height:50px;
     color:blue;
-    display:inline-block;
+    display: inline-block;
     margin:4px;
-    /*border: 5px solid white;*/
 }
 
 .die_greyed {
@@ -99,13 +124,34 @@ select.center {
 
 .die_overlay {
     position:relative;
-    top:16px
+    font-size: 24px;
+    top: 13px;
+}
+
+.die_number_player {
+    color: blue;
+}
+
+.die_number_opponent {
+    color: green;
 }
 
 .die_recipe {
     position:relative;
     top:20px;
     color:black;
+}
+
+.die_recipe_player {
+    position:relative;
+    top:-48px;
+    color: #000066;
+}
+
+.die_recipe_opponent {
+    position:relative;
+    top:25px;
+    color: #003300;
 }
 
 .title2 {

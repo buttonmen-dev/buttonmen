@@ -215,7 +215,7 @@ Game.actionChooseSwingActive = function() {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var swingtable = $('<table>', {'id': 'swing_table', });
+  var swingtable = $('<table>', { 'id': 'swing_table', });
   $.each(
     Api.game.player.swingRequestArray,
     function(letter, range) {
@@ -240,12 +240,27 @@ Game.actionChooseSwingActive = function() {
     'text': 'Submit',
   }));
 
+  // If the opponent has any swing dice to set, make a table for those
+  var opponentswing = $('<table>', { 'id': 'opponent_swing', });
+  $.each(
+    Api.game.opponent.swingRequestArray,
+    function(letter, range) {
+      var swingrow = $('<tr>', {});
+      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      swingrow.append($('<td>', { 'text': swingtext, }));
+      opponentswing.append(swingrow);
+    });
+
   // Add the swing die form to the left column of the die table
-  var formtd = $('<td>', {});
+  var formtd = $('<td>', { 'class': 'chooseswing', });
   formtd.append($('<br>'));
   formtd.append(swingform);
+  var opponenttd = $('<td>', { 'class': 'chooseswing', });
+  opponenttd.append($('<br>'));
+  opponenttd.append(opponentswing);
   var formrow = $('<tr>', {});
   formrow.append(formtd);
+  formrow.append(opponenttd);
   formrow.append($('<td>', {}));
   dietable.append(formrow);
 
@@ -415,7 +430,6 @@ Game.actionReactToInitiativeNonplayer = function() {
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('Your turn to attack');
-  Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(true);
   Game.page.append($('<br>'));
 
@@ -469,7 +483,6 @@ Game.actionPlayTurnActive = function() {
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('Opponent\'s turn to attack');
-  Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<p>', {'text':
     'It is your opponent\'s turn to attack right now.' }));
@@ -503,13 +516,26 @@ Game.actionPlayTurnNonplayer = function() {
 Game.actionShowFinishedGame = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('This game is over');
-  Game.page.append($('<br>'));
-  Game.pageAddGamePlayerStatus('player', false, false);
-  Game.page.append($('<br>'));
-  Game.pageAddGameWinner();
-  Game.page.append($('<br>'));
-  Game.pageAddGamePlayerStatus('opponent', true, false);
 
+  var dieEndgameTable = $('<table>');
+  var dieEndgameTr = $('<tr>');
+  var dieEndgameTd = $('<td>');
+
+  var playerButtonTd = Game.buttonImageDisplay('player');
+  var opponentButtonTd = Game.buttonImageDisplay('opponent');
+
+  dieEndgameTd.append($('<br>'));
+  dieEndgameTd.append(Game.gamePlayerStatus('player', false, false));
+  dieEndgameTd.append($('<br>'));
+  dieEndgameTd.append(Game.gameWinner());
+  dieEndgameTd.append($('<br>'));
+  dieEndgameTd.append(Game.gamePlayerStatus('opponent', true, false));
+
+  dieEndgameTr.append(playerButtonTd);
+  dieEndgameTr.append(dieEndgameTd);
+  dieEndgameTr.append(opponentButtonTd);
+  dieEndgameTable.append(dieEndgameTr);
+  Game.page.append(dieEndgameTable);
   Game.pageAddFooter();
 
   Game.form = null;
@@ -755,10 +781,12 @@ Game.formPlayTurnActive = function() {
 
 // Display header information about the game
 Game.pageAddGameHeader = function(action_desc) {
-  Game.page.append($('<div>', {'id': 'game_id',
-                               'text': 'Game #' + Api.game.gameId, }));
-  Game.page.append($('<div>', {'id': 'round_number',
-                               'text': 'Round #' + Api.game.roundNumber, }));
+  Game.page.append(
+    $('<div>', {
+      'id': 'game_id',
+      'text': 'Game #' + Api.game.gameId + ': ' +
+              'Round #' + Api.game.roundNumber,
+    }));
   Game.page.append($('<div>', {'id': 'action_desc',
                                'class': 'action_desc',
                                'text': action_desc}));
@@ -980,28 +1008,68 @@ Game.dieTableEntry = function(
 
 // Display each player's dice in "battle" layout
 Game.pageAddDieBattleTable = function(clickable) {
+  var dieBattleTable = $('<table>');
+  var dieBattleTr = $('<tr>');
+  var dieBattleTd = $('<td>');
 
-  Game.pageAddGamePlayerStatus('player', false, true);
-  Game.pageAddGamePlayerDice('player', clickable);
-  Game.page.append($('<br>'));
-  Game.pageAddGamePlayerDice('opponent', clickable);
-  Game.pageAddGamePlayerStatus('opponent', true, true);
+  var playerButtonTd = Game.buttonImageDisplay('player');
+  var opponentButtonTd = Game.buttonImageDisplay('opponent');
+
+  dieBattleTd.append(Game.gamePlayerStatus('player', false, true));
+  dieBattleTd.append($('<br>'));
+  dieBattleTd.append(Game.gamePlayerDice('player', clickable));
+  dieBattleTd.append(Game.gamePlayerDice('opponent', clickable));
+  dieBattleTd.append($('<br>'));
+  dieBattleTd.append(Game.gamePlayerStatus('opponent', true, true));
+
+  dieBattleTr.append(playerButtonTd);
+  dieBattleTr.append(dieBattleTd);
+  dieBattleTr.append(opponentButtonTd);
+  dieBattleTable.append(dieBattleTr);
+  Game.page.append(dieBattleTable);
   return true;
 };
 
-// Add a brief mid-game status listing for the requested player
-Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
+// return a TD containing the button image for the player or opponent
+Game.buttonImageDisplay = function(player) {
+  var buttonTd = $('<td>', { 'class': 'button_' + player, });
+  var buttonInfo = $('<div>', {
+    'text': 'Button: ' + Api.game[player].buttonName,
+  });
+  var buttonRecipe = $('<div>', {
+    'text': Api.game[player].buttonRecipe,
+  });
+  if (player == 'player') {
+    buttonTd.append(buttonInfo);
+    buttonTd.append(buttonRecipe);
+  }
+  buttonTd.append($('<img>', {
+    'src':
+      '/ui/images/button/' + Api.game[player].buttonName.toLowerCase() + '.jpg',
+    'width': '150px',
+    'onerror': 'this.src="/ui/images/Circle.png"',
+  }));
+  if (player == 'opponent') {
+    buttonTd.append(buttonRecipe);
+    buttonTd.append(buttonInfo);
+  }
+  return buttonTd;
+};
+
+// Return a brief mid-game status listing for the requested player
+Game.gamePlayerStatus = function(player, reversed, game_active) {
+
+  // Status table for entire section
+  var statusTable = $('<table>', { 'class': 'spaced' });
+  var statusRow = $('<tr>');
+  var playerButtonTd = $('<td>');
+  var stateTd = $('<td>');
+  var boundaryTd = $('<td>', {'class': 'empty', });
 
   // Player name
   var playerDiv = $('<div>');
   playerDiv.append($('<span>', {
     'text': 'Player: ' + Api.game[player].playerName,
-  }));
-
-  // Button name
-  var buttonDiv = $('<div>');
-  buttonDiv.append($('<span>', {
-    'text': 'Button: ' + Api.game[player].buttonName,
   }));
 
   // Game score
@@ -1038,28 +1106,37 @@ Game.pageAddGamePlayerStatus = function(player, reversed, game_active) {
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
-      Game.page.append(capturedDiceDiv);
-      Game.page.append(roundScoreDiv);
+      stateTd.append(roundScoreDiv);
+      stateTd.append(capturedDiceDiv);
+
+      statusRow.append(stateTd);
+      statusRow.append(boundaryTd);
     }
-    Game.page.append(gameScoreDiv);
-    Game.page.append(buttonDiv);
-    Game.page.append(playerDiv);
+    playerButtonTd.append(gameScoreDiv);
+    playerButtonTd.append(playerDiv);
+    statusRow.append(playerButtonTd);
+
   } else {
-    Game.page.append(playerDiv);
-    Game.page.append(buttonDiv);
-    Game.page.append(gameScoreDiv);
+    playerButtonTd.append(playerDiv);
+    playerButtonTd.append(gameScoreDiv);
+    statusRow.append(playerButtonTd);
+
     if (game_active) {
-      Game.page.append(roundScoreDiv);
-      Game.page.append(capturedDiceDiv);
+      stateTd.append(capturedDiceDiv);
+      stateTd.append(roundScoreDiv);
+
+      statusRow.append(boundaryTd);
+      statusRow.append(stateTd);
     }
   }
-
-  return true;
+  statusTable.append(statusRow);
+  return statusTable;
 };
 
-// Add a display of all dice for the requested player, specifying whether
-// the dice should be selectable
-Game.pageAddGamePlayerDice = function(player, player_active) {
+// Return a display of all dice for the requested player, specifying
+// whether the dice should be selectable
+Game.gamePlayerDice = function(player, player_active) {
+  var allDice = $('<div>');
   var i = 0;
   while (i < Api.game[player].nDie) {
 
@@ -1083,7 +1160,7 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       'id': dieIndex,
       'style':
         'background-image: url(images/Circle.png);' +
-        'height:70px;width:70px;background-size:100%',
+        'height:50px;width:50px;background-size:100%',
       'title': Api.game[player].dieDescriptionArray[i],
     };
     if (clickable) {
@@ -1105,7 +1182,7 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       dieDiv = $('<div>', divOpts);
     }
     dieDiv.append($('<span>', {
-      'class': 'die_overlay',
+      'class': 'die_overlay die_number_' + player,
       'text': Api.game[player].valueArray[i],
     }));
     dieDiv.append($('<br>'));
@@ -1114,16 +1191,17 @@ Game.pageAddGamePlayerDice = function(player, player_active) {
       Api.game[player].dieRecipeArray[i],
       Api.game[player].sidesArray[i]);
     dieDiv.append($('<span>', {
-      'class': 'die_recipe',
+      'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    Game.page.append(dieDiv);
+    allDice.append(dieDiv);
     i += 1;
   }
+  return allDice;
 };
 
 // Show the winner of a completed game
-Game.pageAddGameWinner = function() {
+Game.gameWinner = function() {
 
   var playerWins = Api.game.player.gameScoreDict.W;
   var opponentWins = Api.game.opponent.gameScoreDict.W;
@@ -1147,7 +1225,7 @@ Game.pageAddGameWinner = function() {
     'id': 'winner_name',
     'text': winnerText,
   }));
-  Game.page.append(winnerDiv);
+  return winnerDiv;
 };
 
 Game.dieIndexId = function(player, dieidx) {
