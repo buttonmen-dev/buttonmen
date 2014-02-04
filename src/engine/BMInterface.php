@@ -898,6 +898,17 @@ class BMInterface {
         $currentPlayerId
     ) {
         $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+
+        if (FALSE === $currentPlayerIdx) {
+            $this->message = 'You are not a participant in this game';
+            return FALSE;
+        }
+
+        if (FALSE === $game->waitingOnActionArray[$currentPlayerIdx]) {
+            $this->message = 'You are not the active player';
+            return FALSE;
+        };
+
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
             ($postedTimestamp == $this->timestamp->format(DATE_RSS));
@@ -905,12 +916,11 @@ class BMInterface {
             ('ignore' === $roundNumber) ||
             ($roundNumber == $game->roundNumber);
         $doesGameStateAgree = $expectedGameState == $game->gameState;
-        $isCurrPlayerActive =
-            TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
+
+        $this->message = 'Game state is not current';
         return ($doesTimeStampAgree &&
                 $doesRoundNumberAgree &&
-                $doesGameStateAgree &&
-                $isCurrPlayerActive);
+                $doesGameStateAgree);
     }
 
     // Enter recent game actions into the action log
@@ -1210,16 +1220,10 @@ class BMInterface {
                 'ignore',
                 $playerId
             )) {
-                $this->message = 'You cannot make an auxiliary choice at the moment';
                 return FALSE;
             }
 
             $playerIdx = array_search($playerId, $game->playerIdArray);
-
-            if (FALSE === $playerIdx) {
-                $this->message = 'You are not a participant in this game';
-                return FALSE;
-            }
 
             switch ($action) {
                 case 'add':
@@ -1300,16 +1304,10 @@ class BMInterface {
                 $roundNumber,
                 $playerId
             )) {
-                $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }
 
             $playerIdx = array_search($playerId, $game->playerIdArray);
-
-            if (FALSE === $playerIdx) {
-                $this->message = 'You are not a participant in this game';
-                return FALSE;
-            }
 
             $argArray = array('action' => $action,
                               'playerIdx' => $playerIdx);
