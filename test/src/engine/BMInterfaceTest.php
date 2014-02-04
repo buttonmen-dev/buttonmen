@@ -1335,6 +1335,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $this->assertFalse($die->has_skill('Auxiliary'));
             }
         }
+        $this->assertEquals('(10) (12) (20) (20) (X)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (4) (12) (20) (X)',
+                            $game->buttonArray[1]->recipe);
     }
 
     /**
@@ -1404,6 +1408,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $this->assertFalse($die->has_skill('Auxiliary'));
             }
         }
+        $this->assertEquals('(4) (8) (12) (20) (X)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (4) (12) (20) (X)',
+                            $game->buttonArray[1]->recipe);
     }
 
     /**
@@ -1474,6 +1482,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $this->assertFalse($die->has_skill('Auxiliary'));
             }
         }
+        $this->assertEquals('(4) (8) (12) (20) (X) (6)',
+                            $game->buttonArray[0]->recipe);
+        $this->assertEquals('(4) (4) (12) (20) (X) (6)',
+                            $game->buttonArray[1]->recipe);
     }
 
     /**
