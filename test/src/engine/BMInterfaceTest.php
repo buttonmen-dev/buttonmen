@@ -1475,6 +1475,15 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             }
         }
     }
+
+    /**
+     * Check that a bad action is handled gracefully.
+     *
+     * @covers BMInterface::react_to_auxiliary
+     */
+    public function test_react_to_auxiliary_invalid() {
+        $this->assertFalse($this->object->react_to_auxiliary(1.5, 2.5, 'ha!'));
+    }
 }
 
 ?>
