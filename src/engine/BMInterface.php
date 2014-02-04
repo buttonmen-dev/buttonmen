@@ -1221,11 +1221,6 @@ class BMInterface {
                 return FALSE;
             }
 
-            if (!$game->waitingOnActionArray[$playerIdx]) {
-                $this->message = 'You have already made your auxiliary choice';
-                return FALSE;
-            }
-
             switch ($action) {
                 case 'add':
                     if (!is_int($dieIdx) ||
