@@ -127,7 +127,8 @@ class BMSkill {
 
     protected static function skill_order_array() {
         // fires first
-        return array('BMSkillChance',
+        return array('BMSkillAuxiliary',
+                     'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillQueer',
                      'BMSkillBerserk',
