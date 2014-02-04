@@ -1318,6 +1318,13 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $this->assertFalse($die->has_skill('Auxiliary'));
             }
         }
+
+        $this->assertFalse(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'decline')
+            );
     }
 
     /**
@@ -1345,6 +1352,21 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object->react_to_auxiliary(
                 self::$userId1WithoutAutopass,
+                $gameId,
+                'add',
+                5
+            )
+        );
+
+        $game = $this->object->load_game($gameId);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        $this->assertFalse($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId2WithoutAutopass,
                 $gameId,
                 'decline')
             );

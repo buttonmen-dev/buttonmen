@@ -400,6 +400,10 @@ class BMInterface {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
+                    case 'SELECTED':
+                        $die->selected = TRUE;
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
                     case 'DISABLED':
                         $die->disabled = TRUE;
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -1028,12 +1032,12 @@ class BMInterface {
 
     public function submit_swing_values(
         $playerId,
-        $gameNumber,
+        $gameId,
         $roundNumber,
         $swingValueArray
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
@@ -1090,7 +1094,7 @@ class BMInterface {
 
     public function submit_turn(
         $playerId,
-        $gameNumber,
+        $gameId,
         $roundNumber,
         $submitTimestamp,
         $dieSelectStatus,
@@ -1100,7 +1104,7 @@ class BMInterface {
         $chat
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             if (!$this->is_action_current(
                 $game,
                 BMGameState::START_TURN,
@@ -1193,12 +1197,12 @@ class BMInterface {
 
     public function react_to_auxiliary(
         $playerId,
-        $gameNumber,
+        $gameId,
         $action,
         $dieIdx = NULL
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             if (!$this->is_action_current(
                 $game,
                 BMGameState::CHOOSE_AUXILIARY_DICE,
@@ -1222,9 +1226,6 @@ class BMInterface {
                 return FALSE;
             }
 
-            $argArray = array('action' => $action,
-                              'playerIdx' => $playerIdx);
-
             switch ($action) {
                 case 'add':
                     if (!is_int($dieIdx) ||
@@ -1232,8 +1233,11 @@ class BMInterface {
                         $this->message = 'Invalid auxiliary choice';
                         return;
                     }
-                    $game->activeDieArrayArray[$playerIdx][$dieIdx]->selected  = TRUE;
-                    $game->waitingOnActionArray[$playerIdx] = FALSE;
+                    $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
+                    $die->selected = TRUE;
+                    $waitingOnActionArray = $game->waitingOnActionArray;
+                    $waitingOnActionArray[$playerIdx] = FALSE;
+                    $game->waitingOnActionArray = $waitingOnActionArray;
                     $this->message = 'Auxiliary die chosen successfully';
                     break;
                 case 'decline':
@@ -1285,7 +1289,7 @@ class BMInterface {
 
     public function react_to_initiative(
         $playerId,
-        $gameNumber,
+        $gameId,
         $roundNumber,
         $submitTimestamp,
         $action,
@@ -1293,7 +1297,7 @@ class BMInterface {
         $dieValueArray = NULL
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             if (!$this->is_action_current(
                 $game,
                 BMGameState::REACT_TO_INITIATIVE,
