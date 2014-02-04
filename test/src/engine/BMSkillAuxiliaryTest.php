@@ -23,12 +23,9 @@ class BMSkillAuxiliaryTest extends PHPUnit_Framework_TestCase {
     {
     }
 
-//    /**
-//     * @covers BMSkillAuxiliary::react_to_initiative
-//     */
+    // this is to satisfy the PHPUnit audit
     public function testDummy()
     {
-//        $this->assertTrue($this->object->react_to_initiative());
     }
 }
 
