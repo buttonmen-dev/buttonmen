@@ -896,8 +896,10 @@ class BMInterface {
         $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
-            $postedTimestamp == $this->timestamp->format(DATE_RSS);
-        $doesRoundNumberAgree = $roundNumber == $game->roundNumber;
+            ($postedTimestamp == $this->timestamp->format(DATE_RSS));
+        $doesRoundNumberAgree =
+            ('ignore' === $roundNumber) ||
+            ($roundNumber == $game->roundNumber);
         $doesGameStateAgree = $expectedGameState == $game->gameState;
         $isCurrPlayerActive =
             TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
@@ -1201,7 +1203,7 @@ class BMInterface {
                 $game,
                 BMGameState::CHOOSE_AUXILIARY_DICE,
                 'ignore',
-                $roundNumber,
+                'ignore',
                 $playerId
             )) {
                 $this->message = 'You cannot make an auxiliary choice at the moment';
@@ -1231,17 +1233,20 @@ class BMInterface {
                         return;
                     }
                     $game->activeDieArrayArray[$playerIdx][$dieIdx]->selected  = TRUE;
+                    $game->waitingOnActionArray[$playerIdx] = FALSE;
+                    $this->message = 'Auxiliary die chosen successfully';
                     break;
                 case 'decline':
+                    $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $this->message = 'Declined auxiliary dice';
                     break;
                 default:
                     $this->message = 'Invalid response to auxiliary choice.';
                     return FALSE;
             }
 
-            $game->waitingOnActionArray[$playerIdx] = FALSE;
             $this->save_game($game);
-            $this->message = 'Successful auxiliary choice';
+
 
             return TRUE;
         } catch (Exception $e) {

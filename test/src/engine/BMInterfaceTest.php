@@ -1279,6 +1279,87 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
     }
+
+    /**
+     * Check that a decline of an auxiliary die works correctly.
+     *
+     * @covers BMInterface::react_to_auxiliary
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_react_to_auxiliary_both_aux_decline() {
+        // Lancelot : (10) (12) (20) (20) (X) +(X)
+        // Gawaine  :  (4)  (4) (12) (20) (X) +(6)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Lancelot', 'Gawaine'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'decline')
+            );
+        $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Auxiliary'));
+            }
+        }
+    }
+
+    /**
+     * Check that courtesy auxiliary dice are given correctly.
+     *
+     * @covers BMInterface::react_to_auxiliary
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_react_to_auxiliary_one_aux_decline() {
+        // Kublai   :  (4) (8) (12) (20) (X)
+        // Gawaine  :  (4) (4) (12) (20) (X) +(6)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Kublai', 'Gawaine'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(6, $game->activeDieArrayArray[0]);
+        $this->assertCount(6, $game->activeDieArrayArray[1]);
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+
+        $this->assertTrue(
+            $this->object->react_to_auxiliary(
+                self::$userId1WithoutAutopass,
+                $gameId,
+                'decline')
+            );
+        $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->has_skill('Auxiliary'));
+            }
+        }
+    }
 }
 
 ?>
