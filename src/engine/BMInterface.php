@@ -263,7 +263,7 @@ class BMInterface {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
                      'v.player_id, v.position, v.autopass,'.
-                     'v.button_name,'.
+                     'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
                      'v.is_awaiting_action '.
@@ -300,7 +300,11 @@ class BMInterface {
                                                    $row['n_rounds_drawn']);
 
                 // load button attributes
-                $recipe = $this->get_button_recipe_from_name($row['button_name']);
+                if (isset($row['alt_recipe'])) {
+                    $recipe = $row['alt_recipe'];
+                } else {
+                    $recipe = $this->get_button_recipe_from_name($row['button_name']);
+                }
                 if ($recipe) {
                     $button = new BMButton;
                     $button->load($recipe, $row['button_name']);
@@ -475,6 +479,22 @@ class BMInterface {
                                       ':n_recent_passes' => $game->nRecentPasses,
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
+
+            // button recipes if altered
+            if (isset($game->buttonArray)) {
+                foreach ($game->buttonArray as $playerIdx => $button) {
+                    if ($button->hasAlteredRecipe) {
+                        $query = 'UPDATE game_player_map '.
+                                 'SET alt_recipe = :alt_recipe '.
+                                 'WHERE game_id = :game_id '.
+                                 'AND player_id = :player_id;';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':alt_recipe' => $button->recipe,
+                                                  ':game_id' => $game->gameId,
+                                                  ':player_id' => $game->playerIdArray[$playerIdx]));
+                    }
+                }
+            }
 
             // set round scores
             if (isset($game->gameScoreArrayArray)) {
