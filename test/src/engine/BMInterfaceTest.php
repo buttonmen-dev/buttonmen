@@ -1362,7 +1362,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
-        $this->assertFalse($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+        $this->assertTrue($game->activeDieArrayArray[0][5]->has_skill('Auxiliary'));
+        $this->assertTrue($game->activeDieArrayArray[0][5]->selected);
 
         $this->assertTrue(
             $this->object->react_to_auxiliary(
