@@ -1231,7 +1231,7 @@ class BMInterface {
                     if (!is_int($dieIdx) ||
                         !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
                         $this->message = 'Invalid auxiliary choice';
-                        return;
+                        return FALSE;
                     }
                     $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
                     $die->selected = TRUE;
