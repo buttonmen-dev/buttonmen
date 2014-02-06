@@ -106,6 +106,20 @@ asyncTest("test_Newuser.formCreateUser_no_username", function() {
   start();
 });
 
+asyncTest("test_Newuser.formCreateUser_invalid_username", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('test-8');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when username is not set");
+  equal(Env.message.text,
+    "Usernames may only contain letters, numbers, and underscores",
+    "Newuser shows reasonable error when username is invalid");
+  start();
+});
+
 asyncTest("test_Newuser.formCreateUser_no_password", function() {
   Newuser.actionCreateUser();
   $('#newuser_username').val('tester5');
