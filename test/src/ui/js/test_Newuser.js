@@ -2,8 +2,6 @@ module("Newuser", {
   'setup': function() {
     BMTestUtils.NewuserPre = BMTestUtils.getAllElements();
 
-    BMTestUtils.setupFakeLogin();
-
     // Create the newuser_page div so functions have something to modify
     if (document.getElementById('newuser_page') == null) {
       $('body').append($('<div>', {'id': 'newuser_page', }));
@@ -22,7 +20,6 @@ module("Newuser", {
     $('#newuser_page').empty();
 
     BMTestUtils.deleteEnvMessage();
-    BMTestUtils.cleanupFakeLogin();
 
     // Fail if any other elements were added or removed
     BMTestUtils.NewuserPost = BMTestUtils.getAllElements();
@@ -38,6 +35,32 @@ test("test_Newuser_is_loaded", function() {
 });
 
 asyncTest("test_Newuser.showNewuserPage", function() {
+  Newuser.showNewuserPage();
+  var item = document.getElementById('newuser_page');
+  equal(item.nodeName, "DIV",
+        "#newuser_page is a div after showNewuserPage() is called");
+  start();
+});
+
+asyncTest("test_Newuser.showNewuserPage_logged_in", function() {
+
+  BMTestUtils.setupFakeLogin();
+
+  Newuser.showNewuserPage();
+  var item = document.getElementById('newuser_page');
+  equal(item.nodeName, "DIV",
+        "#newuser_page is a div after showNewuserPage() is called");
+  start();
+
+  BMTestUtils.cleanupFakeLogin();
+});
+
+asyncTest("test_Newuser.showNewuserPage_no_page_element", function() {
+
+  // Remove page element to make sure the function readds it
+  $('#newuser_page').remove();
+  $('#newuser_page').empty();
+
   Newuser.showNewuserPage();
   var item = document.getElementById('newuser_page');
   equal(item.nodeName, "DIV",
