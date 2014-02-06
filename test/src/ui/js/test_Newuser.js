@@ -14,6 +14,8 @@ module("Newuser", {
     // Delete all elements we expect this module to create
 
     // JS objects
+    delete Newuser.page;
+    delete Newuser.form;
 
     // Page elements
     $('#newuser_page').remove();
@@ -36,7 +38,10 @@ test("test_Newuser_is_loaded", function() {
 });
 
 asyncTest("test_Newuser.showNewuserPage", function() {
-  ok(true, "INCOMPLETE: Test of Newuser.showNewuserPage not implemented");
+  Newuser.showNewuserPage();
+  var item = document.getElementById('newuser_page');
+  equal(item.nodeName, "DIV",
+        "#newuser_page is a div after showNewuserPage() is called");
   start();
 });
 
