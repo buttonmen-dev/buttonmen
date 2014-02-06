@@ -107,20 +107,22 @@ asyncTest("test_Newuser.formCreateUser_no_username", function() {
 });
 
 asyncTest("test_Newuser.formCreateUser_no_password", function() {
-  $('#newuser_username').val('tester5');
   Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
   $.ajaxSetup({ async: false });
   $('#newuser_action_button').trigger('click');
   $.ajaxSetup({ async: true });
   equal(Env.message.type, "error",
     "Newuser action fails when password is not set");
+  equal(Env.message.text, "You need to set a password",
+    "Newuser show reasonable error when password is not set");
   start();
 });
 
 asyncTest("test_Newuser.formCreateUser_no_password_confirm", function() {
+  Newuser.actionCreateUser();
   $('#newuser_username').val('tester5');
   $('#newuser_password').val('testpass');
-  Newuser.actionCreateUser();
   $.ajaxSetup({ async: false });
   $('#newuser_action_button').trigger('click');
   $.ajaxSetup({ async: true });
@@ -130,10 +132,10 @@ asyncTest("test_Newuser.formCreateUser_no_password_confirm", function() {
 });
 
 asyncTest("test_Newuser.formCreateUser_password_mismatch", function() {
+  Newuser.actionCreateUser();
   $('#newuser_username').val('tester5');
   $('#newuser_password').val('testpass');
   $('#newuser_password_confirm').val('testpass2');
-  Newuser.actionCreateUser();
   $.ajaxSetup({ async: false });
   $('#newuser_action_button').trigger('click');
   $.ajaxSetup({ async: true });
