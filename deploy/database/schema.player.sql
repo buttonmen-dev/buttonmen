@@ -5,6 +5,7 @@ CREATE TABLE player (
     password_hashed     VARCHAR(128),
     name_irl            VARCHAR(40) NOT NULL,
     email               VARCHAR(254),
+    status              ENUM('active', 'unverified', 'disabled'),
     dob                 DATE,
     autopass            BOOLEAN DEFAULT 0,
     image_path          VARCHAR(100),

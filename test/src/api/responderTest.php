@@ -83,14 +83,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // make sure responder001 and responder002 exist
         $args = array('type' => 'createUser',
                       'username' => 'responder001',
-                      'password' => 't');
+                      'password' => 't',
+                      'email' => 'responder001@example.com');
         $this->object->process_request($args);
         $args['username'] = 'responder002';
+        $args['email'] = 'responder002@example.com';
         $this->object->process_request($args);
 
         // now make sure responder003 exists and get the ID
         if (!(array_key_exists('responder003', $this->user_ids))) {
             $args['username'] = 'responder003';
+            $args['email'] = 'responder003@example.com';
             $ret1 = $this->object->process_request($args);
             if ($ret1['data']) {
                 $ret1 = $this->object->process_request($args);
@@ -103,6 +106,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now make sure responder004 exists and get the ID
         if (!(array_key_exists('responder004', $this->user_ids))) {
             $args['username'] = 'responder004';
+            $args['email'] = 'responder004@example.com';
             $ret1 = $this->object->process_request($args);
             if ($ret1['data']) {
                 $ret1 = $this->object->process_request($args);
@@ -155,7 +159,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $real_new = $this->object->process_request(
                             array('type' => 'createUser',
                                   'username' => $username,
-                                  'password' => 't'));
+                                  'password' => 't',
+                                  'email' => $username . '@example.com'));
             if ($real_new['status'] == 'ok') {
                 $created_real = True;
             }
@@ -164,7 +169,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummy_new = $this->dummy->process_request(
                          array('type' => 'createUser',
                                'username' => $username,
-                               'password' => 't'));
+                               'password' => 't',
+                               'email' => $username . '@example.com'));
 
         // remove debugging playerId attribute
         unset($real_new['data']['playerId']);

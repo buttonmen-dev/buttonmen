@@ -3,7 +3,7 @@ function login($username, $password) {
     require_once '../database/mysql.inc.php';
     $conn = conn();
 
-    $sql = 'SELECT id, name_ingame, password_hashed FROM player
+    $sql = 'SELECT id, name_ingame, password_hashed, status FROM player
             WHERE name_ingame = :username';
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $username));
@@ -17,8 +17,9 @@ function login($username, $password) {
         $result = $resultArray[0];
         $password_hashed = $result['password_hashed'];
 
-        // check if the password is correct
-        if ($password_hashed == crypt($password, $password_hashed)) {
+        // check if the password is correct and if the account is in active status
+        if (($password_hashed == crypt($password, $password_hashed) && ($status == 'active'))) {
+
             // create authorisation key
             $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
 

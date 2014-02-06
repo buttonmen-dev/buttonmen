@@ -88,6 +88,8 @@ asyncTest("test_Newuser.formCreateUser", function() {
   $('#newuser_username').val('tester5');
   $('#newuser_password').val('testpass');
   $('#newuser_password_confirm').val('testpass');
+  $('#newuser_email').val('tester5@example.com');
+  $('#newuser_email_confirm').val('tester5@example.com');
   $.ajaxSetup({ async: false });
   $('#newuser_action_button').trigger('click');
   $.ajaxSetup({ async: true });
@@ -155,6 +157,34 @@ asyncTest("test_Newuser.formCreateUser_password_mismatch", function() {
   $.ajaxSetup({ async: true });
   equal(Env.message.type, "error",
     "Newuser action fails when confirmation password does not match");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_email", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when email is not provided not match");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_password_mismatch", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass');
+  $('#newuser_email').val('tester5@example.com');
+  $('#newuser_email_confirm').val('tester5@example.con');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when confirmation e-mail does not match");
   start();
 });
 

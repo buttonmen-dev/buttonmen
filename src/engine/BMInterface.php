@@ -41,7 +41,7 @@ class BMInterface {
 
     // methods
 
-    public function create_user($username, $password) {
+    public function create_user($username, $password, $email) {
         try {
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
@@ -56,12 +56,27 @@ class BMInterface {
                 return NULL;
             }
 
+            // check to see whether this email address already exists
+            $query = 'SELECT id FROM player WHERE email = :email';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':email' => $email));
+            $result = $statement->fetchAll();
+
+            if (count($result) > 0) {
+                $user_id = $result[0]['id'];
+                $this->message = 'Email address ' . $email .
+                                 ' already exists (id=' .  $user_id . ')';
+                return NULL;
+            }
+
             // create user
-            $query = 'INSERT INTO player (name_ingame, password_hashed)
-                      VALUES (:username, :password)';
+            $query = 'INSERT INTO player (name_ingame, password_hashed, email, status)
+                      VALUES (:username, :password, :email, :status)';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':username' => $username,
-                                      ':password' => crypt($password)));
+                                      ':password' => crypt($password),
+                                      ':email' => $email,
+                                      ':status' => 'unverified'));
             $this->message = 'User ' . $username . ' created successfully';
 
             $result = array('userName' => $username);
@@ -105,6 +120,7 @@ class BMInterface {
             'name_ingame' => $infoArray['name_ingame'],
             'name_irl' => $infoArray['name_irl'],
             'email' => $infoArray['email'],
+            'status' => $infoArray['status'],
             'dob' => $infoArray['dob'],
             'autopass' => (bool)$infoArray['autopass'],
             'image_path' => $infoArray['image_path'],
