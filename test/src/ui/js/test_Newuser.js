@@ -84,7 +84,61 @@ asyncTest("test_Newuser.actionCreateUser", function() {
 });
 
 asyncTest("test_Newuser.formCreateUser", function() {
-  ok(true, "INCOMPLETE: Test of Newuser.formCreateUser not implemented");
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "success",
+    "Newuser action succeeded when expected arguments were set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_username", function() {
+  Newuser.actionCreateUser();
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when username is not set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_password", function() {
+  $('#newuser_username').val('tester5');
+  Newuser.actionCreateUser();
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when password is not set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_password_confirm", function() {
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  Newuser.actionCreateUser();
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when confirmation password is not set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_password_mismatch", function() {
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass2');
+  Newuser.actionCreateUser();
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when confirmation password does not match");
   start();
 });
 
