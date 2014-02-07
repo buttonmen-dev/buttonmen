@@ -387,21 +387,6 @@ class BMGame {
         $this->waitingOnActionArray = $waitingOnActionArray;
     }
 
-    protected function add_selected_reserve_dice() {
-        $hasChosenResDie = array_fill(0, $this->nPlayers, FALSE);
-
-        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            foreach ($activeDieArray as $die) {
-                if ($die->selected) {
-                    $hasChosenResDie[$playerIdx] = TRUE;
-                    break;
-                }
-            }
-        }
-
-        return array_fill(0, $this->nPlayers, $hasChosenResDie);
-    }
-
     protected function update_game_state_choose_reserve_dice() {
         // if all decisions on reserve dice have been made
         if (0 == array_sum($this->waitingOnActionArray)) {
@@ -420,6 +405,24 @@ class BMGame {
             $this->remove_dice_with_skill('Reserve');
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
+    }
+
+    protected function add_selected_reserve_dice() {
+        $areAnyDiceAdded = array_fill(0, $this->nPlayers, FALSE);
+
+        if (isset($this->activeDieArrayArray)) {
+            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $die) {
+                    if ($die->selected) {
+                        $die->remove_skill('Reserve');
+                        $die->selected = FALSE;
+                        $areAnyDiceAdded[$playerIdx] = TRUE;
+                    }
+                }
+            }
+        }
+
+        return $areAnyDiceAdded;
     }
 
     protected function do_next_step_specify_dice() {
