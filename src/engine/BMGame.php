@@ -304,7 +304,7 @@ class BMGame {
         // if all decisions on auxiliary dice have been made
         if (0 == array_sum($this->waitingOnActionArray)) {
             $areAnyDiceAdded = $this->add_selected_auxiliary_dice();
-            $areAnyDiceRemoved = $this->remove_auxiliary_dice();
+            $areAnyDiceRemoved = $this->remove_dice_with_skill('Auxiliary');
 
             if (array_sum($areAnyDiceAdded) + array_sum($areAnyDiceRemoved) > 0) {
                 // update button recipes
@@ -349,13 +349,13 @@ class BMGame {
         return array_fill(0, $this->nPlayers, $useAuxDice);
     }
 
-    protected function remove_auxiliary_dice() {
+    protected function remove_dice_with_skill($skill) {
         $areAnyDiceRemoved = array_fill(0, $this->nPlayers, FALSE);
 
         // remove all remaining auxiliary dice
         foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
             foreach ($activeDieArray as $dieIdx => &$die) {
-                if ($die->has_skill('Auxiliary')) {
+                if ($die->has_skill($skill)) {
                     $areAnyDiceRemoved[$playerIdx] = TRUE;
                     unset($activeDieArray[$dieIdx]);
                 }
@@ -373,6 +373,7 @@ class BMGame {
     }
 
     protected function update_game_state_choose_reserve_dice() {
+        $this->remove_dice_with_skill('Reserve');
         $this->gameState = BMGameState::SPECIFY_DICE;
     }
 

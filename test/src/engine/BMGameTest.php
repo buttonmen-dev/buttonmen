@@ -329,7 +329,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_no_aux() {
@@ -361,7 +361,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_first_aux_unspecified() {
@@ -393,7 +393,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_second_aux_unspecified() {
@@ -425,7 +425,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_second_aux_specified() {
