@@ -317,7 +317,7 @@ class BMGame {
 
             }
 
-            $this->gameState = BMGameState::SPECIFY_DICE;
+            $this->gameState = BMGameState::CHOOSE_RESERVE_DICE;
         }
     }
 
@@ -366,6 +366,14 @@ class BMGame {
         }
 
         return $areAnyDiceRemoved;
+    }
+
+    protected function do_next_step_choose_reserve_dice() {
+
+    }
+
+    protected function update_game_state_choose_reserve_dice() {
+        $this->gameState = BMGameState::SPECIFY_DICE;
     }
 
     protected function do_next_step_specify_dice() {

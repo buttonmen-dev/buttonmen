@@ -352,7 +352,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray =
             array(array($die1, $die2), array($die3, $die4));
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $this->object->gameState);
         $this->assertFalse($this->object->buttonArray[0]->hasAlteredRecipe);
         $this->assertFalse($this->object->buttonArray[1]->hasAlteredRecipe);
         $this->assertEquals('(4) (8)', $this->object->buttonArray[0]->recipe);
@@ -448,7 +448,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray =
             array(array($die1, $die2), array($die3, $die4));
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $this->object->gameState);
         $this->assertCount(2, $this->object->activeDieArrayArray[0]);
         $this->assertCount(1, $this->object->activeDieArrayArray[1]);
         $this->assertEquals($die4, $this->object->activeDieArrayArray[1][0]);
