@@ -370,10 +370,21 @@ class BMGame {
     }
 
     protected function do_next_step_choose_reserve_dice() {
-        if (isset($this->activeDieArrayArray)) {
-            $this->waitingOnActionArray =
-                $this->do_players_have_dice_with_skill('Reserve');
+        $waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+        $isPrevRoundWinnerArray = $this->isPrevRoundWinnerArray;
+
+        if (array_sum($isPrevRoundWinnerArray) > 0) {
+            $haveReserveDice = $this->do_players_have_dice_with_skill('Reserve');
+
+            foreach ($waitingOnActionArray as $playerIdx => &$waitingOnAction) {
+                if (!$isPrevRoundWinnerArray[$playerIdx] &&
+                    $haveReserveDice) {
+                    $waitingOnAction = TRUE;
+                }
+            }
         }
+
+        $this->waitingOnActionArray = $waitingOnActionArray;
     }
 
     protected function add_selected_reserve_dice() {

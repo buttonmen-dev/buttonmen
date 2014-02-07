@@ -458,6 +458,40 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('(20)', $this->object->buttonArray[1]->recipe);
     }
 
+    /*
+     * @covers BMGame::do_next_step_choose_reserve_dice
+     */
+    public function test_do_next_step_choose_reserve_dice() {
+        $button1 = new BMButton;
+        $button1->load('(4) (8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        $die4 = BMDie::create_from_recipe('r(20)');
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
+    }
+
+    /*
+     * @covers BMGame::update_game_state_choose_reserve_dice
+     */
+    public function test_update_game_state_choose_reserve_dice() {
+
+    }
+
     /**
      * @covers BMGame::do_next_step_specify_dice
      */
