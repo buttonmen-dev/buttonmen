@@ -183,7 +183,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step_add_available_dice_to_game
      * @covers BMGame::offer_courtesy_auxiliary_dice
-     * @covers BMGame::do_players_have_auxiliary_dice
+     * @covers BMGame::do_players_have_dice_with_skill
      * @covers BMGame::get_all_auxiliary_dice
      */
     public function test_do_next_step_add_available_dice_to_game_one_aux() {
@@ -218,7 +218,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step_add_available_dice_to_game
      * @covers BMGame::offer_courtesy_auxiliary_dice
-     * @covers BMGame::do_players_have_auxiliary_dice
+     * @covers BMGame::do_players_have_dice_with_skill
      * @covers BMGame::get_all_auxiliary_dice
      */
     public function test_do_next_step_add_available_dice_to_game_both_aux() {

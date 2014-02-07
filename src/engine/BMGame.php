@@ -244,7 +244,7 @@ class BMGame {
     }
 
     protected function offer_courtesy_auxiliary_dice() {
-        $havePlayersAuxDice = $this->do_players_have_auxiliary_dice();
+        $havePlayersAuxDice = $this->do_players_have_dice_with_skill('Auxiliary');
 
         if (array_sum($havePlayersAuxDice) > 0) {
             $auxiliaryDice = $this->get_all_auxiliary_dice();
@@ -260,19 +260,19 @@ class BMGame {
         }
     }
 
-    protected function do_players_have_auxiliary_dice() {
-        $hasAuxiliaryDice = array_fill(0, $this->nPlayers, FALSE);
+    protected function do_players_have_dice_with_skill($skill) {
+        $hasDiceWithSkill = array_fill(0, $this->nPlayers, FALSE);
 
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $die) {
-                if ($die->has_skill('Auxiliary')) {
-                    $hasAuxiliaryDice[$playerIdx] = TRUE;
+                if ($die->has_skill($skill)) {
+                    $hasDiceWithSkill[$playerIdx] = TRUE;
                     break;
                 }
             }
         }
 
-        return $hasAuxiliaryDice;
+        return $hasDiceWithSkill;
     }
 
     protected function get_all_auxiliary_dice() {
@@ -292,7 +292,8 @@ class BMGame {
     protected function update_game_state_add_available_dice_to_game() {
         if (isset($this->activeDieArrayArray)) {
             $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-            $this->waitingOnActionArray = $this->do_players_have_auxiliary_dice();
+            $this->waitingOnActionArray =
+                $this->do_players_have_dice_with_skill('Auxiliary');
         }
     }
 
@@ -369,12 +370,45 @@ class BMGame {
     }
 
     protected function do_next_step_choose_reserve_dice() {
+        if (isset($this->activeDieArrayArray)) {
+            $this->waitingOnActionArray =
+                $this->do_players_have_dice_with_skill('Reserve');
+        }
+    }
 
+    protected function add_selected_reserve_dice() {
+        $hasChosenResDie = array_fill(0, $this->nPlayers, FALSE);
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                if ($die->selected) {
+                    $hasChosenResDie[$playerIdx] = TRUE;
+                    break;
+                }
+            }
+        }
+
+        return array_fill(0, $this->nPlayers, $hasChosenResDie);
     }
 
     protected function update_game_state_choose_reserve_dice() {
-        $this->remove_dice_with_skill('Reserve');
-        $this->gameState = BMGameState::SPECIFY_DICE;
+        // if all decisions on reserve dice have been made
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            $areAnyDiceAdded = $this->add_selected_reserve_dice();
+
+            if (array_sum($areAnyDiceAdded) > 0) {
+                // update button recipes
+                for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                    if ($areAnyDiceAdded[$playerIdx]) {
+                        $this->buttonArray[$playerIdx]->update_button_recipe();
+                    }
+                }
+
+            }
+
+            $this->remove_dice_with_skill('Reserve');
+            $this->gameState = BMGameState::SPECIFY_DICE;
+        }
     }
 
     protected function do_next_step_specify_dice() {
