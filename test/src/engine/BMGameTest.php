@@ -514,8 +514,67 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /*
      * @covers BMGame::update_game_state_choose_reserve_dice
      */
-    public function test_update_game_state_choose_reserve_dice() {
+    public function test_update_game_state_choose_reserve_dice_decline() {
+        $button1 = new BMButton;
+        $button1->load('(4) r(8)');
 
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('r(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        // the reserve dice is not selected
+        $die4 = BMDie::create_from_recipe('r(20)');
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        // all decisions have been made, so we are not waiting on anyone
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+
+        $this->object->update_game_state();
+        $this->assertCount(1, $this->object->activeDieArrayArray[0]);
+        $this->assertCount(1, $this->object->activeDieArrayArray[1]);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+    }
+
+    /*
+     * @covers BMGame::update_game_state_choose_reserve_dice
+     */
+    public function test_update_game_state_choose_reserve_dice_accept() {
+        $button1 = new BMButton;
+        $button1->load('(4) r(8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('r(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        // the reserve die is selected
+        $die4 = BMDie::create_from_recipe('r(20)');
+        $die4->selected = TRUE;
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        // all decisions have been made, so we are not waiting on anyone
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+
+        $this->object->update_game_state();
+        $this->assertCount(1, $this->object->activeDieArrayArray[0]);
+        $this->assertCount(2, $this->object->activeDieArrayArray[1]);
+        $this->assertFalse($this->object->activeDieArrayArray[1][1]->has_skill('Reserve'));
+        $this->assertEquals(20, $this->object->activeDieArrayArray[1][1]->max);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals('(10) (20)', $this->object->buttonArray[1]->recipe);
     }
 
     /**
