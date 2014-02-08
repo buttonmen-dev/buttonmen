@@ -3411,8 +3411,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // round 2
         $this->assertTrue(!isset($game->activePlayerIdx));
-        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
 
         // perform end of round scoring
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),

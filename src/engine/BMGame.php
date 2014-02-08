@@ -376,10 +376,12 @@ class BMGame {
         if (array_sum($isPrevRoundWinnerArray) > 0) {
             $haveReserveDice = $this->do_players_have_dice_with_skill('Reserve');
 
-            foreach ($waitingOnActionArray as $playerIdx => &$waitingOnAction) {
-                if (!$isPrevRoundWinnerArray[$playerIdx] &&
-                    $haveReserveDice) {
-                    $waitingOnAction = TRUE;
+            if (array_sum($haveReserveDice) > 0) {
+                foreach ($waitingOnActionArray as $playerIdx => &$waitingOnAction) {
+                    if (!$isPrevRoundWinnerArray[$playerIdx] &&
+                        $haveReserveDice[$playerIdx]) {
+                        $waitingOnAction = TRUE;
+                    }
                 }
             }
         }
@@ -789,6 +791,7 @@ class BMGame {
 
     protected function do_next_step_end_round() {
         $roundScoreArray = $this->get_roundScoreArray();
+        $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
 
         // check for draw currently assumes only two players
         $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
@@ -810,6 +813,7 @@ class BMGame {
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
                     $this->gameScoreArrayArray[$playerIdx]['W']++;
+                    $this->isPrevRoundWinnerArray[$playerIdx] = TRUE;
                 } else {
                     $this->gameScoreArrayArray[$playerIdx]['L']++;
                     $this->swingValueArrayArray[$playerIdx] = array();
@@ -829,7 +833,7 @@ class BMGame {
         if (isset($this->activePlayerIdx)) {
             return;
         }
-        // james: still need to deal with reserve dice
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
         foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
             if ($tempGameScoreArray['W'] >= $this->maxWins) {
