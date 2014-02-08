@@ -371,14 +371,13 @@ class BMGame {
 
     protected function do_next_step_choose_reserve_dice() {
         $waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
-        $isPrevRoundWinnerArray = $this->isPrevRoundWinnerArray;
 
-        if (array_sum($isPrevRoundWinnerArray) > 0) {
+        if (array_sum($this->isPrevRoundWinnerArray) > 0) {
             $haveReserveDice = $this->do_players_have_dice_with_skill('Reserve');
 
             if (array_sum($haveReserveDice) > 0) {
                 foreach ($waitingOnActionArray as $playerIdx => &$waitingOnAction) {
-                    if (!$isPrevRoundWinnerArray[$playerIdx] &&
+                    if (!$this->isPrevRoundWinnerArray[$playerIdx] &&
                         $haveReserveDice[$playerIdx]) {
                         $waitingOnAction = TRUE;
                     }
