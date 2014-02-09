@@ -1,7 +1,5 @@
 <?php
 
-require_once('BMSkill.php');
-
 /*
  * BMDie: the fundamental unit of game mechanics
  *
@@ -67,7 +65,13 @@ class BMDie {
 
         $resultArray = array();
 
-        foreach ($this->hookList[$func] as $skillClass) {
+        $hookList = $this->hookList[$func];
+
+        if (isset($hookList) && (count($hookList) > 1)) {
+            usort($hookList, 'BMSkill::skill_order_comparator');
+        }
+
+        foreach ($hookList as $skillClass) {
             $resultArray[$skillClass] = $skillClass::$func($args);
         }
 
@@ -177,7 +181,7 @@ class BMDie {
         $this->add_multiple_skills($skills);
     }
 
-    public static function parse_recipe_for_sides($recipe) {
+    protected static function parse_recipe_for_sides($recipe) {
         if (preg_match('/\((.*)\)/', $recipe, $match)) {
             return $match[1];
         } else {
@@ -185,7 +189,7 @@ class BMDie {
         }
     }
 
-    public static function parse_recipe_for_skills($recipe) {
+    protected static function parse_recipe_for_skills($recipe) {
         return BMSkill::expand_skill_string(preg_replace('/\(.*\)/', '', $recipe));
     }
 
@@ -199,7 +203,7 @@ class BMDie {
     // Depending on implementation details, this may end up being
     // replaced with something that doesn't need to do string parsing
 
-    public static function create_from_string_components($recipe, array $skills = NULL) {
+    protected static function create_from_string_components($recipe, array $skills = NULL) {
         $die = NULL;
 
         try {
@@ -287,8 +291,19 @@ class BMDie {
     public function attack_list() {
         $list = array('Power' => 'Power', 'Skill' => 'Skill');
 
+        $nAttDice = 0;
+        $owner = $this->ownerObject;
+
+        if (isset($owner)) {
+            $attDice = $owner->attackerAttackDieArray;
+            if (is_array($attDice)) {
+                $nAttDice = count($attDice);
+            }
+        }
+
         $this->run_hooks(__FUNCTION__, array('attackTypeArray' => &$list,
-                                             'value' => (int)$this->value));
+                                             'value' => (int)$this->value,
+                                             'nAttDice' => $nAttDice));
 
         return $list;
     }

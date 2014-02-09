@@ -1,8 +1,5 @@
 <?php
 
-require_once 'BMButton.php';
-require_once 'BMGame.php';
-
 /**
  * BMInterface: interface between GUI and BMGame
  *
@@ -386,6 +383,7 @@ class BMInterface {
                     $game->playerIdArray
                 );
                 $die->originalPlayerIdx = $originalPlayerIdx;
+                $die->ownerObject = $game;
 
                 if (isset($die->swingType)) {
                     $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
@@ -899,12 +897,12 @@ class BMInterface {
             $postedTimestamp == $this->timestamp->format(DATE_RSS);
         $doesRoundNumberAgree = $roundNumber == $game->roundNumber;
         $doesGameStateAgree = $expectedGameState == $game->gameState;
-        $isCurrentPlayerActive =
+        $isCurrPlayerActive =
             TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
         return ($doesTimeStampAgree &&
                 $doesRoundNumberAgree &&
                 $doesGameStateAgree &&
-                $isCurrentPlayerActive);
+                $isCurrPlayerActive);
     }
 
     // Enter recent game actions into the action log
@@ -980,7 +978,7 @@ class BMInterface {
     protected function log_game_chat(BMGame $game) {
 
         // We're going to display this in user browsers, so first clean up all HTML tags
-        $mysqlchat = htmlspecialchars($game->chat['chat']);
+        $mysqlchat = $game->chat['chat'];
 
         // Now, if the string is too long, truncate it
         if (strlen($mysqlchat) > 1020) {
@@ -1028,7 +1026,6 @@ class BMInterface {
         $playerId,
         $gameNumber,
         $roundNumber,
-        $submitTimestamp,
         $swingValueArray
     ) {
         try {

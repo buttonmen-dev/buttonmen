@@ -51,7 +51,8 @@ abstract class BMAttack {
             $attacker->run_hooks(
                 'attack_list',
                 array('attackTypeArray' => &$attackTypeArray,
-                      'value' => (int)$attacker->value)
+                      'value' => (int)$attacker->value,
+                      'nAttDice' => (int)count($attackers))
             );
 
             foreach ($attackTypeArray as $attackType) {
@@ -140,7 +141,7 @@ abstract class BMAttack {
     // confirm that an attack is legal
     abstract public function validate_attack($game, array $attackers, array $defenders);
 
-    abstract protected function are_skills_compatible(array $attArray);
+    abstract protected function are_skills_compatible(array $attArray, array $defArray);
 
     // check if any of the attackers is disabled
     public function has_disabled_attackers(array $attackers) {
@@ -196,13 +197,17 @@ abstract class BMAttack {
 
         // allow attack type to modify default behaviour
         $activeDiceNew = array();
-        foreach ($attackers as &$att) {
+        foreach ($attackers as $attIdx => &$att) {
             $playerIdx = $att->playerIdx;
             $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx]);
 
             $newDie = $att->capture($this->type, $attackers, $defenders);
 
             if (isset($newDie)) {
+                // change $attackers so that attack log is correct
+                $attackers[$attIdx] = $newDie;
+
+                // prepare to change active dice
                 $activeDiceNew[$playerIdx][$dieIdx] = $newDie;
             }
         }

@@ -14,13 +14,14 @@ Env.messageTypeColors = {
 if ('unit_test' in Env) {
   if (Env.unit_test == 'phantom') {
     // PhantomJS unit test uses a separate local server solely to
-    // run dummy_responder.php
+    // run dummy_responder.php, and does not bother with a redirect
+    // from the bare responder name
     Env.api_location = 'http://localhost:8082/dummy_responder.php';
   } else {
-    Env.api_location = '../api/dummy_responder.php';
+    Env.api_location = '../api/dummy_responder';
   }
 } else {
-  Env.api_location = '../api/responder.php';
+  Env.api_location = '../api/responder';
 }
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301

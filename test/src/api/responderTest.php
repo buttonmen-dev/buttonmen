@@ -27,19 +27,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
             require_once 'test/src/database/mysql.test.inc.php';
         }
 
-        if (file_exists('../src/api/responder.php')) {
-            require_once '../src/api/responder.php';
+        if (file_exists('../src/api/ApiResponder.php')) {
+            require_once '../src/api/ApiResponder.php';
         } else {
-            require_once 'src/api/responder.php';
+            require_once 'src/api/ApiResponder.php';
         }
-        $this->object = new responder(True);
+        $this->object = new ApiResponder(True);
 
-        if (file_exists('../src/api/dummy_responder.php')) {
-            require_once '../src/api/dummy_responder.php';
+        if (file_exists('../src/api/DummyApiResponder.php')) {
+            require_once '../src/api/DummyApiResponder.php';
         } else {
-            require_once 'src/api/dummy_responder.php';
+            require_once 'src/api/DummyApiResponder.php';
         }
-        $this->dummy = new dummy_responder(True);
+        $this->dummy = new DummyApiResponder(True);
 
         // Cache user IDs parsed from the DB for use within a test
         $this->user_ids = array();
@@ -424,7 +424,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval = $this->object->process_request($dataargs);
             $timestamp = $retval['data']['timestamp'];
 
-            if (($retval['data']['gameData']['data']['gameState'] != 27) ||
+            if (($retval['data']['gameData']['data']['gameState'] != "REACT_TO_INITIATIVE") ||
                 ($retval['data']['gameData']['data']['playerWithInitiativeIdx'] != 1)) {
                 $real_game_id = NULL;
                 $thistry++;

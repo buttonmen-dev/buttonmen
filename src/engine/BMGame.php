@@ -831,7 +831,7 @@ class BMGame {
 
         $this->do_next_step();
 
-        return array('gainedinitiative' => $gainedInitiative);
+        return array('gainedInitiative' => $gainedInitiative);
     }
 
     protected function react_to_initiative_chance($args) {
@@ -995,7 +995,7 @@ class BMGame {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
             }
-            $this->message = 'Focus dice not set low enough.';
+            $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
             return FALSE;
         }
         $this->gameState = BMGameState::DETERMINE_INITIATIVE;
@@ -1263,12 +1263,14 @@ class BMGame {
     }
 
     private function get_roundNumber() {
-        return(
-            min(
-                $this->maxWins,
-                array_sum($this->gameScoreArrayArray[0]) + 1
-            )
-        );
+        $roundNumber = array_sum($this->gameScoreArrayArray[0]) + 1;
+
+        if (max($this->gameScoreArrayArray[0]['W'], $this->gameScoreArrayArray[0]['L']) >=
+            $this->maxWins) {
+            $roundNumber--;
+        }
+
+        return $roundNumber;
     }
 
     private function get_roundScoreArray() {
@@ -1813,6 +1815,7 @@ class BMGame {
 
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
+            $buttonRecipeArray[] = $button->recipe;
         }
 
         $swingValsSpecified = TRUE;
@@ -1941,13 +1944,14 @@ class BMGame {
 
         $dataArray =
             array('gameId'                   => $this->gameId,
-                  'gameState'                => $this->gameState,
+                  'gameState'                => BMGameState::as_string($this->gameState),
                   'roundNumber'              => $this->get_roundNumber(),
                   'maxWins'                  => $this->maxWins,
                   'activePlayerIdx'          => $this->activePlayerIdx,
                   'playerWithInitiativeIdx'  => $this->playerWithInitiativeIdx,
                   'playerIdArray'            => $this->playerIdArray,
                   'buttonNameArray'          => $buttonNameArray,
+                  'buttonRecipeArray'        => $buttonRecipeArray,
                   'waitingOnActionArray'     => $this->waitingOnActionArray,
                   'nDieArray'                => $nDieArray,
                   'valueArrayArray'          => $valueArrayArray,

@@ -143,7 +143,14 @@ Newuser.actionCreateUser = function() {
 Newuser.formCreateUser = function() {
   var username = $('#newuser_username').val();
 
-  if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
+  if (username.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to set a username',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
@@ -156,7 +163,7 @@ Newuser.formCreateUser = function() {
     if (password.length === 0) {
       Env.message = {
         'type': 'error',
-        'text': 'Password may not be null',
+        'text': 'You need to set a password',
       };
       Newuser.showNewuserPage();
     } else if (password != password_confirm) {
@@ -166,47 +173,40 @@ Newuser.formCreateUser = function() {
       };
       Newuser.showNewuserPage();
     } else {
-      $.post(
-        Env.api_location, {
+      Api.apiFormPost(
+        {
           type: 'createUser',
           username: username,
           password: password,
         },
-        function(rs) {
-          if ('ok' == rs.status) {
-            var indexLink = $('<a>', {
-              'href': 'index.html',
-              'text': 'Go back to the homepage, login, and start ' +
-                      'beating people up',
-            });
-            var userPar = $('<p>', {'text': rs.message + ' ', });
-            userPar.append($('<br>'));
-            userPar.append(indexLink);
-            Env.message = {
-              'type': 'success',
-              'text': '',
-              'obj': userPar,
-            };
-            Newuser.showNewuserPage();
-          } else {
-            Env.message = {
-              'type': 'error',
-              'text': rs.message,
-            };
-            Newuser.showNewuserPage();
-          }
-        }
-      ).fail(
-        function() {
-          Env.message = {
-            'type': 'error',
-            'text': 'Internal error when calling createUser',
-          };
-          Newuser.showNewuserPage();
-        }
+        { 'ok':
+          {
+            'type': 'function',
+            'msgfunc': Newuser.setCreateUserSuccessMessage,
+          },
+          'notok': { 'type': 'server', },
+        },
+        'newuser_action_button',
+        Newuser.showNewuserPage,
+        Newuser.showNewuserPage
       );
     }
   }
+};
+
+Newuser.setCreateUserSuccessMessage = function(message) {
+  var indexLink = $('<a>', {
+    'href': 'index.html',
+    'text': 'Go back to the homepage, login, and start beating people up',
+  });
+  var userPar = $('<p>', {'text': message + ' ', });
+  userPar.append($('<br>'));
+  userPar.append(indexLink);
+  Env.message = {
+    'type': 'success',
+    'text': '',
+    'obj': userPar,
+  };
 };
 
 ////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,9 @@ module("Newgame", {
     // JS objects
     delete Api.button;
     delete Api.player;
+    delete Newgame.page;
+    delete Newgame.form;
+    Newgame.activity = {};
 
     // Page elements
     $('#newgame_page').remove();
@@ -37,60 +40,257 @@ test("test_Newgame_is_loaded", function() {
   ok(Newgame, "The Newgame namespace exists");
 });
 
-asyncTest("test_Newgame.showNewgamePage", function() {
-  ok(true,
-    "INCOMPLETE: Test of Newgame.showNewgamePage not implemented");
-  start();
+// Newgame.showNewgamePage() does not directly take a callback,
+// but, under the hood, it calls a function (Newgame.getNewgameData())
+// which calls a chain of two callbacks in succession.
+// It appears that QUnit's asynchronous testing framework can't
+// handle that situation, so don't use it --- instead turn off
+// asynchronous processing in AJAX while we test this one.
+test("test_Newgame.showNewgamePage", function() {
+  $.ajaxSetup({ async: false });
+  Newgame.showNewgamePage();
+  var item = document.getElementById('newgame_page');
+  equal(item.nodeName, "DIV",
+        "#newgame_page is a div after showNewgamePage() is called");
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Newgame.showNewgamePageLoadedButtons", function() {
-  ok(true,
-    "INCOMPLETE: Test of Newgame.showNewgamePageLoadedButtons not implemented");
-  start();
+test("test_Newgame.showNewgamePage_no_page_element", function() {
+
+  // Remove page element to make sure the function readds it
+  $('#newgame_page').remove();
+  $('#newgame_page').empty();
+
+  $.ajaxSetup({ async: false });
+  Newgame.showNewgamePage();
+  var item = document.getElementById('newgame_page');
+  equal(item.nodeName, "DIV",
+        "#newgame_page is a div after showNewgamePage() is called");
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Newgame.showNewgamePageLoadedPlayers", function() {
-  ok(true,
-    "INCOMPLETE: Test of Newgame.showNewgamePageLoadedPlayers not implemented");
-  start();
+test("test_Newgame.showNewgamePage_logged_out", function() {
+
+  // Undo the fake login data
+  Login.player = null;
+  Login.logged_in = false;
+
+  $.ajaxSetup({ async: false });
+  Newgame.showNewgamePage();
+  var item = document.getElementById('newgame_page');
+  equal(item.nodeName, "DIV",
+        "#newgame_page is a div after showNewgamePage() is called");
+  $.ajaxSetup({ async: true });
+});
+
+asyncTest("test_Newgame.getNewgameData", function() {
+  Newgame.getNewgameData(function() {
+    ok(Api.player, "player list is parsed from server");
+    ok(Api.button, "button list is parsed from server");
+    start();
+  });
+});
+
+asyncTest("test_Newgame.showPage", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.showPage();
+    var htmlout = Newgame.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Newgame.showPage_button_load_failed", function() {
+  Newgame.getNewgameData(function() {
+    Api.button.load_status = 'failed';
+    Newgame.showPage();
+    var htmlout = Newgame.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
+});
+
+asyncTest("test_Newgame.showPage_player_load_failed", function() {
+  Newgame.getNewgameData(function() {
+    Api.player.load_status = 'failed';
+    Newgame.showPage();
+    var htmlout = Newgame.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    start();
+  });
 });
 
 asyncTest("test_Newgame.layoutPage", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.layoutPage not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.page = $('<div>');
+    Newgame.page.append($('<p>', {'text': 'hi world', }));
+    Newgame.layoutPage();
+    var item = document.getElementById('newgame_page');
+    equal(item.nodeName, "DIV",
+          "#newgame_page is a div after layoutPage() is called");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.actionLoggedOut", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.actionLoggedOut not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionLoggedOut();
+    equal(Newgame.form, null,
+          "Form is null after the 'logged out' action is processed");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.actionInternalErrorPage", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.actionInternalErrorPage not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionInternalErrorPage();
+    equal(Newgame.form, null,
+          "Form is null after the 'internal error' action is processed");
+    start();
+  });     
 });
 
 asyncTest("test_Newgame.actionCreateGame", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.actionCreateGame not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    equal(Newgame.form, Newgame.formCreateGame,
+          "Form is set after the 'create game' action is processed");
+    start();
+  });     
 });
 
+asyncTest("test_Newgame.actionCreateGame_prevvals", function() {
+  Newgame.activity = {
+    'opponentName': 'tester2',
+    'playerButton': 'Avis',
+    'opponentButton': 'Crab',
+    'nRounds': '4',
+  };
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    equal(Newgame.form, Newgame.formCreateGame,
+          "Form is set after the 'create game' action is processed");
+    equal($('#opponent_name').val(), 'tester2',
+          "Opponent name is retained from previous page activity");
+    equal($('#player_button').val(), 'Avis',
+          "Player button is retained from previous page activity");
+    equal($('#opponent_button').val(), 'Crab',
+          "Opponent button is retained from previous page activity");
+    equal($('#n_rounds').val(), '4',
+          "Number of rounds is retained from previous page activity");
+    start();
+  });     
+});
+
+// The logic here is a little hairy: since Newgame.getNewgameData()
+// takes a callback, we can use the normal asynchronous logic there.
+// However, the POST done by our forms doesn't take a callback (it
+// just redraws the page), so turn off asynchronous handling in
+// AJAX while we test that, to make sure the test sees the return
+// from the POST.
 asyncTest("test_Newgame.formCreateGame", function() {
-  ok(true, "INCOMPLETE: Test of Newgame.formCreateGame not implemented");
-  start();
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('tester2');
+    $('#player_button').val('Crab');
+    $('#opponent_button').val('John Kovalic');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "success",
+      "Newgame action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
 });
 
-asyncTest("test_Newgame.addLoggedOutPage", function() {
+asyncTest("test_Newgame.formCreateGame_no_vals", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when expected arguments were not set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Newgame.formCreateGame_no_buttons", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('tester2');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when expected arguments were not set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Newgame.formCreateGame_no_opponent_button", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').val('tester2');
+    $('#player_button').val('Crab');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when expected arguments were not set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Newgame.formCreateGame_invalid_player", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    $('#opponent_name').append(
+      $('<option>', {
+        'value': 'nontester1',
+        'text': 'nontester1',
+        'label': 'nontester1',
+      })
+    );
+    $('#opponent_name').val('nontester1');
+    $('#player_button').val('Crab');
+    $('#opponent_button').val('John Kovalic');
+    $.ajaxSetup({ async: false });
+    $('#newgame_action_button').trigger('click');
+    equal(
+      Env.message.type, "error",
+      "Newgame action failed when opponent was not a known player");
+    equal(
+      Env.message.text, "Specified opponent nontester1 is not recognized",
+      "Newgame action failed when opponent was not a known player");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+test("test_Newgame.addLoggedOutPage", function() {
   ok(true, "INCOMPLETE: Test of Newgame.addLoggedOutPage not implemented");
-  start();
 });
 
-asyncTest("test_Newgame.addInternalErrorPage", function() {
+test("test_Newgame.addInternalErrorPage", function() {
   ok(true, "INCOMPLETE: Test of Newgame.addInternalErrorPage not implemented");
-  start();
 });
 
-asyncTest("test_Newgame.getSelectRow", function() {
+test("test_Newgame.getSelectRow", function() {
   ok(true, "INCOMPLETE: Test of Newgame.getSelectRow not implemented");
-  start();
+});
+
+test("test_Newgame.setCreateGameSuccessMessage", function() {
+  Newgame.setCreateGameSuccessMessage(
+    'test invocation succeeded',
+    { 'gameId': 8, }
+  );
+  equal(Env.message.type, 'success', "set Env.message to a successful type");
 });

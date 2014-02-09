@@ -3,6 +3,7 @@
   "curly": true,
   "indent": 2,
   "latedef": true,
+  "loopfunc": true,
   "maxlen": 80,
   "newcap": true,
   "noarg": true,
