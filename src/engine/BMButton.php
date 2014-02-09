@@ -9,7 +9,7 @@
  * @property      string $recipe      String representation of the button recipe
  * @property-read array  $dieArray    Array of BMDie
  * @property      BMGame $ownerObject BMGame that owns the BMButton
- * $property      BMGame $playerIdx   BMGame index of the player that owns the BMButton
+ * @property      BMGame $playerIdx   BMGame index of the player that owns the BMButton
  */
 class BMButton {
     // properties
