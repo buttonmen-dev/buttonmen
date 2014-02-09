@@ -1292,14 +1292,16 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // james: player 3 currently has autopass
 
-        $retval = $this->object->create_game(array(1, 3), array('Rikachu', 'Wastenott'), 4);
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId3WithAutopass),
+                                             array('Rikachu', 'Wastenott'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game_without_autopass($gameId);
+        $game = $this->object->load_game($gameId);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('Y' => 1), array('X' => 4));
         $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+        $game = $this->object->load_game($game->gameId);
 
         $this->assertEquals(0, $game->playerWithInitiativeIdx);
         $this->assertEquals(0, $game->activePlayerIdx);
@@ -1315,7 +1317,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][4]->value = 4;
 
         $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+        $game = $this->object->load_game($game->gameId);
 
         $this->object->submit_turn(1, $gameId, 1,
                                    $this->object->timestamp->format(DATE_RSS),
@@ -1332,7 +1334,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                    'Skill',
                                    0, 1, '');
 
-        $game = $this->object->load_game($game->gameId, array(FALSE, TRUE));
+        $game = $this->object->load_game($game->gameId);
 
 //        // perform valid attack that would fire twice with the autopass bug
 //        $game->attack = array(0,        // attackerPlayerIdx
@@ -1343,7 +1345,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
-        $this->assertEquals(BMGameState::startTurn, $game->gameState);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
         $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
                                   array('W' => 0, 'L' => 0, 'D' => 0)),
