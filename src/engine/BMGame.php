@@ -679,7 +679,7 @@ class BMGame {
                 'end_winner',
                 $this->playerIdArray[$winnerIdx],
                 'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                $roundScoreArray[0] . ' vs ' . $roundScoreArray[1] . ')'
+                max($roundScoreArray) . ' vs ' . min($roundScoreArray) . ')'
             );
         }
         $this->reset_play_state();
