@@ -13,7 +13,7 @@
  * @property      boolean $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
  * @property      boolean $hasAlteredRecipe      Flag signalling if the recipe has changed
  */
-class BMButton {
+class BMButton extends BMCanHaveSkill {
     // properties
     protected $name;
     protected $recipe;
@@ -23,32 +23,16 @@ class BMButton {
     protected $hasUnimplementedSkill;
     protected $hasAlteredRecipe;
 
-    // an array keyed by function name. Value is an array of the skills
-    // that are modifying that function
-    protected $hookList = array();
-
-    // methods
-    public function run_hooks($func, $args) {
-        // get the hooks for the calling function
-        if (!array_key_exists($func, $this->hookList)) {
-            return;
-        }
-
-        $resultArray = array();
-
-        $hookList = $this->hookList[$func];
-
-        foreach ($hookList as $skillClass) {
-            $resultArray[$skillClass] = $skillClass::$func($args);
-        }
-
-        return $resultArray;
-    }
-
     public function load($recipe, $name = NULL, $isRecipeAltered = FALSE) {
         if (!is_null($name)) {
             $this->name = $name;
         }
+
+//        $this->add_skill($name);
+//
+//        $this->run_hooks(__FUNCTION__, array('name' => $name,
+//                                             'recipe' => &$recipe,
+//                                             'isRecipeAltered' => &$isRecipeAltered));
 
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;
