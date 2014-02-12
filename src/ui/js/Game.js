@@ -1047,9 +1047,9 @@ Game.buttonImageDisplay = function(player) {
   }
   buttonTd.append($('<img>', {
     'src':
-      '/ui/images/button/' 
-      + Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') 
-      + '.png',
+      '/ui/images/button/' +
+      Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
+      '.png',
     'width': '150px',
     'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
   }));
