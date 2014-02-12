@@ -1045,9 +1045,9 @@ Game.buttonImageDisplay = function(player) {
   }
   buttonTd.append($('<img>', {
     'src':
-      '/ui/images/button/' + Api.game[player].buttonName.toLowerCase() + '.jpg',
+      '/ui/images/button/' + Api.game[player].buttonName.toLowerCase() + '.png',
     'width': '150px',
-    'onerror': 'this.src="/ui/images/Circle.png"',
+    'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
   }));
   if (player == 'opponent') {
     buttonTd.append(buttonRecipe);
