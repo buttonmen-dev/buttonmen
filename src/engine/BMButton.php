@@ -28,11 +28,9 @@ class BMButton extends BMCanHaveSkill {
             $this->name = $name;
         }
 
-//        $this->add_skill($name);
-//
-//        $this->run_hooks(__FUNCTION__, array('name' => $name,
-//                                             'recipe' => &$recipe,
-//                                             'isRecipeAltered' => &$isRecipeAltered));
+        if (class_exists("BMBtnSkill$name")) {
+            $this->add_skill($name);;
+        }
 
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;

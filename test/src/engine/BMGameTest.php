@@ -5240,7 +5240,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_trip_round() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('t(1) t(1) t(1) t(1) t(4)', 'Test');
+        $button1->load('t(1) t(1) t(1) t(1) t(4)', 'TestButton');
         $this->assertEquals('t(1) t(1) t(1) t(1) t(4)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertCount(5, $button1->dieArray);
@@ -5500,7 +5500,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_trip_capture_not_triggered_on_non_trip_attack() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('t(1) t(1) t(1) t(1) t(4)', 'Test');
+        $button1->load('t(1) t(1) t(1) t(1) t(4)', 'TestButton');
 
         $button2 = new BMButton;
         $button2->load('(99) (98) (97)', 'TestTarget');
