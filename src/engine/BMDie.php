@@ -38,41 +38,6 @@ class BMDie extends BMCanHaveSkill {
 //  but not attacking
     public $unavailable = FALSE;
 
-    // unhooked methods
-
-// Run the skill hooks for a given function. $args is an array of
-//  argumentsfor the function.
-//
-// Important note on PHP references, since they make no bloody sense:
-//
-// To put a reference into the args array and have it still be such
-// when you take it out again, you must:
-//
-// Put it into the args array as a reference: $args = array(&$foo)
-// --AND--
-// Take it out as a reference: $thing = &$args[0]
-
-    public function run_hooks($func, $args) {
-        // get the hooks for the calling function
-        if (!array_key_exists($func, $this->hookList)) {
-            return;
-        }
-
-        $resultArray = array();
-
-        $hookList = $this->hookList[$func];
-
-        if (isset($hookList) && (count($hookList) > 1)) {
-            usort($hookList, 'BMSkill::skill_order_comparator');
-        }
-
-        foreach ($hookList as $skillClass) {
-            $resultArray[$skillClass] = $skillClass::$func($args);
-        }
-
-        return $resultArray;
-    }
-
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)

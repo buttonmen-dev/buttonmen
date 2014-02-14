@@ -19,6 +19,8 @@ class BMCanHaveSkill {
 
     // methods
 
+    // unhooked methods
+
     // Run the skill hooks for a given function. $args is an array of
     //  argumentsfor the function.
     //
@@ -30,23 +32,28 @@ class BMCanHaveSkill {
     // Put it into the args array as a reference: $args = array(&$foo)
     // --AND--
     // Take it out as a reference: $thing = &$args[0]
-//    public function run_hooks($func, $args) {
-//        // get the hooks for the calling function
-//        if (!array_key_exists($func, $this->hookList)) {
-//            return;
-//        }
-//
-//        $resultArray = array();
-//
-//        $hookList = $this->hookList[$func];
-//
-//        foreach ($hookList as $skillClass) {
-//            $resultArray[$skillClass] = $skillClass::$func($args);
-//        }
-//
-//        return $resultArray;
-//    }
-//
+
+    public function run_hooks($func, $args) {
+        // get the hooks for the calling function
+        if (!array_key_exists($func, $this->hookList)) {
+            return;
+        }
+
+        $resultArray = array();
+
+        $hookList = $this->hookList[$func];
+
+        if (isset($hookList) && (count($hookList) > 1)) {
+            usort($hookList, 'BMSkill::skill_order_comparator');
+        }
+
+        foreach ($hookList as $skillClass) {
+            $resultArray[$skillClass] = $skillClass::$func($args);
+        }
+
+        return $resultArray;
+    }
+
     // Other code inside engine must never set $skillClass, but
     // instead name skill classes according to the expected pattern.
     // The optional argument is only for outside code which needs
@@ -57,7 +64,11 @@ class BMCanHaveSkill {
         }
 
         if (!$skillClass) {
-            $skillClass = "BMSkill$skill";
+            if (is_a($this, 'BMButton')) {
+                $skillClass = "BMBtnSkill$skill";
+            } else {
+                $skillClass = "BMSkill$skill";
+            }
         }
 
         // Don't add skills that are already added
