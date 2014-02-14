@@ -116,5 +116,3 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(1.5, 3), $game->roundScoreArray);
     }
 }
-
-?>

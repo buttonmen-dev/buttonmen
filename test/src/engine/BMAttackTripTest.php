@@ -63,5 +63,3 @@ class BMAttackTripTest extends PHPUnit_Framework_TestCase {
         // james: still need a test targeting a non-valid target: a twin die
     }
 }
-
-?>

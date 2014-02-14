@@ -7,5 +7,3 @@ class TestDummyBMSkillAVTesting extends BMSkill {
         $args['possibleAssistValues'] = array(-1, 1);
     }
 }
-
-?>

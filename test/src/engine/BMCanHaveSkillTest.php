@@ -179,5 +179,3 @@ class BMCanHaveSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertRegExp('/testingstill testing|still testingtesting/', $die->testvar);
     }
 }
-
-?>

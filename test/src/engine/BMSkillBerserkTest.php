@@ -58,4 +58,3 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
     }
 }
 
-?>

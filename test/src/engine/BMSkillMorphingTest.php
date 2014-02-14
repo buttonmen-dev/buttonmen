@@ -162,5 +162,3 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($newDie3->has_skill('Konstant'));
     }
 }
-
-?>

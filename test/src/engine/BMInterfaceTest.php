@@ -1640,5 +1640,3 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->buttonArray[1]->recipe);
     }
 }
-
-?>

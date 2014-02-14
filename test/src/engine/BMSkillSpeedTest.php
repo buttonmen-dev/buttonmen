@@ -57,5 +57,3 @@ class BMSkillSpeedTest extends PHPUnit_Framework_TestCase {
 
     }
 }
-
-?>
