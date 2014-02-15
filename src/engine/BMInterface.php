@@ -77,16 +77,20 @@ class BMInterface {
                                       ':password' => crypt($password),
                                       ':email' => $email,
                                       ':status' => 'unverified'));
-            $this->message = 'User ' . $username . ' created successfully';
 
-            $result = array('userName' => $username);
 
-            if ($this->isTest) {
-                $query = 'SELECT id FROM player WHERE name_ingame = :name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':name' => $username));
-                $fetchResult = $statement->fetch();
-                $result['playerId'] = $fetchResult['id'];
+            // select the player ID to make sure insert succeeded
+            $query = 'SELECT id FROM player WHERE name_ingame = :name';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':name' => $username));
+            $result = $statement->fetchAll();
+
+            if (count($result) == 1) {
+                $this->message = 'User ' . $username . ' created successfully';
+                $result = array('userName' => $username, 'playerId' => $result[0]['id']);
+            } else {
+                $this->message = 'User creation failed';
+                return NULL;
             }
             return $result;
         } catch (Exception $e) {
