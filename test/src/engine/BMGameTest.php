@@ -7108,12 +7108,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @coversNothing
      */
-    public function test_echo() {
+    public function test_echo_vs_defined() {
         // load buttons
         $button1 = new BMButton;
         $button1->load('', 'Echo');
         $this->assertEquals('', $button1->recipe);
-        // check dice in $button1->dieArray are correct
         $this->assertCount(0, $button1->dieArray);
 
         $button2 = new BMButton;
@@ -7141,9 +7140,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame(535353, array(234, 567), array('', ''), 2);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $this->assertEquals(2, $game->maxWins);
-        var_dump('BMGameTest::test_start');
         $game->buttonArray = array($button1, $button2);
-        var_dump('BMGameTest::test_end');
 
         $this->assertEquals('Echo', $game->buttonArray[0]->name);
         $this->assertEquals('p(4) (12) p(20) (20) (V)', $game->buttonArray[0]->recipe);
@@ -7162,4 +7159,44 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($game, $game->buttonArray[1]->dieArray[4]->ownerObject);
     }
 
+    /**
+     * @coversNothing
+     */
+    public function test_echo_vs_echo() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('', 'Echo');
+        $this->assertEquals('', $button1->recipe);
+        $this->assertCount(0, $button1->dieArray);
+
+        $button2 = new BMButton;
+        $button2->load('', 'Echo');
+        $this->assertEquals('', $button2->recipe);
+        $this->assertCount(0, $button2->dieArray);
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+        $this->assertEquals(2, $game->maxWins);
+        $game->buttonArray = array($button1, $button2);
+
+        $this->assertEquals('Echo', $game->buttonArray[0]->name);
+        $this->assertEquals('(4) (4) (10) (12) (X)', $game->buttonArray[0]->recipe);
+        $this->assertCount(5, $game->buttonArray[0]->dieArray);
+        $this->assertEquals('Echo', $game->buttonArray[1]->name);
+        $this->assertEquals($game->buttonArray[0]->recipe, $game->buttonArray[1]->recipe);
+        $this->assertCount(5, $game->buttonArray[1]->dieArray);
+        $this->assertEquals($game, $game->buttonArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[2]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[3]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[4]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[2]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[3]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[4]->ownerObject);
+    }
 }
