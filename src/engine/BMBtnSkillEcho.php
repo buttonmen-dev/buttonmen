@@ -14,6 +14,6 @@ class BMBtnSkillEcho extends BMBtnSkill {
             }
         }
 
-        return array('echo_recipe' => $newRecipe);
+        return array('recipe' => $newRecipe);
     }
 }

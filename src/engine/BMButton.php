@@ -48,6 +48,7 @@ class BMButton extends BMCanHaveSkill {
         // set die sides and skills, one die at a time
         foreach ($dieRecipeArray as $dieRecipe) {
             $die = BMDie::create_from_recipe($dieRecipe);
+            $die->ownerObject = $this->ownerObject;
             $this->dieArray[] = $die;
             if (is_null($die)) {
                 $this->hasUnimplementedSkill = TRUE;
