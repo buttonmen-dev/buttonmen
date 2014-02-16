@@ -1683,7 +1683,7 @@ class BMGame {
                                                            'oppname' => $oppButton->name,
                                                            'opprecipe' => $oppButton->recipe));
                     if (isset($hookResult) && (FALSE !== $hookResult)) {
-                        $button->recipe = $hookResult['BMBtnSkillEcho']['recipe'];
+                        $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
                         $button->hasAlteredRecipe = TRUE;
                     }
                 }
