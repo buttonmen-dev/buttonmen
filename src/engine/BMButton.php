@@ -51,6 +51,7 @@ class BMButton extends BMCanHaveSkill {
             if (isset($this->ownerObject)) {
                 $die->ownerObject = $this->ownerObject;
                 $die->playerIdx = $this->playerIdx;
+                $die->originalPlayerIdx = $this->playerIdx;
             }
             $this->dieArray[] = $die;
             if (is_null($die)) {

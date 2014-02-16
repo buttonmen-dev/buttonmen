@@ -133,7 +133,6 @@ class BMInterface {
                 $this->message = "Player info updated successfully.";
                 return array('playerId' => $playerId);
             } catch (Exception $e) {
-                var_dump($e->getMessage());
                 $this->message = 'Player info update failed: '.$e->getMessage();
             }
         }
@@ -429,7 +428,6 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = "Game load failed: $e";
-            var_dump($this->message);
             return NULL;
         }
     }
