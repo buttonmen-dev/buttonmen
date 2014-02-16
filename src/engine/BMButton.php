@@ -29,7 +29,7 @@ class BMButton extends BMCanHaveSkill {
         }
 
         if (class_exists("BMBtnSkill$name")) {
-            $this->add_skill($name);;
+            $this->add_skill($name);
         }
 
         $this->validate_recipe($recipe);
