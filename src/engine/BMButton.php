@@ -50,6 +50,7 @@ class BMButton extends BMCanHaveSkill {
             $die = BMDie::create_from_recipe($dieRecipe);
             if (isset($this->ownerObject)) {
                 $die->ownerObject = $this->ownerObject;
+                $die->playerIdx = $this->playerIdx;
             }
             $this->dieArray[] = $die;
             if (is_null($die)) {
