@@ -1678,12 +1678,12 @@ class BMGame {
                     $oppIdx = ($playerIdx + 1) % 2;
                     $oppButton = $this->buttonArray[$oppIdx];
                     $hookResult = $button->run_hooks(
-                                      'load_buttons',
-                                      array('name' => $button->name,
-                                            'recipe' => $button->recipe,
-                                            'oppname' => $oppButton->name,
-                                            'opprecipe' => $oppButton->recipe)
-                                  );
+                        'load_buttons',
+                        array('name' => $button->name,
+                              'recipe' => $button->recipe,
+                              'oppname' => $oppButton->name,
+                              'opprecipe' => $oppButton->recipe)
+                    );
                     if (isset($hookResult) && (FALSE !== $hookResult)) {
                         $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
                         $button->hasAlteredRecipe = TRUE;
