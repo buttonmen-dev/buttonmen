@@ -305,11 +305,9 @@ class BMInterface {
                 } else {
                     $recipe = $this->get_button_recipe_from_name($row['button_name']);
                 }
-                if ($recipe) {
+                if (isset($recipe)) {
                     $button = new BMButton;
                     $button->load($recipe, $row['button_name']);
-
-
                     $buttonArray[$pos] = $button;
                 } else {
                     throw new InvalidArgumentException('Invalid button name.');
@@ -431,6 +429,7 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = "Game load failed: $e";
+            var_dump($this->message);
             return NULL;
         }
     }

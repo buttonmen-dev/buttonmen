@@ -1639,4 +1639,70 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('(4) (8) (12) (20) r(4) r(12) r(20) r(20)',
                             $game->buttonArray[1]->recipe);
     }
+
+    /**
+     * Check that Echo games can be created and played correctly.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_echo_vs_other() {
+        // Echo : none
+        // Avis : (4) (4) (10) (12) (X)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Echo', 'Avis'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        $this->assertInstanceOf('BMGame', $game);
+        $this->assertEquals(24, $game->gameState);
+
+//        $game->gameScoreArrayArray = array(array('W' => 0, 'L' => 1, 'D' => 0),
+//                                           array('W' => 1, 'L' => 0, 'D' => 0));
+//        $game->isPrevRoundWinnerArray = array(FALSE, TRUE);
+//        $game->waitingOnActionArray = array(FALSE, FALSE);
+//        $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+//
+//        $this->object->save_game($game);
+//        $game = $this->object->load_game($game->gameId);
+//
+//        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
+//        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+//        $this->assertCount(8, $game->activeDieArrayArray[0]);
+//        $this->assertCount(8, $game->activeDieArrayArray[1]);
+//
+//        // a non-player attempts an action
+//        $this->assertFalse(
+//            $this->object->react_to_reserve(
+//                0,
+//                $gameId,
+//                'add')
+//        );
+//
+//        // player 1 adds reserve die
+//        $this->assertTrue(
+//            $this->object->react_to_reserve(
+//                self::$userId1WithoutAutopass,
+//                $gameId,
+//                'add',
+//                5)
+//        );
+//        $game = $this->object->load_game($gameId);
+//
+//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+//        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+//        $this->assertCount(5, $game->activeDieArrayArray[0]);
+//        $this->assertCount(4, $game->activeDieArrayArray[1]);
+//        foreach ($game->activeDieArrayArray as $activeDieArray) {
+//            foreach ($activeDieArray as $die) {
+//                $this->assertFalse($die->has_skill('Reserve'));
+//            }
+//        }
+//        $this->assertEquals(10, $game->activeDieArrayArray[0][4]->max);
+//        $this->assertEquals('(8) (8) (10) (20) r(6) (10) r(20) r(20)',
+//                            $game->buttonArray[0]->recipe);
+//        $this->assertEquals('(4) (8) (12) (20) r(4) r(12) r(20) r(20)',
+//                            $game->buttonArray[1]->recipe);
+    }
 }
