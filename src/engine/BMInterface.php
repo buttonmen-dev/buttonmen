@@ -803,7 +803,8 @@ class BMInterface {
                     $button->load($row['recipe'], $row['name']);
 
                     // james: put in temporary code to disable buttons with button specials
-                    if (1 == $row['btn_special']) {
+                    if (1 == $row['btn_special'] &&
+                        !class_exists('BMBtnSkill'.$row['name'])) {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 
