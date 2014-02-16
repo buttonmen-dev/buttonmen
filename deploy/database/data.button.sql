@@ -405,9 +405,9 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Ryo-Ohki',            '(4) (4) (4) (12) r(10) r(12) r(20) r(30)',      1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
 ('Washu',               '(4) (6) (12) (X) r(6) r(8) r(10) r(20)',        1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
 ('Dr. Clay',            '(6) (10) (10) (10) r(4) r(4) r(12) r(12)',      1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
-('Sasami',              '(4) (4) (6) (8) r(12) r(12) r(20) r(20)',       1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!"));
-# Zero works just like Echo - it doesn't have it's own recipe, but instead copies its important
-('Zero',                '',                                              1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
+('Sasami',              '(4) (4) (6) (8) r(12) r(12) r(20) r(20)',       1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
+# Zero works just like Echo - it doesn't have it's own recipe, but instead copies its opponent's
+('Zero',                '',                                              1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!"));
 
 # HOWLING WOLF (Howling Wolf Studios)              INTRODUCES Stealth(d) Dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
