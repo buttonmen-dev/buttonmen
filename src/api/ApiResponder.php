@@ -38,6 +38,10 @@ class ApiResponder {
         return $interface->create_user($args['username'], $args['password'], $args['email']);
     }
 
+    protected function get_interface_response_verifyUser($interface, $args) {
+        return $interface->verify_user($args['playerId'], $args['playerKey']);
+    }
+
     protected function get_interface_response_createGame($interface, $args) {
         $playerNameArray = $args['playerNameArray'];
         $playerIdArray = array();

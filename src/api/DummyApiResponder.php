@@ -95,7 +95,11 @@ class DummyApiResponder {
             $userid = $dummy_users[$username];
             return array(NULL, "$username already exists (id=$userid)");
         }
-        return array(array('userName' => $username), "User $username created successfully");
+        return array(array('userName' => $username), "User $username created successfully.  A verification code has been e-mailed to $username@example.com.  Follow the link in that message to start beating people up!");
+    }
+
+    protected function get_interface_response_verifyUser($args) {
+        return array(TRUE, "New user tester1 has been verified.");
     }
 
     protected function get_interface_response_createGame() {

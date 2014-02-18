@@ -16,6 +16,7 @@ function login($username, $password) {
     if (1 == count($resultArray)) {
         $result = $resultArray[0];
         $password_hashed = $result['password_hashed'];
+        $status = $result['status'];
 
         // check if the password is correct and if the account is in active status
         if (($password_hashed == crypt($password, $password_hashed) && ($status == 'active'))) {

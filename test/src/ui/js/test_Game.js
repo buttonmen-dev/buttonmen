@@ -3,22 +3,7 @@ module("Game", {
     BMTestUtils.GamePre = BMTestUtils.getAllElements();
 
     // Override Env.getParameterByName to set the game
-    Env.getParameterByName = function(name) {
-      if (name == 'game') {
-        if (BMTestUtils.GameType == 'newgame') { return '1'; }
-        if (BMTestUtils.GameType == 'swingset') { return '2'; }
-        if (BMTestUtils.GameType == 'turn_active') { return '3'; }
-        if (BMTestUtils.GameType == 'turn_inactive') { return '4'; }
-        if (BMTestUtils.GameType == 'finished') { return '5'; }
-        if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
-        if (BMTestUtils.GameType == 'focus') { return '7'; }
-        if (BMTestUtils.GameType == 'chance_active') { return '8'; }
-        if (BMTestUtils.GameType == 'chance_inactive') { return '9'; }
-        if (BMTestUtils.GameType == 'newgame_nonplayer') { return '10'; }
-        if (BMTestUtils.GameType == 'turn_nonplayer') { return '11'; }
-        if (BMTestUtils.GameType == 'chance_nonplayer') { return '12'; }
-      }
-    }
+    BMTestUtils.overrideGetParameterByName();
 
     // Create the game_page div so functions have something to modify
     if (document.getElementById('game_page') == null) {

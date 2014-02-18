@@ -443,7 +443,9 @@ var Api = (function () {
   };
 
   my.disableSubmitButton = function(button_id) {
-    $('#' + button_id).attr('disabled', 'disabled');
+    if (button_id) {
+      $('#' + button_id).attr('disabled', 'disabled');
+    }
   };
 
   return my;
