@@ -97,7 +97,7 @@ class DummyApiResponder {
         }
         return array(array('userName' => $username),
                      'User ' . $username . ' created successfully.  ' .
-                     'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
+                     'A verification code has been e-mailed to ' . $username . '@example.com.  ' .
                      'Follow the link in that message to start beating people up!');
     }
 
