@@ -152,7 +152,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $this->message = 'Account activated for player ' . $username . '!';
-            $result = TRUE; 
+            $result = TRUE;
             return $result;
 
         } catch (Exception $e) {
@@ -164,12 +164,12 @@ class BMInterface {
 
     public function send_email_verification($playerId, $username, $playerEmail) {
 
-	// a given player should only have one verification code at a time, so delete any old ones
+        // a given player should only have one verification code at a time, so delete any old ones
         $query = 'DELETE FROM player_verification WHERE player_id = :playerId';
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':playerId' => $playerId));
 
-	// generate a new verification code and insert it into the table
+        // generate a new verification code and insert it into the table
         $playerKey = md5(rand());
         $query = 'INSERT INTO player_verification (player_id, verification_key)
                   VALUES (:player_id, :player_key)';
