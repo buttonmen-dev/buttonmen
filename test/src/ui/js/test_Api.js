@@ -55,7 +55,7 @@ asyncTest("test_Api.getPlayerData", function() {
           "Api.player.list should be an object");
     deepEqual(
       Api.player.list["tester2"],
-      {},
+      {'status': 'active', },
       "Player tester2 should have correct contents");
     deepEqual(Env.message, undefined,
               "Api.getPlayerData should not set Env.message");
@@ -105,14 +105,15 @@ test("test_Api.parsePlayerData", function() {
 
   Api.player = {};
   var retval = Api.parsePlayerData({
-    'nameArray': ['tester1', 'tester2', 'tester3' ]
+    'nameArray': ['tester1', 'tester2', 'tester3' ],
+    'statusArray': ['active', 'active', 'active' ],
   });
   equal(retval, true, "Api.parsePlayerData() returns true");
   deepEqual(
     Api.player.list,
-    { 'tester1': {},
-      'tester2': {},
-      'tester3': {}
+    { 'tester1': {'status': 'active', },
+      'tester2': {'status': 'active', },
+      'tester3': {'status': 'active', }
     }
   );
   deepEqual(Env.message, undefined,

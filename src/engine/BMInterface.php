@@ -942,19 +942,20 @@ class BMInterface {
 
     public function get_player_names_like($input = '') {
         try {
-            $query = 'SELECT name_ingame FROM player '.
+            $query = 'SELECT name_ingame,status FROM player '.
                      'WHERE name_ingame LIKE :input '.
-                     'AND status = "active" '.
                      'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $input.'%'));
 
             $nameArray = array();
+            $statusArray = array();
             while ($row = $statement->fetch()) {
                 $nameArray[] = $row['name_ingame'];
+                $statusArray[] = $row['status'];
             }
             $this->message = 'Names retrieved successfully.';
-            return array('nameArray' => $nameArray);
+            return array('nameArray' => $nameArray, 'statusArray' => $statusArray);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_player_names_like: " .

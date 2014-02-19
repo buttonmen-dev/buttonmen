@@ -773,12 +773,16 @@ class DummyApiResponder {
     protected function get_interface_response_loadPlayerNames() {
         $data = array(
             'nameArray' => array(),
+            'statusArray' => array(),
         );
 
-        // three test players exist
+        // three test players exist and are all active
         $data['nameArray'][] = 'tester1';
+        $data['statusArray'][] = 'active';
         $data['nameArray'][] = 'tester2';
+        $data['statusArray'][] = 'active';
         $data['nameArray'][] = 'tester3';
+        $data['statusArray'][] = 'active';
 
         return array($data, "Names retrieved successfully.");
     }
