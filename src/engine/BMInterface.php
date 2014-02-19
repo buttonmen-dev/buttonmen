@@ -263,7 +263,7 @@ class BMInterface {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
                      'v.player_id, v.position, v.autopass,'.
-                     'v.button_name,'.
+                     'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
                      'v.is_awaiting_action '.
@@ -300,7 +300,11 @@ class BMInterface {
                                                    $row['n_rounds_drawn']);
 
                 // load button attributes
-                $recipe = $this->get_button_recipe_from_name($row['button_name']);
+                if (isset($row['alt_recipe'])) {
+                    $recipe = $row['alt_recipe'];
+                } else {
+                    $recipe = $this->get_button_recipe_from_name($row['button_name']);
+                }
                 if ($recipe) {
                     $button = new BMButton;
                     $button->load($recipe, $row['button_name']);
@@ -400,6 +404,10 @@ class BMInterface {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
+                    case 'SELECTED':
+                        $die->selected = TRUE;
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
                     case 'DISABLED':
                         $die->disabled = TRUE;
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -471,6 +479,22 @@ class BMInterface {
                                       ':n_recent_passes' => $game->nRecentPasses,
                                       ':current_player_id' => $currentPlayerId,
                                       ':game_id' => $game->gameId));
+
+            // button recipes if altered
+            if (isset($game->buttonArray)) {
+                foreach ($game->buttonArray as $playerIdx => $button) {
+                    if ($button->hasAlteredRecipe) {
+                        $query = 'UPDATE game_player_map '.
+                                 'SET alt_recipe = :alt_recipe '.
+                                 'WHERE game_id = :game_id '.
+                                 'AND player_id = :player_id;';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':alt_recipe' => $button->recipe,
+                                                  ':game_id' => $game->gameId,
+                                                  ':player_id' => $game->playerIdArray[$playerIdx]));
+                    }
+                }
+            }
 
             // set round scores
             if (isset($game->gameScoreArrayArray)) {
@@ -573,7 +597,9 @@ class BMInterface {
                     foreach ($activeDieArray as $dieIdx => $activeDie) {
                         // james: set status, this is currently INCOMPLETE
                         $status = 'NORMAL';
-                        if ($activeDie->disabled) {
+                        if ($activeDie->selected) {
+                            $status = 'SELECTED';
+                        } elseif ($activeDie->disabled) {
                             $status = 'DISABLED';
                         }
 
@@ -892,17 +918,29 @@ class BMInterface {
         $currentPlayerId
     ) {
         $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
+
+        if (FALSE === $currentPlayerIdx) {
+            $this->message = 'You are not a participant in this game';
+            return FALSE;
+        }
+
+        if (FALSE === $game->waitingOnActionArray[$currentPlayerIdx]) {
+            $this->message = 'You are not the active player';
+            return FALSE;
+        };
+
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
-            $postedTimestamp == $this->timestamp->format(DATE_RSS);
-        $doesRoundNumberAgree = $roundNumber == $game->roundNumber;
+            ($postedTimestamp == $this->timestamp->format(DATE_RSS));
+        $doesRoundNumberAgree =
+            ('ignore' === $roundNumber) ||
+            ($roundNumber == $game->roundNumber);
         $doesGameStateAgree = $expectedGameState == $game->gameState;
-        $isCurrPlayerActive =
-            TRUE == $game->waitingOnActionArray[$currentPlayerIdx];
+
+        $this->message = 'Game state is not current';
         return ($doesTimeStampAgree &&
                 $doesRoundNumberAgree &&
-                $doesGameStateAgree &&
-                $isCurrPlayerActive);
+                $doesGameStateAgree);
     }
 
     // Enter recent game actions into the action log
@@ -1024,12 +1062,12 @@ class BMInterface {
 
     public function submit_swing_values(
         $playerId,
-        $gameNumber,
+        $gameId,
         $roundNumber,
         $swingValueArray
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
@@ -1086,7 +1124,7 @@ class BMInterface {
 
     public function submit_turn(
         $playerId,
-        $gameNumber,
+        $gameId,
         $roundNumber,
         $submitTimestamp,
         $dieSelectStatus,
@@ -1096,7 +1134,7 @@ class BMInterface {
         $chat
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             if (!$this->is_action_current(
                 $game,
                 BMGameState::START_TURN,
@@ -1173,6 +1211,77 @@ class BMInterface {
         }
     }
 
+    // react_to_auxiliary expects the following inputs:
+    //
+    //   $action:
+    //       One of {'add', 'decline'}.
+    //
+    //   $dieIdx:
+    //       (i)  If this is an 'add' action, then this is the die index of the
+    //            die to be added.
+    //       (ii) If this is a 'decline' action, then this will be ignored.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function react_to_auxiliary(
+        $playerId,
+        $gameId,
+        $action,
+        $dieIdx = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_AUXILIARY_DICE,
+                'ignore',
+                'ignore',
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            switch ($action) {
+                case 'add':
+                    if (!is_int($dieIdx) ||
+                        !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
+                        $this->message = 'Invalid auxiliary choice';
+                        return FALSE;
+                    }
+                    $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
+                    $die->selected = TRUE;
+                    $waitingOnActionArray = $game->waitingOnActionArray;
+                    $waitingOnActionArray[$playerIdx] = FALSE;
+                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $this->message = 'Auxiliary die chosen successfully';
+                    break;
+                case 'decline':
+                    $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $this->message = 'Declined auxiliary dice';
+                    break;
+                default:
+                    $this->message = 'Invalid response to auxiliary choice.';
+                    return FALSE;
+            }
+
+            $this->save_game($game);
+
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::react_to_auxiliary: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while making auxiliary decision';
+            return FALSE;
+        }
+    }
+
     // react_to_initiative expects the following inputs:
     //
     //   $action:
@@ -1199,7 +1308,7 @@ class BMInterface {
 
     public function react_to_initiative(
         $playerId,
-        $gameNumber,
+        $gameId,
         $roundNumber,
         $submitTimestamp,
         $action,
@@ -1207,7 +1316,7 @@ class BMInterface {
         $dieValueArray = NULL
     ) {
         try {
-            $game = $this->load_game($gameNumber);
+            $game = $this->load_game($gameId);
             if (!$this->is_action_current(
                 $game,
                 BMGameState::REACT_TO_INITIATIVE,
@@ -1215,16 +1324,10 @@ class BMInterface {
                 $roundNumber,
                 $playerId
             )) {
-                $this->message = 'You cannot react to initiative at the moment';
                 return FALSE;
             }
 
             $playerIdx = array_search($playerId, $game->playerIdArray);
-
-            if (FALSE === $playerIdx) {
-                $this->message = 'You are not a participant in this game';
-                return FALSE;
-            }
 
             $argArray = array('action' => $action,
                               'playerIdx' => $playerIdx);
