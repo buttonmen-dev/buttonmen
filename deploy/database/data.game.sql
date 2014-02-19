@@ -28,4 +28,5 @@ INSERT INTO die_status (name) VALUES
 ('CAPTURED'),
 ('DISABLED'),
 ('OUT_OF_GAME'),
-('DELETED');
+('DELETED'),
+('SELECTED');

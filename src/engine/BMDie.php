@@ -33,6 +33,9 @@ class BMDie {
 
     public $hasAttacked = FALSE;
 
+    // $selected is set when a player wants to add an auxiliary die
+    public $selected = FALSE;
+
 // This is set when the button may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
 // the end of each of your turns.

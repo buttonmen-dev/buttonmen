@@ -128,6 +128,19 @@ class ApiResponder {
         );
     }
 
+    protected function get_interface_response_reactToAuxiliary($interface, $args) {
+        if (!(array_key_exists('dieIdx', $args))) {
+            $args['dieIdx'] = NULL;
+        }
+
+        return $interface->react_to_auxiliary(
+            $_SESSION['user_id'],
+            $args['game'],
+            $args['action'],
+            $args['dieIdxArray']
+        );
+    }
+
     protected function get_interface_response_reactToInitiative($interface, $args) {
         if (!(array_key_exists('dieIdxArray', $args))) {
             $args['dieIdxArray'] = NULL;
