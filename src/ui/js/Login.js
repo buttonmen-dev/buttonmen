@@ -96,7 +96,8 @@ Login.stateLoggedOut = function() {
     Login.message.append(
       $('<font>', {
         'color': Env.messageTypeColors.error,
-        'text': 'Login failed - username or password invalid',
+        'text': 'Login failed - username or password invalid, or email ' +
+                'address has not been verified',
       }));
   } else if (Login.status_type == Login.STATUS_ACTION_SUCCEEDED) {
     Login.message.append(
