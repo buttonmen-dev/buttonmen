@@ -244,7 +244,7 @@ class BMGame {
     }
 
     protected function offer_courtesy_auxiliary_dice() {
-        $havePlayersAuxDice = $this->do_players_have_auxiliary_dice();
+        $havePlayersAuxDice = $this->do_players_have_dice_with_skill('Auxiliary');
 
         if (array_sum($havePlayersAuxDice) > 0) {
             $auxiliaryDice = $this->get_all_auxiliary_dice();
@@ -260,19 +260,19 @@ class BMGame {
         }
     }
 
-    protected function do_players_have_auxiliary_dice() {
-        $hasAuxiliaryDice = array_fill(0, $this->nPlayers, FALSE);
+    protected function do_players_have_dice_with_skill($skill) {
+        $hasDiceWithSkill = array_fill(0, $this->nPlayers, FALSE);
 
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $die) {
-                if ($die->has_skill('Auxiliary')) {
-                    $hasAuxiliaryDice[$playerIdx] = TRUE;
+                if ($die->has_skill($skill)) {
+                    $hasDiceWithSkill[$playerIdx] = TRUE;
                     break;
                 }
             }
         }
 
-        return $hasAuxiliaryDice;
+        return $hasDiceWithSkill;
     }
 
     protected function get_all_auxiliary_dice() {
@@ -292,7 +292,8 @@ class BMGame {
     protected function update_game_state_add_available_dice_to_game() {
         if (isset($this->activeDieArrayArray)) {
             $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
-            $this->waitingOnActionArray = $this->do_players_have_auxiliary_dice();
+            $this->waitingOnActionArray =
+                $this->do_players_have_dice_with_skill('Auxiliary');
         }
     }
 
@@ -304,7 +305,7 @@ class BMGame {
         // if all decisions on auxiliary dice have been made
         if (0 == array_sum($this->waitingOnActionArray)) {
             $areAnyDiceAdded = $this->add_selected_auxiliary_dice();
-            $areAnyDiceRemoved = $this->remove_auxiliary_dice();
+            $areAnyDiceRemoved = $this->remove_dice_with_skill('Auxiliary');
 
             if (array_sum($areAnyDiceAdded) + array_sum($areAnyDiceRemoved) > 0) {
                 // update button recipes
@@ -317,7 +318,7 @@ class BMGame {
 
             }
 
-            $this->gameState = BMGameState::SPECIFY_DICE;
+            $this->gameState = BMGameState::CHOOSE_RESERVE_DICE;
         }
     }
 
@@ -349,13 +350,13 @@ class BMGame {
         return array_fill(0, $this->nPlayers, $useAuxDice);
     }
 
-    protected function remove_auxiliary_dice() {
+    protected function remove_dice_with_skill($skill) {
         $areAnyDiceRemoved = array_fill(0, $this->nPlayers, FALSE);
 
         // remove all remaining auxiliary dice
         foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
             foreach ($activeDieArray as $dieIdx => &$die) {
-                if ($die->has_skill('Auxiliary')) {
+                if ($die->has_skill($skill)) {
                     $areAnyDiceRemoved[$playerIdx] = TRUE;
                     unset($activeDieArray[$dieIdx]);
                 }
@@ -366,6 +367,63 @@ class BMGame {
         }
 
         return $areAnyDiceRemoved;
+    }
+
+    protected function do_next_step_choose_reserve_dice() {
+        $waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        if (array_sum($this->isPrevRoundWinnerArray) > 0) {
+            $haveReserveDice = $this->do_players_have_dice_with_skill('Reserve');
+
+            if (array_sum($haveReserveDice) > 0) {
+                foreach ($waitingOnActionArray as $playerIdx => &$waitingOnAction) {
+                    if (!$this->isPrevRoundWinnerArray[$playerIdx] &&
+                        $haveReserveDice[$playerIdx]) {
+                        $waitingOnAction = TRUE;
+                    }
+                }
+            }
+        }
+
+        $this->waitingOnActionArray = $waitingOnActionArray;
+    }
+
+    protected function update_game_state_choose_reserve_dice() {
+        // if all decisions on reserve dice have been made
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            $areAnyDiceAdded = $this->add_selected_reserve_dice();
+
+            if (array_sum($areAnyDiceAdded) > 0) {
+                // update button recipes
+                for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                    if ($areAnyDiceAdded[$playerIdx]) {
+                        $this->buttonArray[$playerIdx]->update_button_recipe();
+                    }
+                }
+
+            }
+
+            $this->remove_dice_with_skill('Reserve');
+            $this->gameState = BMGameState::SPECIFY_DICE;
+        }
+    }
+
+    protected function add_selected_reserve_dice() {
+        $areAnyDiceAdded = array_fill(0, $this->nPlayers, FALSE);
+
+        if (isset($this->activeDieArrayArray)) {
+            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $die) {
+                    if ($die->selected) {
+                        $die->remove_skill('Reserve');
+                        $die->selected = FALSE;
+                        $areAnyDiceAdded[$playerIdx] = TRUE;
+                    }
+                }
+            }
+        }
+
+        return $areAnyDiceAdded;
     }
 
     protected function do_next_step_specify_dice() {
@@ -732,6 +790,7 @@ class BMGame {
 
     protected function do_next_step_end_round() {
         $roundScoreArray = $this->get_roundScoreArray();
+        $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
 
         // check for draw currently assumes only two players
         $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
@@ -753,6 +812,7 @@ class BMGame {
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
                     $this->gameScoreArrayArray[$playerIdx]['W']++;
+                    $this->isPrevRoundWinnerArray[$playerIdx] = TRUE;
                 } else {
                     $this->gameScoreArrayArray[$playerIdx]['L']++;
                     $this->swingValueArrayArray[$playerIdx] = array();
@@ -772,7 +832,7 @@ class BMGame {
         if (isset($this->activePlayerIdx)) {
             return;
         }
-        // james: still need to deal with reserve dice
+
         $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
         foreach ($this->gameScoreArrayArray as $tempGameScoreArray) {
             if ($tempGameScoreArray['W'] >= $this->maxWins) {
