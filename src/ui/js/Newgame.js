@@ -136,7 +136,8 @@ Newgame.actionCreateGame = function() {
   // temporarily used a select for the opponent name
   var playerNames = {};
   for (var playerName in Api.player.list) {
-    if (playerName != Login.player) {
+    if ((playerName != Login.player) &&
+        (Api.player.list[playerName].status == 'active')) {
       playerNames[playerName] = playerName;
     }
   }

@@ -179,8 +179,7 @@ var Api = (function () {
     );
   };
 
-  // Right now, we only get a list of names, but make a dict in case
-  // there's more data available later
+  // Make a dict of player names and status values
   my.parsePlayerData = function(data) {
     my.player.list = {};
     if (!($.isArray(data.nameArray))) {
@@ -189,6 +188,7 @@ var Api = (function () {
     var i = 0;
     while (i < data.nameArray.length) {
       my.player.list[data.nameArray[i]] = {
+        'status': data.statusArray[i],
       };
       i++;
     }
@@ -443,7 +443,9 @@ var Api = (function () {
   };
 
   my.disableSubmitButton = function(button_id) {
-    $('#' + button_id).attr('disabled', 'disabled');
+    if (button_id) {
+      $('#' + button_id).attr('disabled', 'disabled');
+    }
   };
 
   return my;

@@ -95,7 +95,14 @@ class DummyApiResponder {
             $userid = $dummy_users[$username];
             return array(NULL, "$username already exists (id=$userid)");
         }
-        return array(array('userName' => $username), "User $username created successfully");
+        return array(array('userName' => $username),
+                     'User ' . $username . ' created successfully.  ' .
+                     'A verification code has been e-mailed to ' . $username . '@example.com.  ' .
+                     'Follow the link in that message to start beating people up!');
+    }
+
+    protected function get_interface_response_verifyUser($args) {
+        return array(TRUE, "New user tester1 has been verified.");
     }
 
     protected function get_interface_response_createGame() {
@@ -745,7 +752,8 @@ class DummyApiResponder {
         return array(array('id' => 1,
                            'name_ingame' => 'tester1',
                            'name_irl' => '',
-                           'email' => NULL,
+                           'email' => 'tester1@example.com',
+                           'status' => 'active',
                            'dob' => NULL,
                            'autopass' => TRUE,
                            'image_path' => NULL,
@@ -765,12 +773,16 @@ class DummyApiResponder {
     protected function get_interface_response_loadPlayerNames() {
         $data = array(
             'nameArray' => array(),
+            'statusArray' => array(),
         );
 
-        // three test players exist
+        // three test players exist and are all active
         $data['nameArray'][] = 'tester1';
+        $data['statusArray'][] = 'active';
         $data['nameArray'][] = 'tester2';
+        $data['statusArray'][] = 'active';
         $data['nameArray'][] = 'tester3';
+        $data['statusArray'][] = 'active';
 
         return array($data, "Names retrieved successfully.");
     }

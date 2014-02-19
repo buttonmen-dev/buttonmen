@@ -2,8 +2,6 @@ module("Newuser", {
   'setup': function() {
     BMTestUtils.NewuserPre = BMTestUtils.getAllElements();
 
-    BMTestUtils.setupFakeLogin();
-
     // Create the newuser_page div so functions have something to modify
     if (document.getElementById('newuser_page') == null) {
       $('body').append($('<div>', {'id': 'newuser_page', }));
@@ -14,13 +12,14 @@ module("Newuser", {
     // Delete all elements we expect this module to create
 
     // JS objects
+    delete Newuser.page;
+    delete Newuser.form;
 
     // Page elements
     $('#newuser_page').remove();
     $('#newuser_page').empty();
 
     BMTestUtils.deleteEnvMessage();
-    BMTestUtils.cleanupFakeLogin();
 
     // Fail if any other elements were added or removed
     BMTestUtils.NewuserPost = BMTestUtils.getAllElements();
@@ -36,7 +35,36 @@ test("test_Newuser_is_loaded", function() {
 });
 
 asyncTest("test_Newuser.showNewuserPage", function() {
-  ok(true, "INCOMPLETE: Test of Newuser.showNewuserPage not implemented");
+  Newuser.showNewuserPage();
+  var item = document.getElementById('newuser_page');
+  equal(item.nodeName, "DIV",
+        "#newuser_page is a div after showNewuserPage() is called");
+  start();
+});
+
+asyncTest("test_Newuser.showNewuserPage_logged_in", function() {
+
+  BMTestUtils.setupFakeLogin();
+
+  Newuser.showNewuserPage();
+  var item = document.getElementById('newuser_page');
+  equal(item.nodeName, "DIV",
+        "#newuser_page is a div after showNewuserPage() is called");
+  start();
+
+  BMTestUtils.cleanupFakeLogin();
+});
+
+asyncTest("test_Newuser.showNewuserPage_no_page_element", function() {
+
+  // Remove page element to make sure the function readds it
+  $('#newuser_page').remove();
+  $('#newuser_page').empty();
+
+  Newuser.showNewuserPage();
+  var item = document.getElementById('newuser_page');
+  equal(item.nodeName, "DIV",
+        "#newuser_page is a div after showNewuserPage() is called");
   start();
 });
 
@@ -56,7 +84,107 @@ asyncTest("test_Newuser.actionCreateUser", function() {
 });
 
 asyncTest("test_Newuser.formCreateUser", function() {
-  ok(true, "INCOMPLETE: Test of Newuser.formCreateUser not implemented");
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass');
+  $('#newuser_email').val('tester5@example.com');
+  $('#newuser_email_confirm').val('tester5@example.com');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "success",
+    "Newuser action succeeded when expected arguments were set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_username", function() {
+  Newuser.actionCreateUser();
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when username is not set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_invalid_username", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('test-8');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when username is not set");
+  equal(Env.message.text,
+    "Usernames may only contain letters, numbers, and underscores",
+    "Newuser shows reasonable error when username is invalid");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_password", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when password is not set");
+  equal(Env.message.text, "You need to set a password",
+    "Newuser show reasonable error when password is not set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_password_confirm", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when confirmation password is not set");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_password_mismatch", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass2');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when confirmation password does not match");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_no_email", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when email is not provided not match");
+  start();
+});
+
+asyncTest("test_Newuser.formCreateUser_password_mismatch", function() {
+  Newuser.actionCreateUser();
+  $('#newuser_username').val('tester5');
+  $('#newuser_password').val('testpass');
+  $('#newuser_password_confirm').val('testpass');
+  $('#newuser_email').val('tester5@example.com');
+  $('#newuser_email_confirm').val('tester5@example.con');
+  $.ajaxSetup({ async: false });
+  $('#newuser_action_button').trigger('click');
+  $.ajaxSetup({ async: true });
+  equal(Env.message.type, "error",
+    "Newuser action fails when confirmation e-mail does not match");
   start();
 });
 

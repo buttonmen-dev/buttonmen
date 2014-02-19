@@ -49,7 +49,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 "Internal test error: too many interfaceNNN users in the test database. " .
                 "Clean these out by hand.");
             $username = 'interface' . sprintf('%03d', $trynum);
-            $createResult = $this->object->create_user($username, 't');
+            $email = $username . '@example.com';
+            $createResult = $this->object->create_user($username, 't', $email);
             if (isset($createResult)) {
                 $created_real = True;
             }
@@ -61,19 +62,22 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         self::$userId1WithoutAutopass = (int)$createResult['playerId'];
 
         $username = 'interface' . sprintf('%03d', $trynum);
-        $createResult = $this->object->create_user($username, 't');
+        $email = $username . '@example.com';
+        $createResult = $this->object->create_user($username, 't', $email);
         self::$userId2WithoutAutopass = (int)$createResult['playerId'];
 
         $trynum++;
         $username = 'interface' . sprintf('%03d', $trynum);
-        $createResult = $this->object->create_user($username, 't');
+        $email = $username . '@example.com';
+        $createResult = $this->object->create_user($username, 't', $email);
         $this->object->set_player_info($createResult['playerId'],
                                        array('autopass' => 1));
         self::$userId3WithAutopass = (int)$createResult['playerId'];
 
         $trynum++;
         $username = 'interface' . sprintf('%03d', $trynum);
-        $createResult = $this->object->create_user($username, 't');
+        $email = $username . '@example.com';
+        $createResult = $this->object->create_user($username, 't', $email);
         $this->object->set_player_info($createResult['playerId'],
                                        array('autopass' => 1));
         self::$userId4WithAutopass = (int)$createResult['playerId'];
