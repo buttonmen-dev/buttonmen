@@ -175,50 +175,12 @@ class BMGame {
             if ($nWins >= $this->maxWins) {
                 $this->gameState = BMGameState::END_GAME;
             } else {
-                $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+                $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
             }
         }
     }
 
-    protected function do_next_step_choose_auxiliary_dice() {
-        // james: this game state will probably move to after LOAD_DICE_INTO_BUTTONS
-        $auxiliaryDice = '';
-        // create list of auxiliary dice
-        foreach ($this->buttonArray as $tempButton) {
-            if (BMGame::does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-                $tempSplitArray = BMGame::separate_out_auxiliary_dice(
-                    $tempButton->recipe
-                );
-                $auxiliaryDice = $auxiliaryDice.' '.$tempSplitArray[1];
-            }
-        }
-        $auxiliaryDice = trim($auxiliaryDice);
-        // update $auxiliaryDice based on player choices
-        $this->activate_GUI('ask_all_players_about_auxiliary_dice', $auxiliaryDice);
 
-        //james: current default is to accept all auxiliary dice
-
-        // update all button recipes and remove auxiliary markers
-        if (!empty($auxiliaryDice)) {
-            foreach ($this->buttonArray as $tempButton) {
-                $separatedDice = BMGame::separate_out_auxiliary_dice($tempButton->recipe);
-                $tempButton->recipe = $separatedDice[0].' '.$auxiliaryDice;
-            }
-        }
-    }
-
-    protected function update_game_state_choose_auxiliary_dice() {
-        $hasAuxiliaryDice = FALSE;
-        foreach ($this->buttonArray as $tempButton) {
-            if ($this->does_recipe_have_auxiliary_dice($tempButton->recipe)) {
-                $hasAuxiliaryDice = TRUE;
-                break;
-            }
-        }
-        if (!$hasAuxiliaryDice) {
-            $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
-        }
-    }
 
     protected function do_next_step_load_dice_into_buttons() {
         //james: this will be replaced with a call to the database
@@ -259,6 +221,8 @@ class BMGame {
             $tempButton->activate();
         }
 
+        $this->offer_courtesy_auxiliary_dice();
+
         // load swing values that are carried across from a previous round
         if (!isset($this->swingValueArrayArray)) {
             return;
@@ -279,10 +243,129 @@ class BMGame {
         }
     }
 
+    protected function offer_courtesy_auxiliary_dice() {
+        $havePlayersAuxDice = $this->do_players_have_auxiliary_dice();
+
+        if (array_sum($havePlayersAuxDice) > 0) {
+            $auxiliaryDice = $this->get_all_auxiliary_dice();
+
+            // add auxiliary dice to players who do not have any
+            foreach ($havePlayersAuxDice as $playerIdx => $hasAuxDice) {
+                if (!$hasAuxDice) {
+                    foreach ($auxiliaryDice as $die) {
+                        $this->activeDieArrayArray[$playerIdx][] = clone $die;
+                    }
+                }
+            }
+        }
+    }
+
+    protected function do_players_have_auxiliary_dice() {
+        $hasAuxiliaryDice = array_fill(0, $this->nPlayers, FALSE);
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                if ($die->has_skill('Auxiliary')) {
+                    $hasAuxiliaryDice[$playerIdx] = TRUE;
+                    break;
+                }
+            }
+        }
+
+        return $hasAuxiliaryDice;
+    }
+
+    protected function get_all_auxiliary_dice() {
+        $auxiliaryDice = array();
+
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                if ($die->has_skill('Auxiliary')) {
+                    $auxiliaryDice[] = $die;
+                }
+            }
+        }
+
+        return $auxiliaryDice;
+    }
+
     protected function update_game_state_add_available_dice_to_game() {
         if (isset($this->activeDieArrayArray)) {
+            $this->gameState = BMGameState::CHOOSE_AUXILIARY_DICE;
+            $this->waitingOnActionArray = $this->do_players_have_auxiliary_dice();
+        }
+    }
+
+    protected function do_next_step_choose_auxiliary_dice() {
+
+    }
+
+    protected function update_game_state_choose_auxiliary_dice() {
+        // if all decisions on auxiliary dice have been made
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            $areAnyDiceAdded = $this->add_selected_auxiliary_dice();
+            $areAnyDiceRemoved = $this->remove_auxiliary_dice();
+
+            if (array_sum($areAnyDiceAdded) + array_sum($areAnyDiceRemoved) > 0) {
+                // update button recipes
+                for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+                    if ($areAnyDiceAdded[$playerIdx] ||
+                        $areAnyDiceRemoved[$playerIdx]) {
+                        $this->buttonArray[$playerIdx]->update_button_recipe();
+                    }
+                }
+
+            }
+
             $this->gameState = BMGameState::SPECIFY_DICE;
         }
+    }
+
+    protected function add_selected_auxiliary_dice() {
+        $hasChosenAuxDie = array_fill(0, $this->nPlayers, FALSE);
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                if ($die->selected) {
+                    $hasChosenAuxDie[$playerIdx] = TRUE;
+                    break;
+                }
+            }
+        }
+
+        $useAuxDice = (1 == array_product($hasChosenAuxDie));
+
+        if ($useAuxDice) {
+            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $die) {
+                    if ($die->selected) {
+                        $die->remove_skill('Auxiliary');
+                        $die->selected = FALSE;
+                    }
+                }
+            }
+        }
+
+        return array_fill(0, $this->nPlayers, $useAuxDice);
+    }
+
+    protected function remove_auxiliary_dice() {
+        $areAnyDiceRemoved = array_fill(0, $this->nPlayers, FALSE);
+
+        // remove all remaining auxiliary dice
+        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => &$die) {
+                if ($die->has_skill('Auxiliary')) {
+                    $areAnyDiceRemoved[$playerIdx] = TRUE;
+                    unset($activeDieArray[$dieIdx]);
+                }
+            }
+            if ($areAnyDiceRemoved[$playerIdx]) {
+                $this->activeDieArrayArray[$playerIdx] = array_values($activeDieArray);
+            }
+        }
+
+        return $areAnyDiceRemoved;
     }
 
     protected function do_next_step_specify_dice() {
@@ -679,7 +762,7 @@ class BMGame {
                 'end_winner',
                 $this->playerIdArray[$winnerIdx],
                 'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                $roundScoreArray[0] . ' vs ' . $roundScoreArray[1] . ')'
+                max($roundScoreArray) . ' vs ' . min($roundScoreArray) . ')'
             );
         }
         $this->reset_play_state();
@@ -1066,35 +1149,6 @@ class BMGame {
                 array_fill(0, $this->nPlayers, array());
         }
         $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
-    }
-
-    public static function does_recipe_have_auxiliary_dice($recipe) {
-        if (FALSE === strpos($recipe, '+')) {
-            return FALSE;
-        } else {
-            return TRUE;
-        }
-    }
-
-    public static function separate_out_auxiliary_dice($recipe) {
-        $dieRecipeArray = explode(' ', $recipe);
-
-        $nonAuxiliaryDice = '';
-        $auxiliaryDice = '';
-
-        foreach ($dieRecipeArray as $tempDieRecipe) {
-            if (FALSE === strpos($tempDieRecipe, '+')) {
-                $nonAuxiliaryDice = $nonAuxiliaryDice.$tempDieRecipe.' ';
-            } else {
-                $strippedDieRecipe = str_replace('+', '', $tempDieRecipe);
-                $auxiliaryDice = $auxiliaryDice.$strippedDieRecipe.' ';
-            }
-        }
-
-        $nonAuxiliaryDice = trim($nonAuxiliaryDice);
-        $auxiliaryDice = trim($auxiliaryDice);
-
-        return array($nonAuxiliaryDice, $auxiliaryDice);
     }
 
     public static function does_player_have_initiative_array(array $activeDieArrayArray) {

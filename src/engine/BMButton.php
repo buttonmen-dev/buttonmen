@@ -5,11 +5,13 @@
  *
  * @author james
  *
- * @property      string $name        Name of button
- * @property      string $recipe      String representation of the button recipe
- * @property-read array  $dieArray    Array of BMDie
- * @property      BMGame $ownerObject BMGame that owns the BMButton
- * @property      BMGame $playerIdx   BMGame index of the player that owns the BMButton
+ * @property      string  $name                  Name of button
+ * @property      string  $recipe                String representation of the button recipe
+ * @property-read array   $dieArray              Array of BMDie
+ * @property      BMGame  $ownerObject           BMGame that owns the BMButton
+ * @property      BMGame  $playerIdx             BMGame index of the player that owns the BMButton
+ * @property      boolean $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
+ * @property      boolean $hasAlteredRecipe      Flag signalling if the recipe has changed
  */
 class BMButton {
     // properties
@@ -19,9 +21,10 @@ class BMButton {
     private $ownerObject;
     private $playerIdx;
     private $hasUnimplementedSkill;
+    private $hasAlteredRecipe;
 
     // methods
-    public function load($recipe, $name = NULL) {
+    public function load($recipe, $name = NULL, $isRecipeAltered = FALSE) {
         if (!is_null($name)) {
             $this->name = $name;
         }
@@ -30,6 +33,7 @@ class BMButton {
         $this->recipe = $recipe;
         $this->dieArray = array();
         $this->hasUnimplementedSkill = FALSE;
+        $this->hasAlteredRecipe = $isRecipeAltered;
 
         if (empty($recipe)) {
             return;
@@ -51,7 +55,7 @@ class BMButton {
     }
 
     public function reload() {
-        $this->load($this->recipe);
+        $this->load($this->recipe, $this->name, $this->hasAlteredRecipe);
     }
 
     public function load_values(array $valueArray) {
@@ -97,6 +101,26 @@ class BMButton {
     public function activate() {
         foreach ($this->dieArray as $die) {
             $die->activate();
+        }
+    }
+
+    public function update_button_recipe() {
+        $recipe = '';
+
+        $playerIdx = array_search($this, $this->ownerObject->buttonArray);
+        if (FALSE === $playerIdx) {
+            return;
+        }
+
+        foreach ($this->ownerObject->activeDieArrayArray[$playerIdx] as $die) {
+            $recipe .= ' ' . $die->recipe;
+        }
+
+        $recipe = ltrim($recipe);
+
+        if ($this->recipe != $recipe) {
+            $this->recipe = $recipe;
+            $this->hasAlteredRecipe = TRUE;
         }
     }
 
