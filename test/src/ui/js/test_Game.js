@@ -720,7 +720,7 @@ asyncTest("test_Game.buttonImageDisplay", function() {
     Game.page = $('<div>');
     Game.page.append(Game.buttonImageDisplay('player'));
     var htmlout = Game.page.html();
-    ok(htmlout.match('avis.jpg'),
+    ok(htmlout.match('avis.png'),
        "page should include a link to the button image");
     start();
   });
