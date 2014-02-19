@@ -789,7 +789,7 @@ class BMInterface {
 
     public function get_all_button_names() {
         try {
-            $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
+            $statement = self::$conn->prepare('SELECT name, recipe, btn_special FROM button_view');
             $statement->execute();
 
             // Look for unimplemented skills in each button definition.
@@ -801,6 +801,12 @@ class BMInterface {
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
+
+                    // james: put in temporary code to disable buttons with button specials
+                    if (1 == $row['btn_special']) {
+                        $button->hasUnimplementedSkill = TRUE;
+                    }
+
                     $hasUnimplSkillArray[] = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
                     $hasUnimplSkillArray[] = TRUE;
