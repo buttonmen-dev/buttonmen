@@ -117,13 +117,13 @@ class BMInterface {
 
             // Make sure that user ID exists and is waiting to be verified
             if (count($fetchResult) != 1) {
-                $this->message = 'Could not lookup user ID ' . $user_id;
+                $this->message = 'Could not lookup user ID ' . $playerId;
                 return NULL;
             }
             $username = $fetchResult[0]['name_ingame'];
             $status = $fetchResult[0]['status'];
             if ($status != 'unverified') {
-                $this->message = 'User with ID ' . $user_id . ' is not waiting to be verified';
+                $this->message = 'User with ID ' . $playerId . ' is not waiting to be verified';
                 return NULL;
             }
 
@@ -134,7 +134,7 @@ class BMInterface {
             $fetchResult = $statement->fetchAll();
 
             if (count($fetchResult) != 1) {
-                $this->message = 'Could not find verification key for user ID ' . $user_id;
+                $this->message = 'Could not find verification key for user ID ' . $playerId;
                 return NULL;
             }
             $databaseKey = $fetchResult[0]['verification_key'];
@@ -944,6 +944,7 @@ class BMInterface {
         try {
             $query = 'SELECT name_ingame FROM player '.
                      'WHERE name_ingame LIKE :input '.
+                     'AND status = "active" '.
                      'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $input.'%'));
