@@ -76,6 +76,7 @@ class BMSkill {
                      'Null'         => 'n',
                      'Poison'       => 'p',
                      'Queer'        => 'q',
+                     'Reserve'      => 'r',
                      'Shadow'       => 's',
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
@@ -128,6 +129,7 @@ class BMSkill {
     protected static function skill_order_array() {
         // fires first
         return array('BMSkillAuxiliary',
+                     'BMSkillReserve',
                      'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillQueer',

@@ -15,6 +15,8 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(BMGameState::ADD_AVAILABLE_DICE_TO_GAME <
                           BMGameState::CHOOSE_AUXILIARY_DICE);
         $this->assertTrue(BMGameState::CHOOSE_AUXILIARY_DICE <
+                          BMGameState::CHOOSE_RESERVE_DICE);
+        $this->assertTrue(BMGameState::CHOOSE_RESERVE_DICE <
                           BMGameState::SPECIFY_DICE);
         $this->assertTrue(BMGameState::SPECIFY_DICE <
                           BMGameState::DETERMINE_INITIATIVE);

@@ -183,7 +183,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step_add_available_dice_to_game
      * @covers BMGame::offer_courtesy_auxiliary_dice
-     * @covers BMGame::do_players_have_auxiliary_dice
+     * @covers BMGame::do_players_have_dice_with_skill
      * @covers BMGame::get_all_auxiliary_dice
      */
     public function test_do_next_step_add_available_dice_to_game_one_aux() {
@@ -218,7 +218,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGame::do_next_step_add_available_dice_to_game
      * @covers BMGame::offer_courtesy_auxiliary_dice
-     * @covers BMGame::do_players_have_auxiliary_dice
+     * @covers BMGame::do_players_have_dice_with_skill
      * @covers BMGame::get_all_auxiliary_dice
      */
     public function test_do_next_step_add_available_dice_to_game_both_aux() {
@@ -329,7 +329,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_no_aux() {
@@ -352,7 +352,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray =
             array(array($die1, $die2), array($die3, $die4));
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $this->object->gameState);
         $this->assertFalse($this->object->buttonArray[0]->hasAlteredRecipe);
         $this->assertFalse($this->object->buttonArray[1]->hasAlteredRecipe);
         $this->assertEquals('(4) (8)', $this->object->buttonArray[0]->recipe);
@@ -361,7 +361,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_first_aux_unspecified() {
@@ -393,7 +393,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_second_aux_unspecified() {
@@ -425,7 +425,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMGame::update_game_state_choose_auxiliary_dice
-     * @covers BMGame::remove_auxiliary_dice
+     * @covers BMGame::remove_dice_with_skill
      * @covers BMButton::update_button_recipe
      */
     public function test_update_game_state_choose_auxiliary_dice_second_aux_specified() {
@@ -448,7 +448,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray =
             array(array($die1, $die2), array($die3, $die4));
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $this->object->gameState);
         $this->assertCount(2, $this->object->activeDieArrayArray[0]);
         $this->assertCount(1, $this->object->activeDieArrayArray[1]);
         $this->assertEquals($die4, $this->object->activeDieArrayArray[1][0]);
@@ -456,6 +456,125 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->buttonArray[1]->hasAlteredRecipe);
         $this->assertEquals('(4) (8)', $this->object->buttonArray[0]->recipe);
         $this->assertEquals('(20)', $this->object->buttonArray[1]->recipe);
+    }
+
+    /*
+     * @covers BMGame::do_next_step_choose_reserve_dice
+     */
+    public function test_do_next_step_choose_reserve_dice_round_1() {
+        $button1 = new BMButton;
+        $button1->load('(4) (8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        $die4 = BMDie::create_from_recipe('r(20)');
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+        $this->object->do_next_step();
+        $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
+    }
+
+    /*
+     * @covers BMGame::do_next_step_choose_reserve_dice
+     */
+    public function test_do_next_step_choose_reserve_dice_round_2() {
+        $button1 = new BMButton;
+        $button1->load('(4) r(8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('r(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        $die4 = BMDie::create_from_recipe('r(20)');
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->isPrevRoundWinnerArray = array(TRUE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+        $this->object->do_next_step();
+        $this->assertEquals(array(FALSE, TRUE), $this->object->waitingOnActionArray);
+    }
+
+    /*
+     * @covers BMGame::update_game_state_choose_reserve_dice
+     */
+    public function test_update_game_state_choose_reserve_dice_decline() {
+        $button1 = new BMButton;
+        $button1->load('(4) r(8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('r(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        // the reserve dice is not selected
+        $die4 = BMDie::create_from_recipe('r(20)');
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        // all decisions have been made, so we are not waiting on anyone
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+
+        $this->object->update_game_state();
+        $this->assertCount(1, $this->object->activeDieArrayArray[0]);
+        $this->assertCount(1, $this->object->activeDieArrayArray[1]);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+    }
+
+    /*
+     * @covers BMGame::update_game_state_choose_reserve_dice
+     */
+    public function test_update_game_state_choose_reserve_dice_accept() {
+        $button1 = new BMButton;
+        $button1->load('(4) r(8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10) r(20)');
+
+        $this->object->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('(4)');
+        $die2 = BMDie::create_from_recipe('r(8)');
+
+        $die3 = BMDie::create_from_recipe('(10)');
+        // the reserve die is selected
+        $die4 = BMDie::create_from_recipe('r(20)');
+        $die4->selected = TRUE;
+
+        $this->object->gameState = BMGameState::CHOOSE_RESERVE_DICE;
+        // all decisions have been made, so we are not waiting on anyone
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
+        $this->object->activeDieArrayArray =
+            array(array($die1, $die2), array($die3, $die4));
+
+        $this->object->update_game_state();
+        $this->assertCount(1, $this->object->activeDieArrayArray[0]);
+        $this->assertCount(2, $this->object->activeDieArrayArray[1]);
+        $this->assertFalse($this->object->activeDieArrayArray[1][1]->has_skill('Reserve'));
+        $this->assertEquals(20, $this->object->activeDieArrayArray[1][1]->max);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $this->object->gameState);
+        $this->assertEquals('(10) (20)', $this->object->buttonArray[1]->recipe);
     }
 
     /**
@@ -3292,8 +3411,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // round 2
         $this->assertTrue(!isset($game->activePlayerIdx));
-        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
 
         // perform end of round scoring
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),

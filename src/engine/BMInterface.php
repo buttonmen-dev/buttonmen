@@ -891,7 +891,7 @@ class BMInterface {
 
     public function get_all_button_names() {
         try {
-            $statement = self::$conn->prepare('SELECT name, recipe FROM button_view');
+            $statement = self::$conn->prepare('SELECT name, recipe, btn_special FROM button_view');
             $statement->execute();
 
             // Look for unimplemented skills in each button definition.
@@ -903,6 +903,12 @@ class BMInterface {
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
+
+                    // james: put in temporary code to disable buttons with button specials
+                    if (1 == $row['btn_special']) {
+                        $button->hasUnimplementedSkill = TRUE;
+                    }
+
                     $hasUnimplSkillArray[] = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
                     $hasUnimplSkillArray[] = TRUE;
@@ -1382,6 +1388,79 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while making auxiliary decision';
+            return FALSE;
+        }
+    }
+
+    // react_to_reserve expects the following inputs:
+    //
+    //   $action:
+    //       One of {'add', 'decline'}.
+    //
+    //   $dieIdx:
+    //       (i)  If this is an 'add' action, then this is the die index of the
+    //            die to be added.
+    //       (ii) If this is a 'decline' action, then this will be ignored.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function react_to_reserve(
+        $playerId,
+        $gameId,
+        $action,
+        $dieIdx = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::CHOOSE_RESERVE_DICE,
+                'ignore',
+                'ignore',
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            switch ($action) {
+                case 'add':
+                    if (!is_int($dieIdx) ||
+                        !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Reserve')) {
+                        $this->message = 'Invalid reserve choice';
+                        return FALSE;
+                    }
+                    $die = $game->activeDieArrayArray[$playerIdx][$dieIdx];
+                    $die->selected = TRUE;
+                    $waitingOnActionArray = $game->waitingOnActionArray;
+                    $waitingOnActionArray[$playerIdx] = FALSE;
+                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $this->message = 'Reserve die chosen successfully';
+                    break;
+                case 'decline':
+                    $waitingOnActionArray = $game->waitingOnActionArray;
+                    $waitingOnActionArray[$playerIdx] = FALSE;
+                    $game->waitingOnActionArray = $waitingOnActionArray;
+                    $this->message = 'Declined reserve dice';
+                    break;
+                default:
+                    $this->message = 'Invalid response to reserve choice.';
+                    return FALSE;
+            }
+
+            $this->save_game($game);
+
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::react_to_reserve: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while making reserve decision';
             return FALSE;
         }
     }
