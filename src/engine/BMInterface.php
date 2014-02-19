@@ -235,7 +235,6 @@ class BMInterface {
                 $this->message = "Player info updated successfully.";
                 return array('playerId' => $playerId);
             } catch (Exception $e) {
-                var_dump($e->getMessage());
                 $this->message = 'Player info update failed: '.$e->getMessage();
             }
         }
@@ -407,11 +406,9 @@ class BMInterface {
                 } else {
                     $recipe = $this->get_button_recipe_from_name($row['button_name']);
                 }
-                if ($recipe) {
+                if (isset($recipe)) {
                     $button = new BMButton;
                     $button->load($recipe, $row['button_name']);
-
-
                     $buttonArray[$pos] = $button;
                 } else {
                     throw new InvalidArgumentException('Invalid button name.');
@@ -905,7 +902,8 @@ class BMInterface {
                     $button->load($row['recipe'], $row['name']);
 
                     // james: put in temporary code to disable buttons with button specials
-                    if (1 == $row['btn_special']) {
+                    if ((1 == $row['btn_special']) &&
+                        !class_exists('BMBtnSkill'.$row['name'])) {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 

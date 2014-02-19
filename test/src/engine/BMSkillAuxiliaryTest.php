@@ -28,5 +28,3 @@ class BMSkillAuxiliaryTest extends PHPUnit_Framework_TestCase {
     {
     }
 }
-
-?>

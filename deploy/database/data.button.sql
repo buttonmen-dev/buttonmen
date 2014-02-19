@@ -200,7 +200,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Giant never goes first
 ('Giant',       '(20) (20) (20) (20) (20) (20)',       1, 1, (SELECT id FROM buttonset WHERE name="BROM")),
 # Echo does not have it's own recipe - it copies the recipe of the opposing button
-('Echo',        'none',                                1, 1, (SELECT id FROM buttonset WHERE name="BROM"));
+('Echo',        '',                                    1, 1, (SELECT id FROM buttonset WHERE name="BROM"));
 
 # BRIDGE AND TUNNEL (Bridge and Tunnel Software)  INTRODUCES Reboud(=) dice (not implemented); poison(p); shadow(s); option
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -405,9 +405,9 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Ryo-Ohki',            '(4) (4) (4) (12) r(10) r(12) r(20) r(30)',      1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
 ('Washu',               '(4) (6) (12) (X) r(6) r(8) r(10) r(20)',        1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
 ('Dr. Clay',            '(6) (10) (10) (10) r(4) r(4) r(12) r(12)',      1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
-('Sasami',             '(4) (4) (6) (8) r(12) r(12) r(20) r(20)',        1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!"));
-# Zero works just like Echo - it doesn't have it's own recipe, but instead copies its important
-# ('Zero',             'none',                                            1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
+('Sasami',              '(4) (4) (6) (8) r(12) r(12) r(20) r(20)',       1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
+# Zero works just like Echo - it doesn't have it's own recipe, but instead copies its opponent's
+('Zero',                '',                                              1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!"));
 
 # HOWLING WOLF (Howling Wolf Studios)              INTRODUCES Stealth(d) Dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -476,7 +476,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Spencer',   '(8) (8) (12) m(20) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Metamorphers")),
 ('Talus',     '(4) m(12) (20) (20) (X)',     0, 1, (SELECT id FROM buttonset WHERE name="Metamorphers"));
 
-# NODWICK (4th Blade)                     INTRODUCES Armor(A) dice 
+# NODWICK (4th Blade)                     INTRODUCES Armor(A) dice
 # ASSUMED ALL TO BE NON-TL
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Artax',            'A(4) (8) (8) (12) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Nodwick")),

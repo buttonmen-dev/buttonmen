@@ -51,5 +51,3 @@ class TestDummyGame {
         return 1;
     }
 }
-
-?>

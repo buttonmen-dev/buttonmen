@@ -13,20 +13,23 @@
  * @property      boolean $hasUnimplementedSkill Flag signalling if the recipe has an unimplemented skill
  * @property      boolean $hasAlteredRecipe      Flag signalling if the recipe has changed
  */
-class BMButton {
+class BMButton extends BMCanHaveSkill {
     // properties
-    private $name;
-    private $recipe;
-    private $dieArray;
-    private $ownerObject;
-    private $playerIdx;
-    private $hasUnimplementedSkill;
-    private $hasAlteredRecipe;
+    protected $name;
+    protected $recipe;
+    protected $dieArray;
+    protected $ownerObject;
+    protected $playerIdx;
+    protected $hasUnimplementedSkill;
+    protected $hasAlteredRecipe;
 
-    // methods
     public function load($recipe, $name = NULL, $isRecipeAltered = FALSE) {
         if (!is_null($name)) {
             $this->name = $name;
+        }
+
+        if (class_exists("BMBtnSkill$name")) {
+            $this->add_skill($name);
         }
 
         $this->validate_recipe($recipe);
@@ -45,6 +48,11 @@ class BMButton {
         // set die sides and skills, one die at a time
         foreach ($dieRecipeArray as $dieRecipe) {
             $die = BMDie::create_from_recipe($dieRecipe);
+            if (isset($this->ownerObject)) {
+                $die->ownerObject = $this->ownerObject;
+                $die->playerIdx = $this->playerIdx;
+                $die->originalPlayerIdx = $this->playerIdx;
+            }
             $this->dieArray[] = $die;
             if (is_null($die)) {
                 $this->hasUnimplementedSkill = TRUE;

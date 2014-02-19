@@ -72,5 +72,3 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
                                             'BMSkillStealth'));
     }
 }
-
-?>

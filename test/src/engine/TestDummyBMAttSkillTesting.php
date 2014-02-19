@@ -10,5 +10,3 @@ class TestDummyBMAttSkillTesting extends BMAttackSkill {
         $this->hit_table = new BMUtilityHitTable($this->validDice);
     }
 }
-
-?>

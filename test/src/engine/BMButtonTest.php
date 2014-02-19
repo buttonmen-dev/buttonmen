@@ -41,7 +41,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($this->object->dieArray));
 
         // button recipes using dice with no special skills
-        $name = 'test';
+        $name = 'testbutton';
         $recipe = '(4) (8) (20) (20)';
         $this->object->load($recipe, $name);
         $this->assertEquals($name, $this->object->name);
@@ -112,7 +112,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      */
     public function test_reload() {
         // button recipes using dice with no special skills
-        $name = 'test';
+        $name = 'testbutton';
         $recipe = '(4) (8) (20) (20)';
         $this->object->load($recipe, $name);
         $this->assertEquals($name, $this->object->name);
@@ -324,5 +324,3 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($this->object->name));
     }
 }
-
-?>

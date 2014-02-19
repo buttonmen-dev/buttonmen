@@ -9,5 +9,3 @@ class TestDummyBMDieTesting extends BMDie {
         $this->run_hooks(__FUNCTION__, array(&$this->testvar));
     }
 }
-
-?>

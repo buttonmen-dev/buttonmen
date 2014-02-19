@@ -1,8 +1,8 @@
 <?php
 
-class BMSkillReserveTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillZeroTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillReserve
+     * @var BMBtnSkillZero
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMSkillReserveTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMSkillReserve;
+        $this->object = new BMBtnSkillZero;
     }
 
     /**

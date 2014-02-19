@@ -1643,6 +1643,47 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('(4) (8) (12) (20) r(4) r(12) r(20) r(20)',
                             $game->buttonArray[1]->recipe);
     }
-}
 
-?>
+    /**
+     * Check that Echo games can be created and played correctly.
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_echo_vs_other() {
+        // Echo : none
+        // Avis : (4) (4) (10) (12) (X)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Echo', 'Avis'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        $this->assertInstanceOf('BMGame', $game);
+        $this->assertEquals(24, $game->gameState);
+        $this->assertEquals('Echo', $game->buttonArray[0]->name);
+        $this->assertEquals($game, $game->buttonArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->ownerObject);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertEquals(4,  $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals(4,  $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals(10, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(12, $game->activeDieArrayArray[0][3]->max);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertEquals(0, $game->activeDieArrayArray[0][0]->playerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][1]->playerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][2]->playerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][3]->playerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][4]->playerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][0]->originalPlayerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][1]->originalPlayerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][2]->originalPlayerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][3]->originalPlayerIdx);
+        $this->assertEquals(0, $game->activeDieArrayArray[0][4]->originalPlayerIdx);
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals('(4) (4) (10) (12) (X)', $game->buttonArray[0]->recipe);
+    }
+}
