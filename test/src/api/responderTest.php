@@ -304,19 +304,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadPlayerName() {
-        $_SESSION = $this->mock_test_user_login();
-        $args = array('type' => 'loadPlayerName');
-        $retval = $this->object->process_request($args);
-        $dummyval = $this->dummy->process_request($args);
-
-        $this->assertEquals('ok', $retval['status'], "responder should succeed");
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy player names should have matching structures");
+        $this->markTestIncomplete("No test for loadPlayerName using session and cookies");
     }
 
     public function test_request_loadPlayerInfo() {
