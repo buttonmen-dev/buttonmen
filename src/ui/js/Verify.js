@@ -39,7 +39,10 @@ Verify.getVerifyParams = function(callbackfunc) {
         'type': 'function',
         'msgfunc': Verify.setVerifyUserSuccessMessage,
       },
-      'notok': { 'type': 'server', },
+      'notok': {
+        'type': 'function',
+        'msgfunc': Verify.setVerifyUserFailureMessage,
+      },
     },
     null,
     callbackfunc,
@@ -67,4 +70,31 @@ Verify.setVerifyUserSuccessMessage = function(message) {
     'text': '',
     'obj': userPar,
   };
+};
+
+// It's likely that, after verifying their accounts, users will
+// login while still on the verify.html page.  If that happens,
+// give a reasonable message instead of the server's error.  Otherwise,
+// pass the server's error along
+Verify.setVerifyUserFailureMessage = function(message) {
+  if (Login.logged_in &&
+      message.match(/User with ID \d+ is not waiting to be verified/)) {
+    var indexLink = $('<a>', {
+      'href': 'index.html',
+      'text': 'Go back to the homepage and start beating people up',
+    });
+    var userPar = $('<p>', {'text': 'Your account has been verified.' + ' ', });
+    userPar.append($('<br>'));
+    userPar.append(indexLink);
+    Env.message = {
+      'type': 'none',
+      'text': '',
+      'obj': userPar,
+    };
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': message,
+    };
+  }
 };
