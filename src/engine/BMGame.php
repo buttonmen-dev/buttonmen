@@ -1418,6 +1418,19 @@ class BMGame {
         return $roundScoreArray;
     }
 
+    private function get_sideScoreArray() {
+        $roundScoreArray = $this->get_roundScoreArray();
+
+        if (2 != count($roundScoreArray) ||
+            is_null($roundScoreArray[0]) ||
+            is_null($roundScoreArray[1])) {
+            return array_fill(0, $this->nPlayers, NULL);
+        }
+
+        $sideDifference = round(2/3 * ($roundScoreArray[0] - $roundScoreArray[1]), 1);
+        return array($sideDifference, -$sideDifference);
+    }
+
     // record a game action in the history log
     private function log_action($actionType, $actingPlayerIdx, $message) {
         $this->actionLog[] = array(
@@ -2096,6 +2109,7 @@ class BMGame {
                   'swingRequestArrayArray'   => $swingReqArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
+                  'sideScoreArray'           => $this->get_sideScoreArray(),
                   'gameScoreArrayArray'      => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);

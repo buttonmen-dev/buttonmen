@@ -389,6 +389,7 @@ class DummyApiResponder {
             "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
             "validAttackTypeArray" => array(),
             "roundScoreArray" => array(NULL, NULL),
+            "sideScoreArray" => array(NULL, NULL),
             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                            array("W" => 0, "L" => 0, "D" => 0)),
         );
@@ -496,6 +497,7 @@ class DummyApiResponder {
                                                           array("(12)", "(10)", "(4)"));
             $gameData['validAttackTypeArray'] = array("Power" => "Power", "Skill" => "Skill", );
             $gameData['roundScoreArray'] = array(18, 36);
+            $gameData['sideScoreArray'] = array(-12, 12);
             $data = array(
                 'gameData' => array(
                     "status" => "ok",
@@ -567,6 +569,7 @@ class DummyApiResponder {
             $gameData['dieRecipeArrayArray'] = array(array(), array());
             $gameData['dieDescriptionArrayArray'] = array(array(), array());
             $gameData['roundScoreArray'] = array(0, 0);
+            $gameData['sideScoreArray'] = array(0, 0);
             $gameData['gameScoreArrayArray'] = array(array("W" => 3, "L" => 2, "D" => 0),
                                                      array("W" => 2, "L" => 3, "D" => 0));
             $data = array(
