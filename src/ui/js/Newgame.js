@@ -194,7 +194,7 @@ Newgame.actionCreateGame = function() {
   createform.append($('<br>'));
   createform.append($('<button>', {
     'id': 'newgame_action_button',
-    'text': 'Start game!',
+    'text': 'Create game!',
   }));
   creatediv.append(createform);
 
