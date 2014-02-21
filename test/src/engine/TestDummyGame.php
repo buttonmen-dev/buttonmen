@@ -21,6 +21,10 @@ class TestDummyGame {
         $this->swingrequest = array($die, $swingtype);
     }
 
+    public function request_option_values($die, $optionArray) {
+        $this->optionrequest = array($die, $optionArray);
+    }
+
     public $all_values_specified = FALSE;
 
     public function require_values() {

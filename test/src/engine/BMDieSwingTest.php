@@ -164,7 +164,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
             $this->object->init($swing);
 
             $this->object->ownerObject = $game;
-            $this->object->activate('player');
+            $this->object->activate();
             $newDie = $game->dice[$dieIdx][1];
 
             $this->assertFalse($newDie === $this->object);
@@ -173,7 +173,6 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals($newDie, $game->swingrequest[0]);
             $this->assertEquals($swing, $game->swingrequest[1]);
         }
-
     }
 
     /**
@@ -182,16 +181,20 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      */
 
     public function testIntegrationActivate () {
-        $button = new BMButton;
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array(), array());
         foreach (str_split('RSTUVWXYZ') as $swing) {
             $this->object->init($swing);
-            $this->object->ownerObject = $button;
-// james           $this->object->activate(0);
+            $this->object->ownerObject = $game;
+            $this->object->playerIdx = 1;
+            $this->object->originalPlayerIdx = 1;
+            $this->object->activate();
 
-// james           $this->assertTrue($game->swingrequest[0] === $newDie);
-//            $this->assertEquals($game->swingrequest[1], $swing);
+            $this->assertTrue(array_key_exists($swing, $game->swingRequestArrayArray[1]));
+            $this->assertTrue($game->swingRequestArrayArray[1][$swing][0] instanceof BMDieSwing);
+            $this->assertEquals($swing, $game->swingRequestArrayArray[1][$swing][0]->swingType);
+            $this->assertFalse($this->object === $game->swingRequestArrayArray[1][$swing][0]);
         }
-
     }
 
     /**

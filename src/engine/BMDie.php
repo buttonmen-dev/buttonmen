@@ -81,11 +81,11 @@ class BMDie extends BMCanHaveSkill {
 
         try {
             // Option dice divide on a /, can contain any die type
-            if (count($opt_array = explode('/', $recipe)) > 1) {
-                $die = BMDieOption::create($opt_array, $skills);
-            } elseif (count($twin_array = explode(',', $recipe)) > 1) {
+            if (count($optionArray = explode('/', $recipe)) > 1) {
+                $die = BMDieOption::create($optionArray, $skills);
+            } elseif (count($twinArray = explode(',', $recipe)) > 1) {
                 // Twin dice divide on a comma, can contain any type but option
-                $die = BMDieTwin::create($twin_array, $skills);
+                $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
 //                $die = BMDieWildcard::create($recipe, $skills);
                 throw new Exception("Option skill not implemented");

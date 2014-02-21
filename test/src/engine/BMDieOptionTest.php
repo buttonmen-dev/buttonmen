@@ -26,54 +26,54 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieOption::init
      */
     public function testInit () {
-//        $this->object->init('X', array());
-//
-//        $this->assertEquals(1, $this->object->min);
-//        $this->assertEquals('X', $this->object->swingType);
-//
-//        $this->assertEquals(4, $this->object->swingMin);
-//        $this->assertEquals(20, $this->object->swingMax);
-//
-//        $this->assertFalse($this->object->has_skill('Testing'));
-//        $this->assertFalse($this->object->has_skill('Testing2'));
-//
-//        $this->object->init('Z',
-//                            array('TestDummyBMSkillTesting2' => 'Testing2'));
-//
-//        $this->assertEquals(1, $this->object->min);
-//        $this->assertEquals('Z', $this->object->swingType);
-//
-//        $this->assertEquals(4, $this->object->swingMin);
-//        $this->assertEquals(30, $this->object->swingMax);
-//
-//        $this->assertTrue($this->object->has_skill('Testing2'));
-//        $this->assertFalse($this->object->has_skill('Testing'));
-//
-//        $this->object->init('R');
-//
-//        $this->assertEquals(1, $this->object->min);
-//        $this->assertEquals('R', $this->object->swingType);
-//
-//        $this->assertEquals(2, $this->object->swingMin);
-//        $this->assertEquals(16, $this->object->swingMax);
-//
-//        try {
-//            $this->object->init('spoon');
-//            $this->fail('Bad swing init did not throw an exception');
-//        } catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $this->object->init('Q');
-//            $this->fail('Bad swing init did not throw an exception');
-//        } catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $this->object->init('p');
-//            $this->fail('Bad swing init did not throw an exception');
-//        } catch (UnexpectedValueException $e) {
-//        }
+        $this->object->init(array(4,6), array());
+
+        $this->assertEquals(1, $this->object->min);
+        $this->assertEquals(array(4,6), $this->object->optionValueArray);
+        $this->assertFalse(isset($this->object->optionValue));
+
+        $this->assertFalse($this->object->has_skill('Testing'));
+        $this->assertFalse($this->object->has_skill('Testing2'));
+
+        $this->object->init(array(5,8),
+                            array('TestDummyBMSkillTesting2' => 'Testing2'));
+
+        $this->assertEquals(1, $this->object->min);
+        $this->assertEquals(array(5,8), $this->object->optionValueArray);
+        $this->assertFalse(isset($this->object->optionValue));
+
+        $this->assertTrue($this->object->has_skill('Testing2'));
+        $this->assertFalse($this->object->has_skill('Testing'));
+
+        try {
+            $this->object->init('spoon');
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $this->object->init(4);
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $this->object->init(array(4));
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $this->object->init(array(4,6,8));
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $this->object->init('4/6');
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
     }
 
     /**
@@ -81,98 +81,106 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieOption::create
      */
     public function testCreate() {
-//
-//        // Test all valid swing types
-//        foreach (str_split('RSTUVWXYZ') as $swing) {
-//            $die = BMDieSwing::create($swing, array());
-//
-//            $this->assertInstanceOf('BMDie', $die);
-//            $this->assertInstanceOf('BMDieSwing', $die);
-//            $this->assertEquals($swing, $die->swingType);
-//        }
-//
-//
-//        // try some invalid types
-//        foreach (str_split('rstuvwxyzaQ') as $swing) {
-//            try {
-//                $die = BMDieSwing::create($swing, array());
-//                $this->fail("Creating with bad swing type '$swing' did not throw an exception.");
-//            } catch (UnexpectedValueException $e) {
-//            }
-//        }
-//
-//        // try some more bad values
-//        try {
-//            $die = BMDieSwing::create(6, array());
-//            $this->fail('Creating with bad swing type did not throw an exception.');
-//        } catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDieSwing::create("RT", array());
-//            $this->fail('Creating with bad swing type did not throw an exception.');
-//        } catch (UnexpectedValueException $e) {
-//        }
-//
-//        try {
-//            $die = BMDieSwing::create("0.A", array());
-//            $this->fail('Creating with bad swing type did not throw an exception.');
-//        } catch (UnexpectedValueException $e) {
-//        }
+
+        $die = BMDieOption::create(array(4,6), array());
+
+        $this->assertEquals(1, $die->min);
+        $this->assertEquals(array(4,6), $die->optionValueArray);
+        $this->assertFalse(isset($die->optionValue));
+
+        $this->assertFalse($die->has_skill('Testing'));
+        $this->assertFalse($die->has_skill('Testing2'));
+
+        $die = BMDieOption::create(array(5,8),
+                                   array('TestDummyBMSkillTesting2' => 'Testing2'));
+
+        $this->assertEquals(1, $die->min);
+        $this->assertEquals(array(5,8), $die->optionValueArray);
+        $this->assertFalse(isset($die->optionValue));
+
+        $this->assertTrue($die->has_skill('Testing2'));
+        $this->assertFalse($die->has_skill('Testing'));
+
+        try {
+            $die = BMDieOption::create('spoon');
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $die = BMDieOption::create(4);
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $die = BMDieOption::create(array(4));
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $die = BMDieOption::create(array(4,6,8));
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
+
+        try {
+            $die = BMDieOption::create('4/6');
+            $this->fail('Bad option init did not throw an exception');
+        } catch (InvalidArgumentException $e) {
+        }
     }
 
     /*
      * @covers BMDie::create_from_recipe
      */
     public function testCreate_from_recipe() {
-//        $die = BMDie::create_from_recipe('ps(X)');
-//        $this->assertInstanceOf('BMDieSwing', $die);
-//        $this->assertTrue($die->has_skill('Poison'));
-//        $this->assertTrue($die->has_skill('Shadow'));
-//        $this->assertNull($die->max);
-//        $this->assertEquals('X', $die->swingType);
+        $die = BMDie::create_from_recipe('ps(7/9)');
+        $this->assertInstanceOf('BMDieOption', $die);
+        $this->assertTrue($die->has_skill('Poison'));
+        $this->assertTrue($die->has_skill('Shadow'));
+        $this->assertNull($die->max);
+        $this->assertEquals(array(7,9), $die->optionValueArray);
     }
 
-//    /**
-//     * @depends testInit
-//     * @covers BMDieSwing::activate
-//     */
-//
-//    public function testActivate () {
-//        $game = new TestDummyGame;
-//        foreach (str_split('RSTUVWXYZ') as $dieIdx => $swing) {
-//            $this->object->init($swing);
-//
-//            $this->object->ownerObject = $game;
-//            $this->object->activate('player');
-//            $newDie = $game->dice[$dieIdx][1];
-//
-//            $this->assertFalse($newDie === $this->object);
-//            $this->assertTrue($game === $newDie->ownerObject);
-//
-//            $this->assertEquals($newDie, $game->swingrequest[0]);
-//            $this->assertEquals($swing, $game->swingrequest[1]);
-//        }
-//
-//    }
-//
-//    /**
-//     * @depends testInit
-//     * @coversNothing
-//     */
-//
-//    public function testIntegrationActivate () {
-//        $button = new BMButton;
-//        foreach (str_split('RSTUVWXYZ') as $swing) {
-//            $this->object->init($swing);
-//            $this->object->ownerObject = $button;
-//// james           $this->object->activate(0);
-//
-//// james           $this->assertTrue($game->swingrequest[0] === $newDie);
-////            $this->assertEquals($game->swingrequest[1], $swing);
-//        }
-//
-//    }
+    /**
+     * @depends testInit
+     * @covers BMDieSwing::activate
+     */
+
+    public function testActivate () {
+        $game = new TestDummyGame;
+        $this->object->init(array(6,2));
+
+        $this->object->ownerObject = $game;
+        $this->object->activate();
+        $newDie = $game->dice[0][1];
+
+        $this->assertFalse($newDie === $this->object);
+        $this->assertTrue($game === $newDie->ownerObject);
+
+        $this->assertEquals($newDie, $game->optionrequest[0]);
+        $this->assertEquals(array(6,2), $game->optionrequest[1]);
+    }
+
+    /**
+     * @depends testInit
+     * @coversNothing
+     */
+
+    public function testIntegrationActivate () {
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array(new BMDie), array(new BMDie, new BMDie));
+        $this->object->init(array(8,3));
+        $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
+        $this->object->originalPlayerIdx = 1;
+        $this->object->activate();
+
+        $this->assertTrue(array_key_exists(2, $game->optRequestArrayArray[1]));
+        $this->assertEquals(array(8,3), $game->optRequestArrayArray[1][2]);
+    }
 //
 //    /**
 //     * @depends testInit

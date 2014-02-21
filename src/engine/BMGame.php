@@ -40,6 +40,7 @@
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
+ * @property      array $optRequestArrayArray    Option requests for all players
  * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
  *
  * @SuppressWarnings(PMD.TooManyFields)
@@ -86,6 +87,7 @@ class BMGame {
 
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
+    public $optRequestArrayArray;
 
     public $allValuesSpecified = FALSE;
 
@@ -1209,6 +1211,17 @@ class BMGame {
                 array_fill(0, $this->nPlayers, array());
         }
         $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
+    }
+
+    public function request_option_values($die, $optionArray, $playerIdx) {
+        if (!isset($this->optRequestArrayArray)) {
+            $this->optRequestArrayArray =
+                array_fill(0, $this->nPlayers, array());
+        }
+
+        $dieIdx = array_search($die, $this->activeDieArrayArray[$playerIdx]);
+        assert(FALSE !== $dieIdx);
+        $this->optRequestArrayArray[$playerIdx][$dieIdx] = $optionArray;
     }
 
     public static function does_player_have_initiative_array(array $activeDieArrayArray) {

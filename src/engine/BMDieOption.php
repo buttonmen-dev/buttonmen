@@ -7,29 +7,28 @@ class BMDieOption extends BMDie {
     protected $needsOptionValue;
     protected $valueRequested;
 
-    public function init($type, array $skills = NULL) {
+    public function init($optionArray, array $skills = NULL) {
+        if (!is_array($optionArray) ||
+            2 != count($optionArray)) {
+            throw new InvalidArgumentException('optionArray must be an array with at exactly two elements.');
+        }
+
         $this->min = 1;
 
         $this->divisor = 1;
         $this->remainder = 0;
 
+        $this->optionValueArray = $optionArray;
         $this->needsOptionValue = TRUE;
         $this->valueRequested = FALSE;
 
         $this->add_multiple_skills($skills);
     }
 
-    public static function create($recipe, array $skills = NULL) {
-
-        if (!is_string($recipe) ||
-            strlen($recipe) < 3 ||
-            (FALSE === strpos($recipe, '/'))) {
-            throw new UnexpectedValueException("Invalid recipe: $recipe");
-        }
-
+    public static function create($optionArray, array $skills = NULL) {
         $die = new BMDieOption;
 
-        $die->init($recipe, $skills);
+        $die->init($optionArray, $skills);
 
         return $die;
     }
@@ -39,32 +38,36 @@ class BMDieOption extends BMDie {
 
         $this->run_hooks(__FUNCTION__, array('die' => $newDie));
 
+        $this->ownerObject->add_die($newDie);
+
         // The clone is the one going into the game, so it's the one
-        // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values(
+        // that needs a option value to be set.
+        $this->ownerObject->request_option_values(
             $newDie,
             $newDie->optionValueArray,
             $newDie->playerIdx
         );
         $newDie->valueRequested = TRUE;
-
-        $this->ownerObject->add_die($newDie);
     }
 
-    public function make_play_die() {
-        // Get option value from the game before cloning, so it's saved
-        // from round to round.
-        if ($this->needsOptionValue) {
-            $this->ownerObject->require_values();
-        }
-
-        return parent::make_play_die();
-    }
+//    public function make_play_die() {
+//        // Get option value from the game before cloning, so it's saved
+//        // from round to round.
+//        if ($this->needsOptionValue) {
+//            $this->ownerObject->require_values();
+//        }
+//
+//        return parent::make_play_die();
+//    }
 
     public function roll($successfulAttack = FALSE) {
         if ($this->needsOptionValue) {
             if (!$this->valueRequested) {
-                $this->ownerObject->request_option_values($this, $this->optionValueArray);
+                $this->ownerObject->request_option_values(
+                    $this,
+                    $this->optionValueArray,
+                    $this->playerIdx
+                );
                 $this->valueRequested = TRUE;
             }
             $this->ownerObject->require_values();

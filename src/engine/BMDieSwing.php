@@ -97,7 +97,11 @@ class BMDieSwing extends BMDie {
     public function roll($successfulAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
-                $this->ownerObject->request_swing_values($this, $this->swingType);
+                $this->ownerObject->request_swing_values(
+                    $this,
+                    $this->swingType,
+                    $this->playerIdx
+                );
                 $this->valueRequested = TRUE;
             }
             $this->ownerObject->require_values();
