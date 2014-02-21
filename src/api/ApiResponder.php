@@ -96,7 +96,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadPlayerName() {
-        if (array_key_exists('user_name', $_SESSION)) {
+        if (auth_session_exists()) {
             return array('userName' => $_SESSION['user_name']);
         } else {
             return NULL;

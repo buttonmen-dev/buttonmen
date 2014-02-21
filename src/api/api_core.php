@@ -32,6 +32,7 @@ function login($username, $password) {
                                   ':auth_key' => $auth_key));
 
             // set authorisation cookie
+            setcookie('auth_userid', $result['id'], 0, '/', '', FALSE);
             setcookie('auth_key', $auth_key, 0, '/', '', FALSE);
             session_regenerate_id(TRUE);
             $_SESSION['user_id'] = $result['id'];
@@ -42,6 +43,45 @@ function login($username, $password) {
     }
 
     return $returnValue;
+}
+
+// If the user is logged in, make sure a valid session exists.
+// Otherwise, return false.
+function auth_session_exists() {
+
+    // there's an existing session, nothing to do
+    if (array_key_exists('user_name', $_SESSION)) {
+        return TRUE;
+    }
+
+    // There's not an existing session, but the user has an auth_key
+    // cookie, so see if it matches the database.
+    // If it does, create a new session
+    if (array_key_exists('auth_userid', $_COOKIE) && array_key_exists('auth_key', $_COOKIE)) {
+        require_once '../database/mysql.inc.php';
+        $conn = conn();
+
+        $auth_userid = $_COOKIE['auth_userid'];
+        $auth_key = $_COOKIE['auth_key'];
+        $sql = 'SELECT p.name_ingame as name_ingame ' .
+               'FROM player_auth as a, player as p ' .
+               'WHERE a.id = :id AND a.auth_key = :auth_key AND a.id = p.id';
+        $query = $conn->prepare($sql);
+        $query->execute(array(':id'       => $auth_userid,
+                              ':auth_key' => $auth_key));
+        $resultArray = $query->fetchAll();
+        if (count($resultArray) == 1) {
+            $name_ingame = $resultArray[0]['name_ingame'];
+            session_regenerate_id(TRUE);
+            $_SESSION['user_id'] = $auth_userid;
+            $_SESSION['user_name'] = $name_ingame;
+            $_SESSION['user_lastactive'] = time();
+            return TRUE;
+        }
+    }
+
+    // neither session nor cookie lookup worked, so the user is not logged in
+    return FALSE;
 }
 
 function logout() {
@@ -56,6 +96,7 @@ function logout() {
     $_SESSION = array();
 
     setcookie('auth_key', '', time()-3600, '/');
+    setcookie('auth_userid', '', time()-3600, '/');
 
     $params = session_get_cookie_params();
     setcookie(

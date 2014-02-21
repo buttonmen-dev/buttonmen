@@ -120,6 +120,8 @@ var Api = (function () {
               'type': 'error',
               'text': rs.message,
             };
+          } else if (messages.notok.type == 'function') {
+            messages.notok.msgfunc(rs.message);
           }
           return failcallback();
         }

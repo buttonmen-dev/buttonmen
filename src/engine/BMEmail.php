@@ -41,7 +41,8 @@ class BMEmail {
     // this function actually sends the message, and should only be called from within this class
     protected function send_message() {
         $headers = array();
-        $headers[] = "Reply-To: buttonmen-dev@keyfitz.org";
+        $headers[] = "From: site-notifications@buttonweavers.com";
+        $headers[] = "Reply-To: help@buttonweavers.com";
         $headers[] = "Auto-Submitted: auto-generated";
         $headers[] = "Precedence: bulk";
 

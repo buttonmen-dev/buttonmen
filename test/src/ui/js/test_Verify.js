@@ -67,3 +67,8 @@ test("test_Verify.setVerifyUserSuccessMessage", function() {
   Verify.setVerifyUserSuccessMessage('test success');
   equal(Env.message.type, 'success', 'message type is success');
 });
+
+test("test_Verify.setVerifyUserFailureMessage", function() {
+  Verify.setVerifyUserFailureMessage('test failure');
+  equal(Env.message.type, 'error', 'message type is error');
+});
