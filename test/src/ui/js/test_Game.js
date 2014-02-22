@@ -795,7 +795,7 @@ test("test_Game.chatBox", function() {
   ok(html.match(/"game_chat"/), "Game chat box has correct ID in page");
 });
 
-asyncTest("test_Game.dieBorderToggleHandler", function() {
+asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -806,7 +806,8 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected'), "die is unselected before click");
+    ok(html.match('die_img unselected_player'),
+       "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
@@ -814,7 +815,34 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected'),
+    ok(html.match('die_img unselected_player'),
+       "die is unselected after second click");
+
+    start();
+  });
+});
+
+asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('opponent', true));
+    Game.layoutPage();
+
+    // test the toggle handler by seeing if a die becomes selected
+    // and unselected on click
+    var dieobj = $('#playerIdx_1_dieIdx_0');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img unselected_opponent'),
+       "die is unselected before click");
+
+    $('#playerIdx_1_dieIdx_0').trigger('click');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img selected'), "die is selected after first click");
+
+    $('#playerIdx_1_dieIdx_0').trigger('click');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img unselected_opponent'),
        "die is unselected after second click");
 
     start();

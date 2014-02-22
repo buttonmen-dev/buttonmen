@@ -18,6 +18,9 @@ Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
 
+// Convenience HTML used in the mat layout to break text
+Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -517,22 +520,16 @@ Game.actionShowFinishedGame = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('This game is over');
 
+  Game.page.append(Game.gameWinner());
+  Game.page.append($('<br>'));
+
   var dieEndgameTable = $('<table>');
   var dieEndgameTr = $('<tr>');
-  var dieEndgameTd = $('<td>');
 
   var playerButtonTd = Game.buttonImageDisplay('player');
   var opponentButtonTd = Game.buttonImageDisplay('opponent');
 
-  dieEndgameTd.append($('<br>'));
-  dieEndgameTd.append(Game.gamePlayerStatus('player', false, false));
-  dieEndgameTd.append($('<br>'));
-  dieEndgameTd.append(Game.gameWinner());
-  dieEndgameTd.append($('<br>'));
-  dieEndgameTd.append(Game.gamePlayerStatus('opponent', true, false));
-
   dieEndgameTr.append(playerButtonTd);
-  dieEndgameTr.append(dieEndgameTd);
   dieEndgameTr.append(opponentButtonTd);
   dieEndgameTable.append(dieEndgameTr);
   Game.page.append(dieEndgameTable);
@@ -784,8 +781,12 @@ Game.pageAddGameHeader = function(action_desc) {
   Game.page.append(
     $('<div>', {
       'id': 'game_id',
-      'text': 'Game #' + Api.game.gameId + ': ' +
-              'Round #' + Api.game.roundNumber,
+      'html':
+	'Game #' + Api.game.gameId + Game.SPACE_BULLET +
+	Api.game.player.playerName + ' (' + Api.game.player.buttonName +
+	') vs. ' + Api.game.opponent.playerName + ' (' +
+	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
+        'Round #' + Api.game.roundNumber,
     }));
   Game.page.append($('<div>', {'id': 'action_desc',
                                'class': 'action_desc',
@@ -1010,17 +1011,22 @@ Game.dieTableEntry = function(
 Game.pageAddDieBattleTable = function(clickable) {
   var dieBattleTable = $('<table>');
   var dieBattleTr = $('<tr>');
-  var dieBattleTd = $('<td>');
+  var dieBattleTd = $('<td>', {'class': 'battle_mat', });
 
   var playerButtonTd = Game.buttonImageDisplay('player');
   var opponentButtonTd = Game.buttonImageDisplay('opponent');
 
-  dieBattleTd.append(Game.gamePlayerStatus('player', false, true));
-  dieBattleTd.append($('<br>'));
-  dieBattleTd.append(Game.gamePlayerDice('player', clickable));
-  dieBattleTd.append(Game.gamePlayerDice('opponent', clickable));
-  dieBattleTd.append($('<br>'));
-  dieBattleTd.append(Game.gamePlayerStatus('opponent', true, true));
+  var diePlayerDiv = $('<div>', {'class': 'battle_mat_player', });
+  diePlayerDiv.append(Game.gamePlayerStatus('player', false, true));
+  diePlayerDiv.append($('<br>'));
+  diePlayerDiv.append(Game.gamePlayerDice('player', clickable));
+  dieBattleTd.append(diePlayerDiv);
+
+  var dieOpponentDiv = $('<div>', {'class': 'battle_mat_opponent', });
+  dieOpponentDiv.append(Game.gamePlayerDice('opponent', clickable));
+  dieOpponentDiv.append($('<br>'));
+  dieOpponentDiv.append(Game.gamePlayerStatus('opponent', true, true));
+  dieBattleTd.append(dieOpponentDiv);
 
   dieBattleTr.append(playerButtonTd);
   dieBattleTr.append(dieBattleTd);
@@ -1035,15 +1041,25 @@ Game.pageAddDieBattleTable = function(clickable) {
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
   var buttonTd = $('<td>', { 'class': 'button_' + player, });
+  var playerName = $('<div>', {
+    'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
+  });
+  var playerWLT = $('<div>', {
+    'text': Api.game[player].gameScoreStr,
+  });
   var buttonInfo = $('<div>', {
     'text': 'Button: ' + Api.game[player].buttonName,
   });
   var buttonRecipe = $('<div>', {
     'text': Api.game[player].buttonRecipe,
   });
-  if (player == 'player') {
+
+  if (player == 'opponent') {
+    buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
+  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    buttonTd.append(playerWLT);
   }
   buttonTd.append($('<img>', {
     'src':
@@ -1053,9 +1069,12 @@ Game.buttonImageDisplay = function(player) {
     'width': '150px',
     'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
   }));
-  if (player == 'opponent') {
+  if (player == 'player') {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
+    buttonTd.append(playerName);
+  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    buttonTd.append(playerWLT);
   }
   return buttonTd;
 };
@@ -1063,30 +1082,25 @@ Game.buttonImageDisplay = function(player) {
 // Return a brief mid-game status listing for the requested player
 Game.gamePlayerStatus = function(player, reversed, game_active) {
 
-  // Status table for entire section
-  var statusTable = $('<table>', { 'class': 'spaced' });
-  var statusRow = $('<tr>');
-  var playerButtonTd = $('<td>');
-  var stateTd = $('<td>');
-  var boundaryTd = $('<td>', {'class': 'empty', });
-
-  // Player name
-  var playerDiv = $('<div>');
-  playerDiv.append($('<span>', {
-    'text': 'Player: ' + Api.game[player].playerName,
-  }));
+  // Status div for entire section
+  var statusDiv = $('<div>', { 'class': 'status_' + player, });
 
   // Game score
-  var gameScoreDiv = $('<div>');
-  gameScoreDiv.append($('<span>', { 'text': Api.game[player].gameScoreStr, }));
+  var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
 
-  var roundScoreDiv;
   var capturedDiceDiv;
   if (game_active) {
+
     // Round score, only applicable in active games
-    roundScoreDiv = $('<div>');
-    roundScoreDiv.append($('<span>', {
-      'text': 'Score: ' + Api.game[player].roundScore,
+    gameScoreDiv.append(Game.SPACE_BULLET);
+    var sideScoreStr = Api.game[player].sideScore;
+    if (sideScoreStr > 0) {
+      sideScoreStr = '+' + sideScoreStr;
+    }
+    gameScoreDiv.append($('<b>', {
+      'text':
+        'Score: ' + Api.game[player].roundScore + ' (' +
+        sideScoreStr + ' sides)',
     }));
 
     // Dice captured this round, only applicable in active games
@@ -1110,37 +1124,24 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   // Order the elements depending on the "reversed" flag
   if (reversed) {
     if (game_active) {
-      stateTd.append(roundScoreDiv);
-      stateTd.append(capturedDiceDiv);
-
-      statusRow.append(stateTd);
-      statusRow.append(boundaryTd);
+      statusDiv.append(capturedDiceDiv);
     }
-    playerButtonTd.append(gameScoreDiv);
-    playerButtonTd.append(playerDiv);
-    statusRow.append(playerButtonTd);
+    statusDiv.append(gameScoreDiv);
 
   } else {
-    playerButtonTd.append(playerDiv);
-    playerButtonTd.append(gameScoreDiv);
-    statusRow.append(playerButtonTd);
-
+    statusDiv.append(gameScoreDiv);
     if (game_active) {
-      stateTd.append(capturedDiceDiv);
-      stateTd.append(roundScoreDiv);
-
-      statusRow.append(boundaryTd);
-      statusRow.append(stateTd);
+      statusDiv.append(capturedDiceDiv);
     }
   }
-  statusTable.append(statusRow);
-  return statusTable;
+  return statusDiv;
 };
 
 // Return a display of all dice for the requested player, specifying
 // whether the dice should be selectable
 Game.gamePlayerDice = function(player, player_active) {
-  var allDice = $('<div>');
+  var allDice = $('<div>', { 'class': 'dice_' + player, });
+  var allDiceOverlay = $('<div>', { 'class': 'dice_' + player + '_overlay', });
   var i = 0;
   while (i < Api.game[player].nDie) {
 
@@ -1173,10 +1174,14 @@ Game.gamePlayerDice = function(player, player_active) {
           (Game.activity.dieSelectStatus[dieIndex])) {
         divOpts.class = 'die_img selected';
       } else {
-        divOpts.class = 'die_img unselected';
+        divOpts.class = 'die_img unselected_' + player;
       }
       dieDiv = $('<div>', divOpts);
-      dieDiv.click(Game.dieBorderToggleHandler);
+      if (player == 'player') {
+        dieDiv.click(Game.dieBorderTogglePlayerHandler);
+      } else {
+        dieDiv.click(Game.dieBorderToggleOpponentHandler);
+      }
     } else {
       divOpts.class = 'die_img die_greyed';
       if (player_active) {
@@ -1198,9 +1203,10 @@ Game.gamePlayerDice = function(player, player_active) {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    allDice.append(dieDiv);
+    allDiceOverlay.append(dieDiv);
     i += 1;
   }
+  allDice.append(allDiceOverlay);
   return allDice;
 };
 
@@ -1226,8 +1232,8 @@ Game.gameWinner = function() {
 
   var winnerDiv = $('<div>');
   winnerDiv.append($('<span>', {
-    'id': 'winner_name',
-    'text': winnerText,
+    'class': 'winner_name',
+    'html': $('<b>', { 'text': winnerText, }),
   }));
   return winnerDiv;
 };
@@ -1308,8 +1314,12 @@ Game.dieCanRerollForInitiative = function(recipe) {
   return false;
 };
 
-Game.dieBorderToggleHandler = function() {
-  $(this).toggleClass('selected unselected');
+Game.dieBorderTogglePlayerHandler = function() {
+  $(this).toggleClass('selected unselected_player');
+};
+
+Game.dieBorderToggleOpponentHandler = function() {
+  $(this).toggleClass('selected unselected_opponent');
 };
 
 // The selected value is the first value provided, and is not part

@@ -382,6 +382,7 @@ var Api = (function () {
       'waitingOnAction':
         my.game.gameData.data.waitingOnActionArray[playerIdx],
       'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
+      'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
       'gameScoreDict':
         my.game.gameData.data.gameScoreArrayArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
