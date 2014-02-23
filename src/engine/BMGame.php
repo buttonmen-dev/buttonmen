@@ -41,7 +41,6 @@
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $optRequestArrayArray    Option requests for all players
- * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
@@ -88,15 +87,6 @@ class BMGame {
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
     public $optRequestArrayArray;
-
-    public $allValuesSpecified = FALSE;
-
-    public function require_values() {
-        if (!$this->allValuesSpecified) {
-            throw new Exception("require_values called");
-        }
-    }
-
 
     // methods
     public function do_next_step() {

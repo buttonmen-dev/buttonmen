@@ -27,10 +27,6 @@ class TestDummyGame {
 
     public $all_values_specified = FALSE;
 
-    public function require_values() {
-        throw new Exception("require_values called");
-    }
-
     public function attackerAttackDieArray() {
         return $this->attackers;
     }

@@ -87,9 +87,6 @@ class BMDieSwing extends BMDie {
     public function make_play_die() {
         // Get swing value from the game before cloning, so it's saved
         // from round to round.
-        if ($this->needsSwingValue) {
-            $this->ownerObject->require_values();
-        }
 
         return parent::make_play_die();
     }
@@ -104,7 +101,6 @@ class BMDieSwing extends BMDie {
                 );
                 $this->valueRequested = TRUE;
             }
-            $this->ownerObject->require_values();
         }
 
         parent::roll($successfulAttack);

@@ -62,11 +62,6 @@ class BMDieOption extends BMDie {
     }
 
 //    public function make_play_die() {
-//        // Get option value from the game before cloning, so it's saved
-//        // from round to round.
-//        if ($this->needsOptionValue) {
-//            $this->ownerObject->require_values();
-//        }
 //
 //        return parent::make_play_die();
 //    }
@@ -81,7 +76,6 @@ class BMDieOption extends BMDie {
                 );
                 $this->valueRequested = TRUE;
             }
-            $this->ownerObject->require_values();
         }
 
         parent::roll($successfulAttack);

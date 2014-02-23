@@ -227,7 +227,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->swingValueArrayArray));
         $this->assertEquals(array(array('X' => NULL), array('X' => NULL)),
                             $game->swingValueArrayArray);
-        $this->assertFalse($game->allValuesSpecified);
 
         // check round info
         $this->assertEquals(1, $game->roundNumber);
@@ -401,7 +400,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->swingValueArrayArray));
         $this->assertEquals(array(array('X' => 19), array('X' => 5)),
                             $game->swingValueArrayArray);
-        $this->assertFalse($game->allValuesSpecified);
 
         // check round info
         $this->assertEquals(1, $game->roundNumber);
