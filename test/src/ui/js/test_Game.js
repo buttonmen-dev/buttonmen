@@ -480,6 +480,23 @@ asyncTest("test_Game.formChooseSwingActive", function() {
   });
 });
 
+asyncTest("test_Game.formChooseAuxiliaryDiceActive", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceActive();
+    $('#auxiliary_die_select').val('add');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success",
+       "text": "Auxiliary die chosen successfully"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Game.formReactToInitiativeActive", function() {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {

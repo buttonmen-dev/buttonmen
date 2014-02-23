@@ -18,7 +18,8 @@ class DummyApiResponder {
     private $keylists = array(
         'submitSwingValues' => array('type', 'game', 'roundNumber', 'swingValueArray', 'timestamp'),
         'reactToInitiative' => array('type', 'game', 'roundNumber', 'timestamp',
-                                     'action', 'dieIdxArray', 'dieValueArray')
+                                     'action', 'dieIdxArray', 'dieValueArray'),
+        'reactToAuxiliary' => array('type', 'game', 'action', 'dieIdx')
     );
 
     // constructor
@@ -929,6 +930,10 @@ class DummyApiResponder {
     protected function get_interface_response_reactToInitiative() {
         return array(array('gainedInitiative' => TRUE),
                      'Successfully gained initiative');
+    }
+
+    protected function get_interface_response_reactToAuxiliary() {
+        return array(TRUE, 'Auxiliary die chosen successfully');
     }
 
     protected function get_interface_response_submitTurn() {
