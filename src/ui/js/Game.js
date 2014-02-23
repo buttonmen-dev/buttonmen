@@ -114,6 +114,16 @@ Game.showStatePage = function() {
       } else {
         Game.actionChooseSwingNonplayer();
       }
+    } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_AUXILIARY_DICE) {
+      if (Api.game.isParticipant) {
+        if (Api.game.player.waitingOnAction) {
+          Game.actionChooseAuxiliaryDiceActive();
+        } else {
+          Game.actionChooseAuxiliaryDiceInactive();
+        }
+      } else {
+        Game.actionChooseAuxiliaryDiceNonplayer();
+      }
     } else if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
@@ -200,6 +210,23 @@ Game.parseValidInitiativeActions = function() {
     }
     Api.game.player.initiativeActions.decline = true;
   }
+};
+
+// What auxiliary dice will each player in this game get
+Game.parseAuxiliaryDieOptions = function() {
+  $.each(Api.game.player.dieSkillsArray, function(i) {
+    if ('Auxiliary' in Api.game.player.dieSkillsArray[i]) {
+      Api.game.player.auxiliaryDieIndex = i;
+      Api.game.player.auxiliaryDieRecipe = Api.game.player.dieRecipeArray[i];
+    }
+  });
+  $.each(Api.game.opponent.dieSkillsArray, function(i) {
+    if ('Auxiliary' in Api.game.opponent.dieSkillsArray[i]) {
+      Api.game.opponent.auxiliaryDieIndex = i;
+      Api.game.opponent.auxiliaryDieRecipe =
+        Api.game.opponent.dieRecipeArray[i];
+    }
+  });
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -314,6 +341,108 @@ Game.actionChooseSwingNonplayer = function() {
 
   Game.pageAddFooter();
   Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
+Game.actionChooseAuxiliaryDiceActive = function() {
+  Game.parseAuxiliaryDieOptions();
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Your turn to decide whether to use auxiliary dice');
+
+  // Create a form for reacting to initiative
+  var auxform = $('<form>', {
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable(false, false);
+
+  auxform.append(dietable);
+  auxform.append($('<br>'));
+
+  var yestext = 'Use auxiliary dice this game: keep ' +
+    Api.game.player.auxiliaryDieRecipe + ' in your button and ' +
+    Api.game.opponent.auxiliaryDieRecipe + ' in your opponent\'s button';
+  var notext = 'Don\'t use auxiliary dice this game';
+
+  var auxselect = $('<select>', {
+    'id': 'auxiliary_die_select',
+    'name': 'auxiliary_die_select',
+  });
+  auxselect.append($('<option>', {
+    'value': 'add',
+    'label': yestext,
+    'text': yestext,
+    'selected': 'selected',
+  }));
+  auxselect.append($('<option>', {
+    'value': 'decline',
+    'label': notext,
+    'text': notext,
+  }));
+  auxform.append(auxselect);
+
+  auxform.append(
+    $('<button>', {
+      'id': 'game_action_button',
+      'text': 'Submit',
+    }));
+
+  // Add the form to the page
+  Game.page.append(auxform);
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseAuxiliaryDiceActive;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
+Game.actionChooseAuxiliaryDiceInactive = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Opponent\'s turn to decide whether to use auxiliary dice');
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable(false, false);
+
+  // Add the form to the page
+  Game.page.append(dietable);
+  Game.page.append($('<br>'));
+
+  Game.page.append($('<p>', {'text':
+    'Please wait for your opponent to decide whether to use auxiliary dice' }));
+
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
+Game.actionChooseAuxiliaryDiceNonplayer = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to decide whether to use auxiliary dice (you are not in this game)'
+  );
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable(false, false);
+
+  Game.page.append(dietable);
+
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = null,
 
   // Now layout the page
   Game.layoutPage();
@@ -579,6 +708,33 @@ Game.formChooseSwingActive = function() {
     Env.message = {
       'type': 'error',
       'text': 'Some swing values missing or nonnumeric',
+    };
+    Game.showGamePage();
+  }
+};
+
+Game.formChooseAuxiliaryDiceActive = function() {
+  Game.activity.auxiliaryDieAction = $('#auxiliary_die_select').val();
+  if ((Game.activity.auxiliaryDieAction == 'add') ||
+      (Game.activity.auxiliaryDieAction == 'decline')) {
+    Api.apiFormPost(
+      {
+        type: 'reactToAuxiliary',
+        game: Game.game,
+        action: Game.activity.auxiliaryDieAction,
+        dieIdx: Api.game.player.auxiliaryDieIndex,
+      },
+      { 'ok': { 'type': 'server', },
+        'notok': {'type': 'server', },
+      },
+      'game_action_button',
+      Game.showGamePage,
+      Game.showGamePage
+    );
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'Could not parse decision to use or not use auxiliary dice',
     };
     Game.showGamePage();
   }
