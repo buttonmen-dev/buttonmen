@@ -409,6 +409,9 @@ class BMInterface {
                 if (isset($recipe)) {
                     $button = new BMButton;
                     $button->load($recipe, $row['button_name']);
+                    if (isset($row['alt_recipe'])) {
+                        $button->hasAlteredRecipe = TRUE;
+                    }
                     $buttonArray[$pos] = $button;
                 } else {
                     throw new InvalidArgumentException('Invalid button name.');
