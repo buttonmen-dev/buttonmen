@@ -1,8 +1,19 @@
 <?php
 
+/**
+ * BMDieOption: option die
+ *
+ * @author james
+ *
+ * @property      array $optionValueArray  Possible option values
+ * @property      int   $optionValue       Chosen option value
+ * @property-read bool  $needsOptionValue  Flag indicating whether an option value is still needed
+ * @property-read bool  $valueRequested    Flag indicating whether an option request has been sent to the parent
+ */
+
 class BMDieOption extends BMDie {
-    public $optionValueArray;
-    public $optionValue;
+    protected $optionValueArray;
+    protected $optionValue;
 
     protected $needsOptionValue;
     protected $valueRequested;
@@ -140,4 +151,18 @@ class BMDieOption extends BMDie {
 //
 //        return $valid;
 //    }
+
+    public function __set($property, $value) {
+        switch ($property) {
+            case 'optionValue':
+                if (in_array($value, $this->optionValueArray)) {
+                    $this->$property = $value;
+                } else {
+                    throw new LogicException('Chosen option value is invalid.');
+                }
+                break;
+            default:
+                parent::__set($property, $value);
+        }
+    }
 }

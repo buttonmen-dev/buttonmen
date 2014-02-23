@@ -146,7 +146,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @depends testInit
-     * @covers BMDieSwing::activate
+     * @covers BMDieOption::activate
      */
 
     public function testActivate () {
@@ -181,124 +181,67 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(array_key_exists(2, $game->optRequestArrayArray[1]));
         $this->assertEquals(array(8,3), $game->optRequestArrayArray[1][2]);
     }
-//
-//    /**
-//     * @depends testInit
-//     * @covers BMDieSwing::split
-//     */
-//    public function testSplit() {
-//        $this->object->init('X');
-//
-//        // set by hand to avoid a dependency loop with tests for
-//        // set_swingValue
-//
-//        $this->object->max = $this->object->swingValue = 20;
-//
-//        $dice = $this->object->split();
-//
-//        $this->assertFalse($this->object === $dice[0]);
-//        $this->assertFalse($this->object === $dice[1]);
-//        $this->assertFalse($dice[0] instanceof BMDieSwing);
-//        $this->assertFalse($dice[1] instanceof BMDieSwing);
-//
-//        $this->assertEquals($dice[0]->max, 10);
-//        $this->assertEquals($dice[1]->max, 10);
-//
-//        // split again
-//        $dice = $dice[0]->split();
-//        $this->assertEquals($dice[0]->max, 5);
-//        $this->assertEquals($dice[1]->max, 5);
-//
-//        // and again
-//        $dice = $dice[0]->split();
-//        $this->assertEquals($dice[0]->max, 3);
-//        $this->assertEquals($dice[1]->max, 2);
-//
-//        // keep going
-//        $dice = $dice[0]->split();
-//        $this->assertEquals($dice[0]->max, 2);
-//        $this->assertEquals($dice[1]->max, 1);
-//    }
-//
-//    /**
-//     * @depends testInit
-//     * @covers BMDieSwing::set_optionValue
-//     */
-//    public function testSet_optionValue() {
-//
-//
-//        foreach (str_split('RSTUVWXYZ') as $swing) {
-//            $this->object->init($swing);
-//            $range = $this->object->swing_range($swing);
-//            $min = $range[0];
-//            $max = $range[1];
-//            for ($i = $min; $i <= $max; $i++) {
-//                $swingList = array($swing => $i);
-//                $this->assertTrue($this->object->set_swingValue($swingList));
-//                $this->assertEquals($i, $this->object->swingValue);
-//                $this->assertEquals($i, $this->object->max);
-//
-//            }
-//        }
-//
-//
-//        $this->object->init("X");
-//
-//        // check error checking
-//        $swingList = array();
-//        $this->assertFalse($this->object->set_swingValue($swingList));
-//
-//        $swingList = array('R' => 12);
-//        $this->assertFalse($this->object->set_swingValue($swingList));
-//
-//        $swingList = array('R' => 12,
-//                           'S' => 10,
-//                           'U' => 15,
-//                           'Y' => 1,
-//                           'Z' => 30);
-//        $this->assertFalse($this->object->set_swingValue($swingList));
-//
-//        $swingList = array('X' => 3);
-//        $this->assertFalse($this->object->set_swingValue($swingList));
-//
-//        $swingList = array('X' => 21);
-//        $this->assertFalse($this->object->set_swingValue($swingList));
-//
-//        // needle in a haystack
-//        $swingList = array('R' => 12,
-//                           'S' => 10,
-//                           'X' => 15,
-//                           'Y' => 1,
-//                           'Z' => 30);
-//
-//        $this->assertTrue($this->object->set_swingValue($swingList));
-//        $this->assertEquals($this->object->swingValue, 15);
-//        $this->assertEquals($this->object->max, 15);
-//    }
-//
-//    /**
-//     * @depends testInit
-//     * @depends testActivate
-//     * @depends testSet_optionValue
-//     * @covers BMDieOption::roll
-//     */
-//    public function testRoll() {
-//
-//        // testing whether it calls the appropriate methods in BMGame
-//
-//        $this->object->init('X');
-//
-//        // needs a value, hasn't requested one. Should call
-//        // request_swing_values before calling require_values
-//        $game = new TestDummyGame;
-//
-//        $this->object->ownerObject = $game;
-//
-//        try {
-//            $this->object->roll(FALSE);
-//            $this->fail('dummy require_values not called.');
-//        } catch (Exception $e) {
-//        }
+
+    /**
+     * @depends testInit
+     * @covers BMDieOption::split
+     */
+    public function testSplit() {
+        $this->object->init(array(4,6));
+        $this->object->max = $this->object->swingValue = 6;
+
+        $dice = $this->object->split();
+
+        $this->assertFalse($this->object === $dice[0]);
+        $this->assertFalse($this->object === $dice[1]);
+        $this->assertFalse($dice[0] instanceof BMDieOption);
+        $this->assertFalse($dice[1] instanceof BMDieOption);
+
+        $this->assertEquals($dice[0]->max, 3);
+        $this->assertEquals($dice[1]->max, 3);
+    }
+
+    /**
+     * @depends testInit
+     * @covers BMDieOption::__set
+     */
+    public function testSet_optionValue() {
+        $this->object->init(array(5,7));
+
+        // try setting the option value to an invalid value
+        try {
+            $this->object->optionValue = 6;
+            $this->fail('Invalid option value set should fail.');
+        } catch (Exception $e) {
+        }
+
+        $this->object->optionValue = 7;
+        $this->assertEquals(7, $this->object->optionValue);
+    }
+
+    /**
+     * @depends testInit
+     * @depends testActivate
+     * @depends testSet_optionValue
+     * @covers BMDieOption::roll
+     */
+    public function testRoll() {
+
+        // testing whether it calls the appropriate methods in BMGame
+
+        $this->object->init(array(4, 10));
+
+        // needs a value, hasn't requested one. Should call
+        // request_swing_values before calling require_values
+        $game = new TestDummyGame;
+
+        $this->object->ownerObject = $game;
+
+        try {
+            $this->object->roll(FALSE);
+            $this->fail('dummy require_values not called.');
+        } catch (Exception $e) {
+        }
 //
 //        $this->assertNotEmpty($game->swingrequest);
 //
@@ -351,7 +294,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 //
 //        // Does it roll?
 //        $this->assertTrue(is_numeric($newDie->value));
-//    }
+    }
 //
 //
 //    /**
