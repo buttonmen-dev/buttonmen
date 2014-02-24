@@ -2663,9 +2663,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
             $out1['data']['valueArrayArray']
         );
-        // at the beginning of the game, all opponents' dice are hidden
+        // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-            array(array(8, 10, 12, 20, 5), array(NULL, NULL, NULL, NULL, NULL)),
+            array(array(8, 10, 12, 20, 5), array(4, 6, 8, NULL, NULL)),
             $out1['data']['sidesArrayArray']
         );
         $this->assertEquals(
@@ -2736,7 +2736,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         );
         // at the beginning of the game, all opponents' dice are hidden
         $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(4, 6, 8, NULL, NULL)),
+            array(array(8, 10, 12, 20, NULL), array(4, 6, 8, NULL, NULL)),
             $out2['data']['sidesArrayArray']
         );
         $this->assertEquals(
@@ -2761,7 +2761,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                     '10-sided die',
                     '12-sided die',
                     '20-sided die',
-                    'X Swing Die (with 5 sides)'
+                    'X Swing Die'
                 ),
                 array(
                     '4-sided die',
@@ -3045,6 +3045,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
                                   array(NULL, NULL, NULL, NULL, NULL)),
                             $out2['data']['valueArrayArray']);
+        $this->assertEquals('X Swing Die',
+                            $out2['data']['dieDescriptionArrayArray'][0][4]);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
