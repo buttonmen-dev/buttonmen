@@ -2734,7 +2734,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
             $out2['data']['valueArrayArray']
         );
-        // at the beginning of the game, all opponents' dice are hidden
+        // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
             array(array(8, 10, 12, 20, NULL), array(4, 6, 8, NULL, NULL)),
             $out2['data']['sidesArrayArray']
