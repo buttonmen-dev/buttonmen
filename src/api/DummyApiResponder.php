@@ -559,14 +559,14 @@ class DummyApiResponder {
         $gameDataCammyNeko = $gameData;
         $gameDataCammyNeko['gameState'] = "CHOOSE_RESERVE_DICE";
         $gameDataCammyNeko['roundNumber'] = 2;
-        $gameDataCammyNeko['gameScoreArrayArray'] = 
+        $gameDataCammyNeko['gameScoreArrayArray'] =
             array(
                 array("W" => 0, "L" => 1, "D" => 0),
                 array("W" => 1, "L" => 0, "D" => 0)
             );
         $gameDataCammyNeko['buttonNameArray'] = array("Cammy Neko", "Cammy Neko");
         $gameDataCammyNeko['nDieArray'] = array(8, 8);
-        $gameDataCammyNeko['buttonRecipeArray'] = 
+        $gameDataCammyNeko['buttonRecipeArray'] =
             array(
                 "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
                 "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)"
@@ -982,7 +982,7 @@ class DummyApiResponder {
         } elseif ($args['game'] == '17') {
             $gameDataCammyNeko['gameId'] = 17;  // FIXME
             $gameDataCammyNeko['waitingOnActionArray'] = array(FALSE, TRUE);
-            $gameDataCammyNeko['gameScoreArrayArray'] = 
+            $gameDataCammyNeko['gameScoreArrayArray'] =
                 array(
                     array("W" => 1, "L" => 0, "D" => 0),
                     array("W" => 0, "L" => 1, "D" => 0)
