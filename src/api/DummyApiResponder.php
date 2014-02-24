@@ -430,7 +430,7 @@ class DummyApiResponder {
             "valueArrayArray" => array(array(NULL,NULL,NULL,NULL,NULL),
                                        array(NULL,NULL,NULL,NULL,NULL)),
             "sidesArrayArray" => array(array(4,4,10,12,NULL),
-                                       array(NULL,NULL,NULL,NULL,NULL)),
+                                       array(4,4,10,12,NULL)),
             "dieSkillsArrayArray" => array(array(array(), array(), array(), array(), array()),
                                            array(array(), array(), array(), array(), array())),
             "diePropertiesArrayArray" => array(array(array(), array(), array(), array(), array()),
