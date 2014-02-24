@@ -150,7 +150,7 @@ class ApiResponder {
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
-            $args['dieIdxArray']
+            $args['dieIdx']
         );
     }
 

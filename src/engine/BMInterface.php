@@ -1428,7 +1428,7 @@ class BMInterface {
 
             switch ($action) {
                 case 'add':
-                    if (!is_int($dieIdx) ||
+                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
                         !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Reserve')) {
                         $this->message = 'Invalid reserve choice';
                         return FALSE;
