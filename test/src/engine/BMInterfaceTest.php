@@ -1684,4 +1684,31 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals('(4) (4) (10) (12) (X)', $game->buttonArray[0]->recipe);
     }
+
+    /**
+     * @coversNothing
+     */
+    public function test_echo_recipe_save() {
+        // Echo : none
+        // Avis : (4) (4) (10) (12) (X)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Echo', 'Avis'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        // artificially change Echo's recipe
+        $button = $game->buttonArray[0];
+        $button->recipe = '(V)';
+        $button->hasAlteredRecipe = TRUE;
+        $this->assertEquals('(V)', $game->buttonArray[0]->recipe);
+
+        $game->activeDieArrayArray = array(array(), array());
+        $game->gameState = BMGameState::START_GAME;
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals('(V)', $game->buttonArray[0]->recipe);
+    }
 }

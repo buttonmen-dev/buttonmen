@@ -112,6 +112,58 @@ asyncTest("test_Game.showStatePage", function() {
   });
 });
 
+asyncTest("test_Game.showStatePage_chooseaux_active", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    equal(htmlout.match('figure out what action to take next'), null,
+          "The game action should be defined");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_reserve_active", function() {
+  BMTestUtils.GameType = 'reserve_active';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    equal(htmlout.match('figure out what action to take next'), null,
+          "The game action should be defined");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_reserve_inactive", function() {
+  BMTestUtils.GameType = 'reserve_inactive';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    equal(htmlout.match('figure out what action to take next'), null,
+          "The game action should be defined");
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_reserve_nonplayer", function() {
+  BMTestUtils.GameType = 'reserve_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    equal(htmlout.match('figure out what action to take next'), null,
+          "The game action should be defined");
+    start();
+  });
+});
+
 asyncTest("test_Game.showStatePage_swingset", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
@@ -192,6 +244,27 @@ asyncTest("test_Game.parseValidInitiativeActions", function() {
   });
 });
 
+asyncTest("test_Game.parseValidReserveOptions", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.parseValidReserveOptions();
+    deepEqual(Api.game.player.reserveOptions, {},
+              "No valid reserve die options during choose swing phase");
+    start();
+  });
+});
+
+asyncTest("test_Game.parseValidReserveOptions_reserve_active", function() {
+  BMTestUtils.GameType = 'reserve_active';
+  Game.getCurrentGame(function() {
+    Game.parseValidReserveOptions();
+    deepEqual(Api.game.player.reserveOptions,
+              {'4': true, '5': true, '6': true, '7': true, },
+              "Four valid reserve die options during first choose reserve phase");
+    start();
+  });
+});
+
 asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
@@ -216,6 +289,18 @@ asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
       Api.game.player.initiativeActions,
         {'chance': { '1': true, '4': true }, 'decline': true },
         "Correct valid initiative actions identified for John Kovalic");
+    start();
+  });
+});
+
+asyncTest("test_Game.parseAuxiliaryDieOptions", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.parseAuxiliaryDieOptions();
+    equal(Api.game.player.auxiliaryDieRecipe, "+(20)",
+          "Correct auxiliary die option for player");
+    equal(Api.game.opponent.auxiliaryDieRecipe, "+(20)",
+          "Correct auxiliary die option for opponent");
     start();
   });
 });
@@ -254,6 +339,60 @@ asyncTest("test_Game.actionChooseSwingNonplayer", function() {
     Game.actionChooseSwingNonplayer();
     var item = document.getElementById('swing_table');
     equal(item, null, "#swing_table is NULL");
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseAuxiliaryDiceActive", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceActive();
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseAuxiliaryDiceInactive", function() {
+  BMTestUtils.GameType = 'chooseaux_inactive';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceInactive();
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseAuxiliaryDiceNonplayer", function() {
+  BMTestUtils.GameType = 'chooseaux_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceNonplayer();
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseReserveDiceActive", function() {
+  BMTestUtils.GameType = 'reserve_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseReserveDiceActive();
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseReserveDiceInactive", function() {
+  BMTestUtils.GameType = 'reserve_inactive';
+  Game.getCurrentGame(function() {
+    Game.actionChooseReserveDiceInactive();
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseReserveDiceNonplayer", function() {
+  BMTestUtils.GameType = 'reserve_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionChooseReserveDiceNonplayer();
     equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -428,6 +567,41 @@ asyncTest("test_Game.formChooseSwingActive", function() {
   });
 });
 
+asyncTest("test_Game.formChooseAuxiliaryDiceActive", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceActive();
+    $('#auxiliary_die_select').val('add');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success",
+       "text": "Auxiliary die chosen successfully"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Game.formChooseReserveDiceActive", function() {
+  BMTestUtils.GameType = 'reserve_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseReserveDiceActive();
+    $('#reserve_select').val('add');
+    $('#choose_reserve_5').prop('checked', true);
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success",
+       "text": "Reserve die chosen successfully"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Game.formReactToInitiativeActive", function() {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
@@ -567,7 +741,7 @@ asyncTest("test_Game.dieRecipeTable_focus", function() {
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
-    var dietable = Game.dieRecipeTable(true, true);
+    var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
     Game.layoutPage();
 
@@ -594,7 +768,7 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     Game.page = $('<div>');
-    var dietable = Game.dieRecipeTable(true, true);
+    var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
     Game.layoutPage();
 
@@ -795,7 +969,7 @@ test("test_Game.chatBox", function() {
   ok(html.match(/"game_chat"/), "Game chat box has correct ID in page");
 });
 
-asyncTest("test_Game.dieBorderToggleHandler", function() {
+asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -806,7 +980,8 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected'), "die is unselected before click");
+    ok(html.match('die_img unselected_player'),
+       "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
@@ -814,7 +989,34 @@ asyncTest("test_Game.dieBorderToggleHandler", function() {
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected'),
+    ok(html.match('die_img unselected_player'),
+       "die is unselected after second click");
+
+    start();
+  });
+});
+
+asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('opponent', true));
+    Game.layoutPage();
+
+    // test the toggle handler by seeing if a die becomes selected
+    // and unselected on click
+    var dieobj = $('#playerIdx_1_dieIdx_0');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img unselected_opponent'),
+       "die is unselected before click");
+
+    $('#playerIdx_1_dieIdx_0').trigger('click');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img selected'), "die is selected after first click");
+
+    $('#playerIdx_1_dieIdx_0').trigger('click');
+    var html = $('<div>').append(dieobj.clone()).remove().html();
+    ok(html.match('die_img unselected_opponent'),
        "die is unselected after second click");
 
     start();
