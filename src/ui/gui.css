@@ -81,12 +81,12 @@ td.left {
 
 td.chatplayer {
     text-align: right;
-    background-color: #cc00cc;
+    background-color: #dd99dd;
 }
 
 td.chatopponent {
     text-align: right;
-    background-color: #00ff00;
+    background-color: #ddffdd;
 }
 
 td.chooseswing {
