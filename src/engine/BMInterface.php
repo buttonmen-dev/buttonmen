@@ -1358,7 +1358,7 @@ class BMInterface {
 
             switch ($action) {
                 case 'add':
-                    if (!is_int($dieIdx) ||
+                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
                         !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
                         $this->message = 'Invalid auxiliary choice';
                         return FALSE;
@@ -1380,7 +1380,6 @@ class BMInterface {
             }
 
             $this->save_game($game);
-
 
             return TRUE;
         } catch (Exception $e) {

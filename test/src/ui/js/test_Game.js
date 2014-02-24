@@ -112,6 +112,19 @@ asyncTest("test_Game.showStatePage", function() {
   });
 });
 
+asyncTest("test_Game.showStatePage_chooseaux_active", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    equal(htmlout.match('figure out what action to take next'), null,
+          "The game action should be defined");
+    start();
+  });
+});
+
 asyncTest("test_Game.showStatePage_swingset", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
@@ -220,6 +233,18 @@ asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
   });
 });
 
+asyncTest("test_Game.parseAuxiliaryDieOptions", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.parseAuxiliaryDieOptions();
+    equal(Api.game.player.auxiliaryDieRecipe, "+(20)",
+          "Correct auxiliary die option for player");
+    equal(Api.game.opponent.auxiliaryDieRecipe, "+(20)",
+          "Correct auxiliary die option for opponent");
+    start();
+  });
+});
+
 asyncTest("test_Game.actionChooseSwingActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
@@ -254,6 +279,33 @@ asyncTest("test_Game.actionChooseSwingNonplayer", function() {
     Game.actionChooseSwingNonplayer();
     var item = document.getElementById('swing_table');
     equal(item, null, "#swing_table is NULL");
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseAuxiliaryDiceActive", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceActive();
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseAuxiliaryDiceInactive", function() {
+  BMTestUtils.GameType = 'chooseaux_inactive';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceInactive();
+    equal(Game.form, null, "Game.form is NULL");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionChooseAuxiliaryDiceNonplayer", function() {
+  BMTestUtils.GameType = 'chooseaux_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceNonplayer();
     equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -422,6 +474,23 @@ asyncTest("test_Game.formChooseSwingActive", function() {
     deepEqual(
       Env.message,
       {"type": "success", "text": "Successfully set swing values"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Game.formChooseAuxiliaryDiceActive", function() {
+  BMTestUtils.GameType = 'chooseaux_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseAuxiliaryDiceActive();
+    $('#auxiliary_die_select').val('add');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success",
+       "text": "Auxiliary die chosen successfully"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
