@@ -207,8 +207,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         foreach ($button2->dieArray as $die) {
             $dieArray2[] = clone $die;
         }
-        $dieArray2[] = clone $button1->dieArray[2];
-        $dieArray2[] = clone $button1->dieArray[4];
+        $firstAuxDie = clone $button1->dieArray[2];
+        $firstAuxDie->playerIdx = 1;
+        $firstAuxDie->originalPlayerIdx = 1;
+        $dieArray2[] = $firstAuxDie;
+
+        $secondAuxDie = clone $button1->dieArray[4];
+        $secondAuxDie->playerIdx = 1;
+        $secondAuxDie->originalPlayerIdx = 1;
+        $dieArray2[] = $secondAuxDie;
 
         $this->assertEquals(array($dieArray1, $dieArray2),
                             $this->object->activeDieArrayArray);

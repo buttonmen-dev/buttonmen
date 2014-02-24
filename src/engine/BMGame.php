@@ -253,7 +253,10 @@ class BMGame {
             foreach ($havePlayersAuxDice as $playerIdx => $hasAuxDice) {
                 if (!$hasAuxDice) {
                     foreach ($auxiliaryDice as $die) {
-                        $this->activeDieArrayArray[$playerIdx][] = clone $die;
+                        $newdie = clone $die;
+                        $newdie->playerIdx = $playerIdx;
+                        $newdie->originalPlayerIdx = $playerIdx;
+                        $this->activeDieArrayArray[$playerIdx][] = $newdie;
                     }
                 }
             }
