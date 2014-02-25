@@ -37,6 +37,7 @@ div.dice_player_overlay {
     padding-bottom: 5px;
     margin-top: -20px;
     border-bottom-right-radius: 30px;
+    white-space: nowrap;
 }
 
 div.dice_opponent_overlay {
@@ -45,6 +46,7 @@ div.dice_opponent_overlay {
     padding-top: 5px;
     margin-bottom: -20px;
     border-top-left-radius: 30px;
+    white-space: nowrap;
 }
 
 table {
