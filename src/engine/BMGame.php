@@ -806,8 +806,10 @@ class BMGame {
             $this->log_action(
                 'end_draw',
                 0,
-                'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
-                $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
+                array(
+                    'roundNumber' => $this->get_roundNumber() - 1,
+                    'roundScoreArray' => $roundScoreArray
+                )
             );
         } else {
             $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
@@ -824,8 +826,10 @@ class BMGame {
             $this->log_action(
                 'end_winner',
                 $this->playerIdArray[$winnerIdx],
-                'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                max($roundScoreArray) . ' vs ' . min($roundScoreArray) . ')'
+                array(
+                    'roundNumber' => $this->get_roundNumber() - 1,
+                    'roundScoreArray' => $roundScoreArray
+                )
             );
         }
         $this->reset_play_state();
@@ -1435,12 +1439,12 @@ class BMGame {
     }
 
     // record a game action in the history log
-    private function log_action($actionType, $actingPlayerIdx, $message) {
-        $this->actionLog[] = array(
-            'gameState'  => $this->gameState,
-            'actionType' => $actionType,
-            'actingPlayerIdx' => $actingPlayerIdx,
-            'message'    => $message,
+    private function log_action($actionType, $actingPlayerIdx, $params) {
+        $this->actionLog[] = new BMGameAction(
+            $this->gameState,
+            $actionType,
+            $actingPlayerIdx,
+            $params
         );
     }
 

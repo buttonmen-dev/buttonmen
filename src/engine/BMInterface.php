@@ -1019,6 +1019,14 @@ class BMInterface {
         }
     }
 
+    public function get_player_name_mapping($game) {
+        $idNameMapping = array();
+        foreach ($game->playerIdArray as $playerId) {
+            $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
+        }
+        return $idNameMapping;
+    }
+
     // Check whether a requested action still needs to be taken.
     // If the time stamp is not important, use the string 'ignore'
     // for $postedTimestamp.
@@ -1066,10 +1074,10 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(
                 array(':game_id'     => $game->gameId,
-                      ':game_state' => $gameAction['gameState'],
-                      ':action_type' => $gameAction['actionType'],
-                      ':acting_player' => $gameAction['actingPlayerIdx'],
-                      ':message'    => $gameAction['message'])
+                      ':game_state' => $gameAction->gameState,
+                      ':action_type' => $gameAction->actionType,
+                      ':acting_player' => $gameAction->actingPlayerId,
+                      ':message'    => json_encode($gameAction->params))
             );
         }
         $game->empty_action_log();
@@ -1077,20 +1085,22 @@ class BMInterface {
 
     public function load_game_action_log(BMGame $game, $n_entries = 5) {
         try {
-            $query = 'SELECT action_time,action_type,acting_player,message FROM game_action_log ' .
+            $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
+            $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
-                $gameAction = array(
-                    'actionType' => $row['action_type'],
-                    'actingPlayerIdx' => $row['acting_player'],
-                    'message' => $row['message'],
+                $gameAction = new BMGameAction(
+                    $row['game_state'],
+                    $row['action_type'],
+                    $row['acting_player'],
+                    json_decode($row['message'], $assoc = TRUE)
                 );
                 $logEntries[] = array(
                     'timestamp' => $row['action_time'],
-                    'message' => $this->friendly_game_action_log_message($gameAction)
+                    'message' => $gameAction->friendly_message($playerIdNames)
                 );
             }
             return $logEntries;
@@ -1104,24 +1114,12 @@ class BMInterface {
         }
     }
 
-    private function friendly_game_action_log_message($gameAction) {
-        if ($gameAction['actingPlayerIdx'] != 0) {
-            $actingPlayerName = $this->get_player_name_from_id($gameAction['actingPlayerIdx']);
-        }
-        if ($gameAction['actionType'] == 'attack') {
-            return $actingPlayerName . ' ' . $gameAction['message'];
-        }
-        if ($gameAction['actionType'] == 'end_winner') {
-            return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
-        }
-        return($gameAction['message']);
-    }
-
     // Create a status message based on recent game actions
     private function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
+        $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
-            $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
+            $this->message .= $gameAction->friendly_message($playerIdNames) . '. ';
         }
     }
 
