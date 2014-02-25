@@ -92,6 +92,9 @@ BMTestUtils.overrideGetParameterByName = function() {
       if (BMTestUtils.GameType == 'chooseaux_active') { return '13'; }
       if (BMTestUtils.GameType == 'chooseaux_inactive') { return '14'; }
       if (BMTestUtils.GameType == 'chooseaux_nonplayer') { return '15'; }
+      if (BMTestUtils.GameType == 'reserve_active') { return '16'; }
+      if (BMTestUtils.GameType == 'reserve_inactive') { return '17'; }
+      if (BMTestUtils.GameType == 'reserve_nonplayer') { return '18'; }
     }
 
     // always return the userid associated with tester1 in the fake data

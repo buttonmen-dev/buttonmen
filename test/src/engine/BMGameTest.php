@@ -207,8 +207,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         foreach ($button2->dieArray as $die) {
             $dieArray2[] = clone $die;
         }
-        $dieArray2[] = clone $button1->dieArray[2];
-        $dieArray2[] = clone $button1->dieArray[4];
+        $firstAuxDie = clone $button1->dieArray[2];
+        $firstAuxDie->playerIdx = 1;
+        $firstAuxDie->originalPlayerIdx = 1;
+        $dieArray2[] = $firstAuxDie;
+
+        $secondAuxDie = clone $button1->dieArray[4];
+        $secondAuxDie->playerIdx = 1;
+        $secondAuxDie->originalPlayerIdx = 1;
+        $dieArray2[] = $secondAuxDie;
 
         $this->assertEquals(array($dieArray1, $dieArray2),
                             $this->object->activeDieArrayArray);
@@ -2663,9 +2670,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
             $out1['data']['valueArrayArray']
         );
-        // at the beginning of the game, all opponents' dice are hidden
+        // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-            array(array(8, 10, 12, 20, 5), array(NULL, NULL, NULL, NULL, NULL)),
+            array(array(8, 10, 12, 20, 5), array(4, 6, 8, NULL, NULL)),
             $out1['data']['sidesArrayArray']
         );
         $this->assertEquals(
@@ -2734,9 +2741,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
             $out2['data']['valueArrayArray']
         );
-        // at the beginning of the game, all opponents' dice are hidden
+        // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(4, 6, 8, NULL, NULL)),
+            array(array(8, 10, 12, 20, NULL), array(4, 6, 8, NULL, NULL)),
             $out2['data']['sidesArrayArray']
         );
         $this->assertEquals(
@@ -2761,7 +2768,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                     '10-sided die',
                     '12-sided die',
                     '20-sided die',
-                    'X Swing Die (with 5 sides)'
+                    'X Swing Die'
                 ),
                 array(
                     '4-sided die',
@@ -3045,6 +3052,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
                                   array(NULL, NULL, NULL, NULL, NULL)),
                             $out2['data']['valueArrayArray']);
+        $this->assertEquals('X Swing Die',
+                            $out2['data']['dieDescriptionArrayArray'][0][4]);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));

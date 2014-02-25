@@ -253,7 +253,10 @@ class BMGame {
             foreach ($havePlayersAuxDice as $playerIdx => $hasAuxDice) {
                 if (!$hasAuxDice) {
                     foreach ($auxiliaryDice as $die) {
-                        $this->activeDieArrayArray[$playerIdx][] = clone $die;
+                        $newdie = clone $die;
+                        $newdie->playerIdx = $playerIdx;
+                        $newdie->originalPlayerIdx = $playerIdx;
+                        $this->activeDieArrayArray[$playerIdx][] = $newdie;
                     }
                 }
             }
@@ -2004,20 +2007,22 @@ class BMGame {
 
                 foreach ($activeDieArray as $dieIdx => $die) {
                     // hide swing information if appropriate
-                    $dieValue = $die->value;
-                    $dieMax = $die->max;
-                    if (is_null($dieMax)) {
+                    if (is_null($die->max)) {
                         $swingValsSpecified = FALSE;
                     }
 
                     if ($wereSwingValsReset &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
-                        $dieValue = NULL;
-                        $dieMax = NULL;
+                        $die->value = NULL;
+
+                        if ($die instanceof BMDieSwing) {
+                            $die->swingValue = NULL;
+                            $die->max = NULL;
+                        }
                     }
-                    $valueArrayArray[$playerIdx][] = $dieValue;
-                    $sidesArrayArray[$playerIdx][] = $dieMax;
+                    $valueArrayArray[$playerIdx][] = $die->value;
+                    $sidesArrayArray[$playerIdx][] = $die->max;
                     $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
                     $dieDescArrayArray[$playerIdx][] = $die->describe(FALSE);
                     if (count($die->skillList) > 0) {

@@ -7,6 +7,7 @@ var Game = {
 Game.GAME_STATE_START_GAME = 'START_GAME';
 Game.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
 Game.GAME_STATE_CHOOSE_AUXILIARY_DICE = 'CHOOSE_AUXILIARY_DICE';
+Game.GAME_STATE_CHOOSE_RESERVE_DICE = 'CHOOSE_RESERVE_DICE';
 Game.GAME_STATE_LOAD_DICE_INTO_BUTTONS = 'LOAD_DICE_INTO_BUTTONS';
 Game.GAME_STATE_ADD_AVAILABLE_DICE_TO_GAME = 'ADD_AVAILABLE_DICE_TO_GAME';
 Game.GAME_STATE_SPECIFY_DICE = 'SPECIFY_DICE';
@@ -124,6 +125,16 @@ Game.showStatePage = function() {
       } else {
         Game.actionChooseAuxiliaryDiceNonplayer();
       }
+    } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_RESERVE_DICE) {
+      if (Api.game.isParticipant) {
+        if (Api.game.player.waitingOnAction) {
+          Game.actionChooseReserveDiceActive();
+        } else {
+          Game.actionChooseReserveDiceInactive();
+        }
+      } else {
+        Game.actionChooseReserveDiceNonplayer();
+      }
     } else if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
@@ -209,6 +220,19 @@ Game.parseValidInitiativeActions = function() {
       Api.game.player.initiativeActions.chance = chance;
     }
     Api.game.player.initiativeActions.decline = true;
+  }
+};
+
+// What reserve dice can the player choose
+Game.parseValidReserveOptions = function() {
+  Api.game.player.reserveOptions = {};
+  if (Api.game.gameState == Game.GAME_STATE_CHOOSE_RESERVE_DICE) {
+
+    $.each(Api.game.player.dieSkillsArray, function(i) {
+      if ('Reserve' in Api.game.player.dieSkillsArray[i]) {
+        Api.game.player.reserveOptions[i] = true;
+      }
+    });
   }
 };
 
@@ -448,6 +472,106 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
   Game.layoutPage();
 };
 
+Game.actionChooseReserveDiceActive = function() {
+  Game.parseValidReserveOptions();
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Your turn to choose reserve dice');
+
+  // Create a form for choosing reserve dice
+  var reserveform = $('<form>', {
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable('choose_reserve', true);
+
+  reserveform.append(dietable);
+  reserveform.append($('<br>'));
+
+  var yestext = 'Add one reserve die to button';
+  var notext = 'Don\'t add a reserve die this round';
+
+  var reserveselect = $('<select>', {
+    'id': 'reserve_select',
+    'name': 'reserve_select',
+  });
+  reserveselect.append($('<option>', {
+    'value': 'add',
+    'label': yestext,
+    'text': yestext,
+    'selected': 'selected',
+  }));
+  reserveselect.append($('<option>', {
+    'value': 'decline',
+    'label': notext,
+    'text': notext,
+  }));
+  reserveform.append(reserveselect);
+
+  reserveform.append(
+    $('<button>', {
+      'id': 'game_action_button',
+      'text': 'Submit',
+    }));
+
+  // Add the form to the page
+  Game.page.append(reserveform);
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseReserveDiceActive;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
+Game.actionChooseReserveDiceInactive = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Opponent\'s turn to choose reserve dice');
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable(false, false);
+
+  // Add the table to the page
+  Game.page.append(dietable);
+  Game.page.append($('<br>'));
+
+  Game.page.append($('<p>', {'text':
+    'Please wait for your opponent to decide whether to add reserve dice' }));
+
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
+Game.actionChooseReserveDiceNonplayer = function() {
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to choose reserve dice (you are not in this game)'
+  );
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable(false, false);
+
+  // Add the table to the page
+  Game.page.append(dietable);
+  Game.pageAddFooter();
+
+  // Function to invoke on button click
+  Game.form = null;
+
+  // Now layout the page
+  Game.layoutPage();
+};
+
 Game.actionReactToInitiativeActive = function() {
   Game.parseValidInitiativeActions();
   Game.page = $('<div>');
@@ -461,7 +585,7 @@ Game.actionReactToInitiativeActive = function() {
   });
 
   // Get a table containing the existing die recipes
-  var dietable = Game.dieRecipeTable(true, true);
+  var dietable = Game.dieRecipeTable('react_to_initiative', true);
 
   reactform.append(dietable);
   reactform.append($('<br>'));
@@ -521,7 +645,7 @@ Game.actionReactToInitiativeInactive = function() {
     'Opponent\'s turn to try to gain initiative using die skills');
 
   // Get a table containing the existing die recipes
-  var dietable = Game.dieRecipeTable(true, false);
+  var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
   Game.page.append($('<br>'));
@@ -546,7 +670,7 @@ Game.actionReactToInitiativeNonplayer = function() {
   );
 
   // Get a table containing the existing die recipes
-  var dietable = Game.dieRecipeTable(true, false);
+  var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
 
@@ -735,6 +859,62 @@ Game.formChooseAuxiliaryDiceActive = function() {
     Env.message = {
       'type': 'error',
       'text': 'Could not parse decision to use or not use auxiliary dice',
+    };
+    Game.showGamePage();
+  }
+};
+
+// Form submission action for choosing a reserve die
+Game.formChooseReserveDiceActive = function() {
+  Game.activity.reserveDieAction = $('#reserve_select').val();
+  var inputValid = true;
+  var inputError;
+  var dieIdx = false;
+  var diceChecked = 0;
+  Game.activity.reserveDiceSelected = {};
+  $.each(Api.game.player.reserveOptions, function(i) {
+    if ($('#choose_reserve_' + i).prop('checked')) {
+      Game.activity.reserveDiceSelected[i] = true;
+      dieIdx = i;
+      diceChecked++;
+    }
+  });
+  if (Game.activity.reserveDieAction == 'add') {
+    if (diceChecked != 1) {
+      inputValid = false;
+      inputError = 'If you choose to add reserve dice, you must select ' +
+        'exactly one die to add';
+    }
+  } else if (Game.activity.reserveDieAction == 'decline') {
+    if (diceChecked !== 0) {
+      inputValid = false;
+      inputError = 'If you decline to add reserve dice, you cannot select ' +
+        'any dice to add';
+    }
+  } else {
+    inputValid = false;
+    inputError = 'Could not parse decision to add or not add reserve dice';
+  }
+
+  if (inputValid) {
+    Api.apiFormPost(
+      {
+        type: 'reactToReserve',
+        game: Game.game,
+        action: Game.activity.reserveDieAction,
+        dieIdx: dieIdx,
+      },
+      { 'ok': { 'type': 'server', },
+        'notok': {'type': 'server', },
+      },
+      'game_action_button',
+      Game.showGamePage,
+      Game.showGamePage
+    );
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': inputError,
     };
     Game.showGamePage();
   }
@@ -1048,28 +1228,37 @@ Game.pageAddLogFooter = function() {
 
 
 // Generate and return a two-column table of the dice in each player's recipe
-Game.dieRecipeTable = function(react_initiative, active) {
+Game.dieRecipeTable = function(table_action, active) {
 
-  // variables only needed in the react_initiative case
-  var focusLTable;
-  var focusRTable;
+  // variables only needed in cases with table actions
+  var subLTable;
+  var subRTable;
 
   var dietable = $('<table>', {'id': 'die_recipe_table', });
   dietable.append(Game.playerOpponentHeaderRow('Player', 'playerName'));
   dietable.append(Game.playerOpponentHeaderRow('Button', 'buttonName'));
   dietable.append(Game.playerOpponentHeaderRow('', 'gameScoreStr'));
 
-  if (react_initiative) {
-    var focusHeaderLRow = $('<tr>');
-    focusHeaderLRow.append($('<th>', { 'text': 'Recipe' }));
-    focusHeaderLRow.append($('<th>', { 'text': 'Value' }));
-    var focusHeaderRRow = focusHeaderLRow.clone();
+  if (table_action) {
+    subLTable = $('<table>');
+    subRTable = $('<table>');
 
-    focusLTable = $('<table>');
-    focusRTable = $('<table>');
+    var subHeaderLRow = $('<tr>');
+    var subHeaderRRow = $('<tr>');
 
-    focusLTable.append(focusHeaderLRow);
-    focusRTable.append(focusHeaderRRow);
+    // contents of table headers depend on the type of table action
+    if (table_action == 'react_to_initiative') {
+      subHeaderLRow.append($('<th>', { 'text': 'Recipe' }));
+      subHeaderLRow.append($('<th>', { 'text': 'Value' }));
+      subHeaderRRow = subHeaderLRow.clone();
+    } else if (table_action == 'choose_reserve') {
+      subHeaderLRow.append($('<th>', { 'text': 'Recipe' }));
+      subHeaderLRow.append($('<th>', { 'text': 'Add die?' }));
+      subHeaderRRow.append($('<th>', { 'text': 'Recipe' }));
+    }
+
+    subLTable.append(subHeaderLRow);
+    subRTable.append(subHeaderRRow);
   }
 
   var maxDice = Math.max(Api.game.player.nDie, Api.game.opponent.nDie);
@@ -1086,40 +1275,61 @@ Game.dieRecipeTable = function(react_initiative, active) {
       Api.game.opponent.sidesArray,
       Api.game.opponent.diePropertiesArray,
       Api.game.opponent.dieDescriptionArray);
-    if (react_initiative) {
+    if (table_action) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
-      dieLRow.append(playerEnt);
-      var initopts = [];
-      if (active) {
-        if (('focus' in Api.game.player.initiativeActions) &&
-            (i in Api.game.player.initiativeActions.focus)) {
-          initopts = Api.game.player.initiativeActions.focus[i].concat();
+      if (table_action == 'react_to_initiative') {
+        dieLRow.append(playerEnt);
+        var initopts = [];
+        if (active) {
+          if (('focus' in Api.game.player.initiativeActions) &&
+              (i in Api.game.player.initiativeActions.focus)) {
+            initopts = Api.game.player.initiativeActions.focus[i].concat();
+          }
+          if (('chance' in Api.game.player.initiativeActions) &&
+              (i in Api.game.player.initiativeActions.chance)) {
+            initopts.push('reroll');
+          }
         }
-        if (('chance' in Api.game.player.initiativeActions) &&
-            (i in Api.game.player.initiativeActions.chance)) {
-          initopts.push('reroll');
+        if ((active) && (initopts.length > 0)) {
+          var defaultval = Api.game.player.valueArray[i];
+          if ('initiativeDieIdxArray' in Game.activity) {
+            $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
+              if (val == i) {
+                defaultval = Game.activity.initiativeDieValueArray[idx];
+              }
+            });
+          }
+          dieLRow.append(
+            Game.dieValueSelectTd('init_react_' + i, initopts,
+              Api.game.player.valueArray[i], defaultval));
+        } else {
+          dieLRow.append($('<td>', { 'text': Api.game.player.valueArray[i] }));
         }
+        dieRRow.append(opponentEnt);
+        dieRRow.append($('<td>', { 'text': Api.game.opponent.valueArray[i] }));
+      } else if (table_action == 'choose_reserve') {
+        dieLRow.append(playerEnt);
+        if (i in Api.game.player.reserveOptions) {
+          var checkTd = $('<td>');
+          var inputOptions = {
+            'type': 'checkbox',
+            'name': 'choose_reserve_' + i,
+            'id': 'choose_reserve_' + i,
+          };
+          if (('reserveDiceSelected' in Game.activity) &&
+              (i in Game.activity.reserveDiceSelected)) {
+            inputOptions.checked = 'checked';
+          }
+          checkTd.append($('<input>', inputOptions));
+          dieLRow.append(checkTd);
+        } else {
+          dieLRow.append($('<td>'));
+        }
+        dieRRow.append(opponentEnt);
       }
-      if ((active) && (initopts.length > 0)) {
-        var defaultval = Api.game.player.valueArray[i];
-        if ('initiativeDieIdxArray' in Game.activity) {
-          $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
-            if (val == i) {
-              defaultval = Game.activity.initiativeDieValueArray[idx];
-            }
-          });
-        }
-        dieLRow.append(
-          Game.dieValueSelectTd('init_react_' + i, initopts,
-            Api.game.player.valueArray[i], defaultval));
-      } else {
-        dieLRow.append($('<td>', { 'text': Api.game.player.valueArray[i] }));
-      }
-      dieRRow.append(opponentEnt);
-      dieRRow.append($('<td>', { 'text': Api.game.opponent.valueArray[i] }));
-      focusLTable.append(dieLRow);
-      focusRTable.append(dieRRow);
+      subLTable.append(dieLRow);
+      subRTable.append(dieRRow);
     } else {
       var dierow = $('<tr>', {});
       dierow.append(playerEnt);
@@ -1127,15 +1337,15 @@ Game.dieRecipeTable = function(react_initiative, active) {
       dietable.append(dierow);
     }
   }
-  if (react_initiative) {
-    var focusrow = $('<tr>');
-    var focusLTd = $('<td>');
-    var focusRTd = $('<td>');
-    focusLTd.append(focusLTable);
-    focusRTd.append(focusRTable);
-    focusrow.append(focusLTd);
-    focusrow.append(focusRTd);
-    dietable.append(focusrow);
+  if (table_action) {
+    var subrow = $('<tr>');
+    var subLTd = $('<td>');
+    var subRTd = $('<td>');
+    subLTd.append(subLTable);
+    subRTd.append(subRTable);
+    subrow.append(subLTd);
+    subrow.append(subRTd);
+    dietable.append(subrow);
   }
   return dietable;
 };

@@ -905,8 +905,9 @@ class BMInterface {
                     $button->load($row['recipe'], $row['name']);
 
                     // james: put in temporary code to disable buttons with button specials
+                    $standardName = preg_replace('/[^a-z0-9]/', '', strtolower($button->name));
                     if ((1 == $row['btn_special']) &&
-                        !class_exists('BMBtnSkill'.$row['name'])) {
+                        !class_exists('BMBtnSkill'.$standardName)) {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 
@@ -1428,7 +1429,7 @@ class BMInterface {
 
             switch ($action) {
                 case 'add':
-                    if (!is_int($dieIdx) ||
+                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
                         !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Reserve')) {
                         $this->message = 'Invalid reserve choice';
                         return FALSE;
