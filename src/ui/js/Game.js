@@ -1526,27 +1526,30 @@ Game.gamePlayerDice = function(player, player_active) {
     }
 
     var dieDiv;
+    var dieBorderDiv;
+
     var dieIndex = Game.dieIndexId(player, i);
-    var divOpts = {
+    var borderDivOpts = {
       'id': dieIndex,
-      'style':
-        'background-image: url(images/Circle.png);' +
-        'height:50px;width:50px;background-size:100%',
+    };
+    var divOpts = {
       'title': Api.game[player].dieDescriptionArray[i],
     };
     if (clickable) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        divOpts.class = 'die_img selected';
+        borderDivOpts.class = 'die_border selected';
       } else {
-        divOpts.class = 'die_img unselected_' + player;
+        borderDivOpts.class = 'die_border unselected_' + player;
       }
+      divOpts.class = 'die_img';
+      dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
-        dieDiv.click(Game.dieBorderTogglePlayerHandler);
+        dieBorderDiv.click(Game.dieBorderTogglePlayerHandler);
       } else {
-        dieDiv.click(Game.dieBorderToggleOpponentHandler);
+        dieBorderDiv.click(Game.dieBorderToggleOpponentHandler);
       }
     } else {
       divOpts.class = 'die_img die_greyed';
@@ -1554,6 +1557,8 @@ Game.gamePlayerDice = function(player, player_active) {
         divOpts.title += '. (This die is dizzy because it was turned ' +
         'down.  It can\'t be used during this attack.)';
       }
+      borderDivOpts.class = 'die_border';
+      dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
     }
     dieDiv.append($('<span>', {
@@ -1569,7 +1574,9 @@ Game.gamePlayerDice = function(player, player_active) {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    allDiceOverlay.append(dieDiv);
+    dieBorderDiv.append(dieDiv);
+
+    allDiceOverlay.append(dieBorderDiv);
     i += 1;
   }
   allDice.append(allDiceOverlay);

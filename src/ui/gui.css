@@ -160,13 +160,22 @@ select.center {
     font-size: 150%;
 }
 
-.die_img {
+.die_border {
     background-size: 50px 50px;
     width: 50px;
     height: 50px;
-    color: blue;
     display: inline-block;
+    color: blue;
     margin: 4px;
+}
+
+.die_img {
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px black solid;
+    height: 49px;
+    width: 49px;
+    background-size: 100%;
     cursor: default;
 }
 
