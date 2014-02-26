@@ -8,7 +8,7 @@ class BMAttackSpeed extends BMAttack {
             return FALSE;
         }
 
-        if ($this->has_disabled_attackers($attackers)) {
+        if ($this->has_dizzy_attackers($attackers)) {
             return FALSE;
         }
 

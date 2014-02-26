@@ -624,8 +624,8 @@ class BMGame {
                 if (count($activeDieArray) > 0) {
                     foreach ($activeDieArray as &$activeDie) {
                         if ($activeDie->has_skill('Focus') &&
-                            isset($activeDie->disabled)) {
-                            unset($activeDie->disabled);
+                            isset($activeDie->dizzy)) {
+                            unset($activeDie->dizzy);
                         }
                     }
                 }
@@ -722,8 +722,8 @@ class BMGame {
             $attackDie =
                 &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
                                            [$attackerAttackDieIdx];
-            if ($attackDie->disabled) {
-                $this->message = 'Attempting to attack with a disabled die.';
+            if ($attackDie->dizzy) {
+                $this->message = 'Attempting to attack with a dizzy die.';
                 $this->attack = NULL;
                 return FALSE;
             }
@@ -765,10 +765,8 @@ class BMGame {
             if (isset($this->activeDieArrayArray) &&
                 isset($this->attack['attackerPlayerIdx'])) {
                 foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
-                    if ($activeDie->disabled) {
-                        if ($activeDie->has_skill('Focus')) {
-                            unset($activeDie->disabled);
-                        }
+                    if ($activeDie->dizzy) {
+                            unset($activeDie->dizzy);
                     }
                 }
             }
@@ -1132,7 +1130,7 @@ class BMGame {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
-                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->dizzy = TRUE;
                 }
             }
         } else {
@@ -2032,6 +2030,9 @@ class BMGame {
                     }
                     if ($die->disabled) {
                         $diePropsArrayArray[$playerIdx][$dieIdx]['disabled'] = TRUE;
+                    }
+                    if ($die->dizzy) {
+                        $diePropsArrayArray[$playerIdx][$dieIdx]['dizzy'] = TRUE;
                     }
                 }
             }
