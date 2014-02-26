@@ -108,6 +108,21 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             "gameaction01 set swing values"
         );
     }
+
+    /**
+     * @covers BMGameAction::friendly_message_reroll_chance()
+     */
+    public function test_friendly_message_reroll_chance() {
+        $this->object = new BMGameAction(27, 'reroll_chance', 2, array(
+            'preReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):4'),
+            'postReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 11, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):11'),
+            'gainedInitiative' => FALSE,
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 rerolled a chance die, but did not gain initiative: c(20) rerolled 4 => 11"
+        );
+    }
 }
 
 ?>

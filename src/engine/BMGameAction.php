@@ -156,6 +156,18 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_reroll_chance() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' rerolled a chance die';
+        if ($this->params['gainedInitiative']) {
+            $message .= ' and gained initiative';
+        } else {
+            $message .= ', but did not gain initiative';
+        }
+        $message .= ': ' . $this->params['preReroll']['recipe'] . ' rerolled ' .
+                    $this->params['preReroll']['value'] . ' => ' . $this->params['postReroll']['value'];
+        return $message;
+    }
+
     public function __get($property) {
 	if (property_exists($this, $property)) {
             switch ($property) {

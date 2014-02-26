@@ -1018,7 +1018,9 @@ class BMGame {
             return FALSE;
         }
 
+        $preRerollData = $die->get_action_log_data();
         $die->roll();
+        $postRerollData = $die->get_action_log_data();
         foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
             if ($die->has_skill('Chance')) {
                 $die->disabled = TRUE;
@@ -1028,10 +1030,20 @@ class BMGame {
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->activeDieArrayArray
         );
-
-        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                             (1 == array_sum($newInitiativeArray));
+
+        $this->log_action(
+            'reroll_chance',
+            $this->playerIdArray[$playerIdx],
+            array(
+                'preReroll' => $preRerollData,
+                'postReroll' => $postRerollData,
+                'gainedInitiative' => $gainedInitiative,
+            )
+        );
+
+        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
 
         return array('gainedInitiative' => $gainedInitiative);
     }
