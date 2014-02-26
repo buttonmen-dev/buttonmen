@@ -1100,7 +1100,7 @@ class BMInterface {
                 );
                 $logEntries[] = array(
                     'timestamp' => $row['action_time'],
-                    'message' => $gameAction->friendly_message($playerIdNames)
+                    'message' => $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState),
                 );
             }
             return $logEntries;
@@ -1119,7 +1119,10 @@ class BMInterface {
         $this->message = '';
         $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
-            $this->message .= $gameAction->friendly_message($playerIdNames) . '. ';
+            $this->message .= $gameAction->friendly_message(
+                $playerIdNames,
+                $game->roundNumber,
+                $game->gameState) . '. ';
         }
     }
 
@@ -1212,6 +1215,14 @@ class BMInterface {
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
+                $game->log_action(
+                    'choose_swing',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'swingValues' => $swingValueArray,
+                    )
+                );
                 $this->save_game($game);
                 $this->message = 'Successfully set swing values';
                 return TRUE;
