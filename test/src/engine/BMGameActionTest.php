@@ -123,6 +123,32 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             "gameaction02 rerolled a chance die, but did not gain initiative: c(20) rerolled 4 => 11"
         );
     }
+
+    /**
+     * @covers BMGameAction::friendly_message_turndown_focus()
+     */
+    public function test_friendly_message_turndown_focus() {
+        $this->object = new BMGameAction(27, 'turndown_focus', 1, array(
+            'preTurndown' => array(array('recipe' => 'f(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'f(20):4')),
+            'postTurndown' => array(array('recipe' => 'f(20)', 'min' => 1, 'max' => 20, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'f(20):2')),
+            'gainedInitiative' => FALSE,
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction01 gained initiative by turning down focus dice: f(20) from 4 to 2"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_init_decline()
+     */
+    public function test_friendly_message_init_decline() {
+        $this->object = new BMGameAction(27, 'init_decline', 2, array());
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 chose not to try to gain initiative using chance or focus dice"
+        );
+    }
 }
 
 ?>

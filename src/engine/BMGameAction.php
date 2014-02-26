@@ -168,6 +168,23 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_turndown_focus() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' gained initiative by turning down focus dice';
+        $focusStrs = array();
+        foreach ($this->params['preTurndown'] as $idx => $die) {
+            $focusStrs[] = $die['recipe'] . ' from ' . $die['value'] . ' to ' .
+                           $this->params['postTurndown'][$idx]['value'];
+        }
+        $message .= ': ' . implode(", ", $focusStrs);
+        return $message;
+    }
+
+    protected function friendly_message_init_decline() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   ' chose not to try to gain initiative using chance or focus dice';
+        return $message;
+    }
+
     public function __get($property) {
 	if (property_exists($this, $property)) {
             switch ($property) {
