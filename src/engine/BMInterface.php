@@ -1448,12 +1448,22 @@ class BMInterface {
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_reserve',
+                        $game->playerIdArray[$playerIdx],
+                        array( 'die' => $die->get_action_log_data(), )
+                    );
                     $this->message = 'Reserve die chosen successfully';
                     break;
                 case 'decline':
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'decline_reserve',
+                        $game->playerIdArray[$playerIdx],
+                        array()
+                    );
                     $this->message = 'Declined reserve dice';
                     break;
                 default:

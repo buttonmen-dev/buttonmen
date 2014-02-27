@@ -185,6 +185,18 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_add_reserve() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   ' added a reserve die: ' . $this->params['die']['recipe'];
+        return $message;
+    }
+
+    protected function friendly_message_decline_reserve() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   ' chose not to add a reserve die';
+        return $message;
+    }
+
     public function __get($property) {
 	if (property_exists($this, $property)) {
             switch ($property) {

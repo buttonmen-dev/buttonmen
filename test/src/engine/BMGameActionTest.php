@@ -149,6 +149,30 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             "gameaction02 chose not to try to gain initiative using chance or focus dice"
         );
     }
+
+    /**
+     * @covers BMGameAction::friendly_message_add_reserve()
+     */
+    public function test_friendly_message_add_reserve() {
+        $this->object = new BMGameAction(22, 'add_reserve', 2, array(
+            'die' => array('recipe' => 'r(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'r(6):')
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 added a reserve die: r(6)"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_decline_reserve()
+     */
+    public function test_friendly_message_decline_reserve() {
+        $this->object = new BMGameAction(22, 'decline_reserve', 2, array());
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 chose not to add a reserve die"
+        );
+    }
 }
 
 ?>
