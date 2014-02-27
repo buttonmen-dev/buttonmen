@@ -551,7 +551,20 @@ class BMGame {
     protected function do_next_step_react_to_initiative() {
         $canReactArray = array_fill(0, $this->nPlayers, FALSE);
 
-        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+        // re-enable all disabled chance dice for non-active players
+        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+            if ($this->waitingOnActionArray[$playerIdx]) {
+                continue;
+            }
+            foreach ($activeDieArray as $dieIdx => &$activeDie) {
+
+                if ($activeDie->has_skill('Chance')) {
+                    unset($activeDie->disabled);
+                }
+            }
+        }
+
+        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
             // do nothing if a player has won initiative
             if ($this->playerWithInitiativeIdx == $playerIdx) {
                 continue;
@@ -559,10 +572,7 @@ class BMGame {
 
             // find out if any of the dice have the ability to react
             // when the player loses initiative
-            foreach ($activeDieArray as $activeDie) {
-                if ($activeDie->disabled) {
-                    continue;
-                }
+            foreach ($activeDieArray as &$activeDie) {
                 $hookResultArray =
                     $activeDie->run_hooks(
                         'react_to_initiative',
@@ -957,20 +967,6 @@ class BMGame {
             $gainedInitiative = $gainedInitOverride;
         } else {
             $gainedInitiative = $reactResponse['gainedInitiative'];
-        }
-
-        if ($gainedInitiative) {
-            // re-enable all disabled chance dice for other players
-            foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
-                if ($playerIdx == $pIdx) {
-                    continue;
-                }
-                foreach ($activeDieArray as &$activeDie) {
-                    if ($activeDie->has_skill('Chance')) {
-                        unset($activeDie->disabled);
-                    }
-                }
-            }
         }
 
         $this->do_next_step();

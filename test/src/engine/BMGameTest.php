@@ -1035,13 +1035,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][3]->disabled));
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->disabled));
 
         // test correct 'chance' action by player 2
         $this->assertTrue(
-            array_key_exists('gainedInitiative',
-            $game->react_to_initiative(array('action' => 'chance',
-                                             'playerIdx' => 1,
-                                             'rerolledDieIdx' => 4), TRUE)));
+            array_key_exists(
+                'gainedInitiative',
+                $game->react_to_initiative(array('action' => 'chance',
+                                                 'playerIdx' => 1,
+                                                 'rerolledDieIdx' => 4), TRUE))
+        );
         $this->assertEquals(4, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(4, $game->activeDieArrayArray[0][2]->value);
@@ -1066,6 +1070,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::REACT_TO_INITIATIVE, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][1]->disabled));
+        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->disabled));
 
         // test correct 'chance' action by player 1
         $this->assertTrue(
