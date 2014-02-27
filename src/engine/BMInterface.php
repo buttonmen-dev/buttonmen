@@ -1091,11 +1091,15 @@ class BMInterface {
             $logEntries = array();
             $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
+                $params = json_decode($row['message'], $assoc = TRUE);
+                if (!($params)) {
+                    $params = $row['message'];
+                }
                 $gameAction = new BMGameAction(
                     $row['game_state'],
                     $row['action_type'],
                     $row['acting_player'],
-                    json_decode($row['message'], $assoc = TRUE)
+                    $params
                 );
 
                 // Only add the message to the log if one is returned: friendly_message() may
