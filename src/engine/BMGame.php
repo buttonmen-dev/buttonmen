@@ -551,34 +551,27 @@ class BMGame {
     protected function do_next_step_react_to_initiative() {
         $canReactArray = array_fill(0, $this->nPlayers, FALSE);
 
-        // re-enable all disabled chance dice for non-active players
-        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
-            if ($this->waitingOnActionArray[$playerIdx]) {
-                continue;
-            }
-            foreach ($activeDieArray as $dieIdx => &$activeDie) {
-
-                if ($activeDie->has_skill('Chance')) {
-                    unset($activeDie->disabled);
-                }
-            }
-        }
-
         foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
             // do nothing if a player has won initiative
             if ($this->playerWithInitiativeIdx == $playerIdx) {
                 continue;
             }
 
-            // find out if any of the dice have the ability to react
-            // when the player loses initiative
             foreach ($activeDieArray as &$activeDie) {
+                // find out if any of the dice have the ability to react
+                // when the player loses initiative
                 $hookResultArray =
                     $activeDie->run_hooks(
                         'react_to_initiative',
                         array('activeDieArrayArray' => $this->activeDieArrayArray,
                               'playerIdx' => $playerIdx)
                     );
+
+                // re-enable all disabled chance dice for non-active players
+                if ($activeDie->has_skill('Chance')) {
+                    unset($activeDie->disabled);
+                }
+
                 if (is_array($hookResultArray) && count($hookResultArray) > 0) {
                     foreach ($hookResultArray as $hookResult) {
                         if (TRUE === $hookResult) {
@@ -932,9 +925,7 @@ class BMGame {
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.
 
-    // $gainedInitOverride is used for testing purposes only
-
-    public function react_to_initiative(array $args, $gainedInitOverride = NULL) {
+    public function react_to_initiative(array $args) {
         if (BMGameState::REACT_TO_INITIATIVE != $this->gameState) {
             $this->message = 'Wrong game state to react to initiative.';
             return FALSE;
@@ -963,13 +954,11 @@ class BMGame {
             return FALSE;
         }
 
-        if (isset($gainedInitOverride)) {
-            $gainedInitiative = $gainedInitOverride;
-        } else {
-            $gainedInitiative = $reactResponse['gainedInitiative'];
-        }
+        $gainedInitiative = $reactResponse['gainedInitiative'];
 
-        $this->do_next_step();
+        if ($gainedInitiative) {
+            $this->do_next_step();
+        }
 
         return array('gainedInitiative' => $gainedInitiative);
     }
@@ -1001,17 +990,26 @@ class BMGame {
         }
 
         $die->roll();
-        foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
-            if ($die->has_skill('Chance')) {
-                $die->disabled = TRUE;
-            }
+
+        if (isset($args['TESTrerolledDieValue'])) {
+            $die->value = $args['TESTrerolledDieValue'];
         }
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->activeDieArrayArray
         );
 
-        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        if ($newInitiativeArray[$playerIdx]) {
+            $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        } else {
+            // only need to disable chance dice if the reroll fails to gain initiative
+            foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
+                if ($die->has_skill('Chance')) {
+                    $die->disabled = TRUE;
+                }
+            }
+        }
+
         $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                             (1 == array_sum($newInitiativeArray));
 
