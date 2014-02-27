@@ -815,7 +815,7 @@ class BMGame {
                 'end_draw',
                 0,
                 array(
-                    'roundNumber' => $this->get_roundNumber() - 1,
+                    'roundNumber' => $this->get_prevRoundNumber(),
                     'roundScoreArray' => $roundScoreArray
                 )
             );
@@ -835,7 +835,7 @@ class BMGame {
                 'end_winner',
                 $this->playerIdArray[$winnerIdx],
                 array(
-                    'roundNumber' => $this->get_roundNumber() - 1,
+                    'roundNumber' => $this->get_prevRoundNumber(),
                     'roundScoreArray' => $roundScoreArray
                 )
             );
@@ -1432,6 +1432,13 @@ class BMGame {
         }
 
         return $roundNumber;
+    }
+
+    // After a round has ended, get the number of the round which just ended
+    // This is simpler than the logic in get_roundNumber(), because
+    // the behavior is the same in both the endgame and during-game cases
+    private function get_prevRoundNumber() {
+        return array_sum($this->gameScoreArrayArray[0]);
     }
 
     private function get_roundScoreArray() {

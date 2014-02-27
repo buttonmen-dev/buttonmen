@@ -1613,6 +1613,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $this->object->gameScoreArrayArray);
         $this->assertEquals(array(array(), array('Y' => 2)),
                             $this->object->swingValueArrayArray);
+        $this->assertTrue(count($this->object->actionLog) > 0);
+        $roundEndLogEntry = end(array_values($this->object->actionLog));
+        $this->assertEquals('end_winner', $roundEndLogEntry->actionType);
+        $this->assertEquals(8, $roundEndLogEntry->params['roundNumber']);
 
         // test for draw
         $this->object->playerIdArray = array(12345, 54321);
@@ -1634,6 +1638,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $this->object->gameScoreArrayArray);
         $this->assertEquals(array(array('X' => 5), array('Y' => 2)),
                             $this->object->swingValueArrayArray);
+        $this->assertTrue(count($this->object->actionLog) > 0);
+        $roundEndLogEntry = end(array_values($this->object->actionLog));
+        $this->assertEquals('end_draw', $roundEndLogEntry->actionType);
+        $this->assertEquals(8, $roundEndLogEntry->params['roundNumber']);
 
         // test for all pass at end of round
         $this->object->playerIdArray = array(12345, 54321);
@@ -1657,6 +1665,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('W' => 1, 'L' => 3, 'D' => 1),
                                   array('W' => 3, 'L' => 1, 'D' => 1)),
                             $this->object->gameScoreArrayArray);
+        $this->assertTrue(count($this->object->actionLog) > 0);
+        $roundEndLogEntry = end(array_values($this->object->actionLog));
+        $this->assertEquals('end_winner', $roundEndLogEntry->actionType);
+        $this->assertEquals(5, $roundEndLogEntry->params['roundNumber']);
     }
 
     /**
