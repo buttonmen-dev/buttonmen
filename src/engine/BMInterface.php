@@ -1083,7 +1083,7 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $n_entries = 5) {
+    public function load_game_action_log(BMGame $game, $n_entries = 10) {
         try {
             $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
@@ -1099,7 +1099,7 @@ class BMInterface {
                     json_decode($row['message'], $assoc = TRUE)
                 );
 
-		// Only add the message to the log if one is returned: friendly_message() may
+                // Only add the message to the log if one is returned: friendly_message() may
                 // intentionally return no message if providing one would leak information
                 $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
                 if ($message) {
@@ -1128,7 +1128,8 @@ class BMInterface {
             $this->message .= $gameAction->friendly_message(
                 $playerIdNames,
                 $game->roundNumber,
-                $game->gameState) . '. ';
+                $game->gameState
+            ) . '. ';
         }
     }
 

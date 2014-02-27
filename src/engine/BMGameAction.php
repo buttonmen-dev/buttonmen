@@ -143,9 +143,9 @@ class BMGameAction {
     protected function friendly_message_choose_swing() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set swing values';
 
-	// If the round is later than the one in which this action
-	// log entry was recorded, or we're no longer in swing selection
-	// state, report the values which were chosen as well
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in swing selection
+        // state, report the values which were chosen as well
         if (($this->outputRoundNumber != $this->params['roundNumber']) ||
             ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
             $swingStrs = array();
@@ -199,9 +199,9 @@ class BMGameAction {
     }
 
     protected function friendly_message_add_auxiliary() {
-	// If the round is later than the one in which this action
-	// log entry was recorded, or we're no longer in auxiliary selection
-	// state, report the action
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in auxiliary selection
+        // state, report the action
         if (($this->outputRoundNumber != $this->params['roundNumber']) ||
             ($this->outputGameState != BMGameState::CHOOSE_AUXILIARY_DICE)) {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
@@ -223,7 +223,7 @@ class BMGameAction {
     }
 
     public function __get($property) {
-	if (property_exists($this, $property)) {
+        if (property_exists($this, $property)) {
             switch ($property) {
                 default:
                     return $this->$property;
