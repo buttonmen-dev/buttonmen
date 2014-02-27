@@ -1025,8 +1025,6 @@ class BMGame {
             }
         }
 
-=======
->>>>>>> upstream/master
         $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                             (1 == array_sum($newInitiativeArray));
 
@@ -1039,8 +1037,6 @@ class BMGame {
                 'gainedInitiative' => $gainedInitiative,
             )
         );
-
-        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
 
         return array('gainedInitiative' => $gainedInitiative);
     }
