@@ -1614,7 +1614,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(), array('Y' => 2)),
                             $this->object->swingValueArrayArray);
         $this->assertTrue(count($this->object->actionLog) > 0);
-        $roundEndLogEntry = end(array_values($this->object->actionLog));
+        $arrayVal = array_values($this->object->actionLog);
+        $roundEndLogEntry = end($arrayVal);
         $this->assertEquals('end_winner', $roundEndLogEntry->actionType);
         $this->assertEquals(8, $roundEndLogEntry->params['roundNumber']);
 
@@ -1639,7 +1640,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('X' => 5), array('Y' => 2)),
                             $this->object->swingValueArrayArray);
         $this->assertTrue(count($this->object->actionLog) > 0);
-        $roundEndLogEntry = end(array_values($this->object->actionLog));
+        $arrayVal = array_values($this->object->actionLog);
+        $roundEndLogEntry = end($arrayVal);
         $this->assertEquals('end_draw', $roundEndLogEntry->actionType);
         $this->assertEquals(8, $roundEndLogEntry->params['roundNumber']);
 
@@ -1666,7 +1668,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                   array('W' => 3, 'L' => 1, 'D' => 1)),
                             $this->object->gameScoreArrayArray);
         $this->assertTrue(count($this->object->actionLog) > 0);
-        $roundEndLogEntry = end(array_values($this->object->actionLog));
+        $arrayVal = array_values($this->object->actionLog);
+        $roundEndLogEntry = end($arrayVal);
         $this->assertEquals('end_winner', $roundEndLogEntry->actionType);
         $this->assertEquals(5, $roundEndLogEntry->params['roundNumber']);
     }
@@ -6561,6 +6564,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(5, $game->activeDieArrayArray[1]);
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(array(TRUE, FALSE), $game->isPrevRoundWinnerArray);
     }
 
     /**

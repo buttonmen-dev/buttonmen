@@ -173,6 +173,9 @@ abstract class BMAttack {
             $gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
             $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
             $game->gameScoreArrayArray = $gameScoreArrayArray;
+            $isPrevRoundWinnerArray = array(FALSE, FALSE);
+            $isPrevRoundWinnerArray[$game->defenderPlayerIdx] = TRUE;
+            $game->isPrevRoundWinnerArray = $isPrevRoundWinnerArray;
             $game->reset_play_state();
             $game->gameState = BMGameState::END_ROUND;
 
