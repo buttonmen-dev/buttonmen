@@ -599,6 +599,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->activeDieArrayArray = array($button1->dieArray,
                                                    $button2->dieArray);
         $this->object->swingRequestArrayArray = array(array(), array());
+        $this->object->gameScoreArrayArray = array_fill(0, $this->object->nPlayers, array(0, 0, 0));
         $this->object->do_next_step();
         $this->assertEquals(array(FALSE, FALSE), $this->object->waitingOnActionArray);
         $this->assertEquals(array(array(), array()), $this->object->swingValueArrayArray);

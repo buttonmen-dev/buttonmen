@@ -664,7 +664,15 @@ class BMGame {
             $attAttackDieArray,
             $defAttackDieArray
         );
-        $this->log_attack($preAttackDice, $postAttackDice);
+        $this->log_action(
+            'attack',
+            $this->playerIdArray[$this->attackerPlayerIdx],
+            array(
+                'attackType' => $this->attack['attackType'],
+                'preAttackDice' => $preAttackDice,
+                'postAttackDice' => $postAttackDice,
+            )
+        );
 
         if (isset($this->activePlayerIdx)) {
             $this->update_active_player();
@@ -806,8 +814,10 @@ class BMGame {
             $this->log_action(
                 'end_draw',
                 0,
-                'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
-                $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
+                array(
+                    'roundNumber' => $this->get_roundNumber() - 1,
+                    'roundScoreArray' => $roundScoreArray
+                )
             );
         } else {
             $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
@@ -824,8 +834,10 @@ class BMGame {
             $this->log_action(
                 'end_winner',
                 $this->playerIdArray[$winnerIdx],
-                'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                max($roundScoreArray) . ' vs ' . min($roundScoreArray) . ')'
+                array(
+                    'roundNumber' => $this->get_roundNumber() - 1,
+                    'roundScoreArray' => $roundScoreArray
+                )
             );
         }
         $this->reset_play_state();
@@ -1006,7 +1018,9 @@ class BMGame {
             return FALSE;
         }
 
+        $preRerollData = $die->get_action_log_data();
         $die->roll();
+        $postRerollData = $die->get_action_log_data();
         foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
             if ($die->has_skill('Chance')) {
                 $die->disabled = TRUE;
@@ -1016,10 +1030,20 @@ class BMGame {
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->activeDieArrayArray
         );
-
-        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                             (1 == array_sum($newInitiativeArray));
+
+        $this->log_action(
+            'reroll_chance',
+            $this->playerIdArray[$playerIdx],
+            array(
+                'preReroll' => $preRerollData,
+                'postReroll' => $postRerollData,
+                'gainedInitiative' => $gainedInitiative,
+            )
+        );
+
+        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
 
         return array('gainedInitiative' => $gainedInitiative);
     }
@@ -1057,6 +1081,12 @@ class BMGame {
                 }
             }
         }
+
+        $this->log_action(
+            'init_decline',
+            $this->playerIdArray[$playerIdx],
+            array()
+        );
 
         if (0 == array_sum($this->waitingOnActionArray)) {
             $this->gameState = BMGameState::START_ROUND;
@@ -1117,9 +1147,13 @@ class BMGame {
 
         // change specified die values
         $oldDieValueArray = array();
+        $preTurndownData = array();
+        $postTurndownData = array();
         foreach ($focusValueArray as $dieIdx => $newDieValue) {
+            $preTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
             $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
             $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
+            $postTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->activeDieArrayArray
@@ -1144,6 +1178,16 @@ class BMGame {
             $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
             return FALSE;
         }
+
+        $this->log_action(
+            'turndown_focus',
+            $this->playerIdArray[$playerIdx],
+            array(
+                'preTurndown' => $preTurndownData,
+                'postTurndown' => $postTurndownData,
+            )
+        );
+
         $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         return array('gainedInitiative' => TRUE);
     }
@@ -1435,12 +1479,12 @@ class BMGame {
     }
 
     // record a game action in the history log
-    private function log_action($actionType, $actingPlayerIdx, $message) {
-        $this->actionLog[] = array(
-            'gameState'  => $this->gameState,
-            'actionType' => $actionType,
-            'actingPlayerIdx' => $actingPlayerIdx,
-            'message'    => $message,
+    public function log_action($actionType, $actingPlayerIdx, $params) {
+        $this->actionLog[] = new BMGameAction(
+            $this->gameState,
+            $actionType,
+            $actingPlayerIdx,
+            $params
         );
     }
 
@@ -1453,74 +1497,6 @@ class BMGame {
     // N.B. The chat text has not been sanitized at this point, so don't use it for anything
     public function add_chat($playerIdx, $chat) {
         $this->chat = array('playerIdx' => $playerIdx, 'chat' => $chat);
-    }
-
-    // special recording function for logging what changed as the result of an attack
-    private function log_attack($preAttackDice, $postAttackDice) {
-        $attackType = $this->attack['attackType'];
-
-        // First, what type of attack was this?
-        if ($attackType == 'Pass') {
-            $this->message = 'passed';
-        } else {
-            $this->message = 'performed ' . $attackType . ' attack';
-
-            // Add the pre-attack status of all participating dice
-            $preAttackAttackers = array();
-            $preAttackDefenders = array();
-//            $attackerOutcomes = array();
-//            $defenderOutcomes = array();
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
-            }
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-            }
-            if (count($preAttackAttackers) > 0) {
-                $this->message .= ' using [' . implode(",", $preAttackAttackers) . ']';
-            }
-            if (count($preAttackDefenders) > 0) {
-                $this->message .= ' against [' . implode(",", $preAttackDefenders) . ']';
-            }
-
-            // Report what happened to each defending die
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $postInfo = $postAttackDice['defender'][$idx];
-                $postEvents = array();
-                if ($postInfo['captured']) {
-                    $postEvents[] = 'was captured';
-                } else {
-                    $postEvents[] = 'was not captured';
-                    if ($defenderInfo['doesReroll']) {
-                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' . $postInfo['value'];
-                    } else {
-                        $postEvents[] = 'does not reroll';
-                    }
-                }
-                if ($defenderInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                $this->message .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEvents);
-            }
-
-            // Report what happened to each attacking die
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $postInfo = $postAttackDice['attacker'][$idx];
-                $postEvents = array();
-                if ($attackerInfo['doesReroll']) {
-                    $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
-                } else {
-                    $postEvents[] = 'does not reroll';
-                }
-                if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                if (count($postEvents) > 0) {
-                    $this->message .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEvents);
-                }
-            }
-        }
-        $this->log_action('attack', $this->playerIdArray[$this->attackerPlayerIdx], $this->message);
     }
 
     // get log-relevant data about the dice involved in an attack

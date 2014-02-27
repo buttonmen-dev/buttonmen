@@ -1018,6 +1018,14 @@ class BMInterface {
         }
     }
 
+    public function get_player_name_mapping($game) {
+        $idNameMapping = array();
+        foreach ($game->playerIdArray as $playerId) {
+            $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
+        }
+        return $idNameMapping;
+    }
+
     // Check whether a requested action still needs to be taken.
     // If the time stamp is not important, use the string 'ignore'
     // for $postedTimestamp.
@@ -1065,32 +1073,40 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(
                 array(':game_id'     => $game->gameId,
-                      ':game_state' => $gameAction['gameState'],
-                      ':action_type' => $gameAction['actionType'],
-                      ':acting_player' => $gameAction['actingPlayerIdx'],
-                      ':message'    => $gameAction['message'])
+                      ':game_state' => $gameAction->gameState,
+                      ':action_type' => $gameAction->actionType,
+                      ':acting_player' => $gameAction->actingPlayerId,
+                      ':message'    => json_encode($gameAction->params))
             );
         }
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $n_entries = 5) {
+    public function load_game_action_log(BMGame $game, $n_entries = 10) {
         try {
-            $query = 'SELECT action_time,action_type,acting_player,message FROM game_action_log ' .
+            $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
+            $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
-                $gameAction = array(
-                    'actionType' => $row['action_type'],
-                    'actingPlayerIdx' => $row['acting_player'],
-                    'message' => $row['message'],
+                $gameAction = new BMGameAction(
+                    $row['game_state'],
+                    $row['action_type'],
+                    $row['acting_player'],
+                    json_decode($row['message'], $assoc = TRUE)
                 );
-                $logEntries[] = array(
-                    'timestamp' => $row['action_time'],
-                    'message' => $this->friendly_game_action_log_message($gameAction)
-                );
+
+                // Only add the message to the log if one is returned: friendly_message() may
+                // intentionally return no message if providing one would leak information
+                $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
+                if ($message) {
+                    $logEntries[] = array(
+                        'timestamp' => $row['action_time'],
+                        'message' => $message,
+                    );
+                }
             }
             return $logEntries;
         } catch (Exception $e) {
@@ -1103,24 +1119,16 @@ class BMInterface {
         }
     }
 
-    private function friendly_game_action_log_message($gameAction) {
-        if ($gameAction['actingPlayerIdx'] != 0) {
-            $actingPlayerName = $this->get_player_name_from_id($gameAction['actingPlayerIdx']);
-        }
-        if ($gameAction['actionType'] == 'attack') {
-            return $actingPlayerName . ' ' . $gameAction['message'];
-        }
-        if ($gameAction['actionType'] == 'end_winner') {
-            return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
-        }
-        return($gameAction['message']);
-    }
-
     // Create a status message based on recent game actions
     private function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
+        $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
-            $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
+            $this->message .= $gameAction->friendly_message(
+                $playerIdNames,
+                $game->roundNumber,
+                $game->gameState
+            ) . '. ';
         }
     }
 
@@ -1213,6 +1221,14 @@ class BMInterface {
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
+                $game->log_action(
+                    'choose_swing',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'swingValues' => $swingValueArray,
+                    )
+                );
                 $this->save_game($game);
                 $this->message = 'Successfully set swing values';
                 return TRUE;
@@ -1368,17 +1384,29 @@ class BMInterface {
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array(
+                            'roundNumber' => $game->roundNumber,
+                            'die' => $die->get_action_log_data(),
+                        )
+                    );
                     $this->message = 'Auxiliary die chosen successfully';
                     break;
                 case 'decline':
                     $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $game->log_action(
+                        'decline_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array()
+                    );
                     $this->message = 'Declined auxiliary dice';
                     break;
                 default:
                     $this->message = 'Invalid response to auxiliary choice.';
                     return FALSE;
             }
-
             $this->save_game($game);
 
             return TRUE;
@@ -1438,12 +1466,22 @@ class BMInterface {
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_reserve',
+                        $game->playerIdArray[$playerIdx],
+                        array( 'die' => $die->get_action_log_data(), )
+                    );
                     $this->message = 'Reserve die chosen successfully';
                     break;
                 case 'decline':
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'decline_reserve',
+                        $game->playerIdArray[$playerIdx],
+                        array()
+                    );
                     $this->message = 'Declined reserve dice';
                     break;
                 default:
