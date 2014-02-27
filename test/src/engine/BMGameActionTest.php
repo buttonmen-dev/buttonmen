@@ -97,6 +97,9 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * @covers BMGameAction::friendly_message_choose_swing()
+     */
     public function test_friendly_message_choose_swing() {
         $this->object = new BMGameAction(24, 'choose_swing', 1, array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13)));
         $this->assertEquals(
@@ -171,6 +174,33 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 chose not to add a reserve die"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_add_auxiliary()
+     */
+    public function test_friendly_message_add_auxiliary() {
+        $this->object = new BMGameAction(20, 'add_auxiliary', 2, array('roundNumber' => 1,
+            'die' => array('recipe' => '+(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '+(6):')));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 2, 20),
+            "gameaction02 chose to use auxiliary die +(6) in this game"
+        );
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 1, 20),
+            ""
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_decline_auxiliary()
+     */
+    public function test_friendly_message_decline_auxiliary() {
+        $this->object = new BMGameAction(20, 'decline_auxiliary', 2, array());
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 chose not to use auxiliary dice in this game: neither player will get an auxiliary die"
         );
     }
 }

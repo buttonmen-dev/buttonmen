@@ -1098,10 +1098,16 @@ class BMInterface {
                     $row['acting_player'],
                     json_decode($row['message'], $assoc = TRUE)
                 );
-                $logEntries[] = array(
-                    'timestamp' => $row['action_time'],
-                    'message' => $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState),
-                );
+
+		// Only add the message to the log if one is returned: friendly_message() may
+                // intentionally return no message if providing one would leak information
+                $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
+                if ($message) {
+                    $logEntries[] = array(
+                        'timestamp' => $row['action_time'],
+                        'message' => $message,
+                    );
+                }
             }
             return $logEntries;
         } catch (Exception $e) {
@@ -1378,17 +1384,29 @@ class BMInterface {
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array(
+                            'roundNumber' => $game->roundNumber,
+                            'die' => $die->get_action_log_data(),
+                        )
+                    );
                     $this->message = 'Auxiliary die chosen successfully';
                     break;
                 case 'decline':
                     $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $game->log_action(
+                        'decline_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array()
+                    );
                     $this->message = 'Declined auxiliary dice';
                     break;
                 default:
                     $this->message = 'Invalid response to auxiliary choice.';
                     return FALSE;
             }
-
             $this->save_game($game);
 
             return TRUE;

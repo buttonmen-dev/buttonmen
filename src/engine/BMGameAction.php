@@ -39,7 +39,8 @@ class BMGameAction {
             if (method_exists($this, $funcName)) {
                 $result = $this->$funcName();
             } else {
-                $result = "";
+                $result = "Internal error: could not print action log entry of type: "
+                          . $this->actionType;
             }
             return $result;
 
@@ -194,6 +195,30 @@ class BMGameAction {
     protected function friendly_message_decline_reserve() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' chose not to add a reserve die';
+        return $message;
+    }
+
+    protected function friendly_message_add_auxiliary() {
+	// If the round is later than the one in which this action
+	// log entry was recorded, or we're no longer in auxiliary selection
+	// state, report the action
+        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
+            ($this->outputGameState != BMGameState::CHOOSE_AUXILIARY_DICE)) {
+            $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                       ' chose to use auxiliary die ' . $this->params['die']['recipe'] .
+                       ' in this game';
+        } else {
+            // Otherwise, return nothing - the fact that this player has made a choice
+            // leaks information, so suppress the log entry entirely for now.
+            $message = '';
+        }
+        return $message;
+    }
+
+    protected function friendly_message_decline_auxiliary() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   ' chose not to use auxiliary dice in this game: ' .
+                   'neither player will get an auxiliary die';
         return $message;
     }
 
