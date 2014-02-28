@@ -1268,12 +1268,14 @@ Game.dieRecipeTable = function(table_action, active) {
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
       Api.game.player.diePropertiesArray,
+      Api.game.player.dieSkillsArray,
       Api.game.player.dieDescriptionArray);
     var opponentEnt = Game.dieTableEntry(
       i, Api.game.opponent.nDie,
       Api.game.opponent.dieRecipeArray,
       Api.game.opponent.sidesArray,
       Api.game.opponent.diePropertiesArray,
+      Api.game.opponent.dieSkillsArray,
       Api.game.opponent.dieDescriptionArray);
     if (table_action) {
       var dieLRow = $('<tr>');
@@ -1352,7 +1354,7 @@ Game.dieRecipeTable = function(table_action, active) {
 
 Game.dieTableEntry = function(
   i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray,
-  dieDescriptionArray
+  dieSkillsArray, dieDescriptionArray
 ) {
   if (i < nDie) {
     var dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
@@ -1360,13 +1362,24 @@ Game.dieTableEntry = function(
       'text': dieval,
       'title': dieDescriptionArray[i],
     };
-    if ((diePropertiesArray[i]) &&
-        ('disabled' in diePropertiesArray[i]) &&
-        (diePropertiesArray[i].disabled)) {
-      dieopts.class = 'recipe_greyed';
-      dieopts.title += '. (This die is dizzy because it has been turned ' +
-        'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.)';
+    if (diePropertiesArray[i]) {
+      if (('dizzy' in diePropertiesArray[i]) &&
+          (diePropertiesArray[i].dizzy) &&
+          ('Focus' in dieSkillsArray[i]) &&
+          (dieSkillsArray[i].Focus)) {
+        dieopts.class = 'recipe_greyed';
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down.  If the owner wins initiative, this die can\'t be used in ' +
+          'their first attack.)';
+      } else if (('disabled' in diePropertiesArray[i]) &&
+                 (diePropertiesArray[i].disabled) &&
+                 ('Chance' in dieSkillsArray[i]) &&
+                 (dieSkillsArray[i].Chance)) {
+        dieopts.class = 'recipe_greyed';
+        dieopts.title += '. (This chance dice cannot be rerolled again ' +
+          'during this round, because the player has already rerolled a ' +
+          'chance die)';
+      }
     }
     return $('<td>', dieopts);
   }
@@ -1512,11 +1525,11 @@ Game.gamePlayerDice = function(player, player_active) {
   while (i < Api.game[player].nDie) {
 
     // Find out whether this die is clickable: it is if the player
-    // is active and this particular die is not disabled
+    // is active and this particular die is not dizzy
     var clickable;
     if (player_active) {
-      if (('disabled' in Api.game[player].diePropertiesArray[i]) &&
-          Api.game[player].diePropertiesArray[i].disabled) {
+      if (('dizzy' in Api.game[player].diePropertiesArray[i]) &&
+          Api.game[player].diePropertiesArray[i].dizzy) {
         clickable = false;
       } else {
         clickable = true;

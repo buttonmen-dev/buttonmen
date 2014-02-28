@@ -795,6 +795,7 @@ asyncTest("test_Game.dieTableEntry", function() {
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
       Api.game.player.diePropertiesArray,
+      Api.game.player.dieSkillsArray,
       Api.game.player.dieDescriptionArray
     );
     // jQuery trick to get the full HTML including the object itself
@@ -813,7 +814,9 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
       Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray
+      Api.game.player.diePropertiesArray,
+      Api.game.player.dieSkillsArray,
+      Api.game.player.dieDescriptionArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
