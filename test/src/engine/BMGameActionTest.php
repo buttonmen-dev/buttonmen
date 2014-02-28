@@ -32,6 +32,13 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->object->actionType, 'attack');
         $this->assertEquals($this->object->actingPlayerId, 1);
         $this->assertEquals($this->object->params, $attackStr);
+
+        try {
+            $this->object = new BMGameAction(40, 'attack', 1, array());
+            $this->fail('BMGameAction should not accept empty params array');
+        }
+        catch (Exception $expected) {
+        }
     }
 
     /**
@@ -146,7 +153,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_init_decline()
      */
     public function test_friendly_message_init_decline() {
-        $this->object = new BMGameAction(27, 'init_decline', 2, array());
+        $this->object = new BMGameAction(27, 'init_decline', 2, array('initDecline' => TRUE));
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 chose not to try to gain initiative using chance or focus dice"
@@ -170,7 +177,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_reserve()
      */
     public function test_friendly_message_decline_reserve() {
-        $this->object = new BMGameAction(22, 'decline_reserve', 2, array());
+        $this->object = new BMGameAction(22, 'decline_reserve', 2, array('declineReserve' => TRUE));
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 chose not to add a reserve die"
@@ -197,7 +204,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_auxiliary()
      */
     public function test_friendly_message_decline_auxiliary() {
-        $this->object = new BMGameAction(20, 'decline_auxiliary', 2, array());
+        $this->object = new BMGameAction(20, 'decline_auxiliary', 2, array('declineAuxiliary' => TRUE));
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 chose not to use auxiliary dice in this game: neither player will get an auxiliary die"

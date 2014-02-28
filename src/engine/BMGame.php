@@ -1078,7 +1078,7 @@ class BMGame {
         $this->log_action(
             'init_decline',
             $this->playerIdArray[$playerIdx],
-            array()
+            array('initDecline' => TRUE)
         );
 
         if (0 == array_sum($this->waitingOnActionArray)) {

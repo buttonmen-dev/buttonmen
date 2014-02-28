@@ -1409,7 +1409,7 @@ class BMInterface {
                     $game->log_action(
                         'decline_auxiliary',
                         $game->playerIdArray[$playerIdx],
-                        array()
+                        array('declineAuxiliary' => TRUE)
                     );
                     $this->message = 'Declined auxiliary dice';
                     break;
@@ -1490,7 +1490,7 @@ class BMInterface {
                     $game->log_action(
                         'decline_reserve',
                         $game->playerIdArray[$playerIdx],
-                        array()
+                        array('declineReserve' => TRUE)
                     );
                     $this->message = 'Declined reserve dice';
                     break;
