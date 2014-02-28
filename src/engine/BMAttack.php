@@ -143,10 +143,10 @@ abstract class BMAttack {
 
     abstract protected function are_skills_compatible(array $attArray, array $defArray);
 
-    // check if any of the attackers is disabled
-    public function has_disabled_attackers(array $attackers) {
+    // check if any of the attackers is dizzy
+    public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
-            if ($attacker->disabled) {
+            if ($attacker->dizzy) {
                 return TRUE;
             }
         }
