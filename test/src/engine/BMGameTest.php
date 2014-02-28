@@ -6548,16 +6548,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_surrender() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('(6) (6) z(12) (20) (20)', 'Sonia');
+        $button1->load('(4) (4) (10) (12) (X)', 'Avis');
 
         $button2 = new BMButton;
-        $button2->load('(4) (8) (8) (12) z(20)', 'Tamiya');
+        $button2->load('(6) (12) (20) (20) (X)', 'Hammer');
 
         // load game
         $game = new BMGame(424242, array(123, 456), array('', ''), 2);
-        $game->proceed_to_next_user_action();
         $game->buttonArray = array($button1, $button2);
         $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $game->swingValueArrayArray = array(array('X' => 7), array('X' => 19));
         $game->proceed_to_next_user_action();
 
         $game->playerWithInitiativeIdx = 1;
@@ -6624,16 +6627,17 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               'Surrender'); // attackType
 
         $game->proceed_to_next_user_action();
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-
-        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
-                                  array('W' => 0, 'L' => 1, 'D' => 0)),
-                            $game->gameScoreArrayArray);
-        $this->assertCount(5, $game->activeDieArrayArray[0]);
-        $this->assertCount(5, $game->activeDieArrayArray[1]);
-        $this->assertCount(0, $game->capturedDieArrayArray[0]);
-        $this->assertCount(0, $game->capturedDieArrayArray[1]);
-        $this->assertEquals(array(TRUE, FALSE), $game->isPrevRoundWinnerArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+//
+//        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
+//                                  array('W' => 0, 'L' => 1, 'D' => 0)),
+//                            $game->gameScoreArrayArray);
+//        $this->assertCount(5, $game->activeDieArrayArray[0]);
+//        $this->assertCount(5, $game->activeDieArrayArray[1]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+//        $this->assertEquals(array(TRUE, FALSE), $game->isPrevRoundWinnerArray);
     }
 
     /**

@@ -168,16 +168,10 @@ abstract class BMAttack {
 //        }
 
         if ('Surrender' == $game->attack['attackType']) {
-            // this logic is only designed for two players
-            $gameScoreArrayArray = $game->gameScoreArrayArray;
-            $gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
-            $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
-            $game->gameScoreArrayArray = $gameScoreArrayArray;
-            $isPrevRoundWinnerArray = array(FALSE, FALSE);
-            $isPrevRoundWinnerArray[$game->defenderPlayerIdx] = TRUE;
-            $game->isPrevRoundWinnerArray = $isPrevRoundWinnerArray;
-            $game->reset_play_state();
             $game->gameState = BMGameState::END_ROUND;
+            $winnerArray = array_fill(0, $game->nPlayers, FALSE);
+            $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
+            $game->do_next_step($winnerArray);
 
             return TRUE;
         }
