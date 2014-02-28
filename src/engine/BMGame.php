@@ -834,7 +834,7 @@ class BMGame {
             );
         } else {
             if ($forceRoundResult) {
-                $winnerIdx = array_search(TRUE,$forceRoundResult);
+                $winnerIdx = array_search(TRUE, $forceRoundResult);
             } else {
                 $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
             }
