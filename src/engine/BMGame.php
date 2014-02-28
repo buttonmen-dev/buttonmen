@@ -97,7 +97,7 @@ class BMGame {
 
 
     // methods
-    public function do_next_step() {
+    public function do_next_step($args = NULL) {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
         }
@@ -108,7 +108,7 @@ class BMGame {
 
         $funcName = 'do_next_step_'.
                     strtolower(BMGameState::as_string($this->gameState));
-        $this->$funcName();
+        $this->$funcName($args);
     }
 
     public function update_game_state() {
@@ -800,12 +800,24 @@ class BMGame {
         $this->attack = NULL;
     }
 
-    protected function do_next_step_end_round() {
-        $roundScoreArray = $this->get_roundScoreArray();
-        $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
+    // $forceRoundResult accommodates surrender, by allowing the result of the round
+    // to be independent of the current round score.
+    //
+    // If not FALSE, $forceRoundResult should be an array of booleans indicating
+    // whether each of the players have won the round.
+    protected function do_next_step_end_round($forceRoundResult = FALSE) {
+        if ($forceRoundResult) {
+            assert(is_array($forceRoundResult));
+            assert($this->nPlayers == count($forceRoundResult));
+            $this->isPrevRoundWinnerArray = $forceRoundResult;
+            $isDraw = FALSE;
+        } else {
+            $roundScoreArray = $this->get_roundScoreArray();
+            $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
 
-        // check for draw currently assumes only two players
-        $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+            // check for draw currently assumes only two players
+            $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+        }
 
         if ($isDraw) {
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
@@ -821,7 +833,11 @@ class BMGame {
                 )
             );
         } else {
-            $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+            if ($forceRoundResult) {
+                $winnerIdx = array_search(TRUE, $forceRoundResult);
+            } else {
+                $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+            }
 
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
@@ -832,14 +848,16 @@ class BMGame {
                     $this->swingValueArrayArray[$playerIdx] = array();
                 }
             }
-            $this->log_action(
-                'end_winner',
-                $this->playerIdArray[$winnerIdx],
-                array(
-                    'roundNumber' => $this->get_prevRoundNumber(),
-                    'roundScoreArray' => $roundScoreArray
-                )
-            );
+            if (!$forceRoundResult) {
+                $this->log_action(
+                    'end_winner',
+                    $this->playerIdArray[$winnerIdx],
+                    array(
+                        'roundNumber' => $this->get_prevRoundNumber(),
+                        'roundScoreArray' => $roundScoreArray
+                    )
+                );
+            }
         }
         $this->reset_play_state();
     }

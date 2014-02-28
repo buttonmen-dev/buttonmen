@@ -696,6 +696,10 @@ Game.actionPlayTurnActive = function() {
     'action': 'javascript:void(0);',
   });
 
+  // Surrender is a valid attack type, so add it at the end of the
+  // list of options
+  Api.game.validAttackTypeArray.Surrender = 'Surrender';
+
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
@@ -704,6 +708,8 @@ Game.actionPlayTurnActive = function() {
     var typetext;
     if (typename == 'Pass') {
       typetext = typename;
+    } else if (typename == 'Surrender') {
+      typetext = 'SURRENDER!?';
     } else {
       typetext = typename + ' Attack';
     }
@@ -1089,6 +1095,17 @@ Game.formPlayTurnActive = function() {
   // Store the game chat in recent activity
   Game.activity.chat = $('#game_chat').val();
 
+  // If surrender is chosen, ask for confirmation, and let the user
+  // try again if they don't confirm
+  if (Game.activity.attackType == 'Surrender') {
+    var surrender = window.confirm(
+      'Are you SURE you want to surrender this round?'
+    );
+    if (!(surrender)) {
+      return Game.redrawGamePageFailure();
+    }
+  }
+
   // Now try submitting the result
   Api.apiFormPost(
     {
@@ -1416,7 +1433,7 @@ Game.pageAddDieBattleTable = function(clickable) {
 };
 
 // return a TD containing the button image for the player or opponent
-// button image is a png, image name is derived from button name,  
+// button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
   var buttonTd = $('<td>', { 'class': 'button_' + player, });
