@@ -697,8 +697,8 @@ Game.actionPlayTurnActive = function() {
   });
 
   // Surrender is a valid attack type, so add it at the end of the
-  // list of options 
-  Api.game.validAttackTypeArray.Surrender = "Surrender";
+  // list of options
+  Api.game.validAttackTypeArray.Surrender = 'Surrender';
 
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
@@ -1433,7 +1433,7 @@ Game.pageAddDieBattleTable = function(clickable) {
 };
 
 // return a TD containing the button image for the player or opponent
-// button image is a png, image name is derived from button name,  
+// button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
   var buttonTd = $('<td>', { 'class': 'button_' + player, });
