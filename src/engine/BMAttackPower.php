@@ -12,7 +12,7 @@ class BMAttackPower extends BMAttack {
     public function validate_attack($game, array $attackers, array $defenders) {
         if (1 != count($attackers) ||
             1 != count($defenders) ||
-            $this->has_disabled_attackers($attackers)) {
+            $this->has_dizzy_attackers($attackers)) {
             return FALSE;
         }
 
