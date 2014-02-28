@@ -6629,15 +6629,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-//
-//        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
-//                                  array('W' => 0, 'L' => 1, 'D' => 0)),
-//                            $game->gameScoreArrayArray);
-//        $this->assertCount(5, $game->activeDieArrayArray[0]);
-//        $this->assertCount(5, $game->activeDieArrayArray[1]);
-//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
-//        $this->assertCount(0, $game->capturedDieArrayArray[1]);
-//        $this->assertEquals(array(TRUE, FALSE), $game->isPrevRoundWinnerArray);
+
+        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 1, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(array(TRUE, FALSE), $game->isPrevRoundWinnerArray);
     }
 
     /**
