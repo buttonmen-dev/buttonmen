@@ -9,6 +9,9 @@ module("Game", {
     if (document.getElementById('game_page') == null) {
       $('body').append($('<div>', {'id': 'game_page', }));
     }
+
+    // set colors for use in game, since tests don't always traverse showStatePage()
+    Game.color = Game.COLORS.players;
   },
   'teardown': function() {
 
@@ -19,6 +22,7 @@ module("Game", {
     delete Game.game;
     delete Game.page;
     delete Game.form;
+    delete Game.color;
     Game.activity = {};
 
     // Page elements
@@ -662,8 +666,8 @@ asyncTest("test_Game.pageAddGameHeader", function() {
 
     ok(html.match(/Game #1/), "Game header should contain game number");
     ok(html.match(/Round #1/), "Game header should contain round number");
-    ok(html.match(/class="action_desc"/),
-       "Action description class should be defined");
+    ok(html.match(/class="action_desc_span"/),
+       "Action description span class should be defined");
     ok(html.match(/Howdy, world/),
        "Action description should contain specified text");
     start();

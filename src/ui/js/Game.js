@@ -111,6 +111,9 @@ Game.showStatePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
+  // Set colors for use in game - for now, all games use the same colors
+  Game.color = Game.COLORS.players;
+
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
     if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
@@ -1149,9 +1152,22 @@ Game.pageAddGameHeader = function(action_desc) {
 	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
         'Round #' + Api.game.roundNumber,
     }));
-  Game.page.append($('<div>', {'id': 'action_desc',
-                               'class': 'action_desc',
-                               'text': action_desc}));
+  var bgcolor = '#ffffff';
+  if (Api.game.player.waitingOnAction) {
+    bgcolor = Game.color.player;
+  } else if (Api.game.opponent.waitingOnAction) {
+    bgcolor = Game.color.opponent;
+  }
+
+  var descspan = $('<span>', {
+    'id': 'action_desc_span',
+    'class': 'action_desc_span',
+    'style': 'background: none repeat scroll 0 0 ' + bgcolor,
+    'text': action_desc,
+  });
+  var descdiv = $('<div>', { 'class': 'action_desc_div', });
+  descdiv.append(descspan);
+  Game.page.append(descdiv);
   Game.page.append($('<br>'));
   return true;
 };
@@ -1202,7 +1218,7 @@ Game.pageAddLogFooter = function() {
         actionrow.append(
           $('<td>', {
             'class': 'chat',
-            'style': 'background-color: ' + Game.COLORS.players[actionplayer],
+            'style': 'background-color: ' + Game.color[actionplayer],
             'nowrap': 'nowrap',
             'text': '(' + logentry.timestamp + ')',
           }));
@@ -1231,7 +1247,7 @@ Game.pageAddLogFooter = function() {
         }
         chatrow.append($('<td>', {
           'class': 'chat',
-          'style': 'background-color: ' + Game.COLORS.players[chatplayer],
+          'style': 'background-color: ' + Game.color[chatplayer],
           'nowrap': 'nowrap',
           'text': logentry.player + ' (' + logentry.timestamp + ')',
         }));
@@ -1448,7 +1464,7 @@ Game.pageAddDieBattleTable = function(clickable) {
 Game.buttonImageDisplay = function(player) {
   var buttonTd = $('<td>', {
     'class': 'button_' + player,
-    'style': 'background: ' + Game.COLORS.players[player],
+    'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
     'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
@@ -1494,7 +1510,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   // Status div for entire section
   var statusDiv = $('<div>', {
     'class': 'status_' + player,
-    'style': 'background: ' + Game.COLORS.players[player],
+    'style': 'background: ' + Game.color[player],
   });
 
   // Game score
@@ -1560,11 +1576,11 @@ Game.gamePlayerDice = function(player, player_active) {
   }
   var allDice = $('<div>', {
     'class': 'dice_' + player,
-    'style': 'background: ' + Game.COLORS.players[nonplayer],
+    'style': 'background: ' + Game.color[nonplayer],
   });
   var allDiceOverlay = $('<div>', {
     'class': 'dice_' + player + '_overlay',
-    'style': 'background: ' + Game.COLORS.players[player],
+    'style': 'background: ' + Game.color[player],
   });
   var i = 0;
   while (i < Api.game[player].nDie) {
@@ -1600,8 +1616,7 @@ Game.gamePlayerDice = function(player, player_active) {
         borderDivOpts.class = 'die_border selected';
       } else {
         borderDivOpts.class = 'die_border unselected_' + player;
-        borderDivOpts.style = 'border: 2px solid ' +
-                              Game.COLORS.players[player];
+        borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
       divOpts.class = 'die_img';
       dieBorderDiv = $('<div>', borderDivOpts);
@@ -1782,7 +1797,7 @@ Game.dieCanRerollForInitiative = function(recipe) {
 Game.dieBorderTogglePlayerHandler = function() {
   $(this).toggleClass('selected unselected_player');
   if ($(this).hasClass('unselected_player')) {
-    $(this).attr('style', 'border: 2px solid ' + Game.COLORS.players.player);
+    $(this).attr('style', 'border: 2px solid ' + Game.color.player);
   } else {
     $(this).attr('style', '');
   }
@@ -1791,7 +1806,7 @@ Game.dieBorderTogglePlayerHandler = function() {
 Game.dieBorderToggleOpponentHandler = function() {
   $(this).toggleClass('selected unselected_opponent');
   if ($(this).hasClass('unselected_opponent')) {
-    $(this).attr('style', 'border: 2px solid ' + Game.COLORS.players.opponent);
+    $(this).attr('style', 'border: 2px solid ' + Game.color.opponent);
   } else {
     $(this).attr('style', '');
   }

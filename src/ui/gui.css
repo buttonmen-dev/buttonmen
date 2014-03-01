@@ -140,8 +140,13 @@ select.center {
     text-align: center;
 }
 
-.action_desc {
-    color: blue;
+.action_desc_div {
+    padding: 5px;
+}
+
+.action_desc_span {
+    padding: 2px 5px;
+    border-radius: 5px;
 }
 
 .winner_name {
