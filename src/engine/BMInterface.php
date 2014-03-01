@@ -897,6 +897,9 @@ class BMInterface {
 
     public function get_all_button_names() {
         try {
+            // if the site is production, don't report unimplemented buttons at all
+            $site_type = $this->get_config('site_type');
+
             $statement = self::$conn->prepare('SELECT name, recipe, btn_special FROM button_view');
             $statement->execute();
 
@@ -904,8 +907,6 @@ class BMInterface {
             // If we get an exception while checking, assume there's
             // an unimplemented skill
             while ($row = $statement->fetch()) {
-                $buttonNameArray[] = $row['name'];
-                $recipeArray[] = $row['recipe'];
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
@@ -916,9 +917,15 @@ class BMInterface {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 
-                    $hasUnimplSkillArray[] = $button->hasUnimplementedSkill;
+                    $hasUnimplSkill = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
-                    $hasUnimplSkillArray[] = TRUE;
+                    $hasUnimplSkill = TRUE;
+                }
+
+                if (($site_type != 'production') || (!($hasUnimplSkill))) {
+                    $buttonNameArray[] = $row['name'];
+                    $recipeArray[] = $row['recipe'];
+                    $hasUnimplSkillArray[] = $hasUnimplSkill;
                 }
             }
             $this->message = 'All button names retrieved successfully.';
@@ -1606,6 +1613,27 @@ class BMInterface {
             );
             $this->message = 'Internal error while reacting to initiative';
             return FALSE;
+        }
+    }
+
+    protected function get_config($conf_key) {
+        try {
+            $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':conf_key' => $conf_key));
+            $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) != 1) {
+                error_log("Wrong number of config values with key " . $conf_key);
+                return NULL;
+            }
+            return $fetchResult[0]['conf_value'];
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_config: " .
+                $e->getMessage()
+            );
+            return NULL;
         }
     }
 
