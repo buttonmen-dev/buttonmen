@@ -710,10 +710,10 @@ Game.actionPlayTurnActive = function() {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
   });
-  for (i = 0; i < validAttackTypes.length; i++) {
+  for (var i = 0; i < validAttackTypes.length; i++) {
     var attacktype = validAttackTypes[i];
     var typetext;
-    if ((attacktype == 'Pass') || (attacktype == '')) {
+    if ((attacktype == 'Pass') || (attacktype === '')) {
       typetext = attacktype;
     } else if (attacktype == 'Surrender') {
       typetext = 'SURRENDER!?';
@@ -1111,7 +1111,7 @@ Game.formPlayTurnActive = function() {
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
-  } else if (Game.activity.attackType == '') {
+  } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
       'text': 'You must select an attack type',
