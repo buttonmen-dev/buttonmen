@@ -1438,16 +1438,32 @@ Game.pageAddDieBattleTable = function(clickable) {
   var playerButtonTd = Game.buttonImageDisplay('player');
   var opponentButtonTd = Game.buttonImageDisplay('opponent');
 
-  var diePlayerDiv = $('<div>', {'class': 'battle_mat_player', });
-  diePlayerDiv.append(Game.gamePlayerStatus('player', false, true));
-  diePlayerDiv.append($('<br>'));
-  diePlayerDiv.append(Game.gamePlayerDice('player', clickable));
+  var diePlayerDiv = $('<div>', {
+    'class': 'battle_mat_player',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.opponent,
+  });
+  var diePlayerOverlayDiv = $('<div>', {
+    'class': 'battle_mat_player_overlay',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+  });
+  diePlayerOverlayDiv.append(Game.gamePlayerStatus('player', false, true));
+  diePlayerOverlayDiv.append($('<br>'));
+  diePlayerOverlayDiv.append(Game.gamePlayerDice('player', clickable));
+  diePlayerDiv.append(diePlayerOverlayDiv);
   dieBattleTd.append(diePlayerDiv);
 
-  var dieOpponentDiv = $('<div>', {'class': 'battle_mat_opponent', });
-  dieOpponentDiv.append(Game.gamePlayerDice('opponent', clickable));
-  dieOpponentDiv.append($('<br>'));
-  dieOpponentDiv.append(Game.gamePlayerStatus('opponent', true, true));
+  var dieOpponentDiv = $('<div>', {
+    'class': 'battle_mat_opponent',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+  });
+  var dieOpponentOverlayDiv = $('<div>', {
+    'class': 'battle_mat_opponent_overlay',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.opponent,
+  });
+  dieOpponentOverlayDiv.append(Game.gamePlayerDice('opponent', clickable));
+  dieOpponentOverlayDiv.append($('<br>'));
+  dieOpponentOverlayDiv.append(Game.gamePlayerStatus('opponent', true, true));
+  dieOpponentDiv.append(dieOpponentOverlayDiv);
   dieBattleTd.append(dieOpponentDiv);
 
   dieBattleTr.append(playerButtonTd);
@@ -1510,7 +1526,6 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
   // Status div for entire section
   var statusDiv = $('<div>', {
     'class': 'status_' + player,
-    'style': 'background: ' + Game.color[player],
   });
 
   // Game score
@@ -1576,11 +1591,6 @@ Game.gamePlayerDice = function(player, player_active) {
   }
   var allDice = $('<div>', {
     'class': 'dice_' + player,
-    'style': 'background: ' + Game.color[nonplayer],
-  });
-  var allDiceOverlay = $('<div>', {
-    'class': 'dice_' + player + '_overlay',
-    'style': 'background: ' + Game.color[player],
   });
   var i = 0;
   while (i < Api.game[player].nDie) {
@@ -1651,10 +1661,9 @@ Game.gamePlayerDice = function(player, player_active) {
     }));
     dieBorderDiv.append(dieDiv);
 
-    allDiceOverlay.append(dieBorderDiv);
+    allDice.append(dieBorderDiv);
     i += 1;
   }
-  allDice.append(allDiceOverlay);
 
   return allDice;
 };
