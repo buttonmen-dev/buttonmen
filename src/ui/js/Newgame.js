@@ -209,8 +209,8 @@ Newgame.actionCreateGame = function() {
               'contain unimplemented skills.  Selecting these buttons is not ' +
               'recommended.'
     }));
+    Newgame.page.append(warningpar);
   }
-  Newgame.page.append(warningpar);
 
   // Function to invoke on button click
   Newgame.form = Newgame.formCreateGame;
