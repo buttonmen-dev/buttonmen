@@ -696,34 +696,41 @@ Game.actionPlayTurnActive = function() {
     'action': 'javascript:void(0);',
   });
 
+  var validAttackTypes = [];
+  $.each(Api.game.validAttackTypeArray, function(typename) {
+    validAttackTypes.push(typename);
+  });
+  validAttackTypes.sort();
   // Surrender is a valid attack type, so add it at the end of the
   // list of options
-  Api.game.validAttackTypeArray.Surrender = 'Surrender';
+  validAttackTypes.push('');
+  validAttackTypes.push('Surrender');
 
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
   });
-  $.each(Api.game.validAttackTypeArray, function(typename, typevalue) {
+  for (i = 0; i < validAttackTypes.length; i++) {
+    var attacktype = validAttackTypes[i];
     var typetext;
-    if (typename == 'Pass') {
-      typetext = typename;
-    } else if (typename == 'Surrender') {
+    if ((attacktype == 'Pass') || (attacktype == '')) {
+      typetext = attacktype;
+    } else if (attacktype == 'Surrender') {
       typetext = 'SURRENDER!?';
     } else {
-      typetext = typename + ' Attack';
+      typetext = attacktype + ' Attack';
     }
     var attacktypeopts = {
-      'value': typevalue,
+      'value': attacktype,
       'label': typetext,
       'text': typetext,
     };
     if (('attackType' in Game.activity) &&
-        (Game.activity.attackType == typename)) {
+        (Game.activity.attackType == attacktype)) {
       attacktypeopts.selected = 'selected';
     }
     attacktypeselect.append($('<option>', attacktypeopts));
-  });
+  }
   attackform.append(attacktypeselect);
 
   attackform.append($('<button>', {
@@ -1104,6 +1111,12 @@ Game.formPlayTurnActive = function() {
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
+  } else if (Game.activity.attackType == '') {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must select an attack type',
+    };
+    return Game.redrawGamePageFailure();
   }
 
   // Now try submitting the result
