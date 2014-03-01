@@ -88,7 +88,7 @@ class BMGameAction {
         // First, what type of attack was this?
         if ($attackType == 'Pass') {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
-        } else if ($attackType == 'Surrender') {
+        } elseif ($attackType == 'Surrender') {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
         } else {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
