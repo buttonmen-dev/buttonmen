@@ -81,6 +81,14 @@ class BMGameAction {
         $preAttackDice = $this->params['preAttackDice'];
         $postAttackDice = $this->params['postAttackDice'];
 
+        // Check for any attack types in which the defender changes
+        // in some way we want to report prior to being captured
+        if ($attackType == 'Trip') {
+            $defenderRerollsEarly = TRUE;
+        } else {
+            $defenderRerollsEarly = FALSE;
+        }
+
         // First, what type of attack was this?
         if ($attackType == 'Pass') {
             $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
@@ -107,15 +115,19 @@ class BMGameAction {
             foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
                 $postInfo = $postAttackDice['defender'][$idx];
                 $postEvents = array();
+
+                if ($defenderRerollsEarly) {
+                    if ($defenderInfo['doesReroll']) {
+                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
+                    } else {
+                        $postEvents[] = 'does not reroll';
+                    }
+                }
+
                 if ($postInfo['captured']) {
                     $postEvents[] = 'was captured';
                 } else {
                     $postEvents[] = 'was not captured';
-                    if ($defenderInfo['doesReroll']) {
-                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' . $postInfo['value'];
-                    } else {
-                        $postEvents[] = 'does not reroll';
-                    }
                 }
                 if ($defenderInfo['recipe'] != $postInfo['recipe']) {
                     $postEvents[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
