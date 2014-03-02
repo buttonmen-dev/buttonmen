@@ -61,12 +61,15 @@
         Allow from 127.0.0.0/255.0.0.0 ::1/128
     </Directory>
 
-    # in /test-ui, allow access to everything
+    # allow access from localhost and other RFC 1918 space to /test-ui
     <Directory /var/www/test-ui>
         Options Indexes FollowSymLinks MultiViews
         AllowOverride None
         Order allow,deny
-        Allow from all
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+        Allow from 10.0.0.0/255.0.0.0
+        Allow from 172.16.0.0/255.255.0.0
+        Allow from 192.168.1.0/255.255.255.0
     </Directory>
 
     # in /ui, allow access to everything
