@@ -22,25 +22,21 @@ div.status_opponent {
 }
 
 div.dice_player {
+    white-space: nowrap;
 }
 
 div.dice_opponent {
+    white-space: nowrap;
 }
 
-div.dice_player_overlay {
-    padding-top: 25px;
-    padding-bottom: 5px;
-    margin-top: -20px;
+div.battle_mat_player_overlay {
     border-bottom-right-radius: 30px;
-    white-space: nowrap;
+    padding: 5px 20px;
 }
 
-div.dice_opponent_overlay {
-    padding-bottom: 25px;
-    padding-top: 5px;
-    margin-bottom: -20px;
+div.battle_mat_opponent_overlay {
     border-top-left-radius: 30px;
-    white-space: nowrap;
+    padding: 5px 20px;
 }
 
 table {
