@@ -44,7 +44,7 @@ class ApiResponder {
                         'functype' => 'newuser',
                         'funcname' => $funcname,
                     );
-                } else if (auth_session_exists()) {
+                } elseif (auth_session_exists()) {
                     $result = array(
                         'ok' => TRUE,
                         'functype' => 'auth',
