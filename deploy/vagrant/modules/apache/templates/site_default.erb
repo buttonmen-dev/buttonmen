@@ -1,0 +1,105 @@
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+
+    DocumentRoot /var/www
+    <Directory />
+        Options FollowSymLinks
+        AllowOverride None
+    </Directory>
+
+    # Put in an allow block for each subdirectory of /var/www,
+    # allowing remote access to some, all, or no, files in that
+    # directory
+    <Directory /var/www/>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    # in /api, allow access to responder and dummy_responder only
+    <Directory /var/www/api>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        <Files responder>
+            Allow from all
+        </Files>
+        <Files responder.php>
+            Allow from all
+        </Files>
+	<Files dummy_responder>
+            Allow from all
+        </Files>
+        <Files dummy_responder.php>
+            Allow from all
+        </Files>
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+    # no remote access to /database
+    <Directory /var/www/database>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+    # no remote access to /engine
+    <Directory /var/www/engine>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+    # no remote access to /lib
+    <Directory /var/www/lib>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+    # in /test-ui, allow access to everything
+    <Directory /var/www/test-ui>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    # in /ui, allow access to everything
+    <Directory /var/www/ui>
+        Options Indexes FollowSymLinks MultiViews
+        AllowOverride None
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    ScriptAlias /cgi-bin/ /usr/lib/cgi-bin/
+    <Directory "/usr/lib/cgi-bin">
+        AllowOverride None
+        Options +ExecCGI -MultiViews +SymLinksIfOwnerMatch
+        Order allow,deny
+        Allow from all
+    </Directory>
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+
+    # Possible values include: debug, info, notice, warn, error, crit,
+    # alert, emerg.
+    LogLevel warn
+
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+    Alias /doc/ "/usr/share/doc/"
+    <Directory "/usr/share/doc/">
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order deny,allow
+        Deny from all
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+</VirtualHost>
