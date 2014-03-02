@@ -108,6 +108,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction01 performed Power attack using [(4):3] against [(10):1]; Defender (10) was captured; Attacker (4) rerolled 3 => 2"
         );
+
         $this->object = new BMGameAction(40, 'attack', 2, array(
             'attackType' => 'Surrender',
             'preAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
@@ -116,6 +117,29 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 surrendered"
+
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Trip',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):1'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):3'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):2'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(4):1'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction01 performed Trip attack using [t(2):1] against [(4):3]; Defender (4) rerolled 3 => 1, was captured; Attacker t(2) rerolled 1 => 2"
         );
     }
 

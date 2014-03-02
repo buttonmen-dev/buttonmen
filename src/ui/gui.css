@@ -14,39 +14,29 @@ div#login_header {
 }
 
 div.status_player {
-    background: #dd99dd;
     width: 100%;
 }
 
 div.status_opponent {
-    background: #ddffdd;
     width: 100%;
 }
 
 div.dice_player {
-    background: #ddffdd;
+    white-space: nowrap;
 }
 
 div.dice_opponent {
-    background: #dd99dd;
+    white-space: nowrap;
 }
 
-div.dice_player_overlay {
-    background: #dd99dd;
-    padding-top: 25px;
-    padding-bottom: 5px;
-    margin-top: -20px;
+div.battle_mat_player_overlay {
     border-bottom-right-radius: 30px;
-    white-space: nowrap;
+    padding: 5px 20px;
 }
 
-div.dice_opponent_overlay {
-    background: #ddffdd;
-    padding-bottom: 25px;
-    padding-top: 5px;
-    margin-bottom: -20px;
+div.battle_mat_opponent_overlay {
     border-top-left-radius: 30px;
-    white-space: nowrap;
+    padding: 5px 20px;
 }
 
 table {
@@ -81,14 +71,8 @@ td.left {
     text-align: left;
 }
 
-td.chatplayer {
+td.chat {
     text-align: right;
-    background-color: #dd99dd;
-}
-
-td.chatopponent {
-    text-align: right;
-    background-color: #ddffdd;
 }
 
 td.chooseswing {
@@ -97,7 +81,6 @@ td.chooseswing {
 
 td.button_player {
     vertical-align: top;
-    background: #dd99dd;
     border-top-left-radius: 30px;
     border-bottom-left-radius: 30px;
     padding-left: 20px;
@@ -107,7 +90,6 @@ td.button_player {
 
 td.button_opponent {
     vertical-align: bottom;
-    background: #ddffdd;
     border-top-right-radius: 30px;
     border-bottom-right-radius: 30px;
     padding-left: 20px;
@@ -154,8 +136,13 @@ select.center {
     text-align: center;
 }
 
-.action_desc {
-    color: blue;
+.action_desc_div {
+    padding: 5px;
+}
+
+.action_desc_span {
+    padding: 2px 5px;
+    border-radius: 5px;
 }
 
 .winner_name {
@@ -236,11 +223,9 @@ select.center {
 }
 
 .unselected_player {
-    border: 2px solid #dd99dd;
     border-bottom-right-radius: 1em;
 }
 
 .unselected_opponent {
-    border: 2px solid #ddffdd;
     border-top-left-radius: 1em;
 }
