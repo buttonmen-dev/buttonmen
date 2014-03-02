@@ -46,6 +46,7 @@ class BMEmail {
         $headers[] = "Auto-Submitted: auto-generated";
         $headers[] = "Precedence: bulk";
 
+$this->recipient = 'chaos';
         if (!($this->isTest)) {
             mail(
                 $this->recipient,

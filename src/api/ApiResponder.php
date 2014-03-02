@@ -38,9 +38,16 @@ class ApiResponder {
         if (array_key_exists('type', $args)) {
             $funcname = 'get_interface_response_' . $args['type'];
             if (method_exists($this, $funcname)) {
-                if (in_array($args['type'], $this->unauthFunctions) || auth_session_exists()) {
+                if (in_array($args['type'], $this->unauthFunctions)) {
                     $result = array(
                         'ok' => TRUE,
+                        'functype' => 'newuser',
+                        'funcname' => $funcname,
+                    );
+                } else if (auth_session_exists()) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'auth',
                         'funcname' => $funcname,
                     );
                 } else {
@@ -244,7 +251,11 @@ class ApiResponder {
         $check = $this->verify_function_access($args);
 
         if ($check['ok']) {
-            $interface = new BMInterface($this->isTest);
+            if ($check['functype'] == 'auth') {
+                $interface = new BMInterface($this->isTest);
+            } else {
+                $interface = new BMInterfaceNewuser($this->isTest);
+            }
             $data = $this->$check['funcname']($interface, $args);
 
             $output = array(
