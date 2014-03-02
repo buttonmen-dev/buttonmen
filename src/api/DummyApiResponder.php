@@ -77,11 +77,11 @@ class DummyApiResponder {
             return array(NULL, "responder error: $argerror");
         }
 
-        $funcName = 'get_interface_response_'.$args['type'];
+        $funcName = 'get_interface_response_' . $args['type'];
         if (method_exists($this, $funcName)) {
             $result = $this->$funcName($args);
         } else {
-            $result = array(NULL, NULL);
+            $result = array(NULL, 'Specified API function does not exist');
         }
 
         return $result;

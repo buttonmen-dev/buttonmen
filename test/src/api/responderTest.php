@@ -1,5 +1,12 @@
 <?php
 
+// Mock auth_session_exists() for unit test use
+$dummyUserLoggedIn = FALSE;
+function auth_session_exists() {
+    global $dummyUserLoggedIn;
+    return $dummyUserLoggedIn;
+}
+
 class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
@@ -116,8 +123,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $this->user_ids['responder004'] = (int)$matches[1];
         }
 
-        // now return $_SESSION variable style data for responder003
+        // now set dummy "logged in" variable and return $_SESSION variable style data for responder003
+        global $dummyUserLoggedIn;
+        $dummyUserLoggedIn = TRUE;
         return array('user_name' => 'responder003', 'user_id' => $this->user_ids['responder003']);
+    }
+
+    protected function verify_login_required($type) {
+        $args = array('type' => $type);
+        $retval = $this->object->process_request($args);
+        $expected = array(
+            'data' => NULL,
+            'message' => "You need to login before calling API function $type",
+            'status' => 'failed',
+        );
+        $this->assertEquals($expected, $retval,
+                            "failed when invoking $type while not logged in");
     }
 
     public function test_request_invalid() {
@@ -126,7 +147,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummyval = $this->dummy->process_request($args);
         $expected = array(
           'data' => NULL,
-          'message' => NULL,
+          'message' => 'Specified API function does not exist',
           'status' => 'failed',
         );
         $this->assertEquals($expected, $retval,
@@ -180,6 +201,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_createGame() {
+        $this->verify_login_required('createGame');
+
         $_SESSION = $this->mock_test_user_login();
         $args = array(
             'type' => 'createGame',
@@ -199,6 +222,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadActiveGames() {
+        $this->verify_login_required('loadActiveGames');
+
         $_SESSION = $this->mock_test_user_login();
 
         // make sure there's at least one game
@@ -224,6 +249,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadCompletedGames() {
+        $this->verify_login_required('loadCompletedGames');
+
         $_SESSION = $this->mock_test_user_login();
 
         $args = array('type' => 'loadCompletedGames');
@@ -235,6 +262,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadButtonNames() {
+        $this->verify_login_required('loadButtonNames');
+
+        $_SESSION = $this->mock_test_user_login();
         $args = array('type' => 'loadButtonNames');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -269,6 +299,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadGameData() {
+        $this->verify_login_required('loadGameData');
+
         $_SESSION = $this->mock_test_user_login();
 
         // create a game so we have the ID to load
@@ -308,6 +340,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadPlayerInfo() {
+        $this->verify_login_required('loadPlayerInfo');
+
         $_SESSION = $this->mock_test_user_login();
         $args = array('type' => 'loadPlayerInfo');
         $retval = $this->object->process_request($args);
@@ -324,6 +358,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_savePlayerInfo() {
+        $this->verify_login_required('savePlayerInfo');
+
         $_SESSION = $this->mock_test_user_login();
         $args = array('type' => 'savePlayerInfo', 'autopass' => True, );
         $retval = $this->object->process_request($args);
@@ -340,6 +376,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadPlayerNames() {
+        $this->verify_login_required('loadPlayerNames');
+
+        $_SESSION = $this->mock_test_user_login();
         $args = array('type' => 'loadPlayerNames');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -355,6 +394,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_submitSwingValues() {
+        $this->verify_login_required('submitSwingValues');
+
         $_SESSION = $this->mock_test_user_login();
 
         // create a game so we have the ID to load
@@ -390,6 +431,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_reactToInitiative() {
+        $this->verify_login_required('reactToInitiative');
+
         $_SESSION = $this->mock_test_user_login();
 
         $dummy_game_id = '7';
@@ -445,6 +488,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_submitTurn() {
+        $this->verify_login_required('submitTurn');
+
         $this->markTestIncomplete("No test for submitTurn responder yet");
     }
 
@@ -453,6 +498,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_logout() {
+        $this->verify_login_required('logout');
+
         $this->markTestIncomplete("No test for logout responder yet");
     }
 }

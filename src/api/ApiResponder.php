@@ -5,6 +5,17 @@ class ApiResponder {
     // properties
     private $isTest;               // whether this invocation is for testing
 
+    // functions which allow access by unauthenticated users
+    // For now, all game functionality should require login: only
+    // add things to this list if they are necessary for user
+    // creation and/or login.
+    private $unauthFunctions = array(
+        'createUser',
+        'verifyUser',
+        'loadPlayerName',
+        'login',
+    );
+
     // constructor
     // * For live invocation:
     //   * start a session (and require api_core to get session functions)
@@ -20,17 +31,43 @@ class ApiResponder {
         }
     }
 
-    // This function looks at the provided arguments, calls an
-    // appropriate interface routine, and returns either some game
-    // data on success, or NULL on failure
-    protected function get_interface_response($interface, $args) {
-        $funcName = 'get_interface_response_'.$args['type'];
-        if (method_exists($this, $funcName)) {
-            $result = $this->$funcName($interface, $args);
+    // This function looks at the provided arguments and verifies
+    // both that an appropriate interface routine exists and that
+    // the requester has sufficient credentials to access it
+    protected function verify_function_access($args) {
+        if (array_key_exists('type', $args)) {
+            $funcname = 'get_interface_response_' . $args['type'];
+            if (method_exists($this, $funcname)) {
+                if (in_array($args['type'], $this->unauthFunctions)) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'newuser',
+                        'funcname' => $funcname,
+                    );
+                } elseif (auth_session_exists()) {
+                    $result = array(
+                        'ok' => TRUE,
+                        'functype' => 'auth',
+                        'funcname' => $funcname,
+                    );
+                } else {
+                    $result = array(
+                        'ok' => FALSE,
+                        'message' => "You need to login before calling API function " . $args['type'],
+                    );
+                }
+            } else {
+                $result = array(
+                    'ok' => FALSE,
+                    'message' => 'Specified API function does not exist',
+                );
+            }
         } else {
-            $result = NULL;
+            $result = array(
+                'ok' => FALSE,
+                'message' => 'No "type" argument specified',
+            );
         }
-
         return $result;
     }
 
@@ -211,17 +248,31 @@ class ApiResponder {
     // * For test invocation:
     //   * return the output as a PHP variable
     public function process_request($args) {
-        $interface = new BMInterface($this->isTest);
-        $data = $this->get_interface_response($interface, $args);
+        $check = $this->verify_function_access($args);
 
-        $output = array(
-            'data' => $data,
-            'message' => $interface->message,
-        );
-        if ($data) {
-            $output['status'] = 'ok';
+        if ($check['ok']) {
+            if ($check['functype'] == 'auth') {
+                $interface = new BMInterface($this->isTest);
+            } else {
+                $interface = new BMInterfaceNewuser($this->isTest);
+            }
+            $data = $this->$check['funcname']($interface, $args);
+
+            $output = array(
+                'data' => $data,
+                'message' => $interface->message,
+            );
+            if ($data) {
+                $output['status'] = 'ok';
+            } else {
+                $output['status'] = 'failed';
+            }
         } else {
-            $output['status'] = 'failed';
+            $output = array(
+                'data' => NULL,
+                'status' => 'failed',
+                'message' => $check['message'],
+            );
         }
 
         if ($this->isTest) {

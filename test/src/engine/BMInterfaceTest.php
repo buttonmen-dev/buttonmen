@@ -22,6 +22,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             require_once 'test/src/database/mysql.test.inc.php';
         }
         $this->object = new BMInterface(TRUE);
+        $this->newuserObject = new BMInterfaceNewuser(TRUE);
     }
 
     /**
@@ -33,7 +34,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMInterface::create_user
+     * @covers BMInterfaceNewuser::create_user
      */
     public function test_create_user() {
         $created_real = False;
@@ -50,7 +51,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 "Clean these out by hand.");
             $username = 'interface' . sprintf('%03d', $trynum);
             $email = $username . '@example.com';
-            $createResult = $this->object->create_user($username, 't', $email);
+            $createResult = $this->newuserObject->create_user($username, 't', $email);
             if (isset($createResult)) {
                 $created_real = True;
             }
@@ -63,13 +64,13 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $username = 'interface' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
-        $createResult = $this->object->create_user($username, 't', $email);
+        $createResult = $this->newuserObject->create_user($username, 't', $email);
         self::$userId2WithoutAutopass = (int)$createResult['playerId'];
 
         $trynum++;
         $username = 'interface' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
-        $createResult = $this->object->create_user($username, 't', $email);
+        $createResult = $this->newuserObject->create_user($username, 't', $email);
         $this->object->set_player_info($createResult['playerId'],
                                        array('autopass' => 1));
         self::$userId3WithAutopass = (int)$createResult['playerId'];
@@ -77,7 +78,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $trynum++;
         $username = 'interface' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
-        $createResult = $this->object->create_user($username, 't', $email);
+        $createResult = $this->newuserObject->create_user($username, 't', $email);
         $this->object->set_player_info($createResult['playerId'],
                                        array('autopass' => 1));
         self::$userId4WithAutopass = (int)$createResult['playerId'];
