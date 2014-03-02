@@ -671,7 +671,7 @@ class BMGame {
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
             array(
-                'attackType' => $this->attack['attackType'],
+                'attackType' => $attack->type,
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
             )
@@ -806,13 +806,13 @@ class BMGame {
     // If not FALSE, $forceRoundResult should be an array of booleans indicating
     // whether each of the players have won the round.
     protected function do_next_step_end_round($forceRoundResult = FALSE) {
+        $roundScoreArray = $this->get_roundScoreArray();
         if ($forceRoundResult) {
             assert(is_array($forceRoundResult));
             assert($this->nPlayers == count($forceRoundResult));
             $this->isPrevRoundWinnerArray = $forceRoundResult;
             $isDraw = FALSE;
         } else {
-            $roundScoreArray = $this->get_roundScoreArray();
             $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
 
             // check for draw currently assumes only two players
@@ -829,7 +829,7 @@ class BMGame {
                 0,
                 array(
                     'roundNumber' => $this->get_prevRoundNumber(),
-                    'roundScoreArray' => $roundScoreArray
+                    'roundScoreArray' => $roundScoreArray,
                 )
             );
         } else {
@@ -848,16 +848,15 @@ class BMGame {
                     $this->swingValueArrayArray[$playerIdx] = array();
                 }
             }
-            if (!$forceRoundResult) {
-                $this->log_action(
-                    'end_winner',
-                    $this->playerIdArray[$winnerIdx],
-                    array(
-                        'roundNumber' => $this->get_prevRoundNumber(),
-                        'roundScoreArray' => $roundScoreArray
-                    )
-                );
-            }
+            $this->log_action(
+                'end_winner',
+                $this->playerIdArray[$winnerIdx],
+                array(
+                    'roundNumber' => $this->get_prevRoundNumber(),
+                    'roundScoreArray' => $roundScoreArray,
+                    'resultForced' => $forceRoundResult,
+                )
+            );
         }
         $this->reset_play_state();
     }

@@ -1569,6 +1569,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertCount(2, $this->object->activeDieArrayArray[0]);
         $this->assertCount(0, $this->object->activeDieArrayArray[1]);
+
+        // make sure actionLog has various attack parameters set correctly
+        $this->assertTrue(count($this->object->actionLog) > 0);
+        $arrayVal = array_values($this->object->actionLog);
+        $attackLogEntry = end($arrayVal);
+        $this->assertEquals('attack', $attackLogEntry->actionType);
+        $this->assertEquals('Power', $attackLogEntry->params['attackType']);
     }
 
     /**
@@ -6638,6 +6645,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
         $this->assertEquals(array(TRUE, FALSE), $game->isPrevRoundWinnerArray);
+
+        // make sure actionLog has various attack parameters set correctly
+        $this->assertTrue(count($game->actionLog) > 0);
+        $arrayVal = array_values($game->actionLog);
+        $attackLogEntry = end($arrayVal);
+        $this->assertEquals('attack', $attackLogEntry->actionType);
+        $this->assertEquals('Surrender', $attackLogEntry->params['attackType']);
     }
 
     /**

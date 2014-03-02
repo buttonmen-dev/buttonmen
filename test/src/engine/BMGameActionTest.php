@@ -68,10 +68,16 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_end_winner()
      */
     public function test_friendly_message_end_winner() {
-        $this->object = new BMGameAction(50, 'end_winner', 2, array('roundNumber' => 1, 'roundScoreArray' => array(24, 43)));
+        $this->object = new BMGameAction(50, 'end_winner', 2, array('roundNumber' => 1, 'roundScoreArray' => array(24, 43), 'resultForced' => NULL));
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "End of round: gameaction02 won round 1 (43 vs. 24)"
+        );
+
+        $this->object = new BMGameAction(50, 'end_winner', 2, array('roundNumber' => 2, 'roundScoreArray' => array(25, 23), 'resultForced' => array(FALSE, TRUE)));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "End of round: gameaction02 won round 2 because opponent surrendered"
         );
     }
 
@@ -101,6 +107,16 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction01 performed Power attack using [(4):3] against [(10):1]; Defender (10) was captured; Attacker (4) rerolled 3 => 2"
+        );
+
+        $this->object = new BMGameAction(40, 'attack', 2, array(
+            'attackType' => 'Surrender',
+            'preAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
+            'postAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 surrendered"
         );
 
         $this->object = new BMGameAction(40, 'attack', 1, array(
