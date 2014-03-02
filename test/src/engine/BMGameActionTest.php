@@ -117,6 +117,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 surrendered"
+        );
 
         $this->object = new BMGameAction(40, 'attack', 1, array(
             'attackType' => 'Trip',
