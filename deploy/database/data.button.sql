@@ -328,7 +328,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded(M), Evil(E)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Dream Wyrm',      'T(8) (20) (20) (20,8) (U)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('EDG',             'I(6) I(8) I(10) 20 (X)',                     0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('EDG',             'I(6) I(8) I(10) (20) (X)',                   0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 ('Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 ('Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
 ('Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
