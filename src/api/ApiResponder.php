@@ -51,14 +51,14 @@ class ApiResponder {
                 }
             } else {
                 $result = array(
-                    'ok' => FALSE, 
-                    'message' => 'Specified API function does not exist', 
+                    'ok' => FALSE,
+                    'message' => 'Specified API function does not exist',
                 );
             }
         } else {
             $result = array(
-                'ok' => FALSE, 
-                'message' => 'No "type" argument specified', 
+                'ok' => FALSE,
+                'message' => 'No "type" argument specified',
             );
         }
         return $result;
