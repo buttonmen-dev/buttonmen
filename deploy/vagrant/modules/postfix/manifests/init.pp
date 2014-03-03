@@ -6,12 +6,22 @@ class postfix::base {
     "postfix": ensure => installed;
   }
 
+  service {
+    "postfix": ensure => running, enable => true;
+  }
+
   # Install an aliases file
   file {
     "/etc/aliases":
       ensure => file,
       content => template("postfix/aliases.erb"),
       require => Package["postfix"];
+
+    "/etc/postfix/main.cf":
+      ensure => file,
+      content => template("postfix/main.cf.erb"),
+      require => Package["postfix"],
+      notify => Service["postfix"];
   }
 
   # Run postalias after installing the aliases file

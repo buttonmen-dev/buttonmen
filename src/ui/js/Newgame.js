@@ -136,7 +136,8 @@ Newgame.actionCreateGame = function() {
   // temporarily used a select for the opponent name
   var playerNames = {};
   for (var playerName in Api.player.list) {
-    if (playerName != Login.player) {
+    if ((playerName != Login.player) &&
+        (Api.player.list[playerName].status == 'active')) {
       playerNames[playerName] = playerName;
     }
   }
@@ -150,10 +151,12 @@ Newgame.actionCreateGame = function() {
   // Load buttons and recipes into a dict for use in selects
   var buttonRecipe = {};
   var buttonGreyed = {};
+  var anyUnimplementedButtons = false;
   $.each(Api.button.list, function(button, buttoninfo) {
     if (buttoninfo.hasUnimplementedSkill) {
       buttonRecipe[button] = '-- ' + button + ': ' + buttoninfo.recipe;
       buttonGreyed[button] = true;
+      anyUnimplementedButtons = true;
     } else {
       buttonRecipe[button] = button + ': ' + buttoninfo.recipe;
       buttonGreyed[button] = false;
@@ -193,19 +196,21 @@ Newgame.actionCreateGame = function() {
   createform.append($('<br>'));
   createform.append($('<button>', {
     'id': 'newgame_action_button',
-    'text': 'Start game!',
+    'text': 'Create game!',
   }));
   creatediv.append(createform);
 
   Newgame.page.append(creatediv);
 
-  var warningpar = $('<p>');
-  warningpar.append($('<i>', {
-    'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
-            'contain unimplemented skills.  Selecting these buttons is not ' +
-            'recommended.'
-  }));
-  Newgame.page.append(warningpar);
+  if (anyUnimplementedButtons) {
+    var warningpar = $('<p>');
+    warningpar.append($('<i>', {
+      'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
+              'contain unimplemented skills.  Selecting these buttons is not ' +
+              'recommended.'
+    }));
+    Newgame.page.append(warningpar);
+  }
 
   // Function to invoke on button click
   Newgame.form = Newgame.formCreateGame;

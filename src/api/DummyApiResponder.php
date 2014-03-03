@@ -18,7 +18,9 @@ class DummyApiResponder {
     private $keylists = array(
         'submitSwingValues' => array('type', 'game', 'roundNumber', 'swingValueArray', 'timestamp'),
         'reactToInitiative' => array('type', 'game', 'roundNumber', 'timestamp',
-                                     'action', 'dieIdxArray', 'dieValueArray')
+                                     'action', 'dieIdxArray', 'dieValueArray'),
+        'reactToAuxiliary' => array('type', 'game', 'action', 'dieIdx'),
+        'reactToReserve' => array('type', 'game', 'action', 'dieIdx')
     );
 
     // constructor
@@ -75,11 +77,11 @@ class DummyApiResponder {
             return array(NULL, "responder error: $argerror");
         }
 
-        $funcName = 'get_interface_response_'.$args['type'];
+        $funcName = 'get_interface_response_' . $args['type'];
         if (method_exists($this, $funcName)) {
             $result = $this->$funcName($args);
         } else {
-            $result = array(NULL, NULL);
+            $result = array(NULL, 'Specified API function does not exist');
         }
 
         return $result;
@@ -95,7 +97,14 @@ class DummyApiResponder {
             $userid = $dummy_users[$username];
             return array(NULL, "$username already exists (id=$userid)");
         }
-        return array(array('userName' => $username), "User $username created successfully");
+        return array(array('userName' => $username),
+                     'User ' . $username . ' created successfully.  ' .
+                     'A verification code has been e-mailed to ' . $username . '@example.com.  ' .
+                     'Follow the link in that message to start beating people up!');
+    }
+
+    protected function get_interface_response_verifyUser($args) {
+        return array(TRUE, "New user tester1 has been verified.");
     }
 
     protected function get_interface_response_createGame() {
@@ -103,7 +112,7 @@ class DummyApiResponder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = '13';
+        $gameId = '19';
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -242,6 +251,66 @@ class DummyApiResponder {
         // tester1 is not a participant in fake game 11
         // tester1 is not a participant in fake game 12
 
+        // game 13
+        $data['gameIdArray'][] = "13";
+        $data['opponentIdArray'][] = "2";
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "King Arthur";
+        $data['opponentButtonNameArray'][] = "King Arthur";
+        $data['nWinsArray'][] = "0";
+        $data['nLossesArray'][] = "0";
+        $data['nDrawsArray'][] = "0";
+        $data['nTargetWinsArray'][] = "3";
+        $data['isAwaitingActionArray'][] = "1";
+        $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
+        $data['statusArray'][] = "ACTIVE";
+
+        // game 14
+        $data['gameIdArray'][] = "14";
+        $data['opponentIdArray'][] = "2";
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "King Arthur";
+        $data['opponentButtonNameArray'][] = "King Arthur";
+        $data['nWinsArray'][] = "0";
+        $data['nLossesArray'][] = "0";
+        $data['nDrawsArray'][] = "0";
+        $data['nTargetWinsArray'][] = "3";
+        $data['isAwaitingActionArray'][] = "0";
+        $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
+        $data['statusArray'][] = "ACTIVE";
+
+        // tester1 is not a participant in fake game 15
+
+        // game 16
+        $data['gameIdArray'][] = "16";
+        $data['opponentIdArray'][] = "2";
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Cammy Neko";
+        $data['opponentButtonNameArray'][] = "Cammy Neko";
+        $data['nWinsArray'][] = "0";
+        $data['nLossesArray'][] = "1";
+        $data['nDrawsArray'][] = "0";
+        $data['nTargetWinsArray'][] = "3";
+        $data['isAwaitingActionArray'][] = "1";
+        $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
+        $data['statusArray'][] = "ACTIVE";
+
+        // game 17
+        $data['gameIdArray'][] = "17";
+        $data['opponentIdArray'][] = "2";
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Cammy Neko";
+        $data['opponentButtonNameArray'][] = "Cammy Neko";
+        $data['nWinsArray'][] = "1";
+        $data['nLossesArray'][] = "0";
+        $data['nDrawsArray'][] = "0";
+        $data['nTargetWinsArray'][] = "3";
+        $data['isAwaitingActionArray'][] = "0";
+        $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
+        $data['statusArray'][] = "ACTIVE";
+
+        // tester1 is not a participant in fake game 18
+
         return array($data, "All game details retrieved successfully.");
     }
 
@@ -320,6 +389,16 @@ class DummyApiResponder {
         $data['recipeArray'][] = "(6) c(6) (10) (12) c(20)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
 
+        // King Arthur: a button with an auxiliary die
+        $data['buttonNameArray'][] = "King Arthur";
+        $data['recipeArray'][] = "(8) (8) (10) (20) (X) +(20)";
+        $data['hasUnimplementedSkillArray'][] = FALSE;
+
+        // Cammy Neko: a button with reserve dice
+        $data['buttonNameArray'][] = "Cammy Neko";
+        $data['recipeArray'][] = "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)";
+        $data['hasUnimplementedSkillArray'][] = FALSE;
+
         return array($data, "All button names retrieved successfully.");
     }
 
@@ -351,7 +430,7 @@ class DummyApiResponder {
             "valueArrayArray" => array(array(NULL,NULL,NULL,NULL,NULL),
                                        array(NULL,NULL,NULL,NULL,NULL)),
             "sidesArrayArray" => array(array(4,4,10,12,NULL),
-                                       array(NULL,NULL,NULL,NULL,NULL)),
+                                       array(4,4,10,12,NULL)),
             "dieSkillsArrayArray" => array(array(array(), array(), array(), array(), array()),
                                            array(array(), array(), array(), array(), array())),
             "diePropertiesArrayArray" => array(array(array(), array(), array(), array(), array()),
@@ -382,6 +461,7 @@ class DummyApiResponder {
             "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
             "validAttackTypeArray" => array(),
             "roundScoreArray" => array(NULL, NULL),
+            "sideScoreArray" => array(NULL, NULL),
             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                            array("W" => 0, "L" => 0, "D" => 0)),
         );
@@ -420,6 +500,131 @@ class DummyApiResponder {
             );
         $gameDataJohnKovalic['swingRequestArrayArray'] = array(array(), array());
         $gameDataJohnKovalic['roundScoreArray'] = array(NULL, NULL);
+
+        // base params for a King Arthur vs King Arthur game, here to
+        // avoid the duplicated code warning
+        $gameDataKingArthur = $gameData;
+        $gameDataKingArthur['gameState'] = "CHOOSE_AUXILIARY_DICE";
+        $gameDataKingArthur['buttonNameArray'] = array("King Arthur", "King Arthur");
+        $gameDataKingArthur['nDieArray'] = array(6, 6);
+        $gameDataKingArthur['buttonRecipeArray'] = array("(8) (8) (10) (20) (X) +(20)", "(8) (8) (10) (20) (X) +(20)");
+        $gameDataKingArthur['waitingOnActionArray'] = array(TRUE, TRUE);
+        $gameDataKingArthur['valueArrayArray'] =
+            array(
+                array(NULL, NULL, NULL, NULL, NULL, NULL),
+                array(NULL, NULL, NULL, NULL, NULL, NULL)
+            );
+        $gameDataKingArthur['sidesArrayArray'] =
+            array(
+                array(8, 8, 10, 20, NULL, 20),
+                array(NULL, NULL, NULL, NULL, NULL, NULL)
+            );
+        $gameDataKingArthur['dieRecipeArrayArray'] =
+            array(
+                array("(8)","(8)","(10)","(20)","(X)","+(20)"),
+                array("(8)","(8)","(10)","(20)","(X)","+(20)")
+            );
+        $gameDataKingArthur['dieSkillsArrayArray'] =
+            array(
+                array(array(), array(), array(), array(), array(), array('Auxiliary' => TRUE)),
+                array(array(), array(), array(), array(), array(), array('Auxiliary' => TRUE))
+            );
+        $gameDataKingArthur['diePropertiesArrayArray'] =
+            array(
+                array(array(), array(), array(), array(), array(), array()),
+                array(array(), array(), array(), array(), array(), array())
+            );
+        $gameDataKingArthur['dieDescriptionArrayArray'] =
+            array(
+                array(
+                    '8-sided die',
+                    '8-sided die',
+                    '10-sided die',
+                    '20-sided die',
+                    'X Swing Die',
+                    'Auxiliary 20-sided die'
+                ),
+                array(
+                    '8-sided die',
+                    '8-sided die',
+                    '10-sided die',
+                    '20-sided die',
+                    'X Swing Die',
+                    'Auxiliary 20-sided die'
+                )
+            );
+        $gameDataKingArthur['roundScoreArray'] = array(NULL, NULL);
+
+        // base params for a Cammy Neko vs Cammy Neko game
+        $gameDataCammyNeko = $gameData;
+        $gameDataCammyNeko['gameState'] = "CHOOSE_RESERVE_DICE";
+        $gameDataCammyNeko['roundNumber'] = 2;
+        $gameDataCammyNeko['gameScoreArrayArray'] =
+            array(
+                array("W" => 0, "L" => 1, "D" => 0),
+                array("W" => 1, "L" => 0, "D" => 0)
+            );
+        $gameDataCammyNeko['buttonNameArray'] = array("Cammy Neko", "Cammy Neko");
+        $gameDataCammyNeko['nDieArray'] = array(8, 8);
+        $gameDataCammyNeko['buttonRecipeArray'] =
+            array(
+                "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
+                "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)"
+            );
+        $gameDataCammyNeko['waitingOnActionArray'] = array(TRUE, FALSE);
+        $gameDataCammyNeko['valueArrayArray'] =
+            array(
+                array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+                array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+            );
+        $gameDataCammyNeko['sidesArrayArray'] =
+            array(
+                array(4, 6, 12, 20, 12, 20, 20, 16),
+                array(4, 6, 12, 20, 12, 20, 20, 16)
+            );
+        $gameDataCammyNeko['dieRecipeArrayArray'] =
+            array(
+                array("(4)","(6)","(12)","(10,10)","r(12)","r(20)","r(20)","r(8,8)"),
+                array("(4)","(6)","(12)","(10,10)","r(12)","r(20)","r(20)","r(8,8)")
+            );
+        $gameDataCammyNeko['dieSkillsArrayArray'] =
+            array(
+                array(array(), array(), array(), array(),
+                      array('Reserve' => TRUE), array('Reserve' => TRUE),
+                      array('Reserve' => TRUE), array('Reserve' => TRUE)),
+                array(array(), array(), array(), array(),
+                      array('Reserve' => TRUE), array('Reserve' => TRUE),
+                      array('Reserve' => TRUE), array('Reserve' => TRUE))
+            );
+        $gameDataCammyNeko['diePropertiesArrayArray'] =
+            array(
+                array(array(), array(), array(), array(), array(), array(), array(), array()),
+                array(array(), array(), array(), array(), array(), array(), array(), array())
+            );
+        $gameDataCammyNeko['dieDescriptionArrayArray'] =
+            array(
+                array(
+                    '4-sided die',
+                    '6-sided die',
+                    '12-sided die',
+                    'Twin Die (both with 10 sides)',
+                    'Reserve 12-sided die',
+                    'Reserve 20-sided die',
+                    'Reserve 20-sided die',
+                    'Reserve Twin Die (both with 8 sides)'
+                ),
+                array(
+                    '4-sided die',
+                    '6-sided die',
+                    '12-sided die',
+                    'Twin Die (both with 10 sides)',
+                    'Reserve 12-sided die',
+                    'Reserve 20-sided die',
+                    'Reserve 20-sided die',
+                    'Reserve Twin Die (both with 8 sides)'
+                )
+            );
+        $gameDataCammyNeko['roundScoreArray'] = array(NULL, NULL);
 
         if ($args['game'] == '1') {
             $gameData['gameId'] = 1;
@@ -489,6 +694,7 @@ class DummyApiResponder {
                                                           array("(12)", "(10)", "(4)"));
             $gameData['validAttackTypeArray'] = array("Power" => "Power", "Skill" => "Skill", );
             $gameData['roundScoreArray'] = array(18, 36);
+            $gameData['sideScoreArray'] = array(-12, 12);
             $data = array(
                 'gameData' => array(
                     "status" => "ok",
@@ -560,6 +766,7 @@ class DummyApiResponder {
             $gameData['dieRecipeArrayArray'] = array(array(), array());
             $gameData['dieDescriptionArrayArray'] = array(array(), array());
             $gameData['roundScoreArray'] = array(0, 0);
+            $gameData['sideScoreArray'] = array(0, 0);
             $gameData['gameScoreArrayArray'] = array(array("W" => 3, "L" => 2, "D" => 0),
                                                      array("W" => 2, "L" => 3, "D" => 0));
             $data = array(
@@ -724,6 +931,83 @@ class DummyApiResponder {
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
+        } elseif ($args['game'] == '13') {
+            $gameDataKingArthur['gameId'] = 13;
+            $gameDataKingArthur['waitingOnActionArray'] = array(TRUE, TRUE);
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataKingArthur,
+                ),
+                'currentPlayerIdx' => 0,
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif ($args['game'] == '14') {
+            $gameDataKingArthur['gameId'] = 14;
+            $gameDataKingArthur['waitingOnActionArray'] = array(FALSE, TRUE);
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataKingArthur,
+                ),
+                'currentPlayerIdx' => 0,
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif ($args['game'] == '15') {
+            $gameDataKingArthur['gameId'] = 15;
+            $gameDataKingArthur['waitingOnActionArray'] = array(TRUE, TRUE);
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataKingArthur,
+                ),
+                'currentPlayerIdx' => FALSE,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif ($args['game'] == '16') {
+            $gameDataCammyNeko['gameId'] = 16;
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataCammyNeko,
+                ),
+                'currentPlayerIdx' => 0,
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif ($args['game'] == '17') {
+            $gameDataCammyNeko['gameId'] = 17;  // FIXME
+            $gameDataCammyNeko['waitingOnActionArray'] = array(FALSE, TRUE);
+            $gameDataCammyNeko['gameScoreArrayArray'] =
+                array(
+                    array("W" => 1, "L" => 0, "D" => 0),
+                    array("W" => 0, "L" => 1, "D" => 0)
+                );
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataCammyNeko,
+                ),
+                'currentPlayerIdx' => 0,
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif ($args['game'] == '18') {
+            $gameDataCammyNeko['gameId'] = 18;
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataCammyNeko,
+                ),
+                'currentPlayerIdx' => FALSE,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
         }
 
         if ($data) {
@@ -745,7 +1029,8 @@ class DummyApiResponder {
         return array(array('id' => 1,
                            'name_ingame' => 'tester1',
                            'name_irl' => '',
-                           'email' => NULL,
+                           'email' => 'tester1@example.com',
+                           'status' => 'active',
                            'dob' => NULL,
                            'autopass' => TRUE,
                            'image_path' => NULL,
@@ -765,12 +1050,16 @@ class DummyApiResponder {
     protected function get_interface_response_loadPlayerNames() {
         $data = array(
             'nameArray' => array(),
+            'statusArray' => array(),
         );
 
-        // three test players exist
+        // three test players exist and are all active
         $data['nameArray'][] = 'tester1';
+        $data['statusArray'][] = 'active';
         $data['nameArray'][] = 'tester2';
+        $data['statusArray'][] = 'active';
         $data['nameArray'][] = 'tester3';
+        $data['statusArray'][] = 'active';
 
         return array($data, "Names retrieved successfully.");
     }
@@ -788,6 +1077,14 @@ class DummyApiResponder {
     protected function get_interface_response_reactToInitiative() {
         return array(array('gainedInitiative' => TRUE),
                      'Successfully gained initiative');
+    }
+
+    protected function get_interface_response_reactToAuxiliary() {
+        return array(TRUE, 'Auxiliary die chosen successfully');
+    }
+
+    protected function get_interface_response_reactToReserve() {
+        return array(TRUE, 'Reserve die chosen successfully');
     }
 
     protected function get_interface_response_submitTurn() {

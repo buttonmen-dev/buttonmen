@@ -180,5 +180,3 @@ class BMSkillDopplegangerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($newDie3->has_skill('Konstant'));
     }
 }
-
-?>

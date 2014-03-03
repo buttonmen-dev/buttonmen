@@ -5,6 +5,7 @@ CREATE TABLE player (
     password_hashed     VARCHAR(128),
     name_irl            VARCHAR(40) NOT NULL,
     email               VARCHAR(254),
+    status              ENUM('active', 'unverified', 'disabled'),
     dob                 DATE,
     autopass            BOOLEAN DEFAULT 0,
     image_path          VARCHAR(100),
@@ -19,6 +20,15 @@ CREATE TABLE player (
 
 DROP TABLE IF EXISTS player_auth;
 CREATE TABLE player_auth (
-    id        SMALLINT UNSIGNED PRIMARY KEY,
-    auth_key  VARCHAR(253) UNIQUE NOT NULL
+    id         SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    player_id  SMALLINT UNSIGNED,
+    auth_key   VARCHAR(253) UNIQUE NOT NULL,
+    login_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS player_verification;
+CREATE TABLE player_verification (
+    player_id        SMALLINT UNSIGNED PRIMARY KEY,
+    verification_key VARCHAR(253) UNIQUE NOT NULL,
+    generation_time  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

@@ -14,6 +14,14 @@ class apache::server {
       require => Package["apache2"];
   }
 
+  # Customize apache default site
+  file {
+    "/etc/apache2/sites-available/default":
+      ensure => file,
+      content => template("apache/site_default.erb"),
+      notify => Service["apache2"];
+  }
+
   # Monitor the error log
   include "apache::server::feature::monitor-logs"
 }
@@ -26,7 +34,6 @@ class apache::server::feature::monitor-logs {
   }
 
   file {
-
     # Setup a directory for logtail2 to use for its offset files
     "/var/spool/logtail":
       ensure => directory,

@@ -2,5 +2,3 @@
 
 class TestDummyBMContTesting extends BMContainer {
 }
-
-?>

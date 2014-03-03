@@ -31,6 +31,7 @@ CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
     button_id          SMALLINT UNSIGNED,
+    alt_recipe         VARCHAR(100),
     position           TINYINT UNSIGNED NOT NULL,
     did_win_initiative BOOLEAN DEFAULT FALSE,
     is_awaiting_action BOOLEAN DEFAULT FALSE,
@@ -57,7 +58,7 @@ CREATE TABLE game_action_log (
     game_state         TINYINT UNSIGNED DEFAULT 10,
     action_type        VARCHAR(20),
     acting_player      SMALLINT UNSIGNED NOT NULL,
-    message            VARCHAR(512)
+    message            TEXT
 );
 
 DROP TABLE IF EXISTS game_chat_log;

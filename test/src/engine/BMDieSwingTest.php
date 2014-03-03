@@ -581,5 +581,3 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
     }
 
 }
-
-?>

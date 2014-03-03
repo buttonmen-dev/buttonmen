@@ -31,5 +31,3 @@ class BMSkillChanceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->react_to_initiative());
     }
 }
-
-?>

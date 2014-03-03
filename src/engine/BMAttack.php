@@ -143,10 +143,10 @@ abstract class BMAttack {
 
     abstract protected function are_skills_compatible(array $attArray, array $defArray);
 
-    // check if any of the attackers is disabled
-    public function has_disabled_attackers(array $attackers) {
+    // check if any of the attackers is dizzy
+    public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
-            if ($attacker->disabled) {
+            if ($attacker->dizzy) {
                 return TRUE;
             }
         }
@@ -168,13 +168,10 @@ abstract class BMAttack {
 //        }
 
         if ('Surrender' == $game->attack['attackType']) {
-            // this logic is only designed for two players
-            $gameScoreArrayArray = $game->gameScoreArrayArray;
-            $gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
-            $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
-            $game->gameScoreArrayArray = $gameScoreArrayArray;
-            $game->reset_play_state();
             $game->gameState = BMGameState::END_ROUND;
+            $winnerArray = array_fill(0, $game->nPlayers, FALSE);
+            $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
+            $game->do_next_step($winnerArray);
 
             return TRUE;
         }

@@ -41,7 +41,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($this->object->dieArray));
 
         // button recipes using dice with no special skills
-        $name = 'test';
+        $name = 'testbutton';
         $recipe = '(4) (8) (20) (20)';
         $this->object->load($recipe, $name);
         $this->assertEquals($name, $this->object->name);
@@ -112,7 +112,7 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      */
     public function test_reload() {
         // button recipes using dice with no special skills
-        $name = 'test';
+        $name = 'testbutton';
         $recipe = '(4) (8) (20) (20)';
         $this->object->load($recipe, $name);
         $this->assertEquals($name, $this->object->name);
@@ -234,6 +234,39 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMButton::update_button_recipe
+     */
+    public function test_update_button_recipe() {
+        $game = new BMGame;
+
+        $button1 = new BMButton;
+        $button1->load('(4) (8)');
+
+        $button2 = new BMButton;
+        $button2->load('(12) (20)');
+
+        $game->buttonArray = array($button1, $button2);
+
+        $die1 = BMDie::create_from_recipe('p(5)');
+        $die2 = BMDie::create_from_recipe('DB(7)');
+
+        $game->activeDieArrayArray = array(array($die1, $die2), array());
+
+        $game->buttonArray[0]->update_button_recipe();
+        $this->assertTrue($game->buttonArray[0]->hasAlteredRecipe);
+        $this->assertEquals('p(5) DB(7)', $game->buttonArray[0]->recipe);
+
+        // check that
+        $button3 = new BMButton;
+        $button3->load('(30) (99)');
+        $button3->ownerObject = $game;
+
+        $button3->update_button_recipe();
+        $this->assertFalse($button3->hasAlteredRecipe);
+        $this->assertEquals('(30) (99)', $button3->recipe);
+    }
+
+    /**
      * @covers BMButton::__get
      */
     public function test__get() {
@@ -291,5 +324,3 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(isset($this->object->name));
     }
 }
-
-?>

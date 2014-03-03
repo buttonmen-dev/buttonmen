@@ -66,7 +66,8 @@ class BMSkill {
     }
 
     protected static function skill_name_abbreviation_mapping() {
-        return array('Berserk'      => 'B',
+        return array('Auxiliary'    => '+',
+                     'Berserk'      => 'B',
                      'Chance'       => 'c',
                      'Doppleganger' => 'D',
                      'Focus'        => 'f',
@@ -75,6 +76,7 @@ class BMSkill {
                      'Null'         => 'n',
                      'Poison'       => 'p',
                      'Queer'        => 'q',
+                     'Reserve'      => 'r',
                      'Shadow'       => 's',
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
@@ -126,7 +128,9 @@ class BMSkill {
 
     protected static function skill_order_array() {
         // fires first
-        return array('BMSkillChance',
+        return array('BMSkillAuxiliary',
+                     'BMSkillReserve',
+                     'BMSkillChance',
                      'BMSkillFocus',
                      'BMSkillQueer',
                      'BMSkillBerserk',
