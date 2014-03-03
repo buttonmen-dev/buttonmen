@@ -71,7 +71,7 @@ class BMGameAction {
     protected function friendly_message_end_winner() {
         $message = 'End of round: ' . $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' won round ' . $this->params['roundNumber'];
-        if ($this->params['resultForced']) {
+        if (array_key_exists('resultForced', $this->params) && ($this->params['resultForced'])) {
             $message .= ' because opponent surrendered';
         } else {
             $message .= ' (' .  max($this->params['roundScoreArray']) . ' vs. ' .
