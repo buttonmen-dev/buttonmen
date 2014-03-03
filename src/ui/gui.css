@@ -199,15 +199,17 @@ select.center {
 }
 
 .die_recipe_player {
-    position:relative;
-    top:-48px;
+    position: relative;
+    top: -48px;
     color: black;
+    white-space: nowrap;
 }
 
 .die_recipe_opponent {
-    position:relative;
-    top:25px;
+    position: relative;
+    top: 25px;
     color: black;
+    white-space: nowrap;
 }
 
 .title2 {
