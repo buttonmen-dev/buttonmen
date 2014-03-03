@@ -1432,25 +1432,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(2, $game->capturedDieArrayArray[1]);
         $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(1, $game->capturedDieArrayArray[0][2]->value);
-
-//        // round 1, turn 6, player 2 to attack
-//        // [1] vs [1]
-//        $this->assertNULL($game->attack);
-//        $game->attack = array(1,           // attackerPlayerIdx
-//                              0,           // defenderPlayerIdx
-//                              array(0),    // attackerAttackDieIdxArray
-//                              array(0),    // defenderAttackDieIdxArray
-//                              'Power');    // attackType
-//
-//        $this->object->save_game($game);
-//        $game = $this->object->load_game($game->gameId);
-//
-//        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-//        $this->assertCount(3, $game->activeDieArrayArray[0]);
-//        $this->assertCount(4, $game->activeDieArrayArray[1]);
-//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
-//        $this->assertCount(0, $game->capturedDieArrayArray[1]);
     }
 
     /**

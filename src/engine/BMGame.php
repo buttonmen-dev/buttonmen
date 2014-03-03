@@ -1359,6 +1359,8 @@ class BMGame {
             }
         }
 
+        $this->attack = NULL;
+
         if (empty($validAttackTypeArray)) {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
