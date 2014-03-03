@@ -1292,7 +1292,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::load_game
      */
     public function test_autoplay_bug() {
-        $retval = $this->object->create_game(array(self::$userId3WithAutopass,
+        // autoplay bug requires autopass turned on
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
                                                    self::$userId4WithAutopass),
                                                    array('Scorpion', 'Kakita'), 4);
         $gameId = $retval['gameId'];
