@@ -84,6 +84,8 @@ class BMGame {
     private $chat;                  // chat message submitted by the active player with an attack
     private $message;               // message to be passed to the GUI
 
+    private $forceRoundResult;      // boolean array whether each player has won the round
+
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
 
@@ -97,7 +99,7 @@ class BMGame {
 
 
     // methods
-    public function do_next_step($args = NULL) {
+    public function do_next_step() {
         if (!isset($this->gameState)) {
             throw new LogicException('Game state must be set.');
         }
@@ -108,7 +110,7 @@ class BMGame {
 
         $funcName = 'do_next_step_'.
                     strtolower(BMGameState::as_string($this->gameState));
-        $this->$funcName($args);
+        $this->$funcName();
     }
 
     public function update_game_state() {
@@ -788,10 +790,11 @@ class BMGame {
     }
 
     protected function update_game_state_end_turn() {
-        $nDice = array_map("count", $this->activeDieArrayArray);
+        $nDice = array_map('count', $this->activeDieArrayArray);
         // check if any player has no dice, or if everyone has passed
         if ((0 === min($nDice)) ||
-            ($this->nPlayers == $this->nRecentPasses)) {
+            ($this->nPlayers == $this->nRecentPasses) ||
+            isset($this->forceRoundResult)) {
             $this->gameState = BMGameState::END_ROUND;
         } else {
             $this->gameState = BMGameState::START_TURN;
@@ -800,17 +803,10 @@ class BMGame {
         $this->attack = NULL;
     }
 
-    // $forceRoundResult accommodates surrender, by allowing the result of the round
-    // to be independent of the current round score.
-    //
-    // If not FALSE, $forceRoundResult should be an array of booleans indicating
-    // whether each of the players have won the round.
-    protected function do_next_step_end_round($forceRoundResult = FALSE) {
+    protected function do_next_step_end_round() {
         $roundScoreArray = $this->get_roundScoreArray();
-        if ($forceRoundResult) {
-            assert(is_array($forceRoundResult));
-            assert($this->nPlayers == count($forceRoundResult));
-            $this->isPrevRoundWinnerArray = $forceRoundResult;
+        if (isset($this->forceRoundResult)) {
+            $this->isPrevRoundWinnerArray = $this->forceRoundResult;
             $isDraw = FALSE;
         } else {
             $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
@@ -833,10 +829,12 @@ class BMGame {
                 )
             );
         } else {
-            if ($forceRoundResult) {
-                $winnerIdx = array_search(TRUE, $forceRoundResult);
+            if (isset($this->forceRoundResult)) {
+                $winnerIdx = array_search(TRUE, $this->forceRoundResult);
+                $forceRoundResult = $this->forceRoundResult;
             } else {
                 $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+                $forceRoundResult = FALSE;
             }
 
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
@@ -1385,6 +1383,7 @@ class BMGame {
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+        unset($this->forceRoundResult);
     }
 
     private function update_active_player() {
@@ -1920,6 +1919,24 @@ class BMGame {
                     }
                 }
                 $this->autopassArray = $value;
+                break;
+            case 'forceRoundResult':
+                if (!is_array($value)) {
+                    throw new InvalidArgumentException('Input must be an array.');
+                }
+                if ($this->nPlayers != count($value)) {
+                    throw new InvalidArgumentException(
+                        'Input must have the same number of elements as the number of players.'
+                    );
+                }
+                foreach ($value as $tempValueElement) {
+                    if (!is_bool($tempValueElement)) {
+                        throw new InvalidArgumentException(
+                            'Input must be an array of booleans.'
+                        );
+                    }
+                }
+                $this->forceRoundResult = $value;
                 break;
             default:
                 $this->$property = $value;
