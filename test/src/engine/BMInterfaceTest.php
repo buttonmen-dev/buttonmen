@@ -1286,88 +1286,171 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * The following unit tests ensure that surrender attacks work correctly.
+     * The following unit tests ensure that the autoplay bug doesn't occur.
      *
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
     public function test_autoplay_bug() {
-        //'Rikachu',     '(1) (1) (1) (1) (Y)'
-        //'Wastenott',   's(4) s(8) s(10) s(20) s(X)'
-
-        // james: player 3 currently has autopass
-
-        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
-                                                   self::$userId3WithAutopass),
-                                             array('Rikachu', 'Wastenott'), 4);
+        $retval = $this->object->create_game(array(self::$userId3WithAutopass,
+                                                   self::$userId4WithAutopass),
+                                                   array('Scorpion', 'Kakita'), 4);
         $gameId = $retval['gameId'];
         $game = $this->object->load_game($gameId);
 
-        // specify swing dice correctly
-        $game->swingValueArrayArray = array(array('Y' => 1), array('X' => 4));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        // artificially change button recipes
+        $button1 = $game->buttonArray[0];
+        $button1->recipe = '(1) (1) (1)';
+        $button1->hasAlteredRecipe = TRUE;
+        $this->assertEquals('(1) (1) (1)', $game->buttonArray[0]->recipe);
 
-        $this->assertEquals(0, $game->playerWithInitiativeIdx);
-        $this->assertEquals(0, $game->activePlayerIdx);
-        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $button2 = $game->buttonArray[1];
+        $button2->recipe = '(1) (1) (1,1) (1,1)';
+        $button2->hasAlteredRecipe = TRUE;
+        $this->assertEquals('(1) (1) (1,1) (1,1)', $game->buttonArray[1]->recipe);
 
-        // artificially set die values
-        // note that all of Rikachu's dice will have a value of 1
-        $dieArrayArray = $game->activeDieArrayArray;
-        $dieArrayArray[1][0]->value = 3;
-        $dieArrayArray[1][1]->value = 3;
-        $dieArrayArray[1][2]->value = 8;
-        $dieArrayArray[1][3]->value = 12;
-        $dieArrayArray[1][4]->value = 4;
+        $game->activeDieArrayArray = array(array(), array());
+        $game->gameState = BMGameState::START_GAME;
 
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
 
-        $this->object->submit_turn(1, $gameId, 1,
-                                   $this->object->timestamp->format(DATE_RSS),
-                                   array('playerIdx_0_dieIdx_0' => TRUE,
-                                         'playerIdx_0_dieIdx_1' => TRUE,
-                                         'playerIdx_0_dieIdx_2' => TRUE,
-                                         'playerIdx_0_dieIdx_3' => FALSE,
-                                         'playerIdx_0_dieIdx_4' => FALSE,
-                                         'playerIdx_1_dieIdx_0' => TRUE,
-                                         'playerIdx_1_dieIdx_1' => FALSE,
-                                         'playerIdx_1_dieIdx_2' => FALSE,
-                                         'playerIdx_1_dieIdx_3' => FALSE,
-                                         'playerIdx_1_dieIdx_4' => FALSE),
-                                   'Skill',
-                                   0, 1, '');
-
-        $game = $this->object->load_game($game->gameId);
-
-//        // perform valid attack that would fire twice with the autopass bug
-//        $game->attack = array(0,        // attackerPlayerIdx
-//                              1,        // defenderPlayerIdx
-//                              array(0, 1, 2), // attackerAttackDieIdxArray
-//                              array(0), // defenderAttackDieIdxArray
-//                              'Skill'); // attackType
-
-        $this->assertEquals(0, $game->activePlayerIdx);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals( 2, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals( 2, $game->activeDieArrayArray[1][3]->max);
 
-        $this->assertEquals(array(array('W' => 0, 'L' => 0, 'D' => 0),
-                                  array('W' => 0, 'L' => 0, 'D' => 0)),
-                            $game->gameScoreArrayArray);
-        $this->assertCount(5, $game->activeDieArrayArray[0]);
-        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        // round 1, turn 1, player 1 to attack
+        // [1 1 1] vs [1 1 2 2]
+        $this->assertNULL($game->attack);
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(0,1),  // attackerAttackDieIdxArray
+                              array(2),    // defenderAttackDieIdxArray
+                              'Skill');    // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertCount(3, $game->activeDieArrayArray[1]);
         $this->assertCount(1, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
 
-        $this->assertEquals(3, $game->activeDieArrayArray[1][0]->value);
-        $this->assertEquals(8, $game->activeDieArrayArray[1][1]->value);
-        $this->assertEquals(12, $game->activeDieArrayArray[1][2]->value);
-        $this->assertEquals(4, $game->activeDieArrayArray[1][3]->value);
+        // round 1, turn 2, player 2 to attack
+        // [1 1 1] vs [1 1 2]
+        $this->assertNULL($game->attack);
+        $game->attack = array(1,           // attackerPlayerIdx
+                              0,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Power');    // attackType
 
-        $this->assertEquals(3, $game->capturedDieArrayArray[0][0]->value);
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(3, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(1, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+
+        // round 1, turn 3, player 1 to attack
+        // [1 1] vs [1 1 2]
+        $this->assertNULL($game->attack);
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(0,1),  // attackerAttackDieIdxArray
+                              array(2),    // defenderAttackDieIdxArray
+                              'Skill');    // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertCount(2, $game->capturedDieArrayArray[0]);
+        $this->assertCount(1, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(2, $game->capturedDieArrayArray[0][1]->value);
+
+        // round 1, turn 4, player 2 to attack
+        // [1 1] vs [1 1]
+        $this->assertNULL($game->attack);
+        $game->attack = array(1,           // attackerPlayerIdx
+                              0,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Power');    // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertCount(2, $game->capturedDieArrayArray[0]);
+        $this->assertCount(2, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
+        $this->assertEquals(1, $game->capturedDieArrayArray[1][1]->value);
+
+        // round 1, turn 5, player 1 to attack
+        // [1] vs [1 1]
+        $this->assertNULL($game->attack);
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Skill');    // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertCount(3, $game->capturedDieArrayArray[0]);
+        $this->assertCount(2, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->capturedDieArrayArray[0][2]->value);
+
+//        // round 1, turn 6, player 2 to attack
+//        // [1] vs [1]
+//        $this->assertNULL($game->attack);
+//        $game->attack = array(1,           // attackerPlayerIdx
+//                              0,           // defenderPlayerIdx
+//                              array(0),    // attackerAttackDieIdxArray
+//                              array(0),    // defenderAttackDieIdxArray
+//                              'Power');    // attackType
+//
+//        $this->object->save_game($game);
+//        $game = $this->object->load_game($game->gameId);
+//
+//        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+//        $this->assertCount(3, $game->activeDieArrayArray[0]);
+//        $this->assertCount(4, $game->activeDieArrayArray[1]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[1]);
     }
-}
 
     /**
      * Check that a decline of an auxiliary die works correctly.
