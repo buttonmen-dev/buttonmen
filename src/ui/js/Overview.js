@@ -45,10 +45,6 @@ Overview.getOverview = function(callback) {
       Api.getCompletedGamesData(callback);
     });
   } else {
-    Env.message = {
-      'type': 'none',
-      'text': 'Please login to start beating people up',
-    };
     return callback();
   }
 };
@@ -68,6 +64,8 @@ Overview.showPage = function() {
     } else {
       Overview.pageAddGameTables();
     }
+  } else {
+    Overview.pageAddIntroText();
   }
 
   // Actually layout the page
@@ -149,4 +147,55 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   tableDiv.append(table);
   tableDiv.append($('<hr>'));
   Overview.page.append(tableDiv);
+};
+
+Overview.pageAddIntroText = function() {
+  Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
+
+  var infopar = $('<p>');
+  infopar.append(
+    'This is the beta version of the Buttonweavers implementation of ');
+  infopar.append($('<a>', {
+    'href': 'http://www.cheapass.com/node/39',
+    'text': 'Button Men',
+  }));
+  infopar.append('.');
+  Overview.page.append(infopar);
+
+  infopar = $('<p>');
+  infopar.append(
+    'Want to start beating people up?  Login using the menubar above, or ');
+  infopar.append($('<a>', {
+    'href': '/ui/create_user.html',
+    'text': 'create an account',
+  }));
+  infopar.append('.');
+  Overview.page.append(infopar);
+
+  infopar = $('<p>');
+  infopar.append(
+    'We wanted to make this beta publically available as soon as possible, ' +
+    'so there are still a lot of bugs!  If you find anything broken or hard ' +
+    'to use, or if you have any questions, please get in touch, either by ' +
+    'opening a ticket at ');
+  infopar.append($('<a>', {
+    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
+    'text': 'the buttonweavers issue tracker',
+  }));
+  infopar.append(' or by e-mailing us at help@buttonweavers.com.');
+  Overview.page.append(infopar);
+
+  infopar = $('<p>');
+  infopar.append(
+    'Button Men is copyright 1999, 2011 James Ernest and Cheapass Games: ');
+  infopar.append($('<a>', {
+    'href': 'http://www.cheapass.com',
+    'text': 'www.cheapass.com',
+  }));
+  infopar.append(' and ');
+  infopar.append($('<a>', {
+    'href': 'http://www.beatpeopleup.com',
+    'text': 'www.beatpeopleup.com',
+  }));
+  Overview.page.append(infopar);
 };
