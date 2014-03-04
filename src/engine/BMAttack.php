@@ -168,11 +168,10 @@ abstract class BMAttack {
 //        }
 
         if ('Surrender' == $game->attack['attackType']) {
-            $game->gameState = BMGameState::END_ROUND;
+            $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
-            $game->do_next_step($winnerArray);
-
+            $game->forceRoundResult = $winnerArray;
             return TRUE;
         }
 
