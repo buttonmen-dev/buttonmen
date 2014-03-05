@@ -7610,28 +7610,32 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(), $game->swingRequestArrayArray[0]);
+        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[1]));
+        $this->assertFalse(array_key_exists('Y', $game->swingRequestArrayArray[1]));
+        $this->assertEquals(array(array(), array('X' => NULL)), $game->swingValueArrayArray);
+
         $game->swingValueArrayArray = array(array(), array('X' => 5));
-        $game->swingRequestArrayArray = array(array(), array('X'));
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-//        $this->assertCount(1, $game->activeDieArrayArray[0]);
-//        $this->assertCount(2, $game->activeDieArrayArray[1]);
-//        $this->assertEquals( 1, $game->activeDieArrayArray[0][0]->max);
-//        $this->assertEquals( 1, $game->activeDieArrayArray[1][0]->max);
-//        $this->assertEquals( 5, $game->activeDieArrayArray[1][1]->max);
-//
-//        // player 2 attacks and wins round 1
-//        $this->assertNULL($game->attack);
-//        $game->attack = array(1,           // attackerPlayerIdx
-//                              0,           // defenderPlayerIdx
-//                              array(0),    // attackerAttackDieIdxArray
-//                              array(0),    // defenderAttackDieIdxArray
-//                              'Power');    // attackType
-//
-//        $game->proceed_to_next_user_action();
-//        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals( 5, $game->activeDieArrayArray[1][1]->max);
+
+        // player 2 attacks and wins round 1
+        $this->assertNULL($game->attack);
+        $game->attack = array(1,           // attackerPlayerIdx
+                              0,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Power');    // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
     }
 }
