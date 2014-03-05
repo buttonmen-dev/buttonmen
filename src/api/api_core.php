@@ -21,12 +21,12 @@ function login($username, $password) {
         // check if the password is correct and if the account is in active status
         if (($password_hashed == crypt($password, $password_hashed) && ($status == 'active'))) {
 
-            // if the user has too many active logins (allow 3), delete the oldest
+            // if the user has too many active logins (allow 6), delete the oldest
             $sql = 'SELECT id FROM player_auth WHERE player_id = :id ORDER BY login_time';
             $query = $conn->prepare($sql);
             $query->execute(array(':id'       => $result['id']));
             $resultArray = $query->fetchAll();
-            for ($i=0; $i < (count($resultArray) - 2); $i++) {
+            for ($i=0; $i < (count($resultArray) - 5); $i++) {
                 $sql = 'DELETE FROM player_auth WHERE id = :id';
                 $query = $conn->prepare($sql);
                 $query->execute(array(':id' => $resultArray[$i]['id']));
