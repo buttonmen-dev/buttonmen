@@ -422,6 +422,14 @@ class BMGame {
                     if ($die->selected) {
                         $die->remove_skill('Reserve');
                         $die->selected = FALSE;
+                        if ($die instanceof BMDieSwing) {
+                            $this->request_swing_values(
+                                $die,
+                                $die->swingType,
+                                $die->playerIdx
+                            );
+                            $die->valueRequested = TRUE;
+                        }
                         $areAnyDiceAdded[$playerIdx] = TRUE;
                     }
                 }
