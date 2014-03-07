@@ -5271,6 +5271,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('BMSkillPoison', $skillList['Poison']);
 
         $game->proceed_to_next_user_action();
+
+        $this->assertCount(1, $game->actionLog);
+        $this->assertObjectHasAttribute('params', $game->actionLog[0]);
+        $this->assertArrayHasKey('attackType', $game->actionLog[0]->params);
+        $this->assertArrayHasKey('preAttackDice', $game->actionLog[0]->params);
+        $this->assertArrayHasKey('postAttackDice', $game->actionLog[0]->params);
+        $this->assertArrayHasKey('attacker', $game->actionLog[0]->params['postAttackDice']);
+        $this->assertCount(1, $game->actionLog[0]->params['postAttackDice']['attacker']);
+        $this->assertEquals(10, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['max']);
+        $this->assertEquals('p(10)', $game->actionLog[0]->params['postAttackDice']['attacker'][0]['recipe']);
+        $this->assertLessThanOrEqual(10, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertGreaterThanOrEqual(1, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['value']);
+
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(5, $game->activeDieArrayArray[0]);
