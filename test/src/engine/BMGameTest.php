@@ -5282,10 +5282,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(20, $game->capturedDieArrayArray[0][1]->max);
         $this->assertEquals(6, $game->capturedDieArrayArray[0][1]->value);
 
-//        $this->assertEquals(array('score_value'),
-//                            array_keys($game->activeDieArrayArray[0][3]->hookList));
-//        $this->assertEquals(array('BMSkillPoison'),
-//                            $game->activeDieArrayArray[0][3]->hookList['score_value']);
+        $this->assertEquals(array('attack_list', 'capture', 'score_value'),
+                            array_keys($game->activeDieArrayArray[0][3]->hookList));
+        $this->assertEquals(array('BMSkillPoison'),
+                            $game->activeDieArrayArray[0][3]->hookList['score_value']);
 
         $skillList = $game->activeDieArrayArray[0][3]->skillList;
         $this->assertArrayNotHasKey('Berserk', $skillList);
