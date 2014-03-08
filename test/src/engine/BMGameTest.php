@@ -7756,4 +7756,99 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('X', $game->activeDieArrayArray[1][0]->swingType);
         $this->assertEquals('Y', $game->activeDieArrayArray[1][1]->swingType);
     }
+
+    /**
+     * The following unit tests ensure that berserk logging works correctly.
+     *
+     * @coversNothing
+     */
+    public function test_berserk_logging() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1) (1)', 'Test1');
+
+        $button2 = new BMButton;
+        $button2->load('(1,1) B(Y)', 'Test2');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(), $game->swingRequestArrayArray[0]);
+        $this->assertArrayHasKey('Y', $game->swingRequestArrayArray[1]);
+        $game->swingValueArrayArray = array(array(), array('Y' => 20));
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 1, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 2, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[1][1]->max);
+
+        // artificially set die value of berserk die for later
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[1][1]->value = 1;
+
+        // round 1, turn 1, player 1 to attack
+        // [1 1] vs [1 B(Y=20)]
+        $this->assertNULL($game->attack);
+        $game->attack = array(0,           // attackerPlayerIdx
+                              1,           // defenderPlayerIdx
+                              array(0,1),  // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Skill');    // attackType
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(2, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+
+        // round 1, turn 2, player 2 to attack
+        // [1 1] vs [B(Y=20)]
+        $this->assertNULL($game->attack);
+        $game->attack = array(1,           // attackerPlayerIdx
+                              0,           // defenderPlayerIdx
+                              array(0),    // attackerAttackDieIdxArray
+                              array(0),    // defenderAttackDieIdxArray
+                              'Berserk');  // attackType
+
+        var_dump('BMGameTest::test_start');
+        $game->proceed_to_next_user_action();
+        var_dump('BMGameTest::actionLog');
+        var_dump($game->actionLog[1]->params['postAttackDice']['attacker'][0]);
+        var_dump('BMGameTest::test_end');
+
+        $this->assertCount(2, $game->actionLog);
+        $this->assertObjectHasAttribute('params', $game->actionLog[1]);
+        $this->assertArrayHasKey('attackType', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('preAttackDice', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('postAttackDice', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('attacker', $game->actionLog[1]->params['postAttackDice']);
+        $this->assertCount(1, $game->actionLog[1]->params['postAttackDice']['attacker']);
+        $this->assertEquals(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['max']);
+        $this->assertEquals('(10)', $game->actionLog[1]->params['postAttackDice']['attacker'][0]['recipe']);
+        $this->assertLessThanOrEqual(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
+
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(1, $game->capturedDieArrayArray[1]);
+        $this->assertEquals(10, $game->activeDieArrayArray[1][0]->max);
+        $this->assertFalse($game->activeDieArrayArray[1][0]->has_skill('Berserk'));
+        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+    }
 }
