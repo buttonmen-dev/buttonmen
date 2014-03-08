@@ -7822,11 +7822,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(0),    // defenderAttackDieIdxArray
                               'Berserk');  // attackType
 
-        var_dump('BMGameTest::test_start');
         $game->proceed_to_next_user_action();
-        var_dump('BMGameTest::actionLog');
-        var_dump($game->actionLog[1]->params['postAttackDice']['attacker'][0]);
-        var_dump('BMGameTest::test_end');
 
         $this->assertCount(2, $game->actionLog);
         $this->assertObjectHasAttribute('params', $game->actionLog[1]);
