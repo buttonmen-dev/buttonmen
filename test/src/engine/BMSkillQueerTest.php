@@ -107,5 +107,3 @@ class BMSkillQueerTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('Skill', $a);
     }
 }
-
-?>

@@ -26,161 +26,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
     }
 
-    /*
-     * @covers BMDie::add_skill
-     */
-    public function testAdd_skill() {
-        // Check that the skill list is indeed empty
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-
-        $this->assertEmpty($sl, "Skill list not initially empty.");
-        $this->assertFalse(array_key_exists("test", $hl), "Hook list not initially empty.");
-
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $this->assertNotEmpty($sl, "Skill list should not be empty.");
-        $this->assertEquals(count($sl), 1, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertEquals($sl["Testing"], "TestDummyBMSkillTesting", "Incorrect stored classname for 'Testing'");
-
-        // Proper maintenance of the hook lists
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-
-        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-
-        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-
-
-
-        // Another skill
-
-        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $this->assertNotEmpty($sl, "Skill list should not be empty.");
-        $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-        $this->assertEquals($sl["Testing2"], "TestDummyBMSkillTesting2", "Incorrect stored classname for 'Testing2'");
-
-
-        // Redundancy
-
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-
-        // Proper maintenance of the hook lists
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-
-        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-        $this->assertContains("TestDummyBMSkillTesting2", $hl["test"], "Hook list missing 'Testing2' hook.");
-
-        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-        $this->assertEquals(2, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-
-
-
+    protected static function getMethod($name) {
+        $class = new ReflectionClass('BMDie');
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
     }
-
-    /**
-     * @covers BMDie::has_skill
-     *
-     * @depends testAdd_skill
-     */
-    public function testHas_skill() {
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-        $this->assertTrue($this->object->has_skill("Testing"));
-        $this->assertTrue($this->object->has_skill("Testing2"));
-        $this->assertFalse($this->object->has_skill("Testing3"));
-    }
-
-    /**
-     * @covers BMDie::remove_skill
-     *
-     * @depends testAdd_skill
-     * @depends testHas_skill
-     */
-    public function testRemove_skill() {
-
-        // simple
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->assertTrue($this->object->remove_skill("Testing"));
-        $this->assertFalse($this->object->has_skill("Testing"));
-
-        // multiple skills
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-        $this->assertTrue($this->object->remove_skill("Testing"));
-        $this->assertFalse($this->object->has_skill("Testing"));
-        $this->assertTrue($this->object->has_skill("Testing2"));
-
-        // fail to remove non-existent skills
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->assertFalse($this->object->remove_skill("Testing3"));
-        $this->assertTrue($this->object->has_skill("Testing"));
-        $this->assertTrue($this->object->has_skill("Testing2"));
-
-        // examine the hook list for proper editing
-        $this->assertTrue($this->object->remove_skill("Testing2"));
-        $this->assertTrue($this->object->has_skill("Testing"));
-        $this->assertFalse($this->object->has_skill("Testing2"));
-
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-
-        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-        $this->assertNotContains("TestDummyBMSkillTesting2", $hl["test"], "Hook list _not_ missing 'Testing2' hook.");
-
-        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-    }
-
-    /**
-     * @covers BMDie::run_hooks
-     *
-     * @depends testAdd_skill
-     * @depends testHas_skill
-     * @depends testRemove_skill
-     */
-    public function testRun_hooks() {
-        $die = new TestDummyBMDieTesting;
-
-        $die->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $die->test();
-
-        $this->assertEquals("testing", $die->testvar);
-
-        $die->remove_skill("Testing");
-        $die->add_skill("Testing2", "TestDummyBMSkillTesting2");
-
-        $die->test();
-        $this->assertEquals("still testing", $die->testvar);
-
-        $die->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $die->test();
-        // order in which hooks run is not guaranteed
-        $this->assertRegExp('/testingstill testing|still testingtesting/', $die->testvar);
-    }
-
 
     /**
      * @covers BMDie::init
-     *
-     * @depends testAdd_skill
-     * @depends testHas_skill
-     * @depends testRemove_skill
      */
     public function testInit() {
         $this->object->init(6, array("TestDummyBMSkillTesting" => "Testing"));
@@ -216,8 +70,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         try {
             $die = BMDie::create(-15, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         $this->assertEquals(6, $die->max);
@@ -226,57 +80,58 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         try {
             $die = BMDie::create(1023, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         try {
             $die = BMDie::create(0, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         try {
             $die = BMDie::create(100, array());
             $this->fail('Creating out-of-range die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         // downright illegal values
         try {
             $die = BMDie::create("thing", array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         try {
             $die = BMDie::create("4score", array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         try {
             $die = BMDie::create(2.718, array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
 
         try {
             $die = BMDie::create("thing8", array());
             $this->fail('Creating non-numeric die did not throw an exception.');
-        }
-        catch (UnexpectedValueException $e) {
+        } catch (UnexpectedValueException $e) {
+
         }
     }
 
     /*
      * @covers BMDie::create_from_recipe
      */
+
     public function testCreate_from_recipe() {
         $die = BMDie::create_from_recipe('ps(6)');
         $this->assertTrue($die->has_skill('Poison'));
@@ -287,33 +142,35 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /*
      * @covers BMDie::parse_recipe_for_sides
      */
-    public function testParse_recipe_for_sides() {
-        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)'));
-        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)'));
-        $this->assertEquals('4', BMDie::parse_recipe_for_sides('(4)+'));
-        $this->assertEquals('4', BMDie::parse_recipe_for_sides('ps(4)+'));
 
-        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)'));
-        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)'));
-        $this->assertEquals('X', BMDie::parse_recipe_for_sides('(X)+'));
-        $this->assertEquals('X', BMDie::parse_recipe_for_sides('ps(X)+'));
+    public function testParse_recipe_for_sides() {
+        $parse = self::getMethod('parse_recipe_for_sides');
+        $this->assertEquals('4', $parse->invokeArgs(NULL, array('(4)')));
+        $this->assertEquals('4', $parse->invokeArgs(NULL, array('ps(4)')));
+        $this->assertEquals('4', $parse->invokeArgs(NULL, array('(4)+')));
+        $this->assertEquals('4', $parse->invokeArgs(NULL, array('ps(4)+')));
+
+        $this->assertEquals('X', $parse->invokeArgs(NULL, array('(X)')));
+        $this->assertEquals('X', $parse->invokeArgs(NULL, array('ps(X)')));
+        $this->assertEquals('X', $parse->invokeArgs(NULL, array('(X)+')));
+        $this->assertEquals('X', $parse->invokeArgs(NULL, array('ps(X)+')));
     }
 
     /*
      * @covers BMDie::parse_recipe_for_skills
      */
-    public function testParse_recipe_for_skills() {
-        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(4)'));
-        $this->assertEquals(array('Poison', 'Shadow'),
-                            BMDie::parse_recipe_for_skills('ps(4)'));
-        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(4)p'));
-        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(4)s'));
 
-        $this->assertEquals(array(), BMDie::parse_recipe_for_skills('(X)'));
-        $this->assertEquals(array('Poison', 'Shadow'),
-                            BMDie::parse_recipe_for_skills('ps(X)'));
-        $this->assertEquals(array('Poison'), BMDie::parse_recipe_for_skills('(X)p'));
-        $this->assertEquals(array('Poison', 'Shadow'), BMDie::parse_recipe_for_skills('p(X)s'));
+    public function testParse_recipe_for_skills() {
+        $parse = self::getMethod('parse_recipe_for_skills');
+        $this->assertEquals(array(), $parse->invokeArgs(NULL, array('(4)')));
+        $this->assertEquals(array('Poison', 'Shadow'), $parse->invokeArgs(NULL, array('ps(4)')));
+        $this->assertEquals(array('Poison'), $parse->invokeArgs(NULL, array('(4)p')));
+        $this->assertEquals(array('Poison', 'Shadow'), $parse->invokeArgs(NULL, array('p(4)s')));
+
+        $this->assertEquals(array(), $parse->invokeArgs(NULL, array('(X)')));
+        $this->assertEquals(array('Poison', 'Shadow'), $parse->invokeArgs(NULL, array('ps(X)')));
+        $this->assertEquals(array('Poison'), $parse->invokeArgs(NULL, array('(X)p')));
+        $this->assertEquals(array('Poison', 'Shadow'), $parse->invokeArgs(NULL, array('p(X)s')));
     }
 
     /**
@@ -328,28 +185,28 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         // The complex types can work this function out in their own
         // test suites
 
-        $die = BMDie::create_from_string_components("72");
+        $create = self::getMethod('create_from_string_components');
+
+        $die = $create->invokeArgs(NULL, array('72'));
         $this->assertInstanceOf('BMDie', $die);
         $this->assertEquals(72, $die->max);
 
-        $die = BMDie::create_from_string_components("himom!");
+        $die = $create->invokeArgs(NULL, array('himom!'));
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string_components("75.3");
+        $die = $create->invokeArgs(NULL, array('75.3'));
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string_components("trombones76");
+        $die = $create->invokeArgs(NULL, array('trombones76'));
         $this->assertNull($die);
 
-        $die = BMDie::create_from_string_components("76trombones");
+        $die = $create->invokeArgs(NULL, array('76trombones'));
         $this->assertNull($die);
-
     }
 
     /**
      * @covers BMDie::activate
      */
-
     public function testActivate() {
         $game = new TestDummyGame;
         $this->object->ownerObject = $game;
@@ -407,7 +264,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         // How's our randomness?
         //
         // We're only testing for "terrible" here.
-        for($i = 1; $i <= 6; $i++) {
+        for ($i = 1; $i <= 6; $i++) {
             $this->assertGreaterThan(25, $rolls[$i], "randomness dubious for $i");
             $this->assertLessThan(175, $rolls[$i], "randomness dubious for $i");
         }
@@ -417,7 +274,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         $this->object->doesReroll = FALSE;
 
-        for ($i = 0; $i<20; $i++) {
+        for ($i = 0; $i < 20; $i++) {
             // Test both on successful attack and not
             $this->object->roll($i % 2);
             $this->assertEquals($val, $this->object->value, "Die value changed.");
@@ -450,6 +307,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /*
      * @covers BMDie::attack_list
      */
+
     public function testAttack_list() {
         $this->assertNotEmpty($this->object->attack_list());
         $this->assertContains("Skill", $this->object->attack_list());
@@ -483,8 +341,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
             $this->assertContains(4, $this->object->attack_values($att));
             $this->assertEquals(1, count($this->object->attack_values($att)));
         }
-
-
     }
 
     /**
@@ -498,12 +354,11 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->object->init(6, array());
 
         foreach ($this->object->attack_list() as $att) {
-            for ($i = 0; $i<10; $i++) {
+            for ($i = 0; $i < 10; $i++) {
                 $this->object->roll(FALSE);
                 $this->assertEquals($this->object->value, $this->object->defense_value($att), "Defense value fails to equal value for $att.");
             }
         }
-
     }
 
     /**
@@ -519,9 +374,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->object->captured = TRUE;
 
         $this->assertEquals(70, $this->object->get_scoreValueTimesTen());
-
     }
-
 
     /**
      * @covers BMDie::initiative_value
@@ -547,9 +400,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
-            $assistVals = $this->object->assist_values($att,
-                                                       array($attDie),
-                                                       array($defDie));
+            $assistVals = $this->object->assist_values($att, array($attDie), array($defDie));
             $this->assertNotEmpty($assistVals);
             $this->assertEquals(1, count($assistVals));
             $this->assertEquals(0, $assistVals[0]);
@@ -559,25 +410,19 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->object->add_skill("AVTesting", "TestDummyBMSkillAVTesting");
 
         // test that the assist skill works
-        $assistVals = $this->object->assist_values($att,
-                                                   array($attDie),
-                                                   array($defDie));
+        $assistVals = $this->object->assist_values($att, array($attDie), array($defDie));
         $this->assertNotEmpty($assistVals);
         $this->assertEquals(2, count($assistVals));
         $this->assertEquals(-1, $assistVals[0]);
         $this->assertEquals(1, $assistVals[1]);
 
         // now make it not work
-        $assistVals = $this->object->assist_values($att,
-                                                   array($this->object),
-                                                   array($defDie));
+        $assistVals = $this->object->assist_values($att, array($this->object), array($defDie));
         $this->assertNotEmpty($assistVals);
         $this->assertEquals(1, count($assistVals));
         $this->assertEquals(0, $assistVals[0]);
 
-        $assistVals = $this->object->assist_values($att,
-                                                   array($attDie, $this->object),
-                                                   array($defDie));
+        $assistVals = $this->object->assist_values($att, array($attDie, $this->object), array($defDie));
         $this->assertNotEmpty($assistVals);
         $this->assertEquals(1, count($assistVals));
         $this->assertEquals(0, $assistVals[0]);
@@ -594,17 +439,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $defDie = new BMDie;
 
         foreach ($this->object->attack_list() as $att) {
-            $this->assertFalse($this->object->attack_contribute($att,
-                                                                array($attDie),
-                                                                array($defDie),
-                                                                1));
-            $this->assertFalse($this->object->attack_contribute($att,
-                                                                array($attDie),
-                                                                array($defDie),
-                                                                0));
+            $this->assertFalse($this->object->attack_contribute($att, array($attDie), array($defDie), 1));
+            $this->assertFalse($this->object->attack_contribute($att, array($attDie), array($defDie), 0));
         }
     }
-
 
     /**
      * @covers BMDie::is_valid_attacker
@@ -616,30 +454,23 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
 
-            $this->assertFalse($this->object->is_valid_attacker($att,
-                                                                array($attDie)));
-            $this->assertTrue($this->object->is_valid_attacker($att,
-                                                               array($this->object)));
-            $this->assertTrue($this->object->is_valid_attacker($att,
-                                                               array($this->object, $attDie)));
+            $this->assertFalse($this->object->is_valid_attacker($att, array($attDie)));
+            $this->assertTrue($this->object->is_valid_attacker($att, array($this->object)));
+            $this->assertTrue($this->object->is_valid_attacker($att, array($this->object, $attDie)));
         }
 
         // Inactive is a string also used to descrbe why the die cannot attack
         $this->object->inactive = "Yes";
-        $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
 
         $this->object->inactive = "";
         $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
 
 
         $this->object->inactive = "Yes";
         $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker($att,
-                                                            array($this->object)));
-
+        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
     }
 
     /**
@@ -652,18 +483,13 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
 
-            $this->assertFalse($this->object->is_valid_target($att,
-                                                              array($defDie)));
-            $this->assertTrue($this->object->is_valid_target($att,
-                                                             array($this->object)));
-            $this->assertTrue($this->object->is_valid_target($att,
-                                                             array($this->object, $defDie)));
+            $this->assertFalse($this->object->is_valid_target($att, array($defDie)));
+            $this->assertTrue($this->object->is_valid_target($att, array($this->object)));
+            $this->assertTrue($this->object->is_valid_target($att, array($this->object, $defDie)));
         }
 
         $this->object->unavailable = TRUE;
-        $this->assertFalse($this->object->is_valid_target($att,
-                                                          array($this->object)));
-
+        $this->assertFalse($this->object->is_valid_target($att, array($this->object)));
     }
 
     /**
@@ -722,6 +548,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /*
      * @covers BMDie::describe
      */
+
     public function testDescribe() {
         $this->object->init(6);
         $this->assertEquals('6-sided die', $this->object->describe(TRUE));
@@ -735,8 +562,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->object->add_skill('Poison');
         $this->object->add_skill('Shadow');
         $this->assertEquals(
-            "Poison Shadow 6-sided die showing {$value}",
-            $this->object->describe(TRUE)
+            "Poison Shadow 6-sided die showing {$value}", $this->object->describe(TRUE)
         );
         $this->assertEquals('Poison Shadow 6-sided die', $this->object->describe(FALSE));
     }
@@ -784,53 +610,46 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
         $this->assertEquals(4, $dice[0]->max);
         $this->assertEquals(3, $dice[1]->max);
-
     }
 
     /*
      * @covers BMDie::run_hooks_at_game_state
      */
+
     public function testRun_hooks_at_game_state() {
         $this->object->playerIdx = 0;
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 0));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
 
         $this->assertEquals("", $this->object->inactive);
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 0));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 1));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
 
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 1));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 1));
         $this->assertNotEquals("", $this->object->inactive);
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 0));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
         $this->assertEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 1));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 1));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertNotEquals("", $this->object->inactive);
 
         $this->hasAttacked = TRUE;
         $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN,
-                                               array('activePlayerIdx' => 0));
+        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
         $this->assertFalse($this->object->hasAttacked);
         $this->assertEquals("", $this->object->inactive);
     }
@@ -838,6 +657,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     /*
      * @covers BMDie::get_recipe
      */
+
     public function testGet_recipe() {
         $die0 = new BMDie;
         $die0->init(51, array());
@@ -863,21 +683,21 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     public function test__get() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+            'This test has not been implemented yet.'
         );
     }
 
     public function test__set() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+            'This test has not been implemented yet.'
         );
     }
 
     public function test__toString() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
-                'This test has not been implemented yet.'
+            'This test has not been implemented yet.'
         );
     }
 
@@ -887,5 +707,3 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
 }
-
-?>

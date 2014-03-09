@@ -4,6 +4,9 @@ var Newuser = {};
 // Valid username match
 Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 
+// Valid email match
+Newuser.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Newuser.showNewuserPage() is the landing function.  Always call
@@ -103,11 +106,22 @@ Newuser.actionCreateUser = function() {
       'text': 'Password (again)',
       'type': 'password',
     },
+    'email': {
+      'text': 'E-mail address',
+      'type': 'text',
+    },
+    'email_confirm': {
+      'text': 'E-mail address (again)',
+      'type': 'text',
+    },
   };
 
   $.each(entries, function(entryid, entryinfo) {
     var entryrow = $('<tr>');
-    entryrow.append($('<td>', { 'text': entryinfo.text + ':', }));
+    entryrow.append($('<td>', {
+      'class': 'left',
+      'text': entryinfo.text + ':',
+    }));
     var entryinput = $('<td>');
     entryinput.append($('<input>', {
       'type': entryinfo.type,
@@ -142,62 +156,75 @@ Newuser.actionCreateUser = function() {
 
 Newuser.formCreateUser = function() {
   var username = $('#newuser_username').val();
+  var password = $('#newuser_password').val();
+  var password_confirm = $('#newuser_password_confirm').val();
+  var email = $('#newuser_email').val();
+  var email_confirm = $('#newuser_email_confirm').val();
 
-  if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
+  if (username.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to set a username',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
     };
     Newuser.showNewuserPage();
 
+  } else if (password.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to set a password',
+    };
+    Newuser.showNewuserPage();
+  } else if (password != password_confirm) {
+    Env.message = {
+      'type': 'error',
+      'text': 'Passwords do not match',
+    };
+    Newuser.showNewuserPage();
+  } else if (email.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to provide an e-mail address',
+    };
+    Newuser.showNewuserPage();
+  } else if (email != email_confirm) {
+    Env.message = {
+      'type': 'error',
+      'text': 'E-mail addresses do not match',
+    };
+    Newuser.showNewuserPage();
   } else {
-    var password = $('#newuser_password').val();
-    var password_confirm = $('#newuser_password_confirm').val();
-    if (password.length === 0) {
-      Env.message = {
-        'type': 'error',
-        'text': 'Password may not be null',
-      };
-      Newuser.showNewuserPage();
-    } else if (password != password_confirm) {
-      Env.message = {
-        'type': 'error',
-        'text': 'Passwords do not match',
-      };
-      Newuser.showNewuserPage();
-    } else {
-      Api.apiFormPost(
+    Api.apiFormPost(
+      {
+        type: 'createUser',
+        username: username,
+        password: password,
+        email: email,
+      },
+      { 'ok':
         {
-          type: 'createUser',
-          username: username,
-          password: password,
+          'type': 'function',
+          'msgfunc': Newuser.setCreateUserSuccessMessage,
         },
-        { 'ok':
-          {
-            'type': 'function',
-            'msgfunc': Newuser.setCreateUserSuccessMessage,
-          },
-          'notok': { 'type': 'server', },
-        },
-        Newuser.showNewuserPage,
-        Newuser.showNewuserPage
-      );
-    }
+        'notok': { 'type': 'server', },
+      },
+      'newuser_action_button',
+      Newuser.showNewuserPage,
+      Newuser.showNewuserPage
+    );
   }
 };
 
 Newuser.setCreateUserSuccessMessage = function(message) {
-  var indexLink = $('<a>', {
-    'href': 'index.html',
-    'text': 'Go back to the homepage, login, and start beating people up',
-  });
-  var userPar = $('<p>', {'text': message + ' ', });
-  userPar.append($('<br>'));
-  userPar.append(indexLink);
   Env.message = {
     'type': 'success',
-    'text': '',
-    'obj': userPar,
+    'text': message,
   };
 };
 

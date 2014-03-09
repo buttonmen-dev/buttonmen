@@ -26,31 +26,6 @@ class BMAttackSkill extends BMAttack {
         }
 
         $this->generate_hit_table();
-
-        // Check all precise hits before trying any with help, because
-        // help is slow
-        foreach ($targets as $def) {
-            if ($this->hit_table->find_hit($def->defense_value($this->type))) {
-                return TRUE;
-            }
-        }
-
-        // Potentially save some time by checking for the possibility of help
-
-        $help_found = FALSE;
-        foreach ($targets as $def) {
-            foreach ($game->attackerAllDieArray as $att) {
-                if ($this->collect_helpers($game, array($att), array($def))) {
-                    $help_found = TRUE;
-                    break 2;
-                }
-            }
-        }
-
-        if (!$help_found) {
-            return FALSE;
-        }
-
         $hits = $this->hit_table->list_hits();
         sort($hits);
 
@@ -93,11 +68,11 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
-        if ($this->has_disabled_attackers($attackers)) {
+        if ($this->has_dizzy_attackers($attackers)) {
             return FALSE;
         }
 
-        if (!$this->are_skills_compatible($attackers)) {
+        if (!$this->are_skills_compatible($attackers, $defenders)) {
             return FALSE;
         }
 
@@ -151,9 +126,27 @@ class BMAttackSkill extends BMAttack {
         return FALSE;
     }
 
-    protected function are_skills_compatible(array $attArray) {
+    protected function are_skills_compatible(array $attArray, array $defArray) {
         if (0 == count($attArray)) {
             throw new InvalidArgumentException('attArray must have at least one element.');
+        }
+
+        if (1 != count($defArray)) {
+            throw new InvalidArgumentException('defArray must have one element.');
+        }
+
+        $returnVal = TRUE;
+
+        $def = $defArray[0];
+
+        if (1 == count($attArray) &&
+            $attArray[0]->has_skill('Stealth')) {
+            $returnVal = FALSE;
+        }
+
+        if (1 == count($attArray) &&
+            $def->has_skill('Stealth')) {
+            $returnVal = FALSE;
         }
 
         foreach ($attArray as $att) {
@@ -161,10 +154,15 @@ class BMAttackSkill extends BMAttack {
                 // do not allow single-die skill attacks from konstant dice
                 ($att->has_skill('Konstant') && (1 == count($attArray)))
             ) {
-                return FALSE;
+                $returnVal = FALSE;
             }
         }
 
-        return TRUE;
+        if ($def->has_skill('Stealth') &&
+            1 == count($attArray)) {
+            $returnVal = FALSE;
+        }
+
+        return $returnVal;
     }
 }

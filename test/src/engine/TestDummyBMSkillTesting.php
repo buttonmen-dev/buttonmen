@@ -8,5 +8,3 @@ class TestDummyBMSkillTesting extends BMSkill {
         $args[0] .= "testing";
     }
 }
-
-?>

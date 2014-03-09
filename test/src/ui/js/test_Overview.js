@@ -61,6 +61,23 @@ asyncTest("test_Overview.getOverview", function() {
   });
 });
 
+asyncTest("test_Overview.getOverview_logged_out", function() {
+
+  // Undo the fake login data
+  Login.player = null;
+  Login.logged_in = false;
+
+  Overview.getOverview(function() {
+    Overview.showPage();
+    equal(Env.message, undefined,
+          "No Env.message when logged out");
+    var item = document.getElementById('overview_page');
+    ok(item.innerHTML.match('Welcome to Button Men'),
+          "#overview_page contains some welcoming text");
+    start();
+  });
+});
+
 asyncTest("test_Overview.showPage", function() {
   Overview.getOverview(function() {
     Overview.showPage();
@@ -112,4 +129,13 @@ asyncTest("test_Overview.pageAddGameTable", function() {
     ok(htmlout.match('<table>'), "A table is created");
     start();
   });
+});
+
+test("test_Overview.pageAddIntroText", function() {
+  Overview.page = $('<div>');
+  Overview.pageAddIntroText();
+  var htmlout = Overview.page.html();
+  ok(htmlout.match(
+    'Button Men is copyright 1999, 2011 James Ernest and Cheapass Games'),
+    'Page intro text contains the Button Men copyright');
 });

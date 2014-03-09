@@ -13,6 +13,10 @@ module("Api", {
     delete Api.game;
     BMTestUtils.deleteEnvMessage();
 
+    // Page elements (for test use only)
+    $('#api_page').remove();
+    $('#api_page').empty();
+
     // Fail if any other elements were added or removed
     BMTestUtils.ApiPost = BMTestUtils.getAllElements();
     deepEqual(
@@ -51,7 +55,7 @@ asyncTest("test_Api.getPlayerData", function() {
           "Api.player.list should be an object");
     deepEqual(
       Api.player.list["tester2"],
-      {},
+      {'status': 'active', },
       "Player tester2 should have correct contents");
     deepEqual(Env.message, undefined,
               "Api.getPlayerData should not set Env.message");
@@ -101,14 +105,15 @@ test("test_Api.parsePlayerData", function() {
 
   Api.player = {};
   var retval = Api.parsePlayerData({
-    'nameArray': ['tester1', 'tester2', 'tester3' ]
+    'nameArray': ['tester1', 'tester2', 'tester3' ],
+    'statusArray': ['active', 'active', 'active' ],
   });
   equal(retval, true, "Api.parsePlayerData() returns true");
   deepEqual(
     Api.player.list,
-    { 'tester1': {},
-      'tester2': {},
-      'tester3': {}
+    { 'tester1': {'status': 'active', },
+      'tester2': {'status': 'active', },
+      'tester3': {'status': 'active', }
     }
   );
   deepEqual(Env.message, undefined,
@@ -125,14 +130,14 @@ asyncTest("test_Api.getActiveGamesData", function() {
   Api.getActiveGamesData(function() {
     equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    equal(Api.active_games.nGames, 8, 'Got expected number of active games');
+    equal(Api.active_games.nGames, 12, 'Got expected number of active games');
     start();
   });
 });
 
 asyncTest("test_Api.parseActiveGamesData", function() {
   Api.getActiveGamesData(function() {
-    equal(Api.active_games.games.awaitingPlayer.length, 5,
+    equal(Api.active_games.games.awaitingPlayer.length, 7,
           "expected number of games parsed as waiting for the active player");
     start();
   });
@@ -198,6 +203,8 @@ asyncTest("test_Api.parseGamePlayerData", function() {
               "player die recipe array should be parsed correctly");
     deepEqual(Api.game.player.capturedValueArray, [],
               "array of captured dice should be parsed");
+    deepEqual(Api.game.player.dieDescriptionArray[0], '4-sided die',
+              "array of die descriptions should be parsed");
     deepEqual(
       Api.game.player.swingRequestArray['X'],
       {'min': 4, 'max': 20},
@@ -216,3 +223,14 @@ asyncTest("test_Api.playerWLTText", function() {
   });
 });
 
+test("test_Api.disableSubmitButton", function() {
+  $('body').append($('<div>', {'id': 'api_page', }));
+  $('#api_page').append($('<button>', {
+    'id': 'api_action_button',
+    'text': 'Submit',
+  }));
+  Api.disableSubmitButton('api_action_button');
+  var item = document.getElementById('api_action_button');
+  equal(item.getAttribute('disabled'), 'disabled',
+        "After a submit button has been clicked, it should be disabled");
+});

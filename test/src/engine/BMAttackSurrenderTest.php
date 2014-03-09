@@ -45,5 +45,3 @@ class BMAttackSurrenderTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
     }
 }
-
-?>

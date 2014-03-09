@@ -66,3 +66,45 @@ BMTestUtils.cleanupFakeLogin = function() {
   Login.player = BMTestUtils.OverviewOldLoginPlayer;
   Login.logged_in = BMTestUtils.OverviewOldLoginLoggedin;
 }
+
+// We don't currently test reading the URL bar contents, because
+// that's hard to do within QUnit, but rather override those contents
+// with hardcoded values that we want to test.
+//
+// Note that, in general, these values need to be synchronized with
+// the fake test data returned by DummyResponder in order for good
+// things to happen.
+BMTestUtils.overrideGetParameterByName = function() {
+  Env.getParameterByName = function(name) {
+    if (name == 'game') {
+      if (BMTestUtils.GameType == 'newgame') { return '1'; }
+      if (BMTestUtils.GameType == 'swingset') { return '2'; }
+      if (BMTestUtils.GameType == 'turn_active') { return '3'; }
+      if (BMTestUtils.GameType == 'turn_inactive') { return '4'; }
+      if (BMTestUtils.GameType == 'finished') { return '5'; }
+      if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
+      if (BMTestUtils.GameType == 'focus') { return '7'; }
+      if (BMTestUtils.GameType == 'chance_active') { return '8'; }
+      if (BMTestUtils.GameType == 'chance_inactive') { return '9'; }
+      if (BMTestUtils.GameType == 'newgame_nonplayer') { return '10'; }
+      if (BMTestUtils.GameType == 'turn_nonplayer') { return '11'; }
+      if (BMTestUtils.GameType == 'chance_nonplayer') { return '12'; }
+      if (BMTestUtils.GameType == 'chooseaux_active') { return '13'; }
+      if (BMTestUtils.GameType == 'chooseaux_inactive') { return '14'; }
+      if (BMTestUtils.GameType == 'chooseaux_nonplayer') { return '15'; }
+      if (BMTestUtils.GameType == 'reserve_active') { return '16'; }
+      if (BMTestUtils.GameType == 'reserve_inactive') { return '17'; }
+      if (BMTestUtils.GameType == 'reserve_nonplayer') { return '18'; }
+    }
+
+    // always return the userid associated with tester1 in the fake data
+    if (name == 'id') {
+      return '1';
+    }
+
+    // Syntactically valid but fake verification key
+    if (name == 'key') {
+      return 'facadefacadefacadefacadefacade12';
+    }
+  }
+}

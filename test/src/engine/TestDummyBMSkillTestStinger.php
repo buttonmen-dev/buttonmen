@@ -11,5 +11,3 @@ class TestDummyBMSkillTestStinger extends BMSkill {
         }
     }
 }
-
-?>

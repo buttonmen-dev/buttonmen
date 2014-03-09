@@ -81,7 +81,8 @@ var Api = (function () {
     );
   };
 
-  my.apiFormPost = function(args, messages, callback, failcallback) {
+  my.apiFormPost = function(args, messages, submitid, callback, failcallback) {
+    my.disableSubmitButton(submitid);
     $.post(
       Env.api_location,
       args,
@@ -119,6 +120,8 @@ var Api = (function () {
               'type': 'error',
               'text': rs.message,
             };
+          } else if (messages.notok.type == 'function') {
+            messages.notok.msgfunc(rs.message);
           }
           return failcallback();
         }
@@ -178,8 +181,7 @@ var Api = (function () {
     );
   };
 
-  // Right now, we only get a list of names, but make a dict in case
-  // there's more data available later
+  // Make a dict of player names and status values
   my.parsePlayerData = function(data) {
     my.player.list = {};
     if (!($.isArray(data.nameArray))) {
@@ -188,6 +190,7 @@ var Api = (function () {
     var i = 0;
     while (i < data.nameArray.length) {
       my.player.list[data.nameArray[i]] = {
+        'status': data.statusArray[i],
       };
       i++;
     }
@@ -375,9 +378,11 @@ var Api = (function () {
       'playerId': my.game.gameData.data.playerIdArray[playerIdx],
       'playerName': playerNameArray[playerIdx],
       'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
+      'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
       'waitingOnAction':
         my.game.gameData.data.waitingOnActionArray[playerIdx],
       'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
+      'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
       'gameScoreDict':
         my.game.gameData.data.gameScoreArrayArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
@@ -389,6 +394,8 @@ var Api = (function () {
         my.game.gameData.data.dieSkillsArrayArray[playerIdx],
       'diePropertiesArray':
         my.game.gameData.data.diePropertiesArrayArray[playerIdx],
+      'dieDescriptionArray':
+        my.game.gameData.data.dieDescriptionArrayArray[playerIdx],
 
        // N.B. These arrays describe the other player's dice which this
        // player has captured
@@ -436,6 +443,12 @@ var Api = (function () {
                '/' + Api.game[player].gameScoreDict.D +
                ' (' + Api.game.maxWins + ')';
     return text;
+  };
+
+  my.disableSubmitButton = function(button_id) {
+    if (button_id) {
+      $('#' + button_id).attr('disabled', 'disabled');
+    }
   };
 
   return my;

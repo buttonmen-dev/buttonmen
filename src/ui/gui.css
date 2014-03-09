@@ -13,6 +13,32 @@ div#login_header {
     text-align: left;
 }
 
+div.status_player {
+    width: 100%;
+}
+
+div.status_opponent {
+    width: 100%;
+}
+
+div.dice_player {
+    white-space: nowrap;
+}
+
+div.dice_opponent {
+    white-space: nowrap;
+}
+
+div.battle_mat_player_overlay {
+    border-bottom-right-radius: 30px;
+    padding: 5px 20px;
+}
+
+div.battle_mat_opponent_overlay {
+    border-top-left-radius: 30px;
+    padding: 5px 20px;
+}
+
 table {
     table-layout: auto;
     border: thin;
@@ -21,24 +47,61 @@ table {
     margin: auto;
 }
 
+table.spaced {
+    border-collapse: separate;
+    empty-cells: show;
+}
+
+table.dice {
+    padding: 0px;
+    spacing: 0px;
+}
+
 td {
     text-align: center;
     /*border: 1px solid black;*/
     padding: 0.2em 0.2em;
 }
 
+td.empty {
+    width: 80px;
+}
+
 td.left {
     text-align: left;
 }
 
-td.chatplayer {
+td.chat {
     text-align: right;
-    background-color: #00ffff;
 }
 
-td.chatopponent {
-    text-align: right;
-    background-color: #00ff00;
+td.chooseswing {
+    vertical-align: top;
+}
+
+td.button_player {
+    vertical-align: top;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-top: 20px;
+}
+
+td.button_opponent {
+    vertical-align: bottom;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 20px;
+}
+
+td.battle_mat {
+    padding-top: 0px;
+    padding-left: 0px;
+    padding-right: 0px;
+    padding-bottom: 0px;
 }
 
 td.logtable {
@@ -73,35 +136,80 @@ select.center {
     text-align: center;
 }
 
-.action_desc {
+.action_desc_div {
+    padding: 5px;
+}
+
+.action_desc_span {
+    padding: 2px 5px;
+    border-radius: 5px;
+}
+
+.winner_name {
+    font-size: 150%;
+}
+
+.die_border {
+    background-size: 50px 50px;
+    width: 50px;
+    height: 50px;
+    display: inline-block;
     color: blue;
+    margin: 4px;
 }
 
 .die_img {
-    background-size: 50px 50px;
-    width:50px;
-    height:50px;
-    color:blue;
-    display:inline-block;
-    margin:4px;
-    /*border: 5px solid white;*/
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 1px black solid;
+    height: 49px;
+    width: 49px;
+    background-size: 100%;
+    cursor: default;
 }
 
 .die_greyed {
-    background-color: #eeeeee;
+    background-color: #cccccc;
     border-radius: 50%;
     color:darkslateblue;
 }
 
+.recipe_greyed {
+    background-color: #cccccc;
+}
+
 .die_overlay {
     position:relative;
-    top:16px
+    font-size: 24px;
+    top: 13px;
+}
+
+.die_number_player {
+    color: black;
+}
+
+.die_number_opponent {
+    color: black;
 }
 
 .die_recipe {
     position:relative;
     top:20px;
     color:black;
+}
+
+.die_recipe_player {
+    position: relative;
+    top: -48px;
+    color: black;
+    white-space: nowrap;
+}
+
+.die_recipe_opponent {
+    position: relative;
+    top: 25px;
+    color: black;
+    white-space: nowrap;
 }
 
 .title2 {
@@ -116,6 +224,10 @@ select.center {
     border: 2px solid red;
 }
 
-.unselected {
-    border: 2px solid white;
+.unselected_player {
+    border-bottom-right-radius: 1em;
+}
+
+.unselected_opponent {
+    border-top-left-radius: 1em;
 }

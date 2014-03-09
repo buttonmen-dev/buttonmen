@@ -8,4 +8,3 @@ class TestDummyBMSkillRollCatcher extends BMSkill {
     }
 }
 
-?>

@@ -147,5 +147,3 @@ class BMAttackSpeedTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($sk->find_attack($game));
     }
 }
-
-?>

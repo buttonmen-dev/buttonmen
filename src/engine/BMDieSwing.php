@@ -70,16 +70,20 @@ class BMDieSwing extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
+        $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $newDie));
+        $skipSwingRequest = is_array($hookResult) &&
+                            array_search('skipSwingRequest', $hookResult);
 
-        // The clone is the one going into the game, so it's the one
-        // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values(
-            $newDie,
-            $newDie->swingType,
-            $newDie->playerIdx
-        );
-        $newDie->valueRequested = TRUE;
+        if (!$skipSwingRequest) {
+            // The clone is the one going into the game, so it's the one
+            // that needs a swing value to be set.
+            $this->ownerObject->request_swing_values(
+                $newDie,
+                $newDie->swingType,
+                $newDie->playerIdx
+            );
+            $newDie->valueRequested = TRUE;
+        }
 
         $this->ownerObject->add_die($newDie);
     }

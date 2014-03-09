@@ -113,5 +113,3 @@ class BMSkillKonstantTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(0, 4, 5, -4, -5), $attackValues);
     }
 }
-
-?>
