@@ -61,7 +61,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # KUBLA CON (Kubla Con)             INTRODUCES Chase's Giant Sized(O), Kubla Treasure(X), Hoskins(Y), (K) 
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Space Kubla',       '(6) (8) O(12) X(12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con")),
-('Pirate Kubla',      '(6) (8) (20) H(12) (K)',     0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con"));
+('Pirate Kubla',      '(6) (8) (20) Y(12) (K)',     0, 1, (SELECT id FROM buttonset WHERE name="Kubla Con"));
 
 # ZOECon (ZOECon.net)                                    Shadow
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
