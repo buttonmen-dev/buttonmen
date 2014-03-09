@@ -154,7 +154,7 @@ Overview.pageAddIntroText = function() {
 
   var infopar = $('<p>');
   infopar.append(
-    'This is the beta version of the Buttonweavers implementation of ');
+    'This is the alpha version of the Buttonweavers implementation of ');
   infopar.append($('<a>', {
     'href': 'http://www.cheapass.com/node/39',
     'text': 'Button Men',
@@ -187,7 +187,7 @@ Overview.pageAddIntroText = function() {
 
   infopar = $('<p>');
   infopar.append(
-    'Button Men is copyright 1999, 2011 James Ernest and Cheapass Games: ');
+    'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games: ');
   infopar.append($('<a>', {
     'href': 'http://www.cheapass.com',
     'text': 'www.cheapass.com',
@@ -197,5 +197,6 @@ Overview.pageAddIntroText = function() {
     'href': 'http://www.beatpeopleup.com',
     'text': 'www.beatpeopleup.com',
   }));
+  infopar.append(', and is used with permission.');
   Overview.page.append(infopar);
 };
