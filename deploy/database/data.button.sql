@@ -105,7 +105,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # 2000 RARE-PROMO
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Gordo from ButtonMen Poster 1999 (Cheapass Games)
-('Gordo',               'u(V) u(W) u(X) u(Y) u(Z)',           0, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
+('Gordo',               '(V) (W) (X) (Y) (Z)',                1, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # Me am ORK! from Orc! (Green Ronin)
 ('Me am ORK!',           '(8) (8) (8) p(8) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # Rikachu Origins 2000 (Origins)
@@ -148,7 +148,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Rold Rage',              '(6) (6) G(6) G(6) G(6)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # not included in the original site - assumed not TL
 ('Killer Christmas Tree',  '(6) Z(6) (10) Z(12) (X)',                        0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Billy Shakespear',       '(15) (64) (16) (16)',                            0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Billy Shakespeare',      '(15) (64) (16) (16)',                            0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Drew\'s Truck',          '(5) (10) (15) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Igor(p)',                '(8) (8) z(12) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Mike Young',             '(X) (X) (Y) (Y)',                                0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins"));
@@ -455,7 +455,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # * Bisect with Saw: Change any die (own or opponent's) to half of its originally-rolled value on the opening roll.
 # * Vanishing Act: First die captured by opponent is scored as zero points.
 # * Mind Reading: Opponent must state all sizes of all option and/or swing dice.
-('Magician',      '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas"));
+('Crypto',        '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas"));
 
 # LEGEND OF THE FIVE RINGS (Wizards of the Coast)  INTRODUCES Focus(f) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
