@@ -1,4 +1,4 @@
-DELETE FROM buttonset;
+﻿DELETE FROM buttonset;
 INSERT INTO buttonset (name) VALUES
 ('Soldiers'),
 ('The Big Cheese'),
