@@ -32,7 +32,7 @@ class ApiSpec {
                     'has_keys' => FALSE,
                     'minlength' => 2,
                     'maxlength' => 2,
-                    'elem_type' => 'string',
+                    'elem_type' => 'button',
                 ),
                 'maxWins' => 'number',
             ),
@@ -272,6 +272,22 @@ class ApiSpec {
     protected function verify_argument_of_type_boolean($arg) {
         if (is_string($arg) &&
             in_array(strtolower($arg), array("true", "false"))) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    // verify that the argument is a string containing a valid button name
+    // In general, it's probably fine for button names to contain
+    // most ASCII characters --- it'd be nice to avoid backtick and semicolon.
+    // This regexp should be kept in sync with data.button.sql.
+    // Currently, it is intended to match:
+    // * alphanumeric characters
+    // * space
+    // * these special characters: . ' ( ) ! & + _ -
+    protected function verify_argument_of_type_button($arg) {
+        if (is_string($arg) &&
+            preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]+$/', $arg)) {
             return TRUE;
         }
         return FALSE;
