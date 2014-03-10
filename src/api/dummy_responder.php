@@ -6,10 +6,12 @@
  */
 
 require_once 'DummyApiResponder.php';
+require_once 'ApiSpec.php';
 
 // If dummy_responder was called via a POST request (rather than
 // by test code), the $_POST variable will be set
 if ($_POST) {
-    $dummy_responder = new DummyApiResponder(FALSE);
+    $spec = new ApiSpec();
+    $dummy_responder = new DummyApiResponder($spec, FALSE);
     $dummy_responder->process_request($_POST);
 }

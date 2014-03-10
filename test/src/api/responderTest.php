@@ -36,17 +36,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         if (file_exists('../src/api/ApiResponder.php')) {
             require_once '../src/api/ApiResponder.php';
+            require_once '../src/api/ApiSpec.php';
         } else {
             require_once 'src/api/ApiResponder.php';
+            require_once 'src/api/ApiSpec.php';
         }
-        $this->object = new ApiResponder(True);
+        $spec = new ApiSpec();
+        $this->object = new ApiResponder($spec, True);
 
         if (file_exists('../src/api/DummyApiResponder.php')) {
             require_once '../src/api/DummyApiResponder.php';
         } else {
             require_once 'src/api/DummyApiResponder.php';
         }
-        $this->dummy = new DummyApiResponder(True);
+        $this->dummy = new DummyApiResponder($spec, True);
 
         // Cache user IDs parsed from the DB for use within a test
         $this->user_ids = array();
@@ -141,6 +144,37 @@ class responderTest extends PHPUnit_Framework_TestCase {
                             "failed when invoking $type while not logged in");
     }
 
+    protected function verify_invalid_arg_rejected($type) {
+        $args = array('type' => $type, 'foobar' => 'foobar');
+        $retval = $this->object->process_request($args);
+        $expected = array(
+            'data' => NULL,
+            'message' => "Unexpected argument provided to function $type",
+            'status' => 'failed',
+        );
+        $this->assertEquals($expected, $retval,
+                            "failed when invoking $type with an unexpected argument");
+    }
+
+    protected function verify_mandatory_args_required($type, $required_args) {
+        foreach (array_keys($required_args) as $missing) {
+            $args = array('type' => $type);
+            foreach ($required_args as $notmissing => $value) {
+                if ($missing != $notmissing) {
+                    $args[$notmissing] = $value;
+                }
+            }
+            $retval = $this->object->process_request($args);
+            $expected = array(
+                'data' => NULL,
+                'message' => "Missing mandatory argument $missing for function $type",
+                'status' => 'failed',
+            );
+            $this->assertEquals($expected, $retval,
+                                "failed when invoking $type without argument $missing");
+        }
+    }
+
     public function test_request_invalid() {
         $args = array('type' => 'foobar');
         $retval = $this->object->process_request($args);
@@ -163,6 +197,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_createUser() {
+        $this->verify_invalid_arg_rejected('createUser');
+        $this->verify_mandatory_args_required(
+            'createUser',
+            array('username' => 'foobar', 'password' => 't', 'email' => 'foobar@example.com')
+        );
 
         $created_real = False;
         $maxtries = 999;
@@ -200,10 +239,28 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Creation of $username user should be reported as success");
     }
 
+    public function test_request_verifyUser() {
+        $this->verify_invalid_arg_rejected('verifyUser');
+        $this->verify_mandatory_args_required(
+            'verifyUser',
+            array('playerId' => '4', 'playerKey' => 'beadedfacade')
+        );
+    }
+
     public function test_request_createGame() {
         $this->verify_login_required('createGame');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('createGame');
+        $this->verify_mandatory_args_required(
+            'createGame',
+            array(
+                'playerNameArray' => array('responder003', 'responder004'),
+                'buttonNameArray' => array('Avis', 'Avis'),
+                'maxWins' => '3',
+            )
+        );
+
         $args = array(
             'type' => 'createGame',
             'playerNameArray' => array('responder003', 'responder004'),
@@ -225,6 +282,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('loadActiveGames');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadActiveGames');
 
         // make sure there's at least one game
         $args = array(
@@ -252,6 +310,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('loadCompletedGames');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadCompletedGames');
 
         $args = array('type' => 'loadCompletedGames');
         $retval = $this->object->process_request($args);
@@ -265,6 +324,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('loadButtonNames');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadButtonNames');
+
         $args = array('type' => 'loadButtonNames');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -302,6 +363,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('loadGameData');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadGameData');
+
+        // loadGameData should fail if game is non-numeric
+        $retval = $this->object->process_request(array('type' => 'loadGameData', 'game' => 'foobar'));
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Argument (game) to function loadGameData is invalid',
+                'status' => 'failed',
+            ),
+            $retval,
+            "loadGameData should reject a non-numeric game ID"
+        );
 
         // create a game so we have the ID to load
         $args = array(
@@ -336,6 +410,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_request_loadPlayerName() {
+        $this->verify_invalid_arg_rejected('loadPlayerName');
         $this->markTestIncomplete("No test for loadPlayerName using session and cookies");
     }
 
@@ -343,6 +418,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('loadPlayerInfo');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadPlayerInfo');
+
         $args = array('type' => 'loadPlayerInfo');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -361,7 +438,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('savePlayerInfo');
 
         $_SESSION = $this->mock_test_user_login();
-        $args = array('type' => 'savePlayerInfo', 'autopass' => True, );
+        $this->verify_invalid_arg_rejected('savePlayerInfo');
+
+        $args = array('type' => 'savePlayerInfo', 'autopass' => 'True', );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
 
@@ -379,6 +458,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('loadPlayerNames');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadPlayerNames');
+
         $args = array('type' => 'loadPlayerNames');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -397,6 +478,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_login_required('submitSwingValues');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('submitSwingValues');
 
         // create a game so we have the ID to load
         $args = array(
@@ -419,7 +501,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now submit the swing values
         $args = array(
             'type' => 'submitSwingValues',
-            'roundNumber' => 1,
+            'roundNumber' => '1',
             'timestamp' => $timestamp,
             'swingValueArray' => array('X' => '7'));
         $args['game'] = $real_game_id;
@@ -430,10 +512,39 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
     }
 
+    public function test_request_reactToAuxiliary() {
+        $this->verify_login_required('reactToAuxiliary');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('reactToAuxiliary');
+        $this->verify_mandatory_args_required(
+            'reactToAuxiliary',
+            array(
+                'game' => '18',
+                'action' => 'decline',
+            )
+        );
+    }
+
+    public function test_request_reactToReserve() {
+        $this->verify_login_required('reactToReserve');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('reactToReserve');
+        $this->verify_mandatory_args_required(
+            'reactToReserve',
+            array(
+                'game' => '18',
+                'action' => 'decline',
+            )
+        );
+    }
+
     public function test_request_reactToInitiative() {
         $this->verify_login_required('reactToInitiative');
 
         $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('reactToInitiative');
 
         $dummy_game_id = '7';
 
@@ -473,11 +584,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now submit the initiative response
         $args = array(
             'type' => 'reactToInitiative',
-            'roundNumber' => 1,
+            'roundNumber' => '1',
             'timestamp' => $timestamp,
             'action' => 'focus',
-            'dieIdxArray' => array(3, 4),
-            'dieValueArray' => array(1, 1),
+            'dieIdxArray' => array('3', '4'),
+            'dieValueArray' => array('1', '1'),
         );
         $args['game'] = $real_game_id;
         $retval = $this->object->process_request($args);
@@ -490,15 +601,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
     public function test_request_submitTurn() {
         $this->verify_login_required('submitTurn');
 
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('submitTurn');
+
         $this->markTestIncomplete("No test for submitTurn responder yet");
     }
 
     public function test_request_login() {
+        $this->verify_invalid_arg_rejected('login');
         $this->markTestIncomplete("No test for login responder yet");
     }
 
     public function test_request_logout() {
         $this->verify_login_required('logout');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('logout');
 
         $this->markTestIncomplete("No test for logout responder yet");
     }
