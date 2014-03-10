@@ -7716,6 +7716,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $activeDieArrayArray = $game->activeDieArrayArray;
         $activeDieArrayArray[1][0]->value = 1;
         $game->waitingOnActionArray = array(TRUE, FALSE);
+        $game->activePlayerIdx = 0;
 
         // player 1 attacks and wins round 1
         $this->assertNULL($game->attack);
