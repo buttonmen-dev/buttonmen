@@ -1072,9 +1072,9 @@ class DummyApiResponder {
     //   * return the output as a PHP variable
     public function process_request($args) {
 
-	// make sure all arguments passed to the function are
-	// syntactically reasonable, using the same ApiSpec used
-	// by the real responder
+        // make sure all arguments passed to the function are
+        // syntactically reasonable, using the same ApiSpec used
+        // by the real responder
         $argcheck = $this->spec->verify_function_args($args);
         if ($argcheck['ok']) {
 

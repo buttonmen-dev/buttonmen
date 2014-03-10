@@ -220,7 +220,6 @@ class ApiSpec {
             if (method_exists($this, $checkfunc)) {
                 return $this->$checkfunc($arg);
             }
-            error_log(var_export($arg, $return = true));
             return FALSE;
         }
     }

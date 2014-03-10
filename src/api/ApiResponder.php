@@ -252,14 +252,14 @@ class ApiResponder {
         $check = $this->verify_function_access($args);
         if ($check['ok']) {
 
-	    // now make sure all arguments passed to the function
-	    // are syntactically reasonable
+            // now make sure all arguments passed to the function
+            // are syntactically reasonable
             $argcheck = $this->spec->verify_function_args($args);
             if ($argcheck['ok']) {
 
-		// As far as we can easily tell, it's safe to call
-		// the function.  Go ahead and create an interface
-		// object, invoke the function, and return the result
+                // As far as we can easily tell, it's safe to call
+                // the function.  Go ahead and create an interface
+                // object, invoke the function, and return the result
                 if ($check['functype'] == 'auth') {
                     $interface = new BMInterface($this->isTest);
                 } else {
