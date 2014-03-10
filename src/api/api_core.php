@@ -21,12 +21,22 @@ function login($username, $password) {
         // check if the password is correct and if the account is in active status
         if (($password_hashed == crypt($password, $password_hashed) && ($status == 'active'))) {
 
+            // if the user has too many active logins (allow 6), delete the oldest
+            $sql = 'SELECT id FROM player_auth WHERE player_id = :id ORDER BY login_time';
+            $query = $conn->prepare($sql);
+            $query->execute(array(':id'       => $result['id']));
+            $resultArray = $query->fetchAll();
+            for ($i=0; $i < (count($resultArray) - 5); $i++) {
+                $sql = 'DELETE FROM player_auth WHERE id = :id';
+                $query = $conn->prepare($sql);
+                $query->execute(array(':id' => $resultArray[$i]['id']));
+            }
+
             // create authorisation key
             $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
 
             // write authorisation key to database
-            $sql = 'INSERT INTO player_auth (id, auth_key) VALUES (:id, :auth_key)
-                    ON DUPLICATE KEY UPDATE auth_key = :auth_key';
+            $sql = 'INSERT INTO player_auth (player_id, auth_key) VALUES (:id, :auth_key)';
             $query = $conn->prepare($sql);
             $query->execute(array(':id'       => $result['id'],
                                   ':auth_key' => $auth_key));
@@ -65,7 +75,7 @@ function auth_session_exists() {
         $auth_key = $_COOKIE['auth_key'];
         $sql = 'SELECT p.name_ingame as name_ingame ' .
                'FROM player_auth as a, player as p ' .
-               'WHERE a.id = :id AND a.auth_key = :auth_key AND a.id = p.id';
+               'WHERE a.player_id = :id AND a.auth_key = :auth_key AND a.player_id = p.id';
         $query = $conn->prepare($sql);
         $query->execute(array(':id'       => $auth_userid,
                               ':auth_key' => $auth_key));
@@ -85,30 +95,41 @@ function auth_session_exists() {
 }
 
 function logout() {
-    require_once '../database/mysql.inc.php';
-    $conn = conn();
+    if (array_key_exists('auth_userid', $_COOKIE) &&
+        array_key_exists('auth_key', $_COOKIE) &&
+        array_key_exists('user_id', $_SESSION) &&
+        $_SESSION['user_id'] == $_COOKIE['auth_userid']) {
 
-    $sql = 'DELETE FROM player_auth
-            WHERE id = :id';
-    $query = $conn->prepare($sql);
-    $query->execute(array(':id' => $_SESSION['user_id']));
+        require_once '../database/mysql.inc.php';
+        $conn = conn();
 
-    $_SESSION = array();
+        $sql = 'DELETE FROM player_auth
+                WHERE player_id = :id AND auth_key = :auth_key';
+        $query = $conn->prepare($sql);
+        $query->execute(array(
+            ':id' => $_SESSION['user_id'],
+            ':auth_key' => $_COOKIE['auth_key'],
+        ));
 
-    setcookie('auth_key', '', time()-3600, '/');
-    setcookie('auth_userid', '', time()-3600, '/');
+        $_SESSION = array();
 
-    $params = session_get_cookie_params();
-    setcookie(
-        session_name(),
-        '',
-        time()-3600,
-        $params["path"],
-        $params["domain"],
-        $params["secure"],
-        $params["httponly"]
-    );
+        setcookie('auth_key', '', time()-3600, '/');
+        setcookie('auth_userid', '', time()-3600, '/');
 
-    session_destroy();
-    session_write_close();
+        $params = session_get_cookie_params();
+        setcookie(
+            session_name(),
+            '',
+            time()-3600,
+            $params["path"],
+            $params["domain"],
+            $params["secure"],
+            $params["httponly"]
+        );
+
+        session_destroy();
+        session_write_close();
+    } else {
+        return NULL;
+    }
 }

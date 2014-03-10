@@ -22,6 +22,14 @@ Game.GAME_STATE_END_GAME = 'END_GAME';
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
+// Colors used by the game display
+Game.COLORS = {
+  'players': {
+    'player': '#dd99dd',
+    'opponent': '#ddffdd',
+  },
+};
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -102,6 +110,9 @@ Game.showStatePage = function() {
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
+
+  // Set colors for use in game - for now, all games use the same colors
+  Game.color = Game.COLORS.players;
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
@@ -696,28 +707,41 @@ Game.actionPlayTurnActive = function() {
     'action': 'javascript:void(0);',
   });
 
+  var validAttackTypes = [];
+  $.each(Api.game.validAttackTypeArray, function(typename) {
+    validAttackTypes.push(typename);
+  });
+  validAttackTypes.sort();
+  // Surrender is a valid attack type, so add it at the end of the
+  // list of options
+  validAttackTypes.push('');
+  validAttackTypes.push('Surrender');
+
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
   });
-  $.each(Api.game.validAttackTypeArray, function(typename, typevalue) {
+  for (var i = 0; i < validAttackTypes.length; i++) {
+    var attacktype = validAttackTypes[i];
     var typetext;
-    if (typename == 'Pass') {
-      typetext = typename;
+    if ((attacktype == 'Pass') || (attacktype === '')) {
+      typetext = attacktype;
+    } else if (attacktype == 'Surrender') {
+      typetext = 'SURRENDER!?';
     } else {
-      typetext = typename + ' Attack';
+      typetext = attacktype + ' Attack';
     }
     var attacktypeopts = {
-      'value': typevalue,
+      'value': attacktype,
       'label': typetext,
       'text': typetext,
     };
     if (('attackType' in Game.activity) &&
-        (Game.activity.attackType == typename)) {
+        (Game.activity.attackType == attacktype)) {
       attacktypeopts.selected = 'selected';
     }
     attacktypeselect.append($('<option>', attacktypeopts));
-  });
+  }
   attackform.append(attacktypeselect);
 
   attackform.append($('<button>', {
@@ -1089,6 +1113,23 @@ Game.formPlayTurnActive = function() {
   // Store the game chat in recent activity
   Game.activity.chat = $('#game_chat').val();
 
+  // If surrender is chosen, ask for confirmation, and let the user
+  // try again if they don't confirm
+  if (Game.activity.attackType == 'Surrender') {
+    var surrender = window.confirm(
+      'Are you SURE you want to surrender this round?'
+    );
+    if (!(surrender)) {
+      return Game.redrawGamePageFailure();
+    }
+  } else if (Game.activity.attackType === '') {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must select an attack type',
+    };
+    return Game.redrawGamePageFailure();
+  }
+
   // Now try submitting the result
   Api.apiFormPost(
     {
@@ -1124,9 +1165,22 @@ Game.pageAddGameHeader = function(action_desc) {
 	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
         'Round #' + Api.game.roundNumber,
     }));
-  Game.page.append($('<div>', {'id': 'action_desc',
-                               'class': 'action_desc',
-                               'text': action_desc}));
+  var bgcolor = '#ffffff';
+  if (Api.game.player.waitingOnAction) {
+    bgcolor = Game.color.player;
+  } else if (Api.game.opponent.waitingOnAction) {
+    bgcolor = Game.color.opponent;
+  }
+
+  var descspan = $('<span>', {
+    'id': 'action_desc_span',
+    'class': 'action_desc_span',
+    'style': 'background: none repeat scroll 0 0 ' + bgcolor,
+    'text': action_desc,
+  });
+  var descdiv = $('<div>', { 'class': 'action_desc_div', });
+  descdiv.append(descspan);
+  Game.page.append(descdiv);
   Game.page.append($('<br>'));
   return true;
 };
@@ -1167,16 +1221,17 @@ Game.pageAddLogFooter = function() {
       actiontd.append($('<p>', {'text': 'Recent game activity', }));
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Api.game.actionLog, function(logindex, logentry) {
-        var nameclass;
+        var actionplayer;
         if (logentry.message.indexOf(Api.game.player.playerName + ' ') === 0) {
-          nameclass = 'chatplayer';
+          actionplayer = 'player';
         } else {
-          nameclass = 'chatopponent';
+          actionplayer = 'opponent';
         }
         var actionrow = $('<tr>');
         actionrow.append(
           $('<td>', {
-            'class': nameclass,
+            'class': 'chat',
+            'style': 'background-color: ' + Game.color[actionplayer],
             'nowrap': 'nowrap',
             'text': '(' + logentry.timestamp + ')',
           }));
@@ -1197,14 +1252,15 @@ Game.pageAddLogFooter = function() {
       var chattable = $('<table>', {'border': 'on', });
       $.each(Api.game.chatLog, function(logindex, logentry) {
         var chatrow = $('<tr>');
-        var nameclass;
+        var chatplayer;
         if (logentry.player == Api.game.player.playerName) {
-          nameclass = 'chatplayer';
+          chatplayer = 'player';
         } else {
-          nameclass = 'chatopponent';
+          chatplayer = 'opponent';
         }
         chatrow.append($('<td>', {
-          'class': nameclass,
+          'class': 'chat',
+          'style': 'background-color: ' + Game.color[chatplayer],
           'nowrap': 'nowrap',
           'text': logentry.player + ' (' + logentry.timestamp + ')',
         }));
@@ -1268,12 +1324,14 @@ Game.dieRecipeTable = function(table_action, active) {
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
       Api.game.player.diePropertiesArray,
+      Api.game.player.dieSkillsArray,
       Api.game.player.dieDescriptionArray);
     var opponentEnt = Game.dieTableEntry(
       i, Api.game.opponent.nDie,
       Api.game.opponent.dieRecipeArray,
       Api.game.opponent.sidesArray,
       Api.game.opponent.diePropertiesArray,
+      Api.game.opponent.dieSkillsArray,
       Api.game.opponent.dieDescriptionArray);
     if (table_action) {
       var dieLRow = $('<tr>');
@@ -1352,7 +1410,7 @@ Game.dieRecipeTable = function(table_action, active) {
 
 Game.dieTableEntry = function(
   i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray,
-  dieDescriptionArray
+  dieSkillsArray, dieDescriptionArray
 ) {
   if (i < nDie) {
     var dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
@@ -1360,13 +1418,24 @@ Game.dieTableEntry = function(
       'text': dieval,
       'title': dieDescriptionArray[i],
     };
-    if ((diePropertiesArray[i]) &&
-        ('disabled' in diePropertiesArray[i]) &&
-        (diePropertiesArray[i].disabled)) {
-      dieopts.class = 'recipe_greyed';
-      dieopts.title += '. (This die is dizzy because it has been turned ' +
-        'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.)';
+    if (diePropertiesArray[i]) {
+      if (('dizzy' in diePropertiesArray[i]) &&
+          (diePropertiesArray[i].dizzy) &&
+          ('Focus' in dieSkillsArray[i]) &&
+          (dieSkillsArray[i].Focus)) {
+        dieopts.class = 'recipe_greyed';
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down.  If the owner wins initiative, this die can\'t be used in ' +
+          'their first attack.)';
+      } else if (('disabled' in diePropertiesArray[i]) &&
+                 (diePropertiesArray[i].disabled) &&
+                 ('Chance' in dieSkillsArray[i]) &&
+                 (dieSkillsArray[i].Chance)) {
+        dieopts.class = 'recipe_greyed';
+        dieopts.title += '. (This chance dice cannot be rerolled again ' +
+          'during this round, because the player has already rerolled a ' +
+          'chance die)';
+      }
     }
     return $('<td>', dieopts);
   }
@@ -1382,16 +1451,32 @@ Game.pageAddDieBattleTable = function(clickable) {
   var playerButtonTd = Game.buttonImageDisplay('player');
   var opponentButtonTd = Game.buttonImageDisplay('opponent');
 
-  var diePlayerDiv = $('<div>', {'class': 'battle_mat_player', });
-  diePlayerDiv.append(Game.gamePlayerStatus('player', false, true));
-  diePlayerDiv.append($('<br>'));
-  diePlayerDiv.append(Game.gamePlayerDice('player', clickable));
+  var diePlayerDiv = $('<div>', {
+    'class': 'battle_mat_player',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.opponent,
+  });
+  var diePlayerOverlayDiv = $('<div>', {
+    'class': 'battle_mat_player_overlay',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+  });
+  diePlayerOverlayDiv.append(Game.gamePlayerStatus('player', false, true));
+  diePlayerOverlayDiv.append($('<br>'));
+  diePlayerOverlayDiv.append(Game.gamePlayerDice('player', clickable));
+  diePlayerDiv.append(diePlayerOverlayDiv);
   dieBattleTd.append(diePlayerDiv);
 
-  var dieOpponentDiv = $('<div>', {'class': 'battle_mat_opponent', });
-  dieOpponentDiv.append(Game.gamePlayerDice('opponent', clickable));
-  dieOpponentDiv.append($('<br>'));
-  dieOpponentDiv.append(Game.gamePlayerStatus('opponent', true, true));
+  var dieOpponentDiv = $('<div>', {
+    'class': 'battle_mat_opponent',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
+  });
+  var dieOpponentOverlayDiv = $('<div>', {
+    'class': 'battle_mat_opponent_overlay',
+    'style': 'background: none repeat scroll 0 0 ' + Game.color.opponent,
+  });
+  dieOpponentOverlayDiv.append(Game.gamePlayerDice('opponent', clickable));
+  dieOpponentOverlayDiv.append($('<br>'));
+  dieOpponentOverlayDiv.append(Game.gamePlayerStatus('opponent', true, true));
+  dieOpponentDiv.append(dieOpponentOverlayDiv);
   dieBattleTd.append(dieOpponentDiv);
 
   dieBattleTr.append(playerButtonTd);
@@ -1403,10 +1488,13 @@ Game.pageAddDieBattleTable = function(clickable) {
 };
 
 // return a TD containing the button image for the player or opponent
-// button image is a png, image name is derived from button name,  
+// button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
-  var buttonTd = $('<td>', { 'class': 'button_' + player, });
+  var buttonTd = $('<td>', {
+    'class': 'button_' + player,
+    'style': 'background: ' + Game.color[player],
+  });
   var playerName = $('<div>', {
     'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
   });
@@ -1449,7 +1537,9 @@ Game.buttonImageDisplay = function(player) {
 Game.gamePlayerStatus = function(player, reversed, game_active) {
 
   // Status div for entire section
-  var statusDiv = $('<div>', { 'class': 'status_' + player, });
+  var statusDiv = $('<div>', {
+    'class': 'status_' + player,
+  });
 
   // Game score
   var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
@@ -1506,17 +1596,24 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
 // Return a display of all dice for the requested player, specifying
 // whether the dice should be selectable
 Game.gamePlayerDice = function(player, player_active) {
-  var allDice = $('<div>', { 'class': 'dice_' + player, });
-  var allDiceOverlay = $('<div>', { 'class': 'dice_' + player + '_overlay', });
+  var nonplayer;
+  if (player == 'player') {
+    nonplayer = 'opponent';
+  } else {
+    nonplayer = 'player';
+  }
+  var allDice = $('<div>', {
+    'class': 'dice_' + player,
+  });
   var i = 0;
   while (i < Api.game[player].nDie) {
 
     // Find out whether this die is clickable: it is if the player
-    // is active and this particular die is not disabled
+    // is active and this particular die is not dizzy
     var clickable;
     if (player_active) {
-      if (('disabled' in Api.game[player].diePropertiesArray[i]) &&
-          Api.game[player].diePropertiesArray[i].disabled) {
+      if (('dizzy' in Api.game[player].diePropertiesArray[i]) &&
+          Api.game[player].diePropertiesArray[i].dizzy) {
         clickable = false;
       } else {
         clickable = true;
@@ -1526,27 +1623,31 @@ Game.gamePlayerDice = function(player, player_active) {
     }
 
     var dieDiv;
+    var dieBorderDiv;
+
     var dieIndex = Game.dieIndexId(player, i);
-    var divOpts = {
+    var borderDivOpts = {
       'id': dieIndex,
-      'style':
-        'background-image: url(images/Circle.png);' +
-        'height:50px;width:50px;background-size:100%',
+    };
+    var divOpts = {
       'title': Api.game[player].dieDescriptionArray[i],
     };
     if (clickable) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        divOpts.class = 'die_img selected';
+        borderDivOpts.class = 'die_border selected';
       } else {
-        divOpts.class = 'die_img unselected_' + player;
+        borderDivOpts.class = 'die_border unselected_' + player;
+        borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
+      divOpts.class = 'die_img';
+      dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
-        dieDiv.click(Game.dieBorderTogglePlayerHandler);
+        dieBorderDiv.click(Game.dieBorderTogglePlayerHandler);
       } else {
-        dieDiv.click(Game.dieBorderToggleOpponentHandler);
+        dieBorderDiv.click(Game.dieBorderToggleOpponentHandler);
       }
     } else {
       divOpts.class = 'die_img die_greyed';
@@ -1554,6 +1655,8 @@ Game.gamePlayerDice = function(player, player_active) {
         divOpts.title += '. (This die is dizzy because it was turned ' +
         'down.  It can\'t be used during this attack.)';
       }
+      borderDivOpts.class = 'die_border';
+      dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
     }
     dieDiv.append($('<span>', {
@@ -1569,10 +1672,12 @@ Game.gamePlayerDice = function(player, player_active) {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    allDiceOverlay.append(dieDiv);
+    dieBorderDiv.append(dieDiv);
+
+    allDice.append(dieBorderDiv);
     i += 1;
   }
-  allDice.append(allDiceOverlay);
+
   return allDice;
 };
 
@@ -1680,12 +1785,53 @@ Game.dieCanRerollForInitiative = function(recipe) {
   return false;
 };
 
+// The border toggling behavior is complex because of these requirements:
+// * the border must be defined with the same width both when the die is
+//   selected and when it isn't --- otherwise, the die jumps on the page
+// * when the die is unselected, the border must be colored to match
+//   the background, which is dynamic (known only to JS, not to CSS)
+// * when the die is unselected, the border must have rounded edges,
+//   so that the rightmost player die and leftmost opponent die
+//   don't have their invisible borders overlap the rounded edge
+//   of that player's mat section.  when the die selected, the
+//   border must be square
+// and also because of these implementation annoyances:
+// * $(this).toggleClass() is a very nice way to toggle class
+//   definitions --- there isn't anything nearly as tidy for toggling
+//   inline style properties
+// * the initial die definition (in Game.gamePlayerDice) doesn't
+//   go through this function, so we have to duplicate the attributes here
+//
+// Summary of the solution used:
+// * the static style elements (selected die border shape/color and
+//   unselected die shape) are defined in CSS as the classes
+//   "selected" and "unselected_{player,opponent}"
+// * the unselected color is defined by an override of the "style"
+//   attribute (which then needs to be cleared when the die becomes
+//   selected)
+// * when the die is defined in Game.gamePlayerDice, the class and
+//   overrides are set correctly for that die's state at creation time
+// * when the die is toggled, toggleClass() is used to toggle the
+//   class, then item's class memberships are used to decide whether
+//   to add or remove the style override
+// Simplify on your own time, and at your peril!
+
 Game.dieBorderTogglePlayerHandler = function() {
   $(this).toggleClass('selected unselected_player');
+  if ($(this).hasClass('unselected_player')) {
+    $(this).attr('style', 'border: 2px solid ' + Game.color.player);
+  } else {
+    $(this).attr('style', '');
+  }
 };
 
 Game.dieBorderToggleOpponentHandler = function() {
   $(this).toggleClass('selected unselected_opponent');
+  if ($(this).hasClass('unselected_opponent')) {
+    $(this).attr('style', 'border: 2px solid ' + Game.color.opponent);
+  } else {
+    $(this).attr('style', '');
+  }
 };
 
 // The selected value is the first value provided, and is not part

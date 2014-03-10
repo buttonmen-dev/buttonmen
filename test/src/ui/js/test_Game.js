@@ -9,6 +9,9 @@ module("Game", {
     if (document.getElementById('game_page') == null) {
       $('body').append($('<div>', {'id': 'game_page', }));
     }
+
+    // set colors for use in game, since tests don't always traverse showStatePage()
+    Game.color = Game.COLORS.players;
   },
   'teardown': function() {
 
@@ -19,6 +22,7 @@ module("Game", {
     delete Game.game;
     delete Game.page;
     delete Game.form;
+    delete Game.color;
     Game.activity = {};
 
     // Page elements
@@ -501,7 +505,7 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    deepEqual(item.className, 'die_img selected',
+    deepEqual(item.className, 'die_border selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     ok(item.innerHTML.match('selected'),
@@ -662,8 +666,8 @@ asyncTest("test_Game.pageAddGameHeader", function() {
 
     ok(html.match(/Game #1/), "Game header should contain game number");
     ok(html.match(/Round #1/), "Game header should contain round number");
-    ok(html.match(/class="action_desc"/),
-       "Action description class should be defined");
+    ok(html.match(/class="action_desc_span"/),
+       "Action description span class should be defined");
     ok(html.match(/Howdy, world/),
        "Action description should contain specified text");
     start();
@@ -795,6 +799,7 @@ asyncTest("test_Game.dieTableEntry", function() {
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
       Api.game.player.diePropertiesArray,
+      Api.game.player.dieSkillsArray,
       Api.game.player.dieDescriptionArray
     );
     // jQuery trick to get the full HTML including the object itself
@@ -813,7 +818,9 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
       Api.game.player.nDie,
       Api.game.player.dieRecipeArray,
       Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray
+      Api.game.player.diePropertiesArray,
+      Api.game.player.dieSkillsArray,
+      Api.game.player.dieDescriptionArray
     );
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
@@ -855,7 +862,7 @@ asyncTest("test_Game.gamePlayerDice", function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
     var htmlout = Game.page.html();
-    ok(htmlout.match('die_img unselected'),
+    ok(htmlout.match('die_border unselected'),
        "dice should include some text with the correct CSS class");
     start();
   });
@@ -980,16 +987,16 @@ asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected_player'),
+    ok(html.match('die_border unselected_player'),
        "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img selected'), "die is selected after first click");
+    ok(html.match('die_border selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected_player'),
+    ok(html.match('die_border unselected_player'),
        "die is unselected after second click");
 
     start();
@@ -1007,16 +1014,16 @@ asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected_opponent'),
+    ok(html.match('die_border unselected_opponent'),
        "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img selected'), "die is selected after first click");
+    ok(html.match('die_border selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_img unselected_opponent'),
+    ok(html.match('die_border unselected_opponent'),
        "die is unselected after second click");
 
     start();

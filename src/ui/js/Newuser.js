@@ -85,6 +85,14 @@ Newuser.actionCreateUser = function() {
     'class': 'title2',
     'text': 'Create a new user account',
   }));
+  var warningpar = $('<p>');
+  warningpar.append($('<i>', {
+    'text': 'Warning: reusing passwords between websites is risky ' +
+            'in general, and you should definitely avoid it here.  We\'re ' +
+            'a free game site, and we\'re in alpha release.  Please do NOT ' +
+            'reuse a valuable account password for your Button Men account.'
+  }));
+  creatediv.append(warningpar);
   var createform = $('<form>', {
     'id': 'newuser_action_form',
     'action': 'javascript:void(0);',
