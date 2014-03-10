@@ -261,6 +261,24 @@ class responderTest extends PHPUnit_Framework_TestCase {
             )
         );
 
+        // Make sure a button name with a backtick is rejected
+        $args = array(
+            'type' => 'createGame',
+            'playerNameArray' => array('responder003', 'responder004'),
+            'buttonNameArray' => array('Avis', 'Av`is'),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args); 
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Argument (buttonNameArray) to function createGame is invalid',
+                'status' => 'failed',
+            ),
+            $retval,
+            "Button name containing a backtick should be rejected"
+        );
+
         $args = array(
             'type' => 'createGame',
             'playerNameArray' => array('responder003', 'responder004'),
