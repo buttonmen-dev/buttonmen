@@ -14,21 +14,13 @@ class DummyApiResponder {
     // * TRUE:  this instance is being accessed locally by unit tests
     private $isTest;               // whether this invocation is for testing
 
-    // Set of keys expected by each responder argument type
-    private $keylists = array(
-        'submitSwingValues' => array('type', 'game', 'roundNumber', 'swingValueArray', 'timestamp'),
-        'reactToInitiative' => array('type', 'game', 'roundNumber', 'timestamp',
-                                     'action', 'dieIdxArray', 'dieValueArray'),
-        'reactToAuxiliary' => array('type', 'game', 'action', 'dieIdx'),
-        'reactToReserve' => array('type', 'game', 'action', 'dieIdx')
-    );
-
     // constructor
     // * For live invocation:
     //   * start a session (don't use api_core because dummy_responder has no backend)
     // * For test invocation:
     //   * don't start a session
-    public function __construct($isTest = FALSE) {
+    public function __construct(ApiSpec $spec, $isTest = FALSE) {
+        $this->spec = $spec;
         $this->isTest = $isTest;
 
         if (!($this->isTest)) {
@@ -36,47 +28,11 @@ class DummyApiResponder {
         }
     }
 
-    // This function verifies that the set of keys provided as
-    // arguments is exactly the expected set
-    protected function verify_key_list($args, $keylist) {
-        foreach ($keylist as $key) {
-            if (!(array_key_exists($key, $args))) {
-                return FALSE;
-            }
-        }
-        foreach (array_keys($args) as $key) {
-            if (!(in_array($key, $keylist))) {
-                return FALSE;
-            }
-        }
-        return TRUE;
-    }
-
-    // look for errors in the argument list
-    protected function is_arg_list_error($args) {
-        if (!(array_key_exists('type', $args))) {
-            return "no type argument specified";
-        }
-
-        if (array_key_exists($args['type'], $this->keylists)) {
-            $keylist = $this->keylists[$args['type']];
-            if (!($this->verify_key_list($args, $keylist))) {
-                return ('responder error: ' . $args['type'] . ' expects keys: ' . implode(',', $keylist));
-            }
-        }
-        return NULL;
-    }
-
     // This function looks at the provided arguments, fakes appropriate
     // data to match the public API, and returns either some game
     // data on success, or NULL on failure.  (Failure will happen if
     // the requested arguments are invalid.)
     protected function get_interface_response($args) {
-        $argerror = $this->is_arg_list_error($args);
-        if ($argerror) {
-            return array(NULL, "responder error: $argerror");
-        }
-
         $funcName = 'get_interface_response_' . $args['type'];
         if (method_exists($this, $funcName)) {
             $result = $this->$funcName($args);
@@ -1115,18 +1071,34 @@ class DummyApiResponder {
     // * For test invocation:
     //   * return the output as a PHP variable
     public function process_request($args) {
-        $retval = $this->get_interface_response($args);
-        $data = $retval[0];
-        $message = $retval[1];
 
-        $output = array(
-            'data' => $data,
-            'message' => $message,
-        );
-        if ($data) {
-            $output['status'] = 'ok';
+        // make sure all arguments passed to the function are
+        // syntactically reasonable, using the same ApiSpec used
+        // by the real responder
+        $argcheck = $this->spec->verify_function_args($args);
+        if ($argcheck['ok']) {
+
+            // As far as we can easily tell, arguments are okay.
+            // Pass them along to the dummy responder functions.
+            $retval = $this->get_interface_response($args);
+            $data = $retval[0];
+            $message = $retval[1];
+
+            $output = array(
+                'data' => $data,
+                'message' => $message,
+            );
+            if ($data) {
+                $output['status'] = 'ok';
+            } else {
+                $output['status'] = 'failed';
+            }
         } else {
-            $output['status'] = 'failed';
+            $output = array(
+                'data' => NULL,
+                'status' => 'failed',
+                'message' => $argcheck['message'],
+            );
         }
 
         if ($this->isTest) {

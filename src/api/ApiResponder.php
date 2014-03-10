@@ -21,7 +21,8 @@ class ApiResponder {
     //   * start a session (and require api_core to get session functions)
     // * For test invocation:
     //   * don't start a session
-    public function __construct($isTest = FALSE) {
+    public function __construct(ApiSpec $spec, $isTest = FALSE) {
+        $this->spec = $spec;
         $this->isTest = $isTest;
 
         if (!($this->isTest)) {
@@ -249,25 +250,44 @@ class ApiResponder {
     //   * return the output as a PHP variable
     public function process_request($args) {
         $check = $this->verify_function_access($args);
-
         if ($check['ok']) {
-            if ($check['functype'] == 'auth') {
-                $interface = new BMInterface($this->isTest);
-            } else {
-                $interface = new BMInterfaceNewuser($this->isTest);
-            }
-            $data = $this->$check['funcname']($interface, $args);
 
-            $output = array(
-                'data' => $data,
-                'message' => $interface->message,
-            );
-            if ($data) {
-                $output['status'] = 'ok';
+            // now make sure all arguments passed to the function
+            // are syntactically reasonable
+            $argcheck = $this->spec->verify_function_args($args);
+            if ($argcheck['ok']) {
+
+                // As far as we can easily tell, it's safe to call
+                // the function.  Go ahead and create an interface
+                // object, invoke the function, and return the result
+                if ($check['functype'] == 'auth') {
+                    $interface = new BMInterface($this->isTest);
+                } else {
+                    $interface = new BMInterfaceNewuser($this->isTest);
+                }
+                $data = $this->$check['funcname']($interface, $args);
+
+                $output = array(
+                    'data' => $data,
+                    'message' => $interface->message,
+                );
+                if ($data) {
+                    $output['status'] = 'ok';
+                } else {
+                    $output['status'] = 'failed';
+                }
             } else {
-                $output['status'] = 'failed';
+
+                // found a problem with the args, report that
+                $output = array(
+                    'data' => NULL,
+                    'status' => 'failed',
+                    'message' => $argcheck['message'],
+                );
             }
         } else {
+
+            // found a problem with access to the function, report that
             $output = array(
                 'data' => NULL,
                 'status' => 'failed',
