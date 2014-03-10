@@ -174,7 +174,7 @@ Overview.pageAddIntroText = function() {
 
   infopar = $('<p>');
   infopar.append(
-    'We wanted to make this beta publically available as soon as possible, ' +
+    'We wanted to make this site publically available as soon as possible, ' +
     'so there are still a lot of bugs!  If you find anything broken or hard ' +
     'to use, or if you have any questions, please get in touch, either by ' +
     'opening a ticket at ');
