@@ -45,6 +45,19 @@ class BMInterfaceNewuser {
 
     public function create_user($username, $password, $email) {
         try {
+            // if this is a remote connection, check whether this
+            // IP already has numerous player_verification entries
+            if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
+                $query = 'SELECT player_id FROM player_verification WHERE ipaddr = :ipaddr';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':ipaddr' => $_SERVER['REMOTE_ADDR']));
+                $fetchResult = $statement->fetchAll();
+                if (count($fetchResult) >= 5) {
+                    $this->message = 'Too many new user requests from IP ' . $_SERVER['REMOTE_ADDR'];
+                    return NULL;
+                }
+            }
+
             // check to see whether this username already exists
             $query = 'SELECT id FROM player WHERE name_ingame = :username';
             $statement = self::$conn->prepare($query);
@@ -173,11 +186,17 @@ class BMInterfaceNewuser {
 
         // generate a new verification code and insert it into the table
         $playerKey = md5(rand());
-        $query = 'INSERT INTO player_verification (player_id, verification_key)
-                  VALUES (:player_id, :player_key)';
+        if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $ipaddr = $_SERVER['REMOTE_ADDR'];
+        } else {
+            $ipaddr = NULL;
+        }
+        $query = 'INSERT INTO player_verification (player_id, verification_key, ipaddr)
+                  VALUES (:player_id, :player_key, :ipaddr)';
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':player_id' => $playerId,
-                                  ':player_key' => $playerKey));
+                                  ':player_key' => $playerKey,
+                                  ':ipaddr' => $ipaddr));
 
         // send the e-mail message
         $email = new BMEmail($playerEmail, $this->isTest);
