@@ -1,5 +1,6 @@
 DELETE FROM buttonset;
 INSERT INTO buttonset (name) VALUES
+# Official Sets (in order of release)
 ('Soldiers'),
 ('The Big Cheese'),
 ('Sanctum'),
@@ -14,18 +15,16 @@ INSERT INTO buttonset (name) VALUES
 ('Buttonlords'),
 ('Studio Foglio'),
 ('Sailor Moon 1'),
+('ButtonBroccoli'),
 ('Freaks'),
 ('Balticon 34'),
-('ButtonBroccoli'),
+('2000 ShoreCon'),
 ('Las Vegas'),
 ('Fantasy'),
-('Renaissance'),
 ('Save The Ogres'),
-('Yoyodyne'),
 ('Presidential'),
 ('Majesty'),
 ('Wonderland'),
-('2000 ShoreCon'),
 ('Fairies'),
 ('Dork Victory'),
 ('Japanese Beetle'),
@@ -35,23 +34,33 @@ INSERT INTO buttonset (name) VALUES
 ('Bruno'),
 ('Tenchi Muyo!'),
 ('Sluggy Freelance'),
+('Everything to Gain'),
+('Yoyodyne'),
 ('Samurai'),
 ('SydCon 10'),
 ('Demicon the 13th'),
+('SFR'),
+('Chicagoland Gamers Conclave'),
 ('Diceland'),
+('Renaissance'),
 ('2002 Anime Expo'),
 ('2002 Origins'),
 ('Bar Mitzvah'),
-('Button Brains'),
-('Chicagoland Gamers Conclave'),
 ('2003 Rare-Promos'),
-('SFR'),
+('Button Brains'),
+('Fightball'),
+('Nodwick'),
 ('2004 Origins'),
+('Geekz'),
+('Kubla Con'),
 ('Space Girlz'),
 ('Bridge and Tunnel'),
 ('2005 Rare Promo'),
-# fan sets, vanity sets, sets made for the old site (?)
-('Geekz'),
+('High School Drama!'),
+('Unexploded Cow'),
+('ZOECon'),
+
+# ButtonMen Online sets - virtual fan and vanity sets 
 ('Iron Chef'),
 ('7 deadly sins'),
 ('Chicago Crew'),
@@ -59,25 +68,21 @@ INSERT INTO buttonset (name) VALUES
 ('Free Radicals'),
 ('Hodge Podge'),
 ('Victorian Horror'),
+('Cowboy Bebop'),
+('50 States'),
 
-# official (?) ButtonMen sets not on old site
-('Everything to Gain'),
+# Unofficial Sets - fan and vanity sets
+('Japanese Beetle (unofficial)'),
+('Blademasters'),
+('Order of the Dolls'),
+('Blademasters: The Second Shot'),
+('Blademasters: Third Attack'),
 ('Gaming Guardians'),
-('Fightball'),
-('Nodwick'),
-('High School Drama!'),
-('Unexploded Cow'),
-# unofficial ButtonMen sets not on old site
-#('Japanese Beetle (unofficial)'),
-#('Blademasters'),
-#('Blademasters: The Second Shot'),
-#('Blademasters 3'),
-#('Order of the Dolls'),
+('MegaTokyo'),
 
-#('50 States'),
-
-#
+# Fanatics
 ('Classic Fanatics');
+
 
 DELETE FROM button;
 
@@ -99,6 +104,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # 2000 RARE-PROMO
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Gordo from ButtonMen Poster 1999 (Cheapass Games)
+# None of Gordo's dice can be the same size
 ('Gordo',               '(V) (W) (X) (Y) (Z)',                1, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # Me am ORK! from Orc! (Green Ronin)
 ('Me am ORK!',           '(8) (8) (8) p(8) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
