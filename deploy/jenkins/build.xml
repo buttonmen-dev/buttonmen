@@ -129,7 +129,7 @@
 
  <target name="jstest-lighttpd-configure">
   <exec executable="/bin/cp" failonerror="true">
-   <arg line="-f ./src/api/dummy_responder.php ./src/api/DummyApiResponder.php /usr/local/share/jenkins-lighttpd/www/"/>
+   <arg line="-f ./src/api/dummy_responder.php ./src/api/DummyApiResponder.php ./src/api/ApiSpec.php /usr/local/share/jenkins-lighttpd/www/"/>
   </exec>
  </target>
 

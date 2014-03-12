@@ -41,147 +41,6 @@ class BMInterface {
 
     // methods
 
-    public function create_user($username, $password, $email) {
-        try {
-            // check to see whether this username already exists
-            $query = 'SELECT id FROM player WHERE name_ingame = :username';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':username' => $username));
-            $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) > 0) {
-                $user_id = $fetchResult[0]['id'];
-                $this->message = $username . ' already exists (id=' .
-                                 $user_id . ')';
-                return NULL;
-            }
-
-            // check to see whether this email address already exists
-            $query = 'SELECT id FROM player WHERE email = :email';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':email' => $email));
-            $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) > 0) {
-                $user_id = $fetchResult[0]['id'];
-                $this->message = 'Email address ' . $email .
-                                 ' already exists (id=' .  $user_id . ')';
-                return NULL;
-            }
-
-            // create user
-            $query = 'INSERT INTO player (name_ingame, password_hashed, email, status)
-                      VALUES (:username, :password, :email, :status)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':username' => $username,
-                                      ':password' => crypt($password),
-                                      ':email' => $email,
-                                      ':status' => 'unverified'));
-
-            // select the player ID to make sure insert succeeded
-            $query = 'SELECT id,email FROM player WHERE name_ingame = :name';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':name' => $username));
-            $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) != 1) {
-                $this->message = 'User creation failed';
-                return NULL;
-            }
-            $playerId = $fetchResult[0]['id'];
-            $playerEmail = $fetchResult[0]['email'];
-            $result = array('userName' => $username, 'playerId' => $playerId);
-
-            // now generate a verification code and e-mail it to the user
-            $this->send_email_verification($playerId, $username, $playerEmail);
-
-            $this->message = 'User ' . $username . ' created successfully.  ' .
-                             'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
-                             'Follow the link in that message to start beating people up!';
-
-            return $result;
-        } catch (Exception $e) {
-            $errorData = $statement->errorInfo();
-            $this->message = 'User create failed: ' . $errorData[2];
-            return NULL;
-        }
-    }
-
-    public function verify_user($playerId, $playerKey) {
-        try {
-            // Check for a user with this id
-            $query = 'SELECT name_ingame,status FROM player WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-            $fetchResult = $statement->fetchAll();
-
-            // Make sure that user ID exists and is waiting to be verified
-            if (count($fetchResult) != 1) {
-                $this->message = 'Could not lookup user ID ' . $playerId;
-                return NULL;
-            }
-            $username = $fetchResult[0]['name_ingame'];
-            $status = $fetchResult[0]['status'];
-            if ($status != 'unverified') {
-                $this->message = 'User with ID ' . $playerId . ' is not waiting to be verified';
-                return NULL;
-            }
-
-            // Find the verification key for the specified user ID
-            $query = 'SELECT verification_key FROM player_verification WHERE player_id = :player_id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId));
-            $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) != 1) {
-                $this->message = 'Could not find verification key for user ID ' . $playerId;
-                return NULL;
-            }
-            $databaseKey = $fetchResult[0]['verification_key'];
-
-            // Now check that the provided key matches the one in the database
-            if ($playerKey != $databaseKey) {
-                $this->message = 'Wrong verification key!  Make sure you pasted the URL from the e-mail exactly.';
-                return NULL;
-            }
-
-            // Everything checked out okay.  Activate the account
-            $query = 'UPDATE player ' .
-                     'SET status="active" ' .
-                     'WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-            $this->message = 'Account activated for player ' . $username . '!';
-            $result = TRUE;
-            return $result;
-
-        } catch (Exception $e) {
-            $errorData = $statement->errorInfo();
-            $this->message = 'User create failed: ' . $errorData[2];
-            return NULL;
-        }
-    }
-
-    public function send_email_verification($playerId, $username, $playerEmail) {
-
-        // a given player should only have one verification code at a time, so delete any old ones
-        $query = 'DELETE FROM player_verification WHERE player_id = :playerId';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':playerId' => $playerId));
-
-        // generate a new verification code and insert it into the table
-        $playerKey = md5(rand());
-        $query = 'INSERT INTO player_verification (player_id, verification_key)
-                  VALUES (:player_id, :player_key)';
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':player_id' => $playerId,
-                                  ':player_key' => $playerKey));
-
-        // send the e-mail message
-        $email = new BMEmail($playerEmail, $this->isTest);
-        $email->send_verification_link($playerId, $username, $playerKey);
-    }
-
     public function get_player_info($playerId) {
         try {
             $query = 'SELECT * FROM player WHERE id = :id';
@@ -409,6 +268,9 @@ class BMInterface {
                 if (isset($recipe)) {
                     $button = new BMButton;
                     $button->load($recipe, $row['button_name']);
+                    if (isset($row['alt_recipe'])) {
+                        $button->hasAlteredRecipe = TRUE;
+                    }
                     $buttonArray[$pos] = $button;
                 } else {
                     throw new InvalidArgumentException('Invalid button name.');
@@ -509,6 +371,10 @@ class BMInterface {
                         break;
                     case 'DISABLED':
                         $die->disabled = TRUE;
+                        $activeDieArrayArray[$playerIdx][$row['position']] = $die;
+                        break;
+                    case 'DIZZY':
+                        $die->dizzy = TRUE;
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
                     case 'CAPTURED':
@@ -700,6 +566,8 @@ class BMInterface {
                             $status = 'SELECTED';
                         } elseif ($activeDie->disabled) {
                             $status = 'DISABLED';
+                        } elseif ($activeDie->dizzy) {
+                            $status = 'DIZZY';
                         }
 
                         $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
@@ -888,6 +756,9 @@ class BMInterface {
 
     public function get_all_button_names() {
         try {
+            // if the site is production, don't report unimplemented buttons at all
+            $site_type = $this->get_config('site_type');
+
             $statement = self::$conn->prepare('SELECT name, recipe, btn_special FROM button_view');
             $statement->execute();
 
@@ -895,21 +766,25 @@ class BMInterface {
             // If we get an exception while checking, assume there's
             // an unimplemented skill
             while ($row = $statement->fetch()) {
-                $buttonNameArray[] = $row['name'];
-                $recipeArray[] = $row['recipe'];
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
 
-                    // james: put in temporary code to disable buttons with button specials
+                    $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
                     if ((1 == $row['btn_special']) &&
-                        !class_exists('BMBtnSkill'.$row['name'])) {
+                        !class_exists('BMBtnSkill'.$standardName)) {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 
-                    $hasUnimplSkillArray[] = $button->hasUnimplementedSkill;
+                    $hasUnimplSkill = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
-                    $hasUnimplSkillArray[] = TRUE;
+                    $hasUnimplSkill = TRUE;
+                }
+
+                if (($site_type != 'production') || (!($hasUnimplSkill))) {
+                    $buttonNameArray[] = $row['name'];
+                    $recipeArray[] = $row['recipe'];
+                    $hasUnimplSkillArray[] = $hasUnimplSkill;
                 }
             }
             $this->message = 'All button names retrieved successfully.';
@@ -1015,6 +890,14 @@ class BMInterface {
         }
     }
 
+    public function get_player_name_mapping($game) {
+        $idNameMapping = array();
+        foreach ($game->playerIdArray as $playerId) {
+            $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
+        }
+        return $idNameMapping;
+    }
+
     // Check whether a requested action still needs to be taken.
     // If the time stamp is not important, use the string 'ignore'
     // for $postedTimestamp.
@@ -1062,32 +945,44 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(
                 array(':game_id'     => $game->gameId,
-                      ':game_state' => $gameAction['gameState'],
-                      ':action_type' => $gameAction['actionType'],
-                      ':acting_player' => $gameAction['actingPlayerIdx'],
-                      ':message'    => $gameAction['message'])
+                      ':game_state' => $gameAction->gameState,
+                      ':action_type' => $gameAction->actionType,
+                      ':acting_player' => $gameAction->actingPlayerId,
+                      ':message'    => json_encode($gameAction->params))
             );
         }
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $n_entries = 5) {
+    public function load_game_action_log(BMGame $game, $n_entries = 10) {
         try {
-            $query = 'SELECT action_time,action_type,acting_player,message FROM game_action_log ' .
+            $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
+            $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
-                $gameAction = array(
-                    'actionType' => $row['action_type'],
-                    'actingPlayerIdx' => $row['acting_player'],
-                    'message' => $row['message'],
+                $params = json_decode($row['message'], $assoc = TRUE);
+                if (!($params)) {
+                    $params = $row['message'];
+                }
+                $gameAction = new BMGameAction(
+                    $row['game_state'],
+                    $row['action_type'],
+                    $row['acting_player'],
+                    $params
                 );
-                $logEntries[] = array(
-                    'timestamp' => $row['action_time'],
-                    'message' => $this->friendly_game_action_log_message($gameAction)
-                );
+
+                // Only add the message to the log if one is returned: friendly_message() may
+                // intentionally return no message if providing one would leak information
+                $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
+                if ($message) {
+                    $logEntries[] = array(
+                        'timestamp' => $row['action_time'],
+                        'message' => $message,
+                    );
+                }
             }
             return $logEntries;
         } catch (Exception $e) {
@@ -1100,24 +995,16 @@ class BMInterface {
         }
     }
 
-    private function friendly_game_action_log_message($gameAction) {
-        if ($gameAction['actingPlayerIdx'] != 0) {
-            $actingPlayerName = $this->get_player_name_from_id($gameAction['actingPlayerIdx']);
-        }
-        if ($gameAction['actionType'] == 'attack') {
-            return $actingPlayerName . ' ' . $gameAction['message'];
-        }
-        if ($gameAction['actionType'] == 'end_winner') {
-            return ('End of round: ' . $actingPlayerName . ' ' . $gameAction['message']);
-        }
-        return($gameAction['message']);
-    }
-
     // Create a status message based on recent game actions
     private function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
+        $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
-            $this->message .= $this->friendly_game_action_log_message($gameAction) . '. ';
+            $this->message .= $gameAction->friendly_message(
+                $playerIdNames,
+                $game->roundNumber,
+                $game->gameState
+            ) . '. ';
         }
     }
 
@@ -1210,6 +1097,14 @@ class BMInterface {
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
+                $game->log_action(
+                    'choose_swing',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'swingValues' => $swingValueArray,
+                    )
+                );
                 $this->save_game($game);
                 $this->message = 'Successfully set swing values';
                 return TRUE;
@@ -1355,7 +1250,7 @@ class BMInterface {
 
             switch ($action) {
                 case 'add':
-                    if (!is_int($dieIdx) ||
+                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
                         !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Auxiliary')) {
                         $this->message = 'Invalid auxiliary choice';
                         return FALSE;
@@ -1365,19 +1260,30 @@ class BMInterface {
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array(
+                            'roundNumber' => $game->roundNumber,
+                            'die' => $die->get_action_log_data(),
+                        )
+                    );
                     $this->message = 'Auxiliary die chosen successfully';
                     break;
                 case 'decline':
                     $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+                    $game->log_action(
+                        'decline_auxiliary',
+                        $game->playerIdArray[$playerIdx],
+                        array('declineAuxiliary' => TRUE)
+                    );
                     $this->message = 'Declined auxiliary dice';
                     break;
                 default:
                     $this->message = 'Invalid response to auxiliary choice.';
                     return FALSE;
             }
-
             $this->save_game($game);
-
 
             return TRUE;
         } catch (Exception $e) {
@@ -1426,7 +1332,7 @@ class BMInterface {
 
             switch ($action) {
                 case 'add':
-                    if (!is_int($dieIdx) ||
+                    if (!array_key_exists($dieIdx, $game->activeDieArrayArray[$playerIdx]) ||
                         !$game->activeDieArrayArray[$playerIdx][$dieIdx]->has_skill('Reserve')) {
                         $this->message = 'Invalid reserve choice';
                         return FALSE;
@@ -1436,12 +1342,22 @@ class BMInterface {
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'add_reserve',
+                        $game->playerIdArray[$playerIdx],
+                        array( 'die' => $die->get_action_log_data(), )
+                    );
                     $this->message = 'Reserve die chosen successfully';
                     break;
                 case 'decline':
                     $waitingOnActionArray = $game->waitingOnActionArray;
                     $waitingOnActionArray[$playerIdx] = FALSE;
                     $game->waitingOnActionArray = $waitingOnActionArray;
+                    $game->log_action(
+                        'decline_reserve',
+                        $game->playerIdArray[$playerIdx],
+                        array('declineReserve' => TRUE)
+                    );
                     $this->message = 'Declined reserve dice';
                     break;
                 default:
@@ -1556,6 +1472,27 @@ class BMInterface {
             );
             $this->message = 'Internal error while reacting to initiative';
             return FALSE;
+        }
+    }
+
+    protected function get_config($conf_key) {
+        try {
+            $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':conf_key' => $conf_key));
+            $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) != 1) {
+                error_log("Wrong number of config values with key " . $conf_key);
+                return NULL;
+            }
+            return $fetchResult[0]['conf_value'];
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_config: " .
+                $e->getMessage()
+            );
+            return NULL;
         }
     }
 

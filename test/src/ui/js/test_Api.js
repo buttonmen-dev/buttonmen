@@ -130,14 +130,14 @@ asyncTest("test_Api.getActiveGamesData", function() {
   Api.getActiveGamesData(function() {
     equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    equal(Api.active_games.nGames, 8, 'Got expected number of active games');
+    equal(Api.active_games.nGames, 12, 'Got expected number of active games');
     start();
   });
 });
 
 asyncTest("test_Api.parseActiveGamesData", function() {
   Api.getActiveGamesData(function() {
-    equal(Api.active_games.games.awaitingPlayer.length, 5,
+    equal(Api.active_games.games.awaitingPlayer.length, 7,
           "expected number of games parsed as waiting for the active player");
     start();
   });

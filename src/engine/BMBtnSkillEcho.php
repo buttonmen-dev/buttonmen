@@ -4,7 +4,7 @@ class BMBtnSkillEcho extends BMBtnSkill {
     public static $hooked_methods = array('load_buttons');
 
     public static function load_buttons($args) {
-        $newRecipe = FALSE;
+        $newRecipe = $args['recipe'];
 
         if ('' == $args['recipe']) {
             if ('' == $args['opprecipe']) {

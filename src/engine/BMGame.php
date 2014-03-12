@@ -84,6 +84,8 @@ class BMGame {
     private $chat;                  // chat message submitted by the active player with an attack
     private $message;               // message to be passed to the GUI
 
+    private $forceRoundResult;      // boolean array whether each player has won the round
+
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
 
@@ -253,7 +255,10 @@ class BMGame {
             foreach ($havePlayersAuxDice as $playerIdx => $hasAuxDice) {
                 if (!$hasAuxDice) {
                     foreach ($auxiliaryDice as $die) {
-                        $this->activeDieArrayArray[$playerIdx][] = clone $die;
+                        $newdie = clone $die;
+                        $newdie->playerIdx = $playerIdx;
+                        $newdie->originalPlayerIdx = $playerIdx;
+                        $this->activeDieArrayArray[$playerIdx][] = $newdie;
                     }
                 }
             }
@@ -417,6 +422,14 @@ class BMGame {
                     if ($die->selected) {
                         $die->remove_skill('Reserve');
                         $die->selected = FALSE;
+                        if ($die instanceof BMDieSwing) {
+                            $this->request_swing_values(
+                                $die,
+                                $die->swingType,
+                                $die->playerIdx
+                            );
+                            $die->valueRequested = TRUE;
+                        }
                         $areAnyDiceAdded[$playerIdx] = TRUE;
                     }
                 }
@@ -548,24 +561,27 @@ class BMGame {
     protected function do_next_step_react_to_initiative() {
         $canReactArray = array_fill(0, $this->nPlayers, FALSE);
 
-        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
             // do nothing if a player has won initiative
             if ($this->playerWithInitiativeIdx == $playerIdx) {
                 continue;
             }
 
-            // find out if any of the dice have the ability to react
-            // when the player loses initiative
-            foreach ($activeDieArray as $activeDie) {
-                if ($activeDie->disabled) {
-                    continue;
-                }
+            foreach ($activeDieArray as &$activeDie) {
+                // find out if any of the dice have the ability to react
+                // when the player loses initiative
                 $hookResultArray =
                     $activeDie->run_hooks(
                         'react_to_initiative',
                         array('activeDieArrayArray' => $this->activeDieArrayArray,
                               'playerIdx' => $playerIdx)
                     );
+
+                // re-enable all disabled chance dice for non-active players
+                if ($activeDie->has_skill('Chance')) {
+                    unset($activeDie->disabled);
+                }
+
                 if (is_array($hookResultArray) && count($hookResultArray) > 0) {
                     foreach ($hookResultArray as $hookResult) {
                         if (TRUE === $hookResult) {
@@ -621,8 +637,8 @@ class BMGame {
                 if (count($activeDieArray) > 0) {
                     foreach ($activeDieArray as &$activeDie) {
                         if ($activeDie->has_skill('Focus') &&
-                            isset($activeDie->disabled)) {
-                            unset($activeDie->disabled);
+                            isset($activeDie->dizzy)) {
+                            unset($activeDie->dizzy);
                         }
                     }
                 }
@@ -661,7 +677,15 @@ class BMGame {
             $attAttackDieArray,
             $defAttackDieArray
         );
-        $this->log_attack($preAttackDice, $postAttackDice);
+        $this->log_action(
+            'attack',
+            $this->playerIdArray[$this->attackerPlayerIdx],
+            array(
+                'attackType' => $attack->type,
+                'preAttackDice' => $preAttackDice,
+                'postAttackDice' => $postAttackDice,
+            )
+        );
 
         if (isset($this->activePlayerIdx)) {
             $this->update_active_player();
@@ -719,8 +743,8 @@ class BMGame {
             $attackDie =
                 &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
                                            [$attackerAttackDieIdx];
-            if ($attackDie->disabled) {
-                $this->message = 'Attempting to attack with a disabled die.';
+            if ($attackDie->dizzy) {
+                $this->message = 'Attempting to attack with a dizzy die.';
                 $this->attack = NULL;
                 return FALSE;
             }
@@ -762,10 +786,8 @@ class BMGame {
             if (isset($this->activeDieArrayArray) &&
                 isset($this->attack['attackerPlayerIdx'])) {
                 foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
-                    if ($activeDie->disabled) {
-                        if ($activeDie->has_skill('Focus')) {
-                            unset($activeDie->disabled);
-                        }
+                    if ($activeDie->dizzy) {
+                            unset($activeDie->dizzy);
                     }
                 }
             }
@@ -776,10 +798,11 @@ class BMGame {
     }
 
     protected function update_game_state_end_turn() {
-        $nDice = array_map("count", $this->activeDieArrayArray);
+        $nDice = array_map('count', $this->activeDieArrayArray);
         // check if any player has no dice, or if everyone has passed
         if ((0 === min($nDice)) ||
-            ($this->nPlayers == $this->nRecentPasses)) {
+            ($this->nPlayers == $this->nRecentPasses) ||
+            isset($this->forceRoundResult)) {
             $this->gameState = BMGameState::END_ROUND;
         } else {
             $this->gameState = BMGameState::START_TURN;
@@ -790,10 +813,15 @@ class BMGame {
 
     protected function do_next_step_end_round() {
         $roundScoreArray = $this->get_roundScoreArray();
-        $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
+        if (isset($this->forceRoundResult)) {
+            $this->isPrevRoundWinnerArray = $this->forceRoundResult;
+            $isDraw = FALSE;
+        } else {
+            $this->isPrevRoundWinnerArray = array_fill(0, $this->nPlayers, FALSE);
 
-        // check for draw currently assumes only two players
-        $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+            // check for draw currently assumes only two players
+            $isDraw = $roundScoreArray[0] == $roundScoreArray[1];
+        }
 
         if ($isDraw) {
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
@@ -803,11 +831,19 @@ class BMGame {
             $this->log_action(
                 'end_draw',
                 0,
-                'Round ' . ($this->get_roundNumber() - 1) . ' ended in a draw (' .
-                $roundScoreArray[0] . ' vs. ' . $roundScoreArray[1] . ')'
+                array(
+                    'roundNumber' => $this->get_prevRoundNumber(),
+                    'roundScoreArray' => $roundScoreArray,
+                )
             );
         } else {
-            $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+            if (isset($this->forceRoundResult)) {
+                $winnerIdx = array_search(TRUE, $this->forceRoundResult);
+                $forceRoundResult = $this->forceRoundResult;
+            } else {
+                $winnerIdx = array_search(max($roundScoreArray), $roundScoreArray);
+                $forceRoundResult = FALSE;
+            }
 
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
@@ -821,8 +857,11 @@ class BMGame {
             $this->log_action(
                 'end_winner',
                 $this->playerIdArray[$winnerIdx],
-                'won round ' . ($this->get_roundNumber() - 1) . ' (' .
-                max($roundScoreArray) . ' vs ' . min($roundScoreArray) . ')'
+                array(
+                    'roundNumber' => $this->get_prevRoundNumber(),
+                    'roundScoreArray' => $roundScoreArray,
+                    'resultForced' => $forceRoundResult,
+                )
             );
         }
         $this->reset_play_state();
@@ -921,9 +960,7 @@ class BMGame {
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.
 
-    // $gainedInitOverride is used for testing purposes only
-
-    public function react_to_initiative(array $args, $gainedInitOverride = NULL) {
+    public function react_to_initiative(array $args) {
         if (BMGameState::REACT_TO_INITIATIVE != $this->gameState) {
             $this->message = 'Wrong game state to react to initiative.';
             return FALSE;
@@ -952,27 +989,11 @@ class BMGame {
             return FALSE;
         }
 
-        if (isset($gainedInitOverride)) {
-            $gainedInitiative = $gainedInitOverride;
-        } else {
-            $gainedInitiative = $reactResponse['gainedInitiative'];
-        }
+        $gainedInitiative = $reactResponse['gainedInitiative'];
 
         if ($gainedInitiative) {
-            // re-enable all disabled chance dice for other players
-            foreach ($this->activeDieArrayArray as $pIdx => &$activeDieArray) {
-                if ($playerIdx == $pIdx) {
-                    continue;
-                }
-                foreach ($activeDieArray as &$activeDie) {
-                    if ($activeDie->has_skill('Chance')) {
-                        unset($activeDie->disabled);
-                    }
-                }
-            }
+            $this->do_next_step();
         }
-
-        $this->do_next_step();
 
         return array('gainedInitiative' => $gainedInitiative);
     }
@@ -1003,20 +1024,42 @@ class BMGame {
             return FALSE;
         }
 
+        $preRerollData = $die->get_action_log_data();
         $die->roll();
-        foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
-            if ($die->has_skill('Chance')) {
-                $die->disabled = TRUE;
-            }
+
+        if (isset($args['TESTrerolledDieValue'])) {
+            $die->value = $args['TESTrerolledDieValue'];
         }
+
+        $postRerollData = $die->get_action_log_data();
 
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->activeDieArrayArray
         );
 
-        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        if ($newInitiativeArray[$playerIdx]) {
+            $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        } else {
+            // only need to disable chance dice if the reroll fails to gain initiative
+            foreach ($this->activeDieArrayArray[$playerIdx] as &$die) {
+                if ($die->has_skill('Chance')) {
+                    $die->disabled = TRUE;
+                }
+            }
+        }
+
         $gainedInitiative = $newInitiativeArray[$playerIdx] &&
                             (1 == array_sum($newInitiativeArray));
+
+        $this->log_action(
+            'reroll_chance',
+            $this->playerIdArray[$playerIdx],
+            array(
+                'preReroll' => $preRerollData,
+                'postReroll' => $postRerollData,
+                'gainedInitiative' => $gainedInitiative,
+            )
+        );
 
         return array('gainedInitiative' => $gainedInitiative);
     }
@@ -1054,6 +1097,12 @@ class BMGame {
                 }
             }
         }
+
+        $this->log_action(
+            'init_decline',
+            $this->playerIdArray[$playerIdx],
+            array('initDecline' => TRUE)
+        );
 
         if (0 == array_sum($this->waitingOnActionArray)) {
             $this->gameState = BMGameState::START_ROUND;
@@ -1114,9 +1163,13 @@ class BMGame {
 
         // change specified die values
         $oldDieValueArray = array();
+        $preTurndownData = array();
+        $postTurndownData = array();
         foreach ($focusValueArray as $dieIdx => $newDieValue) {
+            $preTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
             $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
             $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
+            $postTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
         }
         $newInitiativeArray = BMGame::does_player_have_initiative_array(
             $this->activeDieArrayArray
@@ -1129,7 +1182,7 @@ class BMGame {
             foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
                 if ($oldDieValue >
                     $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
-                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->disabled = TRUE;
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->dizzy = TRUE;
                 }
             }
         } else {
@@ -1141,6 +1194,16 @@ class BMGame {
             $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
             return FALSE;
         }
+
+        $this->log_action(
+            'turndown_focus',
+            $this->playerIdArray[$playerIdx],
+            array(
+                'preTurndown' => $preTurndownData,
+                'postTurndown' => $postTurndownData,
+            )
+        );
+
         $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         return array('gainedInitiative' => TRUE);
     }
@@ -1302,6 +1365,8 @@ class BMGame {
             }
         }
 
+        $this->attack = NULL;
+
         if (empty($validAttackTypeArray)) {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
@@ -1328,6 +1393,7 @@ class BMGame {
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+        unset($this->forceRoundResult);
     }
 
     private function update_active_player() {
@@ -1387,6 +1453,13 @@ class BMGame {
         return $roundNumber;
     }
 
+    // After a round has ended, get the number of the round which just ended
+    // This is simpler than the logic in get_roundNumber(), because
+    // the behavior is the same in both the endgame and during-game cases
+    private function get_prevRoundNumber() {
+        return array_sum($this->gameScoreArrayArray[0]);
+    }
+
     private function get_roundScoreArray() {
         if ($this->gameState <= BMGameState::SPECIFY_DICE) {
             return array_fill(0, $this->nPlayers, NULL);
@@ -1418,13 +1491,26 @@ class BMGame {
         return $roundScoreArray;
     }
 
+    private function get_sideScoreArray() {
+        $roundScoreArray = $this->get_roundScoreArray();
+
+        if (2 != count($roundScoreArray) ||
+            is_null($roundScoreArray[0]) ||
+            is_null($roundScoreArray[1])) {
+            return array_fill(0, $this->nPlayers, NULL);
+        }
+
+        $sideDifference = round(2/3 * ($roundScoreArray[0] - $roundScoreArray[1]), 1);
+        return array($sideDifference, -$sideDifference);
+    }
+
     // record a game action in the history log
-    private function log_action($actionType, $actingPlayerIdx, $message) {
-        $this->actionLog[] = array(
-            'gameState'  => $this->gameState,
-            'actionType' => $actionType,
-            'actingPlayerIdx' => $actingPlayerIdx,
-            'message'    => $message,
+    public function log_action($actionType, $actingPlayerIdx, $params) {
+        $this->actionLog[] = new BMGameAction(
+            $this->gameState,
+            $actionType,
+            $actingPlayerIdx,
+            $params
         );
     }
 
@@ -1437,74 +1523,6 @@ class BMGame {
     // N.B. The chat text has not been sanitized at this point, so don't use it for anything
     public function add_chat($playerIdx, $chat) {
         $this->chat = array('playerIdx' => $playerIdx, 'chat' => $chat);
-    }
-
-    // special recording function for logging what changed as the result of an attack
-    private function log_attack($preAttackDice, $postAttackDice) {
-        $attackType = $this->attack['attackType'];
-
-        // First, what type of attack was this?
-        if ($attackType == 'Pass') {
-            $this->message = 'passed';
-        } else {
-            $this->message = 'performed ' . $attackType . ' attack';
-
-            // Add the pre-attack status of all participating dice
-            $preAttackAttackers = array();
-            $preAttackDefenders = array();
-//            $attackerOutcomes = array();
-//            $defenderOutcomes = array();
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
-            }
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-            }
-            if (count($preAttackAttackers) > 0) {
-                $this->message .= ' using [' . implode(",", $preAttackAttackers) . ']';
-            }
-            if (count($preAttackDefenders) > 0) {
-                $this->message .= ' against [' . implode(",", $preAttackDefenders) . ']';
-            }
-
-            // Report what happened to each defending die
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $postInfo = $postAttackDice['defender'][$idx];
-                $postEvents = array();
-                if ($postInfo['captured']) {
-                    $postEvents[] = 'was captured';
-                } else {
-                    $postEvents[] = 'was not captured';
-                    if ($defenderInfo['doesReroll']) {
-                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' . $postInfo['value'];
-                    } else {
-                        $postEvents[] = 'does not reroll';
-                    }
-                }
-                if ($defenderInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                $this->message .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEvents);
-            }
-
-            // Report what happened to each attacking die
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $postInfo = $postAttackDice['attacker'][$idx];
-                $postEvents = array();
-                if ($attackerInfo['doesReroll']) {
-                    $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
-                } else {
-                    $postEvents[] = 'does not reroll';
-                }
-                if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                if (count($postEvents) > 0) {
-                    $this->message .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEvents);
-                }
-            }
-        }
-        $this->log_action('attack', $this->playerIdArray[$this->attackerPlayerIdx], $this->message);
     }
 
     // get log-relevant data about the dice involved in an attack
@@ -1912,6 +1930,24 @@ class BMGame {
                 }
                 $this->autopassArray = $value;
                 break;
+            case 'forceRoundResult':
+                if (!is_array($value)) {
+                    throw new InvalidArgumentException('Input must be an array.');
+                }
+                if ($this->nPlayers != count($value)) {
+                    throw new InvalidArgumentException(
+                        'Input must have the same number of elements as the number of players.'
+                    );
+                }
+                foreach ($value as $tempValueElement) {
+                    if (!is_bool($tempValueElement)) {
+                        throw new InvalidArgumentException(
+                            'Input must be an array of booleans.'
+                        );
+                    }
+                }
+                $this->forceRoundResult = $value;
+                break;
             default:
                 $this->$property = $value;
         }
@@ -1991,20 +2027,22 @@ class BMGame {
 
                 foreach ($activeDieArray as $dieIdx => $die) {
                     // hide swing information if appropriate
-                    $dieValue = $die->value;
-                    $dieMax = $die->max;
-                    if (is_null($dieMax)) {
+                    if (is_null($die->max)) {
                         $swingValsSpecified = FALSE;
                     }
 
                     if ($wereSwingValsReset &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
-                        $dieValue = NULL;
-                        $dieMax = NULL;
+                        $die->value = NULL;
+
+                        if ($die instanceof BMDieSwing) {
+                            $die->swingValue = NULL;
+                            $die->max = NULL;
+                        }
                     }
-                    $valueArrayArray[$playerIdx][] = $dieValue;
-                    $sidesArrayArray[$playerIdx][] = $dieMax;
+                    $valueArrayArray[$playerIdx][] = $die->value;
+                    $sidesArrayArray[$playerIdx][] = $die->max;
                     $dieRecipeArrayArray[$playerIdx][] = $die->recipe;
                     $dieDescArrayArray[$playerIdx][] = $die->describe(FALSE);
                     if (count($die->skillList) > 0) {
@@ -2014,6 +2052,9 @@ class BMGame {
                     }
                     if ($die->disabled) {
                         $diePropsArrayArray[$playerIdx][$dieIdx]['disabled'] = TRUE;
+                    }
+                    if ($die->dizzy) {
+                        $diePropsArrayArray[$playerIdx][$dieIdx]['dizzy'] = TRUE;
                     }
                 }
             }
@@ -2096,6 +2137,7 @@ class BMGame {
                   'swingRequestArrayArray'   => $swingReqArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
+                  'sideScoreArray'           => $this->get_sideScoreArray(),
                   'gameScoreArrayArray'      => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);

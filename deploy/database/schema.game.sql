@@ -58,7 +58,7 @@ CREATE TABLE game_action_log (
     game_state         TINYINT UNSIGNED DEFAULT 10,
     action_type        VARCHAR(20),
     acting_player      SMALLINT UNSIGNED NOT NULL,
-    message            VARCHAR(512)
+    message            TEXT
 );
 
 DROP TABLE IF EXISTS game_chat_log;
