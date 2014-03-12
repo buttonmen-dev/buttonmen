@@ -1,0 +1,21 @@
+#!/bin/bash
+
+BACKUPDIR=/srv/backup
+DBNAME=buttonmen
+TODAY=`date +"%Y%m%d"`
+
+BACKUPFILE="${BACKUPDIR}/${DBNAME}.${TODAY}.sql"
+
+# Fail if BACKUPDIR isn't there
+if [ ! -d "$BACKUPDIR" ]; then
+  echo "backup directory is missing"
+  exit 1
+fi
+
+mysqldump -u root $DBNAME > $BACKUPFILE
+if [ ! -s "$BACKUPFILE" ]; then
+  echo "after backup, backup file is missing or zero size"
+  exit 1
+fi
+
+exit 0
