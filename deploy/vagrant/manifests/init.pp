@@ -14,6 +14,12 @@ node default {
     "174.129.14.204": {
       $puppet_hostname = "alpha.buttonweavers.com"
     }
+    "54.83.36.215": {
+      $puppet_hostname = "dev.buttonweavers.com"
+    }
+    "54.83.36.209": {
+      $puppet_hostname = "www.buttonweavers.com"
+    }
     default: {
       $puppet_hostname = "sandbox.buttonweavers.com"
     }
