@@ -7848,4 +7848,44 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($game->activeDieArrayArray[1][0]->has_skill('Berserk'));
         $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
     }
+
+    /**
+     * The following unit tests ensure that declined courtesy auxiliary swing dice work correctly.
+     *
+     * @coversNothing
+     */
+    public function test_declined_courtesy_auxiliary_swing_dice() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(6) (8) (10) (10) r(4) r(4) r(10) r(20)', 'Ayeka');
+
+        $button2 = new BMButton;
+        $button2->load('(2) (4) s(10) s(20) (X) +s(X)', 'Merlin');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+
+        // decline auxiliary dice
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+
+        $this->assertEquals(array(), $game->swingRequestArrayArray[0]);
+        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[1]));
+        $this->assertEquals(array(array(), array('X' => NULL)), $game->swingValueArrayArray);
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+
+        $game->swingValueArrayArray = array(array(), array('X' => 5));
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+    }
 }
