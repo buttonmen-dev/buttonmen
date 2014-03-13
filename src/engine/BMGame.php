@@ -1271,7 +1271,10 @@ class BMGame {
             $this->swingRequestArrayArray =
                 array_fill(0, $this->nPlayers, array());
         }
-        $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
+
+        if (!$die->doesSkipSwingRequest()) {
+            $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
+        }
     }
 
     public static function does_player_have_initiative_array(array $activeDieArrayArray) {
