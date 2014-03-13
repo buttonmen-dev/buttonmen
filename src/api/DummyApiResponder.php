@@ -68,7 +68,7 @@ class DummyApiResponder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = '19';
+        $gameId = 19;
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -90,116 +90,116 @@ class DummyApiResponder {
         );
 
         // game 1
-        $data['gameIdArray'][] = "1";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 1;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
         $data['opponentButtonNameArray'][] = "Avis";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 2
-        $data['gameIdArray'][] = "2";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 2;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
         $data['opponentButtonNameArray'][] = "Avis";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "0";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 3
-        $data['gameIdArray'][] = "3";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 3;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
         $data['opponentButtonNameArray'][] = "Avis";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
 
         // game 4
-        $data['gameIdArray'][] = "4";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 4;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
         $data['opponentButtonNameArray'][] = "Avis";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "0";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
 
         // fake game 5 is completed
 
         // game 6
-        $data['gameIdArray'][] = "6";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 6;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Buck Godot";
         $data['opponentButtonNameArray'][] = "Von Pinn";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 7
-        $data['gameIdArray'][] = "7";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 7;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Crab";
         $data['opponentButtonNameArray'][] = "Crab";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 8
-        $data['gameIdArray'][] = "8";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 8;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "John Kovalic";
         $data['opponentButtonNameArray'][] = "John Kovalic";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 9
-        $data['gameIdArray'][] = "9";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 9;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "John Kovalic";
         $data['opponentButtonNameArray'][] = "John Kovalic";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "0";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
 
@@ -208,60 +208,60 @@ class DummyApiResponder {
         // tester1 is not a participant in fake game 12
 
         // game 13
-        $data['gameIdArray'][] = "13";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 13;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "King Arthur";
         $data['opponentButtonNameArray'][] = "King Arthur";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 14
-        $data['gameIdArray'][] = "14";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 14;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "King Arthur";
         $data['opponentButtonNameArray'][] = "King Arthur";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "0";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // tester1 is not a participant in fake game 15
 
         // game 16
-        $data['gameIdArray'][] = "16";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 16;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Cammy Neko";
         $data['opponentButtonNameArray'][] = "Cammy Neko";
-        $data['nWinsArray'][] = "0";
-        $data['nLossesArray'][] = "1";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "1";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 1;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
 
         // game 17
-        $data['gameIdArray'][] = "17";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 17;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Cammy Neko";
         $data['opponentButtonNameArray'][] = "Cammy Neko";
-        $data['nWinsArray'][] = "1";
-        $data['nLossesArray'][] = "0";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "0";
+        $data['nWinsArray'][] = 1;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
 
@@ -287,16 +287,16 @@ class DummyApiResponder {
         );
 
         // game 5
-        $data['gameIdArray'][] = "5";
-        $data['opponentIdArray'][] = "2";
+        $data['gameIdArray'][] = 5;
+        $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Avis";
         $data['opponentButtonNameArray'][] = "Avis";
-        $data['nWinsArray'][] = "3";
-        $data['nLossesArray'][] = "2";
-        $data['nDrawsArray'][] = "0";
-        $data['nTargetWinsArray'][] = "3";
-        $data['isAwaitingActionArray'][] = "0";
+        $data['nWinsArray'][] = 3;
+        $data['nLossesArray'][] = 2;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "END_GAME";
         $data['statusArray'][] = "COMPLETE";
 
