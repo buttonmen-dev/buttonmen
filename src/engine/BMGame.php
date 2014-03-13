@@ -2043,6 +2043,16 @@ class BMGame {
                             $die->swingValue = NULL;
                             $die->max = NULL;
                         }
+
+                        if ($die instanceof BMDieTwin) {
+                            foreach ($die->dice as $subdie) {
+                                if ($subdie instanceof BMDieSwing) {
+                                    $subdie->swingValue = NULL;
+                                    $subdie->max = NULL;
+                                    $die->max = NULL;
+                                }
+                            }
+                        }
                     }
                     $valueArrayArray[$playerIdx][] = $die->value;
                     $sidesArrayArray[$playerIdx][] = $die->max;
