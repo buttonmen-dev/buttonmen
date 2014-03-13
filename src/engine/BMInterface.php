@@ -708,7 +708,7 @@ class BMInterface {
             $nLossesArray[]       = $row['n_losses'];
             $nTargetWinsArray[]   = $row['n_target_wins'];
             $isToActArray[]       = $row['is_awaiting_action'];
-            $gameStateArray[]     = $row['game_state'];
+            $gameStateArray[]     = BMGameState::as_string($row['game_state']);
             $statusArray[]        = $row['status'];
         }
 
