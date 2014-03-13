@@ -304,7 +304,8 @@ class ApiSpec {
 
     // verify that the argument is a nonnegative integer
     protected function verify_argument_of_type_number($arg) {
-        if (is_int($arg) || (is_string($arg) && ctype_digit($arg))) {
+        if ((is_int($arg) && $arg >= 0) ||
+            (is_string($arg) && ctype_digit($arg))) {
             return TRUE;
         }
         return FALSE;
