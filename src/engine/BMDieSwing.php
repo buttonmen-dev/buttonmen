@@ -88,13 +88,6 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function make_play_die() {
-        // Get swing value from the game before cloning, so it's saved
-        // from round to round.
-
-        return parent::make_play_die();
-    }
-
     public function roll($successfulAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {

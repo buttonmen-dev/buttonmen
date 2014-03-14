@@ -61,11 +61,6 @@ class BMDieOption extends BMDie {
         $newDie->valueRequested = TRUE;
     }
 
-//    public function make_play_die() {
-//
-//        return parent::make_play_die();
-//    }
-
     public function roll($successfulAttack = FALSE) {
         if ($this->needsOptionValue) {
             if (!$this->valueRequested) {
