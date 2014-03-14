@@ -561,11 +561,11 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $die2->init('V', array('Shadow'));
         $this->assertEquals('s(V)', $die2->get_recipe());
 
-        $die3 = new BMDie;
+        $die3 = new BMDieSwing;
         $die3->init('S', array('Poison', 'Shadow'));
         $this->assertEquals('ps(S)', $die3->get_recipe());
 
-        $die4 = new BMDie;
+        $die4 = new BMDieSwing;
         $die4->init('R', array('Shadow', 'Poison'));
         $this->assertEquals('sp(R)', $die4->get_recipe());
     }

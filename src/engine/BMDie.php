@@ -473,7 +473,7 @@ class BMDie extends BMCanHaveSkill {
 
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
-
+            $recipe .= "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}";
         } elseif ($this instanceof BMDieTwin) {
             // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {

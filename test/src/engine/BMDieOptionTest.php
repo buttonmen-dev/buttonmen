@@ -326,91 +326,80 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
         // Does it roll?
         $this->assertTrue(is_numeric($game->activeDieArrayArray[1][0]->value));
     }
-//
-//    /**
-//     * @depends testInit
-//     * @depends testSet_optionValue
-//     * @depends testRoll
-//     * @covers BMDieOption::make_play_die
-//     */
-//    public function testMake_play_die() {
-//        $game = new TestDummyGame;
-//
-//        $this->object->init('X');
-//        $this->object->ownerObject = $game;
-//
-//        $this->object->activate("player");
-//        $newDie = $game->dice[0][1];
-//
-//        // No value yet set. It will call game->require_values()
-//        try {
-//            $newDie->make_play_die();
-//            $this->fail('require_values not called.');
-//        } catch (Exception $e) {
-//        }
-//
-//        // If it doesn't need a value, it won't
-//        $newDie->set_swingValue(array('X' => '11'));
-//
-//        // newDie shouldn't have a value yet
-//        $this->assertFalse(is_numeric($newDie->value));
-//
-//        try {
-//            $rolledDie = $newDie->make_play_die();
-//            $this->fail('require_values called.');
-//        } catch (Exception $e) {
-//        }
-//
-//        // the die it returns should have a value, and not be the
-//        // previous die
-//        $this->assertFalse($newDie === $rolledDie);
-//        $this->assertTrue(is_numeric($rolledDie->value));
-//        $this->assertFalse(is_numeric($newDie->value));
-//    }
-//
-//
-//    /**
-//     * @depends testInit
-//     * @depends testSet_optionValue
-//     * @depends testRoll
-//     * @coversNothing
-//     */
-//    public function testIntegrationMake_play_die() {
-//        $game = new BMGame;
-//        $game->activeDieArrayArray = array(array(), array());
-//
-//        $this->object->init('X');
-//        $this->object->ownerObject = $game;
-//        $this->object->playerIdx = 1;
-//
-//        $this->object->activate();
-//        $newDie = $game->activeDieArrayArray[1][0];
-//
-//        // No value yet set. It will call game->require_values()
-//        try {
-//            $newDie->make_play_die();
-//            $this->fail('require_values not called.');
-//        } catch (Exception $e) {
-//        }
-//
-//        // If it doesn't need a value, it won't
-//        $newDie->set_swingValue(array('X' => '11'));
-//
-//        // newDie shouldn't have a value yet
-//        $this->assertFalse(is_numeric($newDie->value));
-//        try {
-//            $rolledDie = $newDie->make_play_die();
-//            $this->fail('require_values called.');
-//        } catch (Exception $e) {
-//        }
-//
-//        // the die it returns should have a value, and not be the
-//        // previous die
-//        $this->assertFalse($newDie === $rolledDie);
-//        $this->assertTrue(is_numeric($rolledDie->value));
-//        $this->assertFalse(is_numeric($newDie->value));
-//    }
-//
+
+    /**
+     * @depends testInit
+     * @depends testSet_optionValue
+     * @depends testRoll
+     * @covers BMDieOption::make_play_die
+     */
+    public function testMake_play_die() {
+        $game = new TestDummyGame;
+
+        $this->object->init(array(4,7));
+        $this->object->ownerObject = $game;
+
+        $this->object->activate("player");
+        $newDie = $game->dice[0][1];
+
+        // No value yet set. It will call game->require_values()
+        try {
+            $newDie->make_play_die();
+            $this->fail('require_values not called.');
+        } catch (Exception $e) {
+        }
+
+        // If it doesn't need a value, it won't
+        $newDie->set_optionValue(7);
+
+        // newDie shouldn't have a value yet
+        $this->assertFalse(is_numeric($newDie->value));
+
+        try {
+            $rolledDie = $newDie->make_play_die();
+            $this->fail('require_values called.');
+        } catch (Exception $e) {
+        }
+
+        // the die it returns should have a value, and not be the
+        // previous die
+        $this->assertFalse($newDie === $rolledDie);
+        $this->assertTrue(is_numeric($rolledDie->value));
+        $this->assertFalse(is_numeric($newDie->value));
+    }
+
+
+    /**
+     * @depends testInit
+     * @depends testSet_optionValue
+     * @depends testRoll
+     * @coversNothing
+     */
+    public function testIntegrationMake_play_die() {
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array(), array());
+
+        $this->object->init(array(4,7));
+        $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
+
+        $this->object->activate();
+        $newDie = $game->activeDieArrayArray[1][0];
+
+        $newDie->make_play_die();
+        $newDie->set_optionValue(7);
+
+        // newDie shouldn't have a value yet
+        $this->assertFalse(is_numeric($newDie->value));
+        $rolledDie = $newDie->make_play_die();
+
+        // the die it returns should have a value, and not be the
+        // previous die
+        $this->assertFalse($newDie === $rolledDie);
+        $this->assertTrue(is_numeric($rolledDie->value));
+        $this->assertFalse(is_numeric($newDie->value));
+    }
+
     /*
      * @covers BMDieOption::describe
      */
@@ -443,28 +432,28 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
         );
     }
 
-//    /*
-//     * @covers BMDie::get_recipe
-//     */
-//    public function testGet_recipe() {
-//        $die0 = new BMDieSwing;
-//        $die0->init('X', array());
-//        $this->assertEquals('(X)', $die0->get_recipe());
-//
-//        $die1 = new BMDieSwing;
-//        $die1->init('Y', array('Poison'));
-//        $this->assertEquals('p(Y)', $die1->get_recipe());
-//
-//        $die2 = new BMDieSwing;
-//        $die2->init('V', array('Shadow'));
-//        $this->assertEquals('s(V)', $die2->get_recipe());
-//
-//        $die3 = new BMDie;
-//        $die3->init('S', array('Poison', 'Shadow'));
-//        $this->assertEquals('ps(S)', $die3->get_recipe());
-//
-//        $die4 = new BMDie;
-//        $die4->init('R', array('Shadow', 'Poison'));
-//        $this->assertEquals('sp(R)', $die4->get_recipe());
-//    }
+    /*
+     * @covers BMDie::get_recipe
+     */
+    public function testGet_recipe() {
+        $die0 = new BMDieOption;
+        $die0->init(array(4,8), array());
+        $this->assertEquals('(4/8)', $die0->get_recipe());
+
+        $die1 = new BMDieOption;
+        $die1->init(array(4,8), array('Poison'));
+        $this->assertEquals('p(4/8)', $die1->get_recipe());
+
+        $die2 = new BMDieOption;
+        $die2->init(array(4,8), array('Shadow'));
+        $this->assertEquals('s(4/8)', $die2->get_recipe());
+
+        $die3 = new BMDieOption;
+        $die3->init(array(4,8), array('Poison', 'Shadow'));
+        $this->assertEquals('ps(4/8)', $die3->get_recipe());
+
+        $die4 = new BMDieOption;
+        $die4->init(array(4,8), array('Shadow', 'Poison'));
+        $this->assertEquals('sp(4/8)', $die4->get_recipe());
+    }
 }
