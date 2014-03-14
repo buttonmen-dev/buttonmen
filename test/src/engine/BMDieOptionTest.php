@@ -411,38 +411,38 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 //        $this->assertFalse(is_numeric($newDie->value));
 //    }
 //
-//    /*
-//     * @covers BMDieOption::describe
-//     */
-//    public function testDescribe() {
-//        $this->object->init('X');
-//        $this->assertEquals('X Swing Die', $this->object->describe(TRUE));
-//        $this->assertEquals('X Swing Die', $this->object->describe(FALSE));
-//
-//        $this->object->set_swingValue(array('X' => 5));
-//        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(TRUE));
-//        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
-//
-//        $this->object->roll();
-//        $value = $this->object->value;
-//        $this->assertEquals(
-//            "X Swing Die (with 5 sides) showing {$value}",
-//            $this->object->describe(TRUE)
-//        );
-//        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
-//
-//        $this->object->add_skill('Poison');
-//        $this->object->add_skill('Shadow');
-//        $this->assertEquals(
-//            "Poison Shadow X Swing Die (with 5 sides) showing {$value}",
-//            $this->object->describe(TRUE)
-//        );
-//        $this->assertEquals(
-//            'Poison Shadow X Swing Die (with 5 sides)',
-//            $this->object->describe(FALSE)
-//        );
-//    }
-//
+    /*
+     * @covers BMDieOption::describe
+     */
+    public function testDescribe() {
+        $this->object->init(array(6,8));
+        $this->assertEquals('Option Die (with 6 or 8 sides)', $this->object->describe(TRUE));
+        $this->assertEquals('Option Die (with 6 or 8 sides)', $this->object->describe(FALSE));
+
+        $this->object->set_optionValue(8);
+        $this->assertEquals('Option Die (with 8 sides)', $this->object->describe(TRUE));
+        $this->assertEquals('Option Die (with 8 sides)', $this->object->describe(FALSE));
+
+        $this->object->roll();
+        $value = $this->object->value;
+        $this->assertEquals(
+            "Option Die (with 8 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals('Option Die (with 8 sides)', $this->object->describe(FALSE));
+
+        $this->object->add_skill('Poison');
+        $this->object->add_skill('Shadow');
+        $this->assertEquals(
+            "Poison Shadow Option Die (with 8 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Option Die (with 8 sides)',
+            $this->object->describe(FALSE)
+        );
+    }
+
 //    /*
 //     * @covers BMDie::get_recipe
 //     */

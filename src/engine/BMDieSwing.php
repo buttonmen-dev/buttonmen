@@ -110,7 +110,7 @@ class BMDieSwing extends BMDie {
         }
     }
 
-// Print long description
+    // Print long description
     public function describe($isValueRequired = FALSE) {
         if (!is_bool($isValueRequired)) {
             throw new InvalidArgumentException('isValueRequired must be boolean');
