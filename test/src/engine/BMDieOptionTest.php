@@ -232,7 +232,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
         $this->object->init(array(4, 10));
 
         // needs a value, hasn't requested one. Should call
-        // request_swing_values before calling require_values
+        // request_option_values before calling require_values
         $game = new TestDummyGame;
 
         $this->object->ownerObject = $game;
@@ -242,133 +242,90 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
             $this->fail('dummy require_values not called.');
         } catch (Exception $e) {
         }
-//
-//        $this->assertNotEmpty($game->swingrequest);
-//
-//        // Once activated, it should have requested a value, but still
-//        // needs one.
-//        // Calls require_values without calling request_swing_values
-//
-//        $this->object->init('X');
-//
-//        $game = new TestDummyGame;
-//        $this->object->ownerObject = $game;
-//
-//        $this->object->activate('player');
-//        $newDie = $game->dice[0][1];
-//
-//        $this->assertNotNull($game->swingrequest);
-//        $game->swingrequest = array();
-//
-//        try {
-//            $newDie->roll(FALSE);
-//            $this->fail('dummy require_values not called.');
-//        } catch (Exception $e) {
-//        }
-//
-//        $this->assertEmpty($game->swingrequest);
-//
-//        // And if the swing value is set, it won't call require_values
-//        $this->object->init('X');
-//
-//        $game = new TestDummyGame;
-//        $this->object->ownerObject = $game;
-//
-//        $this->object->activate('player');
-//        $newDie = $game->dice[0][1];
-//
-//        $this->assertNotNull($game->swingrequest);
-//        $game->swingrequest = array();
-//
-//        $newDie->set_swingValue(array('X' => '15'));
-//
-//        // it hasn't rolled yet
-//        $this->assertFalse(is_numeric($newDie->value));
-//
-//        try {
-//            $newDie->roll(FALSE);
-//            $this->fail('dummy require_values was called.');
-//        } catch (Exception $e) {
-//        }
-//        $this->assertEmpty($game->swingrequest);
-//
-//        // Does it roll?
-//        $this->assertTrue(is_numeric($newDie->value));
+
+        $this->assertNotEmpty($game->optionrequest);
+
+        // Once activated, it should have requested a value, but still
+        // needs one.
+        // Calls require_values without calling request_option_values
+
+        $this->object->init(array(5, 11));
+
+        $game = new TestDummyGame;
+        $this->object->ownerObject = $game;
+
+        $this->object->activate('player');
+        $newDie = $game->dice[0][1];
+
+        $this->assertNotNull($game->optionrequest);
+        $game->optionrequest = array();
+
+        try {
+            $newDie->roll(FALSE);
+            $this->fail('dummy require_values not called.');
+        } catch (Exception $e) {
+        }
+
+        $this->assertEmpty($game->optionrequest);
+
+        // And if the option value is set, it won't call require_values
+        $this->object->init(array(6,12));
+
+        $game = new TestDummyGame;
+        $this->object->ownerObject = $game;
+
+        $this->object->activate('player');
+        $newDie = $game->dice[0][1];
+
+        $this->assertNotNull($game->optionrequest);
+        $game->optionrequest = array();
+
+        $newDie->set_optionValue(12);
+
+        // it hasn't rolled yet
+        $this->assertFalse(is_numeric($newDie->value));
+
+        try {
+            $newDie->roll(FALSE);
+            $this->fail('dummy require_values was called.');
+        } catch (Exception $e) {
+        }
+        $this->assertEmpty($game->optionrequest);
+
+        // Does it roll?
+        $this->assertTrue(is_numeric($newDie->value));
     }
-//
-//
-//    /**
-//     * @depends testInit
-//     * @depends testActivate
-//     * @depends testSet_optionValue
-//     * @coversNothing
-//     */
-//    public function testInterfaceRoll() {
-//
-//        // testing whether it calls the appropriate methods in BMGame
-//
-//        $this->object->init('X');
-//        $this->object->ownerObject = new BMGame;
-//
-//        // needs a value, hasn't requested one. Should call
-//        // request_swing_values before calling require_values
-//        try {
-//            $this->object->roll(FALSE);
-//            $this->fail('dummy require_values not called.');
-//        } catch (Exception $e) {
-//        }
-//
-////        $this->assertNotEmpty($game->swingrequest);
-//
-//        // Once activated, it should have requested a value, but still
-//        // needs one.
-//        // Calls require_values without calling request_swing_values
-//
-//        $this->object->init('X');
-//
-//        $game = new BMGame;
-//        $game->activeDieArrayArray = array(array(), array());
-//        $this->object->ownerObject = $game;
-//
-//        $this->object->activate(0);
-//
-//        $this->assertNotNull($game->swingRequestArrayArray);
-////        $game->swingRequestArrayArray = array(array(), array();
-//
-//        try {
-//            $game->activeDieArrayArray[0][0]->roll(FALSE);
-//            $this->fail('dummy require_values not called.');
-//        } catch (Exception $e) {
-//        }
-//        $this->assertEmpty($game->swingrequest);
-//
-//        // And if the swing value is set, it won't call require_values
-//        $this->object->init('X');
-//
-//        $game = new BMGame;
-//        $game->activeDieArrayArray = array(array(), array());
-//        $this->object->ownerObject = $game;
-//        $this->object->playerIdx = 0;
-//
-//        $this->object->activate();
-//
-//        $this->assertNotNull($game->swingRequestArrayArray);
-//        $game->swingrequest = array();
-//
-//        $game->activeDieArrayArray[0][0]->set_swingValue(array('X' => '15'));
-//
-//        // it hasn't rolled yet
-//        $this->assertFalse(is_numeric($game->activeDieArrayArray[0][0]->value));
-//
-//        try {
-//            $game->activeDieArrayArray[0][0]->roll(FALSE);
-//            $this->fail('dummy require_values was called.');
-//        } catch (Exception $e) {
-//        }
-//
-//        // Does it roll?
-//        $this->assertTrue(is_numeric($game->activeDieArrayArray[0][0]->value));
-//    }
+
+
+    /**
+     * @depends testInit
+     * @depends testActivate
+     * @depends testSet_optionValue
+     * @coversNothing
+     */
+    public function testInterfaceRoll() {
+        // testing whether it calls the appropriate methods in BMGame
+        $this->object->init(array(5,7));
+        $game = new BMGame;
+        $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
+        $game->activeDieArrayArray = array(array(), array($this->object));
+
+        // needs a value, hasn't requested one. Should call
+        // request_option_values
+        $this->object->roll(FALSE);
+        $this->assertNotEmpty($game->optRequestArrayArray[1]);
+
+        $game->activeDieArrayArray[1][0]->set_optionValue(7);
+
+        // it hasn't rolled yet
+        $this->assertFalse(is_numeric($game->activeDieArrayArray[1][0]->value));
+
+        $game->activeDieArrayArray[1][0]->roll(FALSE);
+       
+        // Does it roll?
+        $this->assertTrue(is_numeric($game->activeDieArrayArray[1][0]->value));
+    }
 //
 //    /**
 //     * @depends testInit

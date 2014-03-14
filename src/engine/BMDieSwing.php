@@ -105,9 +105,9 @@ class BMDieSwing extends BMDie {
                 );
                 $this->valueRequested = TRUE;
             }
+        } else {
+            parent::roll($successfulAttack);
         }
-
-        parent::roll($successfulAttack);
     }
 
 // Print long description

@@ -76,9 +76,9 @@ class BMDieOption extends BMDie {
                 );
                 $this->valueRequested = TRUE;
             }
+        } else {
+            parent::roll($successfulAttack);
         }
-
-        parent::roll($successfulAttack);
     }
 
 // Print long description
@@ -119,32 +119,19 @@ class BMDieOption extends BMDie {
         return $normalDie->split();
     }
 
-//    public function set_optionValue($optionList) {
-//        $valid = TRUE;
-//
-//        if (!array_key_exists($this->swingType, $swingList)) {
-//            return FALSE;
-//        }
-//
-//        $sides = (int)$swingList[$this->swingType];
-//
-//        if ($sides < $this->swingMin || $sides > $this->swingMax) {
-//            return FALSE;
-//        }
-//
-//        $this->run_hooks(__FUNCTION__, array('isValid'   => &$valid,
-//                                             'swingList' => $swingList));
-//
-//        if ($valid) {
-//            $this->swingValue = $sides;
-//            $this->needsSwingValue = FALSE;
-//            $this->valueRequested = FALSE;
-//            $this->max = $sides;
-//            $this->scoreValue = $sides;
-//        }
-//
-//        return $valid;
-//    }
+    public function set_optionValue($optionValue) {
+        if (FALSE === array_search($optionValue, $this->optionValueArray)) {
+            return FALSE;
+        }
+
+        $this->optionValue = $optionValue;
+        $this->needsOptionValue = FALSE;
+        $this->valueRequested = FALSE;
+        $this->max = $optionValue;
+        $this->scoreValue = $optionValue;
+        
+        return TRUE;
+    }
 
     public function __set($property, $value) {
         switch ($property) {
