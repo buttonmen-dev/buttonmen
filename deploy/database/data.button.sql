@@ -331,17 +331,6 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Simon',       'q(4) q(6) q(12) q(20) q(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Werner',      '(8) (10) (10) (12) pzs(V)!',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks"));
 
-# GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded(M), Evil(E)
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('Dream Wyrm',      'T(8) (20) (20) (20,8) (U)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('EDG',             'I(6) I(8) I(10) (20) (X)',                   0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Randarch',        'M(6) M(6) (10) (10) (X)',                    0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Scarlet Jester',  'n(4) E(10) n(12) E(20) E(20)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Shane Hensley',   'E(6) E(6) E(6) E(6) E(6) E(6)',              0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians"));
-
 # HIGH SCHOOL DRAMA!  (Shifting Skies)     INTRODUCES Sideboard(S) dice
 # ASSUMED ALL TO BE TL
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -643,8 +632,8 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Sailor Man',    '(4,4) (8) (20) (12,12) r(10,10) r(6,6) r(8)',      0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
 ('Xylene',        's(6) s(8) s(10) s(X) s(Y)',                        0, 1, (SELECT id FROM buttonset WHERE name="Geekz"));
 
-#########
-# I haven't found any info regarding the rest of these sets, and suspect many to fan / vanity sets
+###############################################
+##### SETS MADE FOR BUTTONMEN ONLINE OR DESIGNED BY ITS PLAYERS
 
 # IRON CHEF                                                   SKILLS Option
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -728,6 +717,23 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Frankenstein\'s Monster',  '(10/16) (16/20) o(20/30) {G,B}(30)',    0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
 ('Invisible Man',            'n(4) d(6) d(10) ng(10) d(20)',          0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
 ('Wolfman',                  '(6) p(10) (12) z(16) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror"));
+
+
+###############################################
+##### UNOFFICIAL SETS - FAN AND VANITY SETS
+
+# GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded(M), Evil(E)
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Dream Wyrm',      'T(8) (20) (20) (20,8) (U)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('EDG',             'I(6) I(8) I(10) (20) (X)',                   0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Randarch',        'M(6) M(6) (10) (10) (X)',                    0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Scarlet Jester',  'n(4) E(10) n(12) E(20) E(20)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Shane Hensley',   'E(6) E(6) E(6) E(6) E(6) E(6)',              0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians"));
+
+
 
 ################################################
 #####   C L A S S I C    F A N A T I C S   #####
