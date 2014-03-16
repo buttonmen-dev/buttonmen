@@ -3059,6 +3059,99 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGame::getJsonData
+     * @covers BMGame::get_sideScoreArray
+     */
+    public function test__getJsonData_twin_swing_visibility () {
+        $button1 = new BMButton;
+        $button1->load('(8) (10) (12) (20) (X)', 'Bauer');
+
+        $button2 = new BMButton;
+        $button2->load('(2,2) (4,4) (6,6) (10,10) (T,T)', 'Tweedledum+dee');
+
+        // load game
+        $game1 = new BMGame(424242, array(123, 456));
+        $game1->buttonArray = array($button1, $button2);
+        $game1->waitingOnActionArray = array(FALSE, FALSE);
+        $game1->proceed_to_next_user_action();
+
+        // beginning of game
+        // twin swing value is specified, the other not
+        $game1->swingValueArrayArray = array(array(), array('T' => 3));
+        $game1->proceed_to_next_user_action();
+
+        $out1 = $game1->getJsonData(123);
+        $this->assertEquals(424242, $out1['data']['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
+        $this->assertEquals(1, $out1['data']['roundNumber']);
+        $this->assertEquals(3, $out1['data']['maxWins']);
+        $this->assertNull($out1['data']['activePlayerIdx']);
+        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
+        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
+        $this->assertEquals(array('Bauer', 'Tweedledum+dee'), $out1['data']['buttonNameArray']);
+        $this->assertEquals(array(TRUE, FALSE), $out1['data']['waitingOnActionArray']);
+        $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
+        $this->assertEquals(
+            array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
+            $out1['data']['valueArrayArray']
+        );
+        // at the beginning of the game, all opponents' swing dice are hidden
+        $this->assertEquals(
+            array(array(8, 10, 12, 20, NULL), array(4, 8, 12, 20, NULL)),
+            $out1['data']['sidesArrayArray']
+        );
+        $this->assertEquals(
+            array(array(array(), array(), array(), array(), array()),
+                  array(array(), array(), array(), array(), array())),
+            $out1['data']['dieSkillsArrayArray']
+        );
+        $this->assertEquals(
+            array(array(array(), array(), array(), array(), array()),
+                  array(array(), array(), array(), array(), array())),
+            $out1['data']['diePropertiesArrayArray']
+        );
+        $this->assertEquals(
+            array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
+                  array('(2,2)', '(4,4)', '(6,6)', '(10,10)', '(T,T)')),
+            $out1['data']['dieRecipeArrayArray']
+        );
+        $this->assertEquals(
+            array(
+                array(
+                    '8-sided die',
+                    '10-sided die',
+                    '12-sided die',
+                    '20-sided die',
+                    'X Swing Die'
+                ),
+                array(
+                    'Twin Die (both with 2 sides)',
+                    'Twin Die (both with 4 sides)',
+                    'Twin Die (both with 6 sides)',
+                    'Twin Die (both with 10 sides)',
+                    'Twin T Swing Die'
+                )
+            ),
+            $out1['data']['dieDescriptionArrayArray']
+        );
+        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
+        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
+        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
+        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(
+            array(array('X' => array(4, 20)), array('T' => array(2, 12))),
+            $out1['data']['swingRequestArrayArray']
+        );
+        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
+        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
+        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
+        $this->assertEquals(
+            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
+            $out1['data']['gameScoreArrayArray']
+        );
+    }
+
+    /**
      * @coversNothing
      */
     public function test_full_soldiers_game() {
@@ -7847,5 +7940,45 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $game->activeDieArrayArray[1][0]->max);
         $this->assertFalse($game->activeDieArrayArray[1][0]->has_skill('Berserk'));
         $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+    }
+
+    /**
+     * The following unit tests ensure that declined courtesy auxiliary swing dice work correctly.
+     *
+     * @coversNothing
+     */
+    public function test_declined_courtesy_auxiliary_swing_dice() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(6) (8) (10) (10) r(4) r(4) r(10) r(20)', 'Ayeka');
+
+        $button2 = new BMButton;
+        $button2->load('(2) (4) s(10) s(20) (X) +s(X)', 'Merlin');
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+
+        // decline auxiliary dice
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+
+        $this->assertEquals(array(), $game->swingRequestArrayArray[0]);
+        $this->assertTrue(array_key_exists('X', $game->swingRequestArrayArray[1]));
+        $this->assertEquals(array(array(), array('X' => NULL)), $game->swingValueArrayArray);
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+
+        $game->swingValueArrayArray = array(array(), array('X' => 5));
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
     }
 }

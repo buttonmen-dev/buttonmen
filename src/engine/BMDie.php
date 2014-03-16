@@ -530,6 +530,15 @@ class BMDie extends BMCanHaveSkill {
         return $newDie;
     }
 
+    public function doesSkipSwingRequest() {
+        $hookResult = $this->run_hooks(__FUNCTION__, array('die' => $this));
+
+        $doesSkipSwingRequest = is_array($hookResult) &&
+                                array_search('doesSkipSwingRequest', $hookResult);
+
+        return $doesSkipSwingRequest;
+    }
+
     // utility methods
 
     public function __get($property) {

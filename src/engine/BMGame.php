@@ -1263,7 +1263,10 @@ class BMGame {
             $this->swingRequestArrayArray =
                 array_fill(0, $this->nPlayers, array());
         }
-        $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
+
+        if (!$die->doesSkipSwingRequest()) {
+            $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
+        }
     }
 
     public function request_option_values($die, $optionArray, $playerIdx) {
@@ -2042,6 +2045,16 @@ class BMGame {
                         if ($die instanceof BMDieSwing) {
                             $die->swingValue = NULL;
                             $die->max = NULL;
+                        }
+
+                        if ($die instanceof BMDieTwin) {
+                            foreach ($die->dice as $subdie) {
+                                if ($subdie instanceof BMDieSwing) {
+                                    $subdie->swingValue = NULL;
+                                    $subdie->max = NULL;
+                                    $die->max = NULL;
+                                }
+                            }
                         }
                     }
                     $valueArrayArray[$playerIdx][] = $die->value;

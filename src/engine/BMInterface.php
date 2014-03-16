@@ -175,7 +175,7 @@ class BMInterface {
             $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
             $statement->execute();
             $fetchData = $statement->fetch();
-            $gameId = $fetchData[0];
+            $gameId = (int)$fetchData[0];
 
             foreach ($playerIdArray as $position => $playerId) {
                 // add info to game_player_map
@@ -351,7 +351,7 @@ class BMInterface {
                 $die->ownerObject = $game;
 
                 if (isset($die->swingType)) {
-                    $game->swingRequestArrayArray[$originalPlayerIdx][$die->swingType][] = $die;
+                    $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
 
                     if (isset($row['swing_value'])) {
                         $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
@@ -698,17 +698,17 @@ class BMInterface {
         $statusArray = array();
 
         while ($row = $statement->fetch()) {
-            $gameIdArray[]        = $row['game_id'];
-            $opponentIdArray[]    = $row['opponent_id'];
+            $gameIdArray[]        = (int)$row['game_id'];
+            $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
             $myButtonNameArray[]  = $row['my_button_name'];
             $oppButtonNameArray[] = $row['opponent_button_name'];
-            $nWinsArray[]         = $row['n_wins'];
-            $nDrawsArray[]        = $row['n_draws'];
-            $nLossesArray[]       = $row['n_losses'];
-            $nTargetWinsArray[]   = $row['n_target_wins'];
-            $isToActArray[]       = $row['is_awaiting_action'];
-            $gameStateArray[]     = $row['game_state'];
+            $nWinsArray[]         = (int)$row['n_wins'];
+            $nDrawsArray[]        = (int)$row['n_draws'];
+            $nLossesArray[]       = (int)$row['n_losses'];
+            $nTargetWinsArray[]   = (int)$row['n_target_wins'];
+            $isToActArray[]       = (int)$row['is_awaiting_action'];
+            $gameStateArray[]     = BMGameState::as_string($row['game_state']);
             $statusArray[]        = $row['status'];
         }
 
