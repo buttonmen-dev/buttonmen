@@ -1982,11 +1982,12 @@ class BMGame {
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
-        $wereSwingValsReset = TRUE;
+        // flag signalling whether swing or option values could have been reset
+        $wereValsReset = TRUE;
         // james: need to also consider the case of many multiple draws in a row
         foreach ($this->gameScoreArrayArray as $gameScoreArray) {
             if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
-                $wereSwingValsReset = FALSE;
+                $wereValsReset = FALSE;
                 break;
             }
         }
@@ -2044,7 +2045,7 @@ class BMGame {
                         $swingValsSpecified = FALSE;
                     }
 
-                    if ($wereSwingValsReset &&
+                    if ($wereValsReset &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
                         $die->value = NULL;
@@ -2062,6 +2063,11 @@ class BMGame {
                                     $die->max = NULL;
                                 }
                             }
+                        }
+
+                        if ($die instanceof BMDieOption) {
+                            $die->optionValue = NULL;
+                            $die->max = NULL;
                         }
                     }
                     $valueArrayArray[$playerIdx][] = $die->value;
@@ -2101,7 +2107,7 @@ class BMGame {
                     $dieValue = $die->value;
                     $dieMax = $die->max;
 
-                    if ($wereSwingValsReset &&
+                    if ($wereValsReset &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
                         $dieValue = NULL;

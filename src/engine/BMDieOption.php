@@ -126,14 +126,15 @@ class BMDieOption extends BMDie {
         $this->valueRequested = FALSE;
         $this->max = $optionValue;
         $this->scoreValue = $optionValue;
-        
+
         return TRUE;
     }
 
     public function __set($property, $value) {
         switch ($property) {
             case 'optionValue':
-                if (in_array($value, $this->optionValueArray)) {
+                if (in_array($value, $this->optionValueArray) ||
+                    is_null($value)) {
                     $this->$property = $value;
                 } else {
                     throw new LogicException('Chosen option value is invalid.');

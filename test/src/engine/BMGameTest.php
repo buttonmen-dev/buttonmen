@@ -8054,25 +8054,42 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // specify option dice incorrectly
         $game->activeDieArrayArray[0][2]->set_optionValue(6);
-        $this->assertFalse(isset($game->activeDieArrayArray[0][2]->value));
+        $this->assertFalse(isset($game->activeDieArrayArray[0][2]->max));
 
         // specify option dice partially
-//        $game->swingValueArrayArray = array(array('X' => 19), array());
-//        $game->proceed_to_next_user_action();
-//        $out1 = $game->getJsonData(123);
-//        $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
-//        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
-//        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-//                                  array(NULL, NULL, NULL, NULL, NULL)),
-//                            $out1['data']['valueArrayArray']);
-//        $out2 = $game->getJsonData(456);
-//        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
-//        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
-//        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-//                                  array(NULL, NULL, NULL, NULL, NULL)),
-//                            $out2['data']['valueArrayArray']);
-//        $this->assertEquals('X Swing Die',
-//                            $out2['data']['dieDescriptionArrayArray'][0][4]);
+        $game->activeDieArrayArray[0][2]->set_optionValue(12);
+        $game->activeDieArrayArray[0][3]->set_optionValue(16);
+        $game->activeDieArrayArray[0][4]->set_optionValue(20);
+        $this->assertTrue(isset($game->activeDieArrayArray[0][2]->max));
+        $this->assertTrue(isset($game->activeDieArrayArray[0][3]->max));
+        $this->assertTrue(isset($game->activeDieArrayArray[0][4]->max));
+
+        $game->proceed_to_next_user_action();
+        $out1 = $game->getJsonData(123);
+        $this->assertEquals(12, $out1['data']['sidesArrayArray'][0][2]);
+        $this->assertEquals(16, $out1['data']['sidesArrayArray'][0][3]);
+        $this->assertEquals(20, $out1['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out1['data']['sidesArrayArray'][1][2]);
+        $this->assertNull($out1['data']['sidesArrayArray'][1][3]);
+        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+                                  array(NULL, NULL, NULL, NULL, NULL)),
+                            $out1['data']['valueArrayArray']);
+        $this->assertEquals('Option Die (with 20 sides)',
+                            $out1['data']['dieDescriptionArrayArray'][0][4]);
+
+        $out2 = $game->getJsonData(456);
+        $this->assertNull($out2['data']['sidesArrayArray'][0][2]);
+        $this->assertNull($out2['data']['sidesArrayArray'][0][3]);
+        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
+        $this->assertNull($out2['data']['sidesArrayArray'][1][2]);
+        $this->assertNull($out2['data']['sidesArrayArray'][1][3]);
+        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+                                  array(NULL, NULL, NULL, NULL, NULL)),
+                            $out2['data']['valueArrayArray']);
+        $this->assertEquals('Option Die (with 20 or 24 sides)',
+                            $out2['data']['dieDescriptionArrayArray'][0][4]);
 //
 //        // specify swing dice correctly
 //        $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
