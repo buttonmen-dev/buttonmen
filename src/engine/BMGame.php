@@ -1982,16 +1982,6 @@ class BMGame {
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
-        // flag signalling whether swing or option values could have been reset
-        $wereValsReset = TRUE;
-        // james: need to also consider the case of many multiple draws in a row
-        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
-            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
-                $wereValsReset = FALSE;
-                break;
-            }
-        }
-
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
             $buttonRecipeArray[] = $button->recipe;
@@ -2003,8 +1993,15 @@ class BMGame {
         $dieDescArrayArray = array();
 
         if (isset($this->activeDieArrayArray)) {
+            // create a deep clone of the original activeDieArrayArray so that changes
+            // don't propagate back into the real game data
+            $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
+
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
                 if (count($activeDieArray) > 0) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                        $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
+                    }
                     $dieSkillsArrayArray[$playerIdx] =
                         array_fill(0, count($activeDieArray), array());
                     $diePropsArrayArray[$playerIdx] =
@@ -2013,7 +2010,7 @@ class BMGame {
             }
 
             $nDieArray = array_map('count', $this->activeDieArrayArray);
-            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
                 $valueArrayArray[] = array();
                 $sidesArrayArray[] = array();
                 $dieRecipeArrayArray[] = array();
@@ -2045,7 +2042,7 @@ class BMGame {
                         $swingValsSpecified = FALSE;
                     }
 
-                    if ($wereValsReset &&
+                    if ($this->wereSwingOrOptionValuesReset() &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
                         $die->value = NULL;
@@ -2107,7 +2104,7 @@ class BMGame {
                     $dieValue = $die->value;
                     $dieMax = $die->max;
 
-                    if ($wereValsReset &&
+                    if ($this->wereSwingOrOptionValuesReset() &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
                         $dieValue = NULL;
@@ -2170,5 +2167,16 @@ class BMGame {
                   'gameScoreArrayArray'      => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
+    }
+
+    protected function wereSwingOrOptionValuesReset() {
+        // james: need to also consider the case of many multiple draws in a row
+        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
+            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
     }
 }

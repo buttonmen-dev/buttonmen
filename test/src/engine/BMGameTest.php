@@ -8060,11 +8060,16 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray[0][2]->set_optionValue(12);
         $game->activeDieArrayArray[0][3]->set_optionValue(16);
         $game->activeDieArrayArray[0][4]->set_optionValue(20);
+        $game->waitingOnActionArray = array(FALSE, TRUE);
         $this->assertTrue(isset($game->activeDieArrayArray[0][2]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[0][3]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
 
         $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $out1 = $game->getJsonData(123);
         $this->assertEquals(12, $out1['data']['sidesArrayArray'][0][2]);
         $this->assertEquals(16, $out1['data']['sidesArrayArray'][0][3]);
@@ -8090,17 +8095,37 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $out2['data']['valueArrayArray']);
         $this->assertEquals('Option Die (with 20 or 24 sides)',
                             $out2['data']['dieDescriptionArrayArray'][0][4]);
-//
-//        // specify swing dice correctly
-//        $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
-//        $game->proceed_to_next_user_action();
-//        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[0][4]);
-//        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][3]);
-//        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][4]);
-//        $this->assertFalse($game->activeDieArrayArray[0][4]->needsSwingValue);
-//        $this->assertFalse($game->activeDieArrayArray[1][3]->needsSwingValue);
-//        $this->assertFalse($game->activeDieArrayArray[1][4]->needsSwingValue);
-//
+
+        // specify option dice fully
+        $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
+
+        $game->activeDieArrayArray[1][2]->set_optionValue(8);
+        $game->activeDieArrayArray[1][3]->set_optionValue(6);
+        $game->activeDieArrayArray[1][4]->set_optionValue(12);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $this->assertTrue(isset($game->activeDieArrayArray[1][2]->max));
+        $this->assertTrue(isset($game->activeDieArrayArray[1][3]->max));
+        $this->assertTrue(isset($game->activeDieArrayArray[1][4]->max));
+        $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(6, $game->activeDieArrayArray[1][3]->max);
+        $this->assertEquals(12, $game->activeDieArrayArray[1][4]->max);
+
+        $game->proceed_to_next_user_action();
+        $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[0][2]);
+        $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[0][3]);
+        $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[0][4]);
+        $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[1][2]);
+        $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[1][3]);
+        $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[1][4]);
+        $this->assertFalse($game->activeDieArrayArray[0][2]->needsOptionValue);
+        $this->assertFalse($game->activeDieArrayArray[0][3]->needsOptionValue);
+        $this->assertFalse($game->activeDieArrayArray[0][4]->needsOptionValue);
+        $this->assertFalse($game->activeDieArrayArray[1][2]->needsOptionValue);
+        $this->assertFalse($game->activeDieArrayArray[1][3]->needsOptionValue);
+        $this->assertFalse($game->activeDieArrayArray[1][4]->needsOptionValue);
+
 //        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
 //        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 //        $this->assertEquals(array(array('X' => 19), array('X' => 4)),
