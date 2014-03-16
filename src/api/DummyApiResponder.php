@@ -303,6 +303,12 @@ class DummyApiResponder {
         return array($data, "All game details retrieved successfully.");
     }
 
+    protected function get_interface_response_loadNextPendingGame($interface) {
+        // Assume that game IDs 7 is the next one waiting for test1
+        $data = 7;
+        return array($data, 'Next game ID retrieved successfully.');
+    }
+
     protected function get_interface_response_loadButtonNames() {
         $data = array(
           'buttonNameArray' => array(),

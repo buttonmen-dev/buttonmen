@@ -197,6 +197,33 @@ Game.layoutPage = function() {
   }
 };
 
+// Get the ID of the player's next pending game from the server and go there
+Game.goToNextPendingGame = function() {
+  $.post(
+      Env.api_location,
+      { type: 'loadNextPendingGame' },
+      function(rs) {
+        if (rs.status == 'ok') {
+            var gameId = rs.data;
+            if (gameId > 0) {
+              location.href = "game.html?game=" + gameId;  
+            }
+            else {
+              location.href = "index.html";
+            }
+        }
+        else
+        {
+          Env.message = {
+            'type': 'error',
+            'text': 'Your next game could not be found.',
+          };
+          Env.showStatusMessage();
+        }
+      }
+  );
+}
+
 /////
 // HELPERS for generic functions
 
@@ -1187,9 +1214,25 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function() {
+  if (Api.game.isParticipant && !Api.game.player.waitingOnAction) {
+    Game.pageAddGameNavigationFooter();
+  }
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
 };
+
+// Display a link to the next game requiring action
+Game.pageAddGameNavigationFooter = function() {
+  Game.page.append($('<br>'));
+  var linkDiv = $('<div>');
+  linkDiv.append($('<a>', {
+    'href': '#',
+    'text': 'Go to the next game awaiting your input (if any)',
+  }));
+  linkDiv.click(Game.goToNextPendingGame);
+  Game.page.append(linkDiv);
+  return true;
+}
 
 // Display a footer-style message with the last action timestamp
 Game.pageAddTimestampFooter = function() {

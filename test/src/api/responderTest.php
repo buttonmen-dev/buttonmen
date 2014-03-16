@@ -338,6 +338,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('ok', $dummyval['status'], 'Dummy load of completed games should succeed');
     }
 
+    public function test_request_loadNextPendingGame() {
+        $this->verify_login_required('loadNextPendingGame');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNextPendingGame');
+
+        $args = array('type' => 'loadNextPendingGame');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], 'Loading next pending game ID should succeed');
+        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of next pending game ID should succeed');
+    }
+
     public function test_request_loadButtonNames() {
         $this->verify_login_required('loadButtonNames');
 
