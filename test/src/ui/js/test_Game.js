@@ -24,6 +24,7 @@ module("Game", {
     delete Game.form;
     delete Game.color;
     Game.activity = {};
+    Env.window.location.href = undefined;
 
     // Page elements
     // FIXME: why do we have to remove this twice?
@@ -238,12 +239,19 @@ asyncTest("test_Game.layoutPage", function() {
   });
 });
 
-test("test_Game.goToNextPendingGame", function() {
+asyncTest("test_Game.goToNextPendingGame", function() {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
+    // Using similar logic to test_Game.formChooseSwingActive for the async call
+    $.ajaxSetup({ async: false });
     Game.goToNextPendingGame();
-    ok((Env.window.location.href != null && Env.window.location.href.indexOf("game.html?game=7") != -1), 
-      "The page has been redirected");
+    notEqual(Env.window.location.href, null, "The page has been redirected");
+    if (Env.window.location.href != null)
+    {
+      notEqual(Env.window.location.href.indexOf("game.html?game=7"), -1, 
+        "The page has been redirected to the next game");
+    }
+    $.ajaxSetup({ async: true });
     start();
   });
 });
@@ -699,8 +707,9 @@ asyncTest("test_Game.pageAddGameNavigationFooter", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
     ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    ok(htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'),
+    ok(htmlout.match('Go to the next game awaiting your input'),
        "Next game link exists");
     start();
   });
@@ -711,8 +720,9 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
-    equal(htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'), null,
-       "Next game link is correctly suppressed");
+    var htmlout = Game.page.html();
+    equal(htmlout.match('Go to the next game awaiting your input'), null,
+       "Next game link is suppressed");
     start();
   });
 });
@@ -722,8 +732,9 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
-    equal(htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'), null,
-       "Next game link is correctly suppressed");
+    var htmlout = Game.page.html();
+    equal(htmlout.match('Go to the next game awaiting your input'), null,
+       "Next game link is suppressed");
     start();
   });
 });

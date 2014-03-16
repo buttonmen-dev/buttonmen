@@ -1221,15 +1221,18 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function() {
-  if (Api.game.isParticipant && !Api.game.player.waitingOnAction) {
-    Game.pageAddGameNavigationFooter();
-  }
+  Game.pageAddGameNavigationFooter();
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
 };
 
 // Display a link to the next game requiring action
 Game.pageAddGameNavigationFooter = function() {
+  // At the moment, the "next game" link is only displayed for your games 
+  // where you've already taken any available actions
+  if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
+      return true;
+  }
   Game.page.append($('<br>'));
   var linkDiv = $('<div>');
   linkDiv.append($('<a>', {
