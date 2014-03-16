@@ -177,14 +177,8 @@ class BMGame {
 
 
     protected function do_next_step_load_dice_into_buttons() {
-        //james: this will be replaced with a call to the database
-        // load clean version of the buttons from their recipes
-        // if the player has not just won a round
-//                foreach ($this->buttonArray as $playerIdx => $tempButton) {
-//                    if (!$this->isPrevRoundWinnerArray[$playerIdx]) {
-//                        $tempButton->reload();
-//                    }
-//                }
+        // james: this is currently carried out either by manually setting
+        // $this->buttonArray, or by BMInterface
     }
 
     protected function update_game_state_load_dice_into_buttons() {
@@ -436,6 +430,7 @@ class BMGame {
             array_fill(0, count($this->playerIdArray), FALSE);
 
         $this->initialise_swing_value_array_array();
+        $this->check_for_unset_option_dice();
         $this->set_swing_values();
         $this->roll_active_dice();
     }
@@ -461,6 +456,19 @@ class BMGame {
                     // unspecified swing dice for that player
                     if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
                         $this->waitingOnActionArray[$playerIdx] = TRUE;
+                    }
+                }
+            }
+        }
+    }
+
+    protected function check_for_unset_option_dice() {
+        if (isset($this->optRequestArrayArray)) {
+            foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
+                foreach ($optionRequestArray as $dieIdx => $optionRequest) {
+                    if (!isset($this->activeDieArrayArray[$playerIdx][$dieIdx]->max)) {
+                        $this->waitingOnActionArray[$playerIdx] = TRUE;
+                        continue 2;
                     }
                 }
             }
@@ -503,6 +511,14 @@ class BMGame {
                         continue;
                     }
                 }
+
+                if ($die instanceof BMDieOption) {
+                    if ($die->needsOptionValue) {
+                        // option value has not yet been set
+                        continue;
+                    }
+                }
+
                 $this->activeDieArrayArray[$playerIdx][$dieIdx] =
                     $die->make_play_die(FALSE);
             }
@@ -922,8 +938,10 @@ class BMGame {
                 $repeatCount = 0;
             }
             if ($repeatCount >= 20) {
+                $finalGameState = BMGameState::as_string($this->gameState);
                 throw new LogicException(
-                    'Infinite loop detected when advancing game state.'
+                    'Infinite loop detected when advancing game state. '.
+                    "Final game state: $finalGameState"
                 );
             }
         }
@@ -1323,19 +1341,8 @@ class BMGame {
         return $hasPlayerInitiative;
     }
 
-    // james: parts of this function needs to be moved to the BMDie class
     public static function is_die_specified($die) {
         // A die can be unspecified if it is swing, option, or plasma.
-
-        // If swing or option, then it is unspecified if the sides are unclear.
-        // check for swing letter or option '/' inside the brackets
-        // remove everything before the opening parenthesis
-
-//        $sides = $die->max;
-
-//        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
-//            return FALSE;
-//        }
 
         // If plasma, then it is unspecified if the skills are unclear.
         // james: not written yet

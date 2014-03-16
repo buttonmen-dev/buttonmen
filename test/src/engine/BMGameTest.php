@@ -3174,7 +3174,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button2->load('(4) (6) (8) (X) (X)', 'Stark');
         $this->assertEquals('Stark', $button2->name);
         $this->assertEquals('(4) (6) (8) (X) (X)', $button2->recipe);
-        $this->assertCount(5, $button1->dieArray);
+        $this->assertCount(5, $button2->dieArray);
         $this->assertEquals(4, $button2->dieArray[0]->max);
         $this->assertEquals(6, $button2->dieArray[1]->max);
         $this->assertEquals(8, $button2->dieArray[2]->max);
@@ -7980,5 +7980,186 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function test_option_game() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(8) (8) (2/12) (8/16) (20/24)', 'Apples');
+        $this->assertEquals('Apples', $button1->name);
+        $this->assertEquals('(8) (8) (2/12) (8/16) (20/24)', $button1->recipe);
+        // check dice in $button1->dieArray are correct
+        $this->assertCount(5, $button1->dieArray);
+        $this->assertEquals(8, $button1->dieArray[0]->max);
+        $this->assertEquals(8, $button1->dieArray[1]->max);
+        $this->assertFalse(isset($button1->dieArray[2]->max));
+        $this->assertFalse(isset($button1->dieArray[3]->max));
+        $this->assertFalse(isset($button1->dieArray[4]->max));
+        $this->assertInstanceOf('BMDieOption', $button1->dieArray[2]);
+        $this->assertTrue($button1->dieArray[2]->needsOptionValue);
+        $this->assertInstanceOf('BMDieOption', $button1->dieArray[3]);
+        $this->assertTrue($button1->dieArray[3]->needsOptionValue);
+        $this->assertInstanceOf('BMDieOption', $button1->dieArray[4]);
+        $this->assertTrue($button1->dieArray[4]->needsOptionValue);
+
+        $button2 = new BMButton;
+        $button2->load('(8) (10) (1/8) (6/12) (12/20)', 'Green Apple');
+        $this->assertEquals('Green Apple', $button2->name);
+        $this->assertEquals('(8) (10) (1/8) (6/12) (12/20)', $button2->recipe);
+        $this->assertCount(5, $button2->dieArray);
+        $this->assertEquals(8, $button2->dieArray[0]->max);
+        $this->assertEquals(10, $button2->dieArray[1]->max);
+        $this->assertFalse(isset($button2->dieArray[2]->max));
+        $this->assertFalse(isset($button2->dieArray[3]->max));
+        $this->assertFalse(isset($button2->dieArray[4]->max));
+        $this->assertInstanceOf('BMDieOption', $button2->dieArray[2]);
+        $this->assertTrue($button2->dieArray[2]->needsOptionValue);
+        $this->assertInstanceOf('BMDieOption', $button2->dieArray[3]);
+        $this->assertTrue($button2->dieArray[3]->needsOptionValue);
+        $this->assertInstanceOf('BMDieOption', $button2->dieArray[4]);
+        $this->assertTrue($button2->dieArray[4]->needsOptionValue);
+
+        // load game
+        $game = new BMGame(424242, array(123, 456), array('', ''), 2);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+        $this->assertEquals(2, $game->maxWins);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+
+        $game->buttonArray = array($button1, $button2);
+        $this->assertEquals($game, $game->buttonArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[2]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[3]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[0]->dieArray[4]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[0]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[1]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[2]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[3]->ownerObject);
+        $this->assertEquals($game, $game->buttonArray[1]->dieArray[4]->ownerObject);
+
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(array(2 => array(2, 12), 3 => array(8, 16), 4 => array(20, 24)),
+                                  array(2 => array(1, 8), 3 => array(6, 12), 4 => array(12, 20))),
+                            $game->optRequestArrayArray);
+
+        // specify option dice incorrectly
+        $game->activeDieArrayArray[0][2]->set_optionValue(6);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][2]->value));
+
+        // specify option dice partially
+//        $game->swingValueArrayArray = array(array('X' => 19), array());
+//        $game->proceed_to_next_user_action();
+//        $out1 = $game->getJsonData(123);
+//        $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
+//        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
+//        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+//                                  array(NULL, NULL, NULL, NULL, NULL)),
+//                            $out1['data']['valueArrayArray']);
+//        $out2 = $game->getJsonData(456);
+//        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
+//        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
+//        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
+//                                  array(NULL, NULL, NULL, NULL, NULL)),
+//                            $out2['data']['valueArrayArray']);
+//        $this->assertEquals('X Swing Die',
+//                            $out2['data']['dieDescriptionArrayArray'][0][4]);
+//
+//        // specify swing dice correctly
+//        $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
+//        $game->proceed_to_next_user_action();
+//        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[0][4]);
+//        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][3]);
+//        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][4]);
+//        $this->assertFalse($game->activeDieArrayArray[0][4]->needsSwingValue);
+//        $this->assertFalse($game->activeDieArrayArray[1][3]->needsSwingValue);
+//        $this->assertFalse($game->activeDieArrayArray[1][4]->needsSwingValue);
+//
+//        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+//        $this->assertEquals(array(array('X' => 19), array('X' => 4)),
+//                            $game->swingValueArrayArray);
+//        $this->assertEquals(8,  $game->activeDieArrayArray[0][0]->max);
+//        $this->assertEquals(10, $game->activeDieArrayArray[0][1]->max);
+//        $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
+//        $this->assertEquals(20, $game->activeDieArrayArray[0][3]->max);
+//        $this->assertEquals(19, $game->activeDieArrayArray[0][4]->max);
+//        $this->assertEquals(4,  $game->activeDieArrayArray[1][0]->max);
+//        $this->assertEquals(6,  $game->activeDieArrayArray[1][1]->max);
+//        $this->assertEquals(8,  $game->activeDieArrayArray[1][2]->max);
+//        $this->assertEquals(4,  $game->activeDieArrayArray[1][3]->max);
+//        $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->max);
+//        $this->assertEquals(19, $game->activeDieArrayArray[0][4]->swingValue);
+//        $this->assertEquals(4,  $game->activeDieArrayArray[1][3]->swingValue);
+//        $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->swingValue);
+//
+//        $this->assertNotNull($game->activeDieArrayArray[0][0]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[0][2]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[0][3]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[0][4]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[1][0]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[1][1]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
+//        $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+//
+//
+//        // round 1, turn 1
+//        // player 1: [8 10 12 20 19] showing [8 1 10 15 7], captured []
+//        // player 2: [4 6 8 4 4] showing [2 3 8 4 1], captured []
+//        // player 2 takes player 1's d10
+//        // check that the player with initiative is set as the attacking player
+//        $this->assertEquals($game->activePlayerIdx, $game->playerWithInitiativeIdx);
+//
+//        // artificially set player 2 as winning initiative
+//        $game->playerWithInitiativeIdx = 1;
+//        $game->activePlayerIdx = 1;
+//        $game->waitingOnActionArray = array(FALSE, TRUE);
+//        // artificially set die values
+//        $dieArrayArray = $game->activeDieArrayArray;
+//        $dieArrayArray[0][0]->value = 8;
+//        $dieArrayArray[0][1]->value = 1;
+//        $dieArrayArray[0][2]->value = 10;
+//        $dieArrayArray[0][3]->value = 15;
+//        $dieArrayArray[0][4]->value = 7;
+//        $dieArrayArray[1][0]->value = 2;
+//        $dieArrayArray[1][1]->value = 3;
+//        $dieArrayArray[1][2]->value = 8;
+//        $dieArrayArray[1][3]->value = 4;
+//        $dieArrayArray[1][4]->value = 1;
+//
+//        $this->assertEquals(8, $game->activeDieArrayArray[0][0]->value);
+//
+//        // perform attack
+//        $this->assertNULL($game->attack);
+//        $game->attack = array(1,        // attackerPlayerIdx
+//                              0,        // defenderPlayerIdx
+//                              array(2), // attackerAttackDieIdxArray
+//                              array(1), // defenderAttackDieIdxArray
+//                              'Power'); // attackType
+//
+//        $game->proceed_to_next_user_action();
+//        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+//        $this->assertCount(4, $game->activeDieArrayArray[0]);
+//        $this->assertCount(5, $game->activeDieArrayArray[1]);
+//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+//        $this->assertCount(1, $game->capturedDieArrayArray[1]);
+//        $this->assertEquals(10, $game->capturedDieArrayArray[1][0]->max);
+//        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+//
+//        // artificially set value of rolled die
+//        $dieArrayArray = $game->activeDieArrayArray;
+//        $dieArrayArray[1][2]->value = 5;
     }
 }
