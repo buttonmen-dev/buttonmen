@@ -239,7 +239,13 @@ asyncTest("test_Game.layoutPage", function() {
 });
 
 test("test_Game.goToNextPendingGame", function() {
-  ok(true, "INCOMPLETE: Test of sGame.goToNextPendingGame not implemented");
+  BMTestUtils.GameType = 'turn_inactive';
+  Game.getCurrentGame(function() {
+    Game.goToNextPendingGame();
+    ok((Env.window.location.href != null && Env.window.location.href.indexOf("game.html?game=7") != -1), 
+      "The page has been redirected");
+    start();
+  });
 });
 
 asyncTest("test_Game.parseValidInitiativeActions", function() {
@@ -705,7 +711,7 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
-    ok(!htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'),
+    equal(htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'), null,
        "Next game link is correctly suppressed");
     start();
   });
@@ -716,7 +722,7 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
-    ok(!htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'),
+    equal(htmlout.match('<a href="#">Go to the next game awaiting your input (if any)</a>'), null,
        "Next game link is correctly suppressed");
     start();
   });

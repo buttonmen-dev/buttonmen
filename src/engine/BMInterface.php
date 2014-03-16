@@ -768,11 +768,11 @@ class BMInterface {
             $result = $statement->fetch();
             if (!$result) {
                 $this->message = 'Player has no pending games.';
-                // It seems that returning NULL is considered an error
-                return(-1);
+                return array('gameId' => NULL);
             } else {
+                $gameId = ((int)$result[0]);
                 $this->message = 'Next game ID retrieved successfully.';
-                return((int)$result[0]);
+                return array('gameId' => $gameId);
             }
         } catch (Exception $e) {
             error_log(

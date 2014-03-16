@@ -199,28 +199,35 @@ Game.layoutPage = function() {
 
 // Get the ID of the player's next pending game from the server and go there
 Game.goToNextPendingGame = function() {
-  $.post(
-      Env.api_location,
-      { type: 'loadNextPendingGame' },
-      function(rs) {
-        if (rs.status == 'ok') {
-            var gameId = rs.data;
-            if (gameId > 0) {
-              location.href = "game.html?game=" + gameId;  
+  // It's not strictly a *form* post, but $.post() doesn't seem unit testable
+  Api.apiFormPost(
+    { type: 'loadNextPendingGame' },
+    { 
+      'ok': {
+        'type': 'function',
+        'msgfunc': 
+          // In lieu of a message, we're actually taking action.
+          // (This isn't being done as a success callback because we need the
+          // data parameter here.)
+          function(message, data) {
+            var gameId = data.gameId;
+            
+            if (gameId != null && $.isNumeric(gameId)) {
+              Env.window.location.href = "game.html?game=" + gameId;  
             }
             else {
-              location.href = "index.html";
+              Env.window.location.href = "index.html";
             }
-        }
-        else
-        {
-          Env.message = {
-            'type': 'error',
-            'text': 'Your next game could not be found.',
-          };
-          Env.showStatusMessage();
-        }
-      }
+          },
+      },
+      'notok': { 
+        'type': 'fixed', 
+        'text': 'Your next game could not be found',
+      },
+    },
+    null,
+    function() { },
+    Env.showStatusMessage
   );
 }
 
