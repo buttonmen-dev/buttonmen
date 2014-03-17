@@ -7,6 +7,9 @@ node default {
     require => Exec["apt_client_update"],
   }
 
+  # jenkins hostname is always jenkins.buttonweavers.com
+  $puppet_hostname = "jenkins.buttonweavers.com"
+
   # Generic node configuration
   include "apt::client"
   include "postfix::base"
