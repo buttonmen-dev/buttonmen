@@ -8148,53 +8148,5 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
-//
-//        // round 1, turn 1
-//        // player 1: [8 10 12 20 19] showing [8 1 10 15 7], captured []
-//        // player 2: [4 6 8 4 4] showing [2 3 8 4 1], captured []
-//        // player 2 takes player 1's d10
-//        // check that the player with initiative is set as the attacking player
-//        $this->assertEquals($game->activePlayerIdx, $game->playerWithInitiativeIdx);
-//
-//        // artificially set player 2 as winning initiative
-//        $game->playerWithInitiativeIdx = 1;
-//        $game->activePlayerIdx = 1;
-//        $game->waitingOnActionArray = array(FALSE, TRUE);
-//        // artificially set die values
-//        $dieArrayArray = $game->activeDieArrayArray;
-//        $dieArrayArray[0][0]->value = 8;
-//        $dieArrayArray[0][1]->value = 1;
-//        $dieArrayArray[0][2]->value = 10;
-//        $dieArrayArray[0][3]->value = 15;
-//        $dieArrayArray[0][4]->value = 7;
-//        $dieArrayArray[1][0]->value = 2;
-//        $dieArrayArray[1][1]->value = 3;
-//        $dieArrayArray[1][2]->value = 8;
-//        $dieArrayArray[1][3]->value = 4;
-//        $dieArrayArray[1][4]->value = 1;
-//
-//        $this->assertEquals(8, $game->activeDieArrayArray[0][0]->value);
-//
-//        // perform attack
-//        $this->assertNULL($game->attack);
-//        $game->attack = array(1,        // attackerPlayerIdx
-//                              0,        // defenderPlayerIdx
-//                              array(2), // attackerAttackDieIdxArray
-//                              array(1), // defenderAttackDieIdxArray
-//                              'Power'); // attackType
-//
-//        $game->proceed_to_next_user_action();
-//        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
-//        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-//        $this->assertCount(4, $game->activeDieArrayArray[0]);
-//        $this->assertCount(5, $game->activeDieArrayArray[1]);
-//        $this->assertCount(0, $game->capturedDieArrayArray[0]);
-//        $this->assertCount(1, $game->capturedDieArrayArray[1]);
-//        $this->assertEquals(10, $game->capturedDieArrayArray[1][0]->max);
-//        $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
-//
-//        // artificially set value of rolled die
-//        $dieArrayArray = $game->activeDieArrayArray;
-//        $dieArrayArray[1][2]->value = 5;
     }
 }
