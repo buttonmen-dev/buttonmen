@@ -2054,7 +2054,6 @@ class BMGame {
                         }
 
                         if ($die instanceof BMDieOption) {
-                            $die->optionValue = NULL;
                             $die->max = NULL;
                         }
                     }

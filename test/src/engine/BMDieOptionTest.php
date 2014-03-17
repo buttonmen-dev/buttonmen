@@ -30,7 +30,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $this->object->min);
         $this->assertEquals(array(4,6), $this->object->optionValueArray);
-        $this->assertFalse(isset($this->object->optionValue));
+        $this->assertFalse(isset($this->object->max));
 
         $this->assertFalse($this->object->has_skill('Testing'));
         $this->assertFalse($this->object->has_skill('Testing2'));
@@ -40,7 +40,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $this->object->min);
         $this->assertEquals(array(5,8), $this->object->optionValueArray);
-        $this->assertFalse(isset($this->object->optionValue));
+        $this->assertFalse(isset($this->object->max));
 
         $this->assertTrue($this->object->has_skill('Testing2'));
         $this->assertFalse($this->object->has_skill('Testing'));
@@ -86,7 +86,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $die->min);
         $this->assertEquals(array(4,6), $die->optionValueArray);
-        $this->assertFalse(isset($die->optionValue));
+        $this->assertFalse(isset($die->max));
 
         $this->assertFalse($die->has_skill('Testing'));
         $this->assertFalse($die->has_skill('Testing2'));
@@ -96,7 +96,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(1, $die->min);
         $this->assertEquals(array(5,8), $die->optionValueArray);
-        $this->assertFalse(isset($die->optionValue));
+        $this->assertFalse(isset($die->max));
 
         $this->assertTrue($die->has_skill('Testing2'));
         $this->assertFalse($die->has_skill('Testing'));
@@ -210,13 +210,13 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
 
         // try setting the option value to an invalid value
         try {
-            $this->object->optionValue = 6;
+            $this->object->max = 6;
             $this->fail('Invalid option value set should fail.');
         } catch (Exception $e) {
         }
 
-        $this->object->optionValue = 7;
-        $this->assertEquals(7, $this->object->optionValue);
+        $this->object->max = 7;
+        $this->assertEquals(7, $this->object->max);
     }
 
     /**
@@ -322,7 +322,7 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(is_numeric($game->activeDieArrayArray[1][0]->value));
 
         $game->activeDieArrayArray[1][0]->roll(FALSE);
-       
+
         // Does it roll?
         $this->assertTrue(is_numeric($game->activeDieArrayArray[1][0]->value));
     }

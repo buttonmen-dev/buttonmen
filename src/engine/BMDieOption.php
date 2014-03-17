@@ -6,15 +6,12 @@
  * @author james
  *
  * @property      array $optionValueArray  Possible option values
- * @property      int   $optionValue       Chosen option value
  * @property-read bool  $needsOptionValue  Flag indicating whether an option value is still needed
  * @property-read bool  $valueRequested    Flag indicating whether an option request has been sent to the parent
  */
 
 class BMDieOption extends BMDie {
     protected $optionValueArray;
-    protected $optionValue;
-
     protected $needsOptionValue;
     protected $valueRequested;
 
@@ -121,7 +118,6 @@ class BMDieOption extends BMDie {
             return FALSE;
         }
 
-        $this->optionValue = $optionValue;
         $this->needsOptionValue = FALSE;
         $this->valueRequested = FALSE;
         $this->max = $optionValue;
@@ -132,7 +128,7 @@ class BMDieOption extends BMDie {
 
     public function __set($property, $value) {
         switch ($property) {
-            case 'optionValue':
+            case 'max':
                 if (in_array($value, $this->optionValueArray) ||
                     is_null($value)) {
                     $this->$property = $value;
