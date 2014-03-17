@@ -58,7 +58,7 @@ class ApiSpec {
         ),
         'loadNextPendingGame' => array(
             'mandatory' => array(),
-            'permitted' => array(),            
+            'permitted' => array(),           
         ),
         'loadPlayerInfo' => array(
             'mandatory' => array(),
