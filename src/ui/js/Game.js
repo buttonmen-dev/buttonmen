@@ -213,7 +213,7 @@ Game.goToNextPendingGame = function() {
             var gameId = data.gameId;
 
             if (gameId !== null && $.isNumeric(gameId)) {
-              Env.window.location.href = 'game.html?game=' + gameId;  
+              Env.window.location.href = 'game.html?game=' + gameId;
             }
             else {
               Env.window.location.href = 'index.html';
