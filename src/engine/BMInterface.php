@@ -353,11 +353,20 @@ class BMInterface {
                 if (isset($die->swingType)) {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
 
-                    if (isset($row['swing_value'])) {
+                    if (isset($row['max'])) {
                         $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
                         if (!$swingSetSuccess) {
                             throw new LogicException('Swing value set failed.');
                         }
+                    }
+                }
+
+                if ($die instanceof BMDieOption) {
+                    if (isset($row['max'])) {
+                        $die->max = $row['max'];
+                        $die->needsOptionValue = FALSE;
+                    } else {
+                        $die->needsOptionValue = TRUE;
                     }
                 }
 
@@ -386,6 +395,19 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $captDieArrayArray;
+
+            // recreate $game->optRequestArrayArray
+            foreach ($game->activeDieArrayArray as $activeDieArray) {
+                foreach ($activeDieArray as $activeDie) {
+                    if ($activeDie instanceof BMDieOption) {
+                        $game->request_option_values(
+                            $activeDie,
+                            $activeDie->optionValueArray,
+                            $activeDie->playerIdx
+                        );
+                    }
+                }
+            }
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -625,7 +647,7 @@ class BMInterface {
                  '     game_id, '.
                  '     status_id, '.
                  '     recipe, '.
-                 '     swing_value, '.
+                 '     max, '.
                  '     position, '.
                  '     value) '.
                  'VALUES '.
@@ -634,7 +656,7 @@ class BMInterface {
                  '     :game_id, '.
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
-                 '     :swing_value, '.
+                 '     :max, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
@@ -643,7 +665,7 @@ class BMInterface {
                                   ':game_id' => $game->gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
-                                  ':swing_value' => $activeDie->swingValue,
+                                  ':max' => $activeDie->max,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
     }
