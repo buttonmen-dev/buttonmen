@@ -526,16 +526,7 @@ class BMGame {
     }
 
     protected function update_game_state_specify_dice() {
-        $areAllDiceSpecified = TRUE;
-        foreach ($this->activeDieArrayArray as $activeDieArray) {
-            foreach ($activeDieArray as $tempDie) {
-                if (!$this->is_die_specified($tempDie)) {
-                    $areAllDiceSpecified = FALSE;
-                    break 2;
-                }
-            }
-        }
-        if ($areAllDiceSpecified) {
+        if (0 == array_sum($this->waitingOnActionArray)) {
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         }
     }
