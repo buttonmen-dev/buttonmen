@@ -353,7 +353,7 @@ class BMInterface {
                 if (isset($die->swingType)) {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
 
-                    if (isset($row['max'])) {
+                    if (isset($row['chosen_max'])) {
                         $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
                         if (!$swingSetSuccess) {
                             throw new LogicException('Swing value set failed.');
@@ -362,8 +362,8 @@ class BMInterface {
                 }
 
                 if ($die instanceof BMDieOption) {
-                    if (isset($row['max'])) {
-                        $die->max = $row['max'];
+                    if (isset($row['chosen_max'])) {
+                        $die->max = $row['chosen_max'];
                         $die->needsOptionValue = FALSE;
                     } else {
                         $die->needsOptionValue = TRUE;
@@ -647,7 +647,7 @@ class BMInterface {
                  '     game_id, '.
                  '     status_id, '.
                  '     recipe, '.
-                 '     max, '.
+                 '     chosen_max, '.
                  '     position, '.
                  '     value) '.
                  'VALUES '.
@@ -656,16 +656,23 @@ class BMInterface {
                  '     :game_id, '.
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
-                 '     :max, '.
+                 '     :chosen_max, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
+
+        if (isset($activeDie->swingType) || ($activeDie instanceof BMDieOption)) {
+            $chosenMax = $activeDie->max;
+        } else {
+            $chosenMax = NULL;
+        }
+
         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
                                   ':game_id' => $game->gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
-                                  ':max' => $activeDie->max,
+                                  ':chosen_max' => $chosenMax,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
     }
