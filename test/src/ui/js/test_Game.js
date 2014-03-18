@@ -24,7 +24,6 @@ module("Game", {
     delete Game.form;
     delete Game.color;
     Game.activity = {};
-    Env.window.location.href = undefined;
 
     // Page elements
     // FIXME: why do we have to remove this twice?
@@ -235,23 +234,6 @@ asyncTest("test_Game.layoutPage", function() {
     var item = document.getElementById('game_page');
     equal(item.nodeName, "DIV",
           "#game_page is a div after layoutPage() is called");
-    start();
-  });
-});
-
-asyncTest("test_Game.goToNextPendingGame", function() {
-  BMTestUtils.GameType = 'turn_inactive';
-  Game.getCurrentGame(function() {
-    // Using similar logic to test_Game.formChooseSwingActive for the async call
-    $.ajaxSetup({ async: false });
-    Game.goToNextPendingGame();
-    notEqual(Env.window.location.href, null, "The page has been redirected");
-    if (Env.window.location.href != null)
-    {
-      notEqual(Env.window.location.href.indexOf("game.html?game=7"), -1, 
-        "The page has been redirected to the next game");
-    }
-    $.ajaxSetup({ async: true });
     start();
   });
 });
@@ -702,43 +684,6 @@ asyncTest("test_Game.pageAddFooter", function() {
   });
 });
 
-asyncTest("test_Game.pageAddGameNavigationFooter", function() {
-  BMTestUtils.GameType = 'turn_inactive';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.pageAddGameNavigationFooter();
-    var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    ok(htmlout.match('Go to the next game awaiting your input'),
-       "Next game link exists");
-    start();
-  });
-});
-
-asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
-  BMTestUtils.GameType = 'turn_active';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.pageAddGameNavigationFooter();
-    var htmlout = Game.page.html();
-    equal(htmlout.match('Go to the next game awaiting your input'), null,
-       "Next game link is suppressed");
-    start();
-  });
-});
-
-asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
-  BMTestUtils.GameType = 'turn_nonplayer';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.pageAddGameNavigationFooter();
-    var htmlout = Game.page.html();
-    equal(htmlout.match('Go to the next game awaiting your input'), null,
-       "Next game link is suppressed");
-    start();
-  });
-});
-
 asyncTest("test_Game.pageAddTimestampFooter", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
@@ -769,7 +714,7 @@ asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match("tester2 performed Power attack"), 
+    ok(htmlout.match("tester2 performed Power attack"),
        "Action log footer for a game in progress should contain entries");
     start();
   });

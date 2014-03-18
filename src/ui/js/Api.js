@@ -21,7 +21,7 @@ var Api = (function () {
   //   and populate Api.x in whatever way is desired
   // * call the requested callback function no matter what happened with
   //   the data load
-  // 
+  //
   // Notes:
   // * these routines may assume that the login header has already been
   //   loaded, and therefore that the contents of Login.logged_in and
@@ -449,6 +449,28 @@ var Api = (function () {
     if (button_id) {
       $('#' + button_id).attr('disabled', 'disabled');
     }
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the ID of the player's next pending game
+
+  my.getNextGameId = function(callbackfunc)
+  {
+    my.apiParsePost(
+      { 'type': 'loadNextPendingGame' },
+      'gameNavigation',
+      my.parseNextGameId,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseNextGameId = function(data) {
+    if (data.gameId !== null && !$.isNumeric(data.gameId)) {
+      return false;
+    }
+    my.gameNavigation.nextGameId = data.gameId;
+    return true;
   };
 
   return my;

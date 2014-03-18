@@ -197,40 +197,6 @@ Game.layoutPage = function() {
   }
 };
 
-// Get the ID of the player's next pending game from the server and go there
-Game.goToNextPendingGame = function() {
-  // It's not strictly a *form* post, but $.post() doesn't seem unit testable
-  Api.apiFormPost(
-    { type: 'loadNextPendingGame' },
-    {
-      'ok': {
-        'type': 'function',
-        'msgfunc':
-          // In lieu of a message, we're actually taking action.
-          // (This isn't being done as a success callback because we need the
-          // data parameter here.)
-          function(message, data) {
-            var gameId = data.gameId;
-
-            if (gameId !== null && $.isNumeric(gameId)) {
-              Env.window.location.href = 'game.html?game=' + gameId;
-            }
-            else {
-              Env.window.location.href = 'index.html';
-            }
-          },
-      },
-      'notok': {
-        'type': 'fixed',
-        'text': 'Your next game could not be found',
-      },
-    },
-    null,
-    function() { },
-    Env.showStatusMessage
-  );
-};
-
 /////
 // HELPERS for generic functions
 
@@ -1221,27 +1187,8 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function() {
-  Game.pageAddGameNavigationFooter();
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
-};
-
-// Display a link to the next game requiring action
-Game.pageAddGameNavigationFooter = function() {
-  // At the moment, the "next game" link is only displayed for your games 
-  // where you've already taken any available actions
-  if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
-    return true;
-  }
-  Game.page.append($('<br>'));
-  var linkDiv = $('<div>');
-  linkDiv.append($('<a>', {
-    'href': '#',
-    'text': 'Go to the next game awaiting your input (if any)',
-  }));
-  linkDiv.click(Game.goToNextPendingGame);
-  Game.page.append(linkDiv);
-  return true;
 };
 
 // Display a footer-style message with the last action timestamp

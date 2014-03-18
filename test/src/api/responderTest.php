@@ -268,7 +268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'buttonNameArray' => array('Avis', 'Av`is'),
             'maxWins' => '3',
         );
-        $retval = $this->object->process_request($args); 
+        $retval = $this->object->process_request($args);
         $this->assertEquals(
             array(
                 'data' => NULL,
@@ -348,8 +348,16 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
 
-        $this->assertEquals('ok', $retval['status'], 'Loading next pending game ID should succeed');
-        $this->assertEquals('ok', $dummyval['status'], 'Dummy load of next pending game ID should succeed');
+        $this->assertEquals('ok', $retval['status'],
+            'Loading next pending game ID should succeed');
+        $this->assertEquals('ok', $dummyval['status'],
+            'Dummy load of next pending game ID should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata, $dummydata, TRUE),
+            "Real and dummy button lists should have matching structures");
     }
 
     public function test_request_loadButtonNames() {
