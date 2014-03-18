@@ -1154,6 +1154,67 @@ class BMInterface {
         }
     }
 
+    public function submit_option_values(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $optionValueArray
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::SPECIFY_DICE,
+                'ignore',
+                $roundNumber,
+                $playerId
+            )) {
+                $this->message = 'Option dice no longer need to be set';
+                return NULL;
+            }
+
+            // try to set option values
+//            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
+//
+//            $game->proceed_to_next_user_action();
+//
+//            // check for successful swing value set
+//            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+//                ($game->gameState > BMGameState::SPECIFY_DICE) ||
+//                ($game->roundNumber > $roundNumber)) {
+//                $game->log_action(
+//                    'choose_swing',
+//                    $game->playerIdArray[$currentPlayerIdx],
+//                    array(
+//                        'roundNumber' => $game->roundNumber,
+//                        'swingValues' => $swingValueArray,
+//                    )
+//                );
+//                $this->save_game($game);
+//                $this->message = 'Successfully set swing values';
+//                return TRUE;
+//            } else {
+//                if ($game->message) {
+//                    $this->message = $game->message;
+//                } else {
+//                    $this->message = 'Failed to set swing values';
+//                }
+//                return NULL;
+//            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_option_values: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while setting option values';
+        }
+    }
+
+
     public function submit_turn(
         $playerId,
         $gameId,
