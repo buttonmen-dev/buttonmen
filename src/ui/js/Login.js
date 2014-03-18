@@ -225,8 +225,7 @@ Login.goToNextPendingGame = function() {
   Api.getNextGameId(
     function() {
       if (Api.gameNavigation.load_status == 'ok') {
-        if (Api.gameNavigation.nextGameId !== null
-            && $.isNumeric(Api.gameNavigation.nextGameId)) {
+        if (Api.gameNavigation.nextGameId !== null && $.isNumeric(Api.gameNavigation.nextGameId)) {
           Env.window.location.href =
             'game.html?game=' + Api.gameNavigation.nextGameId;
         }
