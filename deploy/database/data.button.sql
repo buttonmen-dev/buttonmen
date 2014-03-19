@@ -600,15 +600,6 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Thaddeus',   '(10) (14) (14) (18) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Buckley',    '(4) (4) (18) (X) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow"));
 
-# WONDERLAND                                        SKILLS Null; Option; Poison; Queer; Stinger; Turbo; Twin
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('Alice',             '(6) (8) (8) (10) (1/30)!',          0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('Mad Hatter',        'q(6) q(6) q(10) q(20) q(X)',        0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('Queen Of Hearts',   '(6) (8) p(16) (20) (X)',            0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('The Jabberwock',    '(20) (20) (30) ng(30) (U)',         0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('Tweedledum+dee',    '(2,2) (4,4) (6,6) (10,10) (T,T)',   0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('White Rabbit',      '(4) (6) (8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Wonderland"));
-
 # VAMPYRES (Cheapass Games)            INTRODUCES Shadow(s) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Angel',       's(4) (6) s(12) (12) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="Vampyres")),
@@ -617,6 +608,15 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Starchylde',  's(6) (8) s(10) (12) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="Vampyres")),
 ('McGinty',     '(4) s(10) (12) (12) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="Vampyres")),
 ('Tiffany',     '(4) s(8) (8) (10) s(X)',        0, 1, (SELECT id FROM buttonset WHERE name="Vampyres"));
+
+# WONDERLAND                                        SKILLS Null; Option; Poison; Queer; Stinger; Turbo; Twin
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Alice',             '(6) (8) (8) (10) (1/30)!',          0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('Mad Hatter',        'q(6) q(6) q(10) q(20) q(X)',        0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('Queen Of Hearts',   '(6) (8) p(16) (20) (X)',            0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('The Jabberwock',    '(20) (20) (30) ng(30) (U)',         0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('Tweedledum+dee',    '(2,2) (4,4) (6,6) (10,10) (T,T)',   0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('White Rabbit',      '(4) (6) (8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Wonderland"));
 
 # YOYODYNE (Fuzzface)                   INTRODUCES Chance(c) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
