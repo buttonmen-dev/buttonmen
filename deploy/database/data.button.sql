@@ -331,13 +331,6 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Simon',       'q(4) q(6) q(12) q(20) q(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Werner',      '(8) (10) (10) (12) pzs(V)!',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks"));
 
-# The Japanese Beetle! (The Japanese Beetle)
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-# The Flying Squirrel cannot make skill attacks
-('The Flying Squirrel', 'z(6) z(12) z(12) z(20)',             1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle")),
-# The Japanese Beetle: Skill attacks do not work on Japanese Beetle
-('The Japanese Beetle', '(6) (8) (12) (X)',                   1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle"));
-
 # GUARDIANS OF ORDER sets include Sailor Moon 1, Sailor Moon 2, and Tenchi Muyo!
 #     INTRODUCES Iconic Abilities which are button specials that only work against other Guardians of Order buttons.
 # SAILOR MOON 1 (Guardians of Order)                          INTRODUCES Reserve(r) dice; AND Warrior(`) dice
@@ -408,6 +401,13 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Howling Wolf',        'd(4) (8) (12) (20) d(20)',           0, 1, (SELECT id FROM buttonset WHERE name="Howling Wolf")),
 ('White Tiger',         '(6) d(6) (10) (12) d(12)',           0, 1, (SELECT id FROM buttonset WHERE name="Howling Wolf"));
+
+# The Japanese Beetle! (The Japanese Beetle)
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+# The Flying Squirrel cannot make skill attacks
+('The Flying Squirrel', 'z(6) z(12) z(12) z(20)',             1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle")),
+# The Japanese Beetle: Skill attacks do not work on Japanese Beetle
+('The Japanese Beetle', '(6) (8) (12) (X)',                   1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle"));
 
 # LAS VEGAS                                INTRODUCES Wildcard(C) AND Pai Gow(:); Option; Twin; Turbo
 # Frankie aka Professor, Lola aka Showgirl, Sly aka  Pit Boss, Crypto aka Magician
