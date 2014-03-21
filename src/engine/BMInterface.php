@@ -1178,33 +1178,34 @@ class BMInterface {
             }
 
             // try to set option values
-//            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
-//
-//            $game->proceed_to_next_user_action();
-//
-//            // check for successful swing value set
-//            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
-//                ($game->gameState > BMGameState::SPECIFY_DICE) ||
-//                ($game->roundNumber > $roundNumber)) {
-//                $game->log_action(
-//                    'choose_swing',
-//                    $game->playerIdArray[$currentPlayerIdx],
-//                    array(
-//                        'roundNumber' => $game->roundNumber,
-//                        'swingValues' => $swingValueArray,
-//                    )
-//                );
-//                $this->save_game($game);
-//                $this->message = 'Successfully set swing values';
-//                return TRUE;
-//            } else {
-//                if ($game->message) {
-//                    $this->message = $game->message;
-//                } else {
-//                    $this->message = 'Failed to set swing values';
-//                }
-//                return NULL;
-//            }
+            foreach ($optionValueArray as $dieIdx => $optionValue) {
+                $game->optValueArrayArray[$playerId][$dieIdx] = $optionValue;
+            }
+            $game->proceed_to_next_user_action();
+
+            // check for successful option value set
+            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+                ($game->gameState > BMGameState::SPECIFY_DICE) ||
+                ($game->roundNumber > $roundNumber)) {
+                $game->log_action(
+                    'choose_option',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'optionValues' => $optionValueArray,
+                    )
+                );
+                $this->save_game($game);
+                $this->message = 'Successfully set option values';
+                return TRUE;
+            } else {
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Failed to set option values';
+                }
+                return NULL;
+            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::submit_option_values: " .

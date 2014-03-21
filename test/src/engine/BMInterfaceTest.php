@@ -1929,13 +1929,21 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->optRequestArrayArray);
 
         // specify option dice incorrectly
-        $game->activeDieArrayArray[0][2]->set_optionValue(6);
+        $game->optValueArrayArray[0][2] = 6;
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
         $this->assertFalse(isset($game->activeDieArrayArray[0][2]->max));
 
         // specify option dice partially
-        $game->activeDieArrayArray[0][2]->set_optionValue(12);
-        $game->activeDieArrayArray[0][3]->set_optionValue(16);
-        $game->activeDieArrayArray[0][4]->set_optionValue(20);
+        $game->optValueArrayArray[0][2] = 12;
+        $game->optValueArrayArray[0][3] = 16;
+        $game->optValueArrayArray[0][4] = 20;
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
         $this->assertTrue(isset($game->activeDieArrayArray[0][2]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[0][3]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[0][4]->max));

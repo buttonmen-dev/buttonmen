@@ -89,6 +89,7 @@ class BMGame {
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
     public $optRequestArrayArray;
+    public $optValueArrayArray;
 
     // methods
     public function do_next_step() {
@@ -430,7 +431,7 @@ class BMGame {
             array_fill(0, count($this->playerIdArray), FALSE);
 
         $this->initialise_swing_value_array_array();
-        $this->check_for_unset_option_dice();
+        $this->set_option_values();
         $this->set_swing_values();
         $this->roll_active_dice();
     }
@@ -462,14 +463,23 @@ class BMGame {
         }
     }
 
-    protected function check_for_unset_option_dice() {
-        if (isset($this->optRequestArrayArray)) {
-            foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
-                foreach ($optionRequestArray as $dieIdx => $optionRequest) {
-                    if (!isset($this->activeDieArrayArray[$playerIdx][$dieIdx]->max)) {
-                        $this->waitingOnActionArray[$playerIdx] = TRUE;
-                        continue 2;
+    protected function set_option_values() {
+        if (!isset($this->optRequestArrayArray)) {
+            return;
+        }
+
+        foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
+            foreach ($optionRequestArray as $dieIdx => $optionRequest) {
+                if (isset($this->optValueArrayArray[$playerIdx])) {
+                    $optValue = $this->optValueArrayArray[$playerIdx][$dieIdx];
+                    if (isset($optValue)) {
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx]->set_optionValue($optValue);
                     }
+                }
+
+                if (!isset($this->activeDieArrayArray[$playerIdx][$dieIdx]->max)) {
+                    $this->waitingOnActionArray[$playerIdx] = TRUE;
+                    continue 2;
                 }
             }
         }
