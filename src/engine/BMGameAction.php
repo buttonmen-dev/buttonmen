@@ -187,8 +187,8 @@ class BMGameAction {
         if (($this->outputRoundNumber != $this->params['roundNumber']) ||
             ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
             $optionStrs = array();
-            foreach ($this->params['optionValues'] as $optionType => $optionValue) {
-                $optionStrs[] = $optionType . '=' . $optionValue;
+            foreach ($this->params['optionValues'] as $optionValue) {
+                $optionStrs[] = $optionValue;
             }
             $message .= ': ' . implode(", ", $optionStrs);
         }
