@@ -150,7 +150,7 @@ Login.addMainNavbar = function() {
     'index.html': 'Overview',
     'create_game.html': 'Create game',
     'prefs.html': 'Preferences',
-    'javascript: Login.goToNextPendingGame();': 'Next game',
+    'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
   };
   $.each(links, function(url, text) {
     var navtd = $('<td>');
@@ -218,42 +218,35 @@ Login.formLogin = function() {
 };
 
 ////////////////////////////////////////////////////////////////////////
-// Events for dynamic links
+// Navigation events and helpsers
 
-// Get the ID of the player's next pending game from the server and go there
+// Redirect to the player's next pending game if there is one
 Login.goToNextPendingGame = function() {
-  Api.getNextGameId(
-    function() {
-      if (Api.gameNavigation.load_status == 'ok') {
-        if (Api.gameNavigation.nextGameId !== null &&
-            $.isNumeric(Api.gameNavigation.nextGameId)) {
-          Env.window.location.href =
-            'game.html?game=' + Api.gameNavigation.nextGameId;
-        }
-        else {
-          // If there are no active games, and we're on the Overview page, tell
-          // the user so
-          if (Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/))
-          {
-            Env.message = {
-              'type': 'error',
-              'text': 'There are no games waiting for you to play'
-            };
-            Env.showStatusMessage();
-          }
-          else {
-            // If we're not on the Overview page, send them there
-            Env.window.location.href = '/ui';
-          }
-        }
-      }
-      else {
+  if (Api.gameNavigation.load_status == 'ok') {
+    if (Api.gameNavigation.nextGameId !== null &&
+        $.isNumeric(Api.gameNavigation.nextGameId)) {
+      Env.window.location.href =
+        'game.html?game=' + Api.gameNavigation.nextGameId;
+    } else {
+      // If there are no active games, and we're on the Overview page, tell
+      // the user so
+      if (Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/)) {
         Env.message = {
-          'type': 'error',
-          'text': 'Your next game could not be found'
+          'type': 'none',
+          'text': 'There are no games waiting for you to play'
         };
         Env.showStatusMessage();
+      } else {
+        // If we're not on the Overview page, send them there
+        Env.window.location.href = '/ui';
       }
-    });
+    }
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'Your next game could not be found'
+    };
+    Env.showStatusMessage();
+  }
 };
 

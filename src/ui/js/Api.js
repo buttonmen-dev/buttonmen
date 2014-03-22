@@ -454,8 +454,7 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the ID of the player's next pending game
 
-  my.getNextGameId = function(callbackfunc)
-  {
+  my.getNextGameId = function(callbackfunc) {
     my.apiParsePost(
       { 'type': 'loadNextPendingGame' },
       'gameNavigation',
