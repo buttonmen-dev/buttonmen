@@ -429,6 +429,7 @@ class DummyApiResponder {
             "capturedSidesArrayArray" => array(array(), array()),
             "capturedRecipeArrayArray" => array(array(), array()),
             "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
+            "optRequestArrayArray" => array(array(), array()),
             "validAttackTypeArray" => array(),
             "roundScoreArray" => array(NULL, NULL),
             "sideScoreArray" => array(NULL, NULL),
