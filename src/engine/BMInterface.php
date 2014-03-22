@@ -716,9 +716,8 @@ class BMInterface {
             $isToActArray[]       = (int)$row['is_awaiting_action'];
             $gameStateArray[]     = BMGameState::as_string($row['game_state']);
             $statusArray[]        = $row['status'];
-            $inactivityArray[]    = $this->get_friendly_time_span(
-                                        (int)$row['last_action_timestamp'],
-                                        $now);
+            $inactivityArray[]    =
+                $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
         }
 
         return array('gameIdArray'             => $gameIdArray,
