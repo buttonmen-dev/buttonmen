@@ -469,7 +469,7 @@ class BMGame {
         }
 
         foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
-            foreach ($optionRequestArray as $dieIdx => $optionRequest) {
+            foreach (array_keys($optionRequestArray) as $dieIdx) {
                 if (isset($this->optValueArrayArray[$playerIdx]) &&
                     (count($this->optValueArrayArray[$playerIdx]) > 0)) {
                     $optValue = $this->optValueArrayArray[$playerIdx][$dieIdx];

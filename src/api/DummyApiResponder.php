@@ -59,7 +59,7 @@ class DummyApiResponder {
                      'Follow the link in that message to start beating people up!');
     }
 
-    protected function get_interface_response_verifyUser($args) {
+    protected function get_interface_response_verifyUser() {
         return array(TRUE, "New user tester1 has been verified.");
     }
 
@@ -1092,7 +1092,7 @@ class DummyApiResponder {
         return array(TRUE, 'Successfully set swing values');
     }
 
-    protected function get_interface_response_submitOptionValues($args) {
+    protected function get_interface_response_submitOptionValues() {
         return array(TRUE, 'Successfully set option values');
     }
 

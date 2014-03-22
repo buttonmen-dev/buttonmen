@@ -992,7 +992,7 @@ class BMInterface {
             $logEntries = array();
             $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
-                $params = json_decode($row['message'], $assoc = TRUE);
+                $params = json_decode($row['message'], TRUE);
                 if (!($params)) {
                     $params = $row['message'];
                 }
