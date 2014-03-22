@@ -63,15 +63,35 @@ test("test_Login.formLogin", function() {
 });
 
 asyncTest("test_Login.goToNextPendingGame", function() {
-  // Using similar logic to test_Game.formChooseSwingActive for the async call
-  $.ajaxSetup({ async: false });
+  Env.window.location.href = "/ui/game.html?game=1";
+  Api.gameNavigation = {
+    'load_status': 'ok',
+    'nextGameId': 7,
+  };
+
   Login.goToNextPendingGame();
   notEqual(Env.window.location.href, null, "The page has been redirected");
   if (Env.window.location.href !== null && Env.window.location.href !== undefined)
   {
-    ok(Env.window.location.href.match("game\\.html\\?game=7"),
+    ok(Env.window.location.href.match(/game\.html\?game=7/),
       "The page has been redirected to the next game");
   }
-  $.ajaxSetup({ async: true });
+  start();
+});
+
+asyncTest("test_Login.goToNextPendingGame_no_next_game", function() {
+  Env.window.location.href = "/ui/game.html?game=1";
+  Api.gameNavigation = {
+    'load_status': 'ok',
+    'nextGameId': null,
+  };
+
+  Login.goToNextPendingGame();
+  notEqual(Env.window.location.href, null, "The page has been redirected");
+  if (Env.window.location.href !== null && Env.window.location.href !== undefined)
+  {
+    ok(Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/),
+      "The page has been redirected to the Overview page");
+  }
   start();
 });
