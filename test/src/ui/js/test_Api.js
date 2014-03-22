@@ -130,7 +130,7 @@ asyncTest("test_Api.getActiveGamesData", function() {
   Api.getActiveGamesData(function() {
     equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    equal(Api.active_games.nGames, 12, 'Got expected number of active games');
+    equal(Api.active_games.nGames, 13, 'Got expected number of active games');
     start();
   });
 });
@@ -187,7 +187,7 @@ asyncTest("test_Api.getGameData", function() {
 asyncTest("test_Api.getGameData_nonplayer", function() {
   Game.game = '10';
   Api.getGameData(Game.game, function() {
-    equal(Api.game.gameId, '10', 
+    equal(Api.game.gameId, '10',
           "parseGameData() set gameId for nonparticipant");
     delete Game.game;
     start();
