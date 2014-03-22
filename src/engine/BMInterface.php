@@ -664,7 +664,8 @@ class BMInterface {
                  'v1.n_target_wins,'.
                  'v2.is_awaiting_action,'.
                  'g.game_state,'.
-                 's.name AS status '.
+                 's.name AS status, '.
+                 'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp '.
                  'FROM game_player_view AS v1 '.
                  'LEFT JOIN game_player_view AS v2 '.
                  'ON v1.game_id = v2.game_id '.
@@ -679,7 +680,7 @@ class BMInterface {
         } else {
             $query .= 'AND s.name = "COMPLETE" ';
         }
-        $query .= 'ORDER BY v1.game_id;';
+        $query .= 'ORDER BY g.last_action_time ASC;';
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':player_id' => $playerId));
 
@@ -696,6 +697,11 @@ class BMInterface {
         $isToActArray = array();
         $gameStateArray = array();
         $statusArray = array();
+        $inactivityArray = array();
+
+        // Ensure that the inactivity time for all games is relative to the
+        // same moment
+        $now = strtotime('now');
 
         while ($row = $statement->fetch()) {
             $gameIdArray[]        = (int)$row['game_id'];
@@ -710,6 +716,9 @@ class BMInterface {
             $isToActArray[]       = (int)$row['is_awaiting_action'];
             $gameStateArray[]     = BMGameState::as_string($row['game_state']);
             $statusArray[]        = $row['status'];
+            $inactivityArray[]    = $this->get_friendly_time_span(
+                                        (int)$row['last_action_timestamp'],
+                                        $now);
         }
 
         return array('gameIdArray'             => $gameIdArray,
@@ -723,7 +732,8 @@ class BMInterface {
                      'nTargetWinsArray'        => $nTargetWinsArray,
                      'isAwaitingActionArray'   => $isToActArray,
                      'gameStateArray'          => $gameStateArray,
-                     'statusArray'             => $statusArray);
+                     'statusArray'             => $statusArray,
+                     'inactivityArray'         => $inactivityArray);
     }
 
     public function get_all_active_games($playerId) {
@@ -1524,6 +1534,45 @@ class BMInterface {
             );
             return NULL;
         }
+    }
+
+    // Calculates the difference between two (unix-style) timespans and formats
+    // the result as a friendly approximation like '7 days' or '12 minutes'.
+    protected function get_friendly_time_span($firstTime, $secondTime) {
+        $seconds = (int)($secondTime - $firstTime);
+        if ($seconds < 0) {
+            $seconds *= -1;
+        }
+
+        if ($seconds < 60) {
+            return $this->count_noun($seconds, 'second');
+        }
+
+        $minutes = (int)($seconds / 60);
+        if ($minutes < 60) {
+            return $this->count_noun($minutes, 'minute');
+        }
+
+        $hours = (int)($minutes / 60);
+        if ($hours < 24) {
+            return $this->count_noun($hours, 'hour');
+        }
+
+        $days = (int)($hours / 24);
+        return $this->count_noun($days, 'day');
+    }
+
+    // Turns a number (like 5) and a noun (like 'golden ring') into a phrase
+    // like '5 golden rings', pluralizing if needed.
+    // Note: does not handle funky plurals.
+    protected function count_noun($count, $noun) {
+        if ($count == 1) {
+            return $count . ' ' . $noun;
+        }
+        if (substr($noun, -1) == 's') {
+            return $count . ' ' . $noun . 'es';
+        }
+        return $count . ' ' . $noun . 's';
     }
 
     public function __get($property) {
