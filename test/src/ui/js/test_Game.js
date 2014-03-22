@@ -731,7 +731,7 @@ asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match("tester2 performed Power attack"), 
+    ok(htmlout.match("tester2 performed Power attack"),
        "Action log footer for a game in progress should contain entries");
     start();
   });
