@@ -166,6 +166,15 @@ class ApiResponder {
         );
     }
 
+    protected function get_interface_response_submitOptionValues($interface, $args) {
+        return $interface->submit_option_values(
+            $_SESSION['user_id'],
+            $args['game'],
+            $args['roundNumber'],
+            $args['optionValueArray']
+        );
+    }
+
     protected function get_interface_response_reactToAuxiliary($interface, $args) {
         if (!(array_key_exists('dieIdx', $args))) {
             $args['dieIdx'] = NULL;

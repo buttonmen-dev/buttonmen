@@ -1165,7 +1165,7 @@ class BMInterface {
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
-            // the swing values still need to be set
+            // the option values still need to be set
             if (!$this->is_action_current(
                 $game,
                 BMGameState::SPECIFY_DICE,
@@ -1179,7 +1179,7 @@ class BMInterface {
 
             // try to set option values
             foreach ($optionValueArray as $dieIdx => $optionValue) {
-                $game->optValueArrayArray[$playerId][$dieIdx] = $optionValue;
+                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
             }
             $game->proceed_to_next_user_action();
 

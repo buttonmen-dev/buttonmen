@@ -68,7 +68,7 @@ class DummyApiResponder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = 19;
+        $gameId = 20;
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -265,7 +265,21 @@ class DummyApiResponder {
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
 
-        // tester1 is not a participant in fake game 18
+        // game 18
+        $data['gameIdArray'][] = 18;
+        $data['opponentIdArray'][] = 2;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Apples";
+        $data['opponentButtonNameArray'][] = "Apples";
+        $data['nWinsArray'][] = 1;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
+        $data['gameStateArray'][] = "SPECIFY_DICE";
+        $data['statusArray'][] = "ACTIVE";
+
+        // tester1 is not a participant in fake game 19
 
         return array($data, "All game details retrieved successfully.");
     }
@@ -581,6 +595,41 @@ class DummyApiResponder {
                 )
             );
         $gameDataCammyNeko['roundScoreArray'] = array(NULL, NULL);
+
+        // base params for an Apples vs Apples game, here to
+        // avoid the duplicated code warning
+        $gameDataApples = $gameData;
+        $gameDataApples['gameState'] = "SPECIFY_DICE";
+        $gameDataApples['playerWithInitiativeIdx'] = NULL;
+        $gameDataApples['buttonNameArray'] = array("Apples", "Apples");
+        $gameDataApples['buttonRecipeArray'] = array("(8) (8) (2/12) (8/16) (20/24)", "(8) (8) (2/12) (8/16) (20/24)");
+        $gameDataApples['waitingOnActionArray'] = array(TRUE, TRUE);
+        $gameDataApples['valueArrayArray'] = array(array(4, 3, NULL, NULL, NULL), array(2, 4, NULL, NULL, NULL));
+        $gameDataApples['sidesArrayArray'] = array(array(6, 6, NULL, NULL, NULL), array(6, 6, NULL, NULL, NULL));
+        $gameDataApples['dieRecipeArrayArray'] =
+            array(
+                array("(8)","(8)","(2/12)","(8/16)","(20/24)"),
+                array("(8)","(8)","(2/12)","(8/16)","(20/24)")
+            );
+        $gameDataApples['dieDescriptionArrayArray'] =
+            array(
+                array(
+                    '8-sided die',
+                    '8-sided die',
+                    'Option die (with 2 or 12 sides)',
+                    'Option die (with 8 or 16 sides)',
+                    'Option die (with 20 or 24 sides)'
+                ),
+                array(
+                    '8-sided die',
+                    '8-sided die',
+                    'Option die (with 2 or 12 sides)',
+                    'Option die (with 8 or 16 sides)',
+                    'Option die (with 20 or 24 sides)'
+                )
+            );
+        $gameDataApples['optRequestArrayArray'] = NULL;
+        $gameDataApples['roundScoreArray'] = array(NULL, NULL);
 
         if ($args['game'] == '1') {
             $gameData['gameId'] = 1;
@@ -964,6 +1013,18 @@ class DummyApiResponder {
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
+        } elseif ($args['game'] == '19') {
+            $gameDataApples['gameId'] = 19;
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataApples,
+                ),
+                'currentPlayerIdx' => 0,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
         }
 
         if ($data) {
@@ -1028,6 +1089,10 @@ class DummyApiResponder {
             }
         }
         return array(TRUE, 'Successfully set swing values');
+    }
+
+    protected function get_interface_response_submitOptionValues($args) {
+        return array(TRUE, 'Successfully set option values');
     }
 
     protected function get_interface_response_reactToInitiative() {

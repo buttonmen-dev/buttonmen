@@ -268,7 +268,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'buttonNameArray' => array('Avis', 'Av`is'),
             'maxWins' => '3',
         );
-        $retval = $this->object->process_request($args); 
+        $retval = $this->object->process_request($args);
         $this->assertEquals(
             array(
                 'data' => NULL,
@@ -528,6 +528,48 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummyval = $this->dummy->process_request($args);
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
         $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
+    }
+
+    public function test_request_submitOptionValues() {
+        $this->verify_login_required('submitOptionValues');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('submitOptionValues');
+
+        // create a game so we have the ID to load
+        $args = array(
+            'type' => 'createGame',
+            'playerNameArray' => array('responder003', 'responder004'),
+            'buttonNameArray' => array('Apples', 'Apples'),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args);
+        $real_game_id = $retval['data']['gameId'];
+        $dummy_game_id = '19';
+
+        // now ask for the game data so we have the timestamp to return
+        $args = array(
+            'type' => 'loadGameData',
+            'game' => "$real_game_id");
+        $retval = $this->object->process_request($args);
+        $timestamp = $retval['data']['timestamp'];
+
+        // now submit the option values
+        $args = array(
+            'type' => 'submitOptionValues',
+            'roundNumber' => '1',
+            'timestamp' => $timestamp,
+            'optionValueArray' => array(2 => 12, 3 => 8, 4 => 20));
+        $args['game'] = $real_game_id;
+
+        $retval = $this->object->process_request($args);
+
+        $args['game'] = $dummy_game_id;
+
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals($dummyval, $retval, "option value submission responses should be identical");
     }
 
     public function test_request_reactToAuxiliary() {
