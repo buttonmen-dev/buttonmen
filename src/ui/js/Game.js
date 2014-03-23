@@ -1111,8 +1111,8 @@ Game.formPlayTurnActive = function() {
   // Get the specified attack type
   Game.activity.attackType = $('#attack_type_select').val();
 
-  // Store the game chat in recent activity
-  Game.activity.chat = $('#game_chat').val();
+  // Store the game chat in recent activity (minus trailing whitespace)
+  Game.activity.chat = $('#game_chat').val().replace(/\s+$/, '');
 
   // If surrender is chosen, ask for confirmation, and let the user
   // try again if they don't confirm
@@ -1238,7 +1238,7 @@ Game.pageAddLogFooter = function() {
           }));
         actionrow.append(
           $('<td>', {
-            'class': 'left',
+            'class': 'left logmessage',
             'text': logentry.message,
           }));
         actiontable.append(actionrow);
@@ -1266,7 +1266,7 @@ Game.pageAddLogFooter = function() {
           'text': logentry.player + ' (' + logentry.timestamp + ')',
         }));
         chatrow.append($('<td>', {
-          'class': 'left',
+          'class': 'left logmessage',
           'text': logentry.message,
         }));
         chattable.append(chatrow);
@@ -1274,6 +1274,16 @@ Game.pageAddLogFooter = function() {
       chattd.append(chattable);
       logrow.append(chattd);
     }
+
+    // Replace text-y whitespace with HTML whitespace to preserve things
+    // like newlines and indentation in chat.
+    logrow.find('.logmessage').each(function() {
+      var messagehtml = $(this).html();
+      messagehtml =
+        messagehtml.replace(/^ /, '&nbsp;').replace(/\n /, '\n&nbsp;')
+        .replace(/  /g, ' &nbsp;').replace(/\n/g, '<br />');
+      $(this).html(messagehtml);
+    });
 
     logtable.append(logrow);
     logdiv.append(logtable);
