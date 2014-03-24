@@ -43,7 +43,11 @@ class BMInterface {
 
     public function get_player_info($playerId) {
         try {
-            $query = 'SELECT * FROM player WHERE id = :id';
+            $query = 'SELECT *, ' .
+                     'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
+                     'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
+                     'FROM player p ' .
+                     'WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetchAll();
@@ -70,8 +74,8 @@ class BMInterface {
             'autopass' => (bool)$infoArray['autopass'],
             'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
-            'last_action_time' => $infoArray['last_action_time'],
-            'creation_time' => $infoArray['creation_time'],
+            'last_action_time' => (int)$infoArray['last_action_timestamp'],
+            'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
             'n_games_won' => (int)$infoArray['n_games_won'],
             'n_games_lost' => (int)$infoArray['n_games_lost'],
@@ -222,6 +226,7 @@ class BMInterface {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
+                     'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
                      'v.player_id, v.position, v.autopass,'.
                      'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
@@ -244,7 +249,7 @@ class BMInterface {
                     $game->maxWins   = $row['n_target_wins'];
                     $game->turnNumberInRound = $row['turn_number_in_round'];
                     $game->nRecentPasses = $row['n_recent_passes'];
-                    $this->timestamp = new DateTime($row['last_action_time']);
+                    $this->timestamp = (int)$row['last_action_timestamp'];
                 }
 
                 $pos = $row['position'];
@@ -961,7 +966,7 @@ class BMInterface {
 
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
-            ($postedTimestamp == $this->timestamp->format(DATE_RSS));
+            ($postedTimestamp == $this->timestamp);
         $doesRoundNumberAgree =
             ('ignore' === $roundNumber) ||
             ($roundNumber == $game->roundNumber);
@@ -995,7 +1000,9 @@ class BMInterface {
 
     public function load_game_action_log(BMGame $game, $n_entries = 10) {
         try {
-            $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
+            $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
+                     'game_state,action_type,acting_player,message ' .
+                     'FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -1018,7 +1025,7 @@ class BMInterface {
                 $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
                 if ($message) {
                     $logEntries[] = array(
-                        'timestamp' => $row['action_time'],
+                        'timestamp' => (int)$row['action_timestamp'],
                         'message' => $message,
                     );
                 }
@@ -1071,14 +1078,16 @@ class BMInterface {
 
     public function load_game_chat_log(BMGame $game, $n_entries = 5) {
         try {
-            $query = 'SELECT chat_time,chatting_player,message FROM game_chat_log ' .
+            $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
+                     'chatting_player,message ' .
+                     'FROM game_chat_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $chatEntries = array();
             while ($row = $statement->fetch()) {
                 $chatEntries[] = array(
-                    'timestamp' => $row['chat_time'],
+                    'timestamp' => (int)$row['chat_timestamp'],
                     'player' => $this->get_player_name_from_id($row['chatting_player']),
                     'message' => $row['message'],
                 );
