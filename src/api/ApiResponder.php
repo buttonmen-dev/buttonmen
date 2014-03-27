@@ -128,7 +128,7 @@ class ApiResponder {
             if (isset($args['logEntryLimit']) && $game->gameState != BMGameState::END_GAME) {
                 $logEntryLimit = $args['logEntryLimit'];
             } else {
-                $logEntryLimit = null;
+                $logEntryLimit = NULL;
             }
 
             $data = array(
