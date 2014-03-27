@@ -182,7 +182,11 @@ Login.postToResponder = function(responder_args) {
       } else {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
-      Login.showLoginHeader(Login.callback);
+      if (responder_args.type == 'logout') {
+        Env.window.location.href = '/ui';
+      } else {
+        Login.showLoginHeader(Login.callback);
+      }
     }
   ).fail(
     function() {
