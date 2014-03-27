@@ -125,13 +125,19 @@ class ApiResponder {
                 $playerNameArray[] = $interface->get_player_name_from_id($playerId);
             }
 
+            $nLogEntries = $args['nLogEntries'];
+            if ($game->gameState == BMGameState::END_GAME) {
+                // If the game is over, show all history regardless
+                $nLogEntries = 0;
+            }
+
             $data = array(
                 'currentPlayerIdx' => $currentPlayerIdx,
                 'gameData' => $game->getJsonData($currentPlayerId),
                 'playerNameArray' => $playerNameArray,
                 'timestamp' => $interface->timestamp->format(DATE_RSS),
-                'gameActionLog' => $interface->load_game_action_log($game),
-                'gameChatLog' => $interface->load_game_chat_log($game),
+                'gameActionLog' => $interface->load_game_action_log($game, $nLogEntries),
+                'gameChatLog' => $interface->load_game_chat_log($game, $nLogEntries),
             );
         }
         return $data;

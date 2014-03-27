@@ -686,7 +686,38 @@ class DummyApiResponder {
                               "Defender (12) was captured; Attacker (4) rerolled 1 => 4; " .
                               "Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
                 ),
-                'gameChatLog' => array(),
+                'gameChatLog' => array(
+                    array("timestamp" => "2013-12-22 21:09:01",
+                          "player" => "tester2",
+                          "message" => "Hello."),
+                    array("timestamp" => "2013-12-22 21:08:56",
+                          "player" => "tester1",
+                          "message" => "Hi."),
+                    array("timestamp" => "2013-12-22 21:03:52",
+                          "player" => "tester2",
+                          "message" => "Greetings."),
+                    array("timestamp" => "2013-12-22 21:03:39",
+                          "player" => "tester1",
+                          "message" => "Salutations."),
+                    array("timestamp" => "2013-12-22 21:03:12",
+                          "player" => "tester2",
+                          "message" => "Good morning."),
+                    array("timestamp" => "2013-11-22 21:09:01",
+                          "player" => "tester2",
+                          "message" => "Bonjour."),
+                    array("timestamp" => "2013-11-22 21:08:56",
+                          "player" => "tester1",
+                          "message" => "Yo."),
+                    array("timestamp" => "2013-11-22 21:03:52",
+                          "player" => "tester2",
+                          "message" => "How are you?"),
+                    array("timestamp" => "2013-11-22 21:03:39",
+                          "player" => "tester1",
+                          "message" => "Howdy."),
+                    array("timestamp" => "2013-11-22 21:03:12",
+                          "player" => "tester2",
+                          "message" => "Ping!"),
+                ),
             );
             if ($args['game'] == '3') {
                 $data['currentPlayerIdx'] = 0;
@@ -755,7 +786,14 @@ class DummyApiResponder {
                               "tester2 performed Power attack using [(10):10] against [(4):4]; " .
                               "Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                 ),
-                'gameChatLog' => array(),
+                'gameChatLog' => array(
+                    array("timestamp" => "2013-12-20 00:52:42",
+                          "player" => "tester1",
+                          "message" => "Pong."),
+                    array("timestamp" => "2013-12-20 00:52:29",
+                          "player" => "tester2",
+                          "message" => "Ping!"),
+                ),
             );
         } elseif ($args['game'] == '6') {
             $gameData['gameId'] = 6;
@@ -973,12 +1011,146 @@ class DummyApiResponder {
         }
 
         if ($data) {
+            if ($args['nLogEntries'] > 0) {
+                $data['gameActionLog'] =
+                    array_slice($data['gameActionLog'], 0, $args['nLogEntries']);
+                $data['gameChatLog'] =
+                    array_slice($data['gameChatLog'], 0, $args['nLogEntries']);
+            }
+
             if (!(array_key_exists('playerNameArray', $data))) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
             }
             $timestamp = new DateTime();
             $data['timestamp'] = $timestamp->format(DATE_RSS);
             return array($data, "Loaded data for game " . $args['game']);
+        }
+        return array(NULL, "Game does not exist.");
+    }
+
+    protected function get_interface_response_loadGameActionLog() {
+        $data = NULL;
+
+        // Use the same fake games here which were described in loadGameData
+        if ($args['game'] == '1' || $args['game'] == '2' ||
+            $args['game'] == '4' || $args['game'] == '6' ||
+            $args['game'] == '7' || $args['game'] == '8' ||
+            $args['game'] == '9' || $args['game'] == '10' ||
+            $args['game'] == '12' || $args['game'] == '13' ||
+            $args['game'] == '14' || $args['game'] == '15' ||
+            $args['game'] == '16' || $args['game'] == '17' ||
+            $args['game'] == '18') {
+            $data = array(
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif (($args['game'] == '3') || ($args['game'] == '11')) {
+            $data = array(
+                'gameActionLog' => array(
+                    array("timestamp" => "2013-12-22 21:09:01",
+                          "message" =>
+                              "tester2 performed Power attack using [(12):1] against [(4):1]; " .
+                              "Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
+                    array("timestamp" => "2013-12-22 21:08:56",
+                          "message" =>
+                              "tester1 performed Power attack using [(4):2] against [(X):1]; " .
+                              "Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
+                    array("timestamp" => "2013-12-22 21:03:52",
+                          "message" =>
+                              "tester2 performed Skill attack using [(4):4,(X):3] against [(10):7]; " .
+                              "Defender (10) was captured; Attacker (4) rerolled 4 => 4; " .
+                              "Attacker (X) rerolled 3 => 1"),
+                    array("timestamp" => "2013-12-22 21:03:39",
+                          "message" =>
+                              "tester1 performed Power attack using [(4):3] against [(10):3]; " .
+                              "Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
+                    array("timestamp" => "2013-12-22 21:03:12",
+                          "message" =>
+                              "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; " .
+                              "Defender (12) was captured; Attacker (4) rerolled 1 => 4; " .
+                              "Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
+                ),
+            );
+        } elseif ($args['game'] == '5') {
+            $data = array(
+                'gameActionLog' => array(
+                    array("timestamp" => "2013-12-20 00:52:42",
+                          "message" => "End of round: tester1 won round 5 (46 vs 30)"),
+                    array("timestamp" => "2013-12-20 00:52:42",
+                          "message" =>
+                              "tester1 performed Power attack using [(X):7] against [(4):2]; " .
+                              "Defender (4) was captured; Attacker (X) rerolled 7 => 4"),
+                    array("timestamp" => "2013-12-20 00:52:36",
+                          "message" => "tester2 passed"),
+                    array("timestamp" => "2013-12-20 00:52:33",
+                          "message" =>
+                              "tester1 performed Power attack using [(X):14] against [(10):4]; " .
+                              "Defender (10) was captured; Attacker (X) rerolled 14 => 7"),
+                    array("timestamp" => "2013-12-20 00:52:29",
+                          "message" =>
+                              "tester2 performed Power attack using [(10):10] against [(4):4]; " .
+                              "Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
+                ),
+            );
+        }
+
+        if ($data) {
+            return array($data, "Loaded action log for game " . $args['game']);
+        }
+        return array(NULL, "Game does not exist.");
+    }
+
+    protected function get_interface_response_loadGameChatLog() {
+        $data = NULL;
+
+        // Use the same fake games here which were described in loadGameData
+        if ($args['game'] == '1' || $args['game'] == '2' ||
+            $args['game'] == '4' || $args['game'] == '6' ||
+            $args['game'] == '7' || $args['game'] == '8' ||
+            $args['game'] == '9' || $args['game'] == '10' ||
+            $args['game'] == '12' || $args['game'] == '13' ||
+            $args['game'] == '14' || $args['game'] == '15' ||
+            $args['game'] == '16' || $args['game'] == '17' ||
+            $args['game'] == '18') {
+            $data = array(
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
+        } elseif (($args['game'] == '3') || ($args['game'] == '11')) {
+            $data = array(
+                'gameChatLog' => array(
+                    array("timestamp" => "2013-12-22 21:09:01",
+                          "player" => "tester2",
+                          "message" => "Hello."),
+                    array("timestamp" => "2013-12-22 21:08:56",
+                          "player" => "tester1",
+                          "message" => "Hi."),
+                    array("timestamp" => "2013-12-22 21:03:52",
+                          "player" => "tester2",
+                          "message" => "Greetings."),
+                    array("timestamp" => "2013-12-22 21:03:39",
+                          "player" => "tester1",
+                          "message" => "Salutations."),
+                    array("timestamp" => "2013-12-22 21:03:12",
+                          "player" => "tester2",
+                          "message" => "Good morning."),
+                ),
+            );
+        } elseif ($args['game'] == '5') {
+            $data = array(
+                'gameChatLog' => array(
+                    array("timestamp" => "2013-12-20 00:52:42",
+                          "player" => "tester1",
+                          "message" => "Pong."),
+                    array("timestamp" => "2013-12-20 00:52:29",
+                          "player" => "tester2",
+                          "message" => "Ping!"),
+                ),
+            );
+        }
+
+        if ($data) {
+            return array($data, "Loaded chat log for game " . $args['game']);
         }
         return array(NULL, "Game does not exist.");
     }

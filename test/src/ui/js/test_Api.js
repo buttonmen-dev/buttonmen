@@ -177,7 +177,7 @@ asyncTest("test_Api.parseUserPrefsData", function() {
 
 asyncTest("test_Api.getGameData", function() {
   Game.game = '1';
-  Api.getGameData(Game.game, function() {
+  Api.getGameData(Game.game, 10, function() {
     equal(Api.game.gameId, '1', "parseGameData() set gameId");
     equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx");
     delete Game.game;
@@ -187,9 +187,29 @@ asyncTest("test_Api.getGameData", function() {
 
 asyncTest("test_Api.getGameData_nonplayer", function() {
   Game.game = '10';
-  Api.getGameData(Game.game, function() {
+  Api.getGameData(Game.game, 10, function() {
     equal(Api.game.gameId, '10',
           "parseGameData() set gameId for nonparticipant");
+    delete Game.game;
+    start();
+  });
+});
+
+asyncTest("test_Api.getGameData_somelogs", function() {
+  Game.game = '3';
+  Api.getGameData(Game.game, 3, function() {
+    equal(Api.game.actionLog.length, 3, "getGameData() passed limited action log length");
+    equal(Api.game.chatLog.length, 3, "getGameData() passed limited chat log length");
+    delete Game.game;
+    start();
+  });
+});
+
+asyncTest("test_Api.getGameData_alllogs", function() {
+  Game.game = '3';
+  Api.getGameData(Game.game, 0, function() {
+    ok(Api.game.actionLog.length > 3, "getGameData() passed unlimited action log length");
+    ok(Api.game.chatLog.length > 3, "getGameData() passed unlimited chat log length");
     delete Game.game;
     start();
   });
@@ -199,7 +219,7 @@ asyncTest("test_Api.getGameData_nonplayer", function() {
 // test any details of parsePlayerData()'s processing here
 asyncTest("test_Api.parseGamePlayerData", function() {
   Game.game = '1';
-  Api.getGameData(Game.game, function() {
+  Api.getGameData(Game.game, 10, function() {
     deepEqual(Api.game.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
               "player die recipe array should be parsed correctly");
     deepEqual(Api.game.player.capturedValueArray, [],
@@ -216,7 +236,7 @@ asyncTest("test_Api.parseGamePlayerData", function() {
 });
 
 asyncTest("test_Api.playerWLTText", function() {
-  Api.getGameData('5', function() {
+  Api.getGameData('5', 10, function() {
     var text = Api.playerWLTText('opponent');
     ok(text.match('2/3/0'),
        "opponent WLT text should contain opponent's view of WLT state");
