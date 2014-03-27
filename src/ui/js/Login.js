@@ -55,6 +55,7 @@ Login.layoutHeader = function() {
   $('#login_header').append(Login.message);
 
   if (Login.form) {
+    $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
   return Login.callback();
