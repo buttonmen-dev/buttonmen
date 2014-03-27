@@ -1035,14 +1035,10 @@ class DummyApiResponder {
         $data = NULL;
 
         // Use the same fake games here which were described in loadGameData
-        if ($args['game'] == '1' || $args['game'] == '2' ||
-            $args['game'] == '4' || $args['game'] == '6' ||
-            $args['game'] == '7' || $args['game'] == '8' ||
-            $args['game'] == '9' || $args['game'] == '10' ||
-            $args['game'] == '12' || $args['game'] == '13' ||
-            $args['game'] == '14' || $args['game'] == '15' ||
-            $args['game'] == '16' || $args['game'] == '17' ||
-            $args['game'] == '18') {
+        $gamesWithoutLogs =
+            array('1', '2', '4', '6', '7', '8', '9', '10', '12', '13',
+                '14', '15', '16', '17', '18');
+        if (in_array($args['game'], $gamesWithoutLogs)) {
             $data = array(
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
@@ -1107,14 +1103,10 @@ class DummyApiResponder {
         $data = NULL;
 
         // Use the same fake games here which were described in loadGameData
-        if ($args['game'] == '1' || $args['game'] == '2' ||
-            $args['game'] == '4' || $args['game'] == '6' ||
-            $args['game'] == '7' || $args['game'] == '8' ||
-            $args['game'] == '9' || $args['game'] == '10' ||
-            $args['game'] == '12' || $args['game'] == '13' ||
-            $args['game'] == '14' || $args['game'] == '15' ||
-            $args['game'] == '16' || $args['game'] == '17' ||
-            $args['game'] == '18') {
+        $gamesWithoutLogs =
+            array('1', '2', '4', '6', '7', '8', '9', '10', '12', '13',
+                '14', '15', '16', '17', '18');
+        if (in_array($args['game'], $gamesWithoutLogs)) {
             $data = array(
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
