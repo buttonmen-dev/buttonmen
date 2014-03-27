@@ -53,9 +53,10 @@ class ApiSpec {
         'loadGameData' => array(
             'mandatory' => array(
                 'game' => 'number',
-                'nLogEntries' => 'number',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'logEntryLimit' => 'number',
+            ),
         ),
         'loadNextPendingGame' => array(
             'mandatory' => array(),

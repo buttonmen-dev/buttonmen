@@ -545,9 +545,9 @@ asyncTest("test_Game.actionShowFinishedGame", function() {
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
     equal(Game.form, null, "Game.form is NULL");
-    equal(Game.logHistoryLength, 0, "Log history is assumed to be full");
+    equal(Game.logEntryLimit, undefined, "Log history is assumed to be full");
     start();
-    Game.logHistoryLength = 10;
+    Game.logEntryLimit = 10;
   });
 });
 
@@ -700,7 +700,7 @@ asyncTest("test_Game.showFullLogHistory", function() {
     ok(Api.game.chatLog.length > 10, "Full chat log was returned");
     $.ajaxSetup({ async: true });
     start();
-    Game.logHistoryLength = 10;
+    Game.logEntryLimit = 10;
   });
 });
 

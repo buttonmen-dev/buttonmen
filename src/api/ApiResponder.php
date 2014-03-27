@@ -125,10 +125,10 @@ class ApiResponder {
                 $playerNameArray[] = $interface->get_player_name_from_id($playerId);
             }
 
-            $nLogEntries = $args['nLogEntries'];
-            if ($game->gameState == BMGameState::END_GAME) {
-                // If the game is over, show all history regardless
-                $nLogEntries = 0;
+            if (isset($args['logEntryLimit']) && $game->gameState != BMGameState::END_GAME) {
+                $logEntryLimit = $args['logEntryLimit'];
+            } else {
+                $logEntryLimit = null;
             }
 
             $data = array(
@@ -136,8 +136,8 @@ class ApiResponder {
                 'gameData' => $game->getJsonData($currentPlayerId),
                 'playerNameArray' => $playerNameArray,
                 'timestamp' => $interface->timestamp->format(DATE_RSS),
-                'gameActionLog' => $interface->load_game_action_log($game, $nLogEntries),
-                'gameChatLog' => $interface->load_game_chat_log($game, $nLogEntries),
+                'gameActionLog' => $interface->load_game_action_log($game, $logEntryLimit),
+                'gameChatLog' => $interface->load_game_chat_log($game, $logEntryLimit),
             );
         }
         return $data;

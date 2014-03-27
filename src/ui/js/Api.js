@@ -299,10 +299,10 @@ var Api = (function () {
     return true;
   };
 
-  my.getGameData = function(game, nLogEntries, callback) {
+  my.getGameData = function(game, logEntryLimit, callback) {
     activity.gameId = game;
     Api.apiParsePost(
-      { type: 'loadGameData', game: game, nLogEntries: nLogEntries },
+      { type: 'loadGameData', game: game, logEntryLimit: logEntryLimit },
       'game',
       my.parseGameData,
       callback,

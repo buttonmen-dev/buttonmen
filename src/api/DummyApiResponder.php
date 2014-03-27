@@ -1014,11 +1014,11 @@ class DummyApiResponder {
         }
 
         if ($data) {
-            if ($args['nLogEntries'] > 0) {
+            if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
                 $data['gameActionLog'] =
-                    array_slice($data['gameActionLog'], 0, $args['nLogEntries']);
+                    array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
                 $data['gameChatLog'] =
-                    array_slice($data['gameChatLog'], 0, $args['nLogEntries']);
+                    array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
             }
 
             if (!(array_key_exists('playerNameArray', $data))) {

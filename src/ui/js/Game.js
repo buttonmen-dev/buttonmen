@@ -31,7 +31,7 @@ Game.COLORS = {
 };
 
 // Default number of action and chat log entries to display
-Game.logHistoryLength = 10;
+Game.logEntryLimit = 10;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -104,7 +104,7 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  Api.getGameData(Game.game, Game.logHistoryLength, callbackfunc);
+  Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
 };
 
 // Assemble and display the game portion of the page
@@ -813,7 +813,7 @@ Game.actionShowFinishedGame = function() {
   dieEndgameTr.append(opponentButtonTd);
   dieEndgameTable.append(dieEndgameTr);
   Game.page.append(dieEndgameTable);
-  Game.logHistoryLength = 0;
+  Game.logEntryLimit = undefined;
   Game.pageAddFooter();
 
   Game.form = null;
@@ -1160,7 +1160,7 @@ Game.readCurrentGameActivity = function() {
 
 Game.showFullLogHistory = function() {
   Game.readCurrentGameActivity();
-  Game.logHistoryLength = 0;
+  Game.logEntryLimit = undefined;
   Game.showGamePage();
 };
 
@@ -1290,7 +1290,7 @@ Game.pageAddLogFooter = function() {
 
     logtable.append(logrow);
 
-    if (Game.logHistoryLength > 0) {
+    if (Game.logEntryLimit !== undefined) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
       var historytd = $('<td>');
       if ((Api.game.actionLog.length > 0) && (Api.game.chatLog.length > 0)) {

@@ -405,9 +405,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('loadGameData');
 
-        // loadGameData should fail if game or nLogEntries is non-numeric
+        // loadGameData should fail if game or logEntryLimit is non-numeric
         $retval = $this->object->process_request(
-            array('type' => 'loadGameData', 'game' => 'foobar', 'nLogEntries' => 10));
+            array('type' => 'loadGameData', 'game' => 'foobar'));
         $this->assertEquals(
             array(
                 'data' => NULL,
@@ -418,15 +418,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "loadGameData should reject a non-numeric game ID"
         );
         $retval = $this->object->process_request(
-            array('type' => 'loadGameData', 'game' => '3', 'nLogEntries' => 'foobar'));
+            array('type' => 'loadGameData', 'game' => '3', 'logEntryLimit' => 'foobar'));
         $this->assertEquals(
             array(
                 'data' => NULL,
-                'message' => 'Argument (nLogEntries) to function loadGameData is invalid',
+                'message' => 'Argument (logEntryLimit) to function loadGameData is invalid',
                 'status' => 'failed',
             ),
             $retval,
-            "loadGameData should reject a non-numeric number of log entries"
+            "loadGameData should reject a non-numeric log entry limit"
         );
 
         // create a game so we have the ID to load
@@ -442,9 +442,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now load real and dummy games
         $retval = $this->object->process_request(
-            array('type' => 'loadGameData', 'game' => $real_game_id, 'nLogEntries' => 10));
+            array('type' => 'loadGameData', 'game' => $real_game_id, 'logEntryLimit' => 10));
         $dummyval = $this->dummy->process_request(
-            array('type' => 'loadGameData', 'game' => $dummy_game_id, 'nLogEntries' => 10));
+            array('type' => 'loadGameData', 'game' => $dummy_game_id, 'logEntryLimit' => 10));
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
         $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
 
@@ -549,7 +549,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $args = array(
             'type' => 'loadGameData',
             'game' => "$real_game_id",
-            'nLogEntries' => '10');
+            'logEntryLimit' => '10');
         $retval = $this->object->process_request($args);
         $timestamp = $retval['data']['timestamp'];
 
@@ -624,7 +624,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $dataargs = array(
                 'type' => 'loadGameData',
                 'game' => "$real_game_id",
-                'nLogEntries' => '10');
+                'logEntryLimit' => '10');
             $retval = $this->object->process_request($dataargs);
             $timestamp = $retval['data']['timestamp'];
 
