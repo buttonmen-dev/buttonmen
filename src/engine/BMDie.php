@@ -153,14 +153,15 @@ class BMDie extends BMCanHaveSkill {
     }
 
 
-    public function roll($successfulAttack = FALSE) {
-        $this->run_hooks('pre_roll', array('die' => $this));
+    public function roll($isAttackSuccessful = FALSE) {
+        $this->run_hooks('pre_roll', array('die' => $this,
+                                           'isAttackSuccessful' => $isAttackSuccessful));
 
         if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        $this->run_hooks('post_roll', array('isSuccessfulAttack' => $successfulAttack));
+        //$this->run_hooks('post_roll', array('isAttackSuccessful' => $isAttackSuccessful));
     }
 
     public function attack_list() {

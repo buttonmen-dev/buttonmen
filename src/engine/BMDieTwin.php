@@ -64,7 +64,7 @@ class BMDieTwin extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($successfulAttack = FALSE) {
+    public function roll($isAttackSuccessful = FALSE) {
         if (is_null($this->max)) {
             return;
         }
@@ -75,7 +75,7 @@ class BMDieTwin extends BMDie {
             $this->value += $die->value;
         }
 
-        $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
+        //$this->run_hooks('post_roll', array('isSuccessfulAttack' => $isAttackSuccessful));
     }
 
     // Print long description
