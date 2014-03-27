@@ -606,6 +606,23 @@ asyncTest("test_Game.formChooseReserveDiceActive", function() {
   });
 });
 
+asyncTest("test_Game.formChooseReserveDiceActive_decline", function() {
+  BMTestUtils.GameType = 'reserve_active';
+  Game.getCurrentGame(function() {
+    Game.actionChooseReserveDiceActive();
+    $('#reserve_select').val('decline');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success",
+       "text": "Reserve die chosen successfully"},
+      "Game action succeeded when decline argument was set and no dice were chosen");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Game.formReactToInitiativeActive", function() {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
@@ -714,7 +731,7 @@ asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match("tester2 performed Power attack"), 
+    ok(htmlout.match("tester2 performed Power attack"),
        "Action log footer for a game in progress should contain entries");
     start();
   });

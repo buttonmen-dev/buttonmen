@@ -11,6 +11,7 @@ module("Api", {
     delete Api.completed_games;
     delete Api.user_prefs;
     delete Api.game;
+    delete Api.gameNavigation;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -187,7 +188,7 @@ asyncTest("test_Api.getGameData", function() {
 asyncTest("test_Api.getGameData_nonplayer", function() {
   Game.game = '10';
   Api.getGameData(Game.game, function() {
-    equal(Api.game.gameId, '10', 
+    equal(Api.game.gameId, '10',
           "parseGameData() set gameId for nonparticipant");
     delete Game.game;
     start();
@@ -233,4 +234,20 @@ test("test_Api.disableSubmitButton", function() {
   var item = document.getElementById('api_action_button');
   equal(item.getAttribute('disabled'), 'disabled',
         "After a submit button has been clicked, it should be disabled");
+});
+
+asyncTest("test_Api.getNextGameId", function() {
+  Api.getNextGameId(
+    function() {
+      equal(Api.gameNavigation.load_status, 'ok',
+        'Successfully retrieved next game ID');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseNextGameId", function() {
+  Api.getNextGameId(function() {
+    equal(Api.gameNavigation.nextGameId, 7, "Successfully parsed next game ID");
+    start();
+  });
 });
