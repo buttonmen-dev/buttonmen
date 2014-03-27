@@ -717,6 +717,9 @@ class DummyApiResponder {
                     array("timestamp" => "2013-11-22 21:03:12",
                           "player" => "tester2",
                           "message" => "Ping!"),
+                    array("timestamp" => "2013-10-22 21:03:12",
+                          "player" => "tester2",
+                          "message" => "G'day."),
                 ),
             );
             if ($args['game'] == '3') {

@@ -692,6 +692,18 @@ asyncTest("test_Game.readCurrentGameActivity", function() {
   });
 });
 
+asyncTest("test_Game.showFullLogHistory", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    $.ajaxSetup({ async: false });
+    Game.showFullLogHistory();
+    ok(Api.game.chatLog.length > 10, "Full chat log was returned");
+    $.ajaxSetup({ async: true });
+    start();
+    Game.logHistoryLength = 10;
+  });
+});
+
 asyncTest("test_Game.pageAddGameHeader", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
