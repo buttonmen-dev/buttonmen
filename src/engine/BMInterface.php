@@ -984,12 +984,12 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $n_entries) {
+    public function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC';
-            if ($n_entries != NULL) {
-                $query = $query . ' LIMIT ' . $n_entries;
+            if (!is_null($logEntryLimit)) {
+                $query = $query . ' LIMIT ' . $logEntryLimit;
             }
 
             $statement = self::$conn->prepare($query);
@@ -1064,12 +1064,12 @@ class BMInterface {
         );
     }
 
-    public function load_game_chat_log(BMGame $game, $n_entries) {
+    public function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT chat_time,chatting_player,message FROM game_chat_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC';
-            if ($n_entries != NULL) {
-                $query = $query . ' LIMIT ' . $n_entries;
+            if (!is_null($logEntryLimit)) {
+                $query = $query . ' LIMIT ' . $logEntryLimit;
             }
 
             $statement = self::$conn->prepare($query);
