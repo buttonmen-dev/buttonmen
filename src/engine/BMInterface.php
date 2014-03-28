@@ -783,6 +783,36 @@ class BMInterface {
         }
     }
 
+    public function get_next_pending_game($playerId) {
+        try {
+            $query = 'SELECT gpm.game_id '.
+                     'FROM game_player_map AS gpm '.
+                        'LEFT JOIN game AS g ON g.id = gpm.game_id '.
+                     'WHERE gpm.player_id = :player_id '.
+                        'AND gpm.is_awaiting_action = 1 '.
+                     'ORDER BY g.last_action_time ASC '.
+                     'LIMIT 1';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $playerId));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Player has no pending games.';
+                return array('gameId' => NULL);
+            } else {
+                $gameId = ((int)$result[0]);
+                $this->message = 'Next game ID retrieved successfully.';
+                return array('gameId' => $gameId);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_next_pending_game: " .
+                $e->getMessage()
+            );
+            $this->message = 'Game ID get failed.';
+            return NULL;
+        }
+    }
+
     public function get_all_button_names() {
         try {
             // if the site is production, don't report unimplemented buttons at all

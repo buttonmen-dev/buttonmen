@@ -106,6 +106,10 @@ class ApiResponder {
         return $interface->get_all_completed_games($_SESSION['user_id']);
     }
 
+    protected function get_interface_response_loadNextPendingGame($interface) {
+        return $interface->get_next_pending_game($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_loadButtonNames($interface) {
         return $interface->get_all_button_names();
     }
