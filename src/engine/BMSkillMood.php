@@ -1,52 +1,36 @@
 <?php
 
 class BMSkillMood extends BMSkill {
-    public static $hooked_methods = array('capture');
+    public static $hooked_methods = array('pre_roll');
 
-//    public static function capture(&$args) {
-//        if (!self::are_dice_in_attack_valid($args)) {
-//            return;
-//        }
-//
-//        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
-//        $att->copy_skills_from_die($args['caller']);
-//        $att->roll(TRUE);
-//
-//        return $att;
-//    }
-//
-//    protected static function are_dice_in_attack_valid($args) {
-//        if (!is_array($args['attackers']) ||
-//            (0 == count($args['attackers'])) ||
-//            !is_array($args['defenders']) ||
-//            (0 == count($args['defenders']))) {
-//            return FALSE;
-//        }
-//
-//        return TRUE;
-//    }
-//
-//    protected static function create_morphing_clone_target($att, $def) {
-//        $newDie = clone $def;
-//
-//        // convert swing and option dice back to normal dice
-//        if ($newDie instanceof BMDieSwing ||
-//            $newDie instanceof BMDieOption) {
-//            $newDie = $newDie->cast_as_BMDie();
-//        } elseif ($newDie instanceof BMDieTwin) {
-//            foreach ($newDie->dice as &$subDie) {
-//                if ($subDie instanceof BMDieSwing) {
-//                    $subDie = $subDie->cast_as_BMDie();
-//                }
-//            }
-//        }
-//
-//        $newDie->captured = FALSE;
-//        $newDie->ownerObject = $att->ownerObject;
-//        $newDie->playerIdx = $att->playerIdx;
-//        $newDie->originalPlayerIdx = $att->originalPlayerIdx;
-//        $newDie->hasAttacked = TRUE;
-//
-//        return $newDie;
-//    }
+    public static function pre_roll(&$args) {
+        if (!($args['die'] instanceof BMDie) ||
+            !is_bool($args['isTriggeredByAttack'])) {
+            return FALSE;
+        }
+
+        // do nothing if the die is not a swing die or a twin die with swing components
+        $die = $args['die'];
+        if (!isset($die->swingType)) {
+            return FALSE;
+        }
+
+        $swingRange = BMDieSwing::swing_range($die->swingType);
+        $swingValue = mt_rand($swingRange[0], $swingRange[1]);
+        if ($die instanceof BMDieSwing) {
+            $die->max = $swingValue;
+            $die->swingValue = $swingValue;
+        } elseif ($die instanceof BMDieTwin) {
+            foreach ($die->dice as $subdie) {
+                if ($subdie instanceof BMDieSwing) {
+                    $subdie->max = $swingValue;
+                    $subdie->swingValue = $swingValue;
+                }
+            }
+            $die->recalc_max_min();
+        } else {
+            throw new LogicException('Mood applied to non-swing die.');
+        }
+
+    }
 }

@@ -167,7 +167,7 @@ class BMDieTwin extends BMDie {
 //       ));
 //    }
 
-    protected function recalc_max_min() {
+    public function recalc_max_min() {
         $this->min = 0;
         $this->max = 0;
 
