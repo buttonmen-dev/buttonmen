@@ -64,18 +64,16 @@ class BMDieTwin extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($isAttackSuccessful = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
         if (is_null($this->max)) {
             return;
         }
 
         $this->value = 0;
         foreach ($this->dice as &$die) {
-            $die->roll();
+            $die->roll($isTriggeredByAttack);
             $this->value += $die->value;
         }
-
-        //$this->run_hooks('post_roll', array('isSuccessfulAttack' => $isAttackSuccessful));
     }
 
     // Print long description

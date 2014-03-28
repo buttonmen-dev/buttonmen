@@ -148,20 +148,20 @@ class BMDie extends BMCanHaveSkill {
 // Roll the die into a game. Clone self, roll, return the clone.
     public function make_play_die() {
         $newDie = clone $this;
-        $newDie->roll(FALSE);
+        $newDie->roll();
         return $newDie;
     }
 
 
-    public function roll($isAttackSuccessful = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
         $this->run_hooks('pre_roll', array('die' => $this,
-                                           'isAttackSuccessful' => $isAttackSuccessful));
+                                           'isTriggeredByAttack' => $isTriggeredByAttack));
 
         if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        //$this->run_hooks('post_roll', array('isAttackSuccessful' => $isAttackSuccessful));
+        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     public function attack_list() {
