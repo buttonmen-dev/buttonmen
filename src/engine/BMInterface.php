@@ -754,17 +754,26 @@ class BMInterface {
         }
     }
 
-    public function get_next_pending_game($playerId) {
+    public function get_next_pending_game($playerId, $skippedGames) {
         try {
+            $parameters = array(':player_id' => $playerId);
+
             $query = 'SELECT gpm.game_id '.
                      'FROM game_player_map AS gpm '.
                         'LEFT JOIN game AS g ON g.id = gpm.game_id '.
                      'WHERE gpm.player_id = :player_id '.
-                        'AND gpm.is_awaiting_action = 1 '.
+                        'AND gpm.is_awaiting_action = 1 ';
+            foreach ($skippedGames as $index => $skippedGameId) {
+                $parameterName = ':skipped_game_id_' . $index;
+                $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
+                $parameters[$parameterName] = $skippedGameId;
+            };
+            $query = $query .
                      'ORDER BY g.last_action_time ASC '.
                      'LIMIT 1';
+
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId));
+            $statement->execute($parameters);
             $result = $statement->fetch();
             if (!$result) {
                 $this->message = 'Player has no pending games.';

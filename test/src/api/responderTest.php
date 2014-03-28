@@ -344,6 +344,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('loadNextPendingGame');
 
+        // loadGameData should fail if currentGameId is non-numeric
+        $retval = $this->object->process_request(
+            array('type' => 'loadNextPendingGame', 'currentGameId' => 'foobar'));
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Argument (currentGameId) to function loadNextPendingGame is invalid',
+                'status' => 'failed',
+            ),
+            $retval,
+            "loadNextPendingGame should reject a non-numeric current game ID"
+        );
+
         $args = array('type' => 'loadNextPendingGame');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -357,7 +370,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummydata = $dummyval['data'];
         $this->assertTrue(
             $this->object_structures_match($retdata, $dummydata, TRUE),
-            "Real and dummy button lists should have matching structures");
+            "Real and dummy pending game data should have matching structures");
+
+        $args['currentGameId'] = 7;
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'],
+            'Loading next pending game ID while skipping current game should succeed');
+        $this->assertEquals('ok', $dummyval['status'],
+            'Dummy load of next pending game ID while skipping current game should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata, $dummydata, TRUE),
+            "Real and dummy pending game data should have matching structures");
     }
 
     public function test_request_loadButtonNames() {
