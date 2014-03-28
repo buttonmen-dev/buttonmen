@@ -706,8 +706,9 @@ asyncTest("test_Game.pageAddGameNavigationFooter", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
     ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    ok(htmlout.match('<a href="#">Go to your next pending game (if any)</a>'),
+    ok(htmlout.match('Go to your next pending game'),
        "Next game link exists");
     start();
   });
@@ -718,7 +719,8 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
-    ok(!htmlout.match('<a href="#">Go to your next pending game (if any)</a>'),
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('Go to your next pending game'),
        "Next game link is correctly suppressed");
     start();
   });
@@ -729,7 +731,8 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
-    ok(!htmlout.match('<a href="#">Go to your next pending game (if any)</a>'),
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('Go to your next pending game'),
        "Next game link is correctly suppressed");
     start();
   });
