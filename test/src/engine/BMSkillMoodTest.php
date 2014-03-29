@@ -39,6 +39,15 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
         $args = array('die' => $die,
                       'isTriggeredByAttack' => TRUE);
         $this->assertFalse(BMSkillMood::pre_roll($args));
+
+        $die->swingType = 'X';
+        $args = array('die' => $die,
+                      'isTriggeredByAttack' => TRUE);
+        try {
+            BMSkillMood::pre_roll($args);
+            fail('Mood should throw exception with a non-valid swing die.');
+        } catch (LogicException $e) {
+        }
     }
 
     /**
