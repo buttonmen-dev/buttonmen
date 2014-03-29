@@ -1875,6 +1875,7 @@ Game.chatBox = function() {
   var chattable = $('<table>');
   var chatrow = $('<tr>');
   chatrow.append($('<td>', {'text': 'Chat:', }));
+  var chattd = $('<td>');
   var chatarea = $('<textarea>', {
     'id': 'game_chat',
     'rows': '3',
@@ -1886,7 +1887,8 @@ Game.chatBox = function() {
   if ('chat' in Game.activity) {
     chatarea.append(Game.activity.chat);
   }
-  chatrow.append(chatarea);
+  chattd.append(chatarea);
+  chatrow.append(chattd);
   chattable.append(chatrow);
   return chattable;
 };
