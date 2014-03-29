@@ -5,7 +5,7 @@ class BMSkillMood extends BMSkill {
 
     public static function pre_roll(&$args) {
         if (!($args['die'] instanceof BMDie) ||
-            !is_bool($args['isTriggeredByAttack'])) {
+            (TRUE !== $args['isTriggeredByAttack'])) {
             return FALSE;
         }
 
@@ -32,5 +32,6 @@ class BMSkillMood extends BMSkill {
             throw new LogicException('Mood applied to non-swing die.');
         }
 
+        return TRUE;
     }
 }
