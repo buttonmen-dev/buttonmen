@@ -233,6 +233,7 @@ var Api = (function () {
         'maxWins': data.nTargetWinsArray[i],
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
+        'inactivity': data.inactivityArray[i],
       };
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
@@ -277,6 +278,7 @@ var Api = (function () {
         'maxWins': data.nTargetWinsArray[i],
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
+        'inactivity': data.inactivityArray[i],
       };
       my.completed_games.games.push(gameInfo);
       i += 1;

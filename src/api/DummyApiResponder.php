@@ -87,6 +87,7 @@ class DummyApiResponder {
             'isAwaitingActionArray' => array(),
             'gameStateArray' => array(),
             'statusArray' => array(),
+            'inactivityArray' => array(),
         );
 
         // game 1
@@ -102,6 +103,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "17 minutes";
 
         // game 2
         $data['gameIdArray'][] = 2;
@@ -116,6 +118,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "2 hours";
 
         // game 3
         $data['gameIdArray'][] = 3;
@@ -130,6 +133,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "5 minutes";
 
         // game 4
         $data['gameIdArray'][] = 4;
@@ -144,6 +148,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "6 days";
 
         // fake game 5 is completed
 
@@ -160,6 +165,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "44 seconds";
 
         // game 7
         $data['gameIdArray'][] = 7;
@@ -174,6 +180,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "22 minutes";
 
         // game 8
         $data['gameIdArray'][] = 8;
@@ -188,6 +195,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "19 hours";
 
         // game 9
         $data['gameIdArray'][] = 9;
@@ -202,6 +210,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "1 day";
 
         // tester1 is not a participant in fake game 10
         // tester1 is not a participant in fake game 11
@@ -220,6 +229,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "16 days";
 
         // game 14
         $data['gameIdArray'][] = 14;
@@ -234,6 +244,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "38 minutes";
 
         // tester1 is not a participant in fake game 15
 
@@ -250,6 +261,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "1 minute";
 
         // game 17
         $data['gameIdArray'][] = 17;
@@ -264,6 +276,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "21 hours";
 
         // tester1 is not a participant in fake game 18
 
@@ -284,6 +297,7 @@ class DummyApiResponder {
             'isAwaitingActionArray' => array(),
             'gameStateArray' => array(),
             'statusArray' => array(),
+            'inactivityArray' => array(),
         );
 
         // game 5
@@ -299,6 +313,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "END_GAME";
         $data['statusArray'][] = "COMPLETE";
+        $data['inactivityArray'][] = "8 days";
 
         return array($data, "All game details retrieved successfully.");
     }
