@@ -1,7 +1,7 @@
 <?php
 
 class BMSkillMood extends BMSkill {
-    public static $hooked_methods = array('pre_roll');
+    public static $hooked_methods = array('pre_roll', 'add_skill');
 
     public static function pre_roll(&$args) {
         if (!($args['die'] instanceof BMDie) ||
@@ -9,7 +9,8 @@ class BMSkillMood extends BMSkill {
             return FALSE;
         }
 
-        // do nothing if the die is not a swing die or a twin die with swing components
+        // do nothing if the die is not a swing die or a
+        // twin die with swing components
         $die = $args['die'];
         if (!isset($die->swingType)) {
             return FALSE;
@@ -33,5 +34,17 @@ class BMSkillMood extends BMSkill {
         }
 
         return TRUE;
+    }
+
+    public static function add_skill($args) {
+        if (!is_array($args) ||
+            !($args['die'] instanceof BMDie)) {
+            return;
+        }
+
+        // Mood can only be added to swing dice and twin swing dice
+        if (!(isset($args['die']->swingType))) {
+            $args['die']->remove_skill('Mood');
+        }
     }
 }

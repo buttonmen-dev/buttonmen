@@ -148,4 +148,12 @@ class BMSkill {
                      'BMSkillMorphing');
         // fires last
     }
+
+    public static function do_print_skill_preceding($skill) {
+        if ('BMSkillMood' == $skill) {
+            return FALSE;
+        }
+
+        return TRUE;
+    }
 }

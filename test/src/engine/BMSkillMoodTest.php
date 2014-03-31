@@ -115,6 +115,23 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEquals(min($maxArray), max($maxArray));
         $this->assertEquals(12, min($maxArray));
         $this->assertEquals(24, max($maxArray));
+    }
 
+    /**
+     * @covers BMSkillMood::pre_add_skill
+     */
+    public function testPre_add_skill_with_mood_no_swing() {
+        $die = BMDie::create_from_recipe('(6)?');
+        $this->assertFalse($die->has_skill('Mood'));
+        $this->assertEquals('(6)', $die->recipe);
+    }
+
+    /**
+     * @covers BMSkillMood::pre_add_skill
+     */
+    public function testPre_add_skill_with_mood_and_swing() {
+        $die = BMDie::create_from_recipe('(X)?');
+        $this->assertTrue($die->has_skill('Mood'));
+        $this->assertEquals('(X)?', $die->recipe);
     }
 }
