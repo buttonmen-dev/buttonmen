@@ -85,14 +85,21 @@ class BMDieTwin extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                $skillStr .= "$skill ";
+                if ('Mood' != $skill) {
+                    $skillStr .= "$skill ";
+                }
             }
+        }
+
+        $moodStr = '';
+        if ($this->has_skill('Mood')) {
+            $moodStr = ' Mood';
         }
 
         $typeStr = '';
         if ($this->dice[0] instanceof BMDieSwing &&
             $this->dice[1] instanceof BMDieSwing) {
-            $typeStr = "Twin {$this->dice[0]->swingType} Swing Die";
+            $typeStr = "Twin {$this->dice[0]->swingType}{$moodStr} Swing Die";
         } else {
             $typeStr = 'Twin Die';
         }
