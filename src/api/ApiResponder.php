@@ -129,7 +129,7 @@ class ApiResponder {
                 'currentPlayerIdx' => $currentPlayerIdx,
                 'gameData' => $game->getJsonData($currentPlayerId),
                 'playerNameArray' => $playerNameArray,
-                'timestamp' => $interface->timestamp->format(DATE_RSS),
+                'timestamp' => $interface->timestamp,
                 'gameActionLog' => $interface->load_game_action_log($game),
                 'gameChatLog' => $interface->load_game_chat_log($game),
             );
