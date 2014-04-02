@@ -222,7 +222,7 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId) {
+    public function load_game($gameId, $logEntryLimit = NULL) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
@@ -263,6 +263,12 @@ class BMInterface {
                 $gameScoreArrayArray[$pos] = array($row['n_rounds_won'],
                                                    $row['n_rounds_lost'],
                                                    $row['n_rounds_drawn']);
+
+                if ($game->gameState == BMGameState::END_GAME) {
+                    $game->logEntryLimit = NULL;
+                } else {
+                    $game->logEntryLimit = $logEntryLimit;
+                }
 
                 // load button attributes
                 if (isset($row['alt_recipe'])) {
@@ -998,12 +1004,16 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $n_entries = 10) {
+    public function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
                      'game_state,action_type,acting_player,message ' .
                      'FROM game_action_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+                     'WHERE game_id = :game_id ORDER BY id DESC';
+            if (!is_null($logEntryLimit)) {
+                $query = $query . ' LIMIT ' . $logEntryLimit;
+            }
+
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
@@ -1076,12 +1086,16 @@ class BMInterface {
         );
     }
 
-    public function load_game_chat_log(BMGame $game, $n_entries = 5) {
+    public function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
                      'chatting_player,message ' .
                      'FROM game_chat_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+                     'WHERE game_id = :game_id ORDER BY id DESC';
+            if (!is_null($logEntryLimit)) {
+                $query = $query . ' LIMIT ' . $logEntryLimit;
+            }
+
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $chatEntries = array();
