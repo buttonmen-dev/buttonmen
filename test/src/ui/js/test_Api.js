@@ -251,3 +251,16 @@ asyncTest("test_Api.parseNextGameId", function() {
     start();
   });
 });
+
+asyncTest("test_Api.parseNextGameId_skipping", function() {
+  Api.game =
+    {
+      'gameId': 7,
+      'isParticipant': true,
+      'player': { 'waitingOnAction': true },
+    };
+  Api.getNextGameId(function() {
+    equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
+    start();
+  });
+});

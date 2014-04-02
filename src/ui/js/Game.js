@@ -1188,8 +1188,24 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function() {
+  Game.pageAddGameNavigationFooter();
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
+};
+
+// Display a link to the next game requiring action
+Game.pageAddGameNavigationFooter = function() {
+  if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
+    return false;
+  }
+  Game.page.append($('<br>'));
+  var linkDiv = $('<div>');
+  linkDiv.append($('<a>', {
+    'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+    'text': 'Go to your next pending game (if any)',
+  }));
+  Game.page.append(linkDiv);
+  return true;
 };
 
 // Display a footer-style message with the last action timestamp
