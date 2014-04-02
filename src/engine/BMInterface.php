@@ -218,7 +218,7 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId) {
+    public function load_game($gameId, $logEntryLimit = NULL) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
@@ -258,6 +258,12 @@ class BMInterface {
                 $gameScoreArrayArray[$pos] = array($row['n_rounds_won'],
                                                    $row['n_rounds_lost'],
                                                    $row['n_rounds_drawn']);
+
+                if ($game->gameState == BMGameState::END_GAME) {
+                    $game->logEntryLimit = NULL;
+                } else {
+                    $game->logEntryLimit = $logEntryLimit;
+                }
 
                 // load button attributes
                 if (isset($row['alt_recipe'])) {

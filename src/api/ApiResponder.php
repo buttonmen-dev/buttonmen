@@ -116,7 +116,14 @@ class ApiResponder {
 
     protected function get_interface_response_loadGameData($interface, $args) {
         $data = NULL;
-        $game = $interface->load_game($args['game']);
+
+        if (isset($args['logEntryLimit'])) {
+            $logEntryLimit = $args['logEntryLimit'];
+        } else {
+            $logEntryLimit = NULL;
+        }
+
+        $game = $interface->load_game($args['game'], $logEntryLimit);
         if ($game) {
             $currentPlayerId = $_SESSION['user_id'];
             $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
@@ -125,11 +132,9 @@ class ApiResponder {
                 $playerNameArray[] = $interface->get_player_name_from_id($playerId);
             }
 
-            if (isset($args['logEntryLimit']) && $game->gameState != BMGameState::END_GAME) {
-                $logEntryLimit = $args['logEntryLimit'];
-            } else {
-                $logEntryLimit = NULL;
-            }
+            // load_game will decide if the logEntryLimit should be overridden
+            // (e.g. if chat is private or for completed games)
+            $logEntryLimit = $game->logEntryLimit;
 
             $data = array(
                 'currentPlayerIdx' => $currentPlayerIdx,
