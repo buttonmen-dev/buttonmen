@@ -1013,7 +1013,7 @@ class BMInterface {
             if (!is_null($logEntryLimit)) {
                 $query = $query . ' LIMIT ' . $logEntryLimit;
             }
-
+            
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
