@@ -19,7 +19,7 @@ class BMInterface {
 
 
 
-    // constructo
+    // constructor
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
@@ -558,7 +558,7 @@ class BMInterface {
 
             // set existing dice to have a status of DELETED and get die ids
             //
-            // note that the logic is written this way to make debugging easie
+            // note that the logic is written this way to make debugging easier
             // in case something fails during the addition of dice
             $query = 'UPDATE die '.
                      'SET status_id = '.
@@ -628,7 +628,7 @@ class BMInterface {
         }
     }
 
-    // Actually insert a die into the database - all error checking to be done by calle
+    // Actually insert a die into the database - all error checking to be done by caller
     protected function db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx) {
         $query = 'INSERT INTO die '.
                  '    (owner_id, '.
@@ -1013,7 +1013,7 @@ class BMInterface {
             if (!is_null($logEntryLimit)) {
                 $query = $query . ' LIMIT ' . $logEntryLimit;
             }
-
+            
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
