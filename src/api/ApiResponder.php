@@ -7,7 +7,7 @@ class ApiResponder {
 
     // functions which allow access by unauthenticated users
     // For now, all game functionality should require login: only
-    // add things to this list if they are necessary for user
+    // add things to this list if they are necessary for use
     // creation and/or login.
     private $unauthFunctions = array(
         'createUser',
@@ -16,7 +16,7 @@ class ApiResponder {
         'login',
     );
 
-    // constructor
+    // constructo
     // * For live invocation:
     //   * start a session (and require api_core to get session functions)
     // * For test invocation:
@@ -260,7 +260,7 @@ class ApiResponder {
     // Construct an interface, ask it for the response to the
     // request, then construct a response
     // * For live invocation:
-    //   * display the output to the user
+    //   * display the output to the use
     // * For test invocation:
     //   * return the output as a PHP variable
     public function process_request($args) {
