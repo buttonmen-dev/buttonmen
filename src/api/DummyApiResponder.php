@@ -318,9 +318,14 @@ class DummyApiResponder {
         return array($data, "All game details retrieved successfully.");
     }
 
-    protected function get_interface_response_loadNextPendingGame() {
-        // Assume that game IDs 7 is the next one waiting for tester1
-        $data = array('gameId' => 7);
+    protected function get_interface_response_loadNextPendingGame($args) {
+        // Assume that game IDs 7 is the next one waiting for tester1,
+        // and that 4 is next after that if 7 is being skipped
+        if (isset($args['currentGameId']) && $args['currentGameId'] == 7) {
+            $data = array('gameId' => 4);
+        } else {
+            $data = array('gameId' => 7);
+        }
         return array($data, 'Next game ID retrieved successfully.');
     }
 

@@ -457,8 +457,19 @@ var Api = (function () {
   // Load and parse the ID of the player's next pending game
 
   my.getNextGameId = function(callbackfunc) {
+    var currentGameId;
+    if (Api.game !== undefined &&
+        Api.game.isParticipant && Api.game.player.waitingOnAction) {
+      // If you're viewing a game where it's your turn, pass the ID along as
+      // being skipped
+      currentGameId = Api.game.gameId;
+    }
+
     my.apiParsePost(
-      { 'type': 'loadNextPendingGame' },
+      {
+        'type': 'loadNextPendingGame',
+        'currentGameId': currentGameId,
+      },
       'gameNavigation',
       my.parseNextGameId,
       callbackfunc,

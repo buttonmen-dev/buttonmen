@@ -99,6 +99,10 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadActiveGames($interface) {
+        // Once we return to the list of active games, we no longer need to remember
+        // which ones we were skipping.
+        unset($_SESSION['skipped_games']);
+
         return $interface->get_all_active_games($_SESSION['user_id']);
     }
 
@@ -106,8 +110,24 @@ class ApiResponder {
         return $interface->get_all_completed_games($_SESSION['user_id']);
     }
 
-    protected function get_interface_response_loadNextPendingGame($interface) {
-        return $interface->get_next_pending_game($_SESSION['user_id']);
+    protected function get_interface_response_loadNextPendingGame($interface, $args) {
+        if (isset($args['currentGameId'])) {
+            if (isset($_SESSION['skipped_games'])) {
+                $_SESSION['skipped_games'] =
+                    $_SESSION['skipped_games'] . ',' . $args['currentGameId'];
+            } else {
+                $_SESSION['skipped_games'] = $args['currentGameId'];
+            }
+        }
+
+        $skippedGames = array();
+        if (isset($_SESSION['skipped_games'])) {
+            foreach (explode(',', $_SESSION['skipped_games']) as $gameId) {
+                $skippedGames[] = (int)$gameId;
+            }
+        }
+
+        return $interface->get_next_pending_game($_SESSION['user_id'], $skippedGames);
     }
 
     protected function get_interface_response_loadButtonNames($interface) {

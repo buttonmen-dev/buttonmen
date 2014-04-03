@@ -701,6 +701,43 @@ asyncTest("test_Game.pageAddFooter", function() {
   });
 });
 
+asyncTest("test_Game.pageAddGameNavigationFooter", function() {
+  BMTestUtils.GameType = 'turn_inactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
+    ok(htmlout.match('Go to your next pending game'),
+       "Next game link exists");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('Go to your next pending game'),
+       "Next game link is correctly suppressed");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
+  BMTestUtils.GameType = 'turn_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('Go to your next pending game'),
+       "Next game link is correctly suppressed");
+    start();
+  });
+});
+
 asyncTest("test_Game.pageAddTimestampFooter", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
