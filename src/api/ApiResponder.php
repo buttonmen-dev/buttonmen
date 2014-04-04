@@ -99,6 +99,10 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadActiveGames($interface) {
+        // Once we return to the list of active games, we no longer need to remember
+        // which ones we were skipping.
+        unset($_SESSION['skipped_games']);
+
         return $interface->get_all_active_games($_SESSION['user_id']);
     }
 
@@ -106,8 +110,24 @@ class ApiResponder {
         return $interface->get_all_completed_games($_SESSION['user_id']);
     }
 
-    protected function get_interface_response_loadNextPendingGame($interface) {
-        return $interface->get_next_pending_game($_SESSION['user_id']);
+    protected function get_interface_response_loadNextPendingGame($interface, $args) {
+        if (isset($args['currentGameId'])) {
+            if (isset($_SESSION['skipped_games'])) {
+                $_SESSION['skipped_games'] =
+                    $_SESSION['skipped_games'] . ',' . $args['currentGameId'];
+            } else {
+                $_SESSION['skipped_games'] = $args['currentGameId'];
+            }
+        }
+
+        $skippedGames = array();
+        if (isset($_SESSION['skipped_games'])) {
+            foreach (explode(',', $_SESSION['skipped_games']) as $gameId) {
+                $skippedGames[] = (int)$gameId;
+            }
+        }
+
+        return $interface->get_next_pending_game($_SESSION['user_id'], $skippedGames);
     }
 
     protected function get_interface_response_loadButtonNames($interface) {
@@ -116,7 +136,14 @@ class ApiResponder {
 
     protected function get_interface_response_loadGameData($interface, $args) {
         $data = NULL;
-        $game = $interface->load_game($args['game']);
+
+        if (isset($args['logEntryLimit'])) {
+            $logEntryLimit = $args['logEntryLimit'];
+        } else {
+            $logEntryLimit = NULL;
+        }
+
+        $game = $interface->load_game($args['game'], $logEntryLimit);
         if ($game) {
             $currentPlayerId = $_SESSION['user_id'];
             $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
@@ -125,13 +152,17 @@ class ApiResponder {
                 $playerNameArray[] = $interface->get_player_name_from_id($playerId);
             }
 
+            // load_game will decide if the logEntryLimit should be overridden
+            // (e.g. if chat is private or for completed games)
+            $logEntryLimit = $game->logEntryLimit;
+
             $data = array(
                 'currentPlayerIdx' => $currentPlayerIdx,
                 'gameData' => $game->getJsonData($currentPlayerId),
                 'playerNameArray' => $playerNameArray,
-                'timestamp' => $interface->timestamp->format(DATE_RSS),
-                'gameActionLog' => $interface->load_game_action_log($game),
-                'gameChatLog' => $interface->load_game_chat_log($game),
+                'timestamp' => $interface->timestamp,
+                'gameActionLog' => $interface->load_game_action_log($game, $logEntryLimit),
+                'gameChatLog' => $interface->load_game_chat_log($game, $logEntryLimit),
             );
         }
         return $data;
