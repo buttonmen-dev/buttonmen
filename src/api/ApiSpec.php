@@ -54,7 +54,9 @@ class ApiSpec {
             'mandatory' => array(
                 'game' => 'number',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'logEntryLimit' => 'number',
+            ),
         ),
         'loadNextPendingGame' => array(
             'mandatory' => array(),

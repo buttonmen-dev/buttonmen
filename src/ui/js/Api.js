@@ -301,10 +301,10 @@ var Api = (function () {
     return true;
   };
 
-  my.getGameData = function(game, callback) {
+  my.getGameData = function(game, logEntryLimit, callback) {
     activity.gameId = game;
     Api.apiParsePost(
-      { type: 'loadGameData', game: game, },
+      { type: 'loadGameData', game: game, logEntryLimit: logEntryLimit },
       'game',
       my.parseGameData,
       callback,

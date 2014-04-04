@@ -706,7 +706,41 @@ class DummyApiResponder {
                               "Defender (12) was captured; Attacker (4) rerolled 1 => 4; " .
                               "Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1")
                 ),
-                'gameChatLog' => array(),
+                'gameChatLog' => array(
+                    array("timestamp" => 1387746541,
+                          "player" => "tester2",
+                          "message" => "Hello."),
+                    array("timestamp" => 1387746536,
+                          "player" => "tester1",
+                          "message" => "Hi."),
+                    array("timestamp" => 1387746232,
+                          "player" => "tester2",
+                          "message" => "Greetings."),
+                    array("timestamp" => 1387746219,
+                          "player" => "tester1",
+                          "message" => "Salutations."),
+                    array("timestamp" => 1387746192,
+                          "player" => "tester2",
+                          "message" => "Good morning."),
+                    array("timestamp" => 1387746092,
+                          "player" => "tester2",
+                          "message" => "Bonjour."),
+                    array("timestamp" => 1387745992,
+                          "player" => "tester1",
+                          "message" => "Yo."),
+                    array("timestamp" => 1387745892,
+                          "player" => "tester2",
+                          "message" => "How are you?"),
+                    array("timestamp" => 1387745792,
+                          "player" => "tester1",
+                          "message" => "Howdy."),
+                    array("timestamp" => 1387745692,
+                          "player" => "tester2",
+                          "message" => "Ping!"),
+                    array("timestamp" => 1387745592,
+                          "player" => "tester2",
+                          "message" => "G'day."),
+                ),
             );
             if ($args['game'] == '3') {
                 $data['currentPlayerIdx'] = 0;
@@ -775,7 +809,14 @@ class DummyApiResponder {
                               "tester2 performed Power attack using [(10):10] against [(4):4]; " .
                               "Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
                 ),
-                'gameChatLog' => array(),
+                'gameChatLog' => array(
+                    array("timestamp" => "2013-12-20 00:52:42",
+                          "player" => "tester1",
+                          "message" => "Pong."),
+                    array("timestamp" => "2013-12-20 00:52:29",
+                          "player" => "tester2",
+                          "message" => "Ping!"),
+                ),
             );
         } elseif ($args['game'] == '6') {
             $gameData['gameId'] = 6;
@@ -993,6 +1034,13 @@ class DummyApiResponder {
         }
 
         if ($data) {
+            if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
+                $data['gameActionLog'] =
+                    array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
+                $data['gameChatLog'] =
+                    array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
+            }
+
             if (!(array_key_exists('playerNameArray', $data))) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
             }

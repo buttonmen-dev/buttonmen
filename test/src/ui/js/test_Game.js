@@ -545,7 +545,9 @@ asyncTest("test_Game.actionShowFinishedGame", function() {
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
     equal(Game.form, null, "Game.form is NULL");
+    equal(Game.logEntryLimit, undefined, "Log history is assumed to be full");
     start();
+    Game.logEntryLimit = 10;
   });
 });
 
@@ -671,6 +673,34 @@ asyncTest("test_Game.formPlayTurnActive", function() {
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
+  });
+});
+
+asyncTest("test_Game.readCurrentGameActivity", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    $('#playerIdx_1_dieIdx_0').click();
+    $('#game_chat').val('hello world');
+    Game.readCurrentGameActivity();
+    ok(Game.activity.dieSelectStatus['playerIdx_1_dieIdx_0'],
+      "Player 1's die 0 is selected");
+    ok(!Game.activity.dieSelectStatus['playerIdx_0_dieIdx_0'],
+      "Player 0's die 0 is not selected");
+    equal(Game.activity.chat, 'hello world', "chat is correctly set");
+    start();
+  });
+});
+
+asyncTest("test_Game.showFullLogHistory", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    $.ajaxSetup({ async: false });
+    Game.showFullLogHistory();
+    ok(Api.game.chatLog.length > 10, "Full chat log was returned");
+    $.ajaxSetup({ async: true });
+    start();
+    Game.logEntryLimit = 10;
   });
 });
 
