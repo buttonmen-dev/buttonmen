@@ -20,8 +20,11 @@ if ('unit_test' in Env) {
   } else {
     Env.api_location = '../api/dummy_responder';
   }
+  // We also want to mock the window object in unit tests
+  Env.window = { location: {} };
 } else {
   Env.api_location = '../api/responder';
+  Env.window = window;
 }
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
@@ -55,4 +58,49 @@ Env.showStatusMessage = function() {
     }
     $('#env_message').append(msgobj);
   }
+};
+
+// Formats a Unix-style timestamp as a human-readable date and/or time.
+// format parameter options:
+//   'date' for '2014-03-23'
+//   'time' for '17:54:32'
+//   'datetime' for '2014-03-23 17:54:32'
+Env.formatTimestamp = function(timestamp, format) {
+  if (format === null || format === undefined) {
+    format = 'datetime';
+  }
+
+  var dateTime = new Date(timestamp * 1000);
+
+  var year = dateTime.getFullYear();
+  var month = Env.padLeft(dateTime.getMonth() + 1, '0', 2);
+  var day = Env.padLeft(dateTime.getDate(), '0', 2);
+  var hours = Env.padLeft(dateTime.getHours(), '0', 2);
+  var minutes = Env.padLeft(dateTime.getMinutes(), '0', 2);
+  var seconds = Env.padLeft(dateTime.getSeconds(), '0', 2);
+
+  var formattedDate = year + '-' + month + '-' + day;
+  var formattedTime = hours + ':' + minutes + ':' + seconds;
+
+  if (format == 'date') {
+    return formattedDate;
+  }
+  if (format == 'time') {
+    return formattedTime;
+  }
+  if (format == 'datetime') {
+    return formattedDate + ' ' + formattedTime;
+  }
+};
+
+// Pads the input string with copies of the paddingCharacter until it's at
+// least minLength long.
+Env.padLeft = function(input, paddingCharacter, minLength) {
+  var padding = '';
+  for (var i = 0; i < minLength; i++) {
+    padding = padding + paddingCharacter;
+  }
+
+  var output = padding + input;
+  return output.slice(minLength * -1);
 };

@@ -545,7 +545,9 @@ asyncTest("test_Game.actionShowFinishedGame", function() {
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
     equal(Game.form, null, "Game.form is NULL");
+    equal(Game.logEntryLimit, undefined, "Log history is assumed to be full");
     start();
+    Game.logEntryLimit = 10;
   });
 });
 
@@ -674,6 +676,34 @@ asyncTest("test_Game.formPlayTurnActive", function() {
   });
 });
 
+asyncTest("test_Game.readCurrentGameActivity", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    $('#playerIdx_1_dieIdx_0').click();
+    $('#game_chat').val('hello world');
+    Game.readCurrentGameActivity();
+    ok(Game.activity.dieSelectStatus['playerIdx_1_dieIdx_0'],
+      "Player 1's die 0 is selected");
+    ok(!Game.activity.dieSelectStatus['playerIdx_0_dieIdx_0'],
+      "Player 0's die 0 is not selected");
+    equal(Game.activity.chat, 'hello world', "chat is correctly set");
+    start();
+  });
+});
+
+asyncTest("test_Game.showFullLogHistory", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    $.ajaxSetup({ async: false });
+    Game.showFullLogHistory();
+    ok(Api.game.chatLog.length > 10, "Full chat log was returned");
+    $.ajaxSetup({ async: true });
+    start();
+    Game.logEntryLimit = 10;
+  });
+});
+
 asyncTest("test_Game.pageAddGameHeader", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
@@ -697,6 +727,43 @@ asyncTest("test_Game.pageAddFooter", function() {
     Game.page = $('<div>');
     Game.pageAddFooter();
     ok(true, "No special testing of pageAddFooter() as a whole is done");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGameNavigationFooter", function() {
+  BMTestUtils.GameType = 'turn_inactive';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
+    ok(htmlout.match('Go to your next pending game'),
+       "Next game link exists");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('Go to your next pending game'),
+       "Next game link is correctly suppressed");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
+  BMTestUtils.GameType = 'turn_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('Go to your next pending game'),
+       "Next game link is correctly suppressed");
     start();
   });
 });
@@ -731,7 +798,7 @@ asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match("tester2 performed Power attack"), 
+    ok(htmlout.match("tester2 performed Power attack"),
        "Action log footer for a game in progress should contain entries");
     start();
   });

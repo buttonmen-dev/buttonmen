@@ -55,6 +55,7 @@ Login.layoutHeader = function() {
   $('#login_header').append(Login.message);
 
   if (Login.form) {
+    $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
   return Login.callback();
@@ -150,6 +151,7 @@ Login.addMainNavbar = function() {
     'index.html': 'Overview',
     'create_game.html': 'Create game',
     'prefs.html': 'Preferences',
+    'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
   };
   $.each(links, function(url, text) {
     var navtd = $('<td>');
@@ -181,7 +183,11 @@ Login.postToResponder = function(responder_args) {
       } else {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
-      Login.showLoginHeader(Login.callback);
+      if (responder_args.type == 'logout') {
+        Env.window.location.href = '/ui';
+      } else {
+        Login.showLoginHeader(Login.callback);
+      }
     }
   ).fail(
     function() {
@@ -215,3 +221,37 @@ Login.formLogin = function() {
   };
   Login.postToResponder(loginargs);
 };
+
+////////////////////////////////////////////////////////////////////////
+// Navigation events and helpsers
+
+// Redirect to the player's next pending game if there is one
+Login.goToNextPendingGame = function() {
+  if (Api.gameNavigation.load_status == 'ok') {
+    if (Api.gameNavigation.nextGameId !== null &&
+        $.isNumeric(Api.gameNavigation.nextGameId)) {
+      Env.window.location.href =
+        'game.html?game=' + Api.gameNavigation.nextGameId;
+    } else {
+      // If there are no active games, and we're on the Overview page, tell
+      // the user so
+      if (Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/)) {
+        Env.message = {
+          'type': 'none',
+          'text': 'There are no games waiting for you to play'
+        };
+        Env.showStatusMessage();
+      } else {
+        // If we're not on the Overview page, send them there
+        Env.window.location.href = '/ui';
+      }
+    }
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'Your next game could not be found'
+    };
+    Env.showStatusMessage();
+  }
+};
+

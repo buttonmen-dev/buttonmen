@@ -54,7 +54,15 @@ class ApiSpec {
             'mandatory' => array(
                 'game' => 'number',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'logEntryLimit' => 'number',
+            ),
+        ),
+        'loadNextPendingGame' => array(
+            'mandatory' => array(),
+            'permitted' => array(
+              'currentGameId' => 'number',
+            ),
         ),
         'loadPlayerInfo' => array(
             'mandatory' => array(),
@@ -92,7 +100,7 @@ class ApiSpec {
             'mandatory' => array(
                 'game' => 'number',
                 'roundNumber' => 'number',
-                'timestamp' => 'string',
+                'timestamp' => 'number',
                 'action' => 'alnum',
             ),
             'permitted' => array(
@@ -131,7 +139,7 @@ class ApiSpec {
                     'key_type' => 'alnum',
                     'elem_type' => 'number',
                 ),
-                'timestamp' => 'string',
+                'timestamp' => 'number',
             ),
             'permitted' => array(),
         ),
@@ -153,7 +161,7 @@ class ApiSpec {
             'mandatory' => array(
                 'game' => 'number',
                 'roundNumber' => 'number',
-                'timestamp' => 'string',
+                'timestamp' => 'number',
                 'dieSelectStatus' => array(
                     'has_keys' => TRUE,
                     'key_type' => 'alnum',

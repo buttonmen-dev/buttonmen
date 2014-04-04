@@ -21,7 +21,7 @@ var Api = (function () {
   //   and populate Api.x in whatever way is desired
   // * call the requested callback function no matter what happened with
   //   the data load
-  // 
+  //
   // Notes:
   // * these routines may assume that the login header has already been
   //   loaded, and therefore that the contents of Login.logged_in and
@@ -233,6 +233,7 @@ var Api = (function () {
         'maxWins': data.nTargetWinsArray[i],
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
+        'inactivity': data.inactivityArray[i],
       };
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
@@ -277,6 +278,7 @@ var Api = (function () {
         'maxWins': data.nTargetWinsArray[i],
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
+        'inactivity': data.inactivityArray[i],
       };
       my.completed_games.games.push(gameInfo);
       i += 1;
@@ -299,10 +301,10 @@ var Api = (function () {
     return true;
   };
 
-  my.getGameData = function(game, callback) {
+  my.getGameData = function(game, logEntryLimit, callback) {
     activity.gameId = game;
     Api.apiParsePost(
-      { type: 'loadGameData', game: game, },
+      { type: 'loadGameData', game: game, logEntryLimit: logEntryLimit },
       'game',
       my.parseGameData,
       callback,
@@ -449,6 +451,38 @@ var Api = (function () {
     if (button_id) {
       $('#' + button_id).attr('disabled', 'disabled');
     }
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the ID of the player's next pending game
+
+  my.getNextGameId = function(callbackfunc) {
+    var currentGameId;
+    if (Api.game !== undefined &&
+        Api.game.isParticipant && Api.game.player.waitingOnAction) {
+      // If you're viewing a game where it's your turn, pass the ID along as
+      // being skipped
+      currentGameId = Api.game.gameId;
+    }
+
+    my.apiParsePost(
+      {
+        'type': 'loadNextPendingGame',
+        'currentGameId': currentGameId,
+      },
+      'gameNavigation',
+      my.parseNextGameId,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseNextGameId = function(data) {
+    if (data.gameId !== null && !$.isNumeric(data.gameId)) {
+      return false;
+    }
+    my.gameNavigation.nextGameId = data.gameId;
+    return true;
   };
 
   return my;

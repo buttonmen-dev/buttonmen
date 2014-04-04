@@ -124,6 +124,11 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
   headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
+  if (gameType == 'finished') {
+    headerRow.append($('<th>', {'text': 'Completed', }));
+  } else {
+    headerRow.append($('<th>', {'text': 'Inactivity', }));
+  }
   table.append(headerRow);
   var i = 0;
   while (i < gamesource.length) {
@@ -140,6 +145,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
                                       gameInfo.gameScoreDict.L + '/' +
                                       gameInfo.gameScoreDict.D +
                                       ' (' + gameInfo.maxWins + ')', }));
+    gameRow.append($('<td>', {'text': gameInfo.inactivity, }));
     i += 1;
     table.append(gameRow);
   }
