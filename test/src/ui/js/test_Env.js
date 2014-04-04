@@ -78,3 +78,34 @@ test("test_Env.showStatusMessage", function() {
   equal(item.html(), "<p><font>newer message text</font></p>",
         "#env_message has expected text and color when type is invalid");
 });
+
+test("test_Env.formatTimestamp", function() {
+  expect(4); // number of tests plus 1 for the teardown test
+
+  // Since the method we're testing produces output for the local time zone,
+  // we need to compensate for that in order to test it.
+  var offsetInMinutes = new Date().getTimezoneOffset();
+  var timestamp = 1395610690 + (offsetInMinutes * 60);
+
+  var expectedDate = '2014-03-23';
+  var expectedTime = '21:38:10';
+  var expectedDateTime = '2014-03-23 21:38:10';
+
+  var results = Env.formatTimestamp(timestamp, 'date');
+  equal(results, expectedDate, 'formatTimestamp returned correct date');
+
+  var results = Env.formatTimestamp(timestamp, 'time');
+  equal(results, expectedTime, 'formatTimestamp returned correct time');
+
+  var results = Env.formatTimestamp(timestamp);
+  equal(results, expectedDateTime, 'formatTimestamp returned correct datetime');
+});
+
+test("test_Env.padLeft", function() {
+  var input = 'fred';
+  var expectedOutput = '    fred';
+
+  var results = Env.padLeft(input, ' ', 8);
+  equal(results, expectedOutput, 'padLeft added padding');
+});
+

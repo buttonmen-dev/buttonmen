@@ -43,7 +43,11 @@ class BMInterface {
 
     public function get_player_info($playerId) {
         try {
-            $query = 'SELECT * FROM player WHERE id = :id';
+            $query = 'SELECT *, ' .
+                     'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
+                     'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
+                     'FROM player p ' .
+                     'WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetchAll();
@@ -70,8 +74,8 @@ class BMInterface {
             'autopass' => (bool)$infoArray['autopass'],
             'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
-            'last_action_time' => $infoArray['last_action_time'],
-            'creation_time' => $infoArray['creation_time'],
+            'last_action_time' => (int)$infoArray['last_action_timestamp'],
+            'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
             'n_games_won' => (int)$infoArray['n_games_won'],
             'n_games_lost' => (int)$infoArray['n_games_lost'],
@@ -222,6 +226,7 @@ class BMInterface {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
+                     'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
                      'v.player_id, v.position, v.autopass,'.
                      'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
@@ -244,7 +249,7 @@ class BMInterface {
                     $game->maxWins   = $row['n_target_wins'];
                     $game->turnNumberInRound = $row['turn_number_in_round'];
                     $game->nRecentPasses = $row['n_recent_passes'];
-                    $this->timestamp = new DateTime($row['last_action_time']);
+                    $this->timestamp = (int)$row['last_action_timestamp'];
                 }
 
                 $pos = $row['position'];
@@ -664,7 +669,8 @@ class BMInterface {
                  'v1.n_target_wins,'.
                  'v2.is_awaiting_action,'.
                  'g.game_state,'.
-                 's.name AS status '.
+                 's.name AS status, '.
+                 'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp '.
                  'FROM game_player_view AS v1 '.
                  'LEFT JOIN game_player_view AS v2 '.
                  'ON v1.game_id = v2.game_id '.
@@ -679,7 +685,7 @@ class BMInterface {
         } else {
             $query .= 'AND s.name = "COMPLETE" ';
         }
-        $query .= 'ORDER BY v1.game_id;';
+        $query .= 'ORDER BY g.last_action_time ASC;';
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':player_id' => $playerId));
 
@@ -696,6 +702,11 @@ class BMInterface {
         $isToActArray = array();
         $gameStateArray = array();
         $statusArray = array();
+        $inactivityArray = array();
+
+        // Ensure that the inactivity time for all games is relative to the
+        // same moment
+        $now = strtotime('now');
 
         while ($row = $statement->fetch()) {
             $gameIdArray[]        = (int)$row['game_id'];
@@ -710,6 +721,8 @@ class BMInterface {
             $isToActArray[]       = (int)$row['is_awaiting_action'];
             $gameStateArray[]     = BMGameState::as_string($row['game_state']);
             $statusArray[]        = $row['status'];
+            $inactivityArray[]    =
+                $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
         }
 
         return array('gameIdArray'             => $gameIdArray,
@@ -723,7 +736,8 @@ class BMInterface {
                      'nTargetWinsArray'        => $nTargetWinsArray,
                      'isAwaitingActionArray'   => $isToActArray,
                      'gameStateArray'          => $gameStateArray,
-                     'statusArray'             => $statusArray);
+                     'statusArray'             => $statusArray,
+                     'inactivityArray'         => $inactivityArray);
     }
 
     public function get_all_active_games($playerId) {
@@ -952,7 +966,7 @@ class BMInterface {
 
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
-            ($postedTimestamp == $this->timestamp->format(DATE_RSS));
+            ($postedTimestamp == $this->timestamp);
         $doesRoundNumberAgree =
             ('ignore' === $roundNumber) ||
             ($roundNumber == $game->roundNumber);
@@ -986,7 +1000,9 @@ class BMInterface {
 
     public function load_game_action_log(BMGame $game, $n_entries = 10) {
         try {
-            $query = 'SELECT action_time,game_state,action_type,acting_player,message FROM game_action_log ' .
+            $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
+                     'game_state,action_type,acting_player,message ' .
+                     'FROM game_action_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
@@ -1009,7 +1025,7 @@ class BMInterface {
                 $message = $gameAction->friendly_message($playerIdNames, $game->roundNumber, $game->gameState);
                 if ($message) {
                     $logEntries[] = array(
-                        'timestamp' => $row['action_time'],
+                        'timestamp' => (int)$row['action_timestamp'],
                         'message' => $message,
                     );
                 }
@@ -1062,14 +1078,16 @@ class BMInterface {
 
     public function load_game_chat_log(BMGame $game, $n_entries = 5) {
         try {
-            $query = 'SELECT chat_time,chatting_player,message FROM game_chat_log ' .
+            $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
+                     'chatting_player,message ' .
+                     'FROM game_chat_log ' .
                      'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $chatEntries = array();
             while ($row = $statement->fetch()) {
                 $chatEntries[] = array(
-                    'timestamp' => $row['chat_time'],
+                    'timestamp' => (int)$row['chat_timestamp'],
                     'player' => $this->get_player_name_from_id($row['chatting_player']),
                     'message' => $row['message'],
                 );
@@ -1524,6 +1542,45 @@ class BMInterface {
             );
             return NULL;
         }
+    }
+
+    // Calculates the difference between two (unix-style) timespans and formats
+    // the result as a friendly approximation like '7 days' or '12 minutes'.
+    protected function get_friendly_time_span($firstTime, $secondTime) {
+        $seconds = (int)($secondTime - $firstTime);
+        if ($seconds < 0) {
+            $seconds *= -1;
+        }
+
+        if ($seconds < 60) {
+            return $this->count_noun($seconds, 'second');
+        }
+
+        $minutes = (int)($seconds / 60);
+        if ($minutes < 60) {
+            return $this->count_noun($minutes, 'minute');
+        }
+
+        $hours = (int)($minutes / 60);
+        if ($hours < 24) {
+            return $this->count_noun($hours, 'hour');
+        }
+
+        $days = (int)($hours / 24);
+        return $this->count_noun($days, 'day');
+    }
+
+    // Turns a number (like 5) and a noun (like 'golden ring') into a phrase
+    // like '5 golden rings', pluralizing if needed.
+    // Note: does not handle funky plurals.
+    protected function count_noun($count, $noun) {
+        if ($count == 1) {
+            return $count . ' ' . $noun;
+        }
+        if (substr($noun, -1) == 's') {
+            return $count . ' ' . $noun . 'es';
+        }
+        return $count . ' ' . $noun . 's';
     }
 
     public function __get($property) {

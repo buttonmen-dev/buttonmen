@@ -1205,7 +1205,7 @@ Game.pageAddTimestampFooter = function() {
 
   Game.page.append($('<br>'));
   Game.page.append($('<div>', {
-    'text': timestamptext + ': ' + Api.game.timestamp,
+    'text': timestamptext + ': ' + Env.formatTimestamp(Api.game.timestamp),
   }));
   return true;
 };
@@ -1234,7 +1234,7 @@ Game.pageAddLogFooter = function() {
             'class': 'chat',
             'style': 'background-color: ' + Game.color[actionplayer],
             'nowrap': 'nowrap',
-            'text': '(' + logentry.timestamp + ')',
+            'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
         actionrow.append(
           $('<td>', {
@@ -1263,7 +1263,8 @@ Game.pageAddLogFooter = function() {
           'class': 'chat',
           'style': 'background-color: ' + Game.color[chatplayer],
           'nowrap': 'nowrap',
-          'text': logentry.player + ' (' + logentry.timestamp + ')',
+          'text': logentry.player + ' (' +
+            Env.formatTimestamp(logentry.timestamp) + ')',
         }));
         chatrow.append($('<td>', {
           'class': 'left',
@@ -1874,6 +1875,7 @@ Game.chatBox = function() {
   var chattable = $('<table>');
   var chatrow = $('<tr>');
   chatrow.append($('<td>', {'text': 'Chat:', }));
+  var chattd = $('<td>');
   var chatarea = $('<textarea>', {
     'id': 'game_chat',
     'rows': '3',
@@ -1885,7 +1887,8 @@ Game.chatBox = function() {
   if ('chat' in Game.activity) {
     chatarea.append(Game.activity.chat);
   }
-  chatrow.append(chatarea);
+  chattd.append(chatarea);
+  chatrow.append(chattd);
   chattable.append(chatrow);
   return chattable;
 };

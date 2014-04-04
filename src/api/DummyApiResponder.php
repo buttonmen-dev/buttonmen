@@ -87,6 +87,7 @@ class DummyApiResponder {
             'isAwaitingActionArray' => array(),
             'gameStateArray' => array(),
             'statusArray' => array(),
+            'inactivityArray' => array(),
         );
 
         // game 1
@@ -102,6 +103,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "17 minutes";
 
         // game 2
         $data['gameIdArray'][] = 2;
@@ -116,6 +118,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "2 hours";
 
         // game 3
         $data['gameIdArray'][] = 3;
@@ -130,6 +133,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "5 minutes";
 
         // game 4
         $data['gameIdArray'][] = 4;
@@ -144,6 +148,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "START_TURN";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "6 days";
 
         // fake game 5 is completed
 
@@ -160,6 +165,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "44 seconds";
 
         // game 7
         $data['gameIdArray'][] = 7;
@@ -174,6 +180,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "22 minutes";
 
         // game 8
         $data['gameIdArray'][] = 8;
@@ -188,6 +195,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "19 hours";
 
         // game 9
         $data['gameIdArray'][] = 9;
@@ -202,6 +210,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "REACT_TO_INITIATIVE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "1 day";
 
         // tester1 is not a participant in fake game 10
         // tester1 is not a participant in fake game 11
@@ -220,6 +229,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "16 days";
 
         // game 14
         $data['gameIdArray'][] = 14;
@@ -234,6 +244,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "CHOOSE_AUXILIARY_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "38 minutes";
 
         // tester1 is not a participant in fake game 15
 
@@ -250,6 +261,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "1 minute";
 
         // game 17
         $data['gameIdArray'][] = 17;
@@ -264,6 +276,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "CHOOSE_RESERVE_DICE";
         $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "21 hours";
 
         // tester1 is not a participant in fake game 18
 
@@ -284,6 +297,7 @@ class DummyApiResponder {
             'isAwaitingActionArray' => array(),
             'gameStateArray' => array(),
             'statusArray' => array(),
+            'inactivityArray' => array(),
         );
 
         // game 5
@@ -299,6 +313,7 @@ class DummyApiResponder {
         $data['isAwaitingActionArray'][] = 0;
         $data['gameStateArray'][] = "END_GAME";
         $data['statusArray'][] = "COMPLETE";
+        $data['inactivityArray'][] = "8 days";
 
         return array($data, "All game details retrieved successfully.");
     }
@@ -663,24 +678,24 @@ class DummyApiResponder {
                     "data" => $gameData,
                 ),
                 'gameActionLog' => array(
-                    array("timestamp" => "2013-12-22 21:09:01",
+                    array("timestamp" => 1387746541,
                           "message" =>
                               "tester2 performed Power attack using [(12):1] against [(4):1]; " .
                               "Defender (4) was captured; Attacker (12) rerolled 1 => 5"),
-                    array("timestamp" => "2013-12-22 21:08:56",
+                    array("timestamp" => 1387746536,
                           "message" =>
                               "tester1 performed Power attack using [(4):2] against [(X):1]; " .
                               "Defender (X) was captured; Attacker (4) rerolled 2 => 1"),
-                    array("timestamp" => "2013-12-22 21:03:52",
+                    array("timestamp" => 1387746232,
                           "message" =>
                               "tester2 performed Skill attack using [(4):4,(X):3] against [(10):7]; " .
                               "Defender (10) was captured; Attacker (4) rerolled 4 => 4; " .
                               "Attacker (X) rerolled 3 => 1"),
-                    array("timestamp" => "2013-12-22 21:03:39",
+                    array("timestamp" => 1387746219,
                           "message" =>
                               "tester1 performed Power attack using [(4):3] against [(10):3]; " .
                               "Defender (10) was captured; Attacker (4) rerolled 3 => 4"),
-                    array("timestamp" => "2013-12-22 21:03:12",
+                    array("timestamp" => 1387746192,
                           "message" =>
                               "tester2 performed Skill attack using [(4):1,(10):5,(12):5] against [(12):11]; " .
                               "Defender (12) was captured; Attacker (4) rerolled 1 => 4; " .
@@ -738,19 +753,19 @@ class DummyApiResponder {
                 ),
                 'currentPlayerIdx' => 0,
                 'gameActionLog' => array(
-                    array("timestamp" => "2013-12-20 00:52:42",
+                    array("timestamp" => 1387500762,
                           "message" => "End of round: tester1 won round 5 (46 vs 30)"),
-                    array("timestamp" => "2013-12-20 00:52:42",
+                    array("timestamp" => 1387500762,
                           "message" =>
                               "tester1 performed Power attack using [(X):7] against [(4):2]; " .
                               "Defender (4) was captured; Attacker (X) rerolled 7 => 4"),
-                    array("timestamp" => "2013-12-20 00:52:36",
+                    array("timestamp" => 1387500756,
                           "message" => "tester2 passed"),
-                    array("timestamp" => "2013-12-20 00:52:33",
+                    array("timestamp" => 1387500753,
                           "message" =>
                               "tester1 performed Power attack using [(X):14] against [(10):4]; " .
                               "Defender (10) was captured; Attacker (X) rerolled 14 => 7"),
-                    array("timestamp" => "2013-12-20 00:52:29",
+                    array("timestamp" => 1387500749,
                           "message" =>
                               "tester2 performed Power attack using [(10):10] against [(4):4]; " .
                               "Defender (4) was captured; Attacker (10) rerolled 10 => 4"),
@@ -976,8 +991,8 @@ class DummyApiResponder {
             if (!(array_key_exists('playerNameArray', $data))) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
             }
-            $timestamp = new DateTime();
-            $data['timestamp'] = $timestamp->format(DATE_RSS);
+            $timestamp = strtotime('now');
+            $data['timestamp'] = $timestamp;
             return array($data, "Loaded data for game " . $args['game']);
         }
         return array(NULL, "Game does not exist.");
@@ -997,8 +1012,8 @@ class DummyApiResponder {
                            'autopass' => TRUE,
                            'image_path' => NULL,
                            'comment' => NULL,
-                           'last_action_time' => "0000-00-00 00:00:00",
-                           'creation_time' => "2013-12-28 01:22:14",
+                           'last_action_time' => 0,
+                           'creation_time' => 1388193734,
                            'fanatic_button_id' => 0,
                            'n_games_won' => 0,
                            'n_games_lost' => 0,
