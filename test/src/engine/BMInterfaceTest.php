@@ -2037,4 +2037,112 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
     }
+
+    /**
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     */
+    public function test_mood_swing_rounds() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Gilly', 'Igor'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        // check buttons
+        $this->assertEquals('Gilly', $game->buttonArray[0]->name);
+        $this->assertEquals('(6) (8) z(8) (20) (X)?', $game->buttonArray[0]->recipe);
+        $this->assertEquals('Igor', $game->buttonArray[1]->name);
+        $this->assertEquals('(3) (12) (20) (20) (X)?', $game->buttonArray[1]->recipe);
+
+        // load game
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(array('X' => NULL), array('X' => NULL)),
+                            $game->swingValueArrayArray);
+
+        // specify swing dice correctly
+        $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[0][4]);
+        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][4]);
+        $this->assertFalse($game->activeDieArrayArray[0][4]->needsSwingValue);
+        $this->assertFalse($game->activeDieArrayArray[1][4]->needsSwingValue);
+
+        $this->assertEquals(1, array_sum($game->waitingOnActionArray));
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(array('X' => 19), array('X' => 4)),
+                            $game->swingValueArrayArray);
+        $this->assertEquals(6,  $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals(8, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals(8, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[0][3]->max);
+        $this->assertEquals(19, $game->activeDieArrayArray[0][4]->max);
+        $this->assertEquals(3,  $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals(12,  $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals(20,  $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(20,  $game->activeDieArrayArray[1][3]->max);
+        $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->max);
+        $this->assertEquals(19, $game->activeDieArrayArray[0][4]->swingValue);
+        $this->assertEquals(4,  $game->activeDieArrayArray[1][4]->swingValue);
+
+        $this->assertNotNull($game->activeDieArrayArray[0][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][4]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+
+
+        // round 1, turn 1
+        // player 1: [6 8 8 20 19] showing [3 1 8 15 7], captured []
+        // player 2: [3 12 20 20 4] showing [2 3 8 4 1], captured []
+        // player 2 takes player 1's d8 showing 1 with his/her d4 mood swing showing 1
+        // check that the player with initiative is set as the attacking player
+        $this->assertEquals($game->activePlayerIdx, $game->playerWithInitiativeIdx);
+
+        // artificially set player 2 as winning initiative
+        $game->playerWithInitiativeIdx = 1;
+        $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 3;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 8;
+        $dieArrayArray[0][3]->value = 15;
+        $dieArrayArray[0][4]->value = 7;
+        $dieArrayArray[1][0]->value = 2;
+        $dieArrayArray[1][1]->value = 3;
+        $dieArrayArray[1][2]->value = 8;
+        $dieArrayArray[1][3]->value = 4;
+        $dieArrayArray[1][4]->value = 1;
+
+        $this->assertEquals(3, $game->activeDieArrayArray[0][0]->value);
+
+        // perform attack
+        $this->assertNULL($game->attack);
+        $game->attack = array(1,        // attackerPlayerIdx
+                              0,        // defenderPlayerIdx
+                              array(4), // attackerAttackDieIdxArray
+                              array(1), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+
+        $game->proceed_to_next_user_action();
+
+        $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+        $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
+        $this->assertEquals($preSaveMoodMax, $postSaveMoodMax);
+    }
 }
