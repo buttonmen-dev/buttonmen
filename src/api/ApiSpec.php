@@ -153,7 +153,7 @@ class ApiSpec {
                     'key_type' => 'number',
                     'elem_type' => 'number',
                 ),
-                'timestamp' => 'string',
+                'timestamp' => 'number',
             ),
             'permitted' => array(),
         ),
