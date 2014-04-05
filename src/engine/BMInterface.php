@@ -365,7 +365,8 @@ class BMInterface {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
 
                     if (isset($row['chosen_max'])) {
-                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+                        $swingSetSuccess = $die->set_swingValue(
+                            $game->swingValueArrayArray[$originalPlayerIdx]);
                         if (!$swingSetSuccess) {
                             throw new LogicException('Swing value set failed.');
                         }
@@ -707,7 +708,7 @@ class BMInterface {
 
         if (isset($activeDie->swingType)) {
             $chosenMax = $activeDie->swingValue;
-        } else if ($activeDie instanceof BMDieOption) {
+        } elseif ($activeDie instanceof BMDieOption) {
             $chosenMax = $activeDie->max;
         }
 
