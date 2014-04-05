@@ -2137,12 +2137,17 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
+        $preProceedSwingSize = $game->activeDieArrayArray[1][4]->swingValue;
+        $this->assertEquals(4, $preProceedSwingSize);
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
+        $postSaveSwingSize = $game->activeDieArrayArray[1][4]->swingValue;
         $this->assertEquals($preSaveMoodMax, $postSaveMoodMax);
+        $this->assertEquals($preProceedSwingSize, $postSaveSwingSize);
+        $this->assertNotEquals($postSaveMoodMax, $postSaveSwingSize);
     }
 }

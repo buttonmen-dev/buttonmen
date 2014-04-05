@@ -17,15 +17,13 @@ class BMSkillMood extends BMSkill {
         }
 
         $swingRange = BMDieSwing::swing_range($die->swingType);
-        $swingValue = mt_rand($swingRange[0], $swingRange[1]);
+        $newSwingValue = mt_rand($swingRange[0], $swingRange[1]);
         if ($die instanceof BMDieSwing) {
-            $die->max = $swingValue;
-            $die->swingValue = $swingValue;
+            $die->max = $newSwingValue;
         } elseif ($die instanceof BMDieTwin) {
             foreach ($die->dice as $subdie) {
                 if ($subdie instanceof BMDieSwing) {
-                    $subdie->max = $swingValue;
-                    $subdie->swingValue = $swingValue;
+                    $subdie->max = $newSwingValue;
                 }
             }
             $die->recalc_max_min();

@@ -2,7 +2,7 @@
 
 class BMDieSwing extends BMDie {
     public $swingType;
-    public $swingValue;
+    public $swingValue;  // this is ALWAYS the value chosen by the player
     public $swingMax;
     public $swingMin;
     protected $needsSwingValue = TRUE;
