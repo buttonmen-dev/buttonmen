@@ -145,6 +145,9 @@ class BMGameAction {
             foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
                 $postInfo = $postAttackDice['attacker'][$idx];
                 $postEvents = array();
+                if ($attackerInfo['max'] != $postInfo['max']) {
+                    $postEvents[] = 'changed size from ' . $attackerInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+                }
                 if ($attackerInfo['doesReroll']) {
                     $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
                 } else {
