@@ -118,7 +118,7 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillMood::pre_add_skill
+     * @covers BMSkillMood::add_skill
      */
     public function testPre_add_skill_with_mood_no_swing() {
         $die = BMDie::create_from_recipe('(6)?');
@@ -127,7 +127,7 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillMood::pre_add_skill
+     * @covers BMSkillMood::add_skill
      */
     public function testPre_add_skill_with_mood_and_swing() {
         $die = BMDie::create_from_recipe('(X)?');
