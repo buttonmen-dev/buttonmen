@@ -2183,6 +2183,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
 
+        $this->assertTrue($game->activeDieArrayArray[0][4]->has_skill('Mood'));
+        $this->assertTrue($game->activeDieArrayArray[1][4]->has_skill('Mood'));
         $this->assertInstanceOf('BMDieTwin', $game->activeDieArrayArray[0][4]);
         $this->assertInstanceOf('BMDieTwin', $game->activeDieArrayArray[1][4]);
         $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[0][4]->dice[0]);
@@ -2262,15 +2264,17 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               0,        // defenderPlayerIdx
                               array(4), // attackerAttackDieIdxArray
                               array(1), // defenderAttackDieIdxArray
-                              'Power'); // attackType
+                              'Shadow'); // attackType
 
         $preProceedSwingSize1 = $game->activeDieArrayArray[1][4]->dice[0]->swingValue;
         $preProceedSwingSize2 = $game->activeDieArrayArray[1][4]->dice[1]->swingValue;
         $this->assertEquals(2, $preProceedSwingSize1);
         $this->assertEquals(2, $preProceedSwingSize2);
+        $this->assertTrue($game->activeDieArrayArray[1][4]->has_skill('Mood'));
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
+        $this->assertNotEquals($preProceedSwingSize1 + $preProceedSwingSize2, $preSaveMoodMax);
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
@@ -2279,5 +2283,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($preSaveMoodMax, $postSaveMoodMax);
         $this->assertEquals($preProceedSwingSize1, $postSaveSwingSize1);
         $this->assertEquals($postSaveSwingSize1, $postSaveSwingSize2);
+        $this->assertNotEquals($preProceedSwingSize1 + $preProceedSwingSize2, $postSaveMoodMax);
     }
 }

@@ -12,7 +12,7 @@ class BMSkillMood extends BMSkill {
         // do nothing if the die is not a swing die or a
         // twin die with swing components
         $die = $args['die'];
-        if (!isset($die->swingType)) {
+        if (!BMSkillMood::can_have_mood($die)) {
             return FALSE;
         }
 
@@ -40,16 +40,16 @@ class BMSkillMood extends BMSkill {
             return;
         }
 
-        // Mood can only be added to swing dice and twin swing dice
-        $die = $args['die'];
-        $dieCanHaveMood =
-            ($die instanceof BMDieSwing) ||
-            (($die instanceof BMDieTwin) &&
-             (($die->dice[0] instanceof BMDieSwing) ||
-              ($die->dice[1] instanceof BMDieSwing)));
-
-        if (!$dieCanHaveMood) {
+        if (!BMSkillMood::can_have_mood($args['die'])) {
             $args['die']->remove_skill('Mood');
         }
+    }
+
+    public static function can_have_mood($obj) {
+        // Mood can only be added to swing dice and twin swing dice
+        return ($obj instanceof BMDieSwing) ||
+               (($obj instanceof BMDieTwin) &&
+                (($obj->dice[0] instanceof BMDieSwing) ||
+                 ($obj->dice[1] instanceof BMDieSwing)));
     }
 }

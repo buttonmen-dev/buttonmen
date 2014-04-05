@@ -54,20 +54,18 @@ class BMAttackPower extends BMAttack {
         $att = $attArray[0];
         $def = $defArray[0];
 
-        $returnVal = TRUE;
-
         if ($att->has_skill('Shadow') ||
             $att->has_skill('Konstant') ||
             $att->has_skill('Stealth') ||
             ($att->has_skill('Queer') && (1 == $att->value % 2))
         ) {
-            $returnVal = FALSE;
+            return FALSE;
         }
 
         if ($def->has_Skill('Stealth')) {
-            $returnVal = FALSE;
+            return FALSE;
         }
 
-        return $returnVal;
+        return TRUE;
     }
 }

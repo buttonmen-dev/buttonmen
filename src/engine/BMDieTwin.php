@@ -69,11 +69,18 @@ class BMDieTwin extends BMDie {
             return;
         }
 
+        $this->run_hooks('pre_roll', array('die' => $this,
+                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+
         $this->value = 0;
         foreach ($this->dice as &$die) {
-            $die->roll($isTriggeredByAttack);
+            // note that we do not want to trigger the hooks again, so we set the
+            // input parameter of roll() to FALSE
+            $die->roll(FALSE);
             $this->value += $die->value;
         }
+
+        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     // Print long description
