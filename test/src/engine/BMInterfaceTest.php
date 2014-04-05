@@ -2274,7 +2274,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
-        $this->assertNotEquals($preProceedSwingSize1 + $preProceedSwingSize2, $preSaveMoodMax);
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
@@ -2283,6 +2282,5 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($preSaveMoodMax, $postSaveMoodMax);
         $this->assertEquals($preProceedSwingSize1, $postSaveSwingSize1);
         $this->assertEquals($postSaveSwingSize1, $postSaveSwingSize2);
-        $this->assertNotEquals($preProceedSwingSize1 + $preProceedSwingSize2, $postSaveMoodMax);
     }
 }
