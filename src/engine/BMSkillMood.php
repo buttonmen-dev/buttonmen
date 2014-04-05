@@ -41,7 +41,14 @@ class BMSkillMood extends BMSkill {
         }
 
         // Mood can only be added to swing dice and twin swing dice
-        if (!(isset($args['die']->swingType))) {
+        $die = $args['die'];
+        $dieCanHaveMood =
+            ($die instanceof BMDieSwing) ||
+            (($die instanceof BMDieTwin) &&
+             (($die->dice[0] instanceof BMDieSwing) ||
+              ($die->dice[1] instanceof BMDieSwing)));
+
+        if (!$dieCanHaveMood) {
             $args['die']->remove_skill('Mood');
         }
     }

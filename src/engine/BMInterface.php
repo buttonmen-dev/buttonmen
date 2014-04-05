@@ -376,6 +376,30 @@ class BMInterface {
                     }
                 }
 
+                if ($die instanceof BMDieTwin &&
+                    (($die->dice[0] instanceof BMDieSwing) ||
+                     ($die->dice[1] instanceof BMDieSwing))) {
+
+                    foreach ($die->dice as $subdie) {
+                        if ($subdie instanceof BMDieSwing) {
+                            $swingType = $subdie->swingType;
+
+                            if (isset($row['chosen_max'])) {
+                                $swingSetSuccess = $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+                                if (!$swingSetSuccess) {
+                                    throw new LogicException('Swing value set failed.');
+                                }
+                            }
+
+                            if (isset($row['actual_max'])) {
+                                $subdie->max = (int)($row['actual_max']/2);
+                            }
+                        }
+                    }
+
+                    $game->request_swing_values($die, $swingType, $originalPlayerIdx);
+                }
+
                 if ($die instanceof BMDieOption) {
                     if (isset($row['chosen_max'])) {
                         $die->max = $row['chosen_max'];
