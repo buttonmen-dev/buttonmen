@@ -292,7 +292,9 @@ class DummyApiResponder {
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
 
-        // tester1 is not a participant in fake game 19
+        // tester1 is not a participant in game 19
+
+        // tester1 is not a participant in fake game 20
 
         return array($data, "All game details retrieved successfully.");
     }
