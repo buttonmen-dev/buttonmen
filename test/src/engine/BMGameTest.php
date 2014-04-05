@@ -8534,7 +8534,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray = $game->activeDieArrayArray;
         $dieArrayArray[0][3]->value = 3;
         $doesMoodRerollMax = $doesMoodRerollMax ||
-            ($preattackMoodMax != $postAttackMoodMax);
+            ($preAttackMoodMax != $postAttackMoodMax);
 
         // round 1, turn 3
         // player 1: [6 8 20 ?] showing [3 8 15 3], captured [12]
@@ -8563,7 +8563,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(3, $game->capturedDieArrayArray[1][1]->value);
 
         $doesMoodRerollMax = $doesMoodRerollMax ||
-            ($preattackMoodMax != $postAttackMoodMax);
+            ($preAttackMoodMax != $postAttackMoodMax);
 
         // artificially set value of rolled dice
         $dieArrayArray = $game->activeDieArrayArray;
@@ -8597,7 +8597,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(3, $game->capturedDieArrayArray[1][1]->value);
 
         $doesMoodRerollMax = $doesMoodRerollMax ||
-            ($preattackMoodMax != $postAttackMoodMax);
+            ($preAttackMoodMax != $postAttackMoodMax);
 
         $this->assertTrue($doesMoodRerollMax);
     }
