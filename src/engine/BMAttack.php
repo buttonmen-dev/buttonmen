@@ -16,6 +16,8 @@ abstract class BMAttack {
 
     public $type;
 
+    public $validationMessage = '';
+
     // Dice that effect or affect this attack
     protected $validDice = array();
 
