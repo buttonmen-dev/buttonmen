@@ -23,7 +23,7 @@ class BMAttackPower extends BMAttack {
         }
 
         if ($this->has_dizzy_attackers($attackers)) {
-            $this->validationMessage = 'Dizzy dice cannot be used as attacking dice.';
+            // validation message set within $this->has_dizzy_attackers()
             return FALSE;
         }
 
