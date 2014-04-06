@@ -12,7 +12,15 @@ class BMAttackPass extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        return (empty($attackers) && empty($defenders));
+        $this->validationMessage = '';
+
+        $isValid = empty($attackers) && empty($defenders);
+
+        if (!$isValid) {
+            $this->validationMessage = 'Please deselect all dice before passing.';
+        }
+
+        return $isValid;
     }
 
     protected function are_skills_compatible(array $attArray, array $defArray) {
