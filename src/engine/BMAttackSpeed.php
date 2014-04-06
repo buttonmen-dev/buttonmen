@@ -4,6 +4,8 @@ class BMAttackSpeed extends BMAttack {
     public $type = 'Speed';
 
     public function validate_attack($game, array $attackers, array $defenders) {
+        $this->validationMessage = '';
+
         if (1 != count($attackers)) {
             $this->validationMessage = 'There must be exactly one attacking die for a speed attack.';
             return FALSE;
