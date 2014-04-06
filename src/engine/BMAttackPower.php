@@ -43,11 +43,11 @@ class BMAttackPower extends BMAttack {
             $isValLargeEnough = $aVal + $bounds[1] >= $def->defense_value($this->type);
             $isValidAttacker = $att->is_valid_attacker($this->type, $attackers);
             $isValidTarget = $def->is_valid_target($this->type, $defenders);
-            
+
             if (!$isValLargeEnough) {
-                $this->validationMessage = 'Attacker die value must be at least as large as target die value.';
+                $this->validationMessage = 'Attacking die value must be at least as large as target die value.';
             } elseif (!$isValidAttacker) {
-                $this->validationMessage = 'Invalid attacker die';
+                $this->validationMessage = 'Invalid attacking die';
             } elseif (!$isValidTarget) {
                 $this->validationMessage = 'Invalid target die';
             } else {
@@ -75,7 +75,7 @@ class BMAttackPower extends BMAttack {
             $this->validationMessage = 'Shadow dice cannot perform power attacks.';
             return FALSE;
         }
-                
+
         if ($att->has_skill('Konstant')) {
             $this->validationMessage = 'Konstant dice cannot perform power attacks.';
             return FALSE;

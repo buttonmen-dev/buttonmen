@@ -34,14 +34,14 @@ class BMAttackSpeed extends BMAttack {
         }
         $areValuesEqual = $attacker->value == $defenderSum;
         if (!$areValuesEqual) {
-            $this->validationMessage = 'Target die values do not sum up to attacker die value.';
+            $this->validationMessage = 'Target die values do not sum up to attacking die value.';
             return FALSE;
         }
 
         $canAttDoThisAttack =
             $attacker->is_valid_attacker($this->type, $attackers);
         if (!$canAttDoThisAttack) {
-            $this->validationMessage = 'Invalid attacker die';
+            $this->validationMessage = 'Invalid attacking die';
             return FALSE;
         }
 

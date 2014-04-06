@@ -32,7 +32,7 @@ class BMAttackShadow extends BMAttackPower {
         $isDieLargeEnough = $att->max >=
                             $def->defense_value('Shadow');
         if (!$isDieLargeEnough) {
-            $this->validationMessage = 'Attacker die size must be at least as large as target die value.';
+            $this->validationMessage = 'Attacking die size must be at least as large as target die value.';
             return FALSE;
         }
 
@@ -42,14 +42,14 @@ class BMAttackShadow extends BMAttackPower {
         $defenseValue = $def->defense_value($this->type);
         $isValueSmallEnough = $attackValue <= $defenseValue;
         if (!$isValueSmallEnough) {
-            $this->validationMessage = 'Attacker die value must be no larger than the target die value.';
+            $this->validationMessage = 'Attacking die value must be no larger than the target die value.';
             return FALSE;
         }
 
         $canAttDoThisAttack =
             $att->is_valid_attacker($this->type, $attackers);
         if (!$canAttDoThisAttack) {
-            $this->validationMessage = 'Invalid attacker die';
+            $this->validationMessage = 'Invalid attacking die';
             return FALSE;
         }
 

@@ -119,7 +119,7 @@ class BMAttackSkill extends BMAttack {
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
         $bounds = $this->help_bounds($helpers);
         if ($bounds[0] == 0 && $bounds[1] == 0) {
-            $this->validationMessage = 'Attacker die values do not sum up to target die value.';
+            $this->validationMessage = 'Attacking die values do not sum up to target die value.';
             return FALSE;
         }
         for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
@@ -134,7 +134,7 @@ class BMAttackSkill extends BMAttack {
                 }
             }
         }
-        $this->validationMessage = 'Attacker die values do not sum up to target die value.';
+        $this->validationMessage = 'Attacking die values do not sum up to target die value.';
         return FALSE;
     }
 
@@ -151,19 +151,19 @@ class BMAttackSkill extends BMAttack {
 
         if (1 == count($attArray)) {
             if ($attArray[0]->has_skill('Stealth')) {
-                $this->validationMessage = 'Skill attacks involving a single attacker stealth die are invalid.';
+                $this->validationMessage = 'Skill attacks involving a single attacking stealth die are invalid.';
                 return FALSE;
             }
 
             if ($attArray[0]->has_skill('Konstant')) {
-                $this->validationMessage = 'Skill attacks involving a single attacker konstant die are invalid.';
+                $this->validationMessage = 'Skill attacks involving a single attacking konstant die are invalid.';
                 return FALSE;
             }
         }
 
         if (1 == count($attArray) &&
             $def->has_skill('Stealth')) {
-            $this->validationMessage = 'Multiple attacker dice are required to skill attack a stealth die.';
+            $this->validationMessage = 'Multiple attacking dice are required to skill attack a stealth die.';
             return FALSE;
         }
 
