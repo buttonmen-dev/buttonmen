@@ -1302,10 +1302,10 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_die_values: " .
+                "Caught exception in BMInterface::submit_swing_values: " .
                 $e->getMessage()
             );
-            $this->message = 'Internal error while setting die values';
+            $this->message = 'Internal error while setting swing values';
         }
     }
 
