@@ -222,7 +222,7 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId) {
+    public function load_game($gameId, $logEntryLimit = NULL) {
         try {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
@@ -263,6 +263,12 @@ class BMInterface {
                 $gameScoreArrayArray[$pos] = array($row['n_rounds_won'],
                                                    $row['n_rounds_lost'],
                                                    $row['n_rounds_drawn']);
+
+                if ($game->gameState == BMGameState::END_GAME) {
+                    $game->logEntryLimit = NULL;
+                } else {
+                    $game->logEntryLimit = $logEntryLimit;
+                }
 
                 // load button attributes
                 if (isset($row['alt_recipe'])) {
@@ -768,17 +774,26 @@ class BMInterface {
         }
     }
 
-    public function get_next_pending_game($playerId) {
+    public function get_next_pending_game($playerId, $skippedGames) {
         try {
+            $parameters = array(':player_id' => $playerId);
+
             $query = 'SELECT gpm.game_id '.
                      'FROM game_player_map AS gpm '.
                         'LEFT JOIN game AS g ON g.id = gpm.game_id '.
                      'WHERE gpm.player_id = :player_id '.
-                        'AND gpm.is_awaiting_action = 1 '.
+                        'AND gpm.is_awaiting_action = 1 ';
+            foreach ($skippedGames as $index => $skippedGameId) {
+                $parameterName = ':skipped_game_id_' . $index;
+                $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
+                $parameters[$parameterName] = $skippedGameId;
+            };
+            $query = $query .
                      'ORDER BY g.last_action_time ASC '.
                      'LIMIT 1';
+
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':player_id' => $playerId));
+            $statement->execute($parameters);
             $result = $statement->fetch();
             if (!$result) {
                 $this->message = 'Player has no pending games.';
@@ -998,12 +1013,16 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $n_entries = 10) {
+    public function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
                      'game_state,action_type,acting_player,message ' .
                      'FROM game_action_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+                     'WHERE game_id = :game_id ORDER BY id DESC';
+            if (!is_null($logEntryLimit)) {
+                $query = $query . ' LIMIT ' . $logEntryLimit;
+            }
+
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
@@ -1076,12 +1095,16 @@ class BMInterface {
         );
     }
 
-    public function load_game_chat_log(BMGame $game, $n_entries = 5) {
+    public function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
                      'chatting_player,message ' .
                      'FROM game_chat_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC LIMIT ' . $n_entries;
+                     'WHERE game_id = :game_id ORDER BY id DESC';
+            if (!is_null($logEntryLimit)) {
+                $query = $query . ' LIMIT ' . $logEntryLimit;
+            }
+
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $chatEntries = array();
@@ -1250,7 +1273,11 @@ class BMInterface {
                 // On success, don't set a message, because one will be set from the action log
                 return TRUE;
             } else {
-                $this->message = 'Requested attack is not valid';
+                if (empty($attack->validationMessage)) {
+                    $this->message = 'Requested attack is not valid';
+                } else {
+                    $this->message = $attack->validationMessage;
+                }
                 return NULL;
             }
         } catch (Exception $e) {

@@ -301,10 +301,10 @@ var Api = (function () {
     return true;
   };
 
-  my.getGameData = function(game, callback) {
+  my.getGameData = function(game, logEntryLimit, callback) {
     activity.gameId = game;
     Api.apiParsePost(
-      { type: 'loadGameData', game: game, },
+      { type: 'loadGameData', game: game, logEntryLimit: logEntryLimit },
       'game',
       my.parseGameData,
       callback,
@@ -457,8 +457,19 @@ var Api = (function () {
   // Load and parse the ID of the player's next pending game
 
   my.getNextGameId = function(callbackfunc) {
+    var currentGameId;
+    if (Api.game !== undefined &&
+        Api.game.isParticipant && Api.game.player.waitingOnAction) {
+      // If you're viewing a game where it's your turn, pass the ID along as
+      // being skipped
+      currentGameId = Api.game.gameId;
+    }
+
     my.apiParsePost(
-      { 'type': 'loadNextPendingGame' },
+      {
+        'type': 'loadNextPendingGame',
+        'currentGameId': currentGameId,
+      },
       'gameNavigation',
       my.parseNextGameId,
       callbackfunc,
