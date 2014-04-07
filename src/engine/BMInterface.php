@@ -1273,7 +1273,11 @@ class BMInterface {
                 // On success, don't set a message, because one will be set from the action log
                 return TRUE;
             } else {
-                $this->message = 'Requested attack is not valid';
+                if (empty($attack->validationMessage)) {
+                    $this->message = 'Requested attack is not valid';
+                } else {
+                    $this->message = $attack->validationMessage;
+                }
                 return NULL;
             }
         } catch (Exception $e) {
