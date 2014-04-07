@@ -1155,6 +1155,90 @@ class BMInterface {
         }
     }
 
+    public function submit_die_values(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $swingValueArray,
+        $optionValueArray
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::SPECIFY_DICE,
+                'ignore',
+                $roundNumber,
+                $playerId
+            )) {
+                $this->message = 'Dice sizes no longer need to be set';
+                return NULL;
+            }
+
+            // try to set swing values
+            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            sort($swingRequested);
+            $swingSubmitted = array_keys($swingValueArray);
+            sort($swingSubmitted);
+
+            if ($swingRequested != $swingSubmitted) {
+                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
+                return NULL;
+            }
+
+            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
+
+            // try to set option values
+            foreach ($optionValueArray as $dieIdx => $optionValue) {
+                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+            }
+
+            $game->proceed_to_next_user_action();
+
+            // check for successful swing value set
+            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+                ($game->gameState > BMGameState::SPECIFY_DICE) ||
+                ($game->roundNumber > $roundNumber)) {
+                $game->log_action(
+                    'choose_swing',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'swingValues' => $swingValueArray,
+                    )
+                );
+                $game->log_action(
+                    'choose_option',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'optionValues' => $optionValueArray,
+                    )
+                );
+                $this->save_game($game);
+                $this->message = 'Successfully set die sizes';
+                return TRUE;
+            } else {
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Failed to set die sizes';
+                }
+                return NULL;
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_die_values: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while setting die sizes';
+        }
+    }
+
     public function submit_swing_values(
         $playerId,
         $gameId,
@@ -1218,10 +1302,10 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_swing_values: " .
+                "Caught exception in BMInterface::submit_die_values: " .
                 $e->getMessage()
             );
-            $this->message = 'Internal error while setting swing values';
+            $this->message = 'Internal error while setting die values';
         }
     }
 
