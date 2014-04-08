@@ -64,15 +64,25 @@ class BMAttackSkill extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) < 1 || count($defenders) != 1) {
+        $this->validationMessage = '';
+
+        if (count($attackers) < 1) {
+            $this->validationMessage = 'There must be at least one attacking die for a skill attack.';
+            return FALSE;
+        }
+
+        if (count($defenders) != 1) {
+            $this->validationMessage = 'There must be exactly one target die for a skill attack.';
             return FALSE;
         }
 
         if ($this->has_dizzy_attackers($attackers)) {
+            // validation message set within $this->has_dizzy_attackers()
             return FALSE;
         }
 
         if (!$this->are_skills_compatible($attackers, $defenders)) {
+            // validation message set within $this->are_skills_compatible()
             return FALSE;
         }
 
@@ -109,6 +119,7 @@ class BMAttackSkill extends BMAttack {
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
         $bounds = $this->help_bounds($helpers);
         if ($bounds[0] == 0 && $bounds[1] == 0) {
+            $this->validationMessage = 'Attacking die values do not sum up to target die value.';
             return FALSE;
         }
         for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
@@ -123,6 +134,7 @@ class BMAttackSkill extends BMAttack {
                 }
             }
         }
+        $this->validationMessage = 'Attacking die values do not sum up to target die value.';
         return FALSE;
     }
 
@@ -135,34 +147,33 @@ class BMAttackSkill extends BMAttack {
             throw new InvalidArgumentException('defArray must have one element.');
         }
 
-        $returnVal = TRUE;
-
         $def = $defArray[0];
 
-        if (1 == count($attArray) &&
-            $attArray[0]->has_skill('Stealth')) {
-            $returnVal = FALSE;
+        if (1 == count($attArray)) {
+            if ($attArray[0]->has_skill('Stealth')) {
+                $this->validationMessage = 'Skill attacks involving a single attacking stealth die are invalid.';
+                return FALSE;
+            }
+
+            if ($attArray[0]->has_skill('Konstant')) {
+                $this->validationMessage = 'Skill attacks involving a single attacking konstant die are invalid.';
+                return FALSE;
+            }
         }
 
         if (1 == count($attArray) &&
             $def->has_skill('Stealth')) {
-            $returnVal = FALSE;
+            $this->validationMessage = 'Multiple attacking dice are required to skill attack a stealth die.';
+            return FALSE;
         }
 
         foreach ($attArray as $att) {
-            if ($att->has_skill('Berserk') ||
-                // do not allow single-die skill attacks from konstant dice
-                ($att->has_skill('Konstant') && (1 == count($attArray)))
-            ) {
-                $returnVal = FALSE;
+            if ($att->has_skill('Berserk')) {
+                $this->validationMessage = 'Berserk dice cannot perform skill attacks.';
+                return FALSE;
             }
         }
 
-        if ($def->has_skill('Stealth') &&
-            1 == count($attArray)) {
-            $returnVal = FALSE;
-        }
-
-        return $returnVal;
+        return TRUE;
     }
 }
