@@ -73,7 +73,7 @@
   <exec executable="phpmd">
    <arg line="${source}
               xml
-              codesize,design,naming,unusedcode
+              ./deploy/jenkins/pmd/buttonmen.xml
               --reportfile ${basedir}/build/logs/pmd.xml" />
   </exec>
  </target>
