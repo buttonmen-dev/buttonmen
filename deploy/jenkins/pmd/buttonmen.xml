@@ -12,7 +12,7 @@
   <!-- N.B. exclude CyclomaticComplexity here, and include it later with a different threshold -->
   <rule ref="rulesets/codesize.xml">
     <exclude name="CyclomaticComplexity" />
-    <exclude name="ExcessiveClassLength" />
+    <exclude name="ExcessiveClassComplexity" />
     <exclude name="NPathComplexity" />
     <exclude name="TooManyMethods" />
   </rule> 
