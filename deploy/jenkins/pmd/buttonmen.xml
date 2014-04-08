@@ -13,6 +13,7 @@
   <rule ref="rulesets/codesize.xml">
     <exclude name="CyclomaticComplexity" />
     <exclude name="ExcessiveClassComplexity" />
+    <exclude name="ExcessiveClassLength" />
     <exclude name="NPathComplexity" />
     <exclude name="TooManyMethods" />
   </rule> 
