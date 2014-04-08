@@ -895,11 +895,6 @@ Game.formChooseReserveDiceActive = function() {
   var inputError;
   var dieIdx = false;
   var diceChecked = 0;
-  var postArgs = {
-    type: 'reactToReserve',
-    game: Game.game,
-    action: Game.activity.reserveDieAction,
-  };
   Game.activity.reserveDiceSelected = {};
   $.each(Api.game.player.reserveOptions, function(i) {
     if ($('#choose_reserve_' + i).prop('checked')) {
@@ -914,7 +909,6 @@ Game.formChooseReserveDiceActive = function() {
       inputError = 'If you choose to add reserve dice, you must select ' +
         'exactly one die to add';
     }
-    postArgs.dieIdx = dieIdx;
   } else if (Game.activity.reserveDieAction == 'decline') {
     if (diceChecked !== 0) {
       inputValid = false;
@@ -928,7 +922,12 @@ Game.formChooseReserveDiceActive = function() {
 
   if (inputValid) {
     Api.apiFormPost(
-      postArgs,
+      {
+        type: 'reactToReserve',
+        game: Game.game,
+        action: Game.activity.reserveDieAction,
+        dieIdx: dieIdx,
+      },
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },

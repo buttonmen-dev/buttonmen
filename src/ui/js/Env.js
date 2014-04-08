@@ -20,11 +20,8 @@ if ('unit_test' in Env) {
   } else {
     Env.api_location = '../api/dummy_responder';
   }
-  // We also want to mock the window object in unit tests
-  Env.window = { location: {} };
 } else {
   Env.api_location = '../api/responder';
-  Env.window = window;
 }
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301

@@ -6,8 +6,6 @@ module("Login", {
 
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
-    delete Api.gameNavigation;
-    delete Env.window.location.href;
 
     // Fail if any other elements were added or removed
     BMTestUtils.LoginPost = BMTestUtils.getAllElements();
@@ -60,38 +58,4 @@ test("test_Login.formLogout", function() {
 
 test("test_Login.formLogin", function() {
   ok(true, "INCOMPLETE: Test of Login.formLogin not implemented");
-});
-
-asyncTest("test_Login.goToNextPendingGame", function() {
-  Env.window.location.href = "/ui/game.html?game=1";
-  Api.gameNavigation = {
-    'load_status': 'ok',
-    'nextGameId': 7,
-  };
-
-  Login.goToNextPendingGame();
-  notEqual(Env.window.location.href, null, "The page has been redirected");
-  if (Env.window.location.href !== null && Env.window.location.href !== undefined)
-  {
-    ok(Env.window.location.href.match(/game\.html\?game=7/),
-      "The page has been redirected to the next game");
-  }
-  start();
-});
-
-asyncTest("test_Login.goToNextPendingGame_no_next_game", function() {
-  Env.window.location.href = "/ui/game.html?game=1";
-  Api.gameNavigation = {
-    'load_status': 'ok',
-    'nextGameId': null,
-  };
-
-  Login.goToNextPendingGame();
-  notEqual(Env.window.location.href, null, "The page has been redirected");
-  if (Env.window.location.href !== null && Env.window.location.href !== undefined)
-  {
-    ok(Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/),
-      "The page has been redirected to the Overview page");
-  }
-  start();
 });
