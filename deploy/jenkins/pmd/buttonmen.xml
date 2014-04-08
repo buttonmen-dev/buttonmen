@@ -7,8 +7,29 @@
   <description>PMD rules used for Button Men PHP code</description>
 
   <!-- Import existing rule sets -->
-  <rule ref="rulesets/codesize.xml" /> 
-  <rule ref="rulesets/design.xml" /> 
+
+  <!-- Import codesize rule set, but exclude several items -->
+  <!-- N.B. exclude CyclomaticComplexity here, and include it later with a different threshold -->
+  <rule ref="rulesets/codesize.xml">
+    <exclude name="CyclomaticComplexity" />
+    <exclude name="ExcessiveClassLength" />
+    <exclude name="NPathComplexity" />
+    <exclude name="TooManyMethods" />
+  </rule> 
+
+  <!-- Include CyclomaticComplexity with a higher threshold (default is 10) -->
+  <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
+    <properties>
+      <property name="reportLevel" value="13" />
+    </properties> 
+  </rule>
+
+  <!-- Import entire design rule set, but exclude NumberOfChildren -->
+  <rule ref="rulesets/design.xml">
+    <exclude name="NumberOfChildren" />
+  </rule> 
+
+  <!-- Import naming and unused code rule sets without modification -->
   <rule ref="rulesets/naming.xml" /> 
   <rule ref="rulesets/unusedcode.xml" /> 
 </ruleset>
