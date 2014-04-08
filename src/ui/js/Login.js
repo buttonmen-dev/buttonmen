@@ -55,6 +55,7 @@ Login.layoutHeader = function() {
   $('#login_header').append(Login.message);
 
   if (Login.form) {
+    $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
   return Login.callback();
@@ -181,7 +182,11 @@ Login.postToResponder = function(responder_args) {
       } else {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
-      Login.showLoginHeader(Login.callback);
+      if (responder_args.type == 'logout') {
+        Env.window.location.href = '/ui';
+      } else {
+        Login.showLoginHeader(Login.callback);
+      }
     }
   ).fail(
     function() {

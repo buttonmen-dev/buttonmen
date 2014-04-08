@@ -30,6 +30,9 @@ Game.COLORS = {
   },
 };
 
+// Default number of action and chat log entries to display
+Game.logEntryLimit = 10;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -101,7 +104,7 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  Api.getGameData(Game.game, callbackfunc);
+  Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
 };
 
 // Assemble and display the game portion of the page
@@ -810,6 +813,7 @@ Game.actionShowFinishedGame = function() {
   dieEndgameTr.append(opponentButtonTd);
   dieEndgameTable.append(dieEndgameTr);
   Game.page.append(dieEndgameTable);
+  Game.logEntryLimit = undefined;
   Game.pageAddFooter();
 
   Game.form = null;
@@ -1092,26 +1096,7 @@ Game.reactToInitiativeSuccessMsg = function(message, data) {
 
 // Form submission action for playing a turn
 Game.formPlayTurnActive = function() {
-
-  // Initialize the array of die select statuses to all false, then
-  // turn on the dice which have been selected
-  Game.activity.dieSelectStatus = {};
-  var i;
-  for (i = 0 ; i < Api.game.player.nDie; i++) {
-    Game.activity.dieSelectStatus[Game.dieIndexId('player', i)] = false;
-  }
-  for (i = 0 ; i < Api.game.opponent.nDie; i++) {
-    Game.activity.dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
-  }
-  $('div.selected').each(function(index, element) {
-    Game.activity.dieSelectStatus[$(element).attr('id')] = true;
-  });
-
-  // Get the specified attack type
-  Game.activity.attackType = $('#attack_type_select').val();
-
-  // Store the game chat in recent activity
-  Game.activity.chat = $('#game_chat').val();
+  Game.readCurrentGameActivity();
 
   // If surrender is chosen, ask for confirmation, and let the user
   // try again if they don't confirm
@@ -1148,6 +1133,34 @@ Game.formPlayTurnActive = function() {
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
+};
+
+Game.readCurrentGameActivity = function() {
+  // Initialize the array of die select statuses to all false, then
+  // turn on the dice which have been selected
+  Game.activity.dieSelectStatus = {};
+  var i;
+  for (i = 0 ; i < Api.game.player.nDie; i++) {
+    Game.activity.dieSelectStatus[Game.dieIndexId('player', i)] = false;
+  }
+  for (i = 0 ; i < Api.game.opponent.nDie; i++) {
+    Game.activity.dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
+  }
+  $('div.selected').each(function(index, element) {
+    Game.activity.dieSelectStatus[$(element).attr('id')] = true;
+  });
+
+  // Get the specified attack type
+  Game.activity.attackType = $('#attack_type_select').val();
+
+  // Store the game chat in recent activity
+  Game.activity.chat = $('#game_chat').val();
+};
+
+Game.showFullLogHistory = function() {
+  Game.readCurrentGameActivity();
+  Game.logEntryLimit = undefined;
+  Game.showGamePage();
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1187,8 +1200,24 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function() {
+  Game.pageAddGameNavigationFooter();
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
+};
+
+// Display a link to the next game requiring action
+Game.pageAddGameNavigationFooter = function() {
+  if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
+    return false;
+  }
+  Game.page.append($('<br>'));
+  var linkDiv = $('<div>');
+  linkDiv.append($('<a>', {
+    'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+    'text': 'Go to your next pending game (if any)',
+  }));
+  Game.page.append(linkDiv);
+  return true;
 };
 
 // Display a footer-style message with the last action timestamp
@@ -1204,7 +1233,7 @@ Game.pageAddTimestampFooter = function() {
 
   Game.page.append($('<br>'));
   Game.page.append($('<div>', {
-    'text': timestamptext + ': ' + Api.game.timestamp,
+    'text': timestamptext + ': ' + Env.formatTimestamp(Api.game.timestamp),
   }));
   return true;
 };
@@ -1233,7 +1262,7 @@ Game.pageAddLogFooter = function() {
             'class': 'chat',
             'style': 'background-color: ' + Game.color[actionplayer],
             'nowrap': 'nowrap',
-            'text': '(' + logentry.timestamp + ')',
+            'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
         actionrow.append(
           $('<td>', {
@@ -1262,7 +1291,8 @@ Game.pageAddLogFooter = function() {
           'class': 'chat',
           'style': 'background-color: ' + Game.color[chatplayer],
           'nowrap': 'nowrap',
-          'text': logentry.player + ' (' + logentry.timestamp + ')',
+          'text': logentry.player + ' (' +
+            Env.formatTimestamp(logentry.timestamp) + ')',
         }));
         chatrow.append($('<td>', {
           'class': 'left',
@@ -1275,6 +1305,25 @@ Game.pageAddLogFooter = function() {
     }
 
     logtable.append(logrow);
+
+    if (Game.logEntryLimit !== undefined) {
+      var historyrow = $('<tr>', { 'class': 'loghistory' });
+      var historytd = $('<td>');
+      if ((Api.game.actionLog.length > 0) && (Api.game.chatLog.length > 0)) {
+        historytd.attr('colspan', 2);
+      }
+
+      historytd.append('[');
+      historytd.append($('<a>', {
+        'href': 'javascript:Game.showFullLogHistory();',
+        'text': 'View full activity and chat history',
+      }));
+      historytd.append(']');
+
+      historyrow.append(historytd);
+      logtable.append(historyrow);
+    }
+
     logdiv.append(logtable);
 
     Game.page.append($('<hr>'));
@@ -1873,6 +1922,7 @@ Game.chatBox = function() {
   var chattable = $('<table>');
   var chatrow = $('<tr>');
   chatrow.append($('<td>', {'text': 'Chat:', }));
+  var chattd = $('<td>');
   var chatarea = $('<textarea>', {
     'id': 'game_chat',
     'rows': '3',
@@ -1884,7 +1934,8 @@ Game.chatBox = function() {
   if ('chat' in Game.activity) {
     chatarea.append(Game.activity.chat);
   }
-  chatrow.append(chatarea);
+  chattd.append(chatarea);
+  chatrow.append(chattd);
   chattable.append(chatrow);
   return chattable;
 };
