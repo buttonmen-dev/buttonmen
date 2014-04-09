@@ -1,0 +1,36 @@
+<ruleset name="Button Men Rules"
+         xmlns="http://pmd.sf.net/ruleset/1.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+         xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+
+  <description>PMD rules used for Button Men PHP code</description>
+
+  <!-- Import existing rule sets -->
+
+  <!-- Import codesize rule set, but exclude several items -->
+  <!-- N.B. exclude CyclomaticComplexity here, and include it later with a different threshold -->
+  <rule ref="rulesets/codesize.xml">
+    <exclude name="CyclomaticComplexity" />
+    <exclude name="ExcessiveClassComplexity" />
+    <exclude name="ExcessiveClassLength" />
+    <exclude name="NPathComplexity" />
+    <exclude name="TooManyMethods" />
+  </rule> 
+
+  <!-- Include CyclomaticComplexity with a higher threshold (default is 10) -->
+  <rule ref="rulesets/codesize.xml/CyclomaticComplexity">
+    <properties>
+      <property name="reportLevel" value="13" />
+    </properties> 
+  </rule>
+
+  <!-- Import entire design rule set, but exclude NumberOfChildren -->
+  <rule ref="rulesets/design.xml">
+    <exclude name="NumberOfChildren" />
+  </rule> 
+
+  <!-- Import naming and unused code rule sets without modification -->
+  <rule ref="rulesets/naming.xml" /> 
+  <rule ref="rulesets/unusedcode.xml" /> 
+</ruleset>
