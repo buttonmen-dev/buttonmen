@@ -124,7 +124,11 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
   headerRow.append($('<th>', {'text': 'Your Button', }));
   headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
   headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
-  headerRow.append($('<th>', {'text': 'Inactivity', }));
+  if (gameType == 'finished') {
+    headerRow.append($('<th>', {'text': 'Completed', }));
+  } else {
+    headerRow.append($('<th>', {'text': 'Inactivity', }));
+  }
   table.append(headerRow);
   var i = 0;
   while (i < gamesource.length) {
