@@ -1044,6 +1044,9 @@ class DummyApiResponder {
             if (!(array_key_exists('playerNameArray', $data))) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
             }
+            if (!(array_key_exists('gameChatEditable', $data))) {
+                $data['gameChatEditable'] = FALSE;
+            }
             $timestamp = strtotime('now');
             $data['timestamp'] = $timestamp;
             return array($data, "Loaded data for game " . $args['game']);

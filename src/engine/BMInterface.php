@@ -1126,6 +1126,40 @@ class BMInterface {
         }
     }
 
+    // Can the active player edit the most recent chat entry in this game?
+    public function find_editable_chat_timestamp($data) {
+        $gameData = $data['gameData']['data'];
+
+        // Completed games can't be modified
+        if ($gameData['gameState'] == 'END_GAME') {
+            return FALSE;
+        }
+ 
+        // If there are no chat entries, none can be modified
+        if (count($data['gameChatLog']) == 0) {
+            return FALSE;
+        }
+ 
+        // Only the most recent chat entry can be modified --- was
+        // it made by the active player?
+        if ((FALSE === $data['currentPlayerIdx']) ||
+            ($data['playerNameArray'][$data['currentPlayerIdx']] != $data['gameChatLog'][0]['player'])) {
+            return FALSE;
+        }
+ 
+        // save_game() saves action log entries before chat log
+        // entries.  So if the chat log entry predates the most
+        // recent action log entry, it is not current
+        if ($data['gameChatLog'][0]['timestamp'] < $data['gameActionLog'][0]['timestamp']) {
+            return FALSE;
+        }
+
+	// The active player can edit the most recent chat entry:
+	// return its timestamp so it can be identified later
+        return $data['gameChatLog'][0]['timestamp'];
+    }
+
+
     public function submit_swing_values(
         $playerId,
         $gameId,

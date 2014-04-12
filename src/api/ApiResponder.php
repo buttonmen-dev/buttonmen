@@ -164,6 +164,7 @@ class ApiResponder {
                 'gameActionLog' => $interface->load_game_action_log($game, $logEntryLimit),
                 'gameChatLog' => $interface->load_game_chat_log($game, $logEntryLimit),
             );
+            $data['gameChatEditable'] = $interface->find_editable_chat_timestamp($data);
         }
         return $data;
     }
