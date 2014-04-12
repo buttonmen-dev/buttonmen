@@ -680,6 +680,35 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('sp(25)', $die4->get_recipe());
     }
 
+    /*
+     * @covers BMDie::has_flag
+     */
+    public function testHas_flag() {
+        $this->assertFalse($this->object->has_flag('flag'));
+    }
+
+    /*
+     * @covers BMDie::add_flag
+     */
+    public function testAdd_flag() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::remove_flag
+     */
+    public function testRemove_flag() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+
+        $this->object->remove_flag('WasJustCaptured');
+        $this->assertFalse($this->object->has_flag('WasJustCaptured'));
+    }
+
     public function test__get() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
