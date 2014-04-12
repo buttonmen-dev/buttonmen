@@ -568,18 +568,18 @@ class BMDie extends BMCanHaveSkill {
             return '';
         }
 
-        $flagString = '';
-        foreach($this->flagList as $flag) {
-            $flagString .= $flag.';';
-        }
-
-        $flagString = rtrim($flagString, ';');
-
-        return $flagString;
+        return implode(';', $this->flagList);
     }
 
-    public function load_flags_from_string() {
+    public function load_flags_from_string($string) {
+        if (empty($string)) {
+            return;
+        }
 
+        $flagArray = explode(';', $string);
+        foreach ($flagArray as $flag) {
+            $this->add_flag($flag);
+        }
     }
 
     // utility methods

@@ -717,6 +717,14 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('WasJustCaptured', $this->object->flags_as_string());
     }
 
+    /*
+     * @covers BMDie::load_flags_from_string
+     */
+    public function testLoad_flags_from_string() {
+        $this->object->load_flags_from_string('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+    }
+
     public function test__get() {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
