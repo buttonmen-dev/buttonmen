@@ -767,12 +767,28 @@ Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('Opponent\'s turn to attack');
   Game.pageAddDieBattleTable(false);
-  Game.page.append($('<p>', {'text':
-    'It is your opponent\'s turn to attack right now.' }));
+  Game.page.append($('<br>'));
+
+  if (Api.game.chatEditable) {
+    Game.activity.chat = Api.game.chatLog[0].message;
+  }
+  var chatdiv = $('<div>');
+  chatdiv.append(Game.chatBox());
+  var chatform = $('<form>', {
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
+  chatform.append($('<button>', {
+    'id': 'game_action_button',
+    'text': 'Change game message',
+  }));
+  chatdiv.append(chatform);
+  Game.page.append(chatdiv);
 
   Game.pageAddFooter();
 
-  Game.form = null;
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnInactive;
 
   // Now layout the page
   Game.layoutPage();
@@ -1129,6 +1145,30 @@ Game.formPlayTurnActive = function() {
       roundNumber: Api.game.roundNumber,
       timestamp: Api.game.timestamp,
     },
+    { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
+    'game_action_button',
+    Game.redrawGamePageSuccess,
+    Game.redrawGamePageFailure
+  );
+};
+
+// Form submission action for updating chat when it's not your turn
+Game.formPlayTurnInactive = function() {
+
+  // Store the game chat in recent activity
+  Game.activity.chat = $('#game_chat').val();
+
+  var formargs = {
+      type: 'submitChat',
+      game: Game.game,
+      chat: Game.activity.chat,
+  };
+  if (Api.game.chatEditable) {
+    formargs.edit = Api.game.chatEditable;
+  }
+
+  Api.apiFormPost(
+    formargs,
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
     'game_action_button',
     Game.redrawGamePageSuccess,

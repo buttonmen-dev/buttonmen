@@ -1120,6 +1120,22 @@ class DummyApiResponder {
         return array(TRUE, 'Reserve die chosen successfully');
     }
 
+    protected function get_interface_response_submitChat($args) {
+        if (array_key_exists('edit', $args)) {
+            if ($args['chat']) {
+                return array(TRUE, 'Updated previous game message');
+            } else {
+                return array(TRUE, 'Deleted previous game message');
+            }
+        } else {
+            if ($args['chat']) {
+                return array(TRUE, 'Added game message');
+            } else {
+                return array(FALSE, 'No game message specified');
+            }
+        }
+    }
+
     protected function get_interface_response_submitTurn() {
         return array(TRUE, 'Dummy turn submission accepted');
     }
