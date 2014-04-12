@@ -1,12 +1,6 @@
 <?php
 
 abstract class BMFlag {
-    public function as_string() {
-        $name = get_class($this);
-
-        return str_replace('BMFlag', '', $name);
-    }
-
     // factory method to enable loading flags from database
     public static function create_from_string($string) {
         if (empty($string)) {
@@ -18,6 +12,12 @@ abstract class BMFlag {
         if (class_exists($fullString)) {
             return new $fullString;
         }
+    }
+
+    public function __toString() {
+        $name = get_class($this);
+
+        return str_replace('BMFlag', '', $name);
     }
 }
 

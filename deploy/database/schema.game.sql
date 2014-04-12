@@ -80,7 +80,8 @@ CREATE TABLE die (
     recipe             VARCHAR(20) NOT NULL,
     swing_value        TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
-    value              SMALLINT
+    value              SMALLINT,
+    flags              VARCHAR(253)
 );
 
 DROP TABLE IF EXISTS die_status;

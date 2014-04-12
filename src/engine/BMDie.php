@@ -563,6 +563,25 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    public function flags_as_string() {
+        if (empty($this->flagList)) {
+            return '';
+        }
+
+        $flagString = '';
+        foreach($this->flagList as $flag) {
+            $flagString .= $flag.';';
+        }
+
+        $flagString = rtrim($flagString, ';');
+
+        return $flagString;
+    }
+
+    public function load_flags_from_string() {
+
+    }
+
     // utility methods
     public function __get($property) {
         if (property_exists($this, $property)) {

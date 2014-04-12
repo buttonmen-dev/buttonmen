@@ -393,6 +393,10 @@ class BMInterface {
                         $captDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
                 }
+
+                if (!is_null($row['flags'])) {
+                    $die->load_flags_from_string();
+                }
             }
 
             $game->activeDieArrayArray = $activeDieArrayArray;
@@ -638,7 +642,8 @@ class BMInterface {
                  '     recipe, '.
                  '     swing_value, '.
                  '     position, '.
-                 '     value) '.
+                 '     value, '.
+                 '     flags)'.
                  'VALUES '.
                  '    (:owner_id, '.
                  '     :original_owner_id, '.
@@ -647,8 +652,15 @@ class BMInterface {
                  '     :recipe, '.
                  '     :swing_value, '.
                  '     :position, '.
-                 '     :value);';
+                 '     :value, '.
+                 '     :flags);';
         $statement = self::$conn->prepare($query);
+
+        $flags = $activeDie->flags_as_string();
+        if (empty($flags)) {
+            $flags = NULL;
+        }
+
         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
                                   ':game_id' => $game->gameId,
@@ -656,7 +668,8 @@ class BMInterface {
                                   ':recipe' => $activeDie->recipe,
                                   ':swing_value' => $activeDie->swingValue,
                                   ':position' => $dieIdx,
-                                  ':value' => $activeDie->value));
+                                  ':value' => $activeDie->value,
+                                  ':flags' => $flags));
     }
 
     // Get all player games (either active or inactive) from the database

@@ -6,15 +6,6 @@ class BMFlagTest extends PHPUnit_Framework_TestCase {
      */
     protected $object;
 
-    /*
-     * @covers BMFlag::as_string
-     */
-    public function testAs_string()
-    {
-        $flag = BMFlag::create_from_string('WasJustCaptured');
-        $this->assertEquals('WasJustCaptured', $flag->as_string());
-    }
-
     /**
      * @covers BMFlag::create_from_string
      */
@@ -29,5 +20,14 @@ class BMFlagTest extends PHPUnit_Framework_TestCase {
 
         $flag3 = BMFlag::create_from_string('rubbish');
         $this->assertNull($flag3);
+    }
+
+    /*
+     * @covers BMFlag::__toString
+     */
+    public function test__toString()
+    {
+        $flag = BMFlag::create_from_string('WasJustCaptured');
+        $this->assertEquals('WasJustCaptured', ''.$flag);
     }
 }
