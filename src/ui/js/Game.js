@@ -1159,9 +1159,9 @@ Game.formPlayTurnInactive = function() {
   Game.activity.chat = $('#game_chat').val();
 
   var formargs = {
-      type: 'submitChat',
-      game: Game.game,
-      chat: Game.activity.chat,
+    type: 'submitChat',
+    game: Game.game,
+    chat: Game.activity.chat,
   };
   if (Api.game.chatEditable) {
     formargs.edit = Api.game.chatEditable;
