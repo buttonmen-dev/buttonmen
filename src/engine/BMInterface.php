@@ -1154,8 +1154,8 @@ class BMInterface {
             return FALSE;
         }
 
-	// The active player can edit the most recent chat entry:
-	// return its timestamp so it can be identified later
+        // The active player can edit the most recent chat entry:
+        // return its timestamp so it can be identified later
         return $data['gameChatLog'][0]['timestamp'];
     }
 
