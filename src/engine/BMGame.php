@@ -665,6 +665,8 @@ class BMGame {
         $attAttackDieArray = $instance['attAttackDieArray'];
         $defAttackDieArray = $instance['defAttackDieArray'];
 
+        $this->remove_all_flags();
+
         $preAttackDice = $this->get_action_log_data(
             $attAttackDieArray,
             $defAttackDieArray
@@ -777,6 +779,28 @@ class BMGame {
         return array('attack' => $attack,
                      'attAttackDieArray' => $attAttackDieArray,
                      'defAttackDieArray' => $defAttackDieArray);
+    }
+
+    protected function remove_all_flags() {
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            if (empty($activeDieArray)) {
+                continue;
+            }
+
+            foreach ($activeDieArray as $die) {
+                $die->remove_all_flags();
+            }
+        }
+
+        foreach ($this->capturedDieArrayArray as $capturedDieArray) {
+            if (empty($capturedDieArray)) {
+                continue;
+            }
+
+            foreach ($capturedDieArray as $die) {
+                $die->remove_all_flags();
+            }
+        }
     }
 
     protected function update_game_state_start_turn() {

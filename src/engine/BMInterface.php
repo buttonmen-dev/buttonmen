@@ -395,7 +395,7 @@ class BMInterface {
                 }
 
                 if (!is_null($row['flags'])) {
-                    $die->load_flags_from_string();
+                    $die->load_flags_from_string($row['flags']);
                 }
             }
 

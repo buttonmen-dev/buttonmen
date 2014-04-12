@@ -710,6 +710,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDie::remove_all_flags
+     */
+    public function testRemove_all_flags() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->object->remove_all_flags();
+        $this->assertFalse($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
      * @covers BMDie::flags_as_string
      */
     public function testFlags_as_string() {

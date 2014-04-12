@@ -1347,6 +1347,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertTrue($game->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
 
         // round 1, turn 2, player 2 to attack
         // [1 1 1] vs [1 1 2]
@@ -1368,6 +1369,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
         $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
         $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+        $this->assertFalse($game->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
+        $this->assertTrue($game->capturedDieArrayArray[1][0]->has_flag('WasJustCaptured'));
 
         // round 1, turn 3, player 1 to attack
         // [1 1] vs [1 1 2]

@@ -563,6 +563,10 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    public function remove_all_flags() {
+        $this->flagList = array();
+    }
+
     public function flags_as_string() {
         if (empty($this->flagList)) {
             return '';
