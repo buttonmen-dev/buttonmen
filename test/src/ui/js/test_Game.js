@@ -804,6 +804,20 @@ asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
   });
 });
 
+asyncTest("test_Game.pageAddLogFooter_chatlog", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddLogFooter();
+    var htmlout = Game.page.html();
+    ok(!htmlout.match("<script"), "Chat log does not contain unencoded HTML.");
+    ok(htmlout.match("&lt;script"), "Chat log does contain encoded HTML.");
+    ok(htmlout.match("<br"), "Chat log contain HTML newlines.");
+    ok(htmlout.match("&nbsp;&nbsp;&nbsp;"), "Chat contains HTML spaces.");
+    start();
+  });
+});
+
 asyncTest("test_Game.dieRecipeTable", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
