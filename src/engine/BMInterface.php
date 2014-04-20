@@ -247,7 +247,7 @@ class BMInterface {
                 $game,
                 $currentPlayerIdx,
                 $playerNameArray,
-                $data['gameChatLog'], 
+                $data['gameChatLog'],
                 $data['gameActionLog']
             );
             return $data;
@@ -1254,19 +1254,19 @@ class BMInterface {
             return FALSE;
         }
  
-	// If the player is not in the game, they can't insert chat
+        // If the player is not in the game, they can't insert chat
         if (FALSE === $currentPlayerIdx) {
             return FALSE;
         }
 
-	// If the game is awaiting action from a player, that player
-	// can't chat without taking an action
+        // If the game is awaiting action from a player, that player
+        // can't chat without taking an action
         if (TRUE === $game->waitingOnActionArray[$currentPlayerIdx]) {
             return FALSE;
         }
 
-	// If the most recent chat entry was made by the active
-	// player, and is current, that player can't insert a new one
+        // If the most recent chat entry was made by the active
+        // player, and is current, that player can't insert a new one
         if ((count($chatLogEntries) > 0) &&
             ($playerNameArray[$currentPlayerIdx] == $chatLogEntries[0]['player']) &&
             (count($actionLogEntries) > 0) &&
@@ -1295,8 +1295,8 @@ class BMInterface {
             $lastActionEntryList = $this->load_game_action_log($game, 1);
 
             if ($editTimestamp) {
-		// player is trying to edit a given chat entry -
-		// do this if it's valid
+                // player is trying to edit a given chat entry -
+                // do this if it's valid
                 $gameChatEditable = $this->find_editable_chat_timestamp(
                     $game,
                     $currentPlayerIdx,
