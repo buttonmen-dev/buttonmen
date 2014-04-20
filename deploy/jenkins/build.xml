@@ -21,6 +21,12 @@
   <mkdir dir="${basedir}/build/pdepend"/>
  </target>
 
+ <target name="newline-audit" description="Audit line termination of all files in the tree to match ButtonMen standard">
+  <exec executable="python" failonerror="true">
+   <arg line="./deploy/jenkins/audit_newlines.py" />
+  </exec>
+ </target>
+
  <target name="php-audit" description="Audit layout of .php files in the tree to match ButtonMen standard">
   <exec executable="php" failonerror="true">
    <arg line="./deploy/pagodabox/audit_php_files.php ." />
@@ -171,5 +177,5 @@
   <antcall target="jstest-jenkins-report"/>
  </target>
 
- <target name="build" depends="clean,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
+ <target name="build" depends="clean,newline-audit,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
 </project>
