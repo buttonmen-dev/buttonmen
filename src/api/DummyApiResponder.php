@@ -1108,6 +1108,9 @@ class DummyApiResponder {
             if (!(array_key_exists('playerNameArray', $data))) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
             }
+            if (!(array_key_exists('gameChatEditable', $data))) {
+                $data['gameChatEditable'] = FALSE;
+            }
             $timestamp = strtotime('now');
             $data['timestamp'] = $timestamp;
             return array($data, "Loaded data for game " . $args['game']);
@@ -1183,6 +1186,22 @@ class DummyApiResponder {
 
     protected function get_interface_response_reactToReserve() {
         return array(TRUE, 'Reserve die chosen successfully');
+    }
+
+    protected function get_interface_response_submitChat($args) {
+        if (array_key_exists('edit', $args)) {
+            if ($args['chat']) {
+                return array(TRUE, 'Updated previous game message');
+            } else {
+                return array(TRUE, 'Deleted previous game message');
+            }
+        } else {
+            if ($args['chat']) {
+                return array(TRUE, 'Added game message');
+            } else {
+                return array(FALSE, 'No game message specified');
+            }
+        }
     }
 
     protected function get_interface_response_submitTurn() {

@@ -327,6 +327,7 @@ var Api = (function () {
     my.game.timestamp = data.timestamp;
     my.game.actionLog = data.gameActionLog;
     my.game.chatLog = data.gameChatLog;
+    my.game.chatEditable = data.gameChatEditable;
 
     // Do some sanity-checking of the gameData object we have
 
