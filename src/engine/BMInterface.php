@@ -568,10 +568,10 @@ class BMInterface {
             $statement->execute(array(':game_id' => $game->gameId));
 
             // clear option values
-//            $query = 'DELETE FROM game_option_map '.
-//                     'WHERE game_id = :game_id;';
-//            $statement = self::$conn->prepare($query);
-//            $statement->execute(array(':game_id' => $game->gameId));
+            $query = 'DELETE FROM game_option_map '.
+                     'WHERE game_id = :game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
 
             // set swing values
 
