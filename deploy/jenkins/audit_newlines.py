@@ -5,11 +5,22 @@ import os
 import sys
 
 SKIPPATHS = [
-  './.git',
-  './deploy/vagrant',
+
+  # non-ascii files/directories
   './notes',
   './src/favicon.ico',
   './src/ui/images',
+
+  # git artifacts
+  './.git',
+
+  # vagrant artifacts
+  './deploy/vagrant',
+
+  # jenkins artifacts
+  './build',
+  './stop.txt',
+  './util/grunt/node_modules',
 ]
 
 def find_files(dirname):
