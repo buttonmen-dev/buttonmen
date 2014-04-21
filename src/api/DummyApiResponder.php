@@ -761,7 +761,7 @@ class DummyApiResponder {
                 'gameChatLog' => array(
                     array("timestamp" => 1387746541,
                           "player" => "tester2",
-                          "message" => "Hello."),
+                          "message" => "Hello!\n    Ceci n'est pas une <script>tag</script>."),
                     array("timestamp" => 1387746536,
                           "player" => "tester1",
                           "message" => "Hi."),

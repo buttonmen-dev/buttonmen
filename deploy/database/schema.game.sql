@@ -73,8 +73,8 @@ CREATE TABLE game_chat_log (
 DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    owner_id           TINYINT UNSIGNED NOT NULL,
-    original_owner_id  TINYINT UNSIGNED NOT NULL,
+    owner_id           SMALLINT UNSIGNED NOT NULL,
+    original_owner_id  SMALLINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     status_id          TINYINT UNSIGNED NOT NULL,
     recipe             VARCHAR(20) NOT NULL,
