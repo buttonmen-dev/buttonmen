@@ -520,11 +520,15 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
 
 asyncTest("test_Game.actionPlayTurnInactive", function() {
   BMTestUtils.GameType = 'turn_inactive';
+  Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     var item = document.getElementById('attack_type_select');
     equal(item, null, "#attack_type_select is not set");
-    equal(Game.form, null, "Game.form is NULL");
+    var item = document.getElementById('game_chat');
+    equal(item.innerHTML, 'I had previously typed some text',
+      'Previous text is retained by game chat');
+    ok(Game.form, "Game.form is set");
     start();
   });
 });
@@ -670,6 +674,22 @@ asyncTest("test_Game.formPlayTurnActive", function() {
     deepEqual(
       Env.message,
       {"type": "success", "text": "Dummy turn submission accepted"},
+      "Game action succeeded when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Game.formPlayTurnInactive", function() {
+  BMTestUtils.GameType = 'turn_inactive';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnInactive();
+    $('#game_chat').val('hello world');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success", "text": "Added game message"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();

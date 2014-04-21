@@ -556,6 +556,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy player names should have matching structures");
     }
 
+    public function test_request_submitChat() {
+        $this->verify_login_required('submitChat');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('submitChat');
+
+        $this->markTestIncomplete("No test for submitChat yet");
+    }
+
     public function test_request_submitSwingValues() {
         $this->verify_login_required('submitSwingValues');
 
