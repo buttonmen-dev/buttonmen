@@ -12,8 +12,6 @@ SKIPPATHS = [
   './src/ui/images',
 ]
 
-TOPDIR=sys.argv[1]
-
 def find_files(dirname):
   files = []
   for item in os.listdir(dirname):
@@ -35,7 +33,6 @@ def file_has_unix_endings(filepath):
     return True
   return False
 
-os.chdir(TOPDIR)
 badfiles = []
 for filepath in find_files('.'):
   if not file_has_unix_endings(filepath):
