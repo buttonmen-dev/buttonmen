@@ -367,7 +367,7 @@ class BMInterface {
             // add die attributes
             $query = 'SELECT d.*,'.
                      '       s.name AS status '.
-                     'FROM die AS d '.
+                     'FROM die_view AS d '.
                      'LEFT JOIN die_status AS s '.
                      'ON d.status_id = s.id '.
                      'WHERE game_id = :game_id '.
@@ -422,8 +422,8 @@ class BMInterface {
                 }
 
                 if ($die instanceof BMDieOption) {
-                    if (isset($row['chosen_max'])) {
-                        $die->max = $row['chosen_max'];
+                    if (isset($row['option_value'])) {
+                        $die->max = $row['option_value'];
                         $die->needsOptionValue = FALSE;
                     } else {
                         $die->needsOptionValue = TRUE;
@@ -561,11 +561,19 @@ class BMInterface {
                 }
             }
 
-            // set swing values
+            // clear swing values
             $query = 'DELETE FROM game_swing_map '.
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
+
+            // clear option values
+//            $query = 'DELETE FROM game_option_map '.
+//                     'WHERE game_id = :game_id;';
+//            $statement = self::$conn->prepare($query);
+//            $statement->execute(array(':game_id' => $game->gameId));
+
+            // set swing values
 
             if (isset($game->swingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
@@ -701,13 +709,15 @@ class BMInterface {
 
     // Actually insert a die into the database - all error checking to be done by caller
     protected function db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx) {
+        $gameId = $game->gameId;
+        $playerId = $game->playerIdArray[$playerIdx];
+
         $query = 'INSERT INTO die '.
                  '    (owner_id, '.
                  '     original_owner_id, '.
                  '     game_id, '.
                  '     status_id, '.
                  '     recipe, '.
-                 '     chosen_max, '.
                  '     actual_max, '.
                  '     position, '.
                  '     value) '.
@@ -717,32 +727,43 @@ class BMInterface {
                  '     :game_id, '.
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
-                 '     :chosen_max, '.
                  '     :actual_max, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
 
-        $chosenMax = NULL;
         $actualMax = NULL;
-
-        if ($activeDie instanceof BMDieOption) {
-            $chosenMax = $activeDie->max;
-        }
 
         if ($activeDie->has_skill('Mood')) {
             $actualMax = $activeDie->max;
         }
 
-        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+        $statement->execute(array(':owner_id' => $playerId,
                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                  ':game_id' => $game->gameId,
+                                  ':game_id' => $gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
-                                  ':chosen_max' => $chosenMax,
                                   ':actual_max' => $actualMax,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
+
+        // store option values
+        if ($activeDie instanceof BMDieOption) {
+            $dieId = self::$conn->lastInsertId();
+
+            $query = 'INSERT INTO game_option_map '.
+                     '(game_id, player_id, die_id, option_value) '.
+                     'VALUES '.
+                     '(:game_id, '.
+                     ' :player_id, '.
+                     ' :die_id, '.
+                     ' :option_value)';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id'      => $gameId,
+                                      ':player_id'    => $playerId,
+                                      ':die_id'       => $dieId,
+                                      ':option_value' => $activeDie->max));
+        }
     }
 
     // Get all player games (either active or inactive) from the database
