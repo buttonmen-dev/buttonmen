@@ -222,6 +222,39 @@ class BMInterface {
         }
     }
 
+    public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
+        $game = $this->load_game($gameId, $logEntryLimit);
+        if ($game) {
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+
+            foreach ($game->playerIdArray as $gamePlayerId) {
+                $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
+            }
+
+            // load_game will decide if the logEntryLimit should be overridden
+            // (e.g. if chat is private or for completed games)
+            $logEntryLimit = $game->logEntryLimit;
+
+            $data = array(
+                'currentPlayerIdx' => $currentPlayerIdx,
+                'gameData' => $game->getJsonData($playerId),
+                'playerNameArray' => $playerNameArray,
+                'timestamp' => $this->timestamp,
+                'gameActionLog' => $this->load_game_action_log($game, $logEntryLimit),
+                'gameChatLog' => $this->load_game_chat_log($game, $logEntryLimit),
+            );
+            $data['gameChatEditable'] = $this->find_editable_chat_timestamp(
+                $game,
+                $currentPlayerIdx,
+                $playerNameArray,
+                $data['gameChatLog'],
+                $data['gameActionLog']
+            );
+            return $data;
+        }
+        return NULL;
+    }
+
     public function load_game($gameId, $logEntryLimit = NULL) {
         try {
             // check that the gameId exists
@@ -363,13 +396,7 @@ class BMInterface {
 
                 if (isset($die->swingType)) {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
-
-                    if (isset($row['swing_value'])) {
-                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
-                        if (!$swingSetSuccess) {
-                            throw new LogicException('Swing value set failed.');
-                        }
-                    }
+                    $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
                 }
 
                 switch ($row['status']) {
@@ -636,7 +663,6 @@ class BMInterface {
                  '     game_id, '.
                  '     status_id, '.
                  '     recipe, '.
-                 '     swing_value, '.
                  '     position, '.
                  '     value) '.
                  'VALUES '.
@@ -645,7 +671,6 @@ class BMInterface {
                  '     :game_id, '.
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
-                 '     :swing_value, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
@@ -654,7 +679,6 @@ class BMInterface {
                                   ':game_id' => $game->gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
-                                  ':swing_value' => $activeDie->swingValue,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
     }
@@ -1073,15 +1097,27 @@ class BMInterface {
         }
     }
 
+    protected function sanitize_chat($message) {
+        // if the string is too long, truncate it
+        if (strlen($message) > 1020) {
+            $message = substr($message, 0, 1020);
+        }
+        return $message;
+    }
+
     protected function log_game_chat(BMGame $game) {
+        $this->db_insert_chat(
+            $game->chat['playerIdx'],
+            $game->gameId,
+            $game->chat['chat']
+        );
+    }
+
+    // Insert a new chat message into the database
+    protected function db_insert_chat($playerId, $gameId, $chat) {
 
         // We're going to display this in user browsers, so first clean up all HTML tags
-        $mysqlchat = $game->chat['chat'];
-
-        // Now, if the string is too long, truncate it
-        if (strlen($mysqlchat) > 1020) {
-            $mysqlchat = substr($mysqlchat, 0, 1020);
-        }
+        $mysqlchat = $this->sanitize_chat($chat);
 
         $query = 'INSERT INTO game_chat_log ' .
                  '(game_id, chatting_player, message) ' .
@@ -1089,10 +1125,41 @@ class BMInterface {
                  '(:game_id, :chatting_player, :message)';
         $statement = self::$conn->prepare($query);
         $statement->execute(
-            array(':game_id'         => $game->gameId,
-                  ':chatting_player' => $game->chat['playerIdx'],
+            array(':game_id'         => $gameId,
+                  ':chatting_player' => $playerId,
                   ':message'         => $mysqlchat)
         );
+    }
+
+    // Modify an existing chat message in the database
+    protected function db_update_chat($playerId, $gameId, $editTimestamp, $chat) {
+        $mysqlchat = $this->sanitize_chat($chat);
+        $query = 'UPDATE game_chat_log ' .
+                 'SET message = :message, chat_time = now() ' .
+                 'WHERE game_id = :game_id ' .
+                 'AND chatting_player = :player_id ' .
+                 'AND UNIX_TIMESTAMP(chat_time) = :timestamp ' .
+                 'ORDER BY id DESC ' .
+                 'LIMIT 1';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':message' => $mysqlchat,
+                                  ':game_id' => $gameId,
+                                  ':player_id' => $playerId,
+                                  ':timestamp' => $editTimestamp));
+    }
+
+    // Delete an existing chat message in the database
+    protected function db_delete_chat($playerId, $gameId, $editTimestamp) {
+        $query = 'DELETE FROM game_chat_log ' .
+                 'WHERE game_id = :game_id ' .
+                 'AND chatting_player = :player_id ' .
+                 'AND UNIX_TIMESTAMP(chat_time) = :timestamp ' .
+                 'ORDER BY id DESC ' .
+                 'LIMIT 1';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $gameId,
+                                  ':player_id' => $playerId,
+                                  ':timestamp' => $editTimestamp));
     }
 
     public function load_game_chat_log(BMGame $game, $logEntryLimit) {
@@ -1123,6 +1190,158 @@ class BMInterface {
             );
             $this->message = 'Internal error while reading chat entries';
             return NULL;
+        }
+    }
+
+    // Can the active player edit the most recent chat entry in this game?
+    protected function find_editable_chat_timestamp(
+        $game,
+        $currentPlayerIdx,
+        $playerNameArray,
+        $chatLogEntries,
+        $actionLogEntries
+    ) {
+
+        // Completed games can't be modified
+        if ($game->gameState >= BMGameState::END_GAME) {
+            return FALSE;
+        }
+ 
+        // If there are no chat entries, none can be modified
+        if (count($chatLogEntries) == 0) {
+            return FALSE;
+        }
+ 
+        // Only the most recent chat entry can be modified --- was
+        // it made by the active player?
+        if ((FALSE === $currentPlayerIdx) ||
+            ($playerNameArray[$currentPlayerIdx] != $chatLogEntries[0]['player'])) {
+            return FALSE;
+        }
+ 
+        // save_game() saves action log entries before chat log
+        // entries.  So, if there are action log entries, and the
+        // chat log entry predates the most recent action log entry,
+        // it is not current
+        if ((count($actionLogEntries) > 0) &&
+            ($chatLogEntries[0]['timestamp'] < $actionLogEntries[0]['timestamp'])) {
+            return FALSE;
+        }
+
+        // The active player can edit the most recent chat entry:
+        // return its timestamp so it can be identified later
+        return $chatLogEntries[0]['timestamp'];
+    }
+
+    // Can the active player insert a new chat entry (without an attack) right now?
+    protected function chat_is_insertable(
+        $game,
+        $currentPlayerIdx,
+        $playerNameArray,
+        $chatLogEntries,
+        $actionLogEntries
+    ) {
+
+        // Completed games can't be modified
+        if ($game->gameState >= BMGameState::END_GAME) {
+            return FALSE;
+        }
+ 
+        // If the player is not in the game, they can't insert chat
+        if (FALSE === $currentPlayerIdx) {
+            return FALSE;
+        }
+
+        // If the game is awaiting action from a player, that player
+        // can't chat without taking an action
+        if (TRUE === $game->waitingOnActionArray[$currentPlayerIdx]) {
+            return FALSE;
+        }
+
+        // If the most recent chat entry was made by the active
+        // player, and is current, that player can't insert a new one
+        if ((count($chatLogEntries) > 0) &&
+            ($playerNameArray[$currentPlayerIdx] == $chatLogEntries[0]['player']) &&
+            (count($actionLogEntries) > 0) &&
+            ($chatLogEntries[0]['timestamp'] >= $actionLogEntries[0]['timestamp'])) {
+            return FALSE;
+        }
+ 
+        // The active player can insert a new chat entry
+        return TRUE;
+    }
+
+    public function submit_chat(
+        $playerId,
+        $gameId,
+        $editTimestamp,
+        $chat
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+
+            foreach ($game->playerIdArray as $gamePlayerId) {
+                $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
+            }
+            $lastChatEntryList = $this->load_game_chat_log($game, 1);
+            $lastActionEntryList = $this->load_game_action_log($game, 1);
+
+            if ($editTimestamp) {
+                // player is trying to edit a given chat entry -
+                // do this if it's valid
+                $gameChatEditable = $this->find_editable_chat_timestamp(
+                    $game,
+                    $currentPlayerIdx,
+                    $playerNameArray,
+                    $lastChatEntryList,
+                    $lastActionEntryList
+                );
+                if ($editTimestamp == $gameChatEditable) {
+                    if (strlen($chat) > 0) {
+                        $this->db_update_chat($playerId, $gameId, $editTimestamp, $chat);
+                        $this->message = 'Updated previous game message';
+                        return TRUE;
+                    } else {
+                        $this->db_delete_chat($playerId, $gameId, $editTimestamp);
+                        $this->message = 'Deleted previous game message';
+                        return TRUE;
+                    }
+                } else {
+                    $this->message = 'You can\'t edit the requested chat message now';
+                    return FALSE;
+                }
+            } else {
+                // player is trying to insert a new chat entry -
+                // do this if it's valid
+                $gameChatInsertable = $this->chat_is_insertable(
+                    $game,
+                    $currentPlayerIdx,
+                    $playerNameArray,
+                    $lastChatEntryList,
+                    $lastActionEntryList
+                );
+                if ($gameChatInsertable) {
+                    if (strlen($chat) > 0) {
+                        $this->db_insert_chat($playerId, $gameId, $chat);
+                        $this->message = 'Added game message';
+                        return TRUE;
+                    } else {
+                        $this->message = 'No game message specified';
+                        return FALSE;
+                    }
+                } else {
+                    $this->message = 'You can\'t add a new chat message now';
+                    return FALSE;
+                }
+            }
+
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_chat: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while updating game chat';
         }
     }
 

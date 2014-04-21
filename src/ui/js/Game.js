@@ -767,12 +767,28 @@ Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('Opponent\'s turn to attack');
   Game.pageAddDieBattleTable(false);
-  Game.page.append($('<p>', {'text':
-    'It is your opponent\'s turn to attack right now.' }));
+  Game.page.append($('<br>'));
+
+  if (Api.game.chatEditable) {
+    Game.activity.chat = Api.game.chatLog[0].message;
+  }
+  var chatdiv = $('<div>');
+  chatdiv.append(Game.chatBox());
+  var chatform = $('<form>', {
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
+  chatform.append($('<button>', {
+    'id': 'game_action_button',
+    'text': 'Change game message',
+  }));
+  chatdiv.append(chatform);
+  Game.page.append(chatdiv);
 
   Game.pageAddFooter();
 
-  Game.form = null;
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnInactive;
 
   // Now layout the page
   Game.layoutPage();
@@ -1136,6 +1152,30 @@ Game.formPlayTurnActive = function() {
   );
 };
 
+// Form submission action for updating chat when it's not your turn
+Game.formPlayTurnInactive = function() {
+
+  // Store the game chat in recent activity
+  Game.activity.chat = $('#game_chat').val();
+
+  var formargs = {
+    type: 'submitChat',
+    game: Game.game,
+    chat: Game.activity.chat,
+  };
+  if (Api.game.chatEditable) {
+    formargs.edit = Api.game.chatEditable;
+  }
+
+  Api.apiFormPost(
+    formargs,
+    { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
+    'game_action_button',
+    Game.redrawGamePageSuccess,
+    Game.redrawGamePageFailure
+  );
+};
+
 Game.readCurrentGameActivity = function() {
   // Initialize the array of die select statuses to all false, then
   // turn on the dice which have been selected
@@ -1154,8 +1194,12 @@ Game.readCurrentGameActivity = function() {
   // Get the specified attack type
   Game.activity.attackType = $('#attack_type_select').val();
 
-  // Store the game chat in recent activity
-  Game.activity.chat = $('#game_chat').val();
+  // Store the game chat in recent activity (minus trailing whitespace)
+  var chat = $('#game_chat').val();
+  if (chat !== undefined && chat !== null) {
+    chat = chat.replace(/\s+$/, '');
+  }
+  Game.activity.chat = chat;
 };
 
 Game.showFullLogHistory = function() {
@@ -1265,9 +1309,12 @@ Game.pageAddLogFooter = function() {
             'nowrap': 'nowrap',
             'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
+        // We add the log message as 'text' to ensure that jquery knows it's
+        // not already encoded as HTML. This way, jquery will encode it for us,
+        // automatically converting things like < to things like &lt;
         actionrow.append(
           $('<td>', {
-            'class': 'left',
+            'class': 'left logmessage',
             'text': logentry.message,
           }));
         actiontable.append(actionrow);
@@ -1295,8 +1342,11 @@ Game.pageAddLogFooter = function() {
           'text': logentry.player + ' (' +
             Env.formatTimestamp(logentry.timestamp) + ')',
         }));
+        // We add the log message as 'text' to ensure that jquery knows it's
+        // not already encoded as HTML. This way, jquery will encode it for us,
+        // automatically converting things like < to things like &lt;
         chatrow.append($('<td>', {
-          'class': 'left',
+          'class': 'left logmessage',
           'text': logentry.message,
         }));
         chattable.append(chatrow);
@@ -1304,6 +1354,26 @@ Game.pageAddLogFooter = function() {
       chattd.append(chattable);
       logrow.append(chattd);
     }
+
+    // Replace text-y whitespace with HTML whitespace to preserve things
+    // like newlines and indentation in chat.
+    logrow.find('.logmessage').each(function() {
+      // We originally added the log messages to the page as text; by reading
+      // them back as HTML now, we're getting the version of them that's
+      // already been safely HTML-encoded.
+      var messagehtml = $(this).html();
+
+      // HTML-ify initial spaces, to preserve indentation
+      messagehtml = messagehtml.replace(/^ /, '&nbsp;');
+      // Likewise for spaces at the start of each line
+      messagehtml = messagehtml.replace(/\n /, '\n&nbsp;');
+      // Preserve strings of multiple spaces
+      messagehtml = messagehtml.replace(/  /g, '&nbsp;&nbsp;');
+      // HTML-ify line breaks to preserve newlines
+      messagehtml = messagehtml.replace(/\n/g, '<br />');
+
+      $(this).html(messagehtml);
+    });
 
     logtable.append(logrow);
 
