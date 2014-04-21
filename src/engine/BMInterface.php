@@ -1220,9 +1220,11 @@ class BMInterface {
         }
  
         // save_game() saves action log entries before chat log
-        // entries.  So if the chat log entry predates the most
-        // recent action log entry, it is not current
-        if ($chatLogEntries[0]['timestamp'] < $actionLogEntries[0]['timestamp']) {
+        // entries.  So, if there are action log entries, and the
+        // chat log entry predates the most recent action log entry,
+        // it is not current
+        if ((count($actionLogEntries) > 0) &&
+            ($chatLogEntries[0]['timestamp'] < $actionLogEntries[0]['timestamp'])) {
             return FALSE;
         }
 
