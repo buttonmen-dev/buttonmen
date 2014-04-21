@@ -377,7 +377,7 @@ class BMInterface {
                     foreach ($die->dice as $subdie) {
                         if ($subdie instanceof BMDieSwing) {
                             $swingType = $subdie->swingType;
-                            $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+                            $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
 
                             if (isset($row['actual_max'])) {
                                 $subdie->max = (int)($row['actual_max']/2);
