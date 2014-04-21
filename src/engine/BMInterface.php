@@ -693,9 +693,7 @@ class BMInterface {
         $chosenMax = NULL;
         $actualMax = NULL;
 
-        if (isset($activeDie->swingType)) {
-            $chosenMax = $activeDie->swingValue;
-        } elseif ($activeDie instanceof BMDieOption) {
+        if ($activeDie instanceof BMDieOption) {
             $chosenMax = $activeDie->max;
         }
 
