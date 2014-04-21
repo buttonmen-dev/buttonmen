@@ -16,6 +16,8 @@ abstract class BMAttack {
 
     public $type;
 
+    public $validationMessage = '';
+
     // Dice that effect or affect this attack
     protected $validDice = array();
 
@@ -147,6 +149,7 @@ abstract class BMAttack {
     public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
             if ($attacker->dizzy) {
+                $this->validationMessage = 'Dizzy dice cannot be used as attacking dice.';
                 return TRUE;
             }
         }
