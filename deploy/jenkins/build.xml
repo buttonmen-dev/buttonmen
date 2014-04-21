@@ -21,19 +21,19 @@
   <mkdir dir="${basedir}/build/pdepend"/>
  </target>
 
- <target name="newline-audit" description="Audit line termination of all files in the tree to match ButtonMen standard">
+ <target name="newline-audit" description="Audit line termination of all files in the tree to match Button Men standard">
   <exec executable="python" failonerror="true">
    <arg line="./deploy/jenkins/audit_newlines.py" />
   </exec>
  </target>
 
- <target name="php-audit" description="Audit layout of .php files in the tree to match ButtonMen standard">
+ <target name="php-audit" description="Audit layout of .php files in the tree to match Button Men standard">
   <exec executable="php" failonerror="true">
    <arg line="./deploy/pagodabox/audit_php_files.php ." />
   </exec>
  </target>
 
- <target name="js-audit" description="Audit test coverage of .js files in the tree to match ButtonMen standard">
+ <target name="js-audit" description="Audit test coverage of .js files in the tree to match Button Men standard">
   <exec executable="python" failonerror="true">
    <arg line="./deploy/jenkins/audit_js_unit_test_coverage.py" />
   </exec>
