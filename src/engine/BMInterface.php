@@ -396,13 +396,7 @@ class BMInterface {
 
                 if (isset($die->swingType)) {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
-
-                    if (isset($row['swing_value'])) {
-                        $swingSetSuccess = $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
-                        if (!$swingSetSuccess) {
-                            throw new LogicException('Swing value set failed.');
-                        }
-                    }
+                    $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
                 }
 
                 switch ($row['status']) {
@@ -669,7 +663,6 @@ class BMInterface {
                  '     game_id, '.
                  '     status_id, '.
                  '     recipe, '.
-                 '     swing_value, '.
                  '     position, '.
                  '     value) '.
                  'VALUES '.
@@ -678,7 +671,6 @@ class BMInterface {
                  '     :game_id, '.
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
-                 '     :swing_value, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
@@ -687,7 +679,6 @@ class BMInterface {
                                   ':game_id' => $game->gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
-                                  ':swing_value' => $activeDie->swingValue,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
     }
