@@ -143,6 +143,15 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'submitChat' => array(
+            'mandatory' => array(
+                'game' => 'number',
+                'chat' => 'string',
+            ),
+            'permitted' => array(
+                'edit' => 'number',
+            ),
+        ),
         'submitTurn' => array(
             'mandatory' => array(
                 'game' => 'number',
