@@ -117,47 +117,56 @@ class BMGameAction {
                 $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
             }
 
+            $messageDefender = '';
             // Report what happened to each defending die
             foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
                 $postInfo = $postAttackDice['defender'][$idx];
-                $postEvents = array();
+                $postEventsDefender = array();
 
                 if ($defenderRerollsEarly) {
                     if ($defenderInfo['doesReroll']) {
-                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
+                        $postEventsDefender[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
                     } else {
-                        $postEvents[] = 'does not reroll';
+                        $postEventsDefender[] = 'does not reroll';
                     }
                 }
 
-                if ($postInfo['captured']) {
-                    $postEvents[] = 'was captured';
-                } else {
-                    $postEvents[] = 'was not captured';
-                }
                 if ($defenderInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
+                    $postEventsDefender[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
                 }
-                $message .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEvents);
+                if ($postInfo['captured']) {
+                    $postEventsDefender[] = 'was captured';
+                } else {
+                    $postEventsDefender[] = 'was not captured';
+                }
+                $messageDefender .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
             }
 
+            $messageAttacker = '';
             // Report what happened to each attacking die
             foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
                 $postInfo = $postAttackDice['attacker'][$idx];
-                $postEvents = array();
-                if ($attackerInfo['doesReroll']) {
-                    $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
-                } else {
-                    $postEvents[] = 'does not reroll';
-                }
+                $postEventsAttacker = array();
                 if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
+                    $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
                 }
-                if (count($postEvents) > 0) {
-                    $message .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEvents);
+                if ($attackerInfo['doesReroll']) {
+                    $postEventsAttacker[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
+                } else {
+                    $postEventsAttacker[] = 'does not reroll';
+                }
+                if (count($postEventsAttacker) > 0) {
+                    $messageAttacker .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
                 }
             }
         }
+
+        if ($defenderRerollsEarly) {
+            $message .= $messageAttacker.$messageDefender;
+        } else {
+            $message .= $messageDefender.$messageAttacker;
+        }
+
         return $message;
     }
 
