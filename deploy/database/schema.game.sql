@@ -47,7 +47,8 @@ CREATE TABLE game_swing_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
     swing_type         CHAR NOT NULL,
-    swing_value        TINYINT UNSIGNED
+    swing_value        TINYINT UNSIGNED,
+    is_expired         BOOLEAN DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS game_option_map;
@@ -55,7 +56,8 @@ CREATE TABLE game_option_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
     die_id             INT UNSIGNED NOT NULL,
-    option_value       TINYINT UNSIGNED
+    option_value       TINYINT UNSIGNED,
+    is_expired         BOOLEAN DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS game_action_log;
