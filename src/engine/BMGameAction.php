@@ -145,6 +145,9 @@ class BMGameAction {
             foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
                 $postInfo = $postAttackDice['attacker'][$idx];
                 $postEvents = array();
+                if ($attackerInfo['max'] != $postInfo['max']) {
+                    $postEvents[] = 'changed size from ' . $attackerInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+                }
                 if ($attackerInfo['doesReroll']) {
                     $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
                 } else {
@@ -174,6 +177,23 @@ class BMGameAction {
                 $swingStrs[] = $swingType . '=' . $swingValue;
             }
             $message .= ': ' . implode(", ", $swingStrs);
+        }
+        return $message;
+    }
+
+    protected function friendly_message_choose_option() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set option values';
+
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in option selection
+        // state, report the values which were chosen as well
+        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
+            ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
+            $optionStrs = array();
+            foreach ($this->params['optionValues'] as $optionValue) {
+                $optionStrs[] = $optionValue;
+            }
+            $message .= ': ' . implode(", ", $optionStrs);
         }
         return $message;
     }

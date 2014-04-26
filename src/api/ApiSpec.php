@@ -143,6 +143,20 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'submitOptionValues' => array(
+            'mandatory' => array(
+                'game' => 'number',
+                'roundNumber' => 'number',
+                'optionValueArray' => array(
+                    'has_keys' => TRUE,
+                    'minlength' => 1,
+                    'key_type' => 'number',
+                    'elem_type' => 'number',
+                ),
+                'timestamp' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'submitChat' => array(
             'mandatory' => array(
                 'game' => 'number',

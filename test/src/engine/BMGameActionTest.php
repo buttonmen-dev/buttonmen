@@ -109,6 +109,30 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             "gameaction01 performed Power attack using [(4):3] against [(10):1]; Defender (10) was captured; Attacker (4) rerolled 3 => 2"
         );
 
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(X)?', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(X)?:3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):1'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(X)?', 'min' => 1, 'max' => 7, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(X)?:7'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(10):1'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction01 performed Power attack using [(X)?:3] against [(10):1]; Defender (10) was captured; Attacker (X)? changed size from 4 to 7 sides, rerolled 3 => 2"
+        );
+
         $this->object = new BMGameAction(40, 'attack', 2, array(
             'attackType' => 'Surrender',
             'preAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
@@ -156,6 +180,21 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 1, 24),
             "gameaction01 set swing values"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_choose_option()
+     */
+    public function test_friendly_message_choose_option() {
+        $this->object = new BMGameAction(24, 'choose_option', 1, array('roundNumber' => 1, 'optionValues' => array(1 => 3, 4 => 7)));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 2, 24),
+            "gameaction01 set option values: 3, 7"
+        );
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 1, 24),
+            "gameaction01 set option values"
         );
     }
 
