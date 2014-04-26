@@ -1402,10 +1402,20 @@ class BMInterface {
             }
 
             // try to set swing values
-            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-            sort($swingRequested);
-            $swingSubmitted = array_keys($swingValueArray);
-            sort($swingSubmitted);
+            $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
+            if (is_array($swingRequestArray)) {
+                $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+                sort($swingRequested);
+            } else {
+                $swingRequested = array();
+            }
+
+            if (is_array($swingValueArray)) {
+                $swingSubmitted = array_keys($swingValueArray);
+                sort($swingSubmitted);
+            } else {
+                $swingSubmitted = array();
+            }
 
             if ($swingRequested != $swingSubmitted) {
                 $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
@@ -1415,8 +1425,10 @@ class BMInterface {
             $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
 
             // try to set option values
-            foreach ($optionValueArray as $dieIdx => $optionValue) {
-                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+            if (is_array($optionValueArray)) {
+                foreach ($optionValueArray as $dieIdx => $optionValue) {
+                    $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+                }
             }
 
             $game->proceed_to_next_user_action();
@@ -1485,10 +1497,20 @@ class BMInterface {
             }
 
             // try to set swing values
-            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-            sort($swingRequested);
-            $swingSubmitted = array_keys($swingValueArray);
-            sort($swingSubmitted);
+            $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
+            if (is_array($swingRequestArray)) {
+                $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+                sort($swingRequested);
+            } else {
+                $swingRequested = array();
+            }
+
+            if (is_array($swingValueArray)) {
+                $swingSubmitted = array_keys($swingValueArray);
+                sort($swingSubmitted);
+            } else {
+                $swingSubmitted = array();
+            }
 
             if ($swingRequested != $swingSubmitted) {
                 $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
