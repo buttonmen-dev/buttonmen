@@ -1437,20 +1437,18 @@ class BMInterface {
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
+                $optionLogArray = array();
+                foreach ($optionValueArray as $dieIdx => $optionValue) {
+                    $dieRecipe = $game->activeDieArrayArray[$currentPlayerIdx][$dieIdx]->recipe;
+                    $optionLogArray[$dieRecipe] = $optionValue;
+                }
                 $game->log_action(
-                    'choose_swing',
+                    'choose_die_values',
                     $game->playerIdArray[$currentPlayerIdx],
                     array(
                         'roundNumber' => $game->roundNumber,
                         'swingValues' => $swingValueArray,
-                    )
-                );
-                $game->log_action(
-                    'choose_option',
-                    $game->playerIdArray[$currentPlayerIdx],
-                    array(
-                        'roundNumber' => $game->roundNumber,
-                        'optionValues' => $optionValueArray,
+                        'optionValues' => $optionLogArray,
                     )
                 );
                 $this->save_game($game);

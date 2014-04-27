@@ -138,7 +138,7 @@ asyncTest("test_Api.getActiveGamesData", function() {
 
 asyncTest("test_Api.parseActiveGamesData", function() {
   Api.getActiveGamesData(function() {
-    equal(Api.active_games.games.awaitingPlayer.length, 7,
+    equal(Api.active_games.games.awaitingPlayer.length, 8,
           "expected number of games parsed as waiting for the active player");
     start();
   });
@@ -230,6 +230,20 @@ asyncTest("test_Api.parseGamePlayerData", function() {
       Api.game.player.swingRequestArray['X'],
       {'min': 4, 'max': 20},
       "swing request array should contain X entry with correct min/max");
+    delete Game.game;
+    start();
+  });
+});
+
+asyncTest("test_Api.parseGamePlayerData_option", function() {
+  Game.game = '19';
+  Api.getGameData(Game.game, 10, function() {
+    deepEqual(Api.game.player.swingRequestArray, {});
+    deepEqual(Api.game.player.optRequestArray, {
+      2: [2, 12],
+      3: [8, 16],
+      4: [20, 24],
+    });
     delete Game.game;
     start();
   });

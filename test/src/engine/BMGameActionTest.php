@@ -145,6 +145,33 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_choose_die_values()
+     */
+    public function test_friendly_message_choose_die_values() {
+        $this->object = new BMGameAction(
+            24, 'choose_die_values', 1,
+            array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13), 'optionValues' => array()));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 2, 24),
+            "gameaction01 set swing values: X=5, Y=13"
+        );
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 1, 24),
+            "gameaction01 set die sizes"
+        );
+
+        $this->object = new BMGameAction(24, 'choose_die_values', 1, array('roundNumber' => 1, 'swingValues' => array(), 'optionValues' => array('(3/6)' => 3, 'z(4/7)' => 7)));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 2, 24),
+            "gameaction01 set option dice: (3/6=3), z(4/7=7)"
+        );
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 1, 24),
+            "gameaction01 set die sizes"
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_choose_swing()
      */
     public function test_friendly_message_choose_swing() {
@@ -156,21 +183,6 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 1, 24),
             "gameaction01 set swing values"
-        );
-    }
-
-    /**
-     * @covers BMGameAction::friendly_message_choose_option()
-     */
-    public function test_friendly_message_choose_option() {
-        $this->object = new BMGameAction(24, 'choose_option', 1, array('roundNumber' => 1, 'optionValues' => array(1 => 3, 4 => 7)));
-        $this->assertEquals(
-            $this->object->friendly_message($this->playerIdNames, 2, 24),
-            "gameaction01 set option values: 3, 7"
-        );
-        $this->assertEquals(
-            $this->object->friendly_message($this->playerIdNames, 1, 24),
-            "gameaction01 set option values"
         );
     }
 
