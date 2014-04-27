@@ -1941,8 +1941,14 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->optValueArrayArray[0][3] = 16;
         $game->optValueArrayArray[0][4] = 20;
 
+        $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
+                            $game->optValueArrayArray);
+
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
+                            $game->optValueArrayArray);
 
         $this->assertTrue(isset($game->activeDieArrayArray[0][2]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[0][3]->max));
@@ -1987,18 +1993,27 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
 
-        $game->activeDieArrayArray[1][2]->set_optionValue(8);
-        $game->activeDieArrayArray[1][3]->set_optionValue(6);
-        $game->activeDieArrayArray[1][4]->set_optionValue(12);
+        $game->optValueArrayArray[1][2] = 8;
+        $game->optValueArrayArray[1][3] = 6;
+        $game->optValueArrayArray[1][4] = 12;
+
+        $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
+                                  array(2 =>  8, 3 =>  6, 4 => 12)),
+                            $game->optValueArrayArray);
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
+                                  array(2 =>  8, 3 =>  6, 4 => 12)),
+                            $game->optValueArrayArray);
+
         $this->assertTrue(isset($game->activeDieArrayArray[1][2]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[1][3]->max));
         $this->assertTrue(isset($game->activeDieArrayArray[1][4]->max));
         $this->assertEquals(8, $game->activeDieArrayArray[1][2]->max);
         $this->assertEquals(6, $game->activeDieArrayArray[1][3]->max);
         $this->assertEquals(12, $game->activeDieArrayArray[1][4]->max);
-
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
 
         $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[0][2]);
         $this->assertInstanceOf('BMDieOption', $game->activeDieArrayArray[0][3]);
