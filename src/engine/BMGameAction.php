@@ -178,6 +178,23 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_choose_option() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set option values';
+
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in option selection
+        // state, report the values which were chosen as well
+        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
+            ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
+            $optionStrs = array();
+            foreach ($this->params['optionValues'] as $optionValue) {
+                $optionStrs[] = $optionValue;
+            }
+            $message .= ': ' . implode(", ", $optionStrs);
+        }
+        return $message;
+    }
+
     protected function friendly_message_reroll_chance() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' rerolled a chance die';
         if ($this->params['gainedInitiative']) {

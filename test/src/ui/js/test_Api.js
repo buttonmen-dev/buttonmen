@@ -131,7 +131,7 @@ asyncTest("test_Api.getActiveGamesData", function() {
   Api.getActiveGamesData(function() {
     equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    equal(Api.active_games.nGames, 12, 'Got expected number of active games');
+    equal(Api.active_games.nGames, 13, 'Got expected number of active games');
     start();
   });
 });

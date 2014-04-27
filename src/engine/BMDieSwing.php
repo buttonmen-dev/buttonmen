@@ -84,29 +84,22 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function make_play_die() {
-        // Get swing value from the game before cloning, so it's saved
-        // from round to round.
-        if ($this->needsSwingValue) {
-            $this->ownerObject->require_values();
-        }
-
-        return parent::make_play_die();
-    }
-
     public function roll($successfulAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
-                $this->ownerObject->request_swing_values($this, $this->swingType);
+                $this->ownerObject->request_swing_values(
+                    $this,
+                    $this->swingType,
+                    $this->playerIdx
+                );
                 $this->valueRequested = TRUE;
             }
-            $this->ownerObject->require_values();
+        } else {
+            parent::roll($successfulAttack);
         }
-
-        parent::roll($successfulAttack);
     }
 
-// Print long description
+    // Print long description
     public function describe($isValueRequired = FALSE) {
         if (!is_bool($isValueRequired)) {
             throw new InvalidArgumentException('isValueRequired must be boolean');

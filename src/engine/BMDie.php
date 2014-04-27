@@ -81,14 +81,14 @@ class BMDie extends BMCanHaveSkill {
 
         try {
             // Option dice divide on a /, can contain any die type
-            if (count($opt_array = explode('/', $recipe)) > 1) {
-//                $die = BMDieOption::create($opt_array, $skills);
-                    throw new Exception("Option skill not implemented");
-            } elseif (count($twin_array = explode(',', $recipe)) > 1) {
+            if (count($optionArray = explode('/', $recipe)) > 1) {
+                $die = BMDieOption::create($optionArray, $skills);
+            } elseif (count($twinArray = explode(',', $recipe)) > 1) {
                 // Twin dice divide on a comma, can contain any type but option
-                $die = BMDieTwin::create($twin_array, $skills);
+                $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
-                $die = BMDieWildcard::create($recipe, $skills);
+//                $die = BMDieWildcard::create($recipe, $skills);
+                throw new Exception("Option skill not implemented");
             } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
                 // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);
@@ -473,7 +473,7 @@ class BMDie extends BMCanHaveSkill {
 
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
-
+            $recipe .= "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}";
         } elseif ($this instanceof BMDieTwin) {
             // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {
