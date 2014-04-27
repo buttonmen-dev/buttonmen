@@ -59,7 +59,7 @@ class DummyApiResponder {
                      'Follow the link in that message to start beating people up!');
     }
 
-    protected function get_interface_response_verifyUser($args) {
+    protected function get_interface_response_verifyUser() {
         return array(TRUE, "New user tester1 has been verified.");
     }
 
@@ -68,7 +68,7 @@ class DummyApiResponder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = 19;
+        $gameId = 20;
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -278,7 +278,23 @@ class DummyApiResponder {
         $data['statusArray'][] = "ACTIVE";
         $data['inactivityArray'][] = "21 hours";
 
-        // tester1 is not a participant in fake game 18
+        // game 18
+        $data['gameIdArray'][] = 18;
+        $data['opponentIdArray'][] = 2;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Apples";
+        $data['opponentButtonNameArray'][] = "Apples";
+        $data['nWinsArray'][] = 1;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
+        $data['gameStateArray'][] = "SPECIFY_DICE";
+        $data['statusArray'][] = "ACTIVE";
+
+        // tester1 is not a participant in game 19
+
+        // tester1 is not a participant in fake game 20
 
         return array($data, "All game details retrieved successfully.");
     }
@@ -441,6 +457,7 @@ class DummyApiResponder {
             "capturedSidesArrayArray" => array(array(), array()),
             "capturedRecipeArrayArray" => array(array(), array()),
             "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
+            "optRequestArrayArray" => array(array(), array()),
             "validAttackTypeArray" => array(),
             "roundScoreArray" => array(NULL, NULL),
             "sideScoreArray" => array(NULL, NULL),
@@ -607,6 +624,41 @@ class DummyApiResponder {
                 )
             );
         $gameDataCammyNeko['roundScoreArray'] = array(NULL, NULL);
+
+        // base params for an Apples vs Apples game, here to
+        // avoid the duplicated code warning
+        $gameDataApples = $gameData;
+        $gameDataApples['gameState'] = "SPECIFY_DICE";
+        $gameDataApples['playerWithInitiativeIdx'] = NULL;
+        $gameDataApples['buttonNameArray'] = array("Apples", "Apples");
+        $gameDataApples['buttonRecipeArray'] = array("(8) (8) (2/12) (8/16) (20/24)", "(8) (8) (2/12) (8/16) (20/24)");
+        $gameDataApples['waitingOnActionArray'] = array(TRUE, TRUE);
+        $gameDataApples['valueArrayArray'] = array(array(4, 3, NULL, NULL, NULL), array(2, 4, NULL, NULL, NULL));
+        $gameDataApples['sidesArrayArray'] = array(array(6, 6, NULL, NULL, NULL), array(6, 6, NULL, NULL, NULL));
+        $gameDataApples['dieRecipeArrayArray'] =
+            array(
+                array("(8)","(8)","(2/12)","(8/16)","(20/24)"),
+                array("(8)","(8)","(2/12)","(8/16)","(20/24)")
+            );
+        $gameDataApples['dieDescriptionArrayArray'] =
+            array(
+                array(
+                    '8-sided die',
+                    '8-sided die',
+                    'Option die (with 2 or 12 sides)',
+                    'Option die (with 8 or 16 sides)',
+                    'Option die (with 20 or 24 sides)'
+                ),
+                array(
+                    '8-sided die',
+                    '8-sided die',
+                    'Option die (with 2 or 12 sides)',
+                    'Option die (with 8 or 16 sides)',
+                    'Option die (with 20 or 24 sides)'
+                )
+            );
+        $gameDataApples['optRequestArrayArray'] = NULL;
+        $gameDataApples['roundScoreArray'] = array(NULL, NULL);
 
         if ($args['game'] == '1') {
             $gameData['gameId'] = 1;
@@ -1031,6 +1083,18 @@ class DummyApiResponder {
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
+        } elseif ($args['game'] == '19') {
+            $gameDataApples['gameId'] = 19;
+            $data = array(
+                'gameData' => array(
+                    "status" => "ok",
+                    "data" => $gameDataApples,
+                ),
+                'currentPlayerIdx' => 0,
+                'playerNameArray' => array('tester2', 'tester3'),
+                'gameActionLog' => array(),
+                'gameChatLog' => array(),
+            );
         }
 
         if ($data) {
@@ -1043,6 +1107,9 @@ class DummyApiResponder {
 
             if (!(array_key_exists('playerNameArray', $data))) {
                 $data['playerNameArray'] = array('tester1', 'tester2');
+            }
+            if (!(array_key_exists('gameChatEditable', $data))) {
+                $data['gameChatEditable'] = FALSE;
             }
             $timestamp = strtotime('now');
             $data['timestamp'] = $timestamp;
@@ -1104,6 +1171,10 @@ class DummyApiResponder {
         return array(TRUE, 'Successfully set swing values');
     }
 
+    protected function get_interface_response_submitOptionValues() {
+        return array(TRUE, 'Successfully set option values');
+    }
+
     protected function get_interface_response_reactToInitiative() {
         return array(array('gainedInitiative' => TRUE),
                      'Successfully gained initiative');
@@ -1115,6 +1186,22 @@ class DummyApiResponder {
 
     protected function get_interface_response_reactToReserve() {
         return array(TRUE, 'Reserve die chosen successfully');
+    }
+
+    protected function get_interface_response_submitChat($args) {
+        if (array_key_exists('edit', $args)) {
+            if ($args['chat']) {
+                return array(TRUE, 'Updated previous game message');
+            } else {
+                return array(TRUE, 'Deleted previous game message');
+            }
+        } else {
+            if ($args['chat']) {
+                return array(TRUE, 'Added game message');
+            } else {
+                return array(FALSE, 'No game message specified');
+            }
+        }
     }
 
     protected function get_interface_response_submitTurn() {
