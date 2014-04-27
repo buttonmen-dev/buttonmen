@@ -356,9 +356,11 @@ class BMInterface {
             $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
-                     'WHERE game_id = :game_id ';
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
             $statement2 = self::$conn->prepare($query);
-            $statement2->execute(array(':game_id' => $gameId));
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => FALSE));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
                 $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
@@ -368,9 +370,11 @@ class BMInterface {
             $game->optValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_option_map '.
-                     'WHERE game_id = :game_id ';
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
             $statement2 = self::$conn->prepare($query);
-            $statement2->execute(array(':game_id' => $gameId));
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => FALSE));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
                 $game->optValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
@@ -585,27 +589,27 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-            // store swing values
-            if (isset($game->swingValueArrayArray)) {
+            // store swing values from previous round
+            if (isset($game->prevSwingValueArrArr)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
+                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrArr)) {
                         continue;
                     }
-                    $swingValueArray = $game->swingValueArrayArray[$playerIdx];
-                    if (isset($swingValueArray)) {
+                    $swingValueArray = $game->prevSwingValueArrArr[$playerIdx];
+                    if (!empty($swingValueArray)) {
                         foreach ($swingValueArray as $swingType => $swingValue) {
                             $query = 'INSERT INTO game_swing_map '.
-                                     '(game_id, player_id, swing_type, swing_value) '.
+                                     '(game_id, player_id, swing_type, swing_value, is_expired) '.
                                      'VALUES '.
-                                     '(:game_id, :player_id, :swing_type, :swing_value)';
+                                     '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
                             $statement = self::$conn->prepare($query);
                             $statement->execute(array(':game_id'     => $game->gameId,
                                                       ':player_id'   => $playerId,
                                                       ':swing_type'  => $swingType,
-                                                      ':swing_value' => $swingValue));
+                                                      ':swing_value' => $swingValue,
+                                                      ':is_expired'  => TRUE));
                         }
                     }
-
                 }
             }
 
@@ -616,20 +620,44 @@ class BMInterface {
                         continue;
                     }
                     $swingValueArray = $game->swingValueArrayArray[$playerIdx];
-                    if (isset($swingValueArray)) {
+                    if (!empty($swingValueArray)) {
                         foreach ($swingValueArray as $swingType => $swingValue) {
                             $query = 'INSERT INTO game_swing_map '.
-                                     '(game_id, player_id, swing_type, swing_value) '.
+                                     '(game_id, player_id, swing_type, swing_value, is_expired) '.
                                      'VALUES '.
-                                     '(:game_id, :player_id, :swing_type, :swing_value)';
+                                     '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
                             $statement = self::$conn->prepare($query);
                             $statement->execute(array(':game_id'     => $game->gameId,
                                                       ':player_id'   => $playerId,
                                                       ':swing_type'  => $swingType,
-                                                      ':swing_value' => $swingValue));
+                                                      ':swing_value' => $swingValue,
+                                                      ':is_expired'  => FALSE));
                         }
                     }
+                }
+            }
 
+            // store option values from previous round
+            if (isset($game->prevOptValueArrArr)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->prevOptValueArrArr)) {
+                        continue;
+                    }
+                    $optValueArray = $game->prevOptValueArrArr[$playerIdx];
+                    if (isset($optValueArray)) {
+                        foreach ($optValueArray as $dieIdx => $optionValue) {
+                            $query = 'INSERT INTO game_option_map '.
+                                     '(game_id, player_id, die_idx, option_value, is_expired) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'   => $game->gameId,
+                                                      ':player_id' => $playerId,
+                                                      ':die_idx'   => $dieIdx,
+                                                      ':option_value' => $optionValue,
+                                                      ':is_expired' => TRUE));
+                        }
+                    }
                 }
             }
 
@@ -643,14 +671,15 @@ class BMInterface {
                     if (isset($optValueArray)) {
                         foreach ($optValueArray as $dieIdx => $optionValue) {
                             $query = 'INSERT INTO game_option_map '.
-                                     '(game_id, player_id, die_idx, option_value) '.
+                                     '(game_id, player_id, die_idx, option_value, is_expired) '.
                                      'VALUES '.
-                                     '(:game_id, :player_id, :die_idx, :option_value)';
+                                     '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
                             $statement = self::$conn->prepare($query);
                             $statement->execute(array(':game_id'   => $game->gameId,
                                                       ':player_id' => $playerId,
                                                       ':die_idx'   => $dieIdx,
-                                                      ':option_value' => $optionValue));
+                                                      ':option_value' => $optionValue,
+                                                      ':is_expired' => FALSE));
                         }
                     }
                 }

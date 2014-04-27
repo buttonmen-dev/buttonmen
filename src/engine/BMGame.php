@@ -40,9 +40,9 @@
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
- * @property      array $prevSwingValuesArrArr   Swing values for previous round for all players
+ * @property      array $prevSwingValueArrArr    Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
- * @property      array $prevOptRequestArrArr    Option values for previous round for all players
+ * @property      array $prevOptValueArrArr      Option values for previous round for all players
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
