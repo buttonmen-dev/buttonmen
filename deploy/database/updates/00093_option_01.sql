@@ -1,3 +1,3 @@
-# change swing_value column name in die to max
+# add chosen_max column to die table
 
-ALTER TABLE die CHANGE swing_value chosen_max TINYINT UNSIGNED;
+ALTER TABLE die ADD chosen_max TINYINT UNSIGNED;
