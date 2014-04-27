@@ -700,6 +700,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->activeDieArrayArray[1][4]->swingValue));
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
+        $this->assertEquals(array(array('X' => NULL), array('V' => 11)),
+                            $game->swingValueArrayArray);
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
                             $game->prevSwingValueArrArr);
     }
@@ -2062,6 +2064,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $activeDieArrayArray[1][0]->value = 1;
         $game->activeDieArrayArray = $activeDieArrayArray;
         $game->waitingOnActionArray = array(TRUE, FALSE);
+        $game->activePlayerIdx = 0;
+        $this->assertCount(1, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
+        $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
 
         // perform attack
         $this->assertNULL($game->attack);
@@ -2074,6 +2081,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->object->save_game($game);
         $game = $this->object->load_game($game->gameId);
 
+        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 1, 'D' => 0)),
+                            $game->gameScoreArrayArray);
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array()),
                             $game->optValueArrayArray);
