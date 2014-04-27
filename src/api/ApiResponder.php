@@ -182,7 +182,7 @@ class ApiResponder {
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
-	    $swingValueArray,
+            $swingValueArray,
             $optionValueArray
         );
     }
