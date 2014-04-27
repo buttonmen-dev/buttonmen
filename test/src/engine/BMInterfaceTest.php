@@ -699,6 +699,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(isset($game->swingValueArrayArray[1]['V']));
         $this->assertTrue(isset($game->activeDieArrayArray[1][4]->swingValue));
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+
+        $this->assertEquals(array(array('X' => 7), array('V' => 11)),
+                            $game->prevSwingValueArrArr);
     }
 
     /**
@@ -2051,6 +2054,32 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+
+        // now set the game as if it were almost at the end of the first round
+        $activeDieArrayArray = array(array($game->activeDieArrayArray[0][0]),
+                                     array($game->activeDieArrayArray[1][0]));
+        $activeDieArrayArray[0][0]->value = 1;
+        $activeDieArrayArray[1][0]->value = 1;
+        $game->activeDieArrayArray = $activeDieArrayArray;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+
+        // perform attack
+        $this->assertNULL($game->attack);
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
+                                  array()),
+                            $game->optValueArrayArray);
+        $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
+                                  array(2 =>  8, 3 =>  6, 4 => 12)),
+                            $game->prevOptValueArrArr);
     }
 
     /**

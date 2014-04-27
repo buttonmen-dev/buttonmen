@@ -352,6 +352,20 @@ class BMInterface {
             $game->waitingOnActionArray = $waitingOnActionArray;
             $game->autopassArray = $autopassArray;
 
+            // add swing values from last round
+            $game->prevSwingValueArrArr = array_fill(0, $game->nPlayers, array());
+            $query = 'SELECT * '.
+                     'FROM game_swing_map '.
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => 1));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->prevSwingValueArrArr[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            }
+
             // add swing values
             $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
@@ -360,10 +374,24 @@ class BMInterface {
                      'AND is_expired = :is_expired';
             $statement2 = self::$conn->prepare($query);
             $statement2->execute(array(':game_id' => $gameId,
-                                       ':is_expired' => FALSE));
+                                       ':is_expired' => 0));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
                 $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            }
+
+            // add option values from last round
+            $game->prevOptValueArrArr = array_fill(0, $game->nPlayers, array());
+            $query = 'SELECT * '.
+                     'FROM game_option_map '.
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => 1));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->prevOptValueArrArr[$playerIdx][$row['die_idx']] = $row['option_value'];
             }
 
             // add option values
@@ -374,7 +402,7 @@ class BMInterface {
                      'AND is_expired = :is_expired';
             $statement2 = self::$conn->prepare($query);
             $statement2->execute(array(':game_id' => $gameId,
-                                       ':is_expired' => FALSE));
+                                       ':is_expired' => 0));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
                 $game->optValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
