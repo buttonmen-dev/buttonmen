@@ -1158,18 +1158,8 @@ class DummyApiResponder {
         return array($data, "Names retrieved successfully.");
     }
 
-    protected function get_interface_response_submitSwingValues($args) {
-        $valid_swing = array('R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-        foreach (array_keys($args['swingValueArray']) as $letter) {
-            if (!(in_array($letter, $valid_swing, TRUE))) {
-                return array(NULL, "Unknown swing letter $letter");
-            }
-        }
-        return array(TRUE, 'Successfully set swing values');
-    }
-
-    protected function get_interface_response_submitOptionValues() {
-        return array(TRUE, 'Successfully set option values');
+    protected function get_interface_response_submitDieValues() {
+        return array(TRUE, 'Successfully set die sizes');
     }
 
     protected function get_interface_response_reactToInitiative() {

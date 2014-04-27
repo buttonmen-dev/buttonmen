@@ -829,6 +829,7 @@ Game.actionShowFinishedGame = function() {
 Game.formChooseSwingActive = function() {
   var textFieldsFilled = true;
   var swingValueArray = {};
+  var optionValueArray = {};
 
   // Iterate over expected swing values
   $.each(Api.game.player.swingRequestArray, function(letter) {
@@ -843,9 +844,10 @@ Game.formChooseSwingActive = function() {
   if (textFieldsFilled) {
     Api.apiFormPost(
       {
-        type: 'submitSwingValues',
+        type: 'submitDieValues',
         game: Game.game,
         swingValueArray: swingValueArray,
+        optionValueArray: optionValueArray,
         roundNumber: Api.game.roundNumber,
         timestamp: Api.game.timestamp,
       },
