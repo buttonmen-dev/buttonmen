@@ -364,10 +364,22 @@ class BMInterface {
                 $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
             }
 
+            // add option values
+            $game->optValueArrayArray = array_fill(0, $game->nPlayers, array());
+            $query = 'SELECT * '.
+                     'FROM game_option_map '.
+                     'WHERE game_id = :game_id ';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->optValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
+            }
+
             // add die attributes
             $query = 'SELECT d.*,'.
                      '       s.name AS status '.
-                     'FROM die_view AS d '.
+                     'FROM die AS d '.
                      'LEFT JOIN die_status AS s '.
                      'ON d.status_id = s.id '.
                      'WHERE game_id = :game_id '.
@@ -422,8 +434,8 @@ class BMInterface {
                 }
 
                 if ($die instanceof BMDieOption) {
-                    if (isset($row['option_value'])) {
-                        $die->max = $row['option_value'];
+                    if (isset($row['actual_max'])) {
+                        $die->max = $row['actual_max'];
                         $die->needsOptionValue = FALSE;
                     } else {
                         $die->needsOptionValue = TRUE;
@@ -573,8 +585,7 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
-            // set swing values
-
+            // store swing values
             if (isset($game->swingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
                     if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
@@ -595,6 +606,53 @@ class BMInterface {
                         }
                     }
 
+                }
+            }
+
+            // store swing values
+            if (isset($game->swingValueArrayArray)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
+                        continue;
+                    }
+                    $swingValueArray = $game->swingValueArrayArray[$playerIdx];
+                    if (isset($swingValueArray)) {
+                        foreach ($swingValueArray as $swingType => $swingValue) {
+                            $query = 'INSERT INTO game_swing_map '.
+                                     '(game_id, player_id, swing_type, swing_value) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :swing_type, :swing_value)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'     => $game->gameId,
+                                                      ':player_id'   => $playerId,
+                                                      ':swing_type'  => $swingType,
+                                                      ':swing_value' => $swingValue));
+                        }
+                    }
+
+                }
+            }
+
+            // store option values
+            if (isset($game->optValueArrayArray)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->optValueArrayArray)) {
+                        continue;
+                    }
+                    $optValueArray = $game->optValueArrayArray[$playerIdx];
+                    if (isset($optValueArray)) {
+                        foreach ($optValueArray as $dieIdx => $optionValue) {
+                            $query = 'INSERT INTO game_option_map '.
+                                     '(game_id, player_id, die_idx, option_value) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :die_idx, :option_value)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'   => $game->gameId,
+                                                      ':player_id' => $playerId,
+                                                      ':die_idx'   => $dieIdx,
+                                                      ':option_value' => $optionValue));
+                        }
+                    }
                 }
             }
 
@@ -734,7 +792,8 @@ class BMInterface {
 
         $actualMax = NULL;
 
-        if ($activeDie->has_skill('Mood')) {
+        if ($activeDie->has_skill('Mood') ||
+            ($activeDie instanceof BMDieOption)) {
             $actualMax = $activeDie->max;
         }
 
@@ -746,24 +805,6 @@ class BMInterface {
                                   ':actual_max' => $actualMax,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
-
-        // store option values
-        if ($activeDie instanceof BMDieOption) {
-            $dieId = self::$conn->lastInsertId();
-
-            $query = 'INSERT INTO game_option_map '.
-                     '(game_id, player_id, die_id, option_value) '.
-                     'VALUES '.
-                     '(:game_id, '.
-                     ' :player_id, '.
-                     ' :die_id, '.
-                     ' :option_value)';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id'      => $gameId,
-                                      ':player_id'    => $playerId,
-                                      ':die_id'       => $dieId,
-                                      ':option_value' => $activeDie->max));
-        }
     }
 
     // Get all player games (either active or inactive) from the database

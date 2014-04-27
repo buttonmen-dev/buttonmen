@@ -28,10 +28,3 @@ LEFT JOIN buttonset AS s
 ON ps.set_id = s.id
 WHERE g.status_id = (SELECT id FROM game_status WHERE name = "OPEN");
 
-DROP VIEW IF EXISTS die_view;
-CREATE VIEW die_view
-AS SELECT d.*,
-          o.option_value
-FROM die as d
-LEFT JOIN game_option_map AS o
-ON d.id = o.die_id;

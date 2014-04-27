@@ -55,7 +55,7 @@ DROP TABLE IF EXISTS game_option_map;
 CREATE TABLE game_option_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
-    die_id             INT UNSIGNED NOT NULL,
+    die_idx            INT UNSIGNED NOT NULL,
     option_value       TINYINT UNSIGNED,
     is_expired         BOOLEAN DEFAULT FALSE
 );
