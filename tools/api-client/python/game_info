@@ -1,0 +1,57 @@
+#!/usr/bin/python
+##### game_info
+# Example script which prints player and opponent information about
+# an existing game
+
+import sys
+sys.path.append('lib')
+
+import bmutils
+import optparse
+import time
+
+# implicitly parses sys.argv
+def parse_args():
+  parser = optparse.OptionParser()
+  parser.add_option(
+    "-c", "--config",
+    help="config file containing site parameters",
+    type=str, default=".bmrc"
+  )
+  parser.add_option(
+    "-s", "--site",
+    help="buttonmen site to access",
+    type=str, default="www"
+  )
+  return parser.parse_args()
+
+def print_table(tabledata):
+  colmax = []
+  for i in range(len(tabledata[0])):
+    colmax.append(max([len(row[i]) for row in tabledata]))
+  for row in tabledata:
+    rowstr = ''
+    for i in range(len(row)):
+      rowstr += row[i]
+      for j in range(len(row[i]), colmax[i] + 1):
+        rowstr += ' '
+    rowstr.strip()
+    print rowstr
+
+########################################################################
+[opts, args] = parse_args()
+b = bmutils.BMClientParser(opts.config, opts.site)
+if not b.verify_login():
+  print "Could not login"
+  sys.exit(1)
+
+gamedata = b.get_game_state(args[0])
+tabledata = []
+for player in [ 'player', 'opponent', ]:
+  tabledata.append(
+    [ gamedata[player]['playerName'] + ':',
+      gamedata[player]['buttonName'] + ':',
+      gamedata[player]['buttonRecipe'],
+    ]
+  )
+print_table(tabledata)
