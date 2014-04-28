@@ -2116,6 +2116,18 @@ class BMGame {
             $optRequestArrayArray = $this->optRequestArrayArray;
         }
 
+        if (empty($this->prevSwingValueArrArr)) {
+            $prevSwingValueArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $prevSwingValueArrayArray = $this->prevSwingValueArrArr;
+        }
+
+        if (empty($this->prevOptValueArrArr)) {
+            $prevOptValueArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $prevOptValueArrayArray = $this->prevOptValueArrArr;
+        }
+
         if (isset($this->capturedDieArrayArray)) {
             $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
@@ -2186,6 +2198,8 @@ class BMGame {
                   'capturedRecipeArrayArray' => $captRecipeArrayArray,
                   'swingRequestArrayArray'   => $swingReqArrayArray,
                   'optRequestArrayArray'     => $optRequestArrayArray,
+                  'prevSwingValueArrArr'     => $prevSwingValueArrayArray,
+                  'prevOptValueArrArr'       => $prevOptValueArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
                   'sideScoreArray'           => $this->get_sideScoreArray(),
