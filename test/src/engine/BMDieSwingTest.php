@@ -543,6 +543,16 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
             'Poison Shadow X Swing Die (with 5 sides)',
             $this->object->describe(FALSE)
         );
+
+        $this->object->add_skill('Mood');
+        $this->assertEquals(
+            "Poison Shadow X Mood Swing Die (with 5 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow X Mood Swing Die (with 5 sides)',
+            $this->object->describe(FALSE)
+        );
     }
 
     /*

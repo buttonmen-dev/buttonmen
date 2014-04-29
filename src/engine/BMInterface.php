@@ -397,6 +397,28 @@ class BMInterface {
                 if (isset($die->swingType)) {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
                     $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+
+                    if (isset($row['actual_max'])) {
+                        $die->max = $row['actual_max'];
+                    }
+                }
+
+                if ($die instanceof BMDieTwin &&
+                    (($die->dice[0] instanceof BMDieSwing) ||
+                     ($die->dice[1] instanceof BMDieSwing))) {
+
+                    foreach ($die->dice as $subdie) {
+                        if ($subdie instanceof BMDieSwing) {
+                            $swingType = $subdie->swingType;
+                            $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+
+                            if (isset($row['actual_max'])) {
+                                $subdie->max = (int)($row['actual_max']/2);
+                            }
+                        }
+                    }
+
+                    $game->request_swing_values($die, $swingType, $originalPlayerIdx);
                 }
 
                 if ($die instanceof BMDieOption) {
@@ -686,6 +708,7 @@ class BMInterface {
                  '     status_id, '.
                  '     recipe, '.
                  '     chosen_max, '.
+                 '     actual_max, '.
                  '     position, '.
                  '     value) '.
                  'VALUES '.
@@ -695,14 +718,20 @@ class BMInterface {
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
                  '     :chosen_max, '.
+                 '     :actual_max, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
 
-        if (isset($activeDie->swingType) || ($activeDie instanceof BMDieOption)) {
+        $chosenMax = NULL;
+        $actualMax = NULL;
+
+        if ($activeDie instanceof BMDieOption) {
             $chosenMax = $activeDie->max;
-        } else {
-            $chosenMax = NULL;
+        }
+
+        if ($activeDie->has_skill('Mood')) {
+            $actualMax = $activeDie->max;
         }
 
         $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
@@ -711,6 +740,7 @@ class BMInterface {
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
                                   ':chosen_max' => $chosenMax,
+                                  ':actual_max' => $actualMax,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
     }

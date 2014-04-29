@@ -72,6 +72,7 @@ class BMSkill {
                      'Doppleganger' => 'D',
                      'Focus'        => 'f',
                      'Konstant'     => 'k',
+                     'Mood'         => '?',
                      'Morphing'     => 'm',
                      'Null'         => 'n',
                      'Poison'       => 'p',
@@ -138,6 +139,7 @@ class BMSkill {
                      'BMSkillShadow',
                      'BMSkillTrip',
                      'BMSkillStealth',
+                     'BMSkillMood',
                      'BMSkillDoppleganger',
                      'BMSkillValue',
                      'BMSkillPoison',
@@ -145,5 +147,13 @@ class BMSkill {
                      'BMSkillKonstant',
                      'BMSkillMorphing');
         // fires last
+    }
+
+    public static function do_print_skill_preceding($skill) {
+        if ('BMSkillMood' == $skill) {
+            return FALSE;
+        }
+
+        return TRUE;
     }
 }

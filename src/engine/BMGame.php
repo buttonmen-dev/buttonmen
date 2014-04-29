@@ -1037,7 +1037,7 @@ class BMGame {
         }
 
         $preRerollData = $die->get_action_log_data();
-        $die->roll();
+        $die->roll(FALSE);
 
         if (isset($args['TESTrerolledDieValue'])) {
             $die->value = $args['TESTrerolledDieValue'];
@@ -2188,3 +2188,4 @@ class BMGame {
         return TRUE;
     }
 }
+
