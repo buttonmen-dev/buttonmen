@@ -473,6 +473,7 @@ class BMGame {
         }
 
         foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
+//            var_dump($optionRequestArray);
             foreach (array_keys($optionRequestArray) as $dieIdx) {
                 if (isset($this->optValueArrayArray[$playerIdx]) &&
                     (count($this->optValueArrayArray[$playerIdx]) > 0)) {
@@ -863,6 +864,7 @@ class BMGame {
 
             $this->prevSwingValueArrArr = $this->swingValueArrayArray;
             $this->prevOptValueArrArr = $this->optValueArrayArray;
+            $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
