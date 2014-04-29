@@ -167,21 +167,23 @@ class ApiResponder {
         return $interface->get_player_names_like('');
     }
 
-    protected function get_interface_response_submitSwingValues($interface, $args) {
-        return $interface->submit_swing_values(
+    protected function get_interface_response_submitDieValues($interface, $args) {
+        if (array_key_exists('swingValueArray', $args)) {
+            $swingValueArray = $args['swingValueArray'];
+        } else {
+            $swingValueArray = array();
+        }
+        if (array_key_exists('optionValueArray', $args)) {
+            $optionValueArray = $args['optionValueArray'];
+        } else {
+            $optionValueArray = array();
+        }
+        return $interface->submit_die_values(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
-            $args['swingValueArray']
-        );
-    }
-
-    protected function get_interface_response_submitOptionValues($interface, $args) {
-        return $interface->submit_option_values(
-            $_SESSION['user_id'],
-            $args['game'],
-            $args['roundNumber'],
-            $args['optionValueArray']
+            $swingValueArray,
+            $optionValueArray
         );
     }
 

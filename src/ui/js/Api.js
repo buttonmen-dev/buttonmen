@@ -411,6 +411,8 @@ var Api = (function () {
         my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
 
       'swingRequestArray': {},
+      'optRequestArray':
+        my.game.gameData.data.optRequestArrayArray[playerIdx],
     };
 
     $.each(
