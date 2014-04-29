@@ -565,11 +565,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->markTestIncomplete("No test for submitChat yet");
     }
 
-    public function test_request_submitSwingValues() {
-        $this->verify_login_required('submitSwingValues');
+    public function test_request_submitDieValues() {
+        $this->verify_login_required('submitDieValues');
 
         $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('submitSwingValues');
+        $this->verify_invalid_arg_rejected('submitDieValues');
 
         // create a game so we have the ID to load
         $args = array(
@@ -592,7 +592,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now submit the swing values
         $args = array(
-            'type' => 'submitSwingValues',
+            'type' => 'submitDieValues',
             'roundNumber' => '1',
             'timestamp' => $timestamp,
             'swingValueArray' => array('X' => '7'));
@@ -602,14 +602,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummyval = $this->dummy->process_request($args);
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
         $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
-    }
 
-    public function test_request_submitOptionValues() {
-        $this->verify_login_required('submitOptionValues');
-
-        $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('submitOptionValues');
-
+        ///// Now test setting option values
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
@@ -630,7 +624,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now submit the option values
         $args = array(
-            'type' => 'submitOptionValues',
+            'type' => 'submitDieValues',
             'roundNumber' => '1',
             'timestamp' => $timestamp,
             'optionValueArray' => array(2 => 12, 3 => 8, 4 => 20));
@@ -644,6 +638,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
         $this->assertEquals($dummyval, $retval, "option value submission responses should be identical");
+
     }
 
     public function test_request_reactToAuxiliary() {

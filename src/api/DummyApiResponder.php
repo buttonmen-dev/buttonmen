@@ -278,23 +278,22 @@ class DummyApiResponder {
         $data['statusArray'][] = "ACTIVE";
         $data['inactivityArray'][] = "21 hours";
 
-        // game 18
-        $data['gameIdArray'][] = 18;
+        // tester1 is not a participant in fake game 18
+
+        // game 19
+        $data['gameIdArray'][] = 19;
         $data['opponentIdArray'][] = 2;
         $data['opponentNameArray'][] = "tester2";
         $data['myButtonNameArray'][] = "Apples";
         $data['opponentButtonNameArray'][] = "Apples";
-        $data['nWinsArray'][] = 1;
+        $data['nWinsArray'][] = 0;
         $data['nLossesArray'][] = 0;
         $data['nDrawsArray'][] = 0;
         $data['nTargetWinsArray'][] = 3;
-        $data['isAwaitingActionArray'][] = 0;
+        $data['isAwaitingActionArray'][] = 1;
         $data['gameStateArray'][] = "SPECIFY_DICE";
         $data['statusArray'][] = "ACTIVE";
-
-        // tester1 is not a participant in game 19
-
-        // tester1 is not a participant in fake game 20
+        $data['inactivityArray'][] = "10 minutes";
 
         return array($data, "All game details retrieved successfully.");
     }
@@ -397,6 +396,16 @@ class DummyApiResponder {
         $data['recipeArray'][] = "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
 
+        // Apples: a button with option dice
+        $data['buttonNameArray'][] = "Apples";
+        $data['recipeArray'][] = "(8) (8) (2/12) (8/16) (20/24)";
+        $data['hasUnimplementedSkillArray'][] = FALSE;
+
+        // CactusJack: a button with swing and option dice (and shadow and speed skills)
+        $data['buttonNameArray'][] = "CactusJack";
+        $data['recipeArray'][] = "z(8/12) (4/16) s(6/10) z(X) s(U)";
+        $data['hasUnimplementedSkillArray'][] = FALSE;
+
         return array($data, "All button names retrieved successfully.");
     }
 
@@ -410,6 +419,18 @@ class DummyApiResponder {
         //   4: game in which it is the opponent's turn to attack
         //   5: game which has been completed
         //   7: game in which focus dice can be used to respond to initiative
+        //   8: game in which chance dice can be used to respond to initiative
+        //   9: game in which opponent can use chance dice to respond to initiative
+        //  10: game in "specify dice" state in which active player is not a participant
+        //  11: game in "start turn" state in which active player is not a participant
+        //  12: game in "react to initiative" state in which active player is not a participant
+        //  13: game in which active player can decide whether to choose auxiliary die
+        //  14: game in which it is the opponents turn to choose auxiliary die
+        //  15: game in "choose auxiliary" state in which active player is not a participant
+        //  16: game in which active player can decide whether to add reserve die
+        //  17: game in which opponent can decide whether to add reserve die
+        //  18: game in "choose reserve" state in which active player is not a participant
+        //  19: game in which active player can choose option die values
 
         $data = NULL;
 
@@ -659,7 +680,20 @@ class DummyApiResponder {
                     'Option die (with 20 or 24 sides)'
                 )
             );
-        $gameDataApples['optRequestArrayArray'] = NULL;
+        $gameDataApples['swingRequestArrayArray'] = array(array(), array());
+        $gameDataApples['optRequestArrayArray'] =
+            array(
+                array(
+                    2 => array(2, 12),
+                    3 => array(8, 16),
+                    4 => array(20, 24),
+                ),
+                array(
+                    2 => array(2, 12),
+                    3 => array(8, 16),
+                    4 => array(20, 24),
+                ),
+            );
         $gameDataApples['roundScoreArray'] = array(NULL, NULL);
 
         if ($args['game'] == '1') {
@@ -1057,7 +1091,7 @@ class DummyApiResponder {
                 'gameChatLog' => array(),
             );
         } elseif ($args['game'] == '17') {
-            $gameDataCammyNeko['gameId'] = 17;  // FIXME
+            $gameDataCammyNeko['gameId'] = 17;
             $gameDataCammyNeko['waitingOnActionArray'] = array(FALSE, TRUE);
             $gameDataCammyNeko['gameScoreArrayArray'] =
                 array(
@@ -1093,7 +1127,6 @@ class DummyApiResponder {
                     "data" => $gameDataApples,
                 ),
                 'currentPlayerIdx' => 0,
-                'playerNameArray' => array('tester2', 'tester3'),
                 'gameActionLog' => array(),
                 'gameChatLog' => array(),
             );
@@ -1163,18 +1196,8 @@ class DummyApiResponder {
         return array($data, "Names retrieved successfully.");
     }
 
-    protected function get_interface_response_submitSwingValues($args) {
-        $valid_swing = array('R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
-        foreach (array_keys($args['swingValueArray']) as $letter) {
-            if (!(in_array($letter, $valid_swing, TRUE))) {
-                return array(NULL, "Unknown swing letter $letter");
-            }
-        }
-        return array(TRUE, 'Successfully set swing values');
-    }
-
-    protected function get_interface_response_submitOptionValues() {
-        return array(TRUE, 'Successfully set option values');
+    protected function get_interface_response_submitDieValues() {
+        return array(TRUE, 'Successfully set die sizes');
     }
 
     protected function get_interface_response_reactToInitiative() {

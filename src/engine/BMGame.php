@@ -2219,3 +2219,4 @@ class BMGame {
         return TRUE;
     }
 }
+
