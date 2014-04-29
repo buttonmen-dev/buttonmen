@@ -2,7 +2,7 @@
 
 class BMDieSwing extends BMDie {
     public $swingType;
-    public $swingValue;
+    public $swingValue;  // this is ALWAYS the value chosen by the player
     public $swingMax;
     public $swingMin;
     protected $needsSwingValue = TRUE;
@@ -84,7 +84,7 @@ class BMDieSwing extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($successfulAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
                 $this->ownerObject->request_swing_values(
@@ -95,7 +95,7 @@ class BMDieSwing extends BMDie {
                 $this->valueRequested = TRUE;
             }
         } else {
-            parent::roll($successfulAttack);
+            parent::roll($isTriggeredByAttack);
         }
     }
 
@@ -108,8 +108,15 @@ class BMDieSwing extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                $skillStr .= "$skill ";
+                if ('Mood' != $skill) {
+                    $skillStr .= "$skill ";
+                }
             }
+        }
+
+        $moodStr = '';
+        if ($this->has_skill('Mood')) {
+            $moodStr = ' Mood';
         }
 
         $sideStr = '';
@@ -122,7 +129,7 @@ class BMDieSwing extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}{$this->swingType} Swing Die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$this->swingType}{$moodStr} Swing Die{$sideStr}{$valueStr}";
 
         return $result;
     }

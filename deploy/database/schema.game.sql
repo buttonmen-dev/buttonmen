@@ -79,6 +79,7 @@ CREATE TABLE die (
     status_id          TINYINT UNSIGNED NOT NULL,
     recipe             VARCHAR(20) NOT NULL,
     chosen_max         TINYINT UNSIGNED,
+    actual_max         TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
     value              SMALLINT
 );
