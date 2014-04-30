@@ -16,7 +16,7 @@
 class BMInterfaceNewuser {
     // properties
     private $message;               // message intended for GUI
-    private $timestamp;             // timestamp of last game action
+//    private $timestamp;             // timestamp of last game action
     private static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing

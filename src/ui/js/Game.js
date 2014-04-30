@@ -122,12 +122,12 @@ Game.showStatePage = function() {
     if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
-          Game.actionChooseSwingActive();
+          Game.actionSpecifyDiceActive();
         } else {
-          Game.actionChooseSwingInactive();
+          Game.actionSpecifyDiceInactive();
         }
       } else {
-        Game.actionChooseSwingNonplayer();
+        Game.actionSpecifyDiceNonplayer();
       }
     } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_AUXILIARY_DICE) {
       if (Api.game.isParticipant) {
@@ -271,19 +271,21 @@ Game.parseAuxiliaryDieOptions = function() {
 // Routines for each type of game action that could be taken
 
 // It is time to choose swing dice, and the current player has dice to choose
-Game.actionChooseSwingActive = function() {
+Game.actionSpecifyDiceActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader('Your turn to choose swing dice');
+  Game.pageAddGameHeader('Your turn to choose die sizes');
 
   // Get a table containing the existing die recipes
   var dietable = Game.dieRecipeTable(false);
 
-  // Create a form for submitting swing values
-  var swingform = $('<form>', {
+  // Create a form for submitting die values
+  var diespecifyform = $('<form>', {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var swingtable = $('<table>', { 'id': 'swing_table', });
+  var diespecifytable = $('<table>', { 'id': 'die_specify_table', });
+
+  // Add swing dice to table
   $.each(
     Api.game.player.swingRequestArray,
     function(letter, range) {
@@ -299,11 +301,35 @@ Game.actionChooseSwingActive = function() {
         'maxlength': '2',
       }));
       swingrow.append(swinginput);
-      swingtable.append(swingrow);
+      diespecifytable.append(swingrow);
     });
-  swingform.append(swingtable);
-  swingform.append($('<br>'));
-  swingform.append($('<button>', {
+
+  // Add option dice to table
+  $.each(
+    Api.game.player.optRequestArray,
+    function(position, vals) {
+      var optrow = $('<tr>', {});
+      var opttext = Api.game.player.dieRecipeArray[position] + ':';
+      optrow.append($('<td>', { 'text': opttext, }));
+      var optinput = $('<td>', {});
+      var optselect = $('<select>', {
+        'id': 'option_' + position,
+        'name': 'option_' + position,
+      });
+      $.each(vals, function(idx) {
+        optselect.append($('<option>', {
+          'value': vals[idx],
+          'label': vals[idx],
+          'text': vals[idx],
+        }));
+      });
+      optinput.append(optselect);
+      optrow.append(optinput);
+      diespecifytable.append(optrow);
+    });
+  diespecifyform.append(diespecifytable);
+  diespecifyform.append($('<br>'));
+  diespecifyform.append($('<button>', {
     'id': 'game_action_button',
     'text': 'Submit',
   }));
@@ -319,10 +345,13 @@ Game.actionChooseSwingActive = function() {
       opponentswing.append(swingrow);
     });
 
+  // Don't bother making a table for opponent's option dice, because
+  // those possible values are shown in the recipe already
+
   // Add the swing die form to the left column of the die table
   var formtd = $('<td>', { 'class': 'chooseswing', });
   formtd.append($('<br>'));
-  formtd.append(swingform);
+  formtd.append(diespecifyform);
   var opponenttd = $('<td>', { 'class': 'chooseswing', });
   opponenttd.append($('<br>'));
   opponenttd.append(opponentswing);
@@ -337,15 +366,15 @@ Game.actionChooseSwingActive = function() {
   Game.pageAddFooter();
 
   // Function to invoke on button click
-  Game.form = Game.formChooseSwingActive;
+  Game.form = Game.formSpecifyDiceActive;
 
   // Now layout the page
   Game.layoutPage();
 };
 
-Game.actionChooseSwingInactive = function() {
+Game.actionSpecifyDiceInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader('Opponent\'s turn to choose swing dice');
+  Game.pageAddGameHeader('Opponent\'s turn to choose die sizes');
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
@@ -365,7 +394,7 @@ Game.actionChooseSwingInactive = function() {
   Game.layoutPage();
 };
 
-Game.actionChooseSwingNonplayer = function() {
+Game.actionSpecifyDiceNonplayer = function() {
   Game.page = $('<div>');
 
   Game.pageAddGameHeader(
@@ -841,10 +870,11 @@ Game.actionShowFinishedGame = function() {
 ////////////////////////////////////////////////////////////////////////
 // Form submission functions
 
-// Form submission action for choosing swing dice
-Game.formChooseSwingActive = function() {
+// Form submission action for choosing swing and option dice
+Game.formSpecifyDiceActive = function() {
   var textFieldsFilled = true;
   var swingValueArray = {};
+  var optionValueArray = {};
 
   // Iterate over expected swing values
   $.each(Api.game.player.swingRequestArray, function(letter) {
@@ -856,12 +886,23 @@ Game.formChooseSwingActive = function() {
     }
   });
 
+  // Iterate over expected option values
+  $.each(Api.game.player.optRequestArray, function(position) {
+    var value = $('#option_' + position).val();
+    if ($.isNumeric(value)) {
+      optionValueArray[position] = value;
+    } else {
+      textFieldsFilled = false;
+    }
+  });
+
   if (textFieldsFilled) {
     Api.apiFormPost(
       {
-        type: 'submitSwingValues',
+        type: 'submitDieValues',
         game: Game.game,
         swingValueArray: swingValueArray,
+        optionValueArray: optionValueArray,
         roundNumber: Api.game.roundNumber,
         timestamp: Api.game.timestamp,
       },
@@ -1856,27 +1897,33 @@ Game.playerOpponentHeaderRow = function(label, field) {
 };
 
 // If the recipe doesn't contain (sides), assume there are swing
-// dice in the recipe, so we need to specify the current number
-// of sides
+// or option dice in the recipe, so we need to specify the current
+// number of sides
 Game.dieRecipeText = function(recipe, sides) {
   var dieRecipeText = recipe;
   if (sides) {
     var lparen = recipe.indexOf('(');
     var rparen = recipe.indexOf(')');
-    var recipeSideStrings = recipe.substring(lparen + 1, rparen).split(',');
-    var sidesum = 0;
-    var swingcount = 0;
-    for (var i = 0; i < recipeSideStrings.length; i++) {
-      var itemSides = parseInt(recipeSideStrings[i], 10);
-      if (itemSides > 0) {
-        sidesum += itemSides;
-      } else {
-        swingcount += 1;
+    var recipeSideString = recipe.substring(lparen + 1, rparen);
+    var recipeSideOptionStrings = recipeSideString.split('/');
+    if (recipeSideOptionStrings.length > 1) {
+      dieRecipeText = dieRecipeText.replace(')', '=' + sides + ')');
+    } else {
+      var recipeSideTwinStrings = recipeSideString.split(',');
+      var sidesum = 0;
+      var swingcount = 0;
+      for (var i = 0; i < recipeSideTwinStrings.length; i++) {
+        var itemSides = parseInt(recipeSideTwinStrings[i], 10);
+        if (itemSides > 0) {
+          sidesum += itemSides;
+        } else {
+          swingcount += 1;
+        }
       }
-    }
-    if (sidesum != sides) {
-      dieRecipeText = dieRecipeText.replace(
-                        ')', '=' + (sides/swingcount) + ')');
+      if (sidesum != sides) {
+        dieRecipeText = dieRecipeText.replace(
+                          ')', '=' + (sides/swingcount) + ')');
+      }
     }
   }
   return dieRecipeText;

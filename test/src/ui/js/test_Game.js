@@ -309,40 +309,63 @@ asyncTest("test_Game.parseAuxiliaryDieOptions", function() {
   });
 });
 
-asyncTest("test_Game.actionChooseSwingActive", function() {
+asyncTest("test_Game.actionSpecifyDiceActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingActive();
-    var item = document.getElementById('swing_table');
+    Game.actionSpecifyDiceActive();
+    var item = document.getElementById('die_specify_table');
     equal(item.nodeName, "TABLE",
-          "#swing_table is a table after actionChooseSwingActive() is called");
+          "#die_specify_table is a table after actionSpecifyDiceActive() is called");
     ok(item.innerHTML.match(/X: \(4-20\)/),
        "swing table should contain request to set X swing");
 
     var item = document.getElementById('opponent_swing');
     equal(item.nodeName, "TABLE",
-          "#opponent_swing is a table after actionChooseSwingActive() is called");
+          "#opponent_swing is a table after actionSpecifyDiceActive() is called");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseSwingInactive", function() {
+asyncTest("test_Game.actionSpecifyDiceActive_option", function() {
+  BMTestUtils.GameType = 'option_active';
+  Game.getCurrentGame(function() {
+    Game.actionSpecifyDiceActive();
+    var item = document.getElementById('die_specify_table');
+    equal(item.nodeName, "TABLE",
+          "#die_specify_table is a table after actionSpecifyDiceActive() is called");
+    var item = document.getElementById('option_3');
+    ok(item, "#option_3 select is set");
+//    $.each(item.childNodes, function(childid, child) {
+//      if (child.getAttribute('label') == '6') {
+//        deepEqual(child.getAttribute('selected'), 'selected',
+//         'Focus die is initially set to maximum value');
+//      }
+//    });
+
+    var item = document.getElementById('opponent_swing');
+    equal(item.nodeName, "TABLE",
+          "#opponent_swing is a table after actionSpecifyDiceActive() is called");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionSpecifyDiceInactive", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingInactive();
-    var item = document.getElementById('swing_table');
-    equal(item, null, "#swing_table is NULL");
+    Game.actionSpecifyDiceInactive();
+    var item = document.getElementById('die_specify_table');
+    equal(item, null, "#die_specify_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseSwingNonplayer", function() {
+asyncTest("test_Game.actionSpecifyDiceNonplayer", function() {
   BMTestUtils.GameType = 'newgame_nonplayer';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingNonplayer();
-    var item = document.getElementById('swing_table');
-    equal(item, null, "#swing_table is NULL");
+    Game.actionSpecifyDiceNonplayer();
+    var item = document.getElementById('die_specify_table');
+    equal(item, null, "#die_specify_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -561,10 +584,10 @@ asyncTest("test_Game.actionShowFinishedGame", function() {
 // just redraws the page), so turn off asynchronous handling in
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
-asyncTest("test_Game.formChooseSwingActive", function() {
+asyncTest("test_Game.formSpecifyDiceActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingActive();
+    Game.actionSpecifyDiceActive();
     $('#swing_X').val('7');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
