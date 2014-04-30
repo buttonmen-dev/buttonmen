@@ -47,7 +47,17 @@ CREATE TABLE game_swing_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
     swing_type         CHAR NOT NULL,
-    swing_value        TINYINT UNSIGNED
+    swing_value        TINYINT UNSIGNED,
+    is_expired         BOOLEAN DEFAULT FALSE
+);
+
+DROP TABLE IF EXISTS game_option_map;
+CREATE TABLE game_option_map (
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
+    player_id          SMALLINT UNSIGNED NOT NULL,
+    die_idx            INT UNSIGNED NOT NULL,
+    option_value       TINYINT UNSIGNED,
+    is_expired         BOOLEAN DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS game_action_log;
@@ -73,12 +83,12 @@ CREATE TABLE game_chat_log (
 DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    owner_id           TINYINT UNSIGNED NOT NULL,
-    original_owner_id  TINYINT UNSIGNED NOT NULL,
+    owner_id           SMALLINT UNSIGNED NOT NULL,
+    original_owner_id  SMALLINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     status_id          TINYINT UNSIGNED NOT NULL,
     recipe             VARCHAR(20) NOT NULL,
-    swing_value        TINYINT UNSIGNED,
+    actual_max         TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
     value              SMALLINT,
     flags              VARCHAR(253)

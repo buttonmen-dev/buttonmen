@@ -18,7 +18,6 @@ CREATE TABLE button (
     recipe      VARCHAR(100) NOT NULL,
     btn_special BOOLEAN NOT NULL,
     tourn_legal BOOLEAN NOT NULL,
-    image_path  VARCHAR(100),
     set_id      SMALLINT UNSIGNED,
     INDEX (name)
 );

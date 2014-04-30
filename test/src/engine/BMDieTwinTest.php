@@ -366,6 +366,14 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         );
         $this->assertEquals(
             'Poison Shadow Twin Y Swing Die (both with 7 sides)', $die3->describe(FALSE));
+
+        $die3->add_skill('Mood');
+        $this->assertEquals(
+            "Poison Shadow Twin Y Mood Swing Die (both with 7 sides) showing {$value}",
+            $die3->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Twin Y Mood Swing Die (both with 7 sides)', $die3->describe(FALSE));
     }
 
     /**
