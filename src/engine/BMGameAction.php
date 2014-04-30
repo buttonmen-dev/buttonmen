@@ -150,6 +150,9 @@ class BMGameAction {
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
+            if ($attackerInfo['max'] != $postInfo['max']) {
+                $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+            }
             if ($attackerInfo['recipe'] != $postInfo['recipe']) {
                 $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
             }
@@ -160,16 +163,6 @@ class BMGameAction {
             }
             if (count($postEventsAttacker) > 0) {
                 $messageAttacker .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
-//=======
-//
-//                if ($attackerInfo['max'] != $postInfo['max']) {
-//                    $postEvents[] = 'changed size from ' . $attackerInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
-//                }
-//
-//                if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-//                    $postEvents[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
-//                }
-//>>>>>>> upstream/master
             }
         }
 
