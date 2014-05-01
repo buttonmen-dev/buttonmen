@@ -151,7 +151,8 @@ class BMGameAction {
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
             if ($attackerInfo['max'] != $postInfo['max']) {
-                $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+                $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' .
+                                        $postInfo['max'] . ' sides';
             }
             if ($attackerInfo['recipe'] != $postInfo['recipe']) {
                 $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
