@@ -32,10 +32,10 @@ class BMSkillTrip extends BMSkill {
         assert(1 == count($args['defenders']));
 
         $attacker = &$args['attackers'][0];
-        $attacker->roll();
+        $attacker->roll(TRUE);
 
         $defender = &$args['defenders'][0];
-        $defender->roll();
+        $defender->roll(TRUE);
 
         $defender->captured = ($defender->value <= $attacker->value);
     }

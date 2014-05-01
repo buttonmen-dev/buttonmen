@@ -129,19 +129,26 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
-        'submitSwingValues' => array(
+        'submitDieValues' => array(
             'mandatory' => array(
                 'game' => 'number',
                 'roundNumber' => 'number',
+                'timestamp' => 'number',
+            ),
+            'permitted' => array(
+                'optionValueArray' => array(
+                    'has_keys' => TRUE,
+                    'minlength' => 1,
+                    'key_type' => 'number',
+                    'elem_type' => 'number',
+                ),
                 'swingValueArray' => array(
                     'has_keys' => TRUE,
                     'minlength' => 1,
                     'key_type' => 'alnum',
                     'elem_type' => 'number',
                 ),
-                'timestamp' => 'number',
             ),
-            'permitted' => array(),
         ),
         'submitChat' => array(
             'mandatory' => array(

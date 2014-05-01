@@ -145,6 +145,9 @@ class BMGameAction {
             foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
                 $postInfo = $postAttackDice['attacker'][$idx];
                 $postEvents = array();
+                if ($attackerInfo['max'] != $postInfo['max']) {
+                    $postEvents[] = 'changed size from ' . $attackerInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+                }
                 if ($attackerInfo['doesReroll']) {
                     $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
                 } else {
@@ -161,6 +164,40 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_choose_die_values() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set';
+
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in swing selection
+        // state, report the values which were chosen as well
+        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
+            ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
+            $dieMessages = array();
+            if (count($this->params['swingValues']) > 0) {
+                $swingStrs = array();
+                foreach ($this->params['swingValues'] as $swingType => $swingValue) {
+                    $swingStrs[] = $swingType . '=' . $swingValue;
+                }
+                $dieMessages[] = 'swing values: ' . implode(", ", $swingStrs);
+            }
+            if (count($this->params['optionValues']) > 0) {
+                $optionStrs = array();
+                foreach ($this->params['optionValues'] as $dieRecipe => $optionValue) {
+                    $optionStrs[] = str_replace(')', '=' . $optionValue . ')', $dieRecipe);
+                }
+                $dieMessages[] = 'option dice: ' . implode(", ", $optionStrs);
+            }
+            $message .= ' ' . implode(" and ", $dieMessages);
+        } else {
+            $message .= ' die sizes';
+        }
+        return $message;
+    }
+
+    // Since the addition of option dice, new choose_swing log
+    // entries are no longer added to the DB.  However, this code
+    // must be retained to parse old log entries until/unless those
+    // are converted.
     protected function friendly_message_choose_swing() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set swing values';
 

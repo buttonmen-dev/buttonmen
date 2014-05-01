@@ -352,16 +352,60 @@ class BMInterface {
             $game->waitingOnActionArray = $waitingOnActionArray;
             $game->autopassArray = $autopassArray;
 
+            // add swing values from last round
+            $game->prevSwingValueArrArr = array_fill(0, $game->nPlayers, array());
+            $query = 'SELECT * '.
+                     'FROM game_swing_map '.
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => 1));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->prevSwingValueArrArr[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            }
+
             // add swing values
             $game->swingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
-                     'WHERE game_id = :game_id ';
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
             $statement2 = self::$conn->prepare($query);
-            $statement2->execute(array(':game_id' => $gameId));
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => 0));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
                 $game->swingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
+            }
+
+            // add option values from last round
+            $game->prevOptValueArrArr = array_fill(0, $game->nPlayers, array());
+            $query = 'SELECT * '.
+                     'FROM game_option_map '.
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => 1));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->prevOptValueArrArr[$playerIdx][$row['die_idx']] = $row['option_value'];
+            }
+
+            // add option values
+            $game->optValueArrayArray = array_fill(0, $game->nPlayers, array());
+            $query = 'SELECT * '.
+                     'FROM game_option_map '.
+                     'WHERE game_id = :game_id '.
+                     'AND is_expired = :is_expired';
+            $statement2 = self::$conn->prepare($query);
+            $statement2->execute(array(':game_id' => $gameId,
+                                       ':is_expired' => 0));
+            while ($row = $statement2->fetch()) {
+                $playerIdx = array_search($row['player_id'], $game->playerIdArray);
+                $game->optValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
             }
 
             // add die attributes
@@ -397,6 +441,37 @@ class BMInterface {
                 if (isset($die->swingType)) {
                     $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
                     $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+
+                    if (isset($row['actual_max'])) {
+                        $die->max = $row['actual_max'];
+                    }
+                }
+
+                if ($die instanceof BMDieTwin &&
+                    (($die->dice[0] instanceof BMDieSwing) ||
+                     ($die->dice[1] instanceof BMDieSwing))) {
+
+                    foreach ($die->dice as $subdie) {
+                        if ($subdie instanceof BMDieSwing) {
+                            $swingType = $subdie->swingType;
+                            $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+
+                            if (isset($row['actual_max'])) {
+                                $subdie->max = (int)($row['actual_max']/2);
+                            }
+                        }
+                    }
+
+                    $game->request_swing_values($die, $swingType, $originalPlayerIdx);
+                }
+
+                if ($die instanceof BMDieOption) {
+                    if (isset($row['actual_max'])) {
+                        $die->max = $row['actual_max'];
+                        $die->needsOptionValue = FALSE;
+                    } else {
+                        $die->needsOptionValue = TRUE;
+                    }
                 }
 
                 switch ($row['status']) {
@@ -424,6 +499,19 @@ class BMInterface {
 
             $game->activeDieArrayArray = $activeDieArrayArray;
             $game->capturedDieArrayArray = $captDieArrayArray;
+
+            // recreate $game->optRequestArrayArray
+            foreach ($game->activeDieArrayArray as $activeDieArray) {
+                foreach ($activeDieArray as $activeDie) {
+                    if ($activeDie instanceof BMDieOption) {
+                        $game->request_option_values(
+                            $activeDie,
+                            $activeDie->optionValueArray,
+                            $activeDie->playerIdx
+                        );
+                    }
+                }
+            }
 
             $this->message = $this->message."Loaded data for game $gameId.";
 
@@ -517,32 +605,111 @@ class BMInterface {
                 }
             }
 
-            // set swing values
+            // clear swing values
             $query = 'DELETE FROM game_swing_map '.
                      'WHERE game_id = :game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
 
+            // clear option values
+            $query = 'DELETE FROM game_option_map '.
+                     'WHERE game_id = :game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+
+            // store swing values from previous round
+            if (isset($game->prevSwingValueArrArr)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrArr)) {
+                        continue;
+                    }
+                    $swingValueArray = $game->prevSwingValueArrArr[$playerIdx];
+                    if (!empty($swingValueArray)) {
+                        foreach ($swingValueArray as $swingType => $swingValue) {
+                            $query = 'INSERT INTO game_swing_map '.
+                                     '(game_id, player_id, swing_type, swing_value, is_expired) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'     => $game->gameId,
+                                                      ':player_id'   => $playerId,
+                                                      ':swing_type'  => $swingType,
+                                                      ':swing_value' => $swingValue,
+                                                      ':is_expired'  => TRUE));
+                        }
+                    }
+                }
+            }
+
+            // store swing values
             if (isset($game->swingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
                     if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
                         continue;
                     }
                     $swingValueArray = $game->swingValueArrayArray[$playerIdx];
-                    if (isset($swingValueArray)) {
+                    if (!empty($swingValueArray)) {
                         foreach ($swingValueArray as $swingType => $swingValue) {
                             $query = 'INSERT INTO game_swing_map '.
-                                     '(game_id, player_id, swing_type, swing_value) '.
+                                     '(game_id, player_id, swing_type, swing_value, is_expired) '.
                                      'VALUES '.
-                                     '(:game_id, :player_id, :swing_type, :swing_value)';
+                                     '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
                             $statement = self::$conn->prepare($query);
                             $statement->execute(array(':game_id'     => $game->gameId,
                                                       ':player_id'   => $playerId,
                                                       ':swing_type'  => $swingType,
-                                                      ':swing_value' => $swingValue));
+                                                      ':swing_value' => $swingValue,
+                                                      ':is_expired'  => FALSE));
                         }
                     }
+                }
+            }
 
+            // store option values from previous round
+            if (isset($game->prevOptValueArrArr)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->prevOptValueArrArr)) {
+                        continue;
+                    }
+                    $optValueArray = $game->prevOptValueArrArr[$playerIdx];
+                    if (isset($optValueArray)) {
+                        foreach ($optValueArray as $dieIdx => $optionValue) {
+                            $query = 'INSERT INTO game_option_map '.
+                                     '(game_id, player_id, die_idx, option_value, is_expired) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'   => $game->gameId,
+                                                      ':player_id' => $playerId,
+                                                      ':die_idx'   => $dieIdx,
+                                                      ':option_value' => $optionValue,
+                                                      ':is_expired' => TRUE));
+                        }
+                    }
+                }
+            }
+
+            // store option values
+            if (isset($game->optValueArrayArray)) {
+                foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                    if (!array_key_exists($playerIdx, $game->optValueArrayArray)) {
+                        continue;
+                    }
+                    $optValueArray = $game->optValueArrayArray[$playerIdx];
+                    if (isset($optValueArray)) {
+                        foreach ($optValueArray as $dieIdx => $optionValue) {
+                            $query = 'INSERT INTO game_option_map '.
+                                     '(game_id, player_id, die_idx, option_value, is_expired) '.
+                                     'VALUES '.
+                                     '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                            $statement = self::$conn->prepare($query);
+                            $statement->execute(array(':game_id'   => $game->gameId,
+                                                      ':player_id' => $playerId,
+                                                      ':die_idx'   => $dieIdx,
+                                                      ':option_value' => $optionValue,
+                                                      ':is_expired' => FALSE));
+                        }
+                    }
                 }
             }
 
@@ -657,12 +824,16 @@ class BMInterface {
 
     // Actually insert a die into the database - all error checking to be done by caller
     protected function db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx) {
+        $gameId = $game->gameId;
+        $playerId = $game->playerIdArray[$playerIdx];
+
         $query = 'INSERT INTO die '.
                  '    (owner_id, '.
                  '     original_owner_id, '.
                  '     game_id, '.
                  '     status_id, '.
                  '     recipe, '.
+                 '     actual_max, '.
                  '     position, '.
                  '     value) '.
                  'VALUES '.
@@ -671,14 +842,24 @@ class BMInterface {
                  '     :game_id, '.
                  '     (SELECT id FROM die_status WHERE name = :status), '.
                  '     :recipe, '.
+                 '     :actual_max, '.
                  '     :position, '.
                  '     :value);';
         $statement = self::$conn->prepare($query);
-        $statement->execute(array(':owner_id' => $game->playerIdArray[$playerIdx],
+
+        $actualMax = NULL;
+
+        if ($activeDie->has_skill('Mood') ||
+            ($activeDie instanceof BMDieOption)) {
+            $actualMax = $activeDie->max;
+        }
+
+        $statement->execute(array(':owner_id' => $playerId,
                                   ':original_owner_id' => $game->playerIdArray[$activeDie->originalPlayerIdx],
-                                  ':game_id' => $game->gameId,
+                                  ':game_id' => $gameId,
                                   ':status' => $status,
                                   ':recipe' => $activeDie->recipe,
+                                  ':actual_max' => $actualMax,
                                   ':position' => $dieIdx,
                                   ':value' => $activeDie->value));
     }
@@ -1052,7 +1233,7 @@ class BMInterface {
             $logEntries = array();
             $playerIdNames = $this->get_player_name_mapping($game);
             while ($row = $statement->fetch()) {
-                $params = json_decode($row['message'], $assoc = TRUE);
+                $params = json_decode($row['message'], TRUE);
                 if (!($params)) {
                     $params = $row['message'];
                 }
@@ -1193,7 +1374,7 @@ class BMInterface {
         }
     }
 
-    // Can the active player edit the most recent chat entry in this game?
+   // Can the active player edit the most recent chat entry in this game?
     protected function find_editable_chat_timestamp(
         $game,
         $currentPlayerIdx,
@@ -1206,19 +1387,19 @@ class BMInterface {
         if ($game->gameState >= BMGameState::END_GAME) {
             return FALSE;
         }
- 
+
         // If there are no chat entries, none can be modified
         if (count($chatLogEntries) == 0) {
             return FALSE;
         }
- 
+
         // Only the most recent chat entry can be modified --- was
         // it made by the active player?
         if ((FALSE === $currentPlayerIdx) ||
             ($playerNameArray[$currentPlayerIdx] != $chatLogEntries[0]['player'])) {
             return FALSE;
         }
- 
+
         // save_game() saves action log entries before chat log
         // entries.  So, if there are action log entries, and the
         // chat log entry predates the most recent action log entry,
@@ -1246,7 +1427,7 @@ class BMInterface {
         if ($game->gameState >= BMGameState::END_GAME) {
             return FALSE;
         }
- 
+
         // If the player is not in the game, they can't insert chat
         if (FALSE === $currentPlayerIdx) {
             return FALSE;
@@ -1266,7 +1447,7 @@ class BMInterface {
             ($chatLogEntries[0]['timestamp'] >= $actionLogEntries[0]['timestamp'])) {
             return FALSE;
         }
- 
+
         // The active player can insert a new chat entry
         return TRUE;
     }
@@ -1345,6 +1526,100 @@ class BMInterface {
         }
     }
 
+    public function submit_die_values(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $swingValueArray,
+        $optionValueArray
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+
+            // check that the timestamp and the game state are correct, and that
+            // the swing values still need to be set
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::SPECIFY_DICE,
+                'ignore',
+                $roundNumber,
+                $playerId
+            )) {
+                $this->message = 'Dice sizes no longer need to be set';
+                return NULL;
+            }
+
+            // try to set swing values
+            $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
+            if (is_array($swingRequestArray)) {
+                $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+                sort($swingRequested);
+            } else {
+                $swingRequested = array();
+            }
+
+            if (is_array($swingValueArray)) {
+                $swingSubmitted = array_keys($swingValueArray);
+                sort($swingSubmitted);
+            } else {
+                $swingSubmitted = array();
+            }
+
+            if ($swingRequested != $swingSubmitted) {
+                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
+                return NULL;
+            }
+
+            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
+
+            // try to set option values
+            if (is_array($optionValueArray)) {
+                foreach ($optionValueArray as $dieIdx => $optionValue) {
+                    $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+                }
+            }
+
+            $game->proceed_to_next_user_action();
+
+            // check for successful swing value set
+            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+                ($game->gameState > BMGameState::SPECIFY_DICE) ||
+                ($game->roundNumber > $roundNumber)) {
+                $optionLogArray = array();
+                foreach ($optionValueArray as $dieIdx => $optionValue) {
+                    $dieRecipe = $game->activeDieArrayArray[$currentPlayerIdx][$dieIdx]->recipe;
+                    $optionLogArray[$dieRecipe] = $optionValue;
+                }
+                $game->log_action(
+                    'choose_die_values',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'swingValues' => $swingValueArray,
+                        'optionValues' => $optionLogArray,
+                    )
+                );
+                $this->save_game($game);
+                $this->message = 'Successfully set die sizes';
+                return TRUE;
+            } else {
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Failed to set die sizes';
+                }
+                return NULL;
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_die_values: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while setting die sizes';
+        }
+    }
+
     public function submit_swing_values(
         $playerId,
         $gameId,
@@ -1369,10 +1644,20 @@ class BMInterface {
             }
 
             // try to set swing values
-            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-            sort($swingRequested);
-            $swingSubmitted = array_keys($swingValueArray);
-            sort($swingSubmitted);
+            $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
+            if (is_array($swingRequestArray)) {
+                $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+                sort($swingRequested);
+            } else {
+                $swingRequested = array();
+            }
+
+            if (is_array($swingValueArray)) {
+                $swingSubmitted = array_keys($swingValueArray);
+                sort($swingSubmitted);
+            } else {
+                $swingSubmitted = array();
+            }
 
             if ($swingRequested != $swingSubmitted) {
                 $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
@@ -1414,6 +1699,68 @@ class BMInterface {
             $this->message = 'Internal error while setting swing values';
         }
     }
+
+    public function submit_option_values(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $optionValueArray
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
+
+            // check that the timestamp and the game state are correct, and that
+            // the option values still need to be set
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::SPECIFY_DICE,
+                'ignore',
+                $roundNumber,
+                $playerId
+            )) {
+                $this->message = 'Option dice no longer need to be set';
+                return NULL;
+            }
+
+            // try to set option values
+            foreach ($optionValueArray as $dieIdx => $optionValue) {
+                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+            }
+            $game->proceed_to_next_user_action();
+
+            // check for successful option value set
+            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
+                ($game->gameState > BMGameState::SPECIFY_DICE) ||
+                ($game->roundNumber > $roundNumber)) {
+                $game->log_action(
+                    'choose_option',
+                    $game->playerIdArray[$currentPlayerIdx],
+                    array(
+                        'roundNumber' => $game->roundNumber,
+                        'optionValues' => $optionValueArray,
+                    )
+                );
+                $this->save_game($game);
+                $this->message = 'Successfully set option values';
+                return TRUE;
+            } else {
+                if ($game->message) {
+                    $this->message = $game->message;
+                } else {
+                    $this->message = 'Failed to set option values';
+                }
+                return NULL;
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::submit_option_values: " .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while setting option values';
+        }
+    }
+
 
     public function submit_turn(
         $playerId,
