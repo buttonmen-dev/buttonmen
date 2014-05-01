@@ -40,7 +40,9 @@
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
+ * @property      array $prevSwingValueArrArr    Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
+ * @property      array $prevOptValueArrArr      Option values for previous round for all players
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
@@ -88,8 +90,10 @@ class BMGame {
 
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
+    public $prevSwingValueArrArr;
     public $optRequestArrayArray;
     public $optValueArrayArray;
+    public $prevOptValueArrArr;
 
     // methods
     public function do_next_step() {
@@ -469,6 +473,7 @@ class BMGame {
         }
 
         foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
+//            var_dump($optionRequestArray);
             foreach (array_keys($optionRequestArray) as $dieIdx) {
                 if (isset($this->optValueArrayArray[$playerIdx]) &&
                     (count($this->optValueArrayArray[$playerIdx]) > 0)) {
@@ -538,6 +543,8 @@ class BMGame {
 
     protected function update_game_state_specify_dice() {
         if (0 == array_sum($this->waitingOnActionArray)) {
+            $this->prevSwingValueArrArr = NULL;
+            $this->prevOptValueArrArr = NULL;
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         }
     }
@@ -855,6 +862,10 @@ class BMGame {
                 $forceRoundResult = FALSE;
             }
 
+            $this->prevSwingValueArrArr = $this->swingValueArrayArray;
+            $this->prevOptValueArrArr = $this->optValueArrayArray;
+            $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
+
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
                     $this->gameScoreArrayArray[$playerIdx]['W']++;
@@ -862,6 +873,7 @@ class BMGame {
                 } else {
                     $this->gameScoreArrayArray[$playerIdx]['L']++;
                     $this->swingValueArrayArray[$playerIdx] = array();
+                    $this->optValueArrayArray[$playerIdx] = array();
                 }
             }
             $this->log_action(
@@ -893,9 +905,16 @@ class BMGame {
 
     protected function do_next_step_end_game() {
         $this->reset_play_state();
+
         // swingValueArrayArray must be reset to clear entries in the
         // database table game_swing_map
         $this->swingValueArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->prevSwingValueArrArr = NULL;
+
+        // optValueArrayArray must be reset to clear entries in the
+        // database table game_option_map
+        $this->optValueArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->prevOptRequestArrArr = NULL;
 
         $this->activate_GUI('Show end-of-game screen.');
     }
@@ -2099,6 +2118,18 @@ class BMGame {
             $optRequestArrayArray = $this->optRequestArrayArray;
         }
 
+        if (empty($this->prevSwingValueArrArr)) {
+            $prevSwingValueArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $prevSwingValueArrayArray = $this->prevSwingValueArrArr;
+        }
+
+        if (empty($this->prevOptValueArrArr)) {
+            $prevOptValueArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $prevOptValueArrayArray = $this->prevOptValueArrArr;
+        }
+
         if (isset($this->capturedDieArrayArray)) {
             $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
@@ -2169,6 +2200,8 @@ class BMGame {
                   'capturedRecipeArrayArray' => $captRecipeArrayArray,
                   'swingRequestArrayArray'   => $swingReqArrayArray,
                   'optRequestArrayArray'     => $optRequestArrayArray,
+                  'prevSwingValueArrArr'     => $prevSwingValueArrayArray,
+                  'prevOptValueArrArr'       => $prevOptValueArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
                   'sideScoreArray'           => $this->get_sideScoreArray(),
@@ -2188,4 +2221,3 @@ class BMGame {
         return TRUE;
     }
 }
-
