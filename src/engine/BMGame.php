@@ -2126,6 +2126,12 @@ class BMGame {
                     if ($die->dizzy) {
                         $diePropsArrayArray[$playerIdx][$dieIdx]['dizzy'] = TRUE;
                     }
+
+                    if (!empty($die->flagList)) {
+                        foreach (array_keys($die->flagList) as $flag) {
+                            $diePropsArrayArray[$playerIdx][$dieIdx][$flag] = TRUE;
+                        }
+                    }
                 }
             }
         } else {
@@ -2154,13 +2160,15 @@ class BMGame {
             $prevOptValueArrayArray = $this->prevOptValueArrArr;
         }
 
+        $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
+        $captValueArrayArray = array_fill(0, $this->nPlayers, array());
+        $captSidesArrayArray = array_fill(0, $this->nPlayers, array());
+        $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
+        $captDiePropsArrArr = array_fill(0, $this->nPlayers, array());
+
         if (isset($this->capturedDieArrayArray)) {
             $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                $captValueArrayArray[] = array();
-                $captSidesArrayArray[] = array();
-                $captRecipeArrayArray[] = array();
-
                 foreach ($capturedDieArray as $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
@@ -2175,13 +2183,14 @@ class BMGame {
                     $captValueArrayArray[$playerIdx][] = $dieValue;
                     $captSidesArrayArray[$playerIdx][] = $dieMax;
                     $captRecipeArrayArray[$playerIdx][] = $die->recipe;
+
+                    if (!empty($die->flagList)) {
+                        foreach (array_keys($die->flagList) as $flag) {
+                            $captDiePropsArrArr[$playerIdx][$dieIdx][$flag] = TRUE;
+                        }
+                    }
                 }
             }
-        } else {
-            $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
-            $captValueArrayArray = array_fill(0, $this->nPlayers, array());
-            $captSidesArrayArray = array_fill(0, $this->nPlayers, array());
-            $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
         if (!$swingValsSpecified) {
@@ -2222,6 +2231,7 @@ class BMGame {
                   'capturedValueArrayArray'  => $captValueArrayArray,
                   'capturedSidesArrayArray'  => $captSidesArrayArray,
                   'capturedRecipeArrayArray' => $captRecipeArrayArray,
+                  'capturedDiePropsArrArr'   => $captDiePropsArrArr,
                   'swingRequestArrayArray'   => $swingReqArrayArray,
                   'optRequestArrayArray'     => $optRequestArrayArray,
                   'prevSwingValueArrArr'     => $prevSwingValueArrayArray,

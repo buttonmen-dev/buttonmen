@@ -616,6 +616,10 @@ class BMDie extends BMCanHaveSkill {
 //        }
     }
 
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
     public function __toString() {
         return $this->get_recipe();
     }

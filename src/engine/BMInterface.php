@@ -474,6 +474,10 @@ class BMInterface {
                     }
                 }
 
+                if (!is_null($row['flags'])) {
+                    $die->load_flags_from_string($row['flags']);
+                }
+
                 switch ($row['status']) {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -494,10 +498,6 @@ class BMInterface {
                         $die->captured = TRUE;
                         $captDieArrayArray[$playerIdx][$row['position']] = $die;
                         break;
-                }
-
-                if (!is_null($row['flags'])) {
-                    $die->load_flags_from_string($row['flags']);
                 }
             }
 
