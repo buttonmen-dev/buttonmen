@@ -3,4 +3,3 @@
 class BMFlagWasJustCaptured extends BMFlag {
 
 }
-

@@ -20,4 +20,3 @@ abstract class BMFlag {
         return str_replace('BMFlag', '', $name);
     }
 }
-
