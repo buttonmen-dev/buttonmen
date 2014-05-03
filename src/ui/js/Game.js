@@ -1593,7 +1593,7 @@ Game.dieTableEntry = function(
                  ('Chance' in dieSkillsArray[i]) &&
                  (dieSkillsArray[i].Chance)) {
         dieopts.class = 'recipe_greyed';
-        dieopts.title += '. (This chance dice cannot be rerolled again ' +
+        dieopts.title += '. (This chance die cannot be rerolled again ' +
           'during this round, because the player has already rerolled a ' +
           'chance die)';
       }
