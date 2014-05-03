@@ -71,8 +71,22 @@ td.left {
     text-align: left;
 }
 
+table.twocolumn > tbody > tr > td,
+table.twocolumn > tr > td {
+    width: 50%;
+}
+
+td.logtable table,
+td.logtable td.logmessage {
+    width: 100%;
+}
+
 td.chat {
     text-align: right;
+}
+
+.logtable .new {
+    background-color: #FFFFCC;
 }
 
 td.chooseswing {

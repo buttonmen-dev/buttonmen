@@ -2205,7 +2205,8 @@ class BMGame {
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
                   'sideScoreArray'           => $this->get_sideScoreArray(),
-                  'gameScoreArrayArray'      => $this->gameScoreArrayArray);
+                  'gameScoreArrayArray'      => $this->gameScoreArrayArray,
+                  'lastActionTimeArray'      => $this->lastActionTimeArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
     }

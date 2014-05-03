@@ -1329,7 +1329,11 @@ Game.pageAddLogFooter = function() {
   if ((Api.game.chatLog.length > 0) || (Api.game.actionLog.length > 0)) {
     var logdiv = $('<div>');
     var logtable = $('<table>');
+    if (Api.game.actionLog.length > 0 && Api.game.chatLog.length > 0) {
+      logtable.addClass('twocolumn');
+    }
     var logrow = $('<tr>');
+
 
     if (Api.game.actionLog.length > 0) {
       var actiontd = $('<td>', {'class': 'logtable', });
@@ -1350,12 +1354,16 @@ Game.pageAddLogFooter = function() {
             'nowrap': 'nowrap',
             'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
+        var messageClass = 'left logmessage';
+        if (logentry.timestamp > Api.game.player.lastActionTime) {
+          messageClass += ' new';
+        }
         // We add the log message as 'text' to ensure that jquery knows it's
         // not already encoded as HTML. This way, jquery will encode it for us,
         // automatically converting things like < to things like &lt;
         actionrow.append(
           $('<td>', {
-            'class': 'left logmessage',
+            'class': messageClass,
             'text': logentry.message,
           }));
         actiontable.append(actionrow);
@@ -1383,11 +1391,15 @@ Game.pageAddLogFooter = function() {
           'text': logentry.player + ' (' +
             Env.formatTimestamp(logentry.timestamp) + ')',
         }));
+        var messageClass = 'left logmessage';
+        if (logentry.timestamp > Api.game.player.lastActionTime) {
+          messageClass += ' new';
+        }
         // We add the log message as 'text' to ensure that jquery knows it's
         // not already encoded as HTML. This way, jquery will encode it for us,
         // automatically converting things like < to things like &lt;
         chatrow.append($('<td>', {
-          'class': 'left logmessage',
+          'class': messageClass,
           'text': logentry.message,
         }));
         chattable.append(chatrow);
