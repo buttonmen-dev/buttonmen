@@ -2093,6 +2093,24 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @coversNothing
+     */
+    public function test_option_game_multiple_identical_option_bug() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Farrell', 'Farrell'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(array(2 => array(6, 20), 3 => array(6, 20), 4 => array(8, 12)),
+                                  array(2 => array(6, 20), 3 => array(6, 20), 4 => array(8, 12))),
+                            $game->optRequestArrayArray);
+    }
+
+    /**
      * @covers BMInterface::save_game
      * @covers BMInterface::load_game
      */
