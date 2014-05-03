@@ -703,7 +703,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('X' => NULL), array('V' => 11)),
                             $game->swingValueArrayArray);
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
-                            $game->prevSwingValueArrArr);
+                            $game->prevSwingValueArrayArray);
     }
 
     /**
@@ -2092,7 +2092,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->optValueArrayArray);
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
-                            $game->prevOptValueArrArr);
+                            $game->prevOptValueArrayArray);
     }
 
     /**
