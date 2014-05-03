@@ -1314,7 +1314,7 @@ class BMGame {
                 array_fill(0, $this->nPlayers, array());
         }
 
-        $dieIdx = array_search($die, $this->activeDieArrayArray[$playerIdx]);
+        $dieIdx = array_search($die, $this->activeDieArrayArray[$playerIdx], TRUE);
         assert(FALSE !== $dieIdx);
         $this->optRequestArrayArray[$playerIdx][$dieIdx] = $optionArray;
     }
