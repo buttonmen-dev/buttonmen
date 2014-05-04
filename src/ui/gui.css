@@ -97,6 +97,11 @@ td.button_opponent {
     padding-bottom: 20px;
 }
 
+td.button_postgame {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 td.battle_mat {
     padding-top: 0px;
     padding-left: 0px;
