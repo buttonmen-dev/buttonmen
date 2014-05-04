@@ -413,6 +413,11 @@ var Api = (function () {
       'swingRequestArray': {},
       'optRequestArray':
         my.game.gameData.data.optRequestArrayArray[playerIdx],
+
+      'prevSwingValueArray':
+        my.game.gameData.data.prevSwingValueArrArr[playerIdx],
+      'prevOptValueArray':
+        my.game.gameData.data.prevOptValueArrArr[playerIdx],
     };
 
     $.each(

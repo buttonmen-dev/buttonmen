@@ -7,7 +7,7 @@ CREATE TABLE game_option_map (
     is_expired     BOOLEAN DEFAULT FALSE
 );
 
-ALTER TABLE die DROP COLUMN IF EXISTS chosen_max;
+ALTER TABLE die DROP COLUMN chosen_max;
 
 # add is_expired columns to specify whether swing/option values are expired
 

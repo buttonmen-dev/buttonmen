@@ -290,7 +290,7 @@ Game.actionSpecifyDiceActive = function() {
     Api.game.player.swingRequestArray,
     function(letter, range) {
       var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      var swingtext = letter + ' (' + range.min + '-' + range.max + '):';
       swingrow.append($('<td>', { 'text': swingtext, }));
       var swinginput = $('<td>', {});
       swinginput.append($('<input>', {
@@ -301,6 +301,12 @@ Game.actionSpecifyDiceActive = function() {
         'maxlength': '2',
       }));
       swingrow.append(swinginput);
+      var swingprevtext = '';
+      if (letter in Api.game.player.prevSwingValueArray) {
+        swingprevtext =
+          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+      }
+      swingrow.append($('<td>', { 'text': swingprevtext, }));
       diespecifytable.append(swingrow);
     });
 
@@ -325,8 +331,15 @@ Game.actionSpecifyDiceActive = function() {
       });
       optinput.append(optselect);
       optrow.append(optinput);
+      var optprevtext = '';
+      if (position in Api.game.player.prevOptValueArray) {
+        optprevtext =
+          '(was: ' + Api.game.player.prevOptValueArray[position] + ')';
+      }
+      optrow.append($('<td>', { 'text': optprevtext, }));
       diespecifytable.append(optrow);
     });
+
   diespecifyform.append(diespecifytable);
   diespecifyform.append($('<br>'));
   diespecifyform.append($('<button>', {
@@ -378,13 +391,6 @@ Game.actionSpecifyDiceInactive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {
-    'text':
-      'Your swing dice are set. ' +
-      'Please wait patiently for your opponent to set swing dice.'
-  }));
 
   Game.pageAddFooter();
 
@@ -691,10 +697,6 @@ Game.actionReactToInitiativeInactive = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {'text':
-    'Please wait patiently for your opponent to use chance/focus dice' }));
 
   Game.pageAddFooter();
 
