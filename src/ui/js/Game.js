@@ -1256,15 +1256,18 @@ Game.showFullLogHistory = function() {
 
 // Display header information about the game
 Game.pageAddGameHeader = function(action_desc) {
+  var gameTitle =
+    'Game #' + Api.game.gameId + Game.SPACE_BULLET +
+      Api.game.player.playerName + ' (' + Api.game.player.buttonName +
+      ') vs. ' + Api.game.opponent.playerName + ' (' +
+      Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
+      'Round #' + Api.game.roundNumber;
+  $('title').html('Button Men Online Game &mdash; ' + gameTitle);
+
   Game.page.append(
     $('<div>', {
       'id': 'game_id',
-      'html':
-	'Game #' + Api.game.gameId + Game.SPACE_BULLET +
-	Api.game.player.playerName + ' (' + Api.game.player.buttonName +
-	') vs. ' + Api.game.opponent.playerName + ' (' +
-	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
-        'Round #' + Api.game.roundNumber,
+      'html': gameTitle,
     }));
   var bgcolor = '#ffffff';
   if (Api.game.player.waitingOnAction) {
