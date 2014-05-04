@@ -286,7 +286,7 @@ class ApiSpec {
     // verify that the argument is an alphanumeric string (allow underscores)
     protected function verify_argument_of_type_alnum($arg) {
         if (is_string($arg) &&
-            preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
+            preg_match('/^[a-zA-Z0-9_]*$/', $arg)) {
             return TRUE;
         }
         return FALSE;

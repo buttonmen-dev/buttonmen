@@ -109,8 +109,17 @@ class BMInterface {
         array $buttonNameArray,
         $maxWins = 3
     ) {
+        $areAllPlayersPresent = TRUE;
+        // check for the possibility of unspecified players
+        foreach ($playerIdArray as $playerId) {
+            if (empty($playerId)) {
+                $areAllPlayersPresent = FALSE;
+            }
+        }
+
         // check for nonunique player ids
-        if (count(array_flip($playerIdArray)) < count($playerIdArray)) {
+        if ($areAllPlayersPresent &&
+            count(array_flip($playerIdArray)) < count($playerIdArray)) {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
@@ -182,6 +191,10 @@ class BMInterface {
             $gameId = (int)$fetchData[0];
 
             foreach ($playerIdArray as $position => $playerId) {
+                if (empty($playerId)) {
+                    continue;
+                }
+
                 // add info to game_player_map
                 $query = 'INSERT INTO game_player_map '.
                          '(game_id, player_id, button_id, position) '.

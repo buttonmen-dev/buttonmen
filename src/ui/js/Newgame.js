@@ -229,22 +229,24 @@ Newgame.formCreateGame = function() {
   Newgame.activity.playerButton = $('#player_button').val();
   Newgame.activity.opponentButton = $('#opponent_button').val();
 
-  if ((!Newgame.activity.opponentName) ||
-      (!Newgame.activity.playerButton) ||
-      (!Newgame.activity.opponentButton)) {
+  var validSelect = //Newgame.activity.opponentName &&
+                    Newgame.activity.playerButton &&
+                    Newgame.activity.opponentButton;
+
+  if (!validSelect) {
     Env.message = {
       'type': 'error',
       'text':
         'Please select an opponent, your button, and your opponent\'s button',
     };
     Newgame.showNewgamePage();
-  } else if (!(Newgame.activity.opponentName in Api.player.list)) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Specified opponent ' + Newgame.activity.opponentName +
-              ' is not recognized',
-    };
-    Newgame.showNewgamePage();
+  //}  else if (!(Newgame.activity.opponentName in Api.player.list)) {
+  // Env.message = {
+  //   'type': 'error',
+  //   'text': 'Specified opponent ' + Newgame.activity.opponentName +
+  //           ' is not recognized',
+  // };
+  // Newgame.showNewgamePage();
 
   } else {
     var playerNameArray = [
