@@ -17,7 +17,9 @@ class BMSkillMood extends BMSkill {
         }
 
         $swingRange = BMDieSwing::swing_range($die->swingType);
-        $newSwingValue = mt_rand($swingRange[0], $swingRange[1]);
+        $validSwingValues = BMSkillMood::valid_die_sizes($swingRange);
+        $newSwingValue = $validSwingValues[array_rand($validSwingValues)];
+
         if ($die instanceof BMDieSwing) {
             $die->max = $newSwingValue;
         } elseif ($die instanceof BMDieTwin) {
@@ -32,6 +34,12 @@ class BMSkillMood extends BMSkill {
         }
 
         return TRUE;
+    }
+
+    public static function valid_die_sizes(array $swingRange) {
+        $all_die_sizes = range($swingRange[0], $swingRange[1]);
+        $valid_die_sizes = array_intersect($all_die_sizes, BMDie::standard_die_sizes());
+        return array_values($valid_die_sizes);
     }
 
     public static function add_skill($args) {
