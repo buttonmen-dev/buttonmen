@@ -15,4 +15,14 @@ class BMSkillMad extends BMSkillMood {
         return array_values($dieSizeArray);
     }
 
+    public static function add_skill($args) {
+        if (!is_array($args) ||
+            !($args['die'] instanceof BMDie)) {
+            return;
+        }
+
+        if (!static::can_have_mood($args['die'])) {
+            $args['die']->remove_skill('Mad');
+        }
+    }
 }

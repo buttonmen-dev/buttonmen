@@ -861,6 +861,7 @@ class BMInterface {
         $actualMax = NULL;
 
         if ($activeDie->has_skill('Mood') ||
+            $activeDie->has_skill('Mad') ||
             ($activeDie instanceof BMDieOption)) {
             $actualMax = $activeDie->max;
         }
