@@ -38,6 +38,9 @@ class BMDie extends BMCanHaveSkill {
 //  but not attacking
     public $unavailable = FALSE;
 
+    // $flagList is designed to contain various BMFlags
+    protected $flagList = array();
+
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)
@@ -550,8 +553,51 @@ class BMDie extends BMCanHaveSkill {
         return $doesSkipSwingRequest;
     }
 
-    // utility methods
+    public function has_flag($flag) {
+        return array_key_exists($flag, $this->flagList);
+    }
 
+    public function add_flag($flag) {
+        if ($this->has_flag($flag)) {
+            return;
+        }
+
+        $flagObject = BMFlag::create_from_string($flag);
+        if (isset($flagObject)) {
+            $this->flagList[$flag] = $flagObject;
+        }
+    }
+
+    public function remove_flag($flag) {
+        if ($this->has_flag($flag)) {
+            unset($this->flagList[$flag]);
+        }
+    }
+
+    public function remove_all_flags() {
+        $this->flagList = array();
+    }
+
+    public function flags_as_string() {
+        if (empty($this->flagList)) {
+            return '';
+        }
+
+        return implode(';', $this->flagList);
+    }
+
+    public function load_flags_from_string($string) {
+        if (empty($string)) {
+            return;
+        }
+
+        $flagArray = explode(';', $string);
+        foreach ($flagArray as $flag) {
+            $this->add_flag($flag);
+        }
+    }
+
+    // utility methods
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -568,6 +614,10 @@ class BMDie extends BMCanHaveSkill {
 //            default:
                 $this->$property = $value;
 //        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
     }
 
     public function __toString() {

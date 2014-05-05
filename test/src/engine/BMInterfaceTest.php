@@ -1350,6 +1350,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertTrue($game->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
 
         // round 1, turn 2, player 2 to attack
         // [1 1 1] vs [1 1 2]
@@ -1371,6 +1372,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
         $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
         $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+        $this->assertFalse($game->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
+        $this->assertTrue($game->capturedDieArrayArray[1][0]->has_flag('WasJustCaptured'));
 
         // round 1, turn 3, player 1 to attack
         // [1 1] vs [1 1 2]
@@ -2090,6 +2093,24 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
                             $game->prevOptValueArrArr);
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function test_option_game_multiple_identical_option_bug() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Farrell', 'Farrell'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(array(2 => array(6, 20), 3 => array(6, 20), 4 => array(8, 12)),
+                                  array(2 => array(6, 20), 3 => array(6, 20), 4 => array(8, 12))),
+                            $game->optRequestArrayArray);
     }
 
     /**

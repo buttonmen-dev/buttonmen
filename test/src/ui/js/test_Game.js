@@ -316,7 +316,7 @@ asyncTest("test_Game.actionSpecifyDiceActive", function() {
     var item = document.getElementById('die_specify_table');
     equal(item.nodeName, "TABLE",
           "#die_specify_table is a table after actionSpecifyDiceActive() is called");
-    ok(item.innerHTML.match(/X: \(4-20\)/),
+    ok(item.innerHTML.match(/X \(4-20\):/),
        "swing table should contain request to set X swing");
 
     var item = document.getElementById('opponent_swing');

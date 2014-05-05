@@ -1,0 +1,2 @@
+ALTER TABLE die
+ADD flags VARCHAR(253);
