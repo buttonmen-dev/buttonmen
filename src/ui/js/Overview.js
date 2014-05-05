@@ -134,8 +134,8 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     var tableHead = $('<thead>');
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
-    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Your Button', }));
+    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
     headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
     if (gameType == 'finished') {
@@ -195,12 +195,12 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     }
     gameRow.append(gameLinkTd);
     gameRow.append($('<td>', {
-      'text': gameInfo.opponentName,
-      'style': 'background-color: ' + opponentColor,
-    }));
-    gameRow.append($('<td>', {
       'text': gameInfo.playerButtonName,
       'style': 'background-color: ' + playerColor,
+    }));
+    gameRow.append($('<td>', {
+      'text': gameInfo.opponentName,
+      'style': 'background-color: ' + opponentColor,
     }));
     gameRow.append($('<td>', {
       'text': gameInfo.opponentButtonName,
