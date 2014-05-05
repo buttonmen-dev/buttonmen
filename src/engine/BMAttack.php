@@ -192,6 +192,7 @@ abstract class BMAttack {
 
         foreach ($defenders as &$def) {
             $def->captured = TRUE;
+            $def->add_flag('WasJustCaptured');
         }
 
         // allow attack type to modify default behaviour
