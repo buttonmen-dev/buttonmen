@@ -1550,6 +1550,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThan(1, count(array_flip($die2ValueStore)));
         $this->assertCount(1, $this->object->capturedDieArrayArray[0]);
         $this->assertTrue($die3->captured);
+        $this->assertFalse($die1->has_flag('WasJustCaptured'));
+        $this->assertFalse($die2->has_flag('WasJustCaptured'));
+        $this->assertTrue($die3->has_flag('WasJustCaptured'));
+        $this->assertFalse($die4->has_flag('WasJustCaptured'));
         $this->assertEquals(1, max($die4ValueStore));
 
         $dieArrayArray = $this->object->activeDieArrayArray;
@@ -1569,6 +1573,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertCount(2, $this->object->activeDieArrayArray[0]);
         $this->assertCount(0, $this->object->activeDieArrayArray[1]);
+        $this->assertCount(2, $this->object->capturedDieArrayArray[0]);
+
+        $this->assertFalse($this->object->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
+        $this->assertTrue($this->object->capturedDieArrayArray[0][1]->has_flag('WasJustCaptured'));
 
         // make sure actionLog has various attack parameters set correctly
         $this->assertTrue(count($this->object->actionLog) > 0);

@@ -474,6 +474,10 @@ class BMInterface {
                     }
                 }
 
+                if (!is_null($row['flags'])) {
+                    $die->load_flags_from_string($row['flags']);
+                }
+
                 switch ($row['status']) {
                     case 'NORMAL':
                         $activeDieArrayArray[$playerIdx][$row['position']] = $die;
@@ -835,7 +839,8 @@ class BMInterface {
                  '     recipe, '.
                  '     actual_max, '.
                  '     position, '.
-                 '     value) '.
+                 '     value, '.
+                 '     flags)'.
                  'VALUES '.
                  '    (:owner_id, '.
                  '     :original_owner_id, '.
@@ -844,8 +849,14 @@ class BMInterface {
                  '     :recipe, '.
                  '     :actual_max, '.
                  '     :position, '.
-                 '     :value);';
+                 '     :value, '.
+                 '     :flags);';
         $statement = self::$conn->prepare($query);
+
+        $flags = $activeDie->flags_as_string();
+        if (empty($flags)) {
+            $flags = NULL;
+        }
 
         $actualMax = NULL;
 
@@ -861,7 +872,8 @@ class BMInterface {
                                   ':recipe' => $activeDie->recipe,
                                   ':actual_max' => $actualMax,
                                   ':position' => $dieIdx,
-                                  ':value' => $activeDie->value));
+                                  ':value' => $activeDie->value,
+                                  ':flags' => $flags));
     }
 
     // Get all player games (either active or inactive) from the database
