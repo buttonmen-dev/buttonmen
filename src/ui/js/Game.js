@@ -1770,7 +1770,6 @@ Game.gamePlayerDice = function(player, player_active) {
   });
   var i = 0;
   while (i < Api.game[player].nDie) {
-
     // Find out whether this die is clickable: it is if the player
     // is active and this particular die is not dizzy
     var clickable;
@@ -1804,7 +1803,7 @@ Game.gamePlayerDice = function(player, player_active) {
         borderDivOpts.class = 'die_border unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
-      divOpts.class = 'die_img';
+      divOpts.class = 'die_img die_alive';
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
@@ -1813,7 +1812,7 @@ Game.gamePlayerDice = function(player, player_active) {
         dieBorderDiv.click(Game.dieBorderToggleOpponentHandler);
       }
     } else {
-      divOpts.class = 'die_img die_greyed';
+      divOpts.class = 'die_img die_alive die_greyed';
       if (player_active) {
         divOpts.title += '. (This die is dizzy because it was turned ' +
         'down.  It can\'t be used during this attack.)';
@@ -1831,6 +1830,44 @@ Game.gamePlayerDice = function(player, player_active) {
     var dieRecipeText = Game.dieRecipeText(
       Api.game[player].dieRecipeArray[i],
       Api.game[player].sidesArray[i]);
+    dieDiv.append($('<span>', {
+      'class': 'die_recipe_' + player,
+      'text': dieRecipeText,
+    }));
+    dieBorderDiv.append(dieDiv);
+
+    allDice.append(dieBorderDiv);
+    i += 1;
+  }
+
+  i = 0;
+  // Loop over all of the captured dice and display any that are flagged as
+  // having been captured just now.
+  while (i < Api.game[player].nCapturedDie) {
+    if (Api.game[nonplayer].capturedDiePropertiesArray[i] == null ||
+      !('WasJustCaptured' in
+        Api.game[nonplayer].capturedDiePropertiesArray[i])) {
+      i++;
+      continue;
+    }
+
+    var dieBorderDiv = $('<div>', { 'class': 'die_border' });
+    var dieDiv = $('<div>', {
+      'title':
+        'This die was just captured in the last attack and is no longer ' +
+        'in play.',
+      'class': 'die_img die_dead'
+    });
+
+    dieDiv.append($('<span>', {
+      'class': 'die_overlay die_number_' + player,
+      'text': Api.game[nonplayer].capturedValueArray[i],
+    }));
+    dieDiv.append($('<br>'));
+
+    var dieRecipeText = Game.dieRecipeText(
+      Api.game[nonplayer].capturedRecipeArray[i],
+      Api.game[nonplayer].capturedSidesArray[i]);
     dieDiv.append($('<span>', {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
