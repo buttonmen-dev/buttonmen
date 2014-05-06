@@ -1657,8 +1657,12 @@ Game.pageAddDieBattleTable = function(clickable) {
 // button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
+  var tdClass = 'button_' + player;
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    tdClass += ' button_postgame';
+  }
   var buttonTd = $('<td>', {
-    'class': 'button_' + player,
+    'class': tdClass,
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
@@ -1674,11 +1678,12 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].buttonRecipe,
   });
 
-  if (player == 'opponent') {
+  if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+  }
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
   buttonTd.append($('<img>', {
@@ -1689,12 +1694,10 @@ Game.buttonImageDisplay = function(player) {
     'width': '150px',
     'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
   }));
-  if (player == 'player') {
+  if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    buttonTd.append(playerWLT);
   }
   return buttonTd;
 };
