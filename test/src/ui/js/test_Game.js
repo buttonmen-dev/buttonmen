@@ -971,6 +971,20 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
   });
 });
 
+asyncTest("test_Game.pageAddDieBattleTable", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddDieBattleTable();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('<div class="battle_mat_player" .*>'),
+      "die battle table should insert player battle mat");
+    ok(htmlout.match('<div class="battle_mat_opponent" .*>'),
+      "die battle table should insert opponent battle mat");
+    start();
+  });
+});
+
 asyncTest("test_Game.gamePlayerStatus", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
