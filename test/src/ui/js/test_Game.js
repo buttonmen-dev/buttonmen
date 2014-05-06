@@ -528,7 +528,7 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    deepEqual(item.className, 'die_container selected',
+    deepEqual(item.className, 'die_container die_alive selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     ok(item.innerHTML.match('selected'),
@@ -971,17 +971,6 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
   });
 });
 
-asyncTest("test_Game.pageAddDieBattleTable", function() {
-  BMTestUtils.GameType = 'turn_active';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.pageAddDieBattleTable();
-    var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "die battle table should insert line break");
-    start();
-  });
-});
-
 asyncTest("test_Game.gamePlayerStatus", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
@@ -1003,7 +992,7 @@ asyncTest("test_Game.gamePlayerDice", function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
     var htmlout = Game.page.html();
-    ok(htmlout.match('die_container unselected'),
+    ok(htmlout.match('die_container die_alive unselected'),
        "dice should include some text with the correct CSS class");
     start();
   });
@@ -1128,16 +1117,16 @@ asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container unselected_player'),
+    ok(html.match('die_container die_alive unselected_player'),
        "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container selected'), "die is selected after first click");
+    ok(html.match('die_container die_alive selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container unselected_player'),
+    ok(html.match('die_container die_alive unselected_player'),
        "die is unselected after second click");
 
     start();
@@ -1155,16 +1144,16 @@ asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container unselected_opponent'),
+    ok(html.match('die_container die_alive unselected_opponent'),
        "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container selected'), "die is selected after first click");
+    ok(html.match('die_container die_alive selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container unselected_opponent'),
+    ok(html.match('die_container die_alive unselected_opponent'),
        "die is unselected after second click");
 
     start();

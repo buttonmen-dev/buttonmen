@@ -174,9 +174,12 @@ select.center {
     color:darkslateblue;
 }
 
-.die_dead {
+.die_dead .die_img {
     background-color: black;
     border-radius: 50%;
+}
+
+.die_dead .die_overlay {
     color: white;
 }
 
@@ -185,7 +188,7 @@ select.center {
 }
 
 .die_alive + .die_dead {
-    margin-left: 50px;
+    margin-left: 40px;
 }
 
 .recipe_greyed {
