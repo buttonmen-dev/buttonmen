@@ -149,13 +149,13 @@ select.center {
     font-size: 150%;
 }
 
-.die_border {
+.die_container {
     background-size: 50px 50px;
-    width: 50px;
-    height: 50px;
+    min-width: 50px;
     display: inline-block;
     color: blue;
     margin: 4px;
+    cursor: default;
 }
 
 .die_img {
@@ -165,7 +165,7 @@ select.center {
     height: 49px;
     width: 49px;
     background-size: 100%;
-    cursor: default;
+    margin: auto;
 }
 
 .die_greyed {
@@ -214,14 +214,12 @@ select.center {
 
 .die_recipe_player {
     position: relative;
-    top: -48px;
     color: black;
     white-space: nowrap;
 }
 
 .die_recipe_opponent {
     position: relative;
-    top: 25px;
     color: black;
     white-space: nowrap;
 }
@@ -234,7 +232,12 @@ select.center {
 
 /* border to indicate dice selected in attacks */
 
-.selected {
+.die_border {
+    width: 50px;
+    margin: auto;
+}
+
+.selected .die_border {
     border: 2px solid red;
 }
 

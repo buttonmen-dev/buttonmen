@@ -1623,7 +1623,6 @@ Game.pageAddDieBattleTable = function(clickable) {
     'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
   });
   diePlayerOverlayDiv.append(Game.gamePlayerStatus('player', false, true));
-  diePlayerOverlayDiv.append($('<br>'));
   diePlayerOverlayDiv.append(Game.gamePlayerDice('player', clickable));
   diePlayerDiv.append(diePlayerOverlayDiv);
   dieBattleTd.append(diePlayerDiv);
@@ -1637,7 +1636,6 @@ Game.pageAddDieBattleTable = function(clickable) {
     'style': 'background: none repeat scroll 0 0 ' + Game.color.opponent,
   });
   dieOpponentOverlayDiv.append(Game.gamePlayerDice('opponent', clickable));
-  dieOpponentOverlayDiv.append($('<br>'));
   dieOpponentOverlayDiv.append(Game.gamePlayerStatus('opponent', true, true));
   dieOpponentDiv.append(dieOpponentOverlayDiv);
   dieBattleTd.append(dieOpponentDiv);
@@ -1785,39 +1783,47 @@ Game.gamePlayerDice = function(player, player_active) {
     }
 
     var dieDiv;
+    var dieRecipeDiv;
+    var dieContainerDiv;
     var dieBorderDiv;
 
     var dieIndex = Game.dieIndexId(player, i);
-    var borderDivOpts = {
+
+    var containerDivOpts = {
       'id': dieIndex,
-    };
-    var divOpts = {
       'title': Api.game[player].dieDescriptionArray[i],
     };
+    var borderDivOpts = {
+      'class': 'die_border',
+    };
+    var divOpts = { };
+
     if (clickable) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        borderDivOpts.class = 'die_border selected';
+        containerDivOpts.class = 'die_container die_alive selected';
       } else {
-        borderDivOpts.class = 'die_border unselected_' + player;
+        containerDivOpts.class = 'die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
-      divOpts.class = 'die_img die_alive';
+      divOpts.class = 'die_img';
+      dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
-        dieBorderDiv.click(Game.dieBorderTogglePlayerHandler);
+        dieContainerDiv.click(Game.dieBorderTogglePlayerHandler);
       } else {
-        dieBorderDiv.click(Game.dieBorderToggleOpponentHandler);
+        dieContainerDiv.click(Game.dieBorderToggleOpponentHandler);
       }
     } else {
-      divOpts.class = 'die_img die_alive die_greyed';
+      divOpts.class = 'die_img die_greyed';
       if (player_active) {
-        divOpts.title += '. (This die is dizzy because it was turned ' +
+        containerDivOpts.title += '. (This die is dizzy because it was turned ' +
         'down.  It can\'t be used during this attack.)';
       }
-      borderDivOpts.class = 'die_border';
+      containerDivOpts.class = 'die_container die_alive';
+      dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
     }
@@ -1825,18 +1831,25 @@ Game.gamePlayerDice = function(player, player_active) {
       'class': 'die_overlay die_number_' + player,
       'text': Api.game[player].valueArray[i],
     }));
-    dieDiv.append($('<br>'));
 
     var dieRecipeText = Game.dieRecipeText(
       Api.game[player].dieRecipeArray[i],
       Api.game[player].sidesArray[i]);
-    dieDiv.append($('<span>', {
+    dieRecipeDiv = $('<div>');
+    dieRecipeDiv.append($('<span>', {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    dieBorderDiv.append(dieDiv);
 
-    allDice.append(dieBorderDiv);
+    dieBorderDiv.append(dieDiv);
+    if (player == 'player') {
+      dieContainerDiv.append(dieRecipeDiv);
+      dieContainerDiv.append(dieBorderDiv);
+    } else {
+      dieContainerDiv.append(dieBorderDiv);
+      dieContainerDiv.append(dieRecipeDiv);
+    }
+    allDice.append(dieContainerDiv);
     i += 1;
   }
 
@@ -1851,12 +1864,12 @@ Game.gamePlayerDice = function(player, player_active) {
       continue;
     }
 
-    var dieBorderDiv = $('<div>', { 'class': 'die_border' });
+    var dieContainerDiv = $('<div>', { 'class': 'die_container die_dead' });
     var dieDiv = $('<div>', {
       'title':
         'This die was just captured in the last attack and is no longer ' +
         'in play.',
-      'class': 'die_img die_dead'
+      'class': 'die_img'
     });
 
     dieDiv.append($('<span>', {
@@ -1872,9 +1885,9 @@ Game.gamePlayerDice = function(player, player_active) {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    dieBorderDiv.append(dieDiv);
+    dieContainerDiv.append(dieDiv);
 
-    allDice.append(dieBorderDiv);
+    allDice.append(dieContainerDiv);
     i += 1;
   }
 
@@ -2024,19 +2037,21 @@ Game.dieCanRerollForInitiative = function(recipe) {
 
 Game.dieBorderTogglePlayerHandler = function() {
   $(this).toggleClass('selected unselected_player');
+  var borderDiv = $(this).find('.die_border');
   if ($(this).hasClass('unselected_player')) {
-    $(this).attr('style', 'border: 2px solid ' + Game.color.player);
+    borderDiv.attr('style', 'border: 2px solid ' + Game.color.player);
   } else {
-    $(this).attr('style', '');
+    borderDiv.attr('style', '');
   }
 };
 
 Game.dieBorderToggleOpponentHandler = function() {
   $(this).toggleClass('selected unselected_opponent');
+  var borderDiv = $(this).find('.die_border');
   if ($(this).hasClass('unselected_opponent')) {
-    $(this).attr('style', 'border: 2px solid ' + Game.color.opponent);
+    borderDiv.attr('style', 'border: 2px solid ' + Game.color.opponent);
   } else {
-    $(this).attr('style', '');
+    borderDiv.attr('style', '');
   }
 };
 
