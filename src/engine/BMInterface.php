@@ -9,10 +9,11 @@
  * @property-read DateTime $timestamp            Timestamp of last game action
  *
  */
-class BMInterface extends BMInterfaceBase {
+class BMInterface {
     // properties
     private $message;               // message intended for GUI
     private $timestamp;             // timestamp of last game action
+    protected static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing
 

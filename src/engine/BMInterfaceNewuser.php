@@ -13,10 +13,11 @@
  * database usage should mirror that of BMInterface
  *
  */
-class BMInterfaceNewuser extends BMInterfaceBase {
+class BMInterfaceNewuser {
     // properties
     private $message;               // message intended for GUI
 //    private $timestamp;             // timestamp of last game action
+    protected static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing
 
