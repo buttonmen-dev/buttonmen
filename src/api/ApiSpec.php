@@ -184,6 +184,10 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'loadSiteConfig' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
     );
 
     // This function looks at the provided arguments other than

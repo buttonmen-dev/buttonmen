@@ -493,5 +493,23 @@ var Api = (function () {
     return true;
   };
 
+  my.loadSiteConfig = function(callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadSiteConfig',
+      },
+      'siteConfig',
+      my.parseSiteConfig,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseSiteConfig = function(data) {
+    my.siteConfig.siteType = data.siteType;
+    return true;
+  };
+
+
   return my;
 }());

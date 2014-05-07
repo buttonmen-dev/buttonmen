@@ -13,11 +13,10 @@
  * database usage should mirror that of BMInterface
  *
  */
-class BMInterfaceNewuser {
+class BMInterfaceNewuser extends BMInterfaceBase {
     // properties
     private $message;               // message intended for GUI
 //    private $timestamp;             // timestamp of last game action
-    private static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing
 
@@ -201,6 +200,22 @@ class BMInterfaceNewuser {
         // send the e-mail message
         $email = new BMEmail($playerEmail, $this->isTest);
         $email->send_verification_link($playerId, $username, $playerKey);
+    }
+
+    // Retrieves any config settings that ought to be exposed to the client
+    public function load_site_config() {
+        try {
+            $site_type = $this->get_config('site_type');
+            if (isset($site_type) && $site_type != '') {
+            	return array('siteType' => $site_type);
+            } else {
+                $this->message = 'Site type not configured';
+            	return NULL;
+            }
+        } catch (Exception $e) {
+            $this->message = 'Loading site config failed: ' . $e->getMessage();
+            return NULL;
+        }
     }
 
     public function __get($property) {

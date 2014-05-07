@@ -158,38 +158,79 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
 
-  var infopar = $('<p>');
-  infopar.append(
-    'This is the alpha version of the Buttonweavers implementation of ');
-  infopar.append($('<a>', {
-    'href': 'http://www.cheapass.com/node/39',
-    'text': 'Button Men',
-  }));
-  infopar.append('.');
-  Overview.page.append(infopar);
+  if (Api.siteConfig.siteType == 'development') {
+    var infopar = $('<p>');
+    infopar.append(
+      'This is the <span style="color: red;">DEVELOPMENT</span> version of ' +
+      'the Buttonweavers implementation of ');
+    infopar.append($('<a>', {
+      'href': 'http://www.cheapass.com/node/39',
+      'text': 'Button Men',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
 
-  infopar = $('<p>');
-  infopar.append(
-    'Want to start beating people up?  Login using the menubar above, or ');
-  infopar.append($('<a>', {
-    'href': '/ui/create_user.html',
-    'text': 'create an account',
-  }));
-  infopar.append('.');
-  Overview.page.append(infopar);
+    Overview.page.append($('<br />'));
 
-  infopar = $('<p>');
-  infopar.append(
-    'We wanted to make this site publically available as soon as possible, ' +
-    'so there are still a lot of bugs!  If you find anything broken or hard ' +
-    'to use, or if you have any questions, please get in touch, either by ' +
-    'opening a ticket at ');
-  infopar.append($('<a>', {
-    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
-    'text': 'the buttonweavers issue tracker',
-  }));
-  infopar.append(' or by e-mailing us at help@buttonweavers.com.');
-  Overview.page.append(infopar);
+    infopar = $('<p>');
+    infopar.append(
+      'If you\r looking for the Button Men open alpha, please head over to ');
+    infopar.append($('<a>', {
+      'href': 'http://www.buttonweavers.com',
+      'text': 'www.buttonweavers.com',
+    }));
+    infopar.append(' to start beating people up!');
+    Overview.page.append(infopar);
+
+    infopar = $('<p>');
+    infopar.append(
+      'If you\'re interested in joining the development site as a tester, ' +
+      'then check out our ');
+    infopar.append($('<a>', {
+      'href': 'https://github.com/buttonmen-dev/buttonmen/wiki/Tester-guide',
+      'text': 'tester guide',
+    }));
+    infopar.append(', then Login using the menubar above, or ');
+    infopar.append($('<a>', {
+      'href': '/ui/create_user.html',
+      'text': 'create an account',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
+  } else {
+    var infopar = $('<p>');
+    infopar.append(
+      'This is the alpha version of the Buttonweavers implementation of ');
+    infopar.append($('<a>', {
+      'href': 'http://www.cheapass.com/node/39',
+      'text': 'Button Men',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
+
+    infopar = $('<p>');
+    infopar.append(
+      'Want to start beating people up?  Login using the menubar above, or ');
+    infopar.append($('<a>', {
+      'href': '/ui/create_user.html',
+      'text': 'create an account',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
+
+    infopar = $('<p>');
+    infopar.append(
+      'We wanted to make this site publically available as soon as possible, ' +
+      'so there are still a lot of bugs!  If you find anything broken or hard ' +
+      'to use, or if you have any questions, please get in touch, either by ' +
+      'opening a ticket at ');
+    infopar.append($('<a>', {
+      'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
+      'text': 'the buttonweavers issue tracker',
+    }));
+    infopar.append(' or by e-mailing us at help@buttonweavers.com.');
+    Overview.page.append(infopar);
+  }
 
   infopar = $('<p>');
   infopar.append(

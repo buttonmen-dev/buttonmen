@@ -25,10 +25,24 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
+      var welcomeText = 'Welcome to ButtonMen';
+      if (Api.siteConfig.siteType == 'development') {
+        $('#login_header').css('background-color', '#cccccc');
+        $('head').append(
+          $('<link>', {
+            'type': 'image/x-icon',
+            'rel': 'shortcut icon',
+            'href': '/dev_favicon.ico',
+          }));
+        welcomeText += ' DEV SITE';
+      } else if (Api.siteConfig.siteType != 'production') {
+        $('#login_header').css('background-color', '#ff7777');
+        welcomeText += ' CONFIG ERROR';
+      }
       if (Login.player === null) {
-        Login.stateLoggedOut();
+        Login.stateLoggedOut(welcomeText);
       } else {
-        Login.stateLoggedIn();
+        Login.stateLoggedIn(welcomeText);
       }
       return Login.layoutHeader();
     }
@@ -45,9 +59,10 @@ Login.showLoginHeader = function(callbackfunc) {
     $('body').append($('<hr>'));
   }
 
-  // Find the current login header contents, and display them followed
-  // by the specified callback routine
-  Login.getLoginHeader();
+  // Check if we're on the development or production site, then find the
+  // current login header contents and display them followed by the specified
+  // callback routine
+  Api.loadSiteConfig(Login.getLoginHeader);
 };
 
 Login.layoutHeader = function() {
@@ -74,10 +89,10 @@ Login.getLoginForm = function() {
 // One function for each possible logged in state
 // The function should setup a header and a form
 
-Login.stateLoggedIn = function() {
+Login.stateLoggedIn = function(welcomeText) {
   var loginform = Login.getLoginForm();
   loginform.append(
-    'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
+    welcomeText + ': You are logged in as ' + Login.player + '. '
   );
   loginform.append($('<button>', {
     'id': 'login_action_button',
@@ -90,9 +105,9 @@ Login.stateLoggedIn = function() {
   Login.logged_in = true;
 };
 
-Login.stateLoggedOut = function() {
+Login.stateLoggedOut = function(welcomeText) {
   Login.message = $('<p>');
-  Login.message.append('Welcome to ButtonMen: ');
+  Login.message.append(welcomeText + ': ');
   if (Login.status_type == Login.STATUS_ACTION_FAILED) {
     Login.message.append(
       $('<font>', {

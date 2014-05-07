@@ -12,6 +12,7 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.siteConfig;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -295,6 +296,23 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
     };
   Api.getNextGameId(function() {
     equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
+    start();
+  });
+});
+
+asyncTest("test_Api.loadSiteConfig", function() {
+  Api.loadSiteConfig(
+    function() {
+      equal(Api.siteConfig.load_status, 'ok',
+        'Successfully retrieved site config');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseSiteConfig", function() {
+  Api.loadSiteConfig(function() {
+      equal(Api.siteConfig.siteType, 'development',
+        'Successfully parsed site config');
     start();
   });
 });
