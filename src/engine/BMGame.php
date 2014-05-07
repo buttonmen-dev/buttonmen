@@ -888,7 +888,6 @@ class BMGame {
 
             $this->prevSwingValueArrArr = $this->swingValueArrayArray;
             $this->prevOptValueArrArr = $this->optValueArrayArray;
-            $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
 
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
@@ -1451,6 +1450,7 @@ class BMGame {
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+        $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
         unset($this->forceRoundResult);
     }
 
