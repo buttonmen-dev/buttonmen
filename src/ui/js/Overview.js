@@ -158,8 +158,9 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
 
+  var infopar;
   if (Config.siteType == 'development') {
-    var infopar = $('<p>');
+    infopar = $('<p>');
     infopar.append(
       'This is the <span style="color: red;">DEVELOPMENT</span> version of ' +
       'the Buttonweavers implementation of ');
@@ -198,7 +199,7 @@ Overview.pageAddIntroText = function() {
     infopar.append('.');
     Overview.page.append(infopar);
   } else {
-    var infopar = $('<p>');
+    infopar = $('<p>');
     infopar.append(
       'This is the alpha version of the Buttonweavers implementation of ');
     infopar.append($('<a>', {
@@ -221,9 +222,9 @@ Overview.pageAddIntroText = function() {
     infopar = $('<p>');
     infopar.append(
       'We wanted to make this site publically available as soon as possible, ' +
-      'so there are still a lot of bugs!  If you find anything broken or hard ' +
-      'to use, or if you have any questions, please get in touch, either by ' +
-      'opening a ticket at ');
+      'so there are still a lot of bugs!  If you find anything broken or ' +
+      'hard to use, or if you have any questions, please get in touch, ' +
+      'either by opening a ticket at ');
     infopar.append($('<a>', {
       'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
       'text': 'the buttonweavers issue tracker',
