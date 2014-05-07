@@ -26,7 +26,7 @@ Login.getLoginHeader = function() {
       }
       Login.player = player_name;
       var welcomeText = 'Welcome to ButtonMen';
-      if (Api.siteConfig.siteType == 'development') {
+      if (Config.siteType == 'development') {
         $('#login_header').css('background-color', '#cccccc');
         $('head').append(
           $('<link>', {
@@ -35,7 +35,7 @@ Login.getLoginHeader = function() {
             'href': '/dev_favicon.ico',
           }));
         welcomeText += ' DEV SITE';
-      } else if (Api.siteConfig.siteType != 'production') {
+      } else if (Config.siteType != 'production') {
         $('#login_header').css('background-color', '#ff7777');
         welcomeText += ' CONFIG ERROR';
       }
@@ -59,10 +59,9 @@ Login.showLoginHeader = function(callbackfunc) {
     $('body').append($('<hr>'));
   }
 
-  // Check if we're on the development or production site, then find the
-  // current login header contents and display them followed by the specified
-  // callback routine
-  Api.loadSiteConfig(Login.getLoginHeader);
+  // Find the current login header contents and display them followed by
+  // the specified callback routine
+  Login.getLoginHeader();
 };
 
 Login.layoutHeader = function() {

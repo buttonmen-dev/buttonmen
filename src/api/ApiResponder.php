@@ -14,7 +14,6 @@ class ApiResponder {
         'verifyUser',
         'loadPlayerName',
         'login',
-        'loadSiteConfig',
     );
 
     // constructor
@@ -274,10 +273,6 @@ class ApiResponder {
     protected function get_interface_response_logout() {
         logout();
         return array('userName' => FALSE);
-    }
-
-    protected function get_interface_response_loadSiteConfig($interface) {
-        return $interface->load_site_config();
     }
 
     // Construct an interface, ask it for the response to the

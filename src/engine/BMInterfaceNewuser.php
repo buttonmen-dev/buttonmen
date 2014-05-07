@@ -202,22 +202,6 @@ class BMInterfaceNewuser extends BMInterfaceBase {
         $email->send_verification_link($playerId, $username, $playerKey);
     }
 
-    // Retrieves any config settings that ought to be exposed to the client
-    public function load_site_config() {
-        try {
-            $site_type = $this->get_config('site_type');
-            if (isset($site_type) && $site_type != '') {
-            	return array('siteType' => $site_type);
-            } else {
-                $this->message = 'Site type not configured';
-            	return NULL;
-            }
-        } catch (Exception $e) {
-            $this->message = 'Loading site config failed: ' . $e->getMessage();
-            return NULL;
-        }
-    }
-
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {

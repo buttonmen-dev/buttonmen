@@ -299,20 +299,3 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
     start();
   });
 });
-
-asyncTest("test_Api.loadSiteConfig", function() {
-  Api.loadSiteConfig(
-    function() {
-      equal(Api.siteConfig.load_status, 'ok',
-        'Successfully retrieved site config');
-      start();
-    });
-});
-
-asyncTest("test_Api.parseSiteConfig", function() {
-  Api.loadSiteConfig(function() {
-      equal(Api.siteConfig.siteType, 'development',
-        'Successfully parsed site config');
-    start();
-  });
-});

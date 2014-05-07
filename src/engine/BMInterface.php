@@ -2127,6 +2127,27 @@ class BMInterface extends BMInterfaceBase {
         }
     }
 
+    protected function get_config($conf_key) {
+        try {
+            $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':conf_key' => $conf_key));
+            $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) != 1) {
+                error_log("Wrong number of config values with key " . $conf_key);
+                return NULL;
+            }
+            return $fetchResult[0]['conf_value'];
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_config: " .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
     // Calculates the difference between two (unix-style) timespans and formats
     // the result as a friendly approximation like '7 days' or '12 minutes'.
     protected function get_friendly_time_span($firstTime, $secondTime) {

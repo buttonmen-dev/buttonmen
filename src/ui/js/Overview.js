@@ -158,7 +158,7 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
 
-  if (Api.siteConfig.siteType == 'development') {
+  if (Config.siteType == 'development') {
     var infopar = $('<p>');
     infopar.append(
       'This is the <span style="color: red;">DEVELOPMENT</span> version of ' +

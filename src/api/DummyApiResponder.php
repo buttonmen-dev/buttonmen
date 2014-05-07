@@ -1250,11 +1250,6 @@ class DummyApiResponder {
         return array(NULL, "function not implemented");
     }
 
-    protected function get_interface_response_loadSiteConfig() {
-        $data = array('siteType' => 'development');
-        return array($data, "Site configuration data retrieved successfully.");
-    }
-
     // Ask get_interface_response() for the dummy response to the
     // request, then construct a response.  Match the logic in
     // responder as closely as possible for convenience.
