@@ -109,3 +109,22 @@ test("test_Env.padLeft", function() {
   equal(results, expectedOutput, 'padLeft added padding');
 });
 
+test("test_Env.noImages", function() {
+  var value = false;
+  Env.noImages(value);
+  equal(Env.noImages(), value, 'noImage is false');
+
+  value = true;
+  Env.noImages(value);
+  equal(Env.noImages(), value, 'noImage is true');
+});
+
+test("test_Env.compactMode", function() {
+  var value = false;
+  Env.compactMode(value);
+  equal(Env.compactMode(), value, 'compactMode is false');
+
+  value = true;
+  Env.compactMode(value);
+  equal(Env.compactMode(), value, 'compactMode is true');
+});

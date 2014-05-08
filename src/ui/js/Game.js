@@ -730,6 +730,9 @@ Game.actionReactToInitiativeNonplayer = function() {
 
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
+  if (Env.compactMode()) {
+    Game.page.addClass('compactMode');
+  }
   Game.pageAddGameHeader('Your turn to attack');
   Game.pageAddDieBattleTable(true);
   Game.page.append($('<br>'));
@@ -796,6 +799,9 @@ Game.actionPlayTurnActive = function() {
 
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
+  if (Env.compactMode()) {
+    Game.page.addClass('compactMode');
+  }
   Game.pageAddGameHeader('Opponent\'s turn to attack');
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<br>'));
@@ -827,6 +833,9 @@ Game.actionPlayTurnInactive = function() {
 
 Game.actionPlayTurnNonplayer = function() {
   Game.page = $('<div>');
+  if (Env.compactMode()) {
+    Game.page.addClass('compactMode');
+  }
 
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -1686,14 +1695,18 @@ Game.buttonImageDisplay = function(player) {
   if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
-  buttonTd.append($('<img>', {
-    'src':
-      '/ui/images/button/' +
-      Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
-      '.png',
-    'width': '150px',
-    'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
-  }));
+  if (Env.noImages() || Env.compactMode()) {
+    buttonTd.append($('<div>', { 'style': 'height: 150px; width: 150px;', }));
+  } else {
+    buttonTd.append($('<img>', {
+      'src':
+        '/ui/images/button/' +
+        Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
+        '.png',
+      'width': '150px',
+      'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
+    }));
+  }
   if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);

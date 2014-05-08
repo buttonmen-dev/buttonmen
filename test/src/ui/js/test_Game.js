@@ -12,10 +12,17 @@ module("Game", {
 
     // set colors for use in game, since tests don't always traverse showStatePage()
     Game.color = Game.COLORS.players;
+
+    // Define the player's name, since we won't actually be loggin in
+    Login.player = 'test';
   },
   'teardown': function() {
 
     // Delete all elements we expect this module to create
+
+    // Revert cookies
+    Env.noImages(false);
+    Env.compactMode(false);
 
     // JavaScript variables
     delete Api.game;
@@ -23,6 +30,7 @@ module("Game", {
     delete Game.page;
     delete Game.form;
     delete Game.color;
+    delete Login.player;
     Game.activity = {};
 
     // Page elements
@@ -197,6 +205,22 @@ asyncTest("test_Game.showStatePage_turn_active", function() {
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
+    ok(!Game.page.is('.compactMode'),
+      "The created page should be in normal mode")
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_turn_active_compactMode", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Env.compactMode(true);
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    ok(Game.page.is('.compactMode'),
+      "The created page should be in compact mode")
     start();
   });
 });
@@ -1029,6 +1053,19 @@ asyncTest("test_Game.buttonImageDisplay", function() {
     var htmlout = Game.page.html();
     ok(htmlout.match('avis.png'),
        "page should include a link to the button image");
+    start();
+  });
+});
+
+asyncTest("test_Game.buttonImageDisplay_noImage", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Env.noImages(true);
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.buttonImageDisplay('player'));
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('avis.png'),
+       "page should not include a link to the button image");
     start();
   });
 });

@@ -104,3 +104,23 @@ Env.padLeft = function(input, paddingCharacter, minLength) {
   var output = padding + input;
   return output.slice(minLength * -1);
 };
+
+Env.noImages = function(value) {
+  if (value === undefined) {
+    // Cookies are stored as strings, but we want to return a bool
+    return ($.cookie(Login.player + '_noImages') == 'true');
+  }
+
+  // Set the cookie to expire ten years from now (expect bug reports in 2024)
+  $.cookie(Login.player + '_noImages', value, { expires: 3650, });
+};
+
+Env.compactMode = function(value) {
+  if (value === undefined) {
+    // Cookies are stored as strings, but we want to return a bool
+    return ($.cookie(Login.player + '_compactMode') == 'true');
+  }
+
+  // Set the cookie to expire ten years from now (expect bug reports in 2024)
+  $.cookie(Login.player + '_compactMode', value, { expires: 3650, });
+};

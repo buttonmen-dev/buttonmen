@@ -109,6 +109,16 @@ UserPrefs.actionSetPrefs = function() {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
+    },
+    'noImages': {
+      'text': 'Don\'t load button images*',
+      'type': 'checkbox',
+      'checked': Env.noImages(),
+    },
+    'compactMode': {
+      'text': 'Use compact version of game interface*',
+      'type': 'checkbox',
+      'checked': Env.compactMode(),
     }
   };
 
@@ -135,6 +145,11 @@ UserPrefs.actionSetPrefs = function() {
   }));
   prefsdiv.append(prefsform);
 
+  prefsdiv.append($('<p>', {
+    text: '* Preferences marked with an asterisk will only apply to the ' +
+      'browser you\'re currently using.',
+  }));
+
   UserPrefs.page.append(prefsdiv);
 
   // Function to invoke on button click
@@ -149,6 +164,11 @@ UserPrefs.actionSetPrefs = function() {
 
 UserPrefs.formSetPrefs = function() {
   var autopass = $('#userprefs_autopass').prop('checked');
+  var noImages = $('#userprefs_noImages').prop('checked');
+  var compactMode = $('#userprefs_compactMode').prop('checked');
+
+  Env.noImages(noImages);
+  Env.compactMode(compactMode);
 
   Api.apiFormPost(
     { type: 'savePlayerInfo', autopass: autopass },
