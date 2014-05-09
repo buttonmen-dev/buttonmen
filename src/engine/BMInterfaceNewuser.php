@@ -46,12 +46,12 @@ class BMInterfaceNewuser {
     public function create_user($username, $password, $email) {
         try {
             if (strlen($username) > 25) {
-              $this->message = 'Usernames cannot be longer than 25 characters';
-              return NULL;
+                $this->message = 'Usernames cannot be longer than 25 characters';
+                return NULL;
             }
             if (strlen($email) > 254) {
-              $this->message = 'Email addresses cannot be longer than 254 characters';
-              return NULL;
+                $this->message = 'Email addresses cannot be longer than 254 characters';
+                return NULL;
             }
 
             // if this is a remote connection, check whether this
