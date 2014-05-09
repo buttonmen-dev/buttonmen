@@ -32,8 +32,12 @@ Newuser.showNewuserPage = function() {
     $('body').append($('<div>', {'id': 'newuser_page', }));
   }
 
-  // Don't allow logged-in users to create new accounts
-  if (Login.logged_in === true) {
+  if (Newuser.justCreatedAccount === true) {
+    // Don't re-display the form if they've already created an account
+    Newuser.page = $('<div>');
+    Newuser.layoutPage();
+  } else if (Login.logged_in === true) {
+    // Don't allow logged-in users to create new accounts
     Newuser.actionLoggedIn();
   } else {
     Newuser.actionCreateUser();
@@ -105,6 +109,7 @@ Newuser.actionCreateUser = function() {
     'username': {
       'text': 'Username',
       'type': 'text',
+      'maxlength': 25,
     },
     'password': {
       'text': 'Password',
@@ -117,10 +122,12 @@ Newuser.actionCreateUser = function() {
     'email': {
       'text': 'E-mail address',
       'type': 'text',
+      'maxlength': 254,
     },
     'email_confirm': {
       'text': 'E-mail address (again)',
       'type': 'text',
+      'maxlength': 254,
     },
   };
 
@@ -135,6 +142,7 @@ Newuser.actionCreateUser = function() {
       'type': entryinfo.type,
       'name': entryid,
       'id': 'newuser_' + entryid,
+      'maxlength': entryinfo.maxlength,
     }));
     entryrow.append(entryinput);
     createtable.append(entryrow);
@@ -230,6 +238,7 @@ Newuser.formCreateUser = function() {
 };
 
 Newuser.setCreateUserSuccessMessage = function(message) {
+  Newuser.justCreatedAccount = true;
   Env.message = {
     'type': 'success',
     'text': message,

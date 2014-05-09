@@ -45,6 +45,15 @@ class BMInterfaceNewuser {
 
     public function create_user($username, $password, $email) {
         try {
+            if (strlen($username) > 25) {
+              $this->message = 'Usernames cannot be longer than 25 characters';
+              return NULL;
+            }
+            if (strlen($email) > 254) {
+              $this->message = 'Email addresses cannot be longer than 254 characters';
+              return NULL;
+            }
+
             // if this is a remote connection, check whether this
             // IP already has numerous player_verification entries
             if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
@@ -108,7 +117,7 @@ class BMInterfaceNewuser {
             $result = array('userName' => $username, 'playerId' => $playerId);
 
             // now generate a verification code and e-mail it to the user
-            $this->send_email_verification($playerId, $username, $playerEmail);
+            //$this->send_email_verification($playerId, $username, $playerEmail);
 
             $this->message = 'User ' . $username . ' created successfully.  ' .
                              'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
