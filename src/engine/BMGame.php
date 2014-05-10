@@ -1715,7 +1715,8 @@ class BMGame {
                     );
                 }
                 foreach ($value as $tempValueElement) {
-                    if (!($tempValueElement instanceof BMButton)) {
+                    if (!($tempValueElement instanceof BMButton) &&
+                        !is_null($tempValueElement)) {
                         throw new InvalidArgumentException(
                             'Input must be an array of BMButtons.'
                         );
@@ -1723,22 +1724,26 @@ class BMGame {
                 }
                 $this->buttonArray = $value;
                 foreach ($this->buttonArray as $playerIdx => $button) {
-                    $button->playerIdx = $playerIdx;
-                    $button->ownerObject = $this;
+                    if ($button instanceof BMButton) {
+                        $button->playerIdx = $playerIdx;
+                        $button->ownerObject = $this;
+                    }
                 }
                 foreach ($this->buttonArray as $playerIdx => &$button) {
-                    $oppIdx = ($playerIdx + 1) % 2;
-                    $oppButton = $this->buttonArray[$oppIdx];
-                    $hookResult = $button->run_hooks(
-                        'load_buttons',
-                        array('name' => $button->name,
-                              'recipe' => $button->recipe,
-                              'oppname' => $oppButton->name,
-                              'opprecipe' => $oppButton->recipe)
-                    );
-                    if (isset($hookResult) && (FALSE !== $hookResult)) {
-                        $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
-                        $button->hasAlteredRecipe = TRUE;
+                    if ($button instanceof BMButton) {
+                        $oppIdx = ($playerIdx + 1) % 2;
+                        $oppButton = $this->buttonArray[$oppIdx];
+                        $hookResult = $button->run_hooks(
+                            'load_buttons',
+                            array('name' => $button->name,
+                                  'recipe' => $button->recipe,
+                                  'oppname' => $oppButton->name,
+                                  'opprecipe' => $oppButton->recipe)
+                        );
+                        if (isset($hookResult) && (FALSE !== $hookResult)) {
+                            $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
+                            $button->hasAlteredRecipe = TRUE;
+                        }
                     }
                 }
                 break;

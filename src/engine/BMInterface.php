@@ -273,12 +273,15 @@ class BMInterface {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
                      'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
+                     's.name AS status_name,'.
                      'v.player_id, v.position, v.autopass,'.
                      'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
                      'v.is_awaiting_action '.
                      'FROM game AS g '.
+                     'LEFT JOIN game_status AS s '.
+                     'ON s.id = g.status_id '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
                      'WHERE game_id = :game_id '.
@@ -296,11 +299,21 @@ class BMInterface {
                     $game->turnNumberInRound = $row['turn_number_in_round'];
                     $game->nRecentPasses = $row['n_recent_passes'];
                     $this->timestamp = (int)$row['last_action_timestamp'];
+
+                     // initialise all temporary arrays
+                    $nPlayers = $row['n_players'];
+                    $playerIdArray = array_fill(0, $nPlayers, NULL);
+                    $gameScoreArrayArray = array_fill(0, $nPlayers, array(0, 0, 0));
+                    $buttonArray = array_fill(0, $nPlayers, NULL);
+                    $waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+                    $autopassArray = array_fill(0, $nPlayers, FALSE);
                 }
 
                 $pos = $row['position'];
-                $playerIdArray[$pos] = $row['player_id'];
-                $autopassArray[$pos] = (bool)$row['autopass'];
+                if (isset($pos)) {
+                    $playerIdArray[$pos] = $row['player_id'];
+                    $autopassArray[$pos] = (bool)$row['autopass'];
+                }
 
                 if (1 == $row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
