@@ -18,14 +18,29 @@ History.showHistoryPage = function() {
     $('body').append($('<div>', {'id': 'history_page', }));
   }
 
+  // Make sure the user is logged in before trying to hit the API
+  if (Login.logged_in !== true) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must be logged in in order to view game history.',
+    };
+    History.page = $('<div>');
+    History.layoutPage();
+    return;
+  }
+
   // Get all needed information, then display History page
   History.getHistory(History.showPage);
 };
 
 History.getHistory = function(callback) {
   if (Login.logged_in) {
+    var searchParameters = {
+      'playerNameA': Login.player,
+      'status': 'Completed',
+    };
     Api.searchGameHistory(
-      { 'playerNameA': Login.player, 'status': 'Completed', },
+      searchParameters,
       callback
     );
   } else {
@@ -36,26 +51,28 @@ History.getHistory = function(callback) {
 History.showPage = function() {
   History.page = $('<div>');
 
-  if (Login.logged_in === true) {
-    var resultsTable = $('<table>');
-    History.page.append(resultsTable);
-
-    resultsTable.append(History.buildResultsTableHeader());
-    resultsTable.append(History.buildResultsTableBody());
-    resultsTable.append(History.buildResultsTableFooter());
-  } else {
-    Env.message = {
-      'type': 'error',
-      'text': 'You must be logged in in order to view game history.',
-    };
+  if (Api.search_results.load_status != 'ok') {
+    History.layoutPage();
+    return;
   }
 
-  // Actually layout the page
+  History.page.append($('<h2>', { 'text': 'Game History', }));
+
+  var resultsTable = $('<table>');
+  History.page.append(resultsTable);
+
+  // Display the column headers and search filters
+  resultsTable.append(History.buildResultsTableHeader());
+  // List the games that were return
+  resultsTable.append(History.buildResultsTableBody());
+  // Show summary data
+  resultsTable.append(History.buildResultsTableFooter());
+
+  // Actually lay out the page
   History.layoutPage();
 };
 
 History.layoutPage = function() {
-
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
@@ -126,13 +143,42 @@ History.buildResultsTableBody = function() {
   });
 
   return body;
-
 };
 
 History.buildResultsTableFooter = function() {
   var foot = $('<tfoot>');
+  var footerHeaderRow = $('<tr>');
+  foot.append(footerHeaderRow);
 
-  //TODO generate footer stuff
+  footerHeaderRow.append($('<th>', { 'text': 'Matches Found' }));
+  footerHeaderRow.append($('<th>', { 'colspan': '4' }));
+  footerHeaderRow.append($('<th>', { 'text': 'Earliest Start' }));
+  footerHeaderRow.append($('<th>', { 'text': 'Latest Move' }));
+  footerHeaderRow.append($('<th>', { 'text': 'Games W/L/T' }));
+  footerHeaderRow.append($('<th>', { 'text': '% Completed' }));
+
+  var footerDataRow = $('<tr>');
+  foot.append(footerDataRow);
+
+  var summary = Api.search_results.summary;
+
+  footerDataRow.append($('<td>', { 'text': summary.matchesFound }));
+  footerDataRow.append($('<td>', { 'colspan': '4' }));
+  footerDataRow.append($('<td>', { 'text':
+      Env.formatTimestamp(summary.earliestStart, 'date')
+  }));
+  footerDataRow.append($('<td>', { 'text':
+      Env.formatTimestamp(summary.latestMove, 'date')
+  }));
+
+  var scores =
+      summary.gamesWinningA + '/' + summary.gamesWinningB + '/' +
+      summary.gamesDrawn;
+  footerDataRow.append($('<td>', { 'text': scores }));
+
+  var percentCompleted = (summary.matchesFound * 100) / summary.gamesCompleted;
+  percentCompleted = Math.round(percentCompleted) + '%';
+  footerDataRow.append($('<td>', { 'text': percentCompleted }));
 
   return foot;
 };

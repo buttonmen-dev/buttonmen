@@ -496,11 +496,11 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Search historic games and parse the result
 
-  my.searchGameHistory = function(args, callbackfunc) {
-    args.type = 'searchGameHistory';
+  my.searchGameHistory = function(searchParameters, callbackfunc) {
+    searchParameters.type = 'searchGameHistory';
 
     my.apiParsePost(
-      args,
+      searchParameters,
       'search_results',
       my.parseSearchResults,
       callbackfunc,
@@ -509,7 +509,8 @@ var Api = (function () {
   }
 
   my.parseSearchResults = function(data) {
-    my.search_results.games =  data;
+    my.search_results.games =  data.games;
+    my.search_results.summary =  data.summary;
     return true;
   }
 

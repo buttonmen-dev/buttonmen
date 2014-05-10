@@ -919,7 +919,7 @@ class BMInterface {
 
             if (isset($searchFilters['gameId'])) {
                 // Because PHP won't let us use the same parameter twice in
-                // a query
+                // a query, I have to duplicate each one of these. Grrr.
                 $playerJoin0 .= 'AND g.id = :game_id_0 ';
                 $playerJoin1 .= 'AND g.id = :game_id_1 ';
                 $parameters[':game_id_0'] = $searchFilters['gameId'];
@@ -1052,10 +1052,51 @@ class BMInterface {
                 );
             }
 
+            $combinedQuery =
+                'SELECT ' .
+                    'COUNT(*) AS matches_found, ' .
+                    'MIN(game_start) AS earliest_start, ' .
+                    'MAX(last_move) AS latest_move, ' .
+                    'SUM(rounds_won_A > rounds_won_B) AS games_winning_A, ' .
+                    'SUM(rounds_won_A < rounds_won_B) AS games_winning_B, ' .
+                    'SUM(rounds_won_A = rounds_won_B) AS games_drawn, ' .
+                    'SUM(status = "COMPLETE") AS games_completed, ' .
+                    'SUM(status != "COMPLETE") AS games_in_progress ' .
+                'FROM (( ' .
+                    $baseQuery . $playerJoin0 .
+                ') UNION (' .
+                    $baseQuery . $playerJoin1 .
+                ')) AS results;';
+
+            $statement = self::$conn->prepare($combinedQuery);
+            $statement->execute($parameters);
+
+            // If it fails, it's probably better to ignore it and still return
+            // the games list than to error out and return nothing
             //TODO get summary footer info
 
+            $summary = array();
+
+            $summaryRows = $statement->fetchAll();
+            if (count($summaryRows) == 1) {
+                $summary['matchesFound'] = (int)$summaryRows[0]['matches_found'];
+                $summary['earliestStart'] = (int)$summaryRows[0]['earliest_start'];
+                $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
+                $summary['gamesWinningA'] = (int)$summaryRows[0]['games_winning_A'];
+                $summary['gamesWinningB'] = (int)$summaryRows[0]['games_winning_B'];
+                $summary['gamesDrawn'] = (int)$summaryRows[0]['games_drawn'];
+                $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
+                $summary['gamesInProgress'] = (int)$summaryRows[0]['games_in_progress'];
+            } else {
+                $this->message = 'Retrieving summary data for history search failed';
+                error_log($this->message .
+                    " in BMInterface::search_game_history" .
+                    " -- Full SQL query: " . $combinedQuery
+                );
+            }
+
             $this->message = 'Sought games retrieved successfully.';
-            return $games;
+            return array('games' => $games, 'summary' => $summary);
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::search_game_history: " .
