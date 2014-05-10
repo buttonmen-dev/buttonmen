@@ -876,6 +876,159 @@ class BMInterface {
                                   ':flags' => $flags));
     }
 
+    // Get all games matching the specified search filters. Filters are
+    // expected to have already been validated.
+    protected function search_game_history($searchFilters) {
+        try {
+            //TODO fill in the other selected fields
+            $baseQuery =
+                'SELECT ' .
+                    'g.id AS game_id, ' .
+                    'vA.player_id AS player_id_A, ' .
+                    'vA.player_name AS player_name_A, ' .
+                    'vA.button_name AS button_name_A, ' .
+                    'vB.player_id AS player_id_B, ' .
+                    'vB.player_name AS player_name_B, ' .
+                    'vB.button_name AS button_name_B, ' .
+                    // CHANGE THIS TO A REAL VALUE!
+                    'g.last_action_time AS game_start, ' .
+                    'g.last_action_time AS last_move, ' .
+                    'vA.n_rounds_won AS player_name_A, ' .
+                    'vB.n_rounds_won AS player_name_B, ' .
+                    'vA.n_rounds_drawn AS rounds_drawn, ' .
+                    'g.n_target_wins AS target_wins, ' .
+                    's.name AS status' .
+                'FROM game AS g ' .
+                    'LEFT JOIN game_status AS s ON s.id = g.status_id ';
+
+            $playerJoinA =
+                'LEFT JOIN game_player_view AS vA ' .
+                    'ON vA.game_id = g.id AND vA.position =  ' .
+                'LEFT JOIN game_player_view AS vB ' .
+                    'ON vB.game_id = g.id AND vB.position != vA.position ';
+
+            $playerJoinA =
+                'LEFT JOIN game_player_view AS vB ' .
+                    'ON vA.game_id = g.id ' .
+                'LEFT JOIN game_player_view AS vB ' .
+                    'ON vB.game_id = g.id AND vB.position != vA.position ';
+
+            $where = 'WHERE 1=1 ';
+
+            $parameters = array();
+
+            if (isset($searchFilters['gameId'])) {
+                $where .= 'AND g.id = :game_id ';
+                $parameters['game_id'] = $searchFilters['gameId'];
+            }
+
+            if (isset($searchFilters['playerIdA'])) {
+                $where .= 'AND vA.player_id = :player_id_A ';
+                $parameters['player_id_A'] = $searchFilters['playerIdA'];
+            }
+
+            if (isset($searchFilters['buttonIdA'])) {
+                $where .= 'AND vA.button_id = :button_id_A ';
+                $parameters['button_id_A'] = $searchFilters['buttonIdA'];
+            }
+
+            if (isset($searchFilters['playerIdB'])) {
+                $where .= 'AND vB.player_id = :player_id_B ';
+                $parameters['player_id_B'] = $searchFilters['playerIdB'];
+            }
+
+            if (isset($searchFilters['buttonIdB'])) {
+                $where .= 'AND vB.button_id = :button_id_B ';
+                $parameters['button_id_B'] = $searchFilters['buttonIdB'];
+            }
+
+            if (isset($searchFilters['gameStartMin'])) {
+                // CHANGE THIS TO A REAL VALUE!
+                $where .= 'AND g.last_action_time >= :game_start_min ';
+                $parameters['game_start_min'] = $searchFilters['gameStartMin'];
+            }
+            if (isset($searchFilters['gameStartMax'])) {
+                // CHANGE THIS TO A REAL VALUE!
+                $where .= 'AND g.last_action_time < :game_start_max ';
+                $parameters['game_start_max'] =
+                    // We want the range to end at the *end* of the day (i.e.,
+                    // the start of the next one).
+                    $searchFilters['gameStartMax'] + 24 * 60 * 60;
+            }
+
+            if (isset($searchFilters['lastMoveMin'])) {
+                $where .= 'AND g.last_action_time >= :las_mMove_min ';
+                $parameters['las_mMove_min'] = $searchFilters['lastMoveMin'];
+            }
+            if (isset($searchFilters['lastMoveMax'])) {
+                $where .= 'AND g.last_action_time < :las_mMove_max ';
+                $parameters['las_mMove_max'] =
+                    // We want the range to end at the *end* of the day (i.e.,
+                    // the start of the next one).
+                    $searchFilters['lastMoveMax'] + 24 * 60 * 60;
+            }
+
+            if ($searchFilters['winningPlayer'] == 'A') {
+                $where .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
+            } else if ($searchFilters['winningPlayer'] == 'B') {
+                $where .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
+            } else if ($searchFilters['winningPlayer'] == 'Tie') {
+                $where .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+            }
+
+            if ($searchFilters['status'] == 'Completed') {
+                $where .= 'AND s.name = "COMPLETE" ';
+            } else if ($searchFilters['status'] == 'InProgress') {
+                $where .= 'AND s.name != "COMPLETE" ';
+            }
+
+            //TODO sort based on some passed-in value
+            $sort = 'ORDER BY g.last_action_time ASC;';
+
+            $combinedQuery =
+                'SELECT * FROM (( ' .
+                    $baseQuery . $playerJoinA . $where .
+                ') UNION (' .
+                    $baseQuery . $playerJoinB . $where .
+                ')) AS results ' .
+                'GROUP BY game_id ' . $sort;
+
+            $statement = self::$conn->prepare($combinedQuery);
+            $statement->execute($parameters);
+
+            $games = array();
+
+            while ($row = $statement->fetch()) {
+                $games[] = array(
+                    'gameId' => (int)$row['game_id'],
+                    'playerIdA' => (int)$row['player_id_A'],
+                    'playerNameA' => (int)$row['player_name_A'],
+                    'buttonNameA' => $row['button_name_A'],
+                    'playerIdB' => (int)$row['player_id_B'],
+                    'playerNameB' => (int)$row['player_name_B'],
+                    'buttonNameB' => $row['button_name_B'],
+                    'gameStart' => $row['game_start'],
+                    'lastMove' => $row['last_move'],
+                    'rounds_won_A' => (int)$row['rounds_won_A'],
+                    'rounds_won_B' => (int)$row['rounds_won_B'],
+                    'rounds_drawn' => (int)$row['rounds_drawn'],
+                    'targetWins' => (int)$row['target_wins'],
+                    'status' => $row['status'],
+                );
+            }
+
+            $this->message = 'Sought games retrieved successfully.';
+            return $games;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::search_game_history: " .
+                $e->getMessage()
+            );
+            $this->message = 'Game search failed.';
+            return NULL;
+        }
+    }
+
     // Get all player games (either active or inactive) from the database
     // No error checking - caller must do it
     protected function get_all_games($playerId, $getActiveGames) {
@@ -1172,6 +1325,29 @@ class BMInterface {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
         }
         return $idNameMapping;
+    }
+
+    public function get_button_id_from_name($name) {
+        try {
+            $query = 'SELECT id FROM button '.
+                     'WHERE name = :input';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':input' => $name));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Button name does not exist.';
+                return('');
+            } else {
+                $this->message = 'Button ID retrieved successfully.';
+                return((int)$result[0]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_button_id_from_name: " .
+                $e->getMessage()
+            );
+            $this->message = 'Button ID get failed.';
+        }
     }
 
     // Check whether a requested action still needs to be taken.

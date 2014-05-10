@@ -42,6 +42,22 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'searchGameHistory' => array(
+            'mandatory' => array(),
+            'permitted' => array(
+                'gameId' => 'number',
+                'playerNameA' => 'string',
+                'buttonNameA' => 'string',
+                'playerNameB' => 'string',
+                'buttonNameB' => 'string',
+                'gameStartMin' => 'string',
+                'gameStartMax' => 'string',
+                'lastMoveMin' => 'string',
+                'lastMoveMax' => 'string',
+                'winningPlayer' => 'string',
+                'status' => 'string',
+            ),
+        ),
         'loadButtonNames' => array(
             'mandatory' => array(),
             'permitted' => array(),

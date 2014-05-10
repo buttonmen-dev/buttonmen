@@ -98,6 +98,133 @@ class ApiResponder {
         return $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
     }
 
+    protected function get_interface_response_searchGameHistory($interface, $args) {
+        $searchFilters = array();
+
+        if (isset($args['gameId'])) {
+            $searchFilters['gameId'] = (int)$args['gameId'];
+        }
+
+        if (isset($args['playerNameA'])) {
+            $playerIdA = $interface->get_player_id_from_name($args['playerNameA']);
+            if (is_int($playerIdA)) {
+                $searchFilters['playerIdA'] = $playerIdA;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Player A: ' . $this->message,
+                );
+            }
+        }
+
+        if (isset($args['buttonNameA'])) {
+            $buttonIdA = $interface->get_button_id_from_name($args['buttonNameA']);
+            if (is_int($buttonIdA)) {
+                $searchFilters['buttonIdA'] = $buttonIdA;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Button A: ' . $this->message,
+                );
+            }
+        }
+
+        if (isset($args['playerNameB'])) {
+            $playerIdB = $interface->get_player_id_from_name($args['playerNameB']);
+            if (is_int($playerIdB)) {
+                $searchFilters['playerIdB'] = $playerIdB;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Player B: ' . $this->message,
+                );
+            }
+        }
+
+        if (isset($args['buttonNameB'])) {
+            $buttonIdB = $interface->get_button_id_from_name($args['buttonNameB']);
+            if (is_int($buttonIdB)) {
+                $searchFilters['buttonIdB'] = $buttonIdB;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Button B: ' . $this->message,
+                );
+            }
+        }
+
+        if (isset($args['gameStartMin'])) {
+            $gameStartMin = strtotime($args['gameStartMin']);
+            if ($gameStartMin !== FALSE) {
+                $searchFilters['gameStartMin'] = $gameStartMin;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Game Start minimum is not a valid date',
+                );
+            }
+        }
+        if (isset($args['gameStartMax'])) {
+            $gameStartMax = strtotime($args['gameStartMax']);
+            if ($gameStartMax !== FALSE) {
+                $searchFilters['gameStartMin'] = $gameStartMax;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Game Start maximum is not a valid date',
+                );
+            }
+        }
+
+        if (isset($args['lastMoveMin'])) {
+            $lastMoveMin = strtotime($args['lastMoveMin']);
+            if ($lastMoveMin !== FALSE) {
+                $searchFilters['lastMoveMin'] = $lastMoveMin;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Last Move minimum is not a valid date',
+                );
+            }
+        }
+        if (isset($args['lastMoveMax'])) {
+            $lastMoveMax = strtotime($args['lastMoveMax']);
+            if ($lastMoveMax !== FALSE) {
+                $searchFilters['lastMoveMin'] = $lastMoveMax;
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Last Move maximum is not a valid date',
+                );
+            }
+        }
+
+        if (isset($args['winningPlayer'])) {
+            if (winningPlayer == 'A' || winningPlayer == 'B' ||
+                winningPlayer == 'Tie') {
+                $searchFilters['winningPlayer'] = $args['winningPlayer'];
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Winning player is not recognized',
+                );
+            }
+        }
+
+        if (isset($args['status'])) {
+            if (winningPlayer == 'Completed' || winningPlayer == 'InProgress') {
+                $searchFilters['status'] = $args['status'];
+            } else {
+                return array(
+                    'ok' => FALSE,
+                    'message' => 'Game completion status is not recognized',
+                );
+            }
+        }
+
+        return $interface->search_game_history($searchFilters);
+    }
+
     protected function get_interface_response_loadActiveGames($interface) {
         // Once we return to the list of active games, we no longer need to remember
         // which ones we were skipping.
