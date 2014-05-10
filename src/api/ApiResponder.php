@@ -200,8 +200,8 @@ class ApiResponder {
         }
 
         if (isset($args['winningPlayer'])) {
-            if (winningPlayer == 'A' || winningPlayer == 'B' ||
-                winningPlayer == 'Tie') {
+            if ($args['winningPlayer'] == 'A' || $args['winningPlayer'] == 'B' ||
+                $args['winningPlayer'] == 'Tie') {
                 $searchFilters['winningPlayer'] = $args['winningPlayer'];
             } else {
                 return array(
@@ -212,7 +212,8 @@ class ApiResponder {
         }
 
         if (isset($args['status'])) {
-            if (winningPlayer == 'Completed' || winningPlayer == 'InProgress') {
+            if ($args['status'] == 'Completed' ||
+                $args['status'] == 'InProgress') {
                 $searchFilters['status'] = $args['status'];
             } else {
                 return array(

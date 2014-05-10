@@ -878,7 +878,7 @@ class BMInterface {
 
     // Get all games matching the specified search filters. Filters are
     // expected to have already been validated.
-    protected function search_game_history($searchFilters) {
+    public function search_game_history($searchFilters) {
         try {
             //TODO fill in the other selected fields
             $baseQuery =
@@ -891,105 +891,140 @@ class BMInterface {
                     'vB.player_name AS player_name_B, ' .
                     'vB.button_name AS button_name_B, ' .
                     // CHANGE THIS TO A REAL VALUE!
-                    'g.last_action_time AS game_start, ' .
-                    'g.last_action_time AS last_move, ' .
-                    'vA.n_rounds_won AS player_name_A, ' .
-                    'vB.n_rounds_won AS player_name_B, ' .
+                    'UNIX_TIMESTAMP(g.last_action_time) AS game_start, ' .
+                    'UNIX_TIMESTAMP(g.last_action_time) AS last_move, ' .
+                    'vA.n_rounds_won AS rounds_won_A, ' .
+                    'vB.n_rounds_won AS rounds_won_B, ' .
                     'vA.n_rounds_drawn AS rounds_drawn, ' .
                     'g.n_target_wins AS target_wins, ' .
-                    's.name AS status' .
+                    's.name AS status ' .
                 'FROM game AS g ' .
-                    'LEFT JOIN game_status AS s ON s.id = g.status_id ';
+                    'INNER JOIN game_status AS s ON s.id = g.status_id ';
 
-            $playerJoinA =
-                'LEFT JOIN game_player_view AS vA ' .
-                    'ON vA.game_id = g.id AND vA.position =  ' .
-                'LEFT JOIN game_player_view AS vB ' .
-                    'ON vB.game_id = g.id AND vB.position != vA.position ';
+            $playerJoin0 =
+                'INNER JOIN game_player_view AS vA ' .
+                    'ON vA.game_id = g.id AND vA.position = 0 ' .
+                'INNER JOIN game_player_view AS vB ' .
+                    'ON vB.game_id = g.id AND vB.position = 1 ' .
+                'WHERE 1=1 ';
 
-            $playerJoinA =
-                'LEFT JOIN game_player_view AS vB ' .
-                    'ON vA.game_id = g.id ' .
-                'LEFT JOIN game_player_view AS vB ' .
-                    'ON vB.game_id = g.id AND vB.position != vA.position ';
-
-            $where = 'WHERE 1=1 ';
+            $playerJoin1 =
+                'INNER JOIN game_player_view AS vA ' .
+                    'ON vA.game_id = g.id AND vA.position = 1 ' .
+                'INNER JOIN game_player_view AS vB ' .
+                    'ON vB.game_id = g.id AND vB.position = 0 ' .
+                'WHERE 1=1 ';
 
             $parameters = array();
 
             if (isset($searchFilters['gameId'])) {
-                $where .= 'AND g.id = :game_id ';
-                $parameters['game_id'] = $searchFilters['gameId'];
+                // Because PHP won't let us use the same parameter twice in
+                // a query
+                $playerJoin0 .= 'AND g.id = :game_id_0 ';
+                $playerJoin1 .= 'AND g.id = :game_id_1 ';
+                $parameters[':game_id_0'] = $searchFilters['gameId'];
+                $parameters[':game_id_1'] = $searchFilters['gameId'];
             }
 
             if (isset($searchFilters['playerIdA'])) {
-                $where .= 'AND vA.player_id = :player_id_A ';
-                $parameters['player_id_A'] = $searchFilters['playerIdA'];
+                $playerJoin0 .= 'AND vA.player_id = :player_id_A_0 ';
+                $playerJoin1 .= 'AND vA.player_id = :player_id_A_1 ';
+                $parameters[':player_id_A_0'] = $searchFilters['playerIdA'];
+                $parameters[':player_id_A_1'] = $searchFilters['playerIdA'];
             }
 
             if (isset($searchFilters['buttonIdA'])) {
-                $where .= 'AND vA.button_id = :button_id_A ';
-                $parameters['button_id_A'] = $searchFilters['buttonIdA'];
+                $playerJoin0 .= 'AND vA.button_id = :button_id_A_0 ';
+                $playerJoin1 .= 'AND vA.button_id = :button_id_A_1 ';
+                $parameters[':button_id_A_0'] = $searchFilters['buttonIdA'];
+                $parameters[':button_id_A_1'] = $searchFilters['buttonIdA'];
             }
 
             if (isset($searchFilters['playerIdB'])) {
-                $where .= 'AND vB.player_id = :player_id_B ';
-                $parameters['player_id_B'] = $searchFilters['playerIdB'];
+                $playerJoin0 .= 'AND vB.player_id = :player_id_B_0 ';
+                $playerJoin1 .= 'AND vB.player_id = :player_id_B_1 ';
+                $parameters[':player_id_B_0'] = $searchFilters['playerIdB'];
+                $parameters[':player_id_B_1'] = $searchFilters['playerIdB'];
             }
 
             if (isset($searchFilters['buttonIdB'])) {
-                $where .= 'AND vB.button_id = :button_id_B ';
-                $parameters['button_id_B'] = $searchFilters['buttonIdB'];
+                $playerJoin0 .= 'AND vB.button_id = :button_id_B_0 ';
+                $playerJoin1 .= 'AND vB.button_id = :button_id_B_1 ';
+                $parameters[':button_id_B_0'] = $searchFilters['buttonIdB'];
+                $parameters[':button_id_B_1'] = $searchFilters['buttonIdB'];
             }
 
             if (isset($searchFilters['gameStartMin'])) {
                 // CHANGE THIS TO A REAL VALUE!
-                $where .= 'AND g.last_action_time >= :game_start_min ';
-                $parameters['game_start_min'] = $searchFilters['gameStartMin'];
+                $playerJoin0 .= 'AND g.last_action_time >= :game_start_min_0 ';
+                $playerJoin1 .= 'AND g.last_action_time >= :game_start_min_1 ';
+                $parameters[':game_start_min_0'] = $searchFilters['gameStartMin'];
+                $parameters[':game_start_min_1'] = $searchFilters['gameStartMin'];
             }
             if (isset($searchFilters['gameStartMax'])) {
                 // CHANGE THIS TO A REAL VALUE!
-                $where .= 'AND g.last_action_time < :game_start_max ';
-                $parameters['game_start_max'] =
+                $playerJoin0 .= 'AND g.last_action_time < :game_start_max_0 ';
+                $playerJoin1 .= 'AND g.last_action_time < :game_start_max_1 ';
+                $parameters[':game_start_max_0'] =
+                    // We want the range to end at the *end* of the day (i.e.,
+                    // the start of the next one).
+                    $searchFilters['gameStartMax'] + 24 * 60 * 60;
+                $parameters[':game_start_max_1'] =
                     // We want the range to end at the *end* of the day (i.e.,
                     // the start of the next one).
                     $searchFilters['gameStartMax'] + 24 * 60 * 60;
             }
 
             if (isset($searchFilters['lastMoveMin'])) {
-                $where .= 'AND g.last_action_time >= :las_mMove_min ';
-                $parameters['las_mMove_min'] = $searchFilters['lastMoveMin'];
+                $playerJoin0 .= 'AND g.last_action_time >= :last_move_min_0 ';
+                $playerJoin1 .= 'AND g.last_action_time >= :last_move_min_1 ';
+                $parameters[':last_move_min_0'] = $searchFilters['lastMoveMin'];
+                $parameters[':last_move_min_1'] = $searchFilters['lastMoveMin'];
             }
             if (isset($searchFilters['lastMoveMax'])) {
-                $where .= 'AND g.last_action_time < :las_mMove_max ';
-                $parameters['las_mMove_max'] =
+                $playerJoin0 .= 'AND g.last_action_time < :last_move_max_0 ';
+                $playerJoin1 .= 'AND g.last_action_time < :last_move_max_1 ';
+                $parameters[':last_move_max_0'] =
+                    // We want the range to end at the *end* of the day (i.e.,
+                    // the start of the next one).
+                    $searchFilters['lastMoveMax'] + 24 * 60 * 60;
+                $parameters[':last_move_max_1'] =
                     // We want the range to end at the *end* of the day (i.e.,
                     // the start of the next one).
                     $searchFilters['lastMoveMax'] + 24 * 60 * 60;
             }
 
-            if ($searchFilters['winningPlayer'] == 'A') {
-                $where .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
-            } else if ($searchFilters['winningPlayer'] == 'B') {
-                $where .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
-            } else if ($searchFilters['winningPlayer'] == 'Tie') {
-                $where .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+            if (isset($searchFilters['winningPlayer'])) {
+                if ($searchFilters['winningPlayer'] == 'A') {
+                    $playerJoin0 .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
+                    $playerJoin1 .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
+                } else if ($searchFilters['winningPlayer'] == 'B') {
+                    $playerJoin0 .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
+                    $playerJoin1 .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
+                } else if ($searchFilters['winningPlayer'] == 'Tie') {
+                    $playerJoin0 .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+                    $playerJoin1 .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+                }
             }
 
-            if ($searchFilters['status'] == 'Completed') {
-                $where .= 'AND s.name = "COMPLETE" ';
-            } else if ($searchFilters['status'] == 'InProgress') {
-                $where .= 'AND s.name != "COMPLETE" ';
+            if (isset($searchFilters['status'])) {
+                if ($searchFilters['status'] == 'Completed') {
+                    $playerJoin0 .= 'AND s.name = "COMPLETE" ';
+                    $playerJoin1 .= 'AND s.name = "COMPLETE" ';
+                } else if ($searchFilters['status'] == 'InProgress') {
+                    $playerJoin0 .= 'AND s.name != "COMPLETE" ';
+                    $playerJoin1 .= 'AND s.name != "COMPLETE" ';
+                }
             }
 
             //TODO sort based on some passed-in value
-            $sort = 'ORDER BY g.last_action_time ASC;';
+            $sort = 'ORDER BY last_move ASC;';
 
             $combinedQuery =
                 'SELECT * FROM (( ' .
-                    $baseQuery . $playerJoinA . $where .
+                    $baseQuery . $playerJoin0 .
                 ') UNION (' .
-                    $baseQuery . $playerJoinB . $where .
+                    $baseQuery . $playerJoin1 .
                 ')) AS results ' .
                 'GROUP BY game_id ' . $sort;
 
@@ -1002,27 +1037,30 @@ class BMInterface {
                 $games[] = array(
                     'gameId' => (int)$row['game_id'],
                     'playerIdA' => (int)$row['player_id_A'],
-                    'playerNameA' => (int)$row['player_name_A'],
+                    'playerNameA' => $row['player_name_A'],
                     'buttonNameA' => $row['button_name_A'],
                     'playerIdB' => (int)$row['player_id_B'],
-                    'playerNameB' => (int)$row['player_name_B'],
+                    'playerNameB' => $row['player_name_B'],
                     'buttonNameB' => $row['button_name_B'],
-                    'gameStart' => $row['game_start'],
-                    'lastMove' => $row['last_move'],
-                    'rounds_won_A' => (int)$row['rounds_won_A'],
-                    'rounds_won_B' => (int)$row['rounds_won_B'],
-                    'rounds_drawn' => (int)$row['rounds_drawn'],
+                    'gameStart' => (int)$row['game_start'],
+                    'lastMove' => (int)$row['last_move'],
+                    'roundsWonA' => (int)$row['rounds_won_A'],
+                    'roundsWonB' => (int)$row['rounds_won_B'],
+                    'roundsDrawn' => (int)$row['rounds_drawn'],
                     'targetWins' => (int)$row['target_wins'],
                     'status' => $row['status'],
                 );
             }
+
+            //TODO get summary footer info
 
             $this->message = 'Sought games retrieved successfully.';
             return $games;
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::search_game_history: " .
-                $e->getMessage()
+                $e->getMessage() .
+                " -- Full SQL query: " . $combinedQuery
             );
             $this->message = 'Game search failed.';
             return NULL;

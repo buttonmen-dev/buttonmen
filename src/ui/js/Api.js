@@ -493,5 +493,25 @@ var Api = (function () {
     return true;
   };
 
+  ////////////////////////////////////////////////////////////////////////
+  // Search historic games and parse the result
+
+  my.searchGameHistory = function(args, callbackfunc) {
+    args.type = 'searchGameHistory';
+
+    my.apiParsePost(
+      args,
+      'search_results',
+      my.parseSearchResults,
+      callbackfunc,
+      callbackfunc
+    );
+  }
+
+  my.parseSearchResults = function(data) {
+    my.search_results.games =  data;
+    return true;
+  }
+
   return my;
 }());
