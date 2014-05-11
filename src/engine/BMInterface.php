@@ -1160,6 +1160,10 @@ class BMInterface {
 
     public function get_player_name_from_id($playerId) {
         try {
+            if (is_null($playerId)) {
+                return('');
+            }
+
             $query = 'SELECT name_ingame FROM player '.
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);

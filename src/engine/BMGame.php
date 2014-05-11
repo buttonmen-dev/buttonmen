@@ -1448,7 +1448,7 @@ class BMGame {
     // utility methods
     public function __construct(
         $gameID = 0,
-        array $playerIdArray = array(0, 0),
+        array $playerIdArray = array(NULL, NULL),
         array $buttonRecipeArray = array('', ''),
         $maxWins = 3
     ) {
@@ -1673,7 +1673,12 @@ class BMGame {
                         'The number of players cannot be changed during a game.'
                     );
                 }
-                $this->playerIdArray = array_map('intval', $value);
+                foreach ($value as &$playerId) {
+                    if (!is_null($playerId)) {
+                        $playerId = intval($playerId);
+                    }
+                }
+                $this->playerIdArray = $value;
                 break;
             case 'activePlayerIdx':
                 // require a valid index
