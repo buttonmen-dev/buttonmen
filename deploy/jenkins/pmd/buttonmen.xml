@@ -30,7 +30,18 @@
     <exclude name="NumberOfChildren" />
   </rule> 
 
-  <!-- Import naming and unused code rule sets without modification -->
-  <rule ref="rulesets/naming.xml" /> 
+  <!-- Import naming rule set, but exclude items whose thresholds we want to change -->
+  <rule ref="rulesets/naming.xml">
+    <exclude name="LongVariable" />
+  </rule>
+
+  <!-- Import LongVariable with a higher threshold (default is 20) -->
+  <rule ref="rulesets/naming.xml/LongVariable">
+    <properties>
+      <property name="maximum" value="30" />
+    </properties>
+  </rule>
+
+  <!-- Import unused code rule set without modification -->
   <rule ref="rulesets/unusedcode.xml" /> 
 </ruleset>
