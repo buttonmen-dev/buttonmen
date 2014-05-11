@@ -1738,12 +1738,19 @@ class BMGame {
                     if ($button instanceof BMButton) {
                         $oppIdx = ($playerIdx + 1) % 2;
                         $oppButton = $this->buttonArray[$oppIdx];
+                        if ($oppButton instanceof BMButton) {
+                            $oppButtonName = $oppButton->name;
+                            $oppButtonRecipe = $oppButton->recipe;
+                        } else {
+                            $oppButtonName = '';
+                            $oppButtonRecipe = '';
+                        }
                         $hookResult = $button->run_hooks(
                             'load_buttons',
                             array('name' => $button->name,
                                   'recipe' => $button->recipe,
-                                  'oppname' => $oppButton->name,
-                                  'opprecipe' => $oppButton->recipe)
+                                  'oppname' => $oppButtonName,
+                                  'opprecipe' => $oppButtonRecipe)
                         );
                         if (isset($hookResult) && (FALSE !== $hookResult)) {
                             $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
@@ -2014,8 +2021,14 @@ class BMGame {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
         foreach ($this->buttonArray as $button) {
-            $buttonNameArray[] = $button->name;
-            $buttonRecipeArray[] = $button->recipe;
+            $buttonName = '';
+            $buttonRecipe = '';
+            if ($button instanceof BMButton) {
+                $buttonName = $button->name;
+                $buttonRecipe = $button->recipe;
+            }
+            $buttonNameArray[] = $buttonName;
+            $buttonRecipeArray[] = $buttonRecipe;
         }
 
         $swingValsSpecified = TRUE;

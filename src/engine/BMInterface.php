@@ -600,7 +600,8 @@ class BMInterface {
             // button recipes if altered
             if (isset($game->buttonArray)) {
                 foreach ($game->buttonArray as $playerIdx => $button) {
-                    if ($button->hasAlteredRecipe) {
+                    if (($button instanceof BMButton) &&
+                        ($button->hasAlteredRecipe)) {
                         $query = 'UPDATE game_player_map '.
                                  'SET alt_recipe = :alt_recipe '.
                                  'WHERE game_id = :game_id '.
