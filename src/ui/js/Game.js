@@ -1262,7 +1262,7 @@ Game.pageAddGameHeader = function(action_desc) {
       ') vs. ' + Api.game.opponent.playerName + ' (' +
       Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
       'Round #' + Api.game.roundNumber;
-  $('title').html('Button Men Online Game &mdash; ' + gameTitle);
+  $('title').html('Button Men Online &mdash; ' + gameTitle);
 
   Game.page.append(
     $('<div>', {
