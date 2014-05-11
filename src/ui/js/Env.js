@@ -30,7 +30,14 @@ if ('unit_test' in Env) {
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
   var match = new RegExp('[?&]' + name + '=([^&]*)').exec(
-    window.location.search
+    Env.window.location.search
+  );
+  if (match) {
+    return decodeURIComponent(match[1].replace(/\+/g, ' '));
+  }
+  // We want to check both the query string *and* the hashbang
+  var match = new RegExp('[!&]' + name + '=([^&]*)').exec(
+    Env.window.location.hash
   );
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
@@ -66,6 +73,10 @@ Env.showStatusMessage = function() {
 //   'time' for '17:54:32'
 //   'datetime' for '2014-03-23 17:54:32'
 Env.formatTimestamp = function(timestamp, format) {
+  if (timestamp === undefined || timestamp === null) {
+    return '';
+  }
+
   if (format === null || format === undefined) {
     format = 'datetime';
   }

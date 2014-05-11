@@ -876,11 +876,140 @@ class BMInterface {
                                   ':flags' => $flags));
     }
 
+    // Parse the search filters, converting them to standardized forms (such
+    // as converting names to ID's), and validating them against the database
+    public function assemble_search_filters($searchParameters) {
+        try {
+            $searchFilters = array();
+
+            if (isset($searchParameters['gameId'])) {
+                $searchFilters['gameId'] = (int)$searchParameters['gameId'];
+            }
+
+            if (isset($searchParameters['playerNameA'])) {
+                $playerIdA = $this->get_player_id_from_name($searchParameters['playerNameA']);
+                if (is_int($playerIdA)) {
+                    $searchFilters['playerIdA'] = $playerIdA;
+                } else {
+                    $this->message = 'Player A: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['buttonNameA'])) {
+                $buttonIdA = $this->get_button_id_from_name($searchParameters['buttonNameA']);
+                if (is_int($buttonIdA)) {
+                    $searchFilters['buttonIdA'] = $buttonIdA;
+                } else {
+                    $this->message = 'Button A: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['playerNameB'])) {
+                $playerIdB = $this->get_player_id_from_name($searchParameters['playerNameB']);
+                if (is_int($playerIdB)) {
+                    $searchFilters['playerIdB'] = $playerIdB;
+                } else {
+                    $this->message = 'Player A: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['buttonNameB'])) {
+                $buttonIdB = $this->get_button_id_from_name($searchParameters['buttonNameB']);
+                if (is_int($buttonIdB)) {
+                    $searchFilters['buttonIdB'] = $buttonIdB;
+                } else {
+                    $this->message = 'Button B: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['gameStartMin'])) {
+                $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
+            }
+            if (isset($searchParameters['gameStartMax'])) {
+                $searchFilters['gameStartMax'] = (int)$searchParameters['gameStartMax'];
+            }
+
+            if (isset($searchParameters['lastMoveMin'])) {
+                $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
+            }
+            if (isset($searchParameters['lastMoveMax'])) {
+                $searchFilters['lastMoveMax'] = (int)$searchParameters['lastMoveMax'];
+            }
+
+            //TODO should this be checked in ApiSpec?
+            if (isset($searchParameters['winningPlayer'])) {
+                if ($searchParameters['winningPlayer'] == 'A' || $searchParameters['winningPlayer'] == 'B' ||
+                    $searchParameters['winningPlayer'] == 'Tie') {
+                    $searchFilters['winningPlayer'] = $searchParameters['winningPlayer'];
+                } else {
+                    $this->message = 'Winning player is not recognized';
+                    return NULL;
+                }
+            }
+
+            //TODO should this be checked in ApiSpec?
+            if (isset($searchParameters['status'])) {
+                if ($searchParameters['status'] == 'Completed' ||
+                    $searchParameters['status'] == 'InProgress') {
+                    $searchFilters['status'] = $searchParameters['status'];
+                } else {
+                    $this->message = 'Game completion status is not recognized';
+                    return NULL;
+                }
+            }
+
+            return $searchFilters;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::search_game_history: " .
+                $e->getMessage()
+            );
+            $this->message = 'Game search failed.';
+            return NULL;
+        }
+    }
+
+    // Parse out the additional options that affect how search results
+    // are to be presented
+    public function assemble_search_options($searchParameters) {
+        try {
+            $searchQualifiers = array();
+
+            //TODO Parse out 'sortColumn', 'sortDirection', 'numberOfResults', 'page'
+
+            return $searchQualifiers;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::assemble_search_qualifiers: " .
+                $e->getMessage()
+            );
+            $this->message = 'Game search failed.';
+            return NULL;
+        }
+    }
+
     // Get all games matching the specified search filters. Filters are
     // expected to have already been validated.
-    public function search_game_history($searchFilters) {
+    public function search_game_history($searchFilters, $searchOptions,
+        $currentPlayerId) {
         try {
-            //TODO fill in the other selected fields
+            $combinedQuery = '';
+
+            // Get all the colors the current player has set in his or her
+            // preferences
+            $playerColors = $this->load_player_colors($currentPlayerId);
+
+            // We're going to build (and then UNION) two queries: one where we
+            // check all the Player A filters against the player in position 0
+            // and all the Player B filters against the player and position 1,
+            // and one where we do the opposite.
+            // (If we just did it with OR clauses, then we wouldn't know at the
+            // end which player matched which.)
+
             $baseQuery =
                 'SELECT ' .
                     'g.id AS game_id, ' .
@@ -1034,14 +1163,20 @@ class BMInterface {
             $games = array();
 
             while ($row = $statement->fetch()) {
+                $gameColors =
+                    $this->determine_game_colors($currentPlayerId, $playerColors,
+                        (int)$row['player_id_A'], (int)$row['player_id_B']);
+
                 $games[] = array(
                     'gameId' => (int)$row['game_id'],
                     'playerIdA' => (int)$row['player_id_A'],
                     'playerNameA' => $row['player_name_A'],
                     'buttonNameA' => $row['button_name_A'],
+                    'colorA' => $gameColors['playerA'],
                     'playerIdB' => (int)$row['player_id_B'],
                     'playerNameB' => $row['player_name_B'],
                     'buttonNameB' => $row['button_name_B'],
+                    'colorB' => $gameColors['playerB'],
                     'gameStart' => (int)$row['game_start'],
                     'lastMove' => (int)$row['last_move'],
                     'roundsWonA' => (int)$row['rounds_won_A'],
@@ -1071,17 +1206,23 @@ class BMInterface {
             $statement = self::$conn->prepare($combinedQuery);
             $statement->execute($parameters);
 
-            // If it fails, it's probably better to ignore it and still return
-            // the games list than to error out and return nothing
-            //TODO get summary footer info
-
             $summary = array();
-
             $summaryRows = $statement->fetchAll();
+            // If it fails mysteriously, it's probably better to ignore that
+            // and still return the games list than to error out and return
+            // nothing
             if (count($summaryRows) == 1) {
                 $summary['matchesFound'] = (int)$summaryRows[0]['matches_found'];
-                $summary['earliestStart'] = (int)$summaryRows[0]['earliest_start'];
-                $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
+                if ($summaryRows[0]['earliest_start'] == NULL) {
+                    $summary['earliestStart'] = NULL;
+                } else {
+                    $summary['earliestStart'] = (int)$summaryRows[0]['earliest_start'];
+                }
+                if ($summaryRows[0]['latest_move'] == NULL) {
+                    $summary['latestMove'] = NULL;
+                } else {
+                    $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
+                }
                 $summary['gamesWinningA'] = (int)$summaryRows[0]['games_winning_A'];
                 $summary['gamesWinningB'] = (int)$summaryRows[0]['games_winning_B'];
                 $summary['gamesDrawn'] = (int)$summaryRows[0]['games_drawn'];
@@ -2441,6 +2582,65 @@ class BMInterface {
             return $count . ' ' . $noun . 'es';
         }
         return $count . ' ' . $noun . 's';
+    }
+
+    // Retrieves the colors that the user has saved in their preferences
+    protected function load_player_colors($currentPlayerId) {
+        // Ultimately, these values should come from the database, but that
+        // hasn't been implemented yet, so we'll just hard code them for now
+        $colors = array(
+            'player' => '#DD99DD',
+            'opponent' => '#DDFFDD',
+            'neutralA' => '#CCCCCC',
+            'neutralB' => '#DDDDDD',
+            // Itself an associative array of player ID's => color strings
+            'battleBuddies' => array(),
+        );
+        return $colors;
+    }
+
+    // Determines which colors to use for the two players in a game.
+    // $currentPlayerId is the player this is being displayed to.
+    // $playerColors are the colors they've chosen as their preferences
+    // (as returned by load_player_colors())
+    // $gamePlayerIdA and $gamePlayerIdB are the two players in the game
+    protected function determine_game_colors($currentPlayerId, $playerColors,
+        $gamePlayerIdA, $gamePlayerIdB) {
+        $gameColors = array();
+
+        if ($gamePlayerIdA == $currentPlayerId) {
+            $gameColors['playerA'] = $playerColors['player'];
+            if (isset($playerColors['battleBuddies'][$gamePlayerIdB])) {
+                $gameColors['playerB'] = $playerColors['battleBuddies'][$gamePlayerIdB];
+            } else {
+                $gameColors['playerB'] = $playerColors['opponent'];
+            }
+            return $gameColors;
+        }
+
+        if ($gamePlayerIdB == $currentPlayerId) {
+            $gameColors['playerB'] = $playerColors['player'];
+            if (isset($playerColors['battleBuddies'][$gamePlayerIdA])) {
+                $gameColors['playerA'] = $playerColors['battleBuddies'][$gamePlayerIdA];
+            } else {
+                $gameColors['playerA'] = $playerColors['opponent'];
+            }
+            return $gameColors;
+        }
+
+        if (isset($playerColors['battleBuddies'][$gamePlayerIdA])) {
+            $gameColors['playerA'] = $playerColors['battleBuddies'][$gamePlayerIdA];
+        } else {
+            $gameColors['playerA'] = $playerColors['neutralA'];
+        }
+
+        if (isset($playerColors['battleBuddies'][$gamePlayerIdB])) {
+            $gameColors['playerB'] = $playerColors['battleBuddies'][$gamePlayerIdB];
+        } else {
+            $gameColors['playerB'] = $playerColors['neutralB'];
+        }
+
+        return $gameColors;
     }
 
     public function __get($property) {

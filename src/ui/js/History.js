@@ -8,7 +8,6 @@ var History = {};
 ////////////////////////////////////////////////////////////////////////
 
 History.showHistoryPage = function() {
-
   // Setup necessary elements for displaying status messages
   $.getScript('js/Env.js');
   Env.setupEnvStub();
@@ -29,18 +28,19 @@ History.showHistoryPage = function() {
     return;
   }
 
-  // Get all needed information, then display History page
-  History.getHistory(History.showPage);
+  History.readSearchParametersFromUrl();
+  if (History.searchParameters != undefined) {
+    // Get all needed information, then display History page
+    History.getHistory(History.showPage);
+  } else {
+    History.showPage();
+  }
 };
 
 History.getHistory = function(callback) {
   if (Login.logged_in) {
-    var searchParameters = {
-      'playerNameA': Login.player,
-      'status': 'Completed',
-    };
     Api.searchGameHistory(
-      searchParameters,
+      History.searchParameters,
       callback
     );
   } else {
@@ -48,25 +48,58 @@ History.getHistory = function(callback) {
   }
 };
 
+History.readSearchParametersFromUrl = function() {
+  if (Env.window.location.hash == '') {
+    History.searchParameters = undefined;
+    return;
+  }
+
+  History.searchParameters = { };
+  History.readSingleSearchParameterFromUrl('gameId');
+  History.readSingleSearchParameterFromUrl('playerNameA');
+  History.readSingleSearchParameterFromUrl('buttonNameA');
+  History.readSingleSearchParameterFromUrl('playerNameB');
+  History.readSingleSearchParameterFromUrl('buttonNameB');
+  History.readSingleSearchParameterFromUrl('gameStartMin');
+  History.readSingleSearchParameterFromUrl('gameStartMax');
+  History.readSingleSearchParameterFromUrl('lastMoveMin');
+  History.readSingleSearchParameterFromUrl('lastMoveMax');
+  History.readSingleSearchParameterFromUrl('winningPlayer');
+  History.readSingleSearchParameterFromUrl('status');
+};
+
+History.readSingleSearchParameterFromUrl = function(parameterName) {
+  var value = Env.getParameterByName(parameterName);
+  if (value !== undefined && value !== null && value != '') {
+    History.searchParameters[parameterName] = value;
+  }
+};
+
 History.showPage = function() {
   History.page = $('<div>');
 
-  if (Api.search_results.load_status != 'ok') {
+  if (Api.search_results !== undefined &&
+    Api.search_results.load_status != 'ok') {
+    // An error has occurred, and we've presumably already registered the
+    // error message, so we should just display it.
     History.layoutPage();
     return;
   }
 
   History.page.append($('<h2>', { 'text': 'Game History', }));
 
-  var resultsTable = $('<table>');
+  var resultsTable = $('<table>', { 'class': 'gameList', });
   History.page.append(resultsTable);
 
   // Display the column headers and search filters
   resultsTable.append(History.buildResultsTableHeader());
-  // List the games that were return
-  resultsTable.append(History.buildResultsTableBody());
-  // Show summary data
-  resultsTable.append(History.buildResultsTableFooter());
+
+  if (Api.search_results !== undefined) {
+    // List the games that were returned
+    resultsTable.append(History.buildResultsTableBody());
+    // Show summary data
+    resultsTable.append(History.buildResultsTableFooter());
+  }
 
   // Actually lay out the page
   History.layoutPage();
@@ -104,21 +137,49 @@ History.buildResultsTableHeader = function() {
 History.buildResultsTableBody = function() {
   var body = $('<tbody>');
 
+  if (Api.search_results === undefined ||
+    Api.search_results.games === undefined)  {
+    return body;
+  }
+
   $.each(Api.search_results.games, function(index, game) {
     var gameRow = $('<tr>');
     body.append(gameRow);
 
-    var idTd = $('<td>');
+    var winnerColor;
+    if (game.roundsWonA > game.roundsWonB) {
+      winnerColor = game.colorA;
+    } else if (game.roundsWonB > game.roundsWonA) {
+      winnerColor = game.colorB;
+    } else {
+      winnerColor = '#ffffff';
+    }
+
+    var idTd = $('<td>', {
+      'style': 'background-color: ' + winnerColor + ';',
+    });
     idTd.append($('<a>', {
       'href': 'game.html?game=' + game.gameId,
       'text': 'View Game ' + game.gameId,
     }));
     gameRow.append(idTd);
 
-    gameRow.append($('<td>', { 'text': game.playerNameA, }));
-    gameRow.append($('<td>', { 'text': game.buttonNameA, }));
-    gameRow.append($('<td>', { 'text': game.playerNameB, }));
-    gameRow.append($('<td>', { 'text': game.buttonNameB, }));
+    gameRow.append($('<td>', {
+      'text': game.playerNameA,
+      'style': 'background-color: ' + game.colorA + ';',
+    }));
+    gameRow.append($('<td>', {
+      'text': game.buttonNameA,
+      'style': 'background-color: ' + game.colorA + ';',
+    }));
+    gameRow.append($('<td>', {
+      'text': game.playerNameB,
+      'style': 'background-color: ' + game.colorB + ';',
+    }));
+    gameRow.append($('<td>', {
+      'text': game.buttonNameB,
+      'style': 'background-color: ' + game.colorB + ';',
+    }));
     gameRow.append($('<td>', {
       'text': Env.formatTimestamp(game.gameStart, 'date'),
     }));
@@ -128,17 +189,24 @@ History.buildResultsTableBody = function() {
 
     var score = game.roundsWonA + '/' + game.roundsWonB + '/' +
       game.roundsDrawn + ' (' + game.targetWins + ')';
-    gameRow.append($('<td>', { 'text': score, }));
+    gameRow.append($('<td>', {
+      'text': score,
+      'style': 'background-color: ' + winnerColor + ';',
+    }));
 
     var status;
+    var statusColor;
     if (game.status == 'COMPLETE') {
       status = 'Complete';
+      statusColor = winnerColor;
     } else {
       status = 'In Progress';
+      statusColor = '#ffffff'
     }
     gameRow.append($('<td>', {
       'text': status,
-      'style': 'font-style: italic;'
+      'style': 'font-style: italic;',
+      'style': 'background-color: ' + statusColor + ';',
     }));
   });
 
@@ -147,6 +215,12 @@ History.buildResultsTableBody = function() {
 
 History.buildResultsTableFooter = function() {
   var foot = $('<tfoot>');
+
+  if (Api.search_results === undefined ||
+    Api.search_results.summary === undefined)  {
+    return foot;
+  }
+
   var footerHeaderRow = $('<tr>');
   foot.append(footerHeaderRow);
 
@@ -176,8 +250,11 @@ History.buildResultsTableFooter = function() {
       summary.gamesDrawn;
   footerDataRow.append($('<td>', { 'text': scores }));
 
-  var percentCompleted = (summary.matchesFound * 100) / summary.gamesCompleted;
-  percentCompleted = Math.round(percentCompleted) + '%';
+  var percentCompleted = '';
+  if (summary.matchesFound > 0) {
+    percentCompleted = (summary.gamesCompleted * 100) / summary.matchesFound;
+    percentCompleted = Math.round(percentCompleted) + '%';
+  }
   footerDataRow.append($('<td>', { 'text': percentCompleted }));
 
   return foot;
