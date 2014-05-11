@@ -506,13 +506,13 @@ var Api = (function () {
       callbackfunc,
       callbackfunc
     );
-  }
+  };
 
   my.parseSearchResults = function(data) {
     my.search_results.games =  data.games;
     my.search_results.summary =  data.summary;
     return true;
-  }
+  };
 
   return my;
 }());

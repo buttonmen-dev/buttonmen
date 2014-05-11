@@ -953,8 +953,8 @@ class BMInterface {
 
             //TODO should this be checked in ApiSpec?
             if (isset($searchParameters['status'])) {
-                if ($searchParameters['status'] == 'Completed' ||
-                    $searchParameters['status'] == 'InProgress') {
+                if ($searchParameters['status'] == 'COMPLETE' ||
+                    $searchParameters['status'] == 'ACTIVE') {
                     $searchFilters['status'] = $searchParameters['status'];
                 } else {
                     $this->message = 'Game completion status is not recognized';
@@ -1085,15 +1085,15 @@ class BMInterface {
 
             if (isset($searchFilters['gameStartMin'])) {
                 // CHANGE THIS TO A REAL VALUE!
-                $playerJoin0 .= 'AND g.last_action_time >= :game_start_min_0 ';
-                $playerJoin1 .= 'AND g.last_action_time >= :game_start_min_1 ';
+                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :game_start_min_0 ';
+                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :game_start_min_1 ';
                 $parameters[':game_start_min_0'] = $searchFilters['gameStartMin'];
                 $parameters[':game_start_min_1'] = $searchFilters['gameStartMin'];
             }
             if (isset($searchFilters['gameStartMax'])) {
                 // CHANGE THIS TO A REAL VALUE!
-                $playerJoin0 .= 'AND g.last_action_time < :game_start_max_0 ';
-                $playerJoin1 .= 'AND g.last_action_time < :game_start_max_1 ';
+                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :game_start_max_0 ';
+                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :game_start_max_1 ';
                 $parameters[':game_start_max_0'] =
                     // We want the range to end at the *end* of the day (i.e.,
                     // the start of the next one).
@@ -1105,14 +1105,14 @@ class BMInterface {
             }
 
             if (isset($searchFilters['lastMoveMin'])) {
-                $playerJoin0 .= 'AND g.last_action_time >= :last_move_min_0 ';
-                $playerJoin1 .= 'AND g.last_action_time >= :last_move_min_1 ';
+                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_0 ';
+                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_1 ';
                 $parameters[':last_move_min_0'] = $searchFilters['lastMoveMin'];
                 $parameters[':last_move_min_1'] = $searchFilters['lastMoveMin'];
             }
             if (isset($searchFilters['lastMoveMax'])) {
-                $playerJoin0 .= 'AND g.last_action_time < :last_move_max_0 ';
-                $playerJoin1 .= 'AND g.last_action_time < :last_move_max_1 ';
+                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_0 ';
+                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_1 ';
                 $parameters[':last_move_max_0'] =
                     // We want the range to end at the *end* of the day (i.e.,
                     // the start of the next one).
@@ -1137,13 +1137,14 @@ class BMInterface {
             }
 
             if (isset($searchFilters['status'])) {
-                if ($searchFilters['status'] == 'Completed') {
-                    $playerJoin0 .= 'AND s.name = "COMPLETE" ';
-                    $playerJoin1 .= 'AND s.name = "COMPLETE" ';
-                } else if ($searchFilters['status'] == 'InProgress') {
-                    $playerJoin0 .= 'AND s.name != "COMPLETE" ';
-                    $playerJoin1 .= 'AND s.name != "COMPLETE" ';
-                }
+                $playerJoin0 .= 'AND s.name = :status_0 ';
+                $playerJoin1 .= 'AND s.name = :status_1 ';
+                $parameters[':status_0'] = $searchFilters['status'];
+                $parameters[':status_1'] = $searchFilters['status'];
+            } else {
+                // We'll only display games that have actually started
+                $playerJoin0 .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
+                $playerJoin1 .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
             }
 
             //TODO sort based on some passed-in value
@@ -1195,8 +1196,7 @@ class BMInterface {
                     'SUM(rounds_won_A > rounds_won_B) AS games_winning_A, ' .
                     'SUM(rounds_won_A < rounds_won_B) AS games_winning_B, ' .
                     'SUM(rounds_won_A = rounds_won_B) AS games_drawn, ' .
-                    'SUM(status = "COMPLETE") AS games_completed, ' .
-                    'SUM(status != "COMPLETE") AS games_in_progress ' .
+                    'SUM(status = "COMPLETE") AS games_completed ' .
                 'FROM (( ' .
                     $baseQuery . $playerJoin0 .
                 ') UNION (' .
@@ -1227,7 +1227,6 @@ class BMInterface {
                 $summary['gamesWinningB'] = (int)$summaryRows[0]['games_winning_B'];
                 $summary['gamesDrawn'] = (int)$summaryRows[0]['games_drawn'];
                 $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
-                $summary['gamesInProgress'] = (int)$summaryRows[0]['games_in_progress'];
             } else {
                 $this->message = 'Retrieving summary data for history search failed';
                 error_log($this->message .

@@ -36,7 +36,7 @@ Env.getParameterByName = function(name) {
     return decodeURIComponent(match[1].replace(/\+/g, ' '));
   }
   // We want to check both the query string *and* the hashbang
-  var match = new RegExp('[!&]' + name + '=([^&]*)').exec(
+  match = new RegExp('[!&]' + name + '=([^&]*)').exec(
     Env.window.location.hash
   );
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
@@ -81,37 +81,54 @@ Env.formatTimestamp = function(timestamp, format) {
     format = 'datetime';
   }
 
-  var dateTime = new Date(timestamp * 1000);
-
-  var year = dateTime.getFullYear();
-  var month = Env.padLeft(dateTime.getMonth() + 1, '0', 2);
-  var day = Env.padLeft(dateTime.getDate(), '0', 2);
-  var hours = Env.padLeft(dateTime.getHours(), '0', 2);
-  var minutes = Env.padLeft(dateTime.getMinutes(), '0', 2);
-  var seconds = Env.padLeft(dateTime.getSeconds(), '0', 2);
-
-  var formattedDate = year + '-' + month + '-' + day;
-  var formattedTime = hours + ':' + minutes + ':' + seconds;
+  var datetime = moment.unix(timestamp);
+  if (!datetime.isValid()) {
+    return null;
+  }
 
   if (format == 'date') {
-    return formattedDate;
-  }
-  if (format == 'time') {
-    return formattedTime;
-  }
-  if (format == 'datetime') {
-    return formattedDate + ' ' + formattedTime;
+    return datetime.format('YYYY-MM-DD')
+  } else if (format == 'time') {
+    return datetime.format('HH:mm:ss')
+  } else if (format == 'datetime') {
+    return datetime.format('YYYY-MM-DD HH:mm:ss')
+  } else {
+    return datetime.format(format);
   }
 };
 
-// Pads the input string with copies of the paddingCharacter until it's at
-// least minLength long.
-Env.padLeft = function(input, paddingCharacter, minLength) {
-  var padding = '';
-  for (var i = 0; i < minLength; i++) {
-    padding = padding + paddingCharacter;
+// Parses a date or time string into a Unix-style timestamp.
+// format parameter options:
+//   'date' for '2014-03-23'
+//   'time' for '17:54:32'
+//   'datetime' for '2014-03-23 17:54:32'
+// strict is a bool indicating whether the specified format should be strictly
+// required.
+Env.parseDateTime = function(input, format, strict) {
+  if (input === undefined || input === null || input === '') {
+    return null;
   }
 
-  var output = padding + input;
-  return output.slice(minLength * -1);
+  if (format === null || format === undefined) {
+    format = 'datetime';
+    strict = false;
+  } else if (strict === null || strict === undefined) {
+    strict = true;
+  }
+
+  var datetime;
+  if (format == 'date') {
+    datetime = moment(input, 'YYYY-MM-DD', strict);
+  } else if (format == 'time') {
+    datetime = moment(input, ' HH:mm:ss', strict);
+  } else if (format == 'datetime') {
+    datetime = moment(input, 'YYYY-MM-DD HH:mm:ss', strict);
+  } else {
+    datetime = moment(input, format, strict);
+  }
+  if (!datetime.isValid()) {
+    return null;
+  }
+
+  return datetime.unix();
 };

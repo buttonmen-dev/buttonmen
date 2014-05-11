@@ -75,7 +75,7 @@ class DummyApiResponder {
     protected function get_interface_response_searchGameHistory($interface, $args) {
         $games = array();
 
-        if ((!isset($args['status']) || $args['status'] == 'Completed')) {
+        if ((!isset($args['status']) || $args['status'] == 'COMPLETE')) {
             if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester') {
                 // game 5
                 $games[] = array(
@@ -115,7 +115,7 @@ class DummyApiResponder {
             }
         }
 
-        if ((!isset($args['status']) || $args['status'] == 'InProgress')) {
+        if ((!isset($args['status']) || $args['status'] == 'ACTIVE')) {
             if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester') {
                 // game 6
                 $games[] = array(
