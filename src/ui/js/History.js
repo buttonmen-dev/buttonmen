@@ -15,6 +15,10 @@ History.searchParameterNames = {
   'lastMoveMax': 'date',
   'winningPlayer': 'string',
   'status': 'string',
+  'sortColumn': 'hidden',
+  'sortDirection': 'hidden',
+  'numberOfResults': 'hidden',
+  'page': 'hidden',
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -27,6 +31,13 @@ History.showHistoryPage = function() {
   // Setup necessary elements for displaying status messages
   $.getScript('js/Env.js');
   Env.setupEnvStub();
+
+  // When the user hits the back button to retrace their path through the
+  // hashbang URL's, load the search results that belong to that "page"
+  $(window).bind("popstate", function() {
+    Env.message = null;
+    History.showHistoryPage();
+  });
 
   // Make sure the div element that we will need exists in the page body
   if ($('#history_page').length === 0) {
@@ -73,6 +84,20 @@ History.readSearchParametersFromUrl = function() {
 History.getHistory = function(callback) {
   if (Login.logged_in) {
     $('#searchButton').attr('disabled', 'disabled');
+
+    if (History.searchParameters.sortColumn === undefined) {
+      History.searchParameters.sortColumn = 'lastMove';
+    }
+    if (History.searchParameters.sortDirection === undefined) {
+      History.searchParameters.sortDirection = 'DESC';
+    }
+    if (History.searchParameters.numberOfResults === undefined) {
+      History.searchParameters.numberOfResults = 20;
+    }
+    if (History.searchParameters.page === undefined) {
+      History.searchParameters.page = 1;
+    }
+
     Api.searchGameHistory(
       History.searchParameters,
       callback
@@ -110,6 +135,8 @@ History.showPage = function() {
   searchButton.click(History.performManualSearch);
 
   History.page.append($('<h2>', { 'text': 'Game History', }));
+
+  History.page.append(History.buildHiddenFields());
 
   var resultsTable = $('<table>', { 'class': 'gameList', });
   History.page.append(resultsTable);
@@ -197,6 +224,27 @@ History.writeSearchParametersToUrl = function() {
   Env.window.location.hash = parameterString;
 };
 
+History.buildHiddenFields = function() {
+  var hiddenDiv = $('<div>', { 'style': 'display: none; ' });
+
+  $.each(History.searchParameterNames, function(name, type) {
+    if (type == 'hidden') {
+      var hiddenInput = $('<input>', {
+        'type': 'hidden',
+        'id': 'parameter_' + name,
+      })
+      hiddenDiv.append(hiddenInput);
+
+      if (History.searchParameters !== undefined &&
+        History.searchParameters[name] !== undefined) {
+        hiddenInput.val(History.searchParameters[name]);
+      }
+    }
+  });
+
+  return hiddenDiv;
+};
+
 History.buildResultsTableHeader = function() {
   var head = $('<thead>');
 
@@ -274,7 +322,25 @@ History.buildResultsTableHeader = function() {
   };
 
   $.each(columns, function(columnId, columnInfo) {
-    headerRow.append($('<th>', { 'text': columnInfo.text }));
+    var titleTh = $('<th>');
+    headerRow.append(titleTh);
+
+    titleTh.append($('<span>', {
+      'html': '&#9650',
+      'href': 'javascript: void(0);',
+      'data-column': columnId,
+      'data-direction': 'ASC',
+      'class': 'sortButton',
+    }));
+    titleTh.append($('<span>', { 'text': columnInfo.text }));
+    titleTh.append($('<span>', {
+      'html': '&#9660;',
+      'href': 'javascript: void(0);',
+      'data-column': columnId,
+      'data-direction': 'DESC',
+      'class': 'sortButton',
+    }));
+
     var filterTd = $('<th>');
     filterRow.append(filterTd);
 
@@ -346,6 +412,12 @@ History.buildResultsTableHeader = function() {
         inputElement.val(History.searchParameters[columnId]);
       }
     }
+  });
+
+  head.find('.sortButton').click(function() {
+    $('#parameter_sortColumn').val($(this).attr('data-column'));
+    $('#parameter_sortDirection').val($(this).attr('data-direction'));
+    History.performManualSearch();
   });
 
   return head;

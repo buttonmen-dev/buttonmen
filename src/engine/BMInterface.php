@@ -940,26 +940,12 @@ class BMInterface {
                 $searchFilters['lastMoveMax'] = (int)$searchParameters['lastMoveMax'];
             }
 
-            //TODO should this be checked in ApiSpec?
             if (isset($searchParameters['winningPlayer'])) {
-                if ($searchParameters['winningPlayer'] == 'A' || $searchParameters['winningPlayer'] == 'B' ||
-                    $searchParameters['winningPlayer'] == 'Tie') {
-                    $searchFilters['winningPlayer'] = $searchParameters['winningPlayer'];
-                } else {
-                    $this->message = 'Winning player is not recognized';
-                    return NULL;
-                }
+                $searchFilters['winningPlayer'] = $searchParameters['winningPlayer'];
             }
 
-            //TODO should this be checked in ApiSpec?
             if (isset($searchParameters['status'])) {
-                if ($searchParameters['status'] == 'COMPLETE' ||
-                    $searchParameters['status'] == 'ACTIVE') {
-                    $searchFilters['status'] = $searchParameters['status'];
-                } else {
-                    $this->message = 'Game completion status is not recognized';
-                    return NULL;
-                }
+                $searchFilters['status'] = $searchParameters['status'];
             }
 
             return $searchFilters;
@@ -979,7 +965,18 @@ class BMInterface {
         try {
             $searchQualifiers = array();
 
-            //TODO Parse out 'sortColumn', 'sortDirection', 'numberOfResults', 'page'
+            if (isset($searchParameters['sortColumn'])) {
+                $searchQualifiers['sortColumn'] = $searchParameters['sortColumn'];
+            }
+            if (isset($searchParameters['sortDirection'])) {
+                $searchQualifiers['sortDirection'] = $searchParameters['sortDirection'];
+            }
+            if (isset($searchParameters['numberOfResults'])) {
+                $searchQualifiers['numberOfResults'] = (int)$searchParameters['numberOfResults'];
+            }
+            if (isset($searchParameters['page'])) {
+                $searchQualifiers['page'] = (int)$searchParameters['page'];
+            }
 
             return $searchQualifiers;
         } catch (Exception $e) {
@@ -1148,7 +1145,52 @@ class BMInterface {
             }
 
             //TODO sort based on some passed-in value
-            $sort = 'ORDER BY last_move ASC;';
+            $sort = 'ORDER BY ';
+            switch($searchOptions['sortColumn']) {
+                case 'gameId':
+                    $sort .= 'game_id ';
+                    break;
+                case 'playerNameA':
+                    $sort .= 'player_name_A ';
+                    break;
+                case 'buttonNameA':
+                    $sort .= 'button_name_A ';
+                    break;
+                case 'playerNameB':
+                    $sort .= 'player_name_B ';
+                    break;
+                case 'buttonNameB':
+                    $sort .= 'button_name_B ';
+                    break;
+                case 'gameStart':
+                    $sort .= 'game_start ';
+                    break;
+                case 'lastMove':
+                    $sort .= 'last_move ';
+                    break;
+                case 'winningPlayer':
+                    // We want to rank games where A has already won the
+                    // highest, followed by games in progress, followed by
+                    // games where B has already won. And within those, we
+                    // should rank by how many rounds A is ahead or behind by.
+                    $sort .=
+                        '1000 * (rounds_won_A >= target_wins) + ' .
+                        'CAST(rounds_won_A AS SIGNED INTEGER) - ' .
+                            'CAST(rounds_won_B AS SIGNED INTEGER) + ' .
+                        '-1000 * (rounds_won_B >= target_wins) ';
+                    break;
+                case 'status':
+                    $sort .= 'status ';
+                    break;
+            }
+            switch($searchOptions['sortDirection']) {
+                case 'ASC':
+                    $sort .= 'ASC; ';
+                    break;
+                case 'DESC':
+                    $sort .= 'DESC; ';
+                    break;
+            }
 
             $combinedQuery =
                 'SELECT * FROM (( ' .
