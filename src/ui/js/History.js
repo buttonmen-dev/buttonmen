@@ -124,15 +124,7 @@ History.showPage = function() {
     return;
   }
 
-  var buttonDiv = $('<div>');
-  History.page.append(buttonDiv);
-  var searchButton = $('<input>', {
-    'type': 'button',
-    'id': 'searchButton',
-    'value': 'Search',
-  });
-  buttonDiv.append(searchButton);
-  searchButton.click(History.performManualSearch);
+    History.page.append(History.buildSearchButtonDiv());
 
   History.page.append($('<h2>', { 'text': 'Game History', }));
 
@@ -222,6 +214,38 @@ History.writeSearchParametersToUrl = function() {
   // Trim off the trailing &
   parameterString = parameterString.replace(/&$/, "");
   Env.window.location.hash = parameterString;
+};
+
+History.buildSearchButtonDiv = function() {
+  var buttonDiv = $('<div>');
+
+  buttonDiv.append($('<text>', { 'text': 'Display up to ', }));
+  var pageSizeSelect = $('<select>', { 'id': 'parameter_numberOfResults', });
+  buttonDiv.append(pageSizeSelect);
+  pageSizeSelect.append($('<option>', { 'value': 10, 'text': '10', }));
+  pageSizeSelect.append($('<option>', { 'value': 20, 'text': '20', }));
+  pageSizeSelect.append($('<option>', { 'value': 50, 'text': '50', }));
+  pageSizeSelect.append($('<option>', { 'value': 100, 'text': '100', }));
+  if (History.searchParameters === undefined ||
+    History.searchParameters.numberOfResults === undefined) {
+    pageSizeSelect.val(20);
+  } else {
+    pageSizeSelect.val(History.searchParameters.numberOfResults);
+  }
+  buttonDiv.append($('<text>', { 'text': ' games per page: ', }));
+
+  var searchButton = $('<input>', {
+    'type': 'button',
+    'id': 'searchButton',
+    'value': 'Search',
+  });
+  buttonDiv.append(searchButton);
+  searchButton.click(function() {
+    $('#parameter_page').val(1);
+    History.performManualSearch();
+  });
+
+  return buttonDiv;
 };
 
 History.buildHiddenFields = function() {
@@ -325,20 +349,43 @@ History.buildResultsTableHeader = function() {
     var titleTh = $('<th>');
     headerRow.append(titleTh);
 
+    var sortButtonColor;
+    if (History.searchParameters !== undefined &&
+      History.searchParameters.sortColumn !== undefined &&
+      History.searchParameters.sortDirection !== undefined &&
+      History.searchParameters.sortColumn == columnId &&
+      History.searchParameters.sortDirection == 'ASC') {
+      sortButtonColor = '#ffffff';
+    } else {
+      sortButtonColor = '#000000';
+    }
     titleTh.append($('<span>', {
       'html': '&#9650',
       'href': 'javascript: void(0);',
       'data-column': columnId,
       'data-direction': 'ASC',
       'class': 'sortButton',
+      'style': 'color: ' + sortButtonColor + ';',
     }));
+
     titleTh.append($('<span>', { 'text': columnInfo.text }));
+
+    if (History.searchParameters !== undefined &&
+      History.searchParameters.sortColumn !== undefined &&
+      History.searchParameters.sortDirection !== undefined &&
+      History.searchParameters.sortColumn == columnId &&
+      History.searchParameters.sortDirection == 'DESC') {
+      sortButtonColor = '#ffffff';
+    } else {
+      sortButtonColor = '#000000';
+    }
     titleTh.append($('<span>', {
       'html': '&#9660;',
       'href': 'javascript: void(0);',
       'data-column': columnId,
       'data-direction': 'DESC',
       'class': 'sortButton',
+      'style': 'color: ' + sortButtonColor + ';',
     }));
 
     var filterTd = $('<th>');
@@ -513,7 +560,11 @@ History.buildResultsTableFooter = function() {
   foot.append(footerHeaderRow);
 
   footerHeaderRow.append($('<th>', { 'text': 'Matches Found' }));
-  footerHeaderRow.append($('<th>', { 'colspan': '4' }));
+  footerHeaderRow.append($('<th>', {
+    'text': 'Pages',
+    'colspan': '4',
+    'style': 'text-align: left;',
+  }));
   footerHeaderRow.append($('<th>', { 'text': 'Earliest Start' }));
   footerHeaderRow.append($('<th>', { 'text': 'Latest Move' }));
   footerHeaderRow.append($('<th>', { 'text': 'Games W/L/T' }));
@@ -525,7 +576,67 @@ History.buildResultsTableFooter = function() {
   var summary = Api.search_results.summary;
 
   footerDataRow.append($('<td>', { 'text': summary.matchesFound }));
-  footerDataRow.append($('<td>', { 'colspan': '4' }));
+
+  var pagingTd = $('<td>', {
+    'colspan': '4',
+    'style': 'text-align: left;',
+  });
+  var lastPage =
+    Math.ceil(summary.matchesFound / History.searchParameters.numberOfResults);
+
+  if (History.searchParameters.page > 1) {
+    pagingTd.append($('<span>', {
+      'html': '&larr;',
+      'class': 'pageLink',
+      'style': 'width: 2em;',
+      'data-page': parseInt(History.searchParameters.page) - 1,
+      'style': 'width: 1.2em;',
+    }));
+  } else {
+    // We'll add a blank pager so that the paging links stay lined up right
+    // whether we're on page one or not
+    pagingTd.append($('<span>', {
+      'class': 'pageLink',
+      'style': 'width: 1.2em;',
+      'data-page': History.searchParameters.page,
+    }));
+  }
+
+  for (i = 1; i <= lastPage; i++) {
+    if (i == History.searchParameters.page) {
+      pagingTd.append($('<span>', {
+        'text': '[' + i + ']',
+        'class': 'pageLink',
+        'data-page': i,
+        'style': 'font-weight: bold; cursor: default;'
+      }));
+    } else {
+      pagingTd.append($('<span>', {
+        'text': i,
+        'class': 'pageLink',
+        'data-page': i,
+      }));
+    }
+  }
+
+  if (History.searchParameters.page < lastPage) {
+    pagingTd.append($('<span>', {
+      'html': '&rarr;',
+      'class': 'pageLink',
+      'style': 'width: 1.2em;',
+      'data-page': parseInt(History.searchParameters.page) + 1,
+    }));
+  }
+
+  pagingTd.find('.pageLink').click(function() {
+    var page = $(this).attr('data-page');
+    if (page != History.searchParameters.page) {
+      $('#parameter_page').val(page);
+      History.performManualSearch();
+    }
+  });
+  footerDataRow.append(pagingTd);
+
   footerDataRow.append($('<td>', { 'text':
       Env.formatTimestamp(summary.earliestStart, 'date')
   }));

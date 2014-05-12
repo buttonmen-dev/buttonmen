@@ -1185,23 +1185,29 @@ class BMInterface {
             }
             switch($searchOptions['sortDirection']) {
                 case 'ASC':
-                    $sort .= 'ASC; ';
+                    $sort .= 'ASC ';
                     break;
                 case 'DESC':
-                    $sort .= 'DESC; ';
+                    $sort .= 'DESC ';
                     break;
             }
+
+            $limit = 'LIMIT :offset, :page_size ';
+            $limitParameters = array();
+            $limitParameters[':offset'] =
+                ($searchOptions['page'] - 1) * $searchOptions['numberOfResults'];
+            $limitParameters[':page_size'] = $searchOptions['numberOfResults'];
 
             $combinedQuery =
                 'SELECT * FROM (( ' .
                     $baseQuery . $playerJoin0 .
                 ') UNION (' .
                     $baseQuery . $playerJoin1 .
-                ')) AS results ' .
-                'GROUP BY game_id ' . $sort;
+                ')) AS games ' .
+                'GROUP BY game_id ' . $sort . $limit . ';';
 
             $statement = self::$conn->prepare($combinedQuery);
-            $statement->execute($parameters);
+            $statement->execute(array_merge($parameters, $limitParameters));
 
             $games = array();
 
@@ -1239,11 +1245,14 @@ class BMInterface {
                     'SUM(rounds_won_A < rounds_won_B) AS games_winning_B, ' .
                     'SUM(rounds_won_A = rounds_won_B) AS games_drawn, ' .
                     'SUM(status = "COMPLETE") AS games_completed ' .
-                'FROM (( ' .
-                    $baseQuery . $playerJoin0 .
-                ') UNION (' .
-                    $baseQuery . $playerJoin1 .
-                ')) AS results;';
+                'FROM (' .
+                    'SELECT * FROM (( ' .
+                        $baseQuery . $playerJoin0 .
+                    ') UNION (' .
+                        $baseQuery . $playerJoin1 .
+                    ')) AS games ' .
+                    'GROUP BY game_id ' .
+                ') AS summary;';
 
             $statement = self::$conn->prepare($combinedQuery);
             $statement->execute($parameters);
