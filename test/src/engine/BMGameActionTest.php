@@ -84,7 +84,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGameAction::friendly_message_attack()
      */
-    public function test_friendly_message_attack() {
+    public function test_friendly_message_attack_power() {
         $this->object = new BMGameAction(40, 'attack', 1, array(
             'attackType' => 'Power',
             'preAttackDice' => array(
@@ -108,7 +108,41 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction01 performed Power attack using [(4):3] against [(10):1]; Defender (10) was captured; Attacker (4) rerolled 3 => 2"
         );
+    }
 
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_power_mood_swing() {
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(X)?', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(X)?:3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):1'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(X)?', 'min' => 1, 'max' => 7, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(X)?:7'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(10):1'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction01 performed Power attack using [(X)?:3] against [(10):1]; Defender (10) was captured; Attacker (X)? changed size from 4 to 7 sides, rerolled 3 => 2"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_surrender() {
         $this->object = new BMGameAction(40, 'attack', 2, array(
             'attackType' => 'Surrender',
             'preAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
@@ -118,7 +152,12 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             $this->object->friendly_message($this->playerIdNames, 0, 0),
             "gameaction02 surrendered"
         );
+    }
 
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_trip() {
         $this->object = new BMGameAction(40, 'attack', 1, array(
             'attackType' => 'Trip',
             'preAttackDice' => array(
@@ -140,7 +179,63 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         ));
         $this->assertEquals(
             $this->object->friendly_message($this->playerIdNames, 0, 0),
-            "gameaction01 performed Trip attack using [t(2):1] against [(4):3]; Defender (4) rerolled 3 => 1, was captured; Attacker t(2) rerolled 1 => 2"
+            "gameaction01 performed Trip attack using [t(2):1] against [(4):3]; Attacker t(2) rerolled 1 => 2; Defender (4) rerolled 3 => 1, was captured"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_morphing() {
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 'm(2)', 'min' => 1, 'max' => 2, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'm(2):3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 'm(4)', 'min' => 1, 'max' => 4, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'm(4):2'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(4):1'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction01 performed Power attack using [m(2):3] against [(4):1]; Defender (4) was captured; Attacker m(2) changed size from 2 to 4 sides, recipe changed from m(2) to m(4), rerolled 3 => 2"
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_choose_die_values()
+     */
+    public function test_friendly_message_choose_die_values() {
+        $this->object = new BMGameAction(
+            24, 'choose_die_values', 1,
+            array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13), 'optionValues' => array()));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 2, 24),
+            "gameaction01 set swing values: X=5, Y=13"
+        );
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 1, 24),
+            "gameaction01 set die sizes"
+        );
+
+        $this->object = new BMGameAction(24, 'choose_die_values', 1, array('roundNumber' => 1, 'swingValues' => array(), 'optionValues' => array('(3/6)' => 3, 'z(4/7)' => 7)));
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 2, 24),
+            "gameaction01 set option dice: (3/6=3), z(4/7=7)"
+        );
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 1, 24),
+            "gameaction01 set die sizes"
         );
     }
 

@@ -38,6 +38,9 @@ class BMDie extends BMCanHaveSkill {
 //  but not attacking
     public $unavailable = FALSE;
 
+    // $flagList is designed to contain various BMFlags
+    protected $flagList = array();
+
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)
@@ -81,14 +84,14 @@ class BMDie extends BMCanHaveSkill {
 
         try {
             // Option dice divide on a /, can contain any die type
-            if (count($opt_array = explode('/', $recipe)) > 1) {
-//                $die = BMDieOption::create($opt_array, $skills);
-                    throw new Exception("Option skill not implemented");
-            } elseif (count($twin_array = explode(',', $recipe)) > 1) {
+            if (count($optionArray = explode('/', $recipe)) > 1) {
+                $die = BMDieOption::create($optionArray, $skills);
+            } elseif (count($twinArray = explode(',', $recipe)) > 1) {
                 // Twin dice divide on a comma, can contain any type but option
-                $die = BMDieTwin::create($twin_array, $skills);
+                $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
-                $die = BMDieWildcard::create($recipe, $skills);
+//                $die = BMDieWildcard::create($recipe, $skills);
+                throw new Exception("Wildcard skill not implemented");
             } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
                 // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);
@@ -148,17 +151,20 @@ class BMDie extends BMCanHaveSkill {
 // Roll the die into a game. Clone self, roll, return the clone.
     public function make_play_die() {
         $newDie = clone $this;
-        $newDie->roll(FALSE);
+        $newDie->roll();
         return $newDie;
     }
 
 
-    public function roll($successfulAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
+        $this->run_hooks('pre_roll', array('die' => $this,
+                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+
         if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
+        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     public function attack_list() {
@@ -467,13 +473,15 @@ class BMDie extends BMCanHaveSkill {
     public function get_recipe() {
         $recipe = '';
         foreach ($this->skillList as $skill) {
-            $recipe .= BMSkill::abbreviate_skill_name($skill);
+            if (BMSkill::do_print_skill_preceding($skill)) {
+                $recipe .= BMSkill::abbreviate_skill_name($skill);
+            }
         }
         $recipe .= '(';
 
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
-
+            $recipe .= "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}";
         } elseif ($this instanceof BMDieTwin) {
             // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {
@@ -496,6 +504,12 @@ class BMDie extends BMCanHaveSkill {
         }
 
         $recipe .= ')';
+
+        foreach ($this->skillList as $skill) {
+            if (!BMSkill::do_print_skill_preceding($skill)) {
+                $recipe .= BMSkill::abbreviate_skill_name($skill);
+            }
+        }
 
         return $recipe;
     }
@@ -539,8 +553,51 @@ class BMDie extends BMCanHaveSkill {
         return $doesSkipSwingRequest;
     }
 
-    // utility methods
+    public function has_flag($flag) {
+        return array_key_exists($flag, $this->flagList);
+    }
 
+    public function add_flag($flag) {
+        if ($this->has_flag($flag)) {
+            return;
+        }
+
+        $flagObject = BMFlag::create_from_string($flag);
+        if (isset($flagObject)) {
+            $this->flagList[$flag] = $flagObject;
+        }
+    }
+
+    public function remove_flag($flag) {
+        if ($this->has_flag($flag)) {
+            unset($this->flagList[$flag]);
+        }
+    }
+
+    public function remove_all_flags() {
+        $this->flagList = array();
+    }
+
+    public function flags_as_string() {
+        if (empty($this->flagList)) {
+            return '';
+        }
+
+        return implode(';', $this->flagList);
+    }
+
+    public function load_flags_from_string($string) {
+        if (empty($string)) {
+            return;
+        }
+
+        $flagArray = explode(';', $string);
+        foreach ($flagArray as $flag) {
+            $this->add_flag($flag);
+        }
+    }
+
+    // utility methods
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -557,6 +614,10 @@ class BMDie extends BMCanHaveSkill {
 //            default:
                 $this->$property = $value;
 //        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
     }
 
     public function __toString() {

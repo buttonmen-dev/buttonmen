@@ -95,72 +95,121 @@ class BMGameAction {
 
         // First, what type of attack was this?
         if ($attackType == 'Pass') {
-            $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
-        } elseif ($attackType == 'Surrender') {
-            $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
+            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
+        }
+
+        if ($attackType == 'Surrender') {
+            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
+        }
+
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+
+        // Add the pre-attack status of all participating dice
+        $preAttackAttackers = array();
+        $preAttackDefenders = array();
+        foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+        }
+        foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
+            $preAttackDefenders[] = $defenderInfo['recipeStatus'];
+        }
+        if (count($preAttackAttackers) > 0) {
+            $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
+        }
+        if (count($preAttackDefenders) > 0) {
+            $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
+        }
+
+        $messageDefender = '';
+        // Report what happened to each defending die
+        foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
+            $postInfo = $postAttackDice['defender'][$idx];
+            $postEventsDefender = array();
+
+            if ($defenderRerollsEarly) {
+                if ($defenderInfo['doesReroll']) {
+                    $postEventsDefender[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
+                } else {
+                    $postEventsDefender[] = 'does not reroll';
+                }
+            }
+
+            if ($defenderInfo['recipe'] != $postInfo['recipe']) {
+                $postEventsDefender[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            }
+            if ($postInfo['captured']) {
+                $postEventsDefender[] = 'was captured';
+            } else {
+                $postEventsDefender[] = 'was not captured';
+            }
+            $messageDefender .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+        }
+
+        $messageAttacker = '';
+        // Report what happened to each attacking die
+        foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $postInfo = $postAttackDice['attacker'][$idx];
+            $postEventsAttacker = array();
+            if ($attackerInfo['max'] != $postInfo['max']) {
+                $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' .
+                                        $postInfo['max'] . ' sides';
+            }
+            if ($attackerInfo['recipe'] != $postInfo['recipe']) {
+                $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            }
+            if ($attackerInfo['doesReroll']) {
+                $postEventsAttacker[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
+            } else {
+                $postEventsAttacker[] = 'does not reroll';
+            }
+            if (count($postEventsAttacker) > 0) {
+                $messageAttacker .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+            }
+        }
+
+        if ($defenderRerollsEarly) {
+            $message .= $messageAttacker.$messageDefender;
         } else {
-            $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+            $message .= $messageDefender.$messageAttacker;
+        }
 
-            // Add the pre-attack status of all participating dice
-            $preAttackAttackers = array();
-            $preAttackDefenders = array();
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
-            }
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-            }
-            if (count($preAttackAttackers) > 0) {
-                $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
-            }
-            if (count($preAttackDefenders) > 0) {
-                $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
-            }
+        return $message;
+    }
 
-            // Report what happened to each defending die
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $postInfo = $postAttackDice['defender'][$idx];
-                $postEvents = array();
+    protected function friendly_message_choose_die_values() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set';
 
-                if ($defenderRerollsEarly) {
-                    if ($defenderInfo['doesReroll']) {
-                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
-                    } else {
-                        $postEvents[] = 'does not reroll';
-                    }
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in swing selection
+        // state, report the values which were chosen as well
+        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
+            ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
+            $dieMessages = array();
+            if (count($this->params['swingValues']) > 0) {
+                $swingStrs = array();
+                foreach ($this->params['swingValues'] as $swingType => $swingValue) {
+                    $swingStrs[] = $swingType . '=' . $swingValue;
                 }
-
-                if ($postInfo['captured']) {
-                    $postEvents[] = 'was captured';
-                } else {
-                    $postEvents[] = 'was not captured';
-                }
-                if ($defenderInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                $message .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEvents);
+                $dieMessages[] = 'swing values: ' . implode(", ", $swingStrs);
             }
-
-            // Report what happened to each attacking die
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $postInfo = $postAttackDice['attacker'][$idx];
-                $postEvents = array();
-                if ($attackerInfo['doesReroll']) {
-                    $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
-                } else {
-                    $postEvents[] = 'does not reroll';
+            if (count($this->params['optionValues']) > 0) {
+                $optionStrs = array();
+                foreach ($this->params['optionValues'] as $dieRecipe => $optionValue) {
+                    $optionStrs[] = str_replace(')', '=' . $optionValue . ')', $dieRecipe);
                 }
-                if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                if (count($postEvents) > 0) {
-                    $message .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEvents);
-                }
+                $dieMessages[] = 'option dice: ' . implode(", ", $optionStrs);
             }
+            $message .= ' ' . implode(" and ", $dieMessages);
+        } else {
+            $message .= ' die sizes';
         }
         return $message;
     }
 
+    // Since the addition of option dice, new choose_swing log
+    // entries are no longer added to the DB.  However, this code
+    // must be retained to parse old log entries until/unless those
+    // are converted.
     protected function friendly_message_choose_swing() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set swing values';
 

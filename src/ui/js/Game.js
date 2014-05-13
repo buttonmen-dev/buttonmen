@@ -122,12 +122,12 @@ Game.showStatePage = function() {
     if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
-          Game.actionChooseSwingActive();
+          Game.actionSpecifyDiceActive();
         } else {
-          Game.actionChooseSwingInactive();
+          Game.actionSpecifyDiceInactive();
         }
       } else {
-        Game.actionChooseSwingNonplayer();
+        Game.actionSpecifyDiceNonplayer();
       }
     } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_AUXILIARY_DICE) {
       if (Api.game.isParticipant) {
@@ -271,24 +271,26 @@ Game.parseAuxiliaryDieOptions = function() {
 // Routines for each type of game action that could be taken
 
 // It is time to choose swing dice, and the current player has dice to choose
-Game.actionChooseSwingActive = function() {
+Game.actionSpecifyDiceActive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader('Your turn to choose swing dice');
+  Game.pageAddGameHeader('Your turn to choose die sizes');
 
   // Get a table containing the existing die recipes
   var dietable = Game.dieRecipeTable(false);
 
-  // Create a form for submitting swing values
-  var swingform = $('<form>', {
+  // Create a form for submitting die values
+  var diespecifyform = $('<form>', {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var swingtable = $('<table>', { 'id': 'swing_table', });
+  var diespecifytable = $('<table>', { 'id': 'die_specify_table', });
+
+  // Add swing dice to table
   $.each(
     Api.game.player.swingRequestArray,
     function(letter, range) {
       var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      var swingtext = letter + ' (' + range.min + '-' + range.max + '):';
       swingrow.append($('<td>', { 'text': swingtext, }));
       var swinginput = $('<td>', {});
       swinginput.append($('<input>', {
@@ -299,11 +301,48 @@ Game.actionChooseSwingActive = function() {
         'maxlength': '2',
       }));
       swingrow.append(swinginput);
-      swingtable.append(swingrow);
+      var swingprevtext = '';
+      if (letter in Api.game.player.prevSwingValueArray) {
+        swingprevtext =
+          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+      }
+      swingrow.append($('<td>', { 'text': swingprevtext, }));
+      diespecifytable.append(swingrow);
     });
-  swingform.append(swingtable);
-  swingform.append($('<br>'));
-  swingform.append($('<button>', {
+
+  // Add option dice to table
+  $.each(
+    Api.game.player.optRequestArray,
+    function(position, vals) {
+      var optrow = $('<tr>', {});
+      var opttext = Api.game.player.dieRecipeArray[position] + ':';
+      optrow.append($('<td>', { 'text': opttext, }));
+      var optinput = $('<td>', {});
+      var optselect = $('<select>', {
+        'id': 'option_' + position,
+        'name': 'option_' + position,
+      });
+      $.each(vals, function(idx) {
+        optselect.append($('<option>', {
+          'value': vals[idx],
+          'label': vals[idx],
+          'text': vals[idx],
+        }));
+      });
+      optinput.append(optselect);
+      optrow.append(optinput);
+      var optprevtext = '';
+      if (position in Api.game.player.prevOptValueArray) {
+        optprevtext =
+          '(was: ' + Api.game.player.prevOptValueArray[position] + ')';
+      }
+      optrow.append($('<td>', { 'text': optprevtext, }));
+      diespecifytable.append(optrow);
+    });
+
+  diespecifyform.append(diespecifytable);
+  diespecifyform.append($('<br>'));
+  diespecifyform.append($('<button>', {
     'id': 'game_action_button',
     'text': 'Submit',
   }));
@@ -319,10 +358,13 @@ Game.actionChooseSwingActive = function() {
       opponentswing.append(swingrow);
     });
 
+  // Don't bother making a table for opponent's option dice, because
+  // those possible values are shown in the recipe already
+
   // Add the swing die form to the left column of the die table
   var formtd = $('<td>', { 'class': 'chooseswing', });
   formtd.append($('<br>'));
-  formtd.append(swingform);
+  formtd.append(diespecifyform);
   var opponenttd = $('<td>', { 'class': 'chooseswing', });
   opponenttd.append($('<br>'));
   opponenttd.append(opponentswing);
@@ -337,25 +379,18 @@ Game.actionChooseSwingActive = function() {
   Game.pageAddFooter();
 
   // Function to invoke on button click
-  Game.form = Game.formChooseSwingActive;
+  Game.form = Game.formSpecifyDiceActive;
 
   // Now layout the page
   Game.layoutPage();
 };
 
-Game.actionChooseSwingInactive = function() {
+Game.actionSpecifyDiceInactive = function() {
   Game.page = $('<div>');
-  Game.pageAddGameHeader('Opponent\'s turn to choose swing dice');
+  Game.pageAddGameHeader('Opponent\'s turn to choose die sizes');
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {
-    'text':
-      'Your swing dice are set. ' +
-      'Please wait patiently for your opponent to set swing dice.'
-  }));
 
   Game.pageAddFooter();
 
@@ -365,7 +400,7 @@ Game.actionChooseSwingInactive = function() {
   Game.layoutPage();
 };
 
-Game.actionChooseSwingNonplayer = function() {
+Game.actionSpecifyDiceNonplayer = function() {
   Game.page = $('<div>');
 
   Game.pageAddGameHeader(
@@ -662,10 +697,6 @@ Game.actionReactToInitiativeInactive = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {'text':
-    'Please wait patiently for your opponent to use chance/focus dice' }));
 
   Game.pageAddFooter();
 
@@ -767,12 +798,28 @@ Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader('Opponent\'s turn to attack');
   Game.pageAddDieBattleTable(false);
-  Game.page.append($('<p>', {'text':
-    'It is your opponent\'s turn to attack right now.' }));
+  Game.page.append($('<br>'));
+
+  if (Api.game.chatEditable) {
+    Game.activity.chat = Api.game.chatLog[0].message;
+  }
+  var chatdiv = $('<div>');
+  chatdiv.append(Game.chatBox());
+  var chatform = $('<form>', {
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
+  chatform.append($('<button>', {
+    'id': 'game_action_button',
+    'text': 'Change game message',
+  }));
+  chatdiv.append(chatform);
+  Game.page.append(chatdiv);
 
   Game.pageAddFooter();
 
-  Game.form = null;
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnInactive;
 
   // Now layout the page
   Game.layoutPage();
@@ -825,10 +872,11 @@ Game.actionShowFinishedGame = function() {
 ////////////////////////////////////////////////////////////////////////
 // Form submission functions
 
-// Form submission action for choosing swing dice
-Game.formChooseSwingActive = function() {
+// Form submission action for choosing swing and option dice
+Game.formSpecifyDiceActive = function() {
   var textFieldsFilled = true;
   var swingValueArray = {};
+  var optionValueArray = {};
 
   // Iterate over expected swing values
   $.each(Api.game.player.swingRequestArray, function(letter) {
@@ -840,12 +888,23 @@ Game.formChooseSwingActive = function() {
     }
   });
 
+  // Iterate over expected option values
+  $.each(Api.game.player.optRequestArray, function(position) {
+    var value = $('#option_' + position).val();
+    if ($.isNumeric(value)) {
+      optionValueArray[position] = value;
+    } else {
+      textFieldsFilled = false;
+    }
+  });
+
   if (textFieldsFilled) {
     Api.apiFormPost(
       {
-        type: 'submitSwingValues',
+        type: 'submitDieValues',
         game: Game.game,
         swingValueArray: swingValueArray,
+        optionValueArray: optionValueArray,
         roundNumber: Api.game.roundNumber,
         timestamp: Api.game.timestamp,
       },
@@ -1136,6 +1195,30 @@ Game.formPlayTurnActive = function() {
   );
 };
 
+// Form submission action for updating chat when it's not your turn
+Game.formPlayTurnInactive = function() {
+
+  // Store the game chat in recent activity
+  Game.activity.chat = $('#game_chat').val();
+
+  var formargs = {
+    type: 'submitChat',
+    game: Game.game,
+    chat: Game.activity.chat,
+  };
+  if (Api.game.chatEditable) {
+    formargs.edit = Api.game.chatEditable;
+  }
+
+  Api.apiFormPost(
+    formargs,
+    { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
+    'game_action_button',
+    Game.redrawGamePageSuccess,
+    Game.redrawGamePageFailure
+  );
+};
+
 Game.readCurrentGameActivity = function() {
   // Initialize the array of die select statuses to all false, then
   // turn on the dice which have been selected
@@ -1154,8 +1237,12 @@ Game.readCurrentGameActivity = function() {
   // Get the specified attack type
   Game.activity.attackType = $('#attack_type_select').val();
 
-  // Store the game chat in recent activity
-  Game.activity.chat = $('#game_chat').val();
+  // Store the game chat in recent activity (minus trailing whitespace)
+  var chat = $('#game_chat').val();
+  if (chat !== undefined && chat !== null) {
+    chat = chat.replace(/\s+$/, '');
+  }
+  Game.activity.chat = chat;
 };
 
 Game.showFullLogHistory = function() {
@@ -1169,15 +1256,18 @@ Game.showFullLogHistory = function() {
 
 // Display header information about the game
 Game.pageAddGameHeader = function(action_desc) {
+  var gameTitle =
+    'Game #' + Api.game.gameId + Game.SPACE_BULLET +
+      Api.game.player.playerName + ' (' + Api.game.player.buttonName +
+      ') vs. ' + Api.game.opponent.playerName + ' (' +
+      Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
+      'Round #' + Api.game.roundNumber;
+  $('title').html('Button Men Online &mdash; ' + gameTitle);
+
   Game.page.append(
     $('<div>', {
       'id': 'game_id',
-      'html':
-	'Game #' + Api.game.gameId + Game.SPACE_BULLET +
-	Api.game.player.playerName + ' (' + Api.game.player.buttonName +
-	') vs. ' + Api.game.opponent.playerName + ' (' +
-	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
-        'Round #' + Api.game.roundNumber,
+      'html': gameTitle,
     }));
   var bgcolor = '#ffffff';
   if (Api.game.player.waitingOnAction) {
@@ -1265,9 +1355,12 @@ Game.pageAddLogFooter = function() {
             'nowrap': 'nowrap',
             'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
+        // We add the log message as 'text' to ensure that jquery knows it's
+        // not already encoded as HTML. This way, jquery will encode it for us,
+        // automatically converting things like < to things like &lt;
         actionrow.append(
           $('<td>', {
-            'class': 'left',
+            'class': 'left logmessage',
             'text': logentry.message,
           }));
         actiontable.append(actionrow);
@@ -1295,8 +1388,11 @@ Game.pageAddLogFooter = function() {
           'text': logentry.player + ' (' +
             Env.formatTimestamp(logentry.timestamp) + ')',
         }));
+        // We add the log message as 'text' to ensure that jquery knows it's
+        // not already encoded as HTML. This way, jquery will encode it for us,
+        // automatically converting things like < to things like &lt;
         chatrow.append($('<td>', {
-          'class': 'left',
+          'class': 'left logmessage',
           'text': logentry.message,
         }));
         chattable.append(chatrow);
@@ -1304,6 +1400,26 @@ Game.pageAddLogFooter = function() {
       chattd.append(chattable);
       logrow.append(chattd);
     }
+
+    // Replace text-y whitespace with HTML whitespace to preserve things
+    // like newlines and indentation in chat.
+    logrow.find('.logmessage').each(function() {
+      // We originally added the log messages to the page as text; by reading
+      // them back as HTML now, we're getting the version of them that's
+      // already been safely HTML-encoded.
+      var messagehtml = $(this).html();
+
+      // HTML-ify initial spaces, to preserve indentation
+      messagehtml = messagehtml.replace(/^ /, '&nbsp;');
+      // Likewise for spaces at the start of each line
+      messagehtml = messagehtml.replace(/\n /, '\n&nbsp;');
+      // Preserve strings of multiple spaces
+      messagehtml = messagehtml.replace(/  /g, '&nbsp;&nbsp;');
+      // HTML-ify line breaks to preserve newlines
+      messagehtml = messagehtml.replace(/\n/g, '<br />');
+
+      $(this).html(messagehtml);
+    });
 
     logtable.append(logrow);
 
@@ -1482,7 +1598,7 @@ Game.dieTableEntry = function(
                  ('Chance' in dieSkillsArray[i]) &&
                  (dieSkillsArray[i].Chance)) {
         dieopts.class = 'recipe_greyed';
-        dieopts.title += '. (This chance dice cannot be rerolled again ' +
+        dieopts.title += '. (This chance die cannot be rerolled again ' +
           'during this round, because the player has already rerolled a ' +
           'chance die)';
       }
@@ -1541,8 +1657,12 @@ Game.pageAddDieBattleTable = function(clickable) {
 // button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
+  var tdClass = 'button_' + player;
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    tdClass += ' button_postgame';
+  }
   var buttonTd = $('<td>', {
-    'class': 'button_' + player,
+    'class': tdClass,
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
@@ -1558,11 +1678,12 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].buttonRecipe,
   });
 
-  if (player == 'opponent') {
+  if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+  }
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
   buttonTd.append($('<img>', {
@@ -1573,12 +1694,10 @@ Game.buttonImageDisplay = function(player) {
     'width': '150px',
     'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
   }));
-  if (player == 'player') {
+  if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    buttonTd.append(playerWLT);
   }
   return buttonTd;
 };
@@ -1786,27 +1905,33 @@ Game.playerOpponentHeaderRow = function(label, field) {
 };
 
 // If the recipe doesn't contain (sides), assume there are swing
-// dice in the recipe, so we need to specify the current number
-// of sides
+// or option dice in the recipe, so we need to specify the current
+// number of sides
 Game.dieRecipeText = function(recipe, sides) {
   var dieRecipeText = recipe;
   if (sides) {
     var lparen = recipe.indexOf('(');
     var rparen = recipe.indexOf(')');
-    var recipeSideStrings = recipe.substring(lparen + 1, rparen).split(',');
-    var sidesum = 0;
-    var swingcount = 0;
-    for (var i = 0; i < recipeSideStrings.length; i++) {
-      var itemSides = parseInt(recipeSideStrings[i], 10);
-      if (itemSides > 0) {
-        sidesum += itemSides;
-      } else {
-        swingcount += 1;
+    var recipeSideString = recipe.substring(lparen + 1, rparen);
+    var recipeSideOptionStrings = recipeSideString.split('/');
+    if (recipeSideOptionStrings.length > 1) {
+      dieRecipeText = dieRecipeText.replace(')', '=' + sides + ')');
+    } else {
+      var recipeSideTwinStrings = recipeSideString.split(',');
+      var sidesum = 0;
+      var swingcount = 0;
+      for (var i = 0; i < recipeSideTwinStrings.length; i++) {
+        var itemSides = parseInt(recipeSideTwinStrings[i], 10);
+        if (itemSides > 0) {
+          sidesum += itemSides;
+        } else {
+          swingcount += 1;
+        }
       }
-    }
-    if (sidesum != sides) {
-      dieRecipeText = dieRecipeText.replace(
-                        ')', '=' + (sides/swingcount) + ')');
+      if (sidesum != sides) {
+        dieRecipeText = dieRecipeText.replace(
+                          ')', '=' + (sides/swingcount) + ')');
+      }
     }
   }
   return dieRecipeText;

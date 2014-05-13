@@ -40,7 +40,9 @@
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
- * @property    boolean $allValuesSpecified      Boolean flag of whether all swing values have been specified
+ * @property      array $prevSwingValueArrayArray    Swing values for previous round for all players
+ * @property      array $optRequestArrayArray    Option requests for all players
+ * @property      array $prevOptValueArrayArray      Option values for previous round for all players
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
@@ -88,15 +90,10 @@ class BMGame {
 
     public $swingRequestArrayArray;
     public $swingValueArrayArray;
-
-    public $allValuesSpecified = FALSE;
-
-    public function require_values() {
-        if (!$this->allValuesSpecified) {
-            throw new Exception("require_values called");
-        }
-    }
-
+    public $prevSwingValueArrayArray;
+    public $optRequestArrayArray;
+    public $optValueArrayArray;
+    public $prevOptValueArrayArray;
 
     // methods
     public function do_next_step() {
@@ -185,14 +182,8 @@ class BMGame {
 
 
     protected function do_next_step_load_dice_into_buttons() {
-        //james: this will be replaced with a call to the database
-        // load clean version of the buttons from their recipes
-        // if the player has not just won a round
-//                foreach ($this->buttonArray as $playerIdx => $tempButton) {
-//                    if (!$this->isPrevRoundWinnerArray[$playerIdx]) {
-//                        $tempButton->reload();
-//                    }
-//                }
+        // james: this is currently carried out either by manually setting
+        // $this->buttonArray, or by BMInterface
     }
 
     protected function update_game_state_load_dice_into_buttons() {
@@ -444,6 +435,7 @@ class BMGame {
             array_fill(0, count($this->playerIdArray), FALSE);
 
         $this->initialise_swing_value_array_array();
+        $this->set_option_values();
         $this->set_swing_values();
         $this->roll_active_dice();
     }
@@ -470,6 +462,30 @@ class BMGame {
                     if (is_null($this->swingValueArrayArray[$playerIdx][$key])) {
                         $this->waitingOnActionArray[$playerIdx] = TRUE;
                     }
+                }
+            }
+        }
+    }
+
+    protected function set_option_values() {
+        if (!isset($this->optRequestArrayArray)) {
+            return;
+        }
+
+        foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
+//            var_dump($optionRequestArray);
+            foreach (array_keys($optionRequestArray) as $dieIdx) {
+                if (isset($this->optValueArrayArray[$playerIdx]) &&
+                    (count($this->optValueArrayArray[$playerIdx]) > 0)) {
+                    $optValue = $this->optValueArrayArray[$playerIdx][$dieIdx];
+                    if (isset($optValue)) {
+                        $this->activeDieArrayArray[$playerIdx][$dieIdx]->set_optionValue($optValue);
+                    }
+                }
+
+                if (!isset($this->activeDieArrayArray[$playerIdx][$dieIdx]->max)) {
+                    $this->waitingOnActionArray[$playerIdx] = TRUE;
+                    continue 2;
                 }
             }
         }
@@ -511,6 +527,14 @@ class BMGame {
                         continue;
                     }
                 }
+
+                if ($die instanceof BMDieOption) {
+                    if ($die->needsOptionValue) {
+                        // option value has not yet been set
+                        continue;
+                    }
+                }
+
                 $this->activeDieArrayArray[$playerIdx][$dieIdx] =
                     $die->make_play_die(FALSE);
             }
@@ -518,16 +542,9 @@ class BMGame {
     }
 
     protected function update_game_state_specify_dice() {
-        $areAllDiceSpecified = TRUE;
-        foreach ($this->activeDieArrayArray as $activeDieArray) {
-            foreach ($activeDieArray as $tempDie) {
-                if (!$this->is_die_specified($tempDie)) {
-                    $areAllDiceSpecified = FALSE;
-                    break 2;
-                }
-            }
-        }
-        if ($areAllDiceSpecified) {
+        if (0 == array_sum($this->waitingOnActionArray)) {
+            $this->prevSwingValueArrayArray = NULL;
+            $this->prevOptValueArrayArray = NULL;
             $this->gameState = BMGameState::DETERMINE_INITIATIVE;
         }
     }
@@ -665,6 +682,8 @@ class BMGame {
         $attAttackDieArray = $instance['attAttackDieArray'];
         $defAttackDieArray = $instance['defAttackDieArray'];
 
+        $this->remove_all_flags();
+
         $preAttackDice = $this->get_action_log_data(
             $attAttackDieArray,
             $defAttackDieArray
@@ -779,6 +798,28 @@ class BMGame {
                      'defAttackDieArray' => $defAttackDieArray);
     }
 
+    protected function remove_all_flags() {
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            if (empty($activeDieArray)) {
+                continue;
+            }
+
+            foreach ($activeDieArray as $die) {
+                $die->remove_all_flags();
+            }
+        }
+
+        foreach ($this->capturedDieArrayArray as $capturedDieArray) {
+            if (empty($capturedDieArray)) {
+                continue;
+            }
+
+            foreach ($capturedDieArray as $die) {
+                $die->remove_all_flags();
+            }
+        }
+    }
+
     protected function update_game_state_start_turn() {
         if ((isset($this->attack)) &&
             FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
@@ -845,6 +886,10 @@ class BMGame {
                 $forceRoundResult = FALSE;
             }
 
+            $this->prevSwingValueArrayArray = $this->swingValueArrayArray;
+            $this->prevOptValueArrayArray = $this->optValueArrayArray;
+            $this->optRequestArrayArray = array_fill(0, $this->nPlayers, array());
+
             for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
                 if ($playerIdx == $winnerIdx) {
                     $this->gameScoreArrayArray[$playerIdx]['W']++;
@@ -852,6 +897,7 @@ class BMGame {
                 } else {
                     $this->gameScoreArrayArray[$playerIdx]['L']++;
                     $this->swingValueArrayArray[$playerIdx] = array();
+                    $this->optValueArrayArray[$playerIdx] = array();
                 }
             }
             $this->log_action(
@@ -883,9 +929,16 @@ class BMGame {
 
     protected function do_next_step_end_game() {
         $this->reset_play_state();
+
         // swingValueArrayArray must be reset to clear entries in the
         // database table game_swing_map
         $this->swingValueArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->prevSwingValueArrayArray = NULL;
+
+        // optValueArrayArray must be reset to clear entries in the
+        // database table game_option_map
+        $this->optValueArrayArray = array_fill(0, $this->nPlayers, array());
+        $this->prevOptRequestArrayArray = NULL;
 
         $this->activate_GUI('Show end-of-game screen.');
     }
@@ -930,8 +983,10 @@ class BMGame {
                 $repeatCount = 0;
             }
             if ($repeatCount >= 20) {
+                $finalGameState = BMGameState::as_string($this->gameState);
                 throw new LogicException(
-                    'Infinite loop detected when advancing game state.'
+                    'Infinite loop detected when advancing game state. '.
+                    "Final game state: $finalGameState"
                 );
             }
         }
@@ -1025,7 +1080,7 @@ class BMGame {
         }
 
         $preRerollData = $die->get_action_log_data();
-        $die->roll();
+        $die->roll(FALSE);
 
         if (isset($args['TESTrerolledDieValue'])) {
             $die->value = $args['TESTrerolledDieValue'];
@@ -1277,6 +1332,17 @@ class BMGame {
         }
     }
 
+    public function request_option_values($die, $optionArray, $playerIdx) {
+        if (!isset($this->optRequestArrayArray)) {
+            $this->optRequestArrayArray =
+                array_fill(0, $this->nPlayers, array());
+        }
+
+        $dieIdx = array_search($die, $this->activeDieArrayArray[$playerIdx], TRUE);
+        assert(FALSE !== $dieIdx);
+        $this->optRequestArrayArray[$playerIdx][$dieIdx] = $optionArray;
+    }
+
     public static function does_player_have_initiative_array(array $activeDieArrayArray) {
         $initiativeArrayArray = array();
         foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
@@ -1320,19 +1386,8 @@ class BMGame {
         return $hasPlayerInitiative;
     }
 
-    // james: parts of this function needs to be moved to the BMDie class
     public static function is_die_specified($die) {
         // A die can be unspecified if it is swing, option, or plasma.
-
-        // If swing or option, then it is unspecified if the sides are unclear.
-        // check for swing letter or option '/' inside the brackets
-        // remove everything before the opening parenthesis
-
-//        $sides = $die->max;
-
-//        if (strlen(preg_replace('#[^[:alpha:]/]#', '', $sides)) > 0) {
-//            return FALSE;
-//        }
 
         // If plasma, then it is unspecified if the skills are unclear.
         // james: not written yet
@@ -1396,6 +1451,7 @@ class BMGame {
         $this->turnNumberInRound = 0;
         $this->capturedDieArrayArray = array_fill(0, $nPlayers, array());
         $this->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+        $this->optRequestArrayArray = array_fill(0, $nPlayers, array());
         unset($this->forceRoundResult);
     }
 
@@ -1972,15 +2028,6 @@ class BMGame {
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
-        $wereSwingValsReset = TRUE;
-        // james: need to also consider the case of many multiple draws in a row
-        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
-            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
-                $wereSwingValsReset = FALSE;
-                break;
-            }
-        }
-
         foreach ($this->buttonArray as $button) {
             $buttonNameArray[] = $button->name;
             $buttonRecipeArray[] = $button->recipe;
@@ -1992,8 +2039,15 @@ class BMGame {
         $dieDescArrayArray = array();
 
         if (isset($this->activeDieArrayArray)) {
+            // create a deep clone of the original activeDieArrayArray so that changes
+            // don't propagate back into the real game data
+            $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
+
             foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
                 if (count($activeDieArray) > 0) {
+                    foreach ($activeDieArray as $dieIdx => $activeDie) {
+                        $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
+                    }
                     $dieSkillsArrayArray[$playerIdx] =
                         array_fill(0, count($activeDieArray), array());
                     $diePropsArrayArray[$playerIdx] =
@@ -2002,7 +2056,7 @@ class BMGame {
             }
 
             $nDieArray = array_map('count', $this->activeDieArrayArray);
-            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
                 $valueArrayArray[] = array();
                 $sidesArrayArray[] = array();
                 $dieRecipeArrayArray[] = array();
@@ -2034,7 +2088,7 @@ class BMGame {
                         $swingValsSpecified = FALSE;
                     }
 
-                    if ($wereSwingValsReset &&
+                    if ($this->wereSwingOrOptionValuesReset() &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
                         $die->value = NULL;
@@ -2053,6 +2107,10 @@ class BMGame {
                                 }
                             }
                         }
+
+                        if ($die instanceof BMDieOption) {
+                            $die->max = NULL;
+                        }
                     }
                     $valueArrayArray[$playerIdx][] = $die->value;
                     $sidesArrayArray[$playerIdx][] = $die->max;
@@ -2069,6 +2127,12 @@ class BMGame {
                     if ($die->dizzy) {
                         $diePropsArrayArray[$playerIdx][$dieIdx]['dizzy'] = TRUE;
                     }
+
+                    if (!empty($die->flagList)) {
+                        foreach (array_keys($die->flagList) as $flag) {
+                            $diePropsArrayArray[$playerIdx][$dieIdx][$flag] = TRUE;
+                        }
+                    }
                 }
             }
         } else {
@@ -2079,19 +2143,39 @@ class BMGame {
             $swingReqArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
+        if (is_null($this->optRequestArrayArray)) {
+            $optRequestArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $optRequestArrayArray = $this->optRequestArrayArray;
+        }
+
+        if (empty($this->prevSwingValueArrayArray)) {
+            $prevSwingValueArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $prevSwingValueArrayArray = $this->prevSwingValueArrayArray;
+        }
+
+        if (empty($this->prevOptValueArrayArray)) {
+            $prevOptValueArrayArray = array_fill(0, $this->nPlayers, array());
+        } else {
+            $prevOptValueArrayArray = $this->prevOptValueArrayArray;
+        }
+
+        $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
+        $captValueArrayArray = array_fill(0, $this->nPlayers, array());
+        $captSidesArrayArray = array_fill(0, $this->nPlayers, array());
+        $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
+        $captDiePropsArrayArray = array_fill(0, $this->nPlayers, array());
+
         if (isset($this->capturedDieArrayArray)) {
             $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                $captValueArrayArray[] = array();
-                $captSidesArrayArray[] = array();
-                $captRecipeArrayArray[] = array();
-
-                foreach ($capturedDieArray as $die) {
+                foreach ($capturedDieArray as $dieIdx => $die) {
                     // hide swing information if appropriate
                     $dieValue = $die->value;
                     $dieMax = $die->max;
 
-                    if ($wereSwingValsReset &&
+                    if ($this->wereSwingOrOptionValuesReset() &&
                         ($this->gameState <= BMGameState::SPECIFY_DICE) &&
                         ($playerIdx !== $requestingPlayerIdx)) {
                         $dieValue = NULL;
@@ -2100,13 +2184,14 @@ class BMGame {
                     $captValueArrayArray[$playerIdx][] = $dieValue;
                     $captSidesArrayArray[$playerIdx][] = $dieMax;
                     $captRecipeArrayArray[$playerIdx][] = $die->recipe;
+
+                    if (!empty($die->flagList)) {
+                        foreach (array_keys($die->flagList) as $flag) {
+                            $captDiePropsArrayArray[$playerIdx][$dieIdx][$flag] = TRUE;
+                        }
+                    }
                 }
             }
-        } else {
-            $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
-            $captValueArrayArray = array_fill(0, $this->nPlayers, array());
-            $captSidesArrayArray = array_fill(0, $this->nPlayers, array());
-            $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
         }
 
         if (!$swingValsSpecified) {
@@ -2147,12 +2232,27 @@ class BMGame {
                   'capturedValueArrayArray'  => $captValueArrayArray,
                   'capturedSidesArrayArray'  => $captSidesArrayArray,
                   'capturedRecipeArrayArray' => $captRecipeArrayArray,
+                  'capturedDiePropsArrayArray'   => $captDiePropsArrayArray,
                   'swingRequestArrayArray'   => $swingReqArrayArray,
+                  'optRequestArrayArray'     => $optRequestArrayArray,
+                  'prevSwingValueArrayArray'     => $prevSwingValueArrayArray,
+                  'prevOptValueArrayArray'       => $prevOptValueArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
                   'roundScoreArray'          => $this->get_roundScoreArray(),
                   'sideScoreArray'           => $this->get_sideScoreArray(),
                   'gameScoreArrayArray'      => $this->gameScoreArrayArray);
 
         return array('status' => 'ok', 'data' => $dataArray);
+    }
+
+    protected function wereSwingOrOptionValuesReset() {
+        // james: need to also consider the case of many multiple draws in a row
+        foreach ($this->gameScoreArrayArray as $gameScoreArray) {
+            if ($gameScoreArray['W'] > 0 || $gameScoreArray['D'] > 0) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
     }
 }

@@ -135,37 +135,12 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadGameData($interface, $args) {
-        $data = NULL;
-
         if (isset($args['logEntryLimit'])) {
             $logEntryLimit = $args['logEntryLimit'];
         } else {
             $logEntryLimit = NULL;
         }
-
-        $game = $interface->load_game($args['game'], $logEntryLimit);
-        if ($game) {
-            $currentPlayerId = $_SESSION['user_id'];
-            $currentPlayerIdx = array_search($currentPlayerId, $game->playerIdArray);
-
-            foreach ($game->playerIdArray as $playerId) {
-                $playerNameArray[] = $interface->get_player_name_from_id($playerId);
-            }
-
-            // load_game will decide if the logEntryLimit should be overridden
-            // (e.g. if chat is private or for completed games)
-            $logEntryLimit = $game->logEntryLimit;
-
-            $data = array(
-                'currentPlayerIdx' => $currentPlayerIdx,
-                'gameData' => $game->getJsonData($currentPlayerId),
-                'playerNameArray' => $playerNameArray,
-                'timestamp' => $interface->timestamp,
-                'gameActionLog' => $interface->load_game_action_log($game, $logEntryLimit),
-                'gameChatLog' => $interface->load_game_chat_log($game, $logEntryLimit),
-            );
-        }
-        return $data;
+        return $interface->load_api_game_data($_SESSION['user_id'], $args['game'], $logEntryLimit);
     }
 
     protected function get_interface_response_loadPlayerName() {
@@ -192,12 +167,23 @@ class ApiResponder {
         return $interface->get_player_names_like('');
     }
 
-    protected function get_interface_response_submitSwingValues($interface, $args) {
-        return $interface->submit_swing_values(
+    protected function get_interface_response_submitDieValues($interface, $args) {
+        if (array_key_exists('swingValueArray', $args)) {
+            $swingValueArray = $args['swingValueArray'];
+        } else {
+            $swingValueArray = array();
+        }
+        if (array_key_exists('optionValueArray', $args)) {
+            $optionValueArray = $args['optionValueArray'];
+        } else {
+            $optionValueArray = array();
+        }
+        return $interface->submit_die_values(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
-            $args['swingValueArray']
+            $swingValueArray,
+            $optionValueArray
         );
     }
 
@@ -242,6 +228,18 @@ class ApiResponder {
             $args['action'],
             $args['dieIdxArray'],
             $args['dieValueArray']
+        );
+    }
+
+    protected function get_interface_response_submitChat($interface, $args) {
+        if (!(array_key_exists('edit', $args))) {
+            $args['edit'] = FALSE;
+        }
+        return $interface->submit_chat(
+            $_SESSION['user_id'],
+            $args['game'],
+            $args['edit'],
+            $args['chat']
         );
     }
 
