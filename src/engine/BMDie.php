@@ -597,6 +597,10 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    public static function standard_die_sizes() {
+        return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
+    }
+
     // utility methods
     public function __get($property) {
         if (property_exists($this, $property)) {
