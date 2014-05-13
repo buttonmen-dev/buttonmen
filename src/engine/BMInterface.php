@@ -353,7 +353,7 @@ class BMInterface {
             $game->autopassArray = $autopassArray;
 
             // add swing values from last round
-            $game->prevSwingValueArrArr = array_fill(0, $game->nPlayers, array());
+            $game->prevSwingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
                      'WHERE game_id = :game_id '.
@@ -363,7 +363,7 @@ class BMInterface {
                                        ':is_expired' => 1));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-                $game->prevSwingValueArrArr[$playerIdx][$row['swing_type']] = $row['swing_value'];
+                $game->prevSwingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
             }
 
             // add swing values
@@ -381,7 +381,7 @@ class BMInterface {
             }
 
             // add option values from last round
-            $game->prevOptValueArrArr = array_fill(0, $game->nPlayers, array());
+            $game->prevOptValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_option_map '.
                      'WHERE game_id = :game_id '.
@@ -391,7 +391,7 @@ class BMInterface {
                                        ':is_expired' => 1));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-                $game->prevOptValueArrArr[$playerIdx][$row['die_idx']] = $row['option_value'];
+                $game->prevOptValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
             }
 
             // add option values
@@ -622,12 +622,12 @@ class BMInterface {
             $statement->execute(array(':game_id' => $game->gameId));
 
             // store swing values from previous round
-            if (isset($game->prevSwingValueArrArr)) {
+            if (isset($game->prevSwingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrArr)) {
+                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrayArray)) {
                         continue;
                     }
-                    $swingValueArray = $game->prevSwingValueArrArr[$playerIdx];
+                    $swingValueArray = $game->prevSwingValueArrayArray[$playerIdx];
                     if (!empty($swingValueArray)) {
                         foreach ($swingValueArray as $swingType => $swingValue) {
                             $query = 'INSERT INTO game_swing_map '.
@@ -670,12 +670,12 @@ class BMInterface {
             }
 
             // store option values from previous round
-            if (isset($game->prevOptValueArrArr)) {
+            if (isset($game->prevOptValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->prevOptValueArrArr)) {
+                    if (!array_key_exists($playerIdx, $game->prevOptValueArrayArray)) {
                         continue;
                     }
-                    $optValueArray = $game->prevOptValueArrArr[$playerIdx];
+                    $optValueArray = $game->prevOptValueArrayArray[$playerIdx];
                     if (isset($optValueArray)) {
                         foreach ($optValueArray as $dieIdx => $optionValue) {
                             $query = 'INSERT INTO game_option_map '.
