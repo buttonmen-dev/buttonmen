@@ -12,6 +12,7 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.search_results;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -295,6 +296,57 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
     };
   Api.getNextGameId(function() {
     equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
+    start();
+  });
+});
+
+asyncTest("test_Api.searchGameHistory", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters,
+    function() {
+      equal(Api.search_results.load_status, 'ok',
+        'Successfully performed search');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseSearchResults_games", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.search_results.games.length, 1,
+      "Successfully parsed search results games list");
+    start();
+  });
+});
+
+asyncTest("test_Api.parseSearchResults_summary", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester2',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.search_results.summary.matchesFound, 2,
+      "Successfully parsed search results summary data");
     start();
   });
 });

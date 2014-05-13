@@ -911,7 +911,7 @@ class BMInterface {
                 if (is_int($playerIdB)) {
                     $searchFilters['playerIdB'] = $playerIdB;
                 } else {
-                    $this->message = 'Player A: ' . $this->message;
+                    $this->message = 'Player B: ' . $this->message;
                     return NULL;
                 }
             }

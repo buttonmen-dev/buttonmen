@@ -32,6 +32,7 @@ module("Game", {
     $('#game_page').empty();
 
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.restoreGetParameterByName();
 
     // Fail if any other elements were added or removed
     BMTestUtils.GamePost = BMTestUtils.getAllElements();

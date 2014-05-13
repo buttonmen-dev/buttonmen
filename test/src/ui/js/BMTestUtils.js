@@ -39,7 +39,7 @@ BMTestUtils.getAllElements = function() {
     'Newuser':  JSON.stringify(Newuser, null, "  "),
     'Overview': JSON.stringify(Overview, null, "  "),
   };
-  
+
   return {
     'DOM': elementInfo,
     'JS': jsInfo
@@ -67,7 +67,7 @@ BMTestUtils.cleanupFakeLogin = function() {
   Login.logged_in = BMTestUtils.OverviewOldLoginLoggedin;
 }
 
-// We don't currently test reading the URL bar contents, because
+// We don't currently usually test reading the URL bar contents, because
 // that's hard to do within QUnit, but rather override those contents
 // with hardcoded values that we want to test.
 //
@@ -75,6 +75,8 @@ BMTestUtils.cleanupFakeLogin = function() {
 // the fake test data returned by DummyResponder in order for good
 // things to happen.
 BMTestUtils.overrideGetParameterByName = function() {
+  BMTestUtils.realGetParameterByName = Env.getParameterByName;
+
   Env.getParameterByName = function(name) {
     if (name == 'game') {
       if (BMTestUtils.GameType == 'newgame') { return '1'; }
@@ -107,5 +109,14 @@ BMTestUtils.overrideGetParameterByName = function() {
     if (name == 'key') {
       return 'facadefacadefacadefacadefacade12';
     }
+  }
+}
+
+// We also need to restore the original version after testing, for the
+// benefit of any tests that expect non-dummy data.
+BMTestUtils.restoreGetParameterByName = function() {
+  if (BMTestUtils.realGetParameterByName !== undefined) {
+    Env.getParameterByName = BMTestUtils.realGetParameterByName;
+    delete BMTestUtils.realGetParameterByName;
   }
 }

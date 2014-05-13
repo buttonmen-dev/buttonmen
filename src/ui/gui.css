@@ -97,11 +97,6 @@ td.button_opponent {
     padding-bottom: 20px;
 }
 
-td.button_postgame {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
-
 td.battle_mat {
     padding-top: 0px;
     padding-left: 0px;
@@ -235,4 +230,73 @@ select.center {
 
 .unselected_opponent {
     border-top-left-radius: 1em;
+}
+
+/* Game lists (Overview, Game History) */
+table.gameList a {
+    color: black;
+}
+
+table.gameList th {
+    background-color: #cccccc;
+}
+
+table.gameList td:first-child,
+table.gameList th:first-child
+{
+  border-left: 2px solid #cccccc;
+}
+
+table.gameList td:last-child,
+table.gameList th:last-child
+{
+  border-right: 2px solid #cccccc;
+}
+
+table.gameList tr:first-child td,
+table.gameList tr:first-child th
+{
+  border-top: 2px solid #cccccc;
+}
+
+table.gameList tr:last-child td,
+table.gameList tr:last-child th
+{
+  border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tr.spacer td {
+  border-left: none;
+  border-right: none;
+  border-top: 2px solid #cccccc;
+  border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tbody:before,
+table.gameList tfoot:before {
+    line-height: 1em;
+    content: "-";
+    color: white; /* to hide text */
+    display: block;
+}
+
+table.gameList input[type=text] {
+    width: 70px;
+}
+
+table.gameList select {
+    max-width: 120px;
+}
+
+#history_page table.gameList th,
+#history_page table.gameList thead td,
+#history_page table.gameList tfoot td {
+    padding: 0.2em 0.4em;
+}
+
+table.gameList span.sortButton,
+table.gameList span.pageLink {
+    cursor: pointer;
+    margin: 0.2em;
+    display: inline-block;
 }

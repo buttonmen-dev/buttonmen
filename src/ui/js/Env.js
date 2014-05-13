@@ -87,11 +87,11 @@ Env.formatTimestamp = function(timestamp, format) {
   }
 
   if (format == 'date') {
-    return datetime.format('YYYY-MM-DD')
+    return datetime.format('YYYY-MM-DD');
   } else if (format == 'time') {
-    return datetime.format('HH:mm:ss')
+    return datetime.format('HH:mm:ss');
   } else if (format == 'datetime') {
-    return datetime.format('YYYY-MM-DD HH:mm:ss')
+    return datetime.format('YYYY-MM-DD HH:mm:ss');
   } else {
     return datetime.format(format);
   }

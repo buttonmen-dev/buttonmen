@@ -347,7 +347,7 @@ var Api = (function () {
     }
 
     // Parse some top-level items from gameData
-    my.game.gameId =  my.game.gameData.data.gameId;
+    my.game.gameId = my.game.gameData.data.gameId;
     my.game.roundNumber = my.game.gameData.data.roundNumber;
     my.game.maxWins = my.game.gameData.data.maxWins;
     my.game.gameState = my.game.gameData.data.gameState;
@@ -509,8 +509,8 @@ var Api = (function () {
   };
 
   my.parseSearchResults = function(data) {
-    my.search_results.games =  data.games;
-    my.search_results.summary =  data.summary;
+    my.search_results.games = data.games;
+    my.search_results.summary = data.summary;
     return true;
   };
 

@@ -8,7 +8,6 @@ History.searchParameterNames = {
   'buttonNameA': 'string',
   'playerNameB': 'string',
   'buttonNameB': 'string',
-  'playerIdA': 'date',
   'gameStartMin': 'date',
   'gameStartMax': 'date',
   'lastMoveMin': 'date',
@@ -17,24 +16,42 @@ History.searchParameterNames = {
   'status': 'string',
   'sortColumn': 'hidden',
   'sortDirection': 'hidden',
-  'numberOfResults': 'hidden',
+  'numberOfResults': 'number',
   'page': 'hidden',
 };
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * History.showHistoryPage() is the landing function.  Always call
-//   this first
+//   this first. On the initial page load, it sets History.searchParameters
+//   based on the hashbang of the incoming URL, then calls History.getHistory().
+//   It is also called by the windows's popstate event when the user clicks
+//   the back button (to refresh the page from the new URL values).
+// * History.getHistory() gets the results for the current search
+//   parameters from the API. It sets Api.search_results and calls
+//   History.getFilters()
+// * History.getFilters() gets data from the API to populate the filters
+//   with. It sets Api.player and Api.button, then calls History.showPage()
+// * History.showPage() builds the contents of the page as History.page
+//   and calls History.layoutPage()
+// * History.layoutPage() sets the contents of <div id="history_page">
+//   on the live page
+//
+// * History.performManualSearch() is called whenever the search button, a
+//   sort button or a paging link is clicked. It sets History.searchParameters
+//   based on the form inputs, writes those parameters into the hashbang URL,
+//   and calls History.getHistory()
 ////////////////////////////////////////////////////////////////////////
 
 History.showHistoryPage = function() {
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
-  Env.setupEnvStub();
+  if ($('#env_message').length == 0) {
+    Env.setupEnvStub();
+  }
 
   // When the user hits the back button to retrace their path through the
   // hashbang URL's, load the search results that belong to that "page"
-  $(window).bind("popstate", function() {
+  $(window).bind('popstate', function() {
     Env.message = null;
     History.showHistoryPage();
   });
@@ -66,21 +83,6 @@ History.showHistoryPage = function() {
   }
 };
 
-History.readSearchParametersFromUrl = function() {
-  if (Env.window.location.hash === '') {
-    History.searchParameters = undefined;
-    return;
-  }
-
-  History.searchParameters = { };
-  $.each(History.searchParameterNames, function(name, type) {
-    var value = Env.getParameterByName(name);
-    if (value !== undefined && value !== null && value !== '') {
-      History.searchParameters[name] = value;
-    }
-  });
-};
-
 History.getHistory = function(callback) {
   if (Login.logged_in) {
     $('#searchButton').attr('disabled', 'disabled');
@@ -108,10 +110,10 @@ History.getHistory = function(callback) {
 };
 
 History.getFilters = function(callback) {
-    Api.getButtonData(function() {
-      Api.getPlayerData(callback);
-    });
-}
+  Api.getButtonData(function() {
+    Api.getPlayerData(callback);
+  });
+};
 
 History.showPage = function() {
   History.page = $('<div>');
@@ -124,10 +126,8 @@ History.showPage = function() {
     return;
   }
 
-    History.page.append(History.buildSearchButtonDiv());
-
+  History.page.append(History.buildSearchButtonDiv());
   History.page.append($('<h2>', { 'text': 'Game History', }));
-
   History.page.append(History.buildHiddenFields());
 
   var resultsTable = $('<table>', { 'class': 'gameList', });
@@ -147,6 +147,15 @@ History.showPage = function() {
   History.layoutPage();
 };
 
+History.layoutPage = function() {
+  // If there is a message from a current or previous invocation of this
+  // page, display it now
+  Env.showStatusMessage();
+
+  $('#history_page').empty();
+  $('#history_page').append(History.page);
+};
+
 History.performManualSearch = function() {
   History.readSearchParametersFromForm();
   if (History.searchParameters === undefined) {
@@ -160,9 +169,27 @@ History.performManualSearch = function() {
   History.writeSearchParametersToUrl();
 
   History.getHistory(function() {
-      History.getFilters(History.showPage);
-    });
-}
+    History.getFilters(History.showPage);
+  });
+};
+
+////////////////////////////////////////////////////////////////////////
+// Helper routines to read and write the search parameter values
+
+History.readSearchParametersFromUrl = function() {
+  if (Env.window.location.hash === '') {
+    History.searchParameters = undefined;
+    return;
+  }
+
+  History.searchParameters = { };
+  $.each(History.searchParameterNames, function(name) {
+    var value = Env.getParameterByName(name);
+    if (value !== undefined && value !== null && value !== '') {
+      History.searchParameters[name] = value;
+    }
+  });
+};
 
 History.readSearchParametersFromForm = function() {
   History.searchParameters = { };
@@ -173,7 +200,7 @@ History.readSearchParametersFromForm = function() {
       return;
     }
 
-    var value = $('#parameter_' + name).val();
+    var value = History.page.find('#parameter_' + name).val();
     if (value === undefined || value === null || value === '') {
       return;
     }
@@ -204,7 +231,7 @@ History.readSearchParametersFromForm = function() {
 
 History.writeSearchParametersToUrl = function() {
   var parameterString = '#!';
-  $.each(History.searchParameterNames, function(name, type) {
+  $.each(History.searchParameterNames, function(name) {
     if (History.searchParameters[name] !== undefined) {
       parameterString +=
         name + '=' + encodeURIComponent(History.searchParameters[name]) + '&';
@@ -212,9 +239,12 @@ History.writeSearchParametersToUrl = function() {
   });
 
   // Trim off the trailing &
-  parameterString = parameterString.replace(/&$/, "");
+  parameterString = parameterString.replace(/&$/, '');
   Env.window.location.hash = parameterString;
 };
+
+////////////////////////////////////////////////////////////////////////
+// Helper routines to generate HTML to populate the page
 
 History.buildSearchButtonDiv = function() {
   var buttonDiv = $('<div>');
@@ -241,7 +271,7 @@ History.buildSearchButtonDiv = function() {
   });
   buttonDiv.append(searchButton);
   searchButton.click(function() {
-    $('#parameter_page').val(1);
+    History.page.find('#parameter_page').val(1);
     History.performManualSearch();
   });
 
@@ -256,7 +286,7 @@ History.buildHiddenFields = function() {
       var hiddenInput = $('<input>', {
         'type': 'hidden',
         'id': 'parameter_' + name,
-      })
+      });
       hiddenDiv.append(hiddenInput);
 
       if (History.searchParameters !== undefined &&
@@ -285,7 +315,7 @@ History.buildResultsTableHeader = function() {
   });
 
   var buttonValues = { };
-  $.each(Api.button.list, function(name, buttonInfo) {
+  $.each(Api.button.list, function(name) {
     buttonValues[name] = name;
   });
 
@@ -588,9 +618,8 @@ History.buildResultsTableFooter = function() {
     pagingTd.append($('<span>', {
       'html': '&larr;',
       'class': 'pageLink',
-      'style': 'width: 2em;',
-      'data-page': parseInt(History.searchParameters.page) - 1,
       'style': 'width: 1.2em;',
+      'data-page': parseInt(History.searchParameters.page, 10) - 1,
     }));
   } else {
     // We'll add a blank pager so that the paging links stay lined up right
@@ -602,7 +631,7 @@ History.buildResultsTableFooter = function() {
     }));
   }
 
-  for (i = 1; i <= lastPage; i++) {
+  for (var i = 1; i <= lastPage; i++) {
     if (i == History.searchParameters.page) {
       pagingTd.append($('<span>', {
         'text': '[' + i + ']',
@@ -624,7 +653,7 @@ History.buildResultsTableFooter = function() {
       'html': '&rarr;',
       'class': 'pageLink',
       'style': 'width: 1.2em;',
-      'data-page': parseInt(History.searchParameters.page) + 1,
+      'data-page': parseInt(History.searchParameters.page, 10) + 1,
     }));
   }
 
@@ -657,13 +686,4 @@ History.buildResultsTableFooter = function() {
   footerDataRow.append($('<td>', { 'text': percentCompleted }));
 
   return foot;
-};
-
-History.layoutPage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#history_page').empty();
-  $('#history_page').append(History.page);
 };

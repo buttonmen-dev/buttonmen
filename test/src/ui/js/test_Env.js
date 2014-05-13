@@ -7,6 +7,9 @@ module("Env", {
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
 
+    delete Env.window.location.search;
+    delete Env.window.location.hash;
+
     // Fail if any other elements were added or removed
     BMTestUtils.EnvPost = BMTestUtils.getAllElements();
     deepEqual(
@@ -24,7 +27,16 @@ test("test_Env_is_loaded", function() {
 // Can't test this as written because we can't modify the real
 // location.search, and Env.getParameterByName won't accept a fake one
 test("test_Env.getParameterByName", function() {
-  expect(1); // number of tests plus 1 for the teardown test
+  expect(3); // number of tests plus 1 for the teardown test
+
+  Env.window.location.search = '?game=29';
+  Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis'
+
+  var gameId = Env.getParameterByName('game');
+  equal(gameId, '29', 'Query string parameter is found');
+
+  var playerNameA = Env.getParameterByName('playerNameA');
+  equal(playerNameA, 'tester', 'Hashbang parameter is found');
 });
 
 test("test_Env.setupEnvStub", function() {
@@ -101,11 +113,13 @@ test("test_Env.formatTimestamp", function() {
   equal(results, expectedDateTime, 'formatTimestamp returned correct datetime');
 });
 
-test("test_Env.padLeft", function() {
-  var input = 'fred';
-  var expectedOutput = '    fred';
+test("test_Env.parseDateTime", function() {
+  var input = '2014-03-23 21:38:10';
+  var offsetInMinutes = new Date().getTimezoneOffset();
+  var expectedOutput = 1395610690 + (offsetInMinutes * 60);
 
-  var results = Env.padLeft(input, ' ', 8);
-  equal(results, expectedOutput, 'padLeft added padding');
+  var results = Env.parseDateTime(input, 'datetime');
+
+  equal(results, expectedOutput, 'parseDateTime returned correct timestamp');
 });
 
