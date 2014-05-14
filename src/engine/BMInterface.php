@@ -112,7 +112,7 @@ class BMInterface {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
-            if (empty($playerId)) {
+            if (is_null($playerId)) {
                 $areAllPlayersPresent = FALSE;
             }
         }
@@ -145,7 +145,7 @@ class BMInterface {
         }
 
         $buttonIdArray = array();
-        foreach ($playerIdArray as $position => $playerId) {
+        foreach (array_keys($playerIdArray) as $position) {
             // get button ID
             $buttonName = $buttonNameArray[$position];
             if (!is_null($buttonName)) {
@@ -191,10 +191,6 @@ class BMInterface {
             $gameId = (int)$fetchData[0];
 
             foreach ($playerIdArray as $position => $playerId) {
-                if (empty($playerId)) {
-                    continue;
-                }
-
                 // add info to game_player_map
                 $query = 'INSERT INTO game_player_map '.
                          '(game_id, player_id, button_id, position) '.
@@ -356,7 +352,9 @@ class BMInterface {
                         break;
                 }
 
-                if ($row['current_player_id'] == $row['player_id']) {
+                if (isset($row['current_player_id']) &&
+                    isset($row['player_id']) &&
+                    ($row['current_player_id'] === $row['player_id'])) {
                     $game->activePlayerIdx = $pos;
                 }
 
@@ -537,6 +535,14 @@ class BMInterface {
                         );
                     }
                 }
+            }
+
+            if (!isset($game->swingRequestArrayArray)) {
+                $game->swingValueArrayArray = NULL;
+            }
+
+            if (!isset($game->optRequestArrayArray)) {
+                $game->optValueArrayArray = NULL;
             }
 
             $this->message = $this->message."Loaded data for game $gameId.";
@@ -765,7 +771,7 @@ class BMInterface {
                 $query = 'UPDATE game_player_map '.
                          'SET is_awaiting_action = :is_awaiting_action '.
                          'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
+                         'AND position = :position;';
                 $statement = self::$conn->prepare($query);
                 if ($waitingOnAction) {
                     $is_awaiting_action = 1;
@@ -774,7 +780,7 @@ class BMInterface {
                 }
                 $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
                                           ':game_id' => $game->gameId,
-                                          ':player_id' => $game->playerIdArray[$playerIdx]));
+                                          ':position' => $playerIdx));
             }
 
             // set existing dice to have a status of DELETED and get die ids

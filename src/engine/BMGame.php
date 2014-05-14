@@ -126,26 +126,45 @@ class BMGame {
     protected function update_game_state_start_game() {
         $this->reset_play_state();
 
-        // if buttons are unspecified, allow players to choose buttons
-        for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+        $nPlayers = count($this->playerIdArray);
+        $allPlayersSet = TRUE;
+
+        // if player is unspecified, wait for player to accept game
+        for ($playerIdx = 0;
+             $playerIdx <= $nPlayers - 1;
+             $playerIdx++) {
+                 if (!isset($this->playerIdArray[$playerIdx])) {
+                     $this->waitingOnActionArray[$playerIdx] = TRUE;
+                     $allPlayersSet = FALSE;
+                     $this->activate_GUI('Prompt for player ID', $playerIdx);
+                 }
+        }
+
+        if (!$allPlayersSet) {
+            return;
+        }
+
+        $allButtonsSet = TRUE;
+
+        // if button is unspecified, allow player to choose buttons
+        for ($playerIdx = 0;
              $playerIdx <= $nPlayers - 1;
              $playerIdx++) {
             if (!isset($this->buttonArray[$playerIdx])) {
                 $this->waitingOnActionArray[$playerIdx] = TRUE;
+                $allButtonsSet = FALSE;
                 $this->activate_GUI('Prompt for button ID', $playerIdx);
             }
         }
 
-        // require both players and buttons to be specified
-        $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
-
-        if (!in_array(0, $this->playerIdArray) &&
-            $allButtonsSet) {
-            $this->gameState = BMGameState::APPLY_HANDICAPS;
-            $this->nRecentPasses = 0;
-            $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
-            $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
+        if (!$allButtonsSet) {
+            return;
         }
+
+        $this->gameState = BMGameState::APPLY_HANDICAPS;
+        $this->nRecentPasses = 0;
+        $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
     }
 
     protected function do_next_step_apply_handicaps() {
