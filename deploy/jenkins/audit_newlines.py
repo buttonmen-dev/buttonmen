@@ -10,6 +10,7 @@ SKIPPATHS = [
   './notes',
   './src/favicon.ico',
   './src/ui/images',
+  './src/ui/js/extern/images',
 
   # git artifacts
   './.git',
