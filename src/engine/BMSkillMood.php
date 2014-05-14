@@ -12,12 +12,14 @@ class BMSkillMood extends BMSkill {
         // do nothing if the die is not a swing die or a
         // twin die with swing components
         $die = $args['die'];
-        if (!BMSkillMood::can_have_mood($die)) {
+        if (!static::can_have_mood($die)) {
             return FALSE;
         }
 
         $swingRange = BMDieSwing::swing_range($die->swingType);
-        $newSwingValue = mt_rand($swingRange[0], $swingRange[1]);
+        $validSwingValueArray = static::valid_die_sizes($swingRange);
+        $newSwingValue = $validSwingValueArray[array_rand($validSwingValueArray)];
+
         if ($die instanceof BMDieSwing) {
             $die->max = $newSwingValue;
         } elseif ($die instanceof BMDieTwin) {
@@ -34,13 +36,19 @@ class BMSkillMood extends BMSkill {
         return TRUE;
     }
 
+    public static function valid_die_sizes(array $swingRange) {
+        $allDieSizeArray = range($swingRange[0], $swingRange[1]);
+        $validDieSizeArray = array_intersect($allDieSizeArray, BMDie::standard_die_sizes());
+        return array_values($validDieSizeArray);
+    }
+
     public static function add_skill($args) {
         if (!is_array($args) ||
             !($args['die'] instanceof BMDie)) {
             return;
         }
 
-        if (!BMSkillMood::can_have_mood($args['die'])) {
+        if (!static::can_have_mood($args['die'])) {
             $args['die']->remove_skill('Mood');
         }
     }

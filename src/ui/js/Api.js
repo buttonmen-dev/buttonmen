@@ -417,9 +417,9 @@ var Api = (function () {
         my.game.gameData.data.optRequestArrayArray[playerIdx],
 
       'prevSwingValueArray':
-        my.game.gameData.data.prevSwingValueArrArr[playerIdx],
+        my.game.gameData.data.prevSwingValueArrayArray[playerIdx],
       'prevOptValueArray':
-        my.game.gameData.data.prevOptValueArrArr[playerIdx],
+        my.game.gameData.data.prevOptValueArrayArray[playerIdx],
     };
 
     $.each(
