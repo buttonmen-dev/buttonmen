@@ -1024,6 +1024,17 @@ asyncTest("test_Game.gamePlayerDice_disabled", function() {
   });
 });
 
+asyncTest("test_Game.gamePlayerDice_captured", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('player', true));
+    ok(Game.page.find('.die_dead').length > 0,
+       "dice should include one that's been captured");
+    start();
+  });
+});
+
 asyncTest("test_Game.buttonImageDisplay", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
