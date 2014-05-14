@@ -1,30 +1,95 @@
 // namespace for this "module"
 var History = {};
 
-// The parameters that we collect and pass to the API
-History.searchParameterNames = {
-  'gameId': 'number',
-  'playerNameA': 'string',
-  'buttonNameA': 'string',
-  'playerNameB': 'string',
-  'buttonNameB': 'string',
-  'gameStartMin': 'date',
-  'gameStartMax': 'date',
-  'lastMoveMin': 'date',
-  'lastMoveMax': 'date',
-  'winningPlayer': 'string',
-  'status': 'string',
-  'sortColumn': 'hidden',
-  'sortDirection': 'hidden',
-  'numberOfResults': 'number',
-  'page': 'hidden',
-};
-
-History.defaultOptions = {
-  'sortColumn' : 'lastMove',
-  'sortDirection': 'DESC',
-  'numberOfResults': 20,
-  'page': 1,
+// These are the parameters that we need to pass to the API. Having this
+// information about them here helps to read them from the page, write them to
+// the URL, build the table columns for them, etc.
+History.searchParameterInfo = {
+  'gameId': {
+    'text': 'Game #',
+    'inputType': 'text',
+    'dataType': 'number',
+  },
+  'playerNameA': {
+    'text': 'Player A',
+    'inputType': 'select',
+    'source': { },
+    'dataType': 'string',
+  },
+  'buttonNameA': {
+    'text': 'Button A',
+    'inputType': 'select',
+    'source': { },
+    'dataType': 'string',
+  },
+  'playerNameB': {
+    'text': 'Player B',
+    'inputType': 'select',
+    'source': { },
+    'dataType': 'string',
+  },
+  'buttonNameB': {
+    'text': 'Button B',
+    'inputType': 'select',
+    'source': { },
+    'dataType': 'string',
+  },
+  // Reinstate this once g.creation_time exists
+  //'gameStart': {
+  //  'text': 'Game Start',
+  //  'inputType': 'dateRange',
+  //  'dataType': 'date',
+  //},
+  'lastMove': {
+    'text': 'Last Move',
+    'inputType': 'dateRange',
+    'dataType': 'date',
+  },
+  'winningPlayer': {
+    'text': 'Round Score',
+    'inputType': 'select',
+    'source': {
+      'A': 'A Winning',
+      'B': 'B Winning',
+      'Tie': 'Tie',
+    },
+    'dataType': 'string',
+  },
+  'status': {
+    'text': 'Completed?',
+    'inputType': 'select',
+    'source': {
+      'COMPLETE': 'Completed',
+      'ACTIVE': 'In Progress',
+    },
+    'dataType': 'string',
+  },
+  'sortColumn': {
+    'inputType': 'hidden',
+    'dataType': 'string',
+    'defaultValue': 'lastMove',
+  },
+  'sortDirection': {
+    'inputType': 'hidden',
+    'dataType': 'string',
+    'defaultValue': 'DESC',
+  },
+  'numberOfResults': {
+    'inputType': 'special',
+    'dataType': 'number',
+    'source': {
+      10: '10',
+      20: '20',
+      50: '50',
+      100: '100'
+    },
+    'defaultValue': 20,
+  },
+  'page': {
+    'inputType': 'hidden',
+    'dataType': 'number',
+    'defaultValue': 1,
+  },
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -97,9 +162,11 @@ History.getHistory = function(callback) {
 
   $('#searchButton').attr('disabled', 'disabled');
 
-  $.each(History.defaultOptions, function(name, value) {
-    if (History.searchParameters[name] === undefined) {
-      History.searchParameters[name] = value;
+  // For the required fields, set the default values
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (info.defaultValue !== undefined &&
+      History.searchParameters[name] === undefined) {
+      History.searchParameters[name] = info.defaultValue;
     }
   });
 
@@ -196,10 +263,15 @@ History.readSearchParametersFromUrl = function() {
   }
 
   History.searchParameters = { };
-  $.each(History.searchParameterNames, function(name) {
-    var value = Env.getParameterByName(name);
-    if (value !== undefined && value !== null && value !== '') {
-      History.searchParameters[name] = value;
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (info.inputType == 'date') {
+      var minValue = Env.getParameterByName(name + 'Min');
+      History.assignSearchParameter(name + 'Min', info.dataType, minValue);
+      var maxValue = Env.getParameterByName(name + 'Max');
+      History.assignSearchParameter(name + 'Max', info.dataType, maxValue);
+    } else {
+      var value = Env.getParameterByName(name);
+      History.assignSearchParameter(name, info.dataType, value);
     }
   });
 };
@@ -207,48 +279,72 @@ History.readSearchParametersFromUrl = function() {
 History.readSearchParametersFromForm = function() {
   History.searchParameters = { };
 
-  $.each(History.searchParameterNames, function(name, type) {
-    // If we've already encountered one validation error, skip the rest
-    if (History.searchParameters === undefined) {
-      return;
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (info.inputType == 'date') {
+      var minValue = History.page.find('#parameter_' + name + 'Min').val();
+      History.assignSearchParameter(name + 'Min', info.inputType, minValue);
+      var maxValue = History.page.find('#parameter_' + name + 'Max').val();
+      History.assignSearchParameter(name + 'Max', info.inputType, maxValue);
+    } else {
+      var value = History.page.find('#parameter_' + name).val();
+      History.assignSearchParameter(name, info.inputType, value);
     }
-
-    var value = History.page.find('#parameter_' + name).val();
-    if (value === undefined || value === null || value === '') {
-      return;
-    }
-
-    if (type == 'number') {
-      if (!value.match(/^\d+$/)) {
-        Env.message = {
-          'type': 'error',
-          'text': name + ' must be a number.',
-        };
-        History.searchParameters = undefined;
-        return;
-      }
-    } else if (type == 'date') {
-      value = Env.parseDateTime(value);
-      if (value === null) {
-        Env.message = {
-          'type': 'error',
-          'text': name + ' is not a valid date.',
-        };
-        History.searchParameters = undefined;
-        return;
-      }
-    }
-    History.searchParameters[name] = value;
   });
+};
+
+History.assignSearchParameter = function(name, type, value) {
+  // If we've already encountered one validation error, skip the rest
+  if (History.searchParameters === undefined) {
+    return;
+  }
+
+  if (value === undefined || value === null || value === '') {
+    return;
+  }
+
+  if (type == 'number') {
+    if (!value.match(/^\d+$/)) {
+      Env.message = {
+        'type': 'error',
+        'text': name + ' must be a number.',
+      };
+      History.searchParameters = undefined;
+      return;
+    }
+  } else if (type == 'date') {
+    value = Env.parseDateTime(value, 'date');
+    if (value === null) {
+      Env.message = {
+        'type': 'error',
+        'text': name + ' is not a valid date.',
+      };
+      History.searchParameters = undefined;
+      return;
+    }
+  }
+  History.searchParameters[name] = value;
 };
 
 History.writeSearchParametersToUrl = function() {
   var parameterHash = '#!';
-  $.each(History.searchParameterNames, function(name) {
-    if (History.searchParameters[name] !== undefined &&
-      History.searchParameters[name] != History.defaultOptions[name]) {
-      parameterHash +=
-        name + '=' + encodeURIComponent(History.searchParameters[name]) + '&';
+  $.each(History.searchParameterInfo, function(name, info) {
+    var value;
+    if (info.dataType == 'date') {
+      if (History.searchParameters[name + 'Min'] !== undefined) {
+        value = History.searchParameters[name + 'Min'];
+        value = Env.formatTimestamp(value, 'date');
+        parameterHash += name + 'Min' + '=' + encodeURIComponent(value) + '&';
+      }
+      if (History.searchParameters[name + 'Max'] !== undefined) {
+        value = History.searchParameters[name + 'Max'];
+        value = Env.formatTimestamp(value, 'date');
+        parameterHash += name + 'Max' + '=' + encodeURIComponent(value) + '&';
+      }
+    } else {
+      if (History.searchParameters[name] !== undefined) {
+        value = History.searchParameters[name];
+        parameterHash += name + '=' + encodeURIComponent(value) + '&';
+      }
     }
   });
 
@@ -267,13 +363,17 @@ History.buildSearchButtonDiv = function() {
   buttonDiv.append($('<text>', { 'text': 'Display up to ', }));
   var pageSizeSelect = $('<select>', { 'id': 'parameter_numberOfResults', });
   buttonDiv.append(pageSizeSelect);
-  pageSizeSelect.append($('<option>', { 'value': 10, 'text': '10', }));
-  pageSizeSelect.append($('<option>', { 'value': 20, 'text': '20', }));
-  pageSizeSelect.append($('<option>', { 'value': 50, 'text': '50', }));
-  pageSizeSelect.append($('<option>', { 'value': 100, 'text': '100', }));
+  $.each(History.searchParameterInfo.numberOfResults.source,
+    function (value, name) {
+      pageSizeSelect.append($('<option>', {
+        'value': value,
+        'text': name,
+      }));
+    });
   if (History.searchParameters === undefined ||
     History.searchParameters.numberOfResults === undefined) {
-    pageSizeSelect.val(History.defaultOptions.numberOfResults);
+    pageSizeSelect
+      .val(History.searchParameterInfo.numberOfResults.defaultValue);
   } else {
     pageSizeSelect.val(History.searchParameters.numberOfResults);
   }
@@ -286,7 +386,8 @@ History.buildSearchButtonDiv = function() {
   });
   buttonDiv.append(searchButton);
   searchButton.click(function() {
-    History.page.find('#parameter_page').val(History.defaultOptions.page);
+    History.page.find('#parameter_page')
+      .val(History.searchParameterInfo.page.defaultValue);
     History.performManualSearch();
   });
 
@@ -296,8 +397,8 @@ History.buildSearchButtonDiv = function() {
 History.buildHiddenFields = function() {
   var hiddenDiv = $('<div>', { 'style': 'display: none; ' });
 
-  $.each(History.searchParameterNames, function(name, type) {
-    if (type == 'hidden') {
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (info.inputType == 'hidden') {
       var hiddenInput = $('<input>', {
         'type': 'hidden',
         'id': 'parameter_' + name,
@@ -328,70 +429,21 @@ History.buildResultsTableHeader = function() {
       playerValues[name] = name;
     }
   });
+  History.searchParameterInfo.playerNameA.source = playerValues;
+  History.searchParameterInfo.playerNameB.source = playerValues;
 
   var buttonValues = { };
   $.each(Api.button.list, function(name) {
     buttonValues[name] = name;
   });
+  History.searchParameterInfo.buttonNameA.source = buttonValues;
+  History.searchParameterInfo.buttonNameB.source = buttonValues;
 
-  var winningPlayerValues = {
-    'A': 'A Winning',
-    'B': 'B Winning',
-    'Tie': 'Tie',
-  };
+  $.each(History.searchParameterInfo, function(columnId, columnInfo) {
+    if (columnInfo.inputType == 'hidden' || columnInfo.inputType == 'special') {
+      return;
+    }
 
-  var statusValues = {
-    'COMPLETE': 'Completed',
-    'ACTIVE': 'In Progress',
-  };
-
-  var columns = {
-    'gameId': {
-      'text': 'Game #',
-      'type': 'text',
-    },
-    'playerNameA': {
-      'text': 'Player A',
-      'type': 'select',
-      'source': playerValues,
-    },
-    'buttonNameA': {
-      'text': 'Button A',
-      'type': 'select',
-      'source': buttonValues,
-    },
-    'playerNameB': {
-      'text': 'Player B',
-      'type': 'select',
-      'source': playerValues,
-    },
-    'buttonNameB': {
-      'text': 'Button B',
-      'type': 'select',
-      'source': buttonValues,
-    },
-    // Reinstate this once g.creation_time exists
-    //'gameStart': {
-    //  'text': 'Game Start',
-    //  'type': 'dateRange',
-    //},
-    'lastMove': {
-      'text': 'Last Move',
-      'type': 'dateRange',
-    },
-    'winningPlayer': {
-      'text': 'Round Score',
-      'type': 'select',
-      'source': winningPlayerValues,
-    },
-    'status': {
-      'text': 'Completed?',
-      'type': 'select',
-      'source': statusValues,
-    },
-  };
-
-  $.each(columns, function(columnId, columnInfo) {
     var titleTh = $('<th>');
     headerRow.append(titleTh);
 
@@ -437,7 +489,7 @@ History.buildResultsTableHeader = function() {
     var filterTd = $('<th>');
     filterRow.append(filterTd);
 
-    switch (columnInfo.type) {
+    switch (columnInfo.inputType) {
     case 'select':
       var selectList = $('<select>', {
         'name': columnId,
@@ -497,7 +549,7 @@ History.buildResultsTableHeader = function() {
       break;
     default:
       var inputElement = $('<input>', {
-        'type': columnInfo.type,
+        'type': columnInfo.inputType,
         'name': columnId,
         'id': 'parameter_' + columnId,
       });
@@ -538,12 +590,31 @@ History.buildResultsTableBody = function() {
       winnerColor = '#ffffff';
     }
 
+    var $verb = 'View';
+    if (game.playerNameA == Login.player) {
+      if (game.waitingOnA) {
+        $verb = 'Play';
+      } else if (game.roundsWonA >= game.targetWins) {
+        $verb = 'WON';
+      } else if (game.roundsWonB >= game.targetWins) {
+        $verb = 'LOST';
+      }
+    } else if (game.playerNameB == Login.player) {
+      if (game.waitingOnB) {
+        $verb = 'Play';
+      } else if (game.roundsWonB >= game.targetWins) {
+        $verb = 'WON';
+      } else if (game.roundsWonA >= game.targetWins) {
+        $verb = 'LOST';
+      }
+    }
+
     var idTd = $('<td>', {
       'style': 'background-color: ' + winnerColor + ';',
     });
     idTd.append($('<a>', {
       'href': 'game.html?game=' + game.gameId,
-      'text': 'View Game ' + game.gameId,
+      'text': $verb + ' Game ' + game.gameId,
     }));
     gameRow.append(idTd);
 
@@ -573,6 +644,7 @@ History.buildResultsTableBody = function() {
 
     var score = game.roundsWonA + '/' + game.roundsWonB + '/' +
       game.roundsDrawn + ' (' + game.targetWins + ')';
+
     gameRow.append($('<td>', {
       'text': score,
       'style': 'background-color: ' + winnerColor + ';',

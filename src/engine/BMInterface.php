@@ -952,7 +952,7 @@ class BMInterface {
             return $searchFilters;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::search_game_history: " .
+                "Caught exception in BMInterface::assemble_search_filters: " .
                 $e->getMessage()
             );
             $this->message = 'Game search failed.';
@@ -988,7 +988,7 @@ class BMInterface {
             return $searchQualifiers;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::assemble_search_qualifiers: " .
+                "Caught exception in BMInterface::assemble_search_options: " .
                 $e->getMessage()
             );
             $this->message = 'Game search failed.';
@@ -1020,9 +1020,11 @@ class BMInterface {
                     'vA.player_id AS player_id_A, ' .
                     'vA.player_name AS player_name_A, ' .
                     'vA.button_name AS button_name_A, ' .
+                    'vA.is_awaiting_action AS waiting_on_A, '.
                     'vB.player_id AS player_id_B, ' .
                     'vB.player_name AS player_name_B, ' .
                     'vB.button_name AS button_name_B, ' .
+                    'vB.is_awaiting_action AS waiting_on_B, '.
                     // Reinstate this once g.creation_time exists
                     //'UNIX_TIMESTAMP(g.creation_time) AS game_start, ' .
                     '0 AS game_start, ' .
@@ -1212,10 +1214,12 @@ class BMInterface {
                     'playerIdA' => (int)$row['player_id_A'],
                     'playerNameA' => $row['player_name_A'],
                     'buttonNameA' => $row['button_name_A'],
+                    'waitingOnA' => ($row['waiting_on_A'] == 1),
                     'colorA' => $gameColors['playerA'],
                     'playerIdB' => (int)$row['player_id_B'],
                     'playerNameB' => $row['player_name_B'],
                     'buttonNameB' => $row['button_name_B'],
+                    'waitingOnB' => ($row['waiting_on_B'] == 1),
                     'colorB' => $gameColors['playerB'],
                     'gameStart' => (int)$row['game_start'],
                     'lastMove' => (int)$row['last_move'],
