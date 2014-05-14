@@ -169,6 +169,14 @@ test("test_History.readSearchParametersFromForm", function() {
     "search parameters should be correctly read from the form");
 });
 
+test("test_History.assignSearchParameter", function() {
+  History.searchParameters = { };
+  var expected = 'Tied';
+  History.assignSearchParameter('winningPlayer', 'string', expected);
+  equal(History.searchParameters.winningPlayer, expected,
+    "search parameter value should be correctly assigned");
+});
+
 test("test_History.writeSearchParametersToUrl", function() {
   History.searchParameters = {
     'playerNameA': 'tester',
