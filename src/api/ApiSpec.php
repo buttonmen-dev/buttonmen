@@ -311,7 +311,7 @@ class ApiSpec {
     // * these special characters: . ' ( ) ! & + _ -
     protected function verify_argument_of_type_button($arg) {
         if (is_string($arg) &&
-            preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]+$/', $arg)) {
+            preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]*$/', $arg)) {
             return TRUE;
         }
         return FALSE;

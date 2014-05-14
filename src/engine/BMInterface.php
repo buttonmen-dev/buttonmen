@@ -148,7 +148,7 @@ class BMInterface {
         foreach (array_keys($playerIdArray) as $position) {
             // get button ID
             $buttonName = $buttonNameArray[$position];
-            if (!is_null($buttonName)) {
+            if (!empty($buttonName)) {
                 $query = 'SELECT id FROM button '.
                          'WHERE name = :button_name';
                 $statement = self::$conn->prepare($query);
@@ -326,20 +326,22 @@ class BMInterface {
                 }
 
                 // load button attributes
-                if (isset($row['alt_recipe'])) {
-                    $recipe = $row['alt_recipe'];
-                } else {
-                    $recipe = $this->get_button_recipe_from_name($row['button_name']);
-                }
-                if (isset($recipe)) {
-                    $button = new BMButton;
-                    $button->load($recipe, $row['button_name']);
+                if (isset($row['button_name'])) {
                     if (isset($row['alt_recipe'])) {
-                        $button->hasAlteredRecipe = TRUE;
+                        $recipe = $row['alt_recipe'];
+                    } else {
+                        $recipe = $this->get_button_recipe_from_name($row['button_name']);
                     }
-                    $buttonArray[$pos] = $button;
-                } else {
-                    throw new InvalidArgumentException('Invalid button name.');
+                    if (isset($recipe)) {
+                        $button = new BMButton;
+                        $button->load($recipe, $row['button_name']);
+                        if (isset($row['alt_recipe'])) {
+                            $button->hasAlteredRecipe = TRUE;
+                        }
+                        $buttonArray[$pos] = $button;
+                    } else {
+                        throw new InvalidArgumentException('Invalid button name.');
+                    }
                 }
 
                 // load player attributes

@@ -230,8 +230,8 @@ Newgame.formCreateGame = function() {
   Newgame.activity.opponentButton = $('#opponent_button').val();
 
   var validSelect = //Newgame.activity.opponentName &&
-                    Newgame.activity.playerButton &&
-                    Newgame.activity.opponentButton;
+                    Newgame.activity.playerButton;
+                    //Newgame.activity.opponentButton;
 
   if (!validSelect) {
     Env.message = {
