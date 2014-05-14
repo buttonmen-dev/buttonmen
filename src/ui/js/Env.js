@@ -20,11 +20,24 @@ if ('unit_test' in Env) {
   } else {
     Env.api_location = '../api/dummy_responder';
   }
-  // We also want to mock the window object in unit tests
+  // We also want to mock the window and history objects in unit tests
   Env.window = { location: {} };
+  Env.history = {
+    pushState: function(state, title, url) {
+      Env.history.state = state;
+      // We can make these more sophisticated later if we need to
+      Env.window.location.href = url;
+      Env.window.location.search = url;
+      Env.window.location.hash = url;
+    },
+    replaceState: function(state, title, url) {
+      Env.history.pushState(state, title, url);
+    }
+  };
 } else {
   Env.api_location = '../api/responder';
   Env.window = window;
+  Env.history = history;
 }
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
@@ -81,6 +94,13 @@ Env.formatTimestamp = function(timestamp, format) {
     format = 'datetime';
   }
 
+  // Most pages don't use moment, so we don't always load it in the HTML
+  if (typeof moment === 'undefined') {
+    $.ajaxSetup({ async: false, });
+    $.getScript('js/extern/moment.js');
+    $.ajaxSetup({ async: true, });
+  }
+
   var datetime = moment.unix(timestamp);
   if (!datetime.isValid()) {
     return null;
@@ -114,6 +134,13 @@ Env.parseDateTime = function(input, format, strict) {
     strict = false;
   } else if (strict === null || strict === undefined) {
     strict = true;
+  }
+
+  // Most pages don't use moment, so we don't always load it in the HTML
+  if (typeof moment === 'undefined') {
+    $.ajaxSetup({ async: false, });
+    $.getScript('js/extern/moment.js');
+    $.ajaxSetup({ async: true, });
   }
 
   var datetime;

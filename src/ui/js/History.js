@@ -20,47 +20,70 @@ History.searchParameterNames = {
   'page': 'hidden',
 };
 
+History.defaultOptions = {
+  'sortColumn' : 'lastMove',
+  'sortDirection': 'DESC',
+  'numberOfResults': 20,
+  'page': 1,
+};
+
 ////////////////////////////////////////////////////////////////////////
-// Action flow through this page:
-// * History.showHistoryPage() is the landing function.  Always call
+// Primary flow through this page:
+// * History.showHistoryPage() is the landing function. Always call
 //   this first. On the initial page load, it sets History.searchParameters
 //   based on the hashbang of the incoming URL, then calls History.getHistory().
-//   It is also called by the windows's popstate event when the user clicks
-//   the back button (to refresh the page from the new URL values).
-// * History.getHistory() gets the results for the current search
-//   parameters from the API. It sets Api.search_results and calls
+// * History.getHistory() calls the API, passing it the History.searchParameters
+//   collection and causing Api.search_results to be set. It then calls
 //   History.getFilters()
 // * History.getFilters() gets data from the API to populate the filters
 //   with. It sets Api.player and Api.button, then calls History.showPage()
-// * History.showPage() builds the contents of the page as History.page
-//   and calls History.layoutPage()
+// * History.showPage() uses the data returned by the API to build the contents
+//   of the page as History.page and calls History.layoutPage()
 // * History.layoutPage() sets the contents of <div id="history_page">
 //   on the live page
 //
+// Events:
 // * History.performManualSearch() is called whenever the search button, a
-//   sort button or a paging link is clicked. It sets History.searchParameters
-//   based on the form inputs, writes those parameters into the hashbang URL,
-//   and calls History.getHistory()
+//   sorting arrow or a paging link is clicked. It sets History.searchParameters
+//   based on the form inputs, writes those parameters into the page history
+//   and the hashbang URL, and then calls History.getHistory()
+// * History.performAutomaticSearch() is called whenever the user clicks on the
+//   forward or back button. It sets History.searchParameters based on the page
+//   history state associated with the new URL and calls History.getHistory()
 ////////////////////////////////////////////////////////////////////////
 
 History.showHistoryPage = function() {
   // Setup necessary elements for displaying status messages
-  if ($('#env_message').length == 0) {
+  if ($('#env_message').length === 0) {
     Env.setupEnvStub();
   }
 
   // When the user hits the back button to retrace their path through the
   // hashbang URL's, load the search results that belong to that "page"
-  $(window).bind('popstate', function() {
-    Env.message = null;
-    History.showHistoryPage();
-  });
+  $(window).bind('popstate', History.performAutomaticSearch);
 
   // Make sure the div element that we will need exists in the page body
   if ($('#history_page').length === 0) {
     $('body').append($('<div>', {'id': 'history_page', }));
   }
 
+  History.readSearchParametersFromUrl();
+  if (History.searchParameters !== undefined) {
+    // Since we just entered the page, we should set up a history state for
+    // this URL, in case the user presses the back button
+    Env.history.replaceState(History.searchParameters,
+        'Button Men Online &mdash History', Env.window.location.hash);
+
+    // Get all needed information, then display History page
+    History.getHistory(function() {
+      History.getFilters(History.showPage);
+    });
+  } else {
+    History.getFilters(History.showPage);
+  }
+};
+
+History.getHistory = function(callback) {
   // Make sure the user is logged in before trying to hit the API
   if (Login.logged_in !== true) {
     Env.message = {
@@ -72,41 +95,18 @@ History.showHistoryPage = function() {
     return;
   }
 
-  History.readSearchParametersFromUrl();
-  if (History.searchParameters !== undefined) {
-    // Get all needed information, then display History page
-    History.getHistory(function() {
-      History.getFilters(History.showPage);
-    });
-  } else {
-    History.getFilters(History.showPage);
-  }
-};
+  $('#searchButton').attr('disabled', 'disabled');
 
-History.getHistory = function(callback) {
-  if (Login.logged_in) {
-    $('#searchButton').attr('disabled', 'disabled');
+  $.each(History.defaultOptions, function(name, value) {
+    if (History.searchParameters[name] === undefined) {
+      History.searchParameters[name] = value;
+    }
+  });
 
-    if (History.searchParameters.sortColumn === undefined) {
-      History.searchParameters.sortColumn = 'lastMove';
-    }
-    if (History.searchParameters.sortDirection === undefined) {
-      History.searchParameters.sortDirection = 'DESC';
-    }
-    if (History.searchParameters.numberOfResults === undefined) {
-      History.searchParameters.numberOfResults = 20;
-    }
-    if (History.searchParameters.page === undefined) {
-      History.searchParameters.page = 1;
-    }
-
-    Api.searchGameHistory(
-      History.searchParameters,
-      callback
-    );
-  } else {
-    return callback();
-  }
+  Api.searchGameHistory(
+    History.searchParameters,
+    callback
+  );
 };
 
 History.getFilters = function(callback) {
@@ -165,9 +165,22 @@ History.performManualSearch = function() {
   }
 
   // We want a shareable URL that points to this particular set of search
-  // results
+  // results.
   History.writeSearchParametersToUrl();
 
+  // Get all needed information, then display History page
+  History.getHistory(function() {
+    History.getFilters(History.showPage);
+  });
+};
+
+History.performAutomaticSearch = function() {
+  History.searchParameters = Env.history.state;
+  if (History.searchParameters === undefined) {
+    History.getFilters(History.showPage);
+  }
+
+  // Get all needed information, then display History page
   History.getHistory(function() {
     History.getFilters(History.showPage);
   });
@@ -230,17 +243,19 @@ History.readSearchParametersFromForm = function() {
 };
 
 History.writeSearchParametersToUrl = function() {
-  var parameterString = '#!';
+  var parameterHash = '#!';
   $.each(History.searchParameterNames, function(name) {
-    if (History.searchParameters[name] !== undefined) {
-      parameterString +=
+    if (History.searchParameters[name] !== undefined &&
+      History.searchParameters[name] != History.defaultOptions[name]) {
+      parameterHash +=
         name + '=' + encodeURIComponent(History.searchParameters[name]) + '&';
     }
   });
 
   // Trim off the trailing &
-  parameterString = parameterString.replace(/&$/, '');
-  Env.window.location.hash = parameterString;
+  parameterHash = parameterHash.replace(/&$/, '');
+  Env.history.pushState(History.searchParameters,
+    'Button Men Online &mdash History', parameterHash);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -258,7 +273,7 @@ History.buildSearchButtonDiv = function() {
   pageSizeSelect.append($('<option>', { 'value': 100, 'text': '100', }));
   if (History.searchParameters === undefined ||
     History.searchParameters.numberOfResults === undefined) {
-    pageSizeSelect.val(20);
+    pageSizeSelect.val(History.defaultOptions.numberOfResults);
   } else {
     pageSizeSelect.val(History.searchParameters.numberOfResults);
   }
@@ -271,7 +286,7 @@ History.buildSearchButtonDiv = function() {
   });
   buttonDiv.append(searchButton);
   searchButton.click(function() {
-    History.page.find('#parameter_page').val(1);
+    History.page.find('#parameter_page').val(History.defaultOptions.page);
     History.performManualSearch();
   });
 
@@ -355,10 +370,11 @@ History.buildResultsTableHeader = function() {
       'type': 'select',
       'source': buttonValues,
     },
-    'gameStart': {
-      'text': 'Game Start',
-      'type': 'dateRange',
-    },
+    // Reinstate this once g.creation_time exists
+    //'gameStart': {
+    //  'text': 'Game Start',
+    //  'type': 'dateRange',
+    //},
     'lastMove': {
       'text': 'Last Move',
       'type': 'dateRange',
@@ -446,37 +462,38 @@ History.buildResultsTableHeader = function() {
       }
       break;
     case 'dateRange':
-      var minElement = $('<input>', {
-        'type': 'text',
-        'name': columnId + 'Min',
-        'id': 'parameter_' + columnId + 'Min',
-        'maxlength': '10',
-        'class': 'dateInput',
-      });
-      filterTd.append($('<div>').append(minElement));
-      if (History.searchParameters !== undefined) {
-        var minDate =
-          Env.formatTimestamp(History.searchParameters[columnId + 'Min'],
-            'date');
-        minElement.val(minDate);
-      }
-      var maxElement = $('<input>', {
-        'type': 'text',
-        'name': columnId + 'Max',
-        'id': 'parameter_' + columnId + 'Max',
-        'maxlength': '10',
-        'class': 'dateInput',
-      });
-      filterTd.append($('<div>').append(maxElement));
-      if (History.searchParameters !== undefined) {
-        var maxDate =
-          Env.formatTimestamp(History.searchParameters[columnId + 'Max'],
-            'date');
-        maxElement.val(maxDate);
-      }
+      var range = { 'Min': 'Minimum', 'Max': 'Maximum' };
+      $.each(range, function(abbrev, full) {
+        var dateDiv = $('<div>');
+        filterTd.append(dateDiv);
 
-      //TODO add calendar icons
-      //  also, attach datepicker
+        var dateElement = $('<input>', {
+          'type': 'text',
+          'name': columnId + abbrev,
+          'id': 'parameter_' + columnId + abbrev,
+          'maxlength': '10',
+          'class': 'dateInput',
+          'title': full +  ' ' + columnInfo.text + ' Date',
+        });
+        dateDiv.append(dateElement);
+        if (History.searchParameters !== undefined) {
+          var date =
+            Env.formatTimestamp(History.searchParameters[columnId + abbrev],
+              'date');
+          dateElement.val(date);
+        }
+        dateElement.datepicker({ 'dateFormat': 'yy-mm-dd', });
+
+        var calendar = $('<img>', {
+          'src': 'images/calendar.png',
+          'class': 'calendar',
+          'title': full +  ' ' + columnInfo.text + ' Date',
+        });
+        dateDiv.append(calendar);
+        calendar.click(function() {
+          dateElement.datepicker('show');
+        });
+      });
       break;
     default:
       var inputElement = $('<input>', {
@@ -546,9 +563,10 @@ History.buildResultsTableBody = function() {
       'text': game.buttonNameB,
       'style': 'background-color: ' + game.colorB + ';',
     }));
-    gameRow.append($('<td>', {
-      'text': Env.formatTimestamp(game.gameStart, 'date'),
-    }));
+    // Reinstate this once g.creation_time exists
+    //gameRow.append($('<td>', {
+    //  'text': Env.formatTimestamp(game.gameStart, 'date'),
+    //}));
     gameRow.append($('<td>', {
       'text': Env.formatTimestamp(game.lastMove, 'date'),
     }));
@@ -595,7 +613,8 @@ History.buildResultsTableFooter = function() {
     'colspan': '4',
     'style': 'text-align: left;',
   }));
-  footerHeaderRow.append($('<th>', { 'text': 'Earliest Start' }));
+  // Reinstate this once g.creation_time exists
+  //footerHeaderRow.append($('<th>', { 'text': 'Earliest Start' }));
   footerHeaderRow.append($('<th>', { 'text': 'Latest Move' }));
   footerHeaderRow.append($('<th>', { 'text': 'Games W/L/T' }));
   footerHeaderRow.append($('<th>', { 'text': '% Completed' }));
@@ -666,9 +685,10 @@ History.buildResultsTableFooter = function() {
   });
   footerDataRow.append(pagingTd);
 
-  footerDataRow.append($('<td>', { 'text':
-      Env.formatTimestamp(summary.earliestStart, 'date')
-  }));
+  // Reinstate this once g.creation_time exists
+  //footerDataRow.append($('<td>', { 'text':
+  //    Env.formatTimestamp(summary.earliestStart, 'date')
+  //}));
   footerDataRow.append($('<td>', { 'text':
       Env.formatTimestamp(summary.latestMove, 'date')
   }));

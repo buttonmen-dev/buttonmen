@@ -972,7 +972,13 @@ class BMInterface {
                 $searchQualifiers['sortDirection'] = $searchParameters['sortDirection'];
             }
             if (isset($searchParameters['numberOfResults'])) {
-                $searchQualifiers['numberOfResults'] = (int)$searchParameters['numberOfResults'];
+                $numberOfResults = (int)$searchParameters['numberOfResults'];
+                if ($numberOfResults <= 1000) {
+                    $searchQualifiers['numberOfResults'] = $numberOfResults;
+                } else {
+                    $this->message = 'numberOfResults may not exceed 1000';
+                    return NULL;
+                }
             }
             if (isset($searchParameters['page'])) {
                 $searchQualifiers['page'] = (int)$searchParameters['page'];
@@ -1016,8 +1022,9 @@ class BMInterface {
                     'vB.player_id AS player_id_B, ' .
                     'vB.player_name AS player_name_B, ' .
                     'vB.button_name AS button_name_B, ' .
-                    // CHANGE THIS TO A REAL VALUE!
-                    'UNIX_TIMESTAMP(g.last_action_time) AS game_start, ' .
+                    // Reinstate this once g.creation_time exists
+                    //'UNIX_TIMESTAMP(g.creation_time) AS game_start, ' .
+                    '0 AS game_start, ' .
                     'UNIX_TIMESTAMP(g.last_action_time) AS last_move, ' .
                     'vA.n_rounds_won AS rounds_won_A, ' .
                     'vB.n_rounds_won AS rounds_won_B, ' .
@@ -1027,124 +1034,106 @@ class BMInterface {
                 'FROM game AS g ' .
                     'INNER JOIN game_status AS s ON s.id = g.status_id ';
 
-            $playerJoin0 =
+            $playerJoin_0 =
                 'INNER JOIN game_player_view AS vA ' .
                     'ON vA.game_id = g.id AND vA.position = 0 ' .
                 'INNER JOIN game_player_view AS vB ' .
-                    'ON vB.game_id = g.id AND vB.position = 1 ' .
-                'WHERE 1=1 ';
+                    'ON vB.game_id = g.id AND vB.position = 1 ';
 
-            $playerJoin1 =
+            $playerJoin_1 =
                 'INNER JOIN game_player_view AS vA ' .
                     'ON vA.game_id = g.id AND vA.position = 1 ' .
                 'INNER JOIN game_player_view AS vB ' .
-                    'ON vB.game_id = g.id AND vB.position = 0 ' .
-                'WHERE 1=1 ';
+                    'ON vB.game_id = g.id AND vB.position = 0 ';
 
-            $parameters = array();
+            $where = 'WHERE 1=1 ';
+
+            $whereParameters = array();
 
             if (isset($searchFilters['gameId'])) {
-                // Because PHP won't let us use the same parameter twice in
-                // a query, I have to duplicate each one of these. Grrr.
-                $playerJoin0 .= 'AND g.id = :game_id_0 ';
-                $playerJoin1 .= 'AND g.id = :game_id_1 ';
-                $parameters[':game_id_0'] = $searchFilters['gameId'];
-                $parameters[':game_id_1'] = $searchFilters['gameId'];
+                $where .= 'AND g.id = :game_id_%%% ';
+                $whereParameters[':game_id_%%%'] = $searchFilters['gameId'];
             }
 
             if (isset($searchFilters['playerIdA'])) {
-                $playerJoin0 .= 'AND vA.player_id = :player_id_A_0 ';
-                $playerJoin1 .= 'AND vA.player_id = :player_id_A_1 ';
-                $parameters[':player_id_A_0'] = $searchFilters['playerIdA'];
-                $parameters[':player_id_A_1'] = $searchFilters['playerIdA'];
+                $where .= 'AND vA.player_id = :player_id_A_%%% ';
+                $whereParameters[':player_id_A_%%%'] = $searchFilters['playerIdA'];
             }
 
             if (isset($searchFilters['buttonIdA'])) {
-                $playerJoin0 .= 'AND vA.button_id = :button_id_A_0 ';
-                $playerJoin1 .= 'AND vA.button_id = :button_id_A_1 ';
-                $parameters[':button_id_A_0'] = $searchFilters['buttonIdA'];
-                $parameters[':button_id_A_1'] = $searchFilters['buttonIdA'];
+                $where .= 'AND vA.button_id = :button_id_A_%%% ';
+                $whereParameters[':button_id_A_%%%'] = $searchFilters['buttonIdA'];
             }
 
             if (isset($searchFilters['playerIdB'])) {
-                $playerJoin0 .= 'AND vB.player_id = :player_id_B_0 ';
-                $playerJoin1 .= 'AND vB.player_id = :player_id_B_1 ';
-                $parameters[':player_id_B_0'] = $searchFilters['playerIdB'];
-                $parameters[':player_id_B_1'] = $searchFilters['playerIdB'];
+                $where .= 'AND vB.player_id = :player_id_B_%%% ';
+                $whereParameters[':player_id_B_%%%'] = $searchFilters['playerIdB'];
             }
 
             if (isset($searchFilters['buttonIdB'])) {
-                $playerJoin0 .= 'AND vB.button_id = :button_id_B_0 ';
-                $playerJoin1 .= 'AND vB.button_id = :button_id_B_1 ';
-                $parameters[':button_id_B_0'] = $searchFilters['buttonIdB'];
-                $parameters[':button_id_B_1'] = $searchFilters['buttonIdB'];
+                $where .= 'AND vB.button_id = :button_id_B_%%% ';
+                $whereParameters[':button_id_B_%%%'] = $searchFilters['buttonIdB'];
             }
 
             if (isset($searchFilters['gameStartMin'])) {
-                // CHANGE THIS TO A REAL VALUE!
-                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :game_start_min_0 ';
-                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :game_start_min_1 ';
-                $parameters[':game_start_min_0'] = $searchFilters['gameStartMin'];
-                $parameters[':game_start_min_1'] = $searchFilters['gameStartMin'];
+                $where .= 'AND UNIX_TIMESTAMP(g.creation_time) >= :game_start_min_%%% ';
+                $whereParameters[':game_start_min_%%%'] = $searchFilters['gameStartMin'];
             }
             if (isset($searchFilters['gameStartMax'])) {
-                // CHANGE THIS TO A REAL VALUE!
-                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :game_start_max_0 ';
-                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :game_start_max_1 ';
-                $parameters[':game_start_max_0'] =
-                    // We want the range to end at the *end* of the day (i.e.,
-                    // the start of the next one).
-                    $searchFilters['gameStartMax'] + 24 * 60 * 60;
-                $parameters[':game_start_max_1'] =
-                    // We want the range to end at the *end* of the day (i.e.,
-                    // the start of the next one).
+                $where .= 'AND UNIX_TIMESTAMP(g.creation_time) < :game_start_max_%%% ';
+                // We want the range to end at the *end* of the day (i.e.,
+                // the start of the next one).
+                $whereParameters[':game_start_max_%%%'] =
                     $searchFilters['gameStartMax'] + 24 * 60 * 60;
             }
 
             if (isset($searchFilters['lastMoveMin'])) {
-                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_0 ';
-                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_1 ';
-                $parameters[':last_move_min_0'] = $searchFilters['lastMoveMin'];
-                $parameters[':last_move_min_1'] = $searchFilters['lastMoveMin'];
+                $where .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_%%% ';
+                $whereParameters[':last_move_min_%%%'] = $searchFilters['lastMoveMin'];
             }
             if (isset($searchFilters['lastMoveMax'])) {
-                $playerJoin0 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_0 ';
-                $playerJoin1 .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_1 ';
-                $parameters[':last_move_max_0'] =
-                    // We want the range to end at the *end* of the day (i.e.,
-                    // the start of the next one).
-                    $searchFilters['lastMoveMax'] + 24 * 60 * 60;
-                $parameters[':last_move_max_1'] =
-                    // We want the range to end at the *end* of the day (i.e.,
-                    // the start of the next one).
+                $where .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_%%% ';
+                // We want the range to end at the *end* of the day (i.e.,
+                // the start of the next one).
+                $whereParameters[':last_move_max_%%%'] =
                     $searchFilters['lastMoveMax'] + 24 * 60 * 60;
             }
 
             if (isset($searchFilters['winningPlayer'])) {
                 if ($searchFilters['winningPlayer'] == 'A') {
-                    $playerJoin0 .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
-                    $playerJoin1 .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
+                    $where .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
                 } else if ($searchFilters['winningPlayer'] == 'B') {
-                    $playerJoin0 .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
-                    $playerJoin1 .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
+                    $where .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
                 } else if ($searchFilters['winningPlayer'] == 'Tie') {
-                    $playerJoin0 .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
-                    $playerJoin1 .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+                    $where .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
                 }
             }
 
             if (isset($searchFilters['status'])) {
-                $playerJoin0 .= 'AND s.name = :status_0 ';
-                $playerJoin1 .= 'AND s.name = :status_1 ';
-                $parameters[':status_0'] = $searchFilters['status'];
-                $parameters[':status_1'] = $searchFilters['status'];
+                $where .= 'AND s.name = :status_%%% ';
+                $whereParameters[':status_%%%'] = $searchFilters['status'];
             } else {
                 // We'll only display games that have actually started
-                $playerJoin0 .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
-                $playerJoin1 .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
+                $where .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
             }
 
-            //TODO sort based on some passed-in value
+            // I want to use the same WHERE clause for both sides of the
+            // UNION, but PHP won't let us use the same parameter twice in
+            // a query (without PDO::ATTR_EMULATE_PREPARES).
+            // So I've used _%%% as a placeholder which I'm now replacing
+            // with _0 and _1, to produce the two otherwise identical
+            // versions.
+            $where_0 = str_replace('_%%%', '_0', $where);
+            $where_1 = str_replace('_%%%', '_1', $where);
+            $whereParameters_0 = array();
+            $whereParameters_1 = array();
+            foreach($whereParameters as $parameterName => $parameterValue) {
+                $whereParameters_0[str_replace('_%%%', '_0', $parameterName)] =
+                    $parameterValue;
+                $whereParameters_1[str_replace('_%%%', '_1', $parameterName)] =
+                    $parameterValue;
+            }
+
             $sort = 'ORDER BY ';
             switch($searchOptions['sortColumn']) {
                 case 'gameId':
@@ -1200,14 +1189,15 @@ class BMInterface {
 
             $combinedQuery =
                 'SELECT * FROM (( ' .
-                    $baseQuery . $playerJoin0 .
+                    $baseQuery . $playerJoin_0 . $where_0 .
                 ') UNION (' .
-                    $baseQuery . $playerJoin1 .
+                    $baseQuery . $playerJoin_1 . $where_1 .
                 ')) AS games ' .
                 'GROUP BY game_id ' . $sort . $limit . ';';
 
             $statement = self::$conn->prepare($combinedQuery);
-            $statement->execute(array_merge($parameters, $limitParameters));
+            $statement->execute(array_merge($whereParameters_0,
+                $whereParameters_1, $limitParameters));
 
             $games = array();
 
@@ -1247,15 +1237,16 @@ class BMInterface {
                     'SUM(status = "COMPLETE") AS games_completed ' .
                 'FROM (' .
                     'SELECT * FROM (( ' .
-                        $baseQuery . $playerJoin0 .
+                        $baseQuery . $playerJoin_0 . $where_0 .
                     ') UNION (' .
-                        $baseQuery . $playerJoin1 .
+                        $baseQuery . $playerJoin_1 . $where_1 .
                     ')) AS games ' .
                     'GROUP BY game_id ' .
                 ') AS summary;';
 
             $statement = self::$conn->prepare($combinedQuery);
-            $statement->execute($parameters);
+            $statement->execute(array_merge($whereParameters_0,
+                $whereParameters_1));
 
             $summary = array();
             $summaryRows = $statement->fetchAll();

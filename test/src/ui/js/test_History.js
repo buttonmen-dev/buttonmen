@@ -14,8 +14,10 @@ module("History", {
     // Delete all elements we expect this module to create
 
     // JavaScript variables
+    delete Env.window.location.href;
     delete Env.window.location.search;
     delete Env.window.location.hash;
+    delete Env.history.state;
     delete Api.search_results;
     delete Api.player;
     delete Api.button;
@@ -24,6 +26,8 @@ module("History", {
     // Page elements
     $('#history_page').remove();
     $('#history_page').empty();
+    $('#ui-datepicker-div').remove();
+    $('#ui-datepicker-div').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
@@ -128,6 +132,18 @@ test("test_History.performManualSearch", function() {
   $.ajaxSetup({ async: false });
   History.page = $('<div>');
   History.performManualSearch();
+  ok(Api.search_results.games, "games list is parsed from server");
+  ok(Api.search_results.summary, "summary data is parsed from server");
+  $.ajaxSetup({ async: true });
+});
+
+test("test_History.performAutomaticSearch", function() {
+  // There are AJAX calls within the method that we can't pass a callback to,
+  // so we need to make them run async in order for this to work reliably
+  $.ajaxSetup({ async: false });
+  History.page = $('<div>');
+  Env.history.pushState({ }, null, '#!hash');
+  History.performAutomaticSearch();
   ok(Api.search_results.games, "games list is parsed from server");
   ok(Api.search_results.summary, "summary data is parsed from server");
   $.ajaxSetup({ async: true });
