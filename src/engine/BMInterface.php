@@ -1278,8 +1278,8 @@ class BMInterface {
                 $this->message = 'Retrieving summary data for history search failed';
                 error_log(
                     $this->message .
-                        " in BMInterface::search_game_history" .
-                        " -- Full SQL query: " . $combinedQuery
+                    " in BMInterface::search_game_history" .
+                    " -- Full SQL query: " . $combinedQuery
                 );
             }
 
