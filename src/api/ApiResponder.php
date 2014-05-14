@@ -106,8 +106,11 @@ class ApiResponder {
             return NULL;
         }
 
-        return $interface->search_game_history($searchFilters,
-            $searchOptions, $_SESSION['user_id']);
+        return $interface->search_game_history(
+            $searchFilters,
+            $searchOptions,
+            $_SESSION['user_id']
+        );
     }
 
     protected function get_interface_response_loadActiveGames($interface) {

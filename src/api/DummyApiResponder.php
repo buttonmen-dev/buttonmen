@@ -96,7 +96,7 @@ class DummyApiResponder {
                     'targetWins' => 3,
                     'status' => 'COMPLETE',
                 );
-            } else if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
+            } elseif (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
                 // game 5
                 $games[] = array(
                     'gameId' => 5,
@@ -140,7 +140,7 @@ class DummyApiResponder {
                     'targetWins' => 3,
                     'status' => 'ACTIVE',
                 );
-            } else if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
+            } elseif (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
                 // game 5
                 $games[] = array(
                     'gameId' => 6,

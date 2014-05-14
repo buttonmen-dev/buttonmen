@@ -998,8 +998,7 @@ class BMInterface {
 
     // Get all games matching the specified search filters. Filters are
     // expected to have already been validated.
-    public function search_game_history($searchFilters, $searchOptions,
-        $currentPlayerId) {
+    public function search_game_history($searchFilters, $searchOptions, $currentPlayerId) {
         try {
             $combinedQuery = '';
 
@@ -1105,9 +1104,9 @@ class BMInterface {
             if (isset($searchFilters['winningPlayer'])) {
                 if ($searchFilters['winningPlayer'] == 'A') {
                     $where .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
-                } else if ($searchFilters['winningPlayer'] == 'B') {
+                } elseif ($searchFilters['winningPlayer'] == 'B') {
                     $where .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
-                } else if ($searchFilters['winningPlayer'] == 'Tie') {
+                } elseif ($searchFilters['winningPlayer'] == 'Tie') {
                     $where .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
                 }
             }
@@ -1130,7 +1129,7 @@ class BMInterface {
             $where_1 = str_replace('_%%%', '_1', $where);
             $whereParameters_0 = array();
             $whereParameters_1 = array();
-            foreach($whereParameters as $parameterName => $parameterValue) {
+            foreach ($whereParameters as $parameterName => $parameterValue) {
                 $whereParameters_0[str_replace('_%%%', '_0', $parameterName)] =
                     $parameterValue;
                 $whereParameters_1[str_replace('_%%%', '_1', $parameterName)] =
@@ -1199,15 +1198,17 @@ class BMInterface {
                 'GROUP BY game_id ' . $sort . $limit . ';';
 
             $statement = self::$conn->prepare($combinedQuery);
-            $statement->execute(array_merge($whereParameters_0,
-                $whereParameters_1, $limitParameters));
+            $statement->execute(array_merge($whereParameters_0, $whereParameters_1, $limitParameters));
 
             $games = array();
 
             while ($row = $statement->fetch()) {
-                $gameColors =
-                    $this->determine_game_colors($currentPlayerId, $playerColors,
-                        (int)$row['player_id_A'], (int)$row['player_id_B']);
+                $gameColors = $this->determine_game_colors(
+                    $currentPlayerId,
+                    $playerColors,
+                    (int)$row['player_id_A'],
+                    (int)$row['player_id_B']
+                );
 
                 $games[] = array(
                     'gameId' => (int)$row['game_id'],
@@ -1250,8 +1251,7 @@ class BMInterface {
                 ') AS summary;';
 
             $statement = self::$conn->prepare($combinedQuery);
-            $statement->execute(array_merge($whereParameters_0,
-                $whereParameters_1));
+            $statement->execute(array_merge($whereParameters_0, $whereParameters_1));
 
             $summary = array();
             $summaryRows = $statement->fetchAll();
@@ -1276,9 +1276,10 @@ class BMInterface {
                 $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
             } else {
                 $this->message = 'Retrieving summary data for history search failed';
-                error_log($this->message .
-                    " in BMInterface::search_game_history" .
-                    " -- Full SQL query: " . $combinedQuery
+                error_log(
+                    $this->message .
+                        " in BMInterface::search_game_history" .
+                        " -- Full SQL query: " . $combinedQuery
                 );
             }
 
@@ -2632,6 +2633,7 @@ class BMInterface {
 
     // Retrieves the colors that the user has saved in their preferences
     protected function load_player_colors($currentPlayerId) {
+        $playerInfoArray = $this->get_player_info($currentPlayerId);
         // Ultimately, these values should come from the database, but that
         // hasn't been implemented yet, so we'll just hard code them for now
         $colors = array(
@@ -2650,8 +2652,7 @@ class BMInterface {
     // $playerColors are the colors they've chosen as their preferences
     // (as returned by load_player_colors())
     // $gamePlayerIdA and $gamePlayerIdB are the two players in the game
-    protected function determine_game_colors($currentPlayerId, $playerColors,
-        $gamePlayerIdA, $gamePlayerIdB) {
+    protected function determine_game_colors($currentPlayerId, $playerColors, $gamePlayerIdA, $gamePlayerIdB) {
         $gameColors = array();
 
         if ($gamePlayerIdA == $currentPlayerId) {
