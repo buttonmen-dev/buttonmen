@@ -15,15 +15,13 @@
 
 <body>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
-    <!-- needed for autocomplete -->
-    <script src="js/extern/jquery-ui.min.js"></script>
-    <script src="js/Env.js"></script>
-    <script src="js/Api.js"></script>
-    <script src="js/Login.js"></script>
-    <script src="js/Newuser.js"></script>
     <script>
 $(document).ready(function() {
-  Login.showLoginHeader(Newuser.showNewuserPage);
+  $.getScript('js/Loader.js', function() {
+    Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Newuser.js' ], function() {
+        Login.showLoginHeader(Newuser.showNewuserPage);
+    });
+  });
 });
     </script>
 </body>
