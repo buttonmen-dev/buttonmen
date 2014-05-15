@@ -1780,8 +1780,7 @@ Game.gamePlayerDice = function(player, player_active) {
 
   var dieRecipeText;
 
-  var i = 0;
-  while (i < Api.game[player].nDie) {
+  for (i = 0; i < Api.game[player].nDie; i++) {
     // Find out whether this die is clickable: it is if the player
     // is active and this particular die is not dizzy
     var clickable;
@@ -1861,18 +1860,15 @@ Game.gamePlayerDice = function(player, player_active) {
       dieContainerDiv.append(dieRecipeDiv);
     }
     allDice.append(dieContainerDiv);
-    i += 1;
   }
 
-  i = 0;
   // Loop over all of the captured dice and display any that are flagged as
   // having been captured just now.
-  while (i < Api.game[nonplayer].nCapturedDie) {
+  for (i = 0; i < Api.game[nonplayer].nCapturedDie; i++) {
     if (Api.game[nonplayer].capturedDiePropertiesArray[i] === null ||
       Api.game[nonplayer].capturedDiePropertiesArray[i] === undefined ||
       !('WasJustCaptured' in
         Api.game[nonplayer].capturedDiePropertiesArray[i])) {
-      i++;
       continue;
     }
 
@@ -1890,7 +1886,7 @@ Game.gamePlayerDice = function(player, player_active) {
 
     dieDiv.append($('<span>', {
       'class': 'die_overlay die_number_' + player,
-      'text': Api.game[nonplayer].capturedValueArray[i],
+      'html': '&nbsp;' + Api.game[nonplayer].capturedValueArray[i] + '&nbsp;',
     }));
 
     dieRecipeText = Game.dieRecipeText(
@@ -1911,7 +1907,6 @@ Game.gamePlayerDice = function(player, player_active) {
       dieContainerDiv.append(dieRecipeDiv);
     }
     allDice.append(dieContainerDiv);
-    i += 1;
   }
 
   return allDice;

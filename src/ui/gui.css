@@ -179,7 +179,6 @@ select.center {
     color:darkslateblue;
 }
 
-/* This matches any .die_dead element that immediately follows a .die_alive */
 .die_dead .die_img {
     background-color: black;
     border-radius: 50%;
@@ -193,6 +192,7 @@ select.center {
     text-decoration: line-through;
 }
 
+/* This matches any .die_dead element that immediately follows a .die_alive */
 .die_alive + .die_dead {
     margin-left: 40px;
 }
