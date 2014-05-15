@@ -2127,7 +2127,7 @@ Game.chatBox = function() {
 
   // Add previous chat contents from a rejected turn submission if any
   if ('chat' in Game.activity) {
-    chatarea.append(Game.activity.chat);
+    chatarea.val(Game.activity.chat);
   }
   chattd.append(chatarea);
   chatrow.append(chattd);
