@@ -534,7 +534,7 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
     ok(item.innerHTML.match('selected'),
       'Previous attack type selection is retained');
     var item = document.getElementById('game_chat');
-    equal(item.innerHTML, 'I had previously typed some text',
+    equal($(item).val(), 'I had previously typed some text',
       'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
@@ -549,7 +549,7 @@ asyncTest("test_Game.actionPlayTurnInactive", function() {
     var item = document.getElementById('attack_type_select');
     equal(item, null, "#attack_type_select is not set");
     var item = document.getElementById('game_chat');
-    equal(item.innerHTML, 'I had previously typed some text',
+    equal($(item).val(), 'I had previously typed some text',
       'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
