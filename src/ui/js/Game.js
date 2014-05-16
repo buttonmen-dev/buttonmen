@@ -290,7 +290,7 @@ Game.actionSpecifyDiceActive = function() {
     Api.game.player.swingRequestArray,
     function(letter, range) {
       var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      var swingtext = letter + ' (' + range.min + '-' + range.max + '):';
       swingrow.append($('<td>', { 'text': swingtext, }));
       var swinginput = $('<td>', {});
       swinginput.append($('<input>', {
@@ -301,6 +301,12 @@ Game.actionSpecifyDiceActive = function() {
         'maxlength': '2',
       }));
       swingrow.append(swinginput);
+      var swingprevtext = '';
+      if (letter in Api.game.player.prevSwingValueArray) {
+        swingprevtext =
+          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+      }
+      swingrow.append($('<td>', { 'text': swingprevtext, }));
       diespecifytable.append(swingrow);
     });
 
@@ -325,8 +331,15 @@ Game.actionSpecifyDiceActive = function() {
       });
       optinput.append(optselect);
       optrow.append(optinput);
+      var optprevtext = '';
+      if (position in Api.game.player.prevOptValueArray) {
+        optprevtext =
+          '(was: ' + Api.game.player.prevOptValueArray[position] + ')';
+      }
+      optrow.append($('<td>', { 'text': optprevtext, }));
       diespecifytable.append(optrow);
     });
+
   diespecifyform.append(diespecifytable);
   diespecifyform.append($('<br>'));
   diespecifyform.append($('<button>', {
@@ -378,13 +391,6 @@ Game.actionSpecifyDiceInactive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {
-    'text':
-      'Your swing dice are set. ' +
-      'Please wait patiently for your opponent to set swing dice.'
-  }));
 
   Game.pageAddFooter();
 
@@ -691,10 +697,6 @@ Game.actionReactToInitiativeInactive = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {'text':
-    'Please wait patiently for your opponent to use chance/focus dice' }));
 
   Game.pageAddFooter();
 
@@ -1254,15 +1256,18 @@ Game.showFullLogHistory = function() {
 
 // Display header information about the game
 Game.pageAddGameHeader = function(action_desc) {
+  var gameTitle =
+    'Game #' + Api.game.gameId + Game.SPACE_BULLET +
+      Api.game.player.playerName + ' (' + Api.game.player.buttonName +
+      ') vs. ' + Api.game.opponent.playerName + ' (' +
+      Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
+      'Round #' + Api.game.roundNumber;
+  $('title').html('Button Men Online &mdash; ' + gameTitle);
+
   Game.page.append(
     $('<div>', {
       'id': 'game_id',
-      'html':
-	'Game #' + Api.game.gameId + Game.SPACE_BULLET +
-	Api.game.player.playerName + ' (' + Api.game.player.buttonName +
-	') vs. ' + Api.game.opponent.playerName + ' (' +
-	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
-        'Round #' + Api.game.roundNumber,
+      'html': gameTitle,
     }));
   var bgcolor = '#ffffff';
   if (Api.game.player.waitingOnAction) {
@@ -1664,8 +1669,12 @@ Game.pageAddDieBattleTable = function(clickable) {
 // button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
+  var tdClass = 'button_' + player;
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    tdClass += ' button_postgame';
+  }
   var buttonTd = $('<td>', {
-    'class': 'button_' + player,
+    'class': tdClass,
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
@@ -1681,11 +1690,12 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].buttonRecipe,
   });
 
-  if (player == 'opponent') {
+  if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+  }
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
   buttonTd.append($('<img>', {
@@ -1696,12 +1706,10 @@ Game.buttonImageDisplay = function(player) {
     'width': '150px',
     'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
   }));
-  if (player == 'player') {
+  if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    buttonTd.append(playerWLT);
   }
   return buttonTd;
 };
@@ -2062,7 +2070,7 @@ Game.chatBox = function() {
 
   // Add previous chat contents from a rejected turn submission if any
   if ('chat' in Game.activity) {
-    chatarea.append(Game.activity.chat);
+    chatarea.val(Game.activity.chat);
   }
   chattd.append(chatarea);
   chatrow.append(chattd);

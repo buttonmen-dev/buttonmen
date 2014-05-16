@@ -111,6 +111,11 @@ td.button_opponent {
     padding-bottom: 20px;
 }
 
+td.button_postgame {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 td.battle_mat {
     padding-top: 0px;
     padding-left: 0px;
@@ -244,4 +249,52 @@ select.center {
 
 .unselected_opponent {
     border-top-left-radius: 1em;
+}
+
+/* Game lists (Overview, Game History) */
+table.gameList a {
+    color: black;
+}
+
+table.gameList th {
+    background-color: #cccccc;
+}
+
+table.gameList td:first-child,
+table.gameList th:first-child
+{
+  border-left: 2px solid #cccccc;
+}
+
+table.gameList td:last-child,
+table.gameList th:last-child
+{
+  border-right: 2px solid #cccccc;
+}
+
+table.gameList tr:first-child td,
+table.gameList tr:first-child th
+{
+  border-top: 2px solid #cccccc;
+}
+
+table.gameList tr:last-child td,
+table.gameList tr:last-child th
+{
+  border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tr.spacer td {
+  border-left: none;
+  border-right: none;
+  border-top: 2px solid #cccccc;
+  border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tbody:before,
+table.gameList tfoot:before {
+    line-height: 1em;
+    content: "-";
+    color: white; /* to hide text */
+    display: block;
 }

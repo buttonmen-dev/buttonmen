@@ -369,7 +369,7 @@ class BMInterface {
             $game->lastActionTimeArray = $lastActionTimeArray;
 
             // add swing values from last round
-            $game->prevSwingValueArrArr = array_fill(0, $game->nPlayers, array());
+            $game->prevSwingValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_swing_map '.
                      'WHERE game_id = :game_id '.
@@ -379,7 +379,7 @@ class BMInterface {
                                        ':is_expired' => 1));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-                $game->prevSwingValueArrArr[$playerIdx][$row['swing_type']] = $row['swing_value'];
+                $game->prevSwingValueArrayArray[$playerIdx][$row['swing_type']] = $row['swing_value'];
             }
 
             // add swing values
@@ -397,7 +397,7 @@ class BMInterface {
             }
 
             // add option values from last round
-            $game->prevOptValueArrArr = array_fill(0, $game->nPlayers, array());
+            $game->prevOptValueArrayArray = array_fill(0, $game->nPlayers, array());
             $query = 'SELECT * '.
                      'FROM game_option_map '.
                      'WHERE game_id = :game_id '.
@@ -407,7 +407,7 @@ class BMInterface {
                                        ':is_expired' => 1));
             while ($row = $statement2->fetch()) {
                 $playerIdx = array_search($row['player_id'], $game->playerIdArray);
-                $game->prevOptValueArrArr[$playerIdx][$row['die_idx']] = $row['option_value'];
+                $game->prevOptValueArrayArray[$playerIdx][$row['die_idx']] = $row['option_value'];
             }
 
             // add option values
@@ -488,6 +488,10 @@ class BMInterface {
                     } else {
                         $die->needsOptionValue = TRUE;
                     }
+                }
+
+                if (!is_null($row['flags'])) {
+                    $die->load_flags_from_string($row['flags']);
                 }
 
                 switch ($row['status']) {
@@ -634,12 +638,12 @@ class BMInterface {
             $statement->execute(array(':game_id' => $game->gameId));
 
             // store swing values from previous round
-            if (isset($game->prevSwingValueArrArr)) {
+            if (isset($game->prevSwingValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrArr)) {
+                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrayArray)) {
                         continue;
                     }
-                    $swingValueArray = $game->prevSwingValueArrArr[$playerIdx];
+                    $swingValueArray = $game->prevSwingValueArrayArray[$playerIdx];
                     if (!empty($swingValueArray)) {
                         foreach ($swingValueArray as $swingType => $swingValue) {
                             $query = 'INSERT INTO game_swing_map '.
@@ -682,12 +686,12 @@ class BMInterface {
             }
 
             // store option values from previous round
-            if (isset($game->prevOptValueArrArr)) {
+            if (isset($game->prevOptValueArrayArray)) {
                 foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->prevOptValueArrArr)) {
+                    if (!array_key_exists($playerIdx, $game->prevOptValueArrayArray)) {
                         continue;
                     }
-                    $optValueArray = $game->prevOptValueArrArr[$playerIdx];
+                    $optValueArray = $game->prevOptValueArrayArray[$playerIdx];
                     if (isset($optValueArray)) {
                         foreach ($optValueArray as $dieIdx => $optionValue) {
                             $query = 'INSERT INTO game_option_map '.
@@ -851,7 +855,8 @@ class BMInterface {
                  '     recipe, '.
                  '     actual_max, '.
                  '     position, '.
-                 '     value) '.
+                 '     value, '.
+                 '     flags)'.
                  'VALUES '.
                  '    (:owner_id, '.
                  '     :original_owner_id, '.
@@ -860,12 +865,19 @@ class BMInterface {
                  '     :recipe, '.
                  '     :actual_max, '.
                  '     :position, '.
-                 '     :value);';
+                 '     :value, '.
+                 '     :flags);';
         $statement = self::$conn->prepare($query);
+
+        $flags = $activeDie->flags_as_string();
+        if (empty($flags)) {
+            $flags = NULL;
+        }
 
         $actualMax = NULL;
 
         if ($activeDie->has_skill('Mood') ||
+            $activeDie->has_skill('Mad') ||
             ($activeDie instanceof BMDieOption)) {
             $actualMax = $activeDie->max;
         }
@@ -877,7 +889,8 @@ class BMInterface {
                                   ':recipe' => $activeDie->recipe,
                                   ':actual_max' => $actualMax,
                                   ':position' => $dieIdx,
-                                  ':value' => $activeDie->value));
+                                  ':value' => $activeDie->value,
+                                  ':flags' => $flags));
     }
 
     // Get all player games (either active or inactive) from the database
