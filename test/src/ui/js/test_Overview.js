@@ -123,10 +123,10 @@ asyncTest("test_Overview.pageAddNewgameLink", function() {
 asyncTest("test_Overview.pageAddGameTable", function() {
   Overview.getOverview(function() {
     Overview.page = $('<div>');
-    Overview.pageAddGameTable('awaitingPlayer', 'Waiting for player');
+    Overview.pageAddGameTable('awaitingPlayer', 'Active games');
     var htmlout = Overview.page.html();
-    ok(htmlout.match('<h2>Waiting for player'), "Section header should be set");
-    ok(htmlout.match('<table>'), "A table is created");
+    ok(htmlout.match('<h2>Active games'), "Section header should be set");
+    ok(htmlout.match('<table class="gameList activeGames">'), "A table is created");
     start();
   });
 });

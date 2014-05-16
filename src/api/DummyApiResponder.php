@@ -477,11 +477,11 @@ class DummyApiResponder {
             "capturedValueArrayArray" => array(array(), array()),
             "capturedSidesArrayArray" => array(array(), array()),
             "capturedRecipeArrayArray" => array(array(), array()),
-            "capturedDiePropsArrArr" => array(array(), array()),
+            "capturedDiePropsArrayArray" => array(array(), array()),
             "swingRequestArrayArray" => array(array("X" => array(4, 20)), array("X" => array(4, 20))),
             "optRequestArrayArray" => array(array(), array()),
-            "prevSwingValueArrArr" => array(array(), array()),
-            "prevOptValueArrArr" => array(array(), array()),
+            "prevSwingValueArrayArray" => array(array(), array()),
+            "prevOptValueArrayArray" => array(array(), array()),
             "validAttackTypeArray" => array(),
             "roundScoreArray" => array(NULL, NULL),
             "sideScoreArray" => array(NULL, NULL),
@@ -763,6 +763,8 @@ class DummyApiResponder {
                                                          array(12, 10, 4));
             $gameData['capturedRecipeArrayArray'] = array(array("(10)", "(X)"),
                                                           array("(12)", "(10)", "(4)"));
+            $gameData['capturedDiePropsArrayArray'] = array(array(array(), array()),
+                                                            array(array(), array(), array("WasJustCaptured" => TRUE)));
             $gameData['validAttackTypeArray'] = array("Power" => "Power", "Skill" => "Skill", );
             $gameData['roundScoreArray'] = array(18, 36);
             $gameData['sideScoreArray'] = array(-12, 12);
