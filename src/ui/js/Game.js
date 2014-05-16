@@ -1780,7 +1780,7 @@ Game.gamePlayerDice = function(player, player_active) {
 
   var dieRecipeText;
 
-  for (i = 0; i < Api.game[player].nDie; i++) {
+  for (var i = 0; i < Api.game[player].nDie; i++) {
     // Find out whether this die is clickable: it is if the player
     // is active and this particular die is not dizzy
     var clickable;
