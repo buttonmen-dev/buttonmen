@@ -229,9 +229,31 @@ Newgame.formCreateGame = function() {
   Newgame.activity.playerButton = $('#player_button').val();
   Newgame.activity.opponentButton = $('#opponent_button').val();
 
-  var validSelect = //Newgame.activity.opponentName &&
+// james: for Jota, for an open game, you want less validation here, more like:
+// var validSelect = Newgame.activity.playerButton;
+//  if (!validSelect) {
+//    Env.message = {
+//      'type': 'error',
+//      'text':
+//        'Please select your button',
+//    };
+//    Newgame.showNewgamePage();
+//  }  else if (!(Newgame.activity.opponentName in Api.player.list) &&
+//
+// attn:Jota here, you'll need a check explicitly allowing empty opponent names
+//
+//              ) {
+//   Env.message = {
+//     'type': 'error',
+//     'text': 'Specified opponent ' + Newgame.activity.opponentName +
+//             ' is not recognized',
+//   };
+//   Newgame.showNewgamePage();
+// ...
+
+  var validSelect = Newgame.activity.opponentName &&
+                    Newgame.activity.opponentButton &&
                     Newgame.activity.playerButton;
-                    //Newgame.activity.opponentButton;
 
   if (!validSelect) {
     Env.message = {
@@ -240,13 +262,13 @@ Newgame.formCreateGame = function() {
         'Please select an opponent, your button, and your opponent\'s button',
     };
     Newgame.showNewgamePage();
-  //}  else if (!(Newgame.activity.opponentName in Api.player.list)) {
-  // Env.message = {
-  //   'type': 'error',
-  //   'text': 'Specified opponent ' + Newgame.activity.opponentName +
-  //           ' is not recognized',
-  // };
-  // Newgame.showNewgamePage();
+  }  else if (!(Newgame.activity.opponentName in Api.player.list)) {
+   Env.message = {
+     'type': 'error',
+     'text': 'Specified opponent ' + Newgame.activity.opponentName +
+             ' is not recognized',
+   };
+   Newgame.showNewgamePage();
 
   } else {
     var playerNameArray = [
