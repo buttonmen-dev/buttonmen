@@ -60,7 +60,7 @@ INSERT INTO buttonset (name) VALUES
 ('Unexploded Cow'),
 ('ZOECon'),
 
-# ButtonMen Online sets - virtual fan and vanity sets 
+# ButtonMen Online sets - virtual fan and vanity sets
 ('Iron Chef'),
 ('7 deadly sins'),
 ('Chicago Crew'),
@@ -601,12 +601,12 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # UNEXPLODED COW (Cheapass Games)   INTRODUCES Boom(b) Dice AND Mad Swing(&) Dice
 # ASSUMED ALL TO BE TL
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('George',     '(4) (6) b(6) b(20) (&)',       0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Violette',   '(8) (8)  b(10) b(12) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Elsie',      '(4) b(4) (10) b(12) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Kasper',     '(6) b(8) (12) b(20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Montague',   'b(4) b(10) (12) (20) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Neville',    ' b(4) (8) b(8) (20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('George',     '(4) (6) b(6) b(20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Violette',   '(8) (8) b(10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Elsie',      '(4) b(4) (10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Kasper',     '(6) b(8) (12) b(20) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Montague',   'b(4) b(10) (12) (20) &(Y)',    0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Neville',    'b(4) (8) b(8) (20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Thaddeus',   '(10) (14) (14) (18) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Buckley',    '(4) (4) (18) (X) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow"));
 
