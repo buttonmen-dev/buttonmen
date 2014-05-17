@@ -133,11 +133,11 @@ class BMGame {
         for ($playerIdx = 0;
              $playerIdx <= $nPlayers - 1;
              $playerIdx++) {
-                 if (!isset($this->playerIdArray[$playerIdx])) {
-                     $this->waitingOnActionArray[$playerIdx] = TRUE;
-                     $allPlayersSet = FALSE;
-                     $this->activate_GUI('Prompt for player ID', $playerIdx);
-                 }
+            if (!isset($this->playerIdArray[$playerIdx])) {
+                $this->waitingOnActionArray[$playerIdx] = TRUE;
+                $allPlayersSet = FALSE;
+                $this->activate_GUI('Prompt for player ID', $playerIdx);
+            }
         }
 
         if (!$allPlayersSet) {
