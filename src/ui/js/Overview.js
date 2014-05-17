@@ -135,8 +135,8 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
     headerRow.append($('<th>', {'text': 'Your Button', }));
-    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', }));
@@ -199,11 +199,11 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       'style': 'background-color: ' + playerColor,
     }));
     gameRow.append($('<td>', {
-      'text': gameInfo.opponentName,
+      'text': gameInfo.opponentButtonName,
       'style': 'background-color: ' + opponentColor,
     }));
     gameRow.append($('<td>', {
-      'text': gameInfo.opponentButtonName,
+      'text': gameInfo.opponentName,
       'style': 'background-color: ' + opponentColor,
     }));
 
@@ -219,7 +219,21 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
               gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
       'style': 'background-color: ' + wldColor,
     }));
-    gameRow.append($('<td>', {'text': gameInfo.inactivity, }));
+
+    var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
+    if (gameType == 'awaitingPlayer') {
+      inactivityTd.css('background-color', playerColor);
+    } else if (gameType == 'awaitingOpponent') {
+      inactivityTd.css('background-color', opponentColor);
+    } else if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
+      inactivityTd.css('background-color', playerColor);
+    } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
+      inactivityTd.css('background-color', opponentColor);
+    } else {
+      inactivityTd.css('background-color', '#ffffff');
+    }
+    gameRow.append(inactivityTd);
+
     i += 1;
     tableBody.append(gameRow);
   }
