@@ -103,9 +103,10 @@ class ApiResponder {
     }
 
     protected function get_interface_response_selectButton($interface, $args) {
-        return $interface->select_button($_SESSION['user_id'],
-                                         $args['gameId'],
-                                         $args['buttonName']);
+        return $interface->select_button(
+            $_SESSION['user_id'],
+            $args['gameId'],
+            $args['buttonName']);
     }
 
     protected function get_interface_response_loadActiveGames($interface) {
