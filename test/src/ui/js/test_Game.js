@@ -2,6 +2,8 @@ module("Game", {
   'setup': function() {
     BMTestUtils.GamePre = BMTestUtils.getAllElements();
 
+    BMTestUtils.setupFakeLogin();
+
     // Override Env.getParameterByName to set the game
     BMTestUtils.overrideGetParameterByName();
 
@@ -16,6 +18,10 @@ module("Game", {
   'teardown': function() {
 
     // Delete all elements we expect this module to create
+
+    // Revert cookies
+    Env.setCookieNoImages(false);
+    Env.setCookieCompactMode(false);
 
     // JavaScript variables
     delete Api.game;
@@ -32,6 +38,7 @@ module("Game", {
     $('#game_page').empty();
 
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.cleanupFakeLogin();
 
     // Fail if any other elements were added or removed
     BMTestUtils.GamePost = BMTestUtils.getAllElements();
@@ -197,6 +204,22 @@ asyncTest("test_Game.showStatePage_turn_active", function() {
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
+    ok(!Game.page.is('.compactMode'),
+      "The created page should be in normal mode")
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_turn_active_compactMode", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Env.setCookieCompactMode(true);
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    ok(Game.page.is('.compactMode'),
+      "The created page should be in compact mode")
     start();
   });
 });
@@ -1043,6 +1066,19 @@ asyncTest("test_Game.buttonImageDisplay", function() {
     var htmlout = Game.page.html();
     ok(htmlout.match('avis.png'),
        "page should include a link to the button image");
+    start();
+  });
+});
+
+asyncTest("test_Game.buttonImageDisplay_noImage", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Env.setCookieNoImages(true);
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.buttonImageDisplay('player'));
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('avis.png'),
+       "page should not include a link to the button image");
     start();
   });
 });
