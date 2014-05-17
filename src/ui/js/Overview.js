@@ -170,23 +170,18 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'View Game ' + gameInfo.gameId,}));
     } else {
+      gameLinkTd = $('<td>');
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: ' + playerColor, });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'WON Game ' + gameInfo.gameId,
         }));
       } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: ' + opponentColor, });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'LOST Game ' + gameInfo.gameId,
         }));
       } else {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: #ffffff', });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'TIED Game ' + gameInfo.gameId,
@@ -196,11 +191,9 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gameRow.append(gameLinkTd);
     gameRow.append($('<td>', {
       'text': gameInfo.playerButtonName,
-      'style': 'background-color: ' + playerColor,
     }));
     gameRow.append($('<td>', {
       'text': gameInfo.opponentButtonName,
-      'style': 'background-color: ' + opponentColor,
     }));
     gameRow.append($('<td>', {
       'text': gameInfo.opponentName,
@@ -221,17 +214,6 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     }));
 
     var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
-    if (gameType == 'awaitingPlayer') {
-      inactivityTd.css('background-color', playerColor);
-    } else if (gameType == 'awaitingOpponent') {
-      inactivityTd.css('background-color', opponentColor);
-    } else if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-      inactivityTd.css('background-color', playerColor);
-    } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-      inactivityTd.css('background-color', opponentColor);
-    } else {
-      inactivityTd.css('background-color', '#ffffff');
-    }
     gameRow.append(inactivityTd);
 
     i += 1;
