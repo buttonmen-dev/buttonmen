@@ -1565,23 +1565,42 @@ class BMInterface {
         }
     }
 
-    public function join_open_game($gameId) {
+    public function join_open_game($currentPlayerId, $gameId) {
         try {
             $game = $this->load_game($gameId);
 
             // check that there are still unspecified players and
             // that the player is not already part of the game
-            $hasUnspecifiedPlayer = FALSE;
+            $emptyPlayerIdx = NULL;
             $isPlayerPartOfGame = FALSE;
 
-            foreach ($game->playerIdArray as $playerId) {
-                if (is_null($playerId)) {
-                    $hasUnspecifiedPlayer = TRUE;
-                } elseif ($_SESSION[] == $playerId) {
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                if (is_null($playerId) && is_null($emptyPlayerIdx)) {
+                    $emptyPlayerIdx = $playerIdx;
+                } elseif ($currentPlayerId == $playerId) {
                     $isPlayerPartOfGame = TRUE;
+                    break;
                 }
             }
 
+            if ($isPlayerPartOfGame) {
+                $this->message = 'You are already playing in this game.';
+                return;
+            }
+
+            if (is_null($emptyPlayerIdx)) {
+                $this->message = 'No empty player slots in game '.$gameId.'.';
+                return;
+            }
+
+            $query = 'UPDATE game_player_map SET player_id = :player_id '.
+                     'WHERE game_id = :game_id '.
+                     'AND position = :position';
+            $statement = self::$conn->prepare($query);
+
+            $statement->execute(array(':game_id'   => $gameId,
+                                      ':player_id' => $currentPlayerId,
+                                      ':position'  => $emptyPlayerIdx));
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::join_open_game: ".
