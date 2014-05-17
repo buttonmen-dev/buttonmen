@@ -411,6 +411,8 @@ var Api = (function () {
         my.game.gameData.data.capturedSidesArrayArray[playerIdx],
       'capturedRecipeArray':
         my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+      'capturedDiePropertiesArray':
+        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
 
       'swingRequestArray': {},
       'optRequestArray':
