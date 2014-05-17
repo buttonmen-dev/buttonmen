@@ -262,14 +262,13 @@ Newgame.formCreateGame = function() {
         'Please select an opponent, your button, and your opponent\'s button',
     };
     Newgame.showNewgamePage();
-  }  else if (!(Newgame.activity.opponentName in Api.player.list)) {
-   Env.message = {
-     'type': 'error',
-     'text': 'Specified opponent ' + Newgame.activity.opponentName +
-             ' is not recognized',
-   };
-   Newgame.showNewgamePage();
-
+  } else if (!(Newgame.activity.opponentName in Api.player.list)) {
+    Env.message = {
+      'type': 'error',
+      'text': 'Specified opponent ' + Newgame.activity.opponentName +
+              ' is not recognized',
+    };
+    Newgame.showNewgamePage();
   } else {
     var playerNameArray = [
       Login.player,
