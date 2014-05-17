@@ -39,6 +39,21 @@ div.battle_mat_opponent_overlay {
     padding: 5px 20px;
 }
 
+.compactMode td.button_opponent,
+.compactMode td.button_player {
+  display: none;
+}
+
+.compactMode div.battle_mat_player,
+.compactMode div.battle_mat_player_overlay {
+  border-radius: 30px 30px 0px 0px;
+}
+
+.compactMode div.battle_mat_opponent,
+.compactMode div.battle_mat_opponent_overlay {
+  border-radius: 0px 0px 30px 30px;
+}
+
 table {
     table-layout: auto;
     border: thin;
@@ -154,13 +169,13 @@ select.center {
     font-size: 150%;
 }
 
-.die_border {
+.die_container {
     background-size: 50px 50px;
-    width: 50px;
-    height: 50px;
+    min-width: 50px;
     display: inline-block;
     color: blue;
     margin: 4px;
+    cursor: default;
 }
 
 .die_img {
@@ -170,13 +185,31 @@ select.center {
     height: 49px;
     width: 49px;
     background-size: 100%;
-    cursor: default;
+    margin: auto;
 }
 
 .die_greyed {
     background-color: #cccccc;
     border-radius: 50%;
     color:darkslateblue;
+}
+
+.die_dead .die_img {
+    background-color: black;
+    border-radius: 50%;
+}
+
+.die_dead .die_overlay {
+    color: white;
+}
+
+.die_dead span {
+    text-decoration: line-through;
+}
+
+/* This matches any .die_dead element that immediately follows a .die_alive */
+.die_alive + .die_dead {
+    margin-left: 40px;
 }
 
 .recipe_greyed {
@@ -205,14 +238,12 @@ select.center {
 
 .die_recipe_player {
     position: relative;
-    top: -48px;
     color: black;
     white-space: nowrap;
 }
 
 .die_recipe_opponent {
     position: relative;
-    top: 25px;
     color: black;
     white-space: nowrap;
 }
@@ -225,7 +256,12 @@ select.center {
 
 /* border to indicate dice selected in attacks */
 
-.selected {
+.die_border {
+    width: 50px;
+    margin: auto;
+}
+
+.selected .die_border {
     border: 2px solid red;
 }
 

@@ -1,8 +1,13 @@
 // namespace for this "module"
 var Loader = {};
 
-// These three scripts are loaded by every page, so we have them here by default
-Loader.defaultScripts = [ 'js/Env.js', 'js/Api.js', 'js/Login.js', ];
+// These scripts are loaded by every page, so we have them here by default
+Loader.defaultScripts = [
+  'js/extern/jquery.cookie.js',
+  'js/Env.js',
+  'js/Api.js',
+  'js/Login.js',
+];
 
 Loader.loadScripts = function(scripts, callback) {
   // The function to be called when all the scripts have been loaded.
