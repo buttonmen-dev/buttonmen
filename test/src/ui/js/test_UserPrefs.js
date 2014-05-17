@@ -101,3 +101,20 @@ asyncTest("test_UserPrefs.formSetPrefs", function() {
     start();
   });
 });
+
+test("test_UserPrefs.appendPreferencesTable", function() {
+  var container = $('<div>');
+  var prefs = {
+    'testing' : {
+      'text': 'Testing',
+      'type': 'checkbox',
+      'checked': true,
+    },
+  };
+
+  UserPrefs.appendPreferencesTable(container, 'Test Preferences', 'test',
+    prefs);
+  var checkbox = container.find('input#userprefs_testing');
+  
+  ok(checkbox.val(), 'User preference control created and populated');
+});

@@ -730,7 +730,7 @@ Game.actionReactToInitiativeNonplayer = function() {
 
 Game.actionPlayTurnActive = function() {
   Game.page = $('<div>');
-  if (Env.compactMode()) {
+  if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
   }
   Game.pageAddGameHeader('Your turn to attack');
@@ -799,7 +799,7 @@ Game.actionPlayTurnActive = function() {
 
 Game.actionPlayTurnInactive = function() {
   Game.page = $('<div>');
-  if (Env.compactMode()) {
+  if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
   }
   Game.pageAddGameHeader('Opponent\'s turn to attack');
@@ -833,7 +833,7 @@ Game.actionPlayTurnInactive = function() {
 
 Game.actionPlayTurnNonplayer = function() {
   Game.page = $('<div>');
-  if (Env.compactMode()) {
+  if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
   }
 
@@ -1693,7 +1693,7 @@ Game.buttonImageDisplay = function(player) {
   if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
-  if (Env.noImages() || Env.compactMode()) {
+  if (Env.getCookieNoImages() || Env.getCookieCompactMode()) {
     buttonTd.append($('<div>', { 'style': 'height: 150px; width: 150px;', }));
   } else {
     buttonTd.append($('<img>', {

@@ -92,50 +92,36 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.form = null;
 
   var prefsdiv = $('<div>');
-  prefsdiv.append($('<div>', {
-    'class': 'title2',
-    'text': 'Change player details'
-  }));
   var prefsform = $('<form>', {
     'id': 'userprefs_action_form',
     'action': 'javascript:void(0);'
   });
 
-  // Table of user preferences
-  var prefstable = $('<table>', {'id': 'userprefs_set_table' });
-
-  var entries = {
+  var gameplayPrefs = {
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
     },
+  };
+
+  var browserPrefs = {
     'noImages': {
       'text': 'Don\'t load button images*',
       'type': 'checkbox',
-      'checked': Env.noImages(),
+      'checked': Env.getCookieNoImages(),
     },
     'compactMode': {
       'text': 'Use compact version of game interface*',
       'type': 'checkbox',
-      'checked': Env.compactMode(),
+      'checked': Env.getCookieCompactMode(),
     }
   };
 
-  $.each(entries, function(entrykey, entryinfo) {
-    var entryrow = $('<tr>');
-    entryrow.append($('<td>', { 'text': entryinfo.text + ':' }));
-    var entryinput = $('<td>');
-    entryinput.append($('<input>', {
-      'type': entryinfo.type,
-      'name': entrykey,
-      'id': 'userprefs_' + entrykey,
-      'checked': entryinfo.checked,
-    }));
-    entryrow.append(entryinput);
-    prefstable.append(entryrow);
-  });
-  prefsform.append(prefstable);
+  UserPrefs.appendPreferencesTable(prefsdiv, 'Gameplay Preferences', 'gameplay',
+    gameplayPrefs);
+  UserPrefs.appendPreferencesTable(prefsdiv, 'Browser Preferences', 'browser',
+    browserPrefs);
 
   // Form submission button
   prefsform.append($('<br>'));
@@ -144,11 +130,6 @@ UserPrefs.actionSetPrefs = function() {
     'text': 'Save preferences'
   }));
   prefsdiv.append(prefsform);
-
-  prefsdiv.append($('<p>', {
-    text: '* Preferences marked with an asterisk will only apply to the ' +
-      'browser you\'re currently using.',
-  }));
 
   UserPrefs.page.append(prefsdiv);
 
@@ -167,8 +148,8 @@ UserPrefs.formSetPrefs = function() {
   var noImages = $('#userprefs_noImages').prop('checked');
   var compactMode = $('#userprefs_compactMode').prop('checked');
 
-  Env.noImages(noImages);
-  Env.compactMode(compactMode);
+  Env.setCookieNoImages(noImages);
+  Env.setCookieCompactMode(compactMode);
 
   Api.apiFormPost(
     { type: 'savePlayerInfo', autopass: autopass },
@@ -180,3 +161,33 @@ UserPrefs.formSetPrefs = function() {
     UserPrefs.showUserPrefsPage
   );
 };
+
+////////////////////////////////////////////////////////////////////////
+// Utilty functions for building page elements
+
+UserPrefs.appendPreferencesTable = function(container, sectionTitle, sectionId,
+  prefs) {
+  container.append($('<div>', {
+    'class': 'title2',
+    'text': sectionTitle
+  }));
+  var prefsTable = $('<table>', {'id': sectionId + '_set_table' });
+
+  $.each(prefs, function(entrykey, entryinfo) {
+    var entryrow = $('<tr>');
+    entryrow.append($('<td>', { 'text': entryinfo.text + ':' }));
+    var entryinput = $('<td>');
+    entryinput.append($('<input>', {
+      'type': entryinfo.type,
+      'name': entrykey,
+      'id': 'userprefs_' + entrykey,
+      'checked': entryinfo.checked,
+    }));
+    entryrow.append(entryinput);
+    prefsTable.append(entryrow);
+  });
+  container.append(prefsTable);
+
+  container.append($('<br>'));
+};
+

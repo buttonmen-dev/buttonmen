@@ -2,6 +2,8 @@ module("Game", {
   'setup': function() {
     BMTestUtils.GamePre = BMTestUtils.getAllElements();
 
+    BMTestUtils.setupFakeLogin();
+
     // Override Env.getParameterByName to set the game
     BMTestUtils.overrideGetParameterByName();
 
@@ -12,17 +14,14 @@ module("Game", {
 
     // set colors for use in game, since tests don't always traverse showStatePage()
     Game.color = Game.COLORS.players;
-
-    // Define the player's name, since we won't actually be loggin in
-    Login.player = 'test';
   },
   'teardown': function() {
 
     // Delete all elements we expect this module to create
 
     // Revert cookies
-    Env.noImages(false);
-    Env.compactMode(false);
+    Env.setCookieNoImages(false);
+    Env.setCookieCompactMode(false);
 
     // JavaScript variables
     delete Api.game;
@@ -30,7 +29,6 @@ module("Game", {
     delete Game.page;
     delete Game.form;
     delete Game.color;
-    delete Login.player;
     Game.activity = {};
 
     // Page elements
@@ -40,6 +38,7 @@ module("Game", {
     $('#game_page').empty();
 
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.cleanupFakeLogin();
 
     // Fail if any other elements were added or removed
     BMTestUtils.GamePost = BMTestUtils.getAllElements();
@@ -213,7 +212,7 @@ asyncTest("test_Game.showStatePage_turn_active", function() {
 
 asyncTest("test_Game.showStatePage_turn_active_compactMode", function() {
   BMTestUtils.GameType = 'turn_active';
-  Env.compactMode(true);
+  Env.setCookieCompactMode(true);
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -1073,7 +1072,7 @@ asyncTest("test_Game.buttonImageDisplay", function() {
 
 asyncTest("test_Game.buttonImageDisplay_noImage", function() {
   BMTestUtils.GameType = 'turn_active';
-  Env.noImages(true);
+  Env.setCookieNoImages(true);
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.buttonImageDisplay('player'));

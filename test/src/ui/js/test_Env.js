@@ -1,11 +1,14 @@
 module("Env", {
   'setup': function() {
     BMTestUtils.EnvPre = BMTestUtils.getAllElements();
-  },
+
+    BMTestUtils.setupFakeLogin();
+},
   'teardown': function() {
 
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.cleanupFakeLogin();
 
     // Fail if any other elements were added or removed
     BMTestUtils.EnvPost = BMTestUtils.getAllElements();
@@ -109,22 +112,26 @@ test("test_Env.padLeft", function() {
   equal(results, expectedOutput, 'padLeft added padding');
 });
 
-test("test_Env.noImages", function() {
+test("test_Env.setCookieNoImages", function() {
   var value = false;
-  Env.noImages(value);
-  equal(Env.noImages(), value, 'noImage is false');
+  Env.setCookieNoImages(value);
+  equal(Env.getCookieNoImages(), value, 'noImage is false');
+  });
 
+test("test_Env.getCookieNoImages", function() {
   value = true;
-  Env.noImages(value);
-  equal(Env.noImages(), value, 'noImage is true');
+  Env.setCookieNoImages(value);
+  equal(Env.getCookieNoImages(), value, 'noImage is true');
 });
 
-test("test_Env.compactMode", function() {
+test("test_Env.setCookieCompactMode", function() {
   var value = false;
-  Env.compactMode(value);
-  equal(Env.compactMode(), value, 'compactMode is false');
+  Env.setCookieCompactMode(value);
+  equal(Env.getCookieCompactMode(), value, 'compactMode is false');
+  });
 
+test("test_Env.getCookieCompactMode", function() {
   value = true;
-  Env.compactMode(value);
-  equal(Env.compactMode(), value, 'compactMode is true');
+  Env.setCookieCompactMode(value);
+  equal(Env.getCookieCompactMode(), value, 'compactMode is true');
 });
