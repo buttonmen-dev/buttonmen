@@ -1565,6 +1565,32 @@ class BMInterface {
         }
     }
 
+    public function join_open_game($gameId) {
+        try {
+            $game = $this->load_game($gameId);
+
+            // check that there are still unspecified players and
+            // that the player is not already part of the game
+            $hasUnspecifiedPlayer = FALSE;
+            $isPlayerPartOfGame = FALSE;
+
+            foreach ($game->playerIdArray as $playerId) {
+                if (is_null($playerId)) {
+                    $hasUnspecifiedPlayer = TRUE;
+                } elseif ($_SESSION[] == $playerId) {
+                    $isPlayerPartOfGame = TRUE;
+                }
+            }
+
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::join_open_game: ".
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while joining open game';
+        }
+    }
+
     public function submit_die_values(
         $playerId,
         $gameId,
@@ -1799,7 +1825,6 @@ class BMInterface {
             $this->message = 'Internal error while setting option values';
         }
     }
-
 
     public function submit_turn(
         $playerId,
