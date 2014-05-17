@@ -107,21 +107,25 @@ UserPrefs.actionSetPrefs = function() {
 
   var browserPrefs = {
     'noImages': {
-      'text': 'Don\'t load button images*',
+      'text': 'Don\'t load button images',
       'type': 'checkbox',
       'checked': Env.getCookieNoImages(),
     },
     'compactMode': {
-      'text': 'Use compact version of game interface*',
+      'text': 'Use compact version of game interface',
       'type': 'checkbox',
       'checked': Env.getCookieCompactMode(),
     }
   };
 
-  UserPrefs.appendPreferencesTable(prefsdiv, 'Gameplay Preferences', 'gameplay',
-    gameplayPrefs);
-  UserPrefs.appendPreferencesTable(prefsdiv, 'Browser Preferences', 'browser',
-    browserPrefs);
+  var gameplayBlurb = 'These preferences affect the actions you take during ' +
+    'the game.';
+  UserPrefs.appendPreferencesTable(prefsdiv, 'Gameplay Preferences',
+    gameplayBlurb, 'gameplay', gameplayPrefs);
+  var browserBlurb = 'These preferences will only apply to the browser ' +
+    'you\'re currently using.';
+  UserPrefs.appendPreferencesTable(prefsdiv, 'Browser Preferences',
+    browserBlurb, 'browser', browserPrefs);
 
   // Form submission button
   prefsform.append($('<br>'));
@@ -165,12 +169,19 @@ UserPrefs.formSetPrefs = function() {
 ////////////////////////////////////////////////////////////////////////
 // Utilty functions for building page elements
 
-UserPrefs.appendPreferencesTable = function(container, sectionTitle, sectionId,
-  prefs) {
+UserPrefs.appendPreferencesTable = function(container, sectionTitle,
+  sectionBlurb, sectionId, prefs) {
   container.append($('<div>', {
     'class': 'title2',
     'text': sectionTitle
   }));
+  if (sectionBlurb !== null) {
+    container.append($('<div>', {
+      'html': sectionBlurb,
+      'style': 'font-style: italic;',
+    }));
+  }
+
   var prefsTable = $('<table>', {'id': sectionId + '_set_table' });
 
   $.each(prefs, function(entrykey, entryinfo) {

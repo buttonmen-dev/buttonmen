@@ -113,8 +113,8 @@ test("test_UserPrefs.appendPreferencesTable", function() {
   };
 
   UserPrefs.appendPreferencesTable(container, 'Test Preferences', 'test',
-    prefs);
+    'These are not real. There is no spoon.', prefs);
   var checkbox = container.find('input#userprefs_testing');
-  
+
   ok(checkbox.val(), 'User preference control created and populated');
 });
