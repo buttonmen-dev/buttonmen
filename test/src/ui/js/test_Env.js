@@ -1,11 +1,14 @@
 module("Env", {
   'setup': function() {
     BMTestUtils.EnvPre = BMTestUtils.getAllElements();
-  },
+
+    BMTestUtils.setupFakeLogin();
+},
   'teardown': function() {
 
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.cleanupFakeLogin();
 
     delete Env.window.location.search;
     delete Env.window.location.hash;
@@ -123,3 +126,26 @@ test("test_Env.parseDateTime", function() {
   equal(results, expectedOutput, 'parseDateTime returned correct timestamp');
 });
 
+test("test_Env.setCookieNoImages", function() {
+  var value = false;
+  Env.setCookieNoImages(value);
+  equal(Env.getCookieNoImages(), value, 'noImage is false');
+  });
+
+test("test_Env.getCookieNoImages", function() {
+  value = true;
+  Env.setCookieNoImages(value);
+  equal(Env.getCookieNoImages(), value, 'noImage is true');
+});
+
+test("test_Env.setCookieCompactMode", function() {
+  var value = false;
+  Env.setCookieCompactMode(value);
+  equal(Env.getCookieCompactMode(), value, 'compactMode is false');
+  });
+
+test("test_Env.getCookieCompactMode", function() {
+  value = true;
+  Env.setCookieCompactMode(value);
+  equal(Env.getCookieCompactMode(), value, 'compactMode is true');
+});

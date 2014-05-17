@@ -159,3 +159,21 @@ Env.parseDateTime = function(input, format, strict) {
 
   return datetime.unix();
 };
+
+Env.setCookieNoImages = function(value) {
+  // Set the cookie to expire ten years from now (expect bug reports in 2024)
+  $.cookie(Login.player + '_noImages', value, { expires: 3650, });
+};
+Env.getCookieNoImages = function() {
+  // Cookies are stored as strings, but we want to return a bool
+  return ($.cookie(Login.player + '_noImages') == 'true');
+};
+
+Env.setCookieCompactMode = function(value) {
+  // Set the cookie to expire ten years from now (expect bug reports in 2024)
+  $.cookie(Login.player + '_compactMode', value, { expires: 3650, });
+};
+Env.getCookieCompactMode = function() {
+  // Cookies are stored as strings, but we want to return a bool
+  return ($.cookie(Login.player + '_compactMode') == 'true');
+};

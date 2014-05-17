@@ -871,6 +871,8 @@ class DummyApiResponder {
                                                          array(12, 10, 4));
             $gameData['capturedRecipeArrayArray'] = array(array("(10)", "(X)"),
                                                           array("(12)", "(10)", "(4)"));
+            $gameData['capturedDiePropsArrayArray'] = array(array(array(), array()),
+                                                            array(array(), array(), array("WasJustCaptured" => TRUE)));
             $gameData['validAttackTypeArray'] = array("Power" => "Power", "Skill" => "Skill", );
             $gameData['roundScoreArray'] = array(18, 36);
             $gameData['sideScoreArray'] = array(-12, 12);
