@@ -34,6 +34,7 @@ BMTestUtils.getAllElements = function() {
     'Api':      JSON.stringify(Api, null, "  "),
     'Env':      JSON.stringify(Env, null, "  "),
     'Game':     JSON.stringify(Game, null, "  "),
+    'History':  JSON.stringify(History, null, "  "),
     'Login':    JSON.stringify(Login, null, "  "),
     'Newgame':  JSON.stringify(Newgame, null, "  "),
     'Newuser':  JSON.stringify(Newuser, null, "  "),

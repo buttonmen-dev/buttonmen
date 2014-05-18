@@ -22,6 +22,12 @@ module("History", {
     delete Api.player;
     delete Api.button;
     delete History.searchParameters;
+    delete History.page;
+
+    History.searchParameterInfo.playerNameA.source = { };
+    History.searchParameterInfo.buttonNameA.source = { };
+    History.searchParameterInfo.buttonNameB.source = { };
+    History.searchParameterInfo.playerNameB.source = { };
 
     // Page elements
     $('#history_page').remove();
