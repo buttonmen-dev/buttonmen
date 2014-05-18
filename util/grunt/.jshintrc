@@ -18,7 +18,8 @@
     "Api": true,
     "Env": true,
     "Login": true,
-    "moment": true
+    "moment": true,
+    "Config": true
   },
 
   "es5": true,

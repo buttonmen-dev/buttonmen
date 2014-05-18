@@ -145,8 +145,8 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
     headerRow.append($('<th>', {'text': 'Your Button', }));
-    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', }));
@@ -180,23 +180,18 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'View Game ' + gameInfo.gameId,}));
     } else {
+      gameLinkTd = $('<td>');
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: ' + playerColor, });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'WON Game ' + gameInfo.gameId,
         }));
       } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: ' + opponentColor, });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'LOST Game ' + gameInfo.gameId,
         }));
       } else {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: #ffffff', });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'TIED Game ' + gameInfo.gameId,
@@ -206,14 +201,12 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gameRow.append(gameLinkTd);
     gameRow.append($('<td>', {
       'text': gameInfo.playerButtonName,
-      'style': 'background-color: ' + playerColor,
-    }));
-    gameRow.append($('<td>', {
-      'text': gameInfo.opponentName,
-      'style': 'background-color: ' + opponentColor,
     }));
     gameRow.append($('<td>', {
       'text': gameInfo.opponentButtonName,
+    }));
+    gameRow.append($('<td>', {
+      'text': gameInfo.opponentName,
       'style': 'background-color: ' + opponentColor,
     }));
 
@@ -229,7 +222,10 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
               gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
       'style': 'background-color: ' + wldColor,
     }));
-    gameRow.append($('<td>', {'text': gameInfo.inactivity, }));
+
+    var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
+    gameRow.append(inactivityTd);
+
     i += 1;
     tableBody.append(gameRow);
   }
@@ -238,38 +234,80 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 Overview.pageAddIntroText = function() {
   Overview.page.append($('<h1>', {'text': 'Welcome to Button Men!', }));
 
-  var infopar = $('<p>');
-  infopar.append(
-    'This is the alpha version of the Buttonweavers implementation of ');
-  infopar.append($('<a>', {
-    'href': 'http://www.cheapass.com/node/39',
-    'text': 'Button Men',
-  }));
-  infopar.append('.');
-  Overview.page.append(infopar);
+  var infopar;
+  if (Config.siteType == 'development') {
+    infopar = $('<p>');
+    infopar.append(
+      'This is the <span style="color: red;">DEVELOPMENT</span> version of ' +
+      'the Buttonweavers implementation of ');
+    infopar.append($('<a>', {
+      'href': 'http://www.cheapass.com/node/39',
+      'text': 'Button Men',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
 
-  infopar = $('<p>');
-  infopar.append(
-    'Want to start beating people up?  Login using the menubar above, or ');
-  infopar.append($('<a>', {
-    'href': '/ui/create_user.html',
-    'text': 'create an account',
-  }));
-  infopar.append('.');
-  Overview.page.append(infopar);
+    Overview.page.append($('<br />'));
 
-  infopar = $('<p>');
-  infopar.append(
-    'We wanted to make this site publically available as soon as possible, ' +
-    'so there are still a lot of bugs!  If you find anything broken or hard ' +
-    'to use, or if you have any questions, please get in touch, either by ' +
-    'opening a ticket at ');
-  infopar.append($('<a>', {
-    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
-    'text': 'the buttonweavers issue tracker',
-  }));
-  infopar.append(' or by e-mailing us at help@buttonweavers.com.');
-  Overview.page.append(infopar);
+    infopar = $('<p>');
+    infopar.append(
+      'If you\r looking for the Button Men open alpha, please head over to ');
+    infopar.append($('<a>', {
+      'href': 'http://www.buttonweavers.com',
+      'text': 'www.buttonweavers.com',
+    }));
+    infopar.append(' to start beating people up!');
+    Overview.page.append(infopar);
+
+    infopar = $('<p>');
+    infopar.append(
+      'If you\'re interested in joining the development site as a tester, ' +
+      'then check out our ');
+    infopar.append($('<a>', {
+      'href': 'https://github.com/buttonmen-dev/buttonmen/wiki/Tester-guide',
+      'text': 'tester guide',
+    }));
+    infopar.append(', then Login using the menubar above, or ');
+    infopar.append($('<a>', {
+      'href': '/ui/create_user.html',
+      'text': 'create an account',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
+  } else {
+    infopar = $('<p>');
+    infopar.append(
+      'This is the alpha version of the Buttonweavers implementation of ');
+    infopar.append($('<a>', {
+      'href': 'http://www.cheapass.com/node/39',
+      'text': 'Button Men',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
+
+    infopar = $('<p>');
+    infopar.append(
+      'Want to start beating people up?  Login using the menubar above, or ');
+    infopar.append($('<a>', {
+      'href': '/ui/create_user.html',
+      'text': 'create an account',
+    }));
+    infopar.append('.');
+    Overview.page.append(infopar);
+
+    infopar = $('<p>');
+    infopar.append(
+      'We wanted to make this site publically available as soon as possible, ' +
+      'so there are still a lot of bugs!  If you find anything broken or ' +
+      'hard to use, or if you have any questions, please get in touch, ' +
+      'either by opening a ticket at ');
+    infopar.append($('<a>', {
+      'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
+      'text': 'the buttonweavers issue tracker',
+    }));
+    infopar.append(' or by e-mailing us at help@buttonweavers.com.');
+    Overview.page.append(infopar);
+  }
 
   infopar = $('<p>');
   infopar.append(
