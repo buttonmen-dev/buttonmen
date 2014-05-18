@@ -135,8 +135,8 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     var headerRow = $('<tr>');
     headerRow.append($('<th>', {'text': 'Game #', }));
     headerRow.append($('<th>', {'text': 'Your Button', }));
-    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Opponent\'s Button', }));
+    headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
     if (gameType == 'finished') {
       headerRow.append($('<th>', {'text': 'Completed', }));
@@ -170,23 +170,18 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       gameLinkTd.append($('<a>', {'href': 'game.html?game=' + gameInfo.gameId,
                                   'text': 'View Game ' + gameInfo.gameId,}));
     } else {
+      gameLinkTd = $('<td>');
       if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: ' + playerColor, });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'WON Game ' + gameInfo.gameId,
         }));
       } else if (gameInfo.gameScoreDict.W < gameInfo.gameScoreDict.L) {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: ' + opponentColor, });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'LOST Game ' + gameInfo.gameId,
         }));
       } else {
-        gameLinkTd =
-          $('<td>', { 'style': 'background-color: #ffffff', });
         gameLinkTd.append($('<a>', {
           'href': 'game.html?game=' + gameInfo.gameId,
           'text': 'TIED Game ' + gameInfo.gameId,
@@ -196,14 +191,12 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     gameRow.append(gameLinkTd);
     gameRow.append($('<td>', {
       'text': gameInfo.playerButtonName,
-      'style': 'background-color: ' + playerColor,
-    }));
-    gameRow.append($('<td>', {
-      'text': gameInfo.opponentName,
-      'style': 'background-color: ' + opponentColor,
     }));
     gameRow.append($('<td>', {
       'text': gameInfo.opponentButtonName,
+    }));
+    gameRow.append($('<td>', {
+      'text': gameInfo.opponentName,
       'style': 'background-color: ' + opponentColor,
     }));
 
@@ -219,7 +212,10 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
               gameInfo.gameScoreDict.D + ' (' + gameInfo.maxWins + ')',
       'style': 'background-color: ' + wldColor,
     }));
-    gameRow.append($('<td>', {'text': gameInfo.inactivity, }));
+
+    var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
+    gameRow.append(inactivityTd);
+
     i += 1;
     tableBody.append(gameRow);
   }
