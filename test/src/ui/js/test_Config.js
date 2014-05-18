@@ -5,7 +5,8 @@ module("Config", {
   'teardown': function() {
 
     // Delete all elements we expect this module to create
-    delete Config.siteType;
+
+    Config.siteType = 'production';
 
     // Fail if any other elements were added or removed
     BMTestUtils.ConfigPost = BMTestUtils.getAllElements();
