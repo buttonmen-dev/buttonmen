@@ -5,6 +5,7 @@ var Loader = {};
 Loader.defaultScripts = [
   'js/extern/jquery.cookie.js',
   'js/Env.js',
+  'js/Config.js',
   'js/Api.js',
   'js/Login.js',
 ];
