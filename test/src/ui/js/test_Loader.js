@@ -12,6 +12,7 @@ module("Loader", {
 
     // JS objects
     delete Loader.callback;
+    delete Loader.loadStatus;
     delete Dummy;
 
     // Fail if any other elements were added or removed
