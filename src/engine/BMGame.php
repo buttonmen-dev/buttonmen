@@ -126,26 +126,45 @@ class BMGame {
     protected function update_game_state_start_game() {
         $this->reset_play_state();
 
-        // if buttons are unspecified, allow players to choose buttons
-        for ($playerIdx = 0, $nPlayers = count($this->playerIdArray);
+        $nPlayers = count($this->playerIdArray);
+        $allPlayersSet = TRUE;
+
+        // if player is unspecified, wait for player to accept game
+        for ($playerIdx = 0;
+             $playerIdx <= $nPlayers - 1;
+             $playerIdx++) {
+            if (!isset($this->playerIdArray[$playerIdx])) {
+                $this->waitingOnActionArray[$playerIdx] = TRUE;
+                $allPlayersSet = FALSE;
+                $this->activate_GUI('Prompt for player ID', $playerIdx);
+            }
+        }
+
+        if (!$allPlayersSet) {
+            return;
+        }
+
+        $allButtonsSet = TRUE;
+
+        // if button is unspecified, allow player to choose buttons
+        for ($playerIdx = 0;
              $playerIdx <= $nPlayers - 1;
              $playerIdx++) {
             if (!isset($this->buttonArray[$playerIdx])) {
                 $this->waitingOnActionArray[$playerIdx] = TRUE;
+                $allButtonsSet = FALSE;
                 $this->activate_GUI('Prompt for button ID', $playerIdx);
             }
         }
 
-        // require both players and buttons to be specified
-        $allButtonsSet = count($this->playerIdArray) === count($this->buttonArray);
-
-        if (!in_array(0, $this->playerIdArray) &&
-            $allButtonsSet) {
-            $this->gameState = BMGameState::APPLY_HANDICAPS;
-            $this->nRecentPasses = 0;
-            $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
-            $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
+        if (!$allButtonsSet) {
+            return;
         }
+
+        $this->gameState = BMGameState::APPLY_HANDICAPS;
+        $this->nRecentPasses = 0;
+        $this->autopassArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->gameScoreArrayArray = array_fill(0, $this->nPlayers, array(0, 0, 0));
     }
 
     protected function do_next_step_apply_handicaps() {
@@ -1473,7 +1492,7 @@ class BMGame {
     // utility methods
     public function __construct(
         $gameID = 0,
-        array $playerIdArray = array(0, 0),
+        array $playerIdArray = array(NULL, NULL),
         array $buttonRecipeArray = array('', ''),
         $maxWins = 3
     ) {
@@ -1698,7 +1717,12 @@ class BMGame {
                         'The number of players cannot be changed during a game.'
                     );
                 }
-                $this->playerIdArray = array_map('intval', $value);
+                foreach ($value as &$playerId) {
+                    if (!is_null($playerId)) {
+                        $playerId = intval($playerId);
+                    }
+                }
+                $this->playerIdArray = $value;
                 break;
             case 'activePlayerIdx':
                 // require a valid index
@@ -1740,7 +1764,8 @@ class BMGame {
                     );
                 }
                 foreach ($value as $tempValueElement) {
-                    if (!($tempValueElement instanceof BMButton)) {
+                    if (!($tempValueElement instanceof BMButton) &&
+                        !is_null($tempValueElement)) {
                         throw new InvalidArgumentException(
                             'Input must be an array of BMButtons.'
                         );
@@ -1748,22 +1773,33 @@ class BMGame {
                 }
                 $this->buttonArray = $value;
                 foreach ($this->buttonArray as $playerIdx => $button) {
-                    $button->playerIdx = $playerIdx;
-                    $button->ownerObject = $this;
+                    if ($button instanceof BMButton) {
+                        $button->playerIdx = $playerIdx;
+                        $button->ownerObject = $this;
+                    }
                 }
                 foreach ($this->buttonArray as $playerIdx => &$button) {
-                    $oppIdx = ($playerIdx + 1) % 2;
-                    $oppButton = $this->buttonArray[$oppIdx];
-                    $hookResult = $button->run_hooks(
-                        'load_buttons',
-                        array('name' => $button->name,
-                              'recipe' => $button->recipe,
-                              'oppname' => $oppButton->name,
-                              'opprecipe' => $oppButton->recipe)
-                    );
-                    if (isset($hookResult) && (FALSE !== $hookResult)) {
-                        $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
-                        $button->hasAlteredRecipe = TRUE;
+                    if ($button instanceof BMButton) {
+                        $oppIdx = ($playerIdx + 1) % 2;
+                        $oppButton = $this->buttonArray[$oppIdx];
+                        if ($oppButton instanceof BMButton) {
+                            $oppButtonName = $oppButton->name;
+                            $oppButtonRecipe = $oppButton->recipe;
+                        } else {
+                            $oppButtonName = '';
+                            $oppButtonRecipe = '';
+                        }
+                        $hookResult = $button->run_hooks(
+                            'load_buttons',
+                            array('name' => $button->name,
+                                  'recipe' => $button->recipe,
+                                  'oppname' => $oppButtonName,
+                                  'opprecipe' => $oppButtonRecipe)
+                        );
+                        if (isset($hookResult) && (FALSE !== $hookResult)) {
+                            $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
+                            $button->hasAlteredRecipe = TRUE;
+                        }
                     }
                 }
                 break;
@@ -2029,8 +2065,14 @@ class BMGame {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
         foreach ($this->buttonArray as $button) {
-            $buttonNameArray[] = $button->name;
-            $buttonRecipeArray[] = $button->recipe;
+            $buttonName = '';
+            $buttonRecipe = '';
+            if ($button instanceof BMButton) {
+                $buttonName = $button->name;
+                $buttonRecipe = $button->recipe;
+            }
+            $buttonNameArray[] = $buttonName;
+            $buttonRecipeArray[] = $buttonRecipe;
         }
 
         $swingValsSpecified = TRUE;

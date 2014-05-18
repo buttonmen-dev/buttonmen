@@ -98,6 +98,18 @@ class ApiResponder {
         return $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
     }
 
+    protected function get_interface_response_joinOpenGame($interface, $args) {
+        return $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
+    }
+
+    protected function get_interface_response_selectButton($interface, $args) {
+        return $interface->select_button(
+            $_SESSION['user_id'],
+            $args['gameId'],
+            $args['buttonName']
+        );
+    }
+
     protected function get_interface_response_loadActiveGames($interface) {
         // Once we return to the list of active games, we no longer need to remember
         // which ones we were skipping.
