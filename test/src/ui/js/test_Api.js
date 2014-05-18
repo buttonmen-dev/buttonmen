@@ -12,6 +12,7 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.siteConfig;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
