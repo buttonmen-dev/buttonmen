@@ -1027,6 +1027,67 @@ class BMInterface {
         }
     }
 
+    public function get_all_open_games($currentPlayerId) {
+        try {
+            // Get all the colors the current player has set in his or her
+            // preferences
+            $playerColors = $this->load_player_colors($currentPlayerId);
+
+            $baseQuery =
+                'SELECT ' .
+                    'g.id AS game_id, ' .
+                    'v_challenger.player_id AS challenger_id, ' .
+                    'v_challenger.player_name AS challenger_name, ' .
+                    'v_challenger.button_name AS challenger_button, ' .
+                    'v_victim.button_name AS victim_button, ' .
+                    'g.n_target_wins AS target_wins, ' .
+                'FROM game AS g ' .
+                    'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                    // For the time being, I'm assuming there are only two
+                    // players. If we later implement 3+ player games, this
+                    // will need to be updated.
+                    'INNER JOIN game_player_view AS v_challenger ' .
+                        'ON v_challenger.game_id = g.id AND v_challenger.player_id IS NOT NULL ' .
+                    'INNER JOIN game_player_view AS v_victim ' .
+                        'ON v_victim.game_id = g.id AND v_victim.player_id IS NULL ' .
+                'WHERE s.name = "OPEN";';
+
+            $statement = self::$conn->prepare();
+            $statement->execute();
+
+            $games = array();
+
+            while ($row = $statement->fetch()) {
+                $gameColors = $this->determine_game_colors(
+                    $currentPlayerId,
+                    $playerColors,
+                    (int)$row['challenger_id'],
+                    -1 // There is no other player yet
+                );
+
+                $games[] = array(
+                    'gameId' => (int)$row['game_id'],
+                    'challengerId' => (int)$row['challenger_id'],
+                    'challengerName' => $row['challenger_name'],
+                    'challengerButton' => $row['challenger_button'],
+                    'challengerColor' => $gameColors['playerA'],
+                    'victimButton' => $row['victim_button'],
+                    'targetWins' => (int)$row['target_wins'],
+                );
+            }
+
+            $this->message = 'Open games retrieved successfully.';
+            return array('games' => $games);
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_all_open_games: " .
+                $e->getMessage()
+            );
+            $this->message = 'Game detail get failed.';
+            return NULL;
+        }
+    }
+
     public function get_next_pending_game($playerId, $skippedGames) {
         try {
             $parameters = array(':player_id' => $playerId);

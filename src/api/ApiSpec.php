@@ -38,6 +38,14 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'joinOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(
+                'buttonName' => 'button',
+            ),
+        ),
         'loadActiveGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
