@@ -22,14 +22,14 @@ History.searchParameterInfo = {
     'source': { },
     'dataType': 'string',
   },
-  'playerNameB': {
-    'text': 'Player B',
+  'buttonNameB': {
+    'text': 'Button B',
     'inputType': 'select',
     'source': { },
     'dataType': 'string',
   },
-  'buttonNameB': {
-    'text': 'Button B',
+  'playerNameB': {
+    'text': 'Player B',
     'inputType': 'select',
     'source': { },
     'dataType': 'string',
@@ -581,19 +581,14 @@ History.buildResultsTableBody = function() {
     var gameRow = $('<tr>');
     body.append(gameRow);
 
-    var winnerColor;
-    if (game.roundsWonA > game.roundsWonB) {
-      winnerColor = game.colorA;
-    } else if (game.roundsWonB > game.roundsWonA) {
-      winnerColor = game.colorB;
-    } else {
-      winnerColor = '#ffffff';
-    }
-
     var $verb = 'View';
+    var $nextPlayerColor = '#ffffff';
     if (game.playerNameA == Login.player) {
       if (game.waitingOnA) {
         $verb = 'Play';
+        $nextPlayerColor = game.colorA;
+      } else if (game.waitingOnB) {
+        $nextPlayerColor = game.colorB;
       } else if (game.roundsWonA >= game.targetWins) {
         $verb = 'WON';
       } else if (game.roundsWonB >= game.targetWins) {
@@ -602,6 +597,9 @@ History.buildResultsTableBody = function() {
     } else if (game.playerNameB == Login.player) {
       if (game.waitingOnB) {
         $verb = 'Play';
+        $nextPlayerColor = game.colorB;
+      } else if (game.waitingOnA) {
+        $nextPlayerColor = game.colorA;
       } else if (game.roundsWonB >= game.targetWins) {
         $verb = 'WON';
       } else if (game.roundsWonA >= game.targetWins) {
@@ -610,7 +608,7 @@ History.buildResultsTableBody = function() {
     }
 
     var idTd = $('<td>', {
-      'style': 'background-color: ' + winnerColor + ';',
+      'style': 'background-color: ' + $nextPlayerColor + ';',
     });
     idTd.append($('<a>', {
       'href': 'game.html?game=' + game.gameId,
@@ -624,14 +622,12 @@ History.buildResultsTableBody = function() {
     }));
     gameRow.append($('<td>', {
       'text': game.buttonNameA,
-      'style': 'background-color: ' + game.colorA + ';',
-    }));
-    gameRow.append($('<td>', {
-      'text': game.playerNameB,
-      'style': 'background-color: ' + game.colorB + ';',
     }));
     gameRow.append($('<td>', {
       'text': game.buttonNameB,
+    }));
+    gameRow.append($('<td>', {
+      'text': game.playerNameB,
       'style': 'background-color: ' + game.colorB + ';',
     }));
     // Reinstate this once g.creation_time exists
@@ -645,24 +641,31 @@ History.buildResultsTableBody = function() {
     var score = game.roundsWonA + '/' + game.roundsWonB + '/' +
       game.roundsDrawn + ' (' + game.targetWins + ')';
 
+    var winnerColor;
+    if (game.roundsWonA > game.roundsWonB) {
+      winnerColor = game.colorA;
+    } else if (game.roundsWonB > game.roundsWonA) {
+      winnerColor = game.colorB;
+    } else {
+      winnerColor = '#ffffff';
+    }
+
     gameRow.append($('<td>', {
       'text': score,
       'style': 'background-color: ' + winnerColor + ';',
     }));
 
-    var status;
-    var statusColor;
     if (game.status == 'COMPLETE') {
-      status = 'Complete';
-      statusColor = winnerColor;
+      gameRow.append($('<td>', {
+        'text': 'Completed',
+        'style': 'font-weight: bold;'
+      }));
     } else {
-      status = 'In Progress';
-      statusColor = '#ffffff';
+      gameRow.append($('<td>', {
+        'text': 'In Progress',
+        'style': 'font-style: italic;'
+      }));
     }
-    gameRow.append($('<td>', {
-      'text': status,
-      'style': 'font-style: italic; background-color: ' + statusColor + ';'
-    }));
   });
 
   return body;

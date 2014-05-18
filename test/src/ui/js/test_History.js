@@ -228,7 +228,7 @@ asyncTest("test_History.buildResultsTableBody", function() {
   History.getHistory(function() {
     var tbody = History.buildResultsTableBody();
     var htmlout = tbody.html();
-    ok(htmlout.match('<td style="background-color: #CCCCCC;">Avis</td>'),
+    ok(htmlout.match('<td>Avis</td>'),
       'Table body contains game information.');
     start();
   });
