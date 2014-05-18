@@ -9,9 +9,18 @@ div {
     text-align: center;
 }
 
-div#login_header {
-    padding: 5px 5px 10px;
+div#login_header{
     text-align: left;
+}
+
+div#login_header p {
+    padding: 5px 5px;
+    margin: 0;
+}
+
+div#login_header table {
+    /* to cancel the margin: auto used to center other tables */
+    margin: 0;
 }
 
 div.status_player {

@@ -34,7 +34,7 @@ Login.getLoginHeader = function() {
             'rel': 'shortcut icon',
             'href': '/dev_favicon.ico',
           }));
-        welcomeText += ' DEV SITE';
+        welcomeText += ' Dev Site';
       } else if (Config.siteType != 'production') {
         $('#login_header').css('background-color', '#ff7777');
         welcomeText += ' CONFIG ERROR';
@@ -89,6 +89,7 @@ Login.getLoginForm = function() {
 // The function should setup a header and a form
 
 Login.stateLoggedIn = function(welcomeText) {
+  Login.message = $('<p>');
   var loginform = Login.getLoginForm();
   loginform.append(
     welcomeText + ': You are logged in as ' + Login.player + '. '
@@ -98,7 +99,7 @@ Login.stateLoggedIn = function(welcomeText) {
     'text': 'Logout?',
   }));
 
-  Login.message = loginform;
+  Login.message.append(loginform);
   Login.addMainNavbar();
   Login.form = Login.formLogout;
   Login.logged_in = true;
@@ -158,8 +159,7 @@ Login.stateLoggedOut = function(welcomeText) {
 // Helper functions which add text to the existing message
 
 Login.addMainNavbar = function() {
-  Login.message.append($('<br>'));
-  var navtable = $('<table>', {'style': 'float:left'});
+  var navtable = $('<table>');
   var navrow = $('<tr>');
   var links = {
     'index.html': 'Overview',
@@ -174,7 +174,6 @@ Login.addMainNavbar = function() {
   });
   navtable.append(navrow);
   Login.message.append(navtable);
-  Login.message.append($('<br>'));
 };
 
 ////////////////////////////////////////////////////////////////////////
