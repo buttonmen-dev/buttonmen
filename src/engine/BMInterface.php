@@ -573,7 +573,7 @@ class BMInterface {
 
             if (BMGameState::END_GAME == $game->gameState) {
                 $status = 'COMPLETE';
-            } elseif (in_array(0, $game->playerIdArray) ||
+            } elseif (in_array(NULL, $game->playerIdArray) ||
                       in_array(NULL, $game->buttonArray)) {
                 $status = 'OPEN';
             } else {
@@ -1602,6 +1602,9 @@ class BMInterface {
                                       ':player_id' => $currentPlayerId,
                                       ':position'  => $emptyPlayerIdx));
 
+            $game = $this->load_game($gameId);
+            $this->save_game($gameId);
+
             return TRUE;
         } catch (Exception $e) {
             error_log(
@@ -1656,6 +1659,9 @@ class BMInterface {
             $statement->execute(array(':game_id'   => $gameId,
                                       ':player_id' => $playerId,
                                       ':button_id' => $buttonId));
+
+            $game = $this->load_game($gameId);
+            $this->save_game($gameId);
 
             return TRUE;
 
