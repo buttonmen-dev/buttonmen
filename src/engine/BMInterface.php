@@ -1062,8 +1062,8 @@ class BMInterface {
                 $gameColors = $this->determine_game_colors(
                     $currentPlayerId,
                     $playerColors,
-                    (int)$row['challenger_id'],
-                    -1 // There is no other player yet
+                    -1, // There is no other player yet
+                    (int)$row['challenger_id']
                 );
 
                 $games[] = array(
@@ -1071,7 +1071,7 @@ class BMInterface {
                     'challengerId' => (int)$row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
                     'challengerButton' => $row['challenger_button'],
-                    'challengerColor' => $gameColors['playerA'],
+                    'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $row['victim_button'],
                     'targetWins' => (int)$row['target_wins'],
                 );

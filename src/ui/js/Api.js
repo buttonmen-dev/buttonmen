@@ -509,5 +509,28 @@ var Api = (function () {
     return true;
   };
 
+  my.joinOpenGame = function(gameId, buttonName, callback, failCallback) {
+    var parameters = {
+      'type': 'joinOpenGame',
+      'gameId': gameId,
+    };
+    if (buttonName !== undefined && buttonName !== null) {
+      parameters.buttonName = buttonName;
+    }
+
+    my.apiParsePost(
+      parameters,
+      'join_game_result',
+      my.parseJoinGameResult,
+      callback,
+      failCallback
+    );
+  };
+
+  my.parseJoinGameResult = function(data) {
+    my.join_game_result.success = data;
+    return true;
+  };
+
   return my;
 }());
