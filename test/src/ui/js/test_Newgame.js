@@ -18,6 +18,7 @@ module("Newgame", {
     delete Api.player;
     delete Newgame.page;
     delete Newgame.form;
+    delete Newgame.justCreatedGame;
     Newgame.activity = {};
 
     // Page elements
@@ -132,7 +133,7 @@ asyncTest("test_Newgame.layoutPage", function() {
     equal(item.nodeName, "DIV",
           "#newgame_page is a div after layoutPage() is called");
     start();
-  });     
+  });
 });
 
 asyncTest("test_Newgame.actionLoggedOut", function() {
@@ -141,7 +142,7 @@ asyncTest("test_Newgame.actionLoggedOut", function() {
     equal(Newgame.form, null,
           "Form is null after the 'logged out' action is processed");
     start();
-  });     
+  });
 });
 
 asyncTest("test_Newgame.actionInternalErrorPage", function() {
@@ -150,7 +151,7 @@ asyncTest("test_Newgame.actionInternalErrorPage", function() {
     equal(Newgame.form, null,
           "Form is null after the 'internal error' action is processed");
     start();
-  });     
+  });
 });
 
 asyncTest("test_Newgame.actionCreateGame", function() {
@@ -159,7 +160,7 @@ asyncTest("test_Newgame.actionCreateGame", function() {
     equal(Newgame.form, Newgame.formCreateGame,
           "Form is set after the 'create game' action is processed");
     start();
-  });     
+  });
 });
 
 asyncTest("test_Newgame.actionCreateGame_prevvals", function() {
@@ -182,7 +183,7 @@ asyncTest("test_Newgame.actionCreateGame_prevvals", function() {
     equal($('#n_rounds').val(), '4',
           "Number of rounds is retained from previous page activity");
     start();
-  });     
+  });
 });
 
 // The logic here is a little hairy: since Newgame.getNewgameData()
