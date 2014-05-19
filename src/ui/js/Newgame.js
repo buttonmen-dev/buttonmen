@@ -314,10 +314,20 @@ Newgame.addInternalErrorPage = function() {
 
 Newgame.setCreateGameSuccessMessage = function(message, data) {
   var gameId = data.gameId;
-  var gameLink = $('<a>', {
-    'href': 'game.html?game=' + gameId,
-    'text': 'Go to game page',
-  });
+  var gameLink;
+  if (Newgame.activity.opponentName)
+  {
+    gameLink = $('<a>', {
+      'href': 'game.html?game=' + gameId,
+      'text': 'Go to game page',
+    });
+  } else {
+    gameLink = $('<a>', {
+      'href': 'open_games.html',
+      'text': 'Go to open games page',
+    });
+  }
+
   var gamePar = $('<p>', {'text': message + ' ', });
   gamePar.append(gameLink);
   Env.message = {
@@ -342,12 +352,10 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
 
   if (blankOption !== undefined) {
     // If blanks are allowed, then display a special entry for that
-    if (selectedval === null) {
-      select.append($('<option>', {
-        'value': '',
-        'text': blankOption,
-      }));
-    }
+    select.append($('<option>', {
+      'value': '',
+      'text': blankOption,
+    }));
   } else {
     // If there's no default, put an invalid default value first
     if (selectedval === null) {

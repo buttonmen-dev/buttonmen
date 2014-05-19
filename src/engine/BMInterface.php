@@ -940,7 +940,7 @@ class BMInterface {
                  'WHERE v2.player_id = :player_id '.
                  'AND v1.player_id != v2.player_id ';
         if ($getActiveGames) {
-            $query .= 'AND s.name != "COMPLETE" ';
+            $query .= 'AND s.name = "ACTIVE" ';
         } else {
             $query .= 'AND s.name = "COMPLETE" ';
         }

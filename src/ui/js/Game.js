@@ -171,6 +171,11 @@ Game.showStatePage = function() {
       }
     } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
+    } else if (Api.game.gameState == Game.GAME_STATE_START_GAME) {
+      Game.page =
+        $('<p>', {'text': 'The game hasn\'t started yet.', });
+      Game.form = null;
+      Game.layoutPage();
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });

@@ -164,6 +164,7 @@ Login.addMainNavbar = function() {
   var links = {
     'index.html': 'Overview',
     'create_game.html': 'Create game',
+    'open_games.html': 'Open games',
     'prefs.html': 'Preferences',
     'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
   };

@@ -75,9 +75,9 @@ OpenGames.showPage = function() {
 
     if (anyUnimplementedButtons) {
       var warning = $('<p>', {
-        'text': 'Note to testers: buttons whose names are prefixed with "--" ' +
-                'contain unimplemented skills.  Selecting these buttons is not ' +
-                'recommended.',
+        'text': 'Note to testers: buttons whose names are prefixed with ' +
+                '"--" contain unimplemented skills.  Selecting these buttons ' +
+                'is not recommended.',
         'style': 'font-style: italic;',
       });
       OpenGames.page.append(warning);
@@ -89,7 +89,6 @@ OpenGames.showPage = function() {
 };
 
 OpenGames.layoutPage = function() {
-
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
@@ -162,6 +161,7 @@ OpenGames.buildGameTable = function(buttons) {
   headerRow.append($('<th>', { 'text': 'Your Button', }));
   headerRow.append($('<th>', { 'text': 'Challenger\'s Button', }));
   headerRow.append($('<th>', { 'text': 'Challenger', }));
+  headerRow.append($('<th>', { 'text': 'Rounds', }));
 
   var tbody = $('<tbody>');
   table.append(tbody);
@@ -170,9 +170,7 @@ OpenGames.buildGameTable = function(buttons) {
     tbody.append(gameRow);
     if (game.challengerName == Login.player) {
       gameRow.append($('<td>', {
-        'text': 'Open Game',
         'class': 'gameAction',
-        'style': 'font-style: italic;',
       }));
     } else {
       var gameActionTd = $('<td>', { 'class': 'gameAction', });
@@ -221,6 +219,9 @@ OpenGames.buildGameTable = function(buttons) {
     gameRow.append($('<td>', {
       'text': game.challengerName,
       'style': 'background-color: ' + game.challengerColor + ';',
+    }));
+    gameRow.append($('<td>', {
+      'text': game.targetWins,
     }));
   });
 
