@@ -4,7 +4,15 @@ var OpenGames = {};
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * OpenGames.showOpenGamesPage() is the landing function.  Always call
-//   this first
+//   this first. It sets up #opengames_page and calls OpenGames.getOpenGames()
+// * OpenGames.getOpenGames() calls the API, setting Api.button and
+//   Api.open_games. It calls OpenGames.showPage()
+// * OpenGames.showPage() uses the data returned by the API to build
+//   the contents of the page as OpenGames.page and calls OpenGames.layoutPage()
+//
+//* OpenGames.joinOpenGame() is called whenever the user clicks on one of the
+//  Join Game buttons. It calls the API to join the game, setting
+//  Api.join_game_result if successful
 ////////////////////////////////////////////////////////////////////////
 
 OpenGames.showOpenGamesPage = function() {
