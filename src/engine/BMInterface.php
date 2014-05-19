@@ -1033,14 +1033,14 @@ class BMInterface {
             // preferences
             $playerColors = $this->load_player_colors($currentPlayerId);
 
-            $baseQuery =
+            $query =
                 'SELECT ' .
                     'g.id AS game_id, ' .
                     'v_challenger.player_id AS challenger_id, ' .
                     'v_challenger.player_name AS challenger_name, ' .
                     'v_challenger.button_name AS challenger_button, ' .
                     'v_victim.button_name AS victim_button, ' .
-                    'g.n_target_wins AS target_wins, ' .
+                    'g.n_target_wins AS target_wins ' .
                 'FROM game AS g ' .
                     'INNER JOIN game_status AS s ON s.id = g.status_id ' .
                     // For the time being, I'm assuming there are only two
@@ -1050,9 +1050,10 @@ class BMInterface {
                         'ON v_challenger.game_id = g.id AND v_challenger.player_id IS NOT NULL ' .
                     'INNER JOIN game_player_view AS v_victim ' .
                         'ON v_victim.game_id = g.id AND v_victim.player_id IS NULL ' .
-                'WHERE s.name = "OPEN";';
+                'WHERE s.name = "OPEN"' .
+                'ORDER BY g.id ASC;';
 
-            $statement = self::$conn->prepare();
+            $statement = self::$conn->prepare($query);
             $statement->execute();
 
             $games = array();
@@ -2389,6 +2390,65 @@ class BMInterface {
             return $count . ' ' . $noun . 'es';
         }
         return $count . ' ' . $noun . 's';
+    }
+
+    // Retrieves the colors that the user has saved in their preferences
+    protected function load_player_colors($currentPlayerId) {
+        $playerInfoArray = $this->get_player_info($currentPlayerId);
+        // Ultimately, these values should come from the database, but that
+        // hasn't been implemented yet, so we'll just hard code them for now
+        $colors = array(
+            'player' => '#DD99DD',
+            'opponent' => '#DDFFDD',
+            'neutralA' => '#CCCCCC',
+            'neutralB' => '#DDDDDD',
+            // Itself an associative array of player ID's => color strings
+            'battleBuddies' => array(),
+        );
+        return $colors;
+    }
+
+    // Determines which colors to use for the two players in a game.
+    // $currentPlayerId is the player this is being displayed to.
+    // $playerColors are the colors they've chosen as their preferences
+    // (as returned by load_player_colors())
+    // $gamePlayerIdA and $gamePlayerIdB are the two players in the game
+    protected function determine_game_colors($currentPlayerId, $playerColors, $gamePlayerIdA, $gamePlayerIdB) {
+        $gameColors = array();
+
+        if ($gamePlayerIdA == $currentPlayerId) {
+            $gameColors['playerA'] = $playerColors['player'];
+            if (isset($playerColors['battleBuddies'][$gamePlayerIdB])) {
+                $gameColors['playerB'] = $playerColors['battleBuddies'][$gamePlayerIdB];
+            } else {
+                $gameColors['playerB'] = $playerColors['opponent'];
+            }
+            return $gameColors;
+        }
+
+        if ($gamePlayerIdB == $currentPlayerId) {
+            $gameColors['playerB'] = $playerColors['player'];
+            if (isset($playerColors['battleBuddies'][$gamePlayerIdA])) {
+                $gameColors['playerA'] = $playerColors['battleBuddies'][$gamePlayerIdA];
+            } else {
+                $gameColors['playerA'] = $playerColors['opponent'];
+            }
+            return $gameColors;
+        }
+
+        if (isset($playerColors['battleBuddies'][$gamePlayerIdA])) {
+            $gameColors['playerA'] = $playerColors['battleBuddies'][$gamePlayerIdA];
+        } else {
+            $gameColors['playerA'] = $playerColors['neutralA'];
+        }
+
+        if (isset($playerColors['battleBuddies'][$gamePlayerIdB])) {
+            $gameColors['playerB'] = $playerColors['battleBuddies'][$gamePlayerIdB];
+        } else {
+            $gameColors['playerB'] = $playerColors['neutralB'];
+        }
+
+        return $gameColors;
     }
 
     public function __get($property) {

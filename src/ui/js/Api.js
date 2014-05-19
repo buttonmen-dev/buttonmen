@@ -495,5 +495,19 @@ var Api = (function () {
     return true;
   };
 
+  my.getOpenGamesData = function(callbackfunc) {
+    my.apiParsePost( { 'type': 'loadOpenGames', },
+      'open_games',
+      my.parseOpenGames,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseOpenGames = function(data) {
+    my.open_games.games = data.games;
+    return true;
+  };
+
   return my;
 }());
