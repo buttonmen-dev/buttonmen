@@ -111,6 +111,9 @@ Newgame.actionCreateGame = function() {
 
   // Create empty page and undefined form objects to be filled later
   Newgame.page = $('<div>');
+  if (Newgame.justCreatedGame === true) {
+    Newgame.page.css('display', 'none');
+  }
   Newgame.form = null;
 
   var creatediv = $('<div>');
@@ -313,6 +316,8 @@ Newgame.addInternalErrorPage = function() {
 };
 
 Newgame.setCreateGameSuccessMessage = function(message, data) {
+  Newgame.justCreatedGame = true;
+
   var gameId = data.gameId;
   var gameLink;
   if (Newgame.activity.opponentName)
@@ -330,6 +335,20 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
 
   var gamePar = $('<p>', {'text': message + ' ', });
   gamePar.append(gameLink);
+
+  var anotherGamePar = $('<p>', { 'id': 'createAnotherGame', });
+  var anotherGameBtn = $('<input>', {
+    'type': 'button',
+    'value': 'Create another game?',
+  });
+  anotherGameBtn.click(function() {
+    Newgame.justCreatedGame = false;
+    $('p#createAnotherGame').hide();
+    $('div#newgame_page > div').show();
+  });
+  anotherGamePar.append(anotherGameBtn);
+  gamePar.append(anotherGamePar);
+
   Env.message = {
     'type': 'success',
     'text': '',
