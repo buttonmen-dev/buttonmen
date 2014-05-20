@@ -118,7 +118,7 @@ class ApiResponder {
         );
     }
 
-    protected function get_interface_response_loadOpenGames($interface, $args) {
+    protected function get_interface_response_loadOpenGames($interface) {
         return $interface->get_all_open_games($_SESSION['user_id']);
     }
 
