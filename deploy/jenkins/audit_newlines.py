@@ -9,6 +9,7 @@ SKIPPATHS = [
   # non-ascii files/directories
   './notes',
   './src/favicon.ico',
+  './src/dev_favicon.ico',
   './src/ui/images',
 
   # git artifacts
