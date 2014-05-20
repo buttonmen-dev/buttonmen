@@ -7,6 +7,11 @@ Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 // Valid email match
 Newuser.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
 
+// Input field limits
+Newuser.USERNAME_MAX_LENGTH = 25;
+Newuser.EMAIL_MAX_LENGTH = 254;
+
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Newuser.showNewuserPage() is the landing function.  Always call
@@ -109,7 +114,7 @@ Newuser.actionCreateUser = function() {
     'username': {
       'text': 'Username',
       'type': 'text',
-      'maxlength': 25,
+      'maxlength': Newuser.USERNAME_MAX_LENGTH,
     },
     'password': {
       'text': 'Password',
@@ -122,12 +127,12 @@ Newuser.actionCreateUser = function() {
     'email': {
       'text': 'E-mail address',
       'type': 'text',
-      'maxlength': 254,
+      'maxlength': Newuser.EMAIL_MAX_LENGTH,
     },
     'email_confirm': {
       'text': 'E-mail address (again)',
       'type': 'text',
-      'maxlength': 254,
+      'maxlength': Newuser.EMAIL_MAX_LENGTH,
     },
   };
 

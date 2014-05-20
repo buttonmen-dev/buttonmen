@@ -14,6 +14,10 @@
  *
  */
 class BMInterfaceNewuser {
+    // constants
+    const USERNAME_MAX_LENGTH = 25;
+    const EMAIL_MAX_LENGTH = 254;
+
     // properties
     private $message;               // message intended for GUI
 //    private $timestamp;             // timestamp of last game action
@@ -45,11 +49,11 @@ class BMInterfaceNewuser {
 
     public function create_user($username, $password, $email) {
         try {
-            if (strlen($username) > 25) {
+            if (strlen($username) > BMInterfaceNewuser::USERNAME_MAX_LENGTH) {
                 $this->message = 'Usernames cannot be longer than 25 characters';
                 return NULL;
             }
-            if (strlen($email) > 254) {
+            if (strlen($email) > BMInterfaceNewuser::EMAIL_MAX_LENGTH) {
                 $this->message = 'Email addresses cannot be longer than 254 characters';
                 return NULL;
             }
@@ -117,7 +121,7 @@ class BMInterfaceNewuser {
             $result = array('userName' => $username, 'playerId' => $playerId);
 
             // now generate a verification code and e-mail it to the user
-            //$this->send_email_verification($playerId, $username, $playerEmail);
+            $this->send_email_verification($playerId, $username, $playerEmail);
 
             $this->message = 'User ' . $username . ' created successfully.  ' .
                              'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
