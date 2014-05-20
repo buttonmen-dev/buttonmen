@@ -106,6 +106,10 @@ OpenGames.layoutPage = function() {
 };
 
 OpenGames.joinOpenGame = function() {
+  // Clear any previous error message
+  Env.message = null;
+  Env.showStatusMessage();
+
   var joinButton = $(this);
   var gameId = joinButton.attr('data-gameId');
   var buttonSelect = joinButton.closest('tr').find('td.victimButton select');

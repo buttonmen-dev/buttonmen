@@ -103,7 +103,7 @@ class ApiResponder {
         if ($success && isset($args['buttonName'])) {
             $success = $interface->select_button(
                 $_SESSION['user_id'],
-                $args['gameId'],
+                (int)$args['gameId'],
                 $args['buttonName']
             );
         }
@@ -113,7 +113,7 @@ class ApiResponder {
     protected function get_interface_response_selectButton($interface, $args) {
         return $interface->select_button(
             $_SESSION['user_id'],
-            $args['gameId'],
+            (int)$args['gameId'],
             $args['buttonName']
         );
     }

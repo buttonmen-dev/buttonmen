@@ -303,7 +303,24 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_invalid_arg_rejected('joinOpenGame');
         $this->verify_mandatory_args_required(
             'joinOpenGame',
-            array('gameId' => 21,)
+            array('gameId' => 21)
+        );
+
+        // Make sure a button name with a backtick is rejected
+        $args = array(
+            'type' => 'joinOpenGame',
+            'gameId' => 21,
+            'buttonName' => 'Av`is',
+        );
+        $retval = $this->object->process_request($args);
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Argument (buttonName) to function joinOpenGame is invalid',
+                'status' => 'failed',
+            ),
+            $retval,
+            "Button name containing a backtick should be rejected"
         );
 
         $createGameArgs = array(
@@ -330,12 +347,34 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy game joining return values should both be true");
     }
 
-    public function test_request_selectButton() {
-        //TODO write test
-    }
-
     public function test_request_loadOpenGames() {
-        //TODO write test
+        $this->verify_login_required('loadOpenGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadOpenGames');
+
+        $createGameArgs = array(
+            'type' => 'createGame',
+            'playerNameArray' => array('responder004', ''),
+            'buttonNameArray' => array('Avis', 'Avis'),
+            'maxWins' => '3',
+        );
+        $createGameResult = $this->object->process_request($createGameArgs);
+        $gameId = $createGameResult['data']['gameId'];
+
+        $args = array(
+            'type' => 'loadOpenGames',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], $retval['message']);
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy game lists should have matching structures");
     }
 
     public function test_request_loadActiveGames() {
