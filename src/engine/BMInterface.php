@@ -1603,7 +1603,7 @@ class BMInterface {
                                       ':position'  => $emptyPlayerIdx));
 
             $game = $this->load_game($gameId);
-            $this->save_game($gameId);
+            $this->save_game($game);
 
             return TRUE;
         } catch (Exception $e) {
@@ -1661,7 +1661,7 @@ class BMInterface {
                                       ':button_id' => $buttonId));
 
             $game = $this->load_game($gameId);
-            $this->save_game($gameId);
+            $this->save_game($game);
 
             return TRUE;
 
