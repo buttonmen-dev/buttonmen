@@ -409,15 +409,17 @@ var Api = (function () {
         my.game.gameData.data.capturedSidesArrayArray[playerIdx],
       'capturedRecipeArray':
         my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+      'capturedDiePropertiesArray':
+        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
 
       'swingRequestArray': {},
       'optRequestArray':
         my.game.gameData.data.optRequestArrayArray[playerIdx],
 
       'prevSwingValueArray':
-        my.game.gameData.data.prevSwingValueArrArr[playerIdx],
+        my.game.gameData.data.prevSwingValueArrayArray[playerIdx],
       'prevOptValueArray':
-        my.game.gameData.data.prevOptValueArrArr[playerIdx],
+        my.game.gameData.data.prevOptValueArrayArray[playerIdx],
     };
 
     $.each(

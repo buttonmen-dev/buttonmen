@@ -9,8 +9,18 @@ div {
     text-align: center;
 }
 
-div#login_header {
+div#login_header{
     text-align: left;
+}
+
+div#login_header p {
+    padding: 5px 5px;
+    margin: 0;
+}
+
+div#login_header table {
+    /* to cancel the margin: auto used to center other tables */
+    margin: 0;
 }
 
 div.status_player {
@@ -37,6 +47,21 @@ div.battle_mat_player_overlay {
 div.battle_mat_opponent_overlay {
     border-top-left-radius: 30px;
     padding: 5px 20px;
+}
+
+.compactMode td.button_opponent,
+.compactMode td.button_player {
+  display: none;
+}
+
+.compactMode div.battle_mat_player,
+.compactMode div.battle_mat_player_overlay {
+  border-radius: 30px 30px 0px 0px;
+}
+
+.compactMode div.battle_mat_opponent,
+.compactMode div.battle_mat_opponent_overlay {
+  border-radius: 0px 0px 30px 30px;
 }
 
 table {
@@ -154,13 +179,13 @@ select.center {
     font-size: 150%;
 }
 
-.die_border {
+.die_container {
     background-size: 50px 50px;
-    width: 50px;
-    height: 50px;
+    min-width: 50px;
     display: inline-block;
     color: blue;
     margin: 4px;
+    cursor: default;
 }
 
 .die_img {
@@ -170,13 +195,31 @@ select.center {
     height: 49px;
     width: 49px;
     background-size: 100%;
-    cursor: default;
+    margin: auto;
 }
 
 .die_greyed {
     background-color: #cccccc;
     border-radius: 50%;
     color:darkslateblue;
+}
+
+.die_dead .die_img {
+    background-color: black;
+    border-radius: 50%;
+}
+
+.die_dead .die_overlay {
+    color: white;
+}
+
+.die_dead span {
+    text-decoration: line-through;
+}
+
+/* This matches any .die_dead element that immediately follows a .die_alive */
+.die_alive + .die_dead {
+    margin-left: 40px;
 }
 
 .recipe_greyed {
@@ -205,14 +248,12 @@ select.center {
 
 .die_recipe_player {
     position: relative;
-    top: -48px;
     color: black;
     white-space: nowrap;
 }
 
 .die_recipe_opponent {
     position: relative;
-    top: 25px;
     color: black;
     white-space: nowrap;
 }
@@ -225,7 +266,12 @@ select.center {
 
 /* border to indicate dice selected in attacks */
 
-.selected {
+.die_border {
+    width: 50px;
+    margin: auto;
+}
+
+.selected .die_border {
     border: 2px solid red;
 }
 
@@ -235,4 +281,52 @@ select.center {
 
 .unselected_opponent {
     border-top-left-radius: 1em;
+}
+
+/* Game lists (Overview, Game History) */
+table.gameList a {
+    color: black;
+}
+
+table.gameList th {
+    background-color: #cccccc;
+}
+
+table.gameList td:first-child,
+table.gameList th:first-child
+{
+  border-left: 2px solid #cccccc;
+}
+
+table.gameList td:last-child,
+table.gameList th:last-child
+{
+  border-right: 2px solid #cccccc;
+}
+
+table.gameList tr:first-child td,
+table.gameList tr:first-child th
+{
+  border-top: 2px solid #cccccc;
+}
+
+table.gameList tr:last-child td,
+table.gameList tr:last-child th
+{
+  border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tr.spacer td {
+  border-left: none;
+  border-right: none;
+  border-top: 2px solid #cccccc;
+  border-bottom: 2px solid #cccccc;
+}
+
+table.gameList tbody:before,
+table.gameList tfoot:before {
+    line-height: 1em;
+    content: "-";
+    color: white; /* to hide text */
+    display: block;
 }
