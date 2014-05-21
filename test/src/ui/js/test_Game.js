@@ -1000,9 +1000,9 @@ asyncTest("test_Game.pageAddDieBattleTable", function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<div class="battle_mat_player" .*>'),
+    ok(Game.page.find('div.battle_mat_player').length > 0,
       "die battle table should insert player battle mat");
-    ok(htmlout.match('<div class="battle_mat_opponent" .*>'),
+    ok(Game.page.find('div.battle_mat_opponent').length > 0,
       "die battle table should insert opponent battle mat");
     start();
   });
