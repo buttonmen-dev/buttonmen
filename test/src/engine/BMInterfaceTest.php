@@ -2358,4 +2358,31 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($preProceedSwingSize1, $postSaveSwingSize1);
         $this->assertEquals($postSaveSwingSize1, $postSaveSwingSize2);
     }
+
+    /**
+     * @covers BMInterface::update_last_action_time
+     */
+    public function test_update_last_action_time() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Avis', 'Hammer'), 4);
+        $gameId = $retval['gameId'];
+
+        $query = 'SELECT last_action_time FROM player WHERE id = :id';
+        $statement = $this->object->conn->prepare($query);
+        $retval = $statement->execute(array(':id' => self::$userId2WithoutAutopass));
+
+        var_dump($retval);
+
+        $this->object->update_last_action_time($playerId);
+
+        $this->object->update_last_action_time($playerId, $gameId);
+    }
+
+    /**
+     * @covers BMInterface::update_last_access_time
+     */
+    public function test_update_last_access_time() {
+
+    }
 }
