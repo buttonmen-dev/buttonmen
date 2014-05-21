@@ -523,7 +523,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('savePlayerInfo');
 
-        $args = array('type' => 'savePlayerInfo', 'autopass' => 'True', );
+        $args = array(
+            'type' => 'savePlayerInfo',
+            'name_irl' => 'Test User',
+            'dob_month' => '2',
+            'dob_day' => '29',
+            'comment' => '',
+            'autopass' => 'True',
+        );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
 

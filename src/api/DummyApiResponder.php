@@ -1161,21 +1161,23 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadPlayerInfo() {
-        return array(array('id' => 1,
-                           'name_ingame' => 'tester1',
-                           'name_irl' => '',
-                           'email' => 'tester1@example.com',
-                           'status' => 'active',
-                           'dob' => NULL,
-                           'autopass' => TRUE,
-                           'image_path' => NULL,
-                           'comment' => NULL,
-                           'last_action_time' => 0,
-                           'creation_time' => 1388193734,
-                           'fanatic_button_id' => 0,
-                           'n_games_won' => 0,
-                           'n_games_lost' => 0,
-                          ), NULL);
+        $playerInfoArray = array('id' => 1,
+                                'name_ingame' => 'tester1',
+                                'name_irl' => '',
+                                'email' => 'tester1@example.com',
+                                'status' => 'active',
+                                'dob' => NULL,
+                                'autopass' => TRUE,
+                                'image_path' => NULL,
+                                'comment' => NULL,
+                                'last_action_time' => 0,
+                                'creation_time' => 1388193734,
+                                'fanatic_button_id' => 0,
+                                'n_games_won' => 0,
+                                'n_games_lost' => 0,
+                               );
+
+        return array(array('user_prefs' => $playerInfoArray), NULL);
     }
 
     protected function get_interface_response_savePlayerInfo() {

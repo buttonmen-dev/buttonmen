@@ -283,6 +283,18 @@ select.center {
     border-top-left-radius: 1em;
 }
 
+table.prefsTable td.label {
+    text-align: right;
+    width: 50%;
+    vertical-align: top;
+}
+
+table.prefsTable td.value {
+    text-align: left;
+    width: 50%;
+    vertical-align: top;
+}
+
 /* Game lists (Overview, Game History) */
 table.gameList a {
     color: black;

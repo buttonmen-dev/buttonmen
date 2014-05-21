@@ -125,6 +125,8 @@ asyncTest("test_Newuser.formCreateUser_invalid_username", function() {
 asyncTest("test_Newuser.formCreateUser_no_password", function() {
   Newuser.actionCreateUser();
   $('#newuser_username').val('tester5');
+  $('#newuser_email').val('tester@example.com');
+  $('#newuser_email_confirm').val('tester@example.com');
   $.ajaxSetup({ async: false });
   $('#newuser_action_button').trigger('click');
   $.ajaxSetup({ async: true });

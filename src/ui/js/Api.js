@@ -5,6 +5,9 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
+  // Valid email match
+  my.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+
   // private methods and variables should be defined separately
   var activity = {};
 
@@ -297,7 +300,9 @@ var Api = (function () {
   };
 
   my.parseUserPrefsData = function(data) {
-    my.user_prefs.autopass = data.autopass;
+    $.each(data.user_prefs, function(key, value) {
+      my.user_prefs[key] = value;
+    });
     return true;
   };
 

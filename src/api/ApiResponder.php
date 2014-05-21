@@ -156,11 +156,25 @@ class ApiResponder {
     }
 
     protected function get_interface_response_savePlayerInfo($interface, $args) {
-        $autopass = 'true' == $args['autopass'];
-        return $interface->set_player_info(
-            $_SESSION['user_id'],
-            array('autopass' => $autopass)
-        );
+        $infoArray = array();
+        $infoArray['name_irl'] = $args['name_irl'];
+        $infoArray['comment'] = $args['comment'];
+        $infoArray['autopass'] = ('true' == $args['autopass']);
+
+        $addlInfo = array();
+        $addlInfo['dob_month'] = (int)$args['dob_month'];
+        $addlInfo['dob_day'] = (int)$args['dob_day'];
+        if (isset($args['current_password'])) {
+            $addlInfo['current_password'] = $args['current_password'];
+        }
+        if (isset($args['new_password'])) {
+            $addlInfo['new_password'] = $args['new_password'];
+        }
+        if (isset($args['new_email'])) {
+            $addlInfo['new_email'] = $args['new_email'];
+        }
+
+        return $interface->set_player_info($_SESSION['user_id'], $infoArray, $addlInfo);
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {
