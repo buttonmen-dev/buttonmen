@@ -264,12 +264,20 @@ class BMInterface {
                      'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
-                     'v.is_awaiting_action '.
+                     'v.is_awaiting_action, '.
+                     'UNIX_TIMESTAMP(last_gal.action_time) AS player_last_action_timestamp '.
                      'FROM game AS g '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
-                     'WHERE game_id = :game_id '.
-                     'ORDER BY game_id;';
+                     'LEFT JOIN game_action_log AS last_gal '.
+                     'ON last_gal.game_id = g.id AND last_gal.id = '.
+                     '(SELECT j_gal.id '.
+                     'FROM game_action_log AS j_gal '.
+                     'WHERE j_gal.game_id = g.id AND j_gal.acting_player = v.player_id '.
+                     'ORDER BY j_gal.action_time DESC '.
+                     'LIMIT 1) '.
+                     'WHERE g.id = :game_id '.
+                     'ORDER BY g.id;';
             $statement1 = self::$conn->prepare($query);
             $statement1->execute(array(':game_id' => $gameId));
 
@@ -337,6 +345,13 @@ class BMInterface {
                 if ($row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
                 }
+
+                if (isset($row['player_last_action_timestamp'])) {
+                    $lastActionTimeArray[$pos] =
+                        (int)$row['player_last_action_timestamp'];
+                } else {
+                    $lastActionTimeArray[$pos] = 0;
+                }
             }
 
             // check whether the game exists
@@ -351,6 +366,7 @@ class BMInterface {
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
             $game->autopassArray = $autopassArray;
+            $game->lastActionTimeArray = $lastActionTimeArray;
 
             // add swing values from last round
             $game->prevSwingValueArrayArray = array_fill(0, $game->nPlayers, array());
@@ -964,28 +980,28 @@ class BMInterface {
     // are to be presented
     public function assemble_search_options($searchParameters) {
         try {
-            $searchQualifiers = array();
+            $searchOptions = array();
 
             if (isset($searchParameters['sortColumn'])) {
-                $searchQualifiers['sortColumn'] = $searchParameters['sortColumn'];
+                $searchOptions['sortColumn'] = $searchParameters['sortColumn'];
             }
             if (isset($searchParameters['sortDirection'])) {
-                $searchQualifiers['sortDirection'] = $searchParameters['sortDirection'];
+                $searchOptions['sortDirection'] = $searchParameters['sortDirection'];
             }
             if (isset($searchParameters['numberOfResults'])) {
                 $numberOfResults = (int)$searchParameters['numberOfResults'];
                 if ($numberOfResults <= 1000) {
-                    $searchQualifiers['numberOfResults'] = $numberOfResults;
+                    $searchOptions['numberOfResults'] = $numberOfResults;
                 } else {
                     $this->message = 'numberOfResults may not exceed 1000';
                     return NULL;
                 }
             }
             if (isset($searchParameters['page'])) {
-                $searchQualifiers['page'] = (int)$searchParameters['page'];
+                $searchOptions['page'] = (int)$searchParameters['page'];
             }
 
-            return $searchQualifiers;
+            return $searchOptions;
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::assemble_search_options: " .
@@ -1053,6 +1069,7 @@ class BMInterface {
             $whereParameters = array();
 
             if (isset($searchFilters['gameId'])) {
+                // See about 70 lines down for an explanation of the _%%%
                 $where .= 'AND g.id = :game_id_%%% ';
                 $whereParameters[':game_id_%%%'] = $searchFilters['gameId'];
             }
@@ -2637,10 +2654,10 @@ class BMInterface {
         // Ultimately, these values should come from the database, but that
         // hasn't been implemented yet, so we'll just hard code them for now
         $colors = array(
-            'player' => '#DD99DD',
-            'opponent' => '#DDFFDD',
-            'neutralA' => '#CCCCCC',
-            'neutralB' => '#DDDDDD',
+            'player' => '#dd99dd',
+            'opponent' => '#ddffdd',
+            'neutralA' => '#cccccc',
+            'neutralB' => '#dddddd',
             // Itself an associative array of player ID's => color strings
             'battleBuddies' => array(),
         );
