@@ -171,7 +171,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_submitDieValues($interface, $args) {
-        $interface->update_last_action_time($_SESSION['user_id']);
+        $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
 
         if (array_key_exists('swingValueArray', $args)) {
             $swingValueArray = $args['swingValueArray'];
@@ -193,7 +193,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_reactToAuxiliary($interface, $args) {
-        $interface->update_last_action_time($_SESSION['user_id']);
+        $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
 
         if (!(array_key_exists('dieIdx', $args))) {
             $args['dieIdx'] = NULL;
@@ -208,7 +208,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_reactToReserve($interface, $args) {
-        $interface->update_last_action_time($_SESSION['user_id']);
+        $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
 
         if (!(array_key_exists('dieIdx', $args))) {
             $args['dieIdx'] = NULL;
@@ -223,7 +223,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_reactToInitiative($interface, $args) {
-        $interface->update_last_action_time($_SESSION['user_id']);
+        $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
 
         if (!(array_key_exists('dieIdxArray', $args))) {
             $args['dieIdxArray'] = NULL;
@@ -255,8 +255,8 @@ class ApiResponder {
     }
 
     protected function get_interface_response_submitTurn($interface, $args) {
-        $interface->update_last_action_time($_SESSION['user_id']);
-        
+        $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+
         if (!(array_key_exists('chat', $args))) {
             $args['chat'] = '';
         }

@@ -2143,11 +2143,23 @@ class BMInterface {
         }
     }
 
-    public function update_last_action_time($playerId) {
+    public function update_last_action_time($playerId, $gameId = NULL) {
         try {
             $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
+
+            if (is_null($gameId)) {
+                return;
+            }
+
+            $query = 'UPDATE game_player_map SET last_action_time = now() '.
+                     'WHERE player_id = :player_id '.
+                     'AND game_id = :game_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $playerId,
+                                      ':game_id' => $gameId));
+
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::update_last_action_time: " .
