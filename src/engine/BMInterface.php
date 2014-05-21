@@ -752,7 +752,6 @@ class BMInterface {
                                           ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
             }
 
-
             // set players awaiting action
             foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
                 $query = 'UPDATE game_player_map '.
@@ -832,7 +831,6 @@ class BMInterface {
             if ($game->chat['chat']) {
                 $this->log_game_chat($game);
             }
-
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::save_game: " .
@@ -2142,6 +2140,34 @@ class BMInterface {
             );
             $this->message = 'Internal error while reacting to initiative';
             return FALSE;
+        }
+    }
+
+    public function update_last_action_time($playerId) {
+        try {
+            $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::update_last_action_time: " .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    public function update_last_access_time($playerId) {
+        try {
+            $query = 'UPDATE player SET last_access_time = now() WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::update_last_access_time: " .
+                $e->getMessage()
+            );
+            return NULL;
         }
     }
 
