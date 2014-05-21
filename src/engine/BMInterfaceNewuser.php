@@ -14,6 +14,10 @@
  *
  */
 class BMInterfaceNewuser {
+    // constants
+    const USERNAME_MAX_LENGTH = 25;
+    const EMAIL_MAX_LENGTH = 254;
+
     // properties
     private $message;               // message intended for GUI
 //    private $timestamp;             // timestamp of last game action
@@ -45,6 +49,15 @@ class BMInterfaceNewuser {
 
     public function create_user($username, $password, $email) {
         try {
+            if (strlen($username) > BMInterfaceNewuser::USERNAME_MAX_LENGTH) {
+                $this->message = 'Usernames cannot be longer than 25 characters';
+                return NULL;
+            }
+            if (strlen($email) > BMInterfaceNewuser::EMAIL_MAX_LENGTH) {
+                $this->message = 'Email addresses cannot be longer than 254 characters';
+                return NULL;
+            }
+
             // if this is a remote connection, check whether this
             // IP already has numerous player_verification entries
             if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
