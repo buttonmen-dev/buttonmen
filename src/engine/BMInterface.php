@@ -274,14 +274,22 @@ class BMInterface {
                      'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
-                     'v.is_awaiting_action '.
+                     'v.is_awaiting_action, '.
+                     'UNIX_TIMESTAMP(last_gal.action_time) AS player_last_action_timestamp '.
                      'FROM game AS g '.
                      'LEFT JOIN game_status AS s '.
                      'ON s.id = g.status_id '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
-                     'WHERE game_id = :game_id '.
-                     'ORDER BY game_id;';
+                     'LEFT JOIN game_action_log AS last_gal '.
+                     'ON last_gal.game_id = g.id AND last_gal.id = '.
+                     '(SELECT j_gal.id '.
+                     'FROM game_action_log AS j_gal '.
+                     'WHERE j_gal.game_id = g.id AND j_gal.acting_player = v.player_id '.
+                     'ORDER BY j_gal.action_time DESC '.
+                     'LIMIT 1) '.
+                     'WHERE g.id = :game_id '.
+                     'ORDER BY g.id;';
             $statement1 = self::$conn->prepare($query);
             $statement1->execute(array(':game_id' => $gameId));
 
@@ -363,6 +371,13 @@ class BMInterface {
                 if ($row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
                 }
+
+                if (isset($row['player_last_action_timestamp'])) {
+                    $lastActionTimeArray[$pos] =
+                        (int)$row['player_last_action_timestamp'];
+                } else {
+                    $lastActionTimeArray[$pos] = 0;
+                }
             }
 
             // check whether the game exists
@@ -377,6 +392,7 @@ class BMInterface {
             $game->buttonArray = $buttonArray;
             $game->waitingOnActionArray = $waitingOnActionArray;
             $game->autopassArray = $autopassArray;
+            $game->lastActionTimeArray = $lastActionTimeArray;
 
             // add swing values from last round
             $game->prevSwingValueArrayArray = array_fill(0, $game->nPlayers, array());
@@ -2404,10 +2420,10 @@ class BMInterface {
         // Ultimately, these values should come from the database, but that
         // hasn't been implemented yet, so we'll just hard code them for now
         $colors = array(
-            'player' => '#DD99DD',
-            'opponent' => '#DDFFDD',
-            'neutralA' => '#CCCCCC',
-            'neutralB' => '#DDDDDD',
+            'player' => '#dd99dd',
+            'opponent' => '#ddffdd',
+            'neutralA' => '#cccccc',
+            'neutralB' => '#dddddd',
             // Itself an associative array of player ID's => color strings
             'battleBuddies' => array(),
         );

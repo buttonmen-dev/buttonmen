@@ -526,6 +526,7 @@ class DummyApiResponder {
             "sideScoreArray" => array(NULL, NULL),
             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                            array("W" => 0, "L" => 0, "D" => 0)),
+            "lastActionTimeArray" => array(0, 0),
         );
 
         // base params for a John Kovalic vs John Kovalic game, here to

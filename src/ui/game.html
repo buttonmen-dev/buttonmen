@@ -15,15 +15,13 @@
 
 <body>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
-    <script src="js/extern/jquery.cookie.js"></script>
-    <script src="js/Config.js"></script>
-    <script src="js/Env.js"></script>
-    <script src="js/Api.js"></script>
-    <script src="js/Login.js"></script>
-    <script src="js/Game.js"></script>
     <script>
 $(document).ready(function() {
-  Login.showLoginHeader(Game.showGamePage);
+  $.getScript('js/Loader.js', function() {
+    Loader.loadScripts([ 'js/Game.js' ], function() {
+        Login.showLoginHeader(Game.showGamePage);
+    });
+  });
 });
     </script>
 </body>

@@ -14,6 +14,7 @@ module("Newuser", {
     // JS objects
     delete Newuser.page;
     delete Newuser.form;
+    delete Newuser.justCreatedAccount;
 
     // Page elements
     $('#newuser_page').remove();
