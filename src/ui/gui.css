@@ -297,16 +297,46 @@ select.center {
     border-top-left-radius: 1em;
 }
 
-table.prefsTable td.label {
+table.profileTable thead td {
+    font-size: 2em;
+    font-weight: bold;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+table.prefsTable td.label,
+table.profileTable td.label {
     text-align: right;
-    width: 50%;
+    max-width: 400px;
     vertical-align: top;
 }
 
-table.prefsTable td.value {
+table.profileTable td.label {
+    font-weight: bold;
+    padding-right: 10px;
+}
+
+table.prefsTable td.value,
+table.profileTable td.value,
+table.profileTable td.missingValue {
     text-align: left;
-    width: 50%;
+    max-width: 400px;
     vertical-align: top;
+}
+
+table.profileTable td.missingValue {
+    font-style: italic;
+}
+
+table.profileTable td.partialValue {
+    text-align: left;
+    max-width: 200px;
+    vertical-align: top;
+}
+
+img.profileImage {
+    max-width: 200px;
+    max-height: 200px;
 }
 
 /* Game lists (Overview, Game History) */

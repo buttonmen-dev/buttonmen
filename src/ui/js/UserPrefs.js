@@ -4,6 +4,7 @@ var UserPrefs = {};
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
+UserPrefs.IAMGE_PATH_MAX_LENGTH = 100;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -123,6 +124,17 @@ UserPrefs.actionSetPrefs = function() {
       'value': Api.user_prefs.comment,
       'length': UserPrefs.COMMENT_MAX_LENGTH,
     },
+    'image_path': {
+      'text': 'Image URL',
+      'type': 'text',
+      'value': Api.user_prefs.image_path,
+      'length': UserPrefs.IMAGE_PATH_MAX_LENGTH,
+    },
+    'image': {
+      'text': '',
+      'type': 'image',
+      'value': Api.user_prefs.image_path,
+    },
   };
 
   var gameplayBlurb = 'These preferences affect the actions you take during ' +
@@ -226,6 +238,7 @@ UserPrefs.formSetPrefs = function() {
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
   var comment = $('#userprefs_comment').val();
+  var image_path = $('#userprefs_image_path').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var current_password = $('#userprefs_current_password').val();
   var new_password = $('#userprefs_new_password').val();
@@ -287,6 +300,7 @@ UserPrefs.formSetPrefs = function() {
       'dob_month': dob_month,
       'dob_day': dob_day,
       'comment': comment,
+      'image_path': image_path,
       'autopass': autopass,
       'current_password': current_password,
       'new_password': new_password,
@@ -325,8 +339,12 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
 
   $.each(prefs, function(entryKey, entryInfo) {
     var entryRow = $('<tr>');
+    var labelText = entryInfo.text;
+    if (labelText) {
+      labelText += ':';
+    }
     entryRow.append($('<td>', {
-      'text': entryInfo.text + ':',
+      'text': labelText,
       'class': 'label'
     }));
     var entryInput = $('<td>', { 'class': 'value', });
@@ -340,25 +358,10 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
         'id': 'userprefs_' + entryKey + '_month',
       });
       entryInput.append(monthSelect);
-      var months = [
-        'Month',
-        'January',
-        'February',
-        'March',
-        'April',
-        'May',
-        'June',
-        'July',
-        'August',
-        'September',
-        'October',
-        'November',
-        'December',
-      ];
       for (var monthIndex = 0; monthIndex <= 12; monthIndex++) {
         monthSelect.append($('<option>', {
           'value': monthIndex,
-          'text': months[monthIndex],
+          'text': Api.MONTH_NAMES[monthIndex],
           'selected': (entryInfo.value.month == monthIndex),
         }));
       }
@@ -384,6 +387,18 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
         'text': entryInfo.value,
         'maxlength': entryInfo.length,
       }));
+      break;
+    case 'image':
+      if (entryInfo.value) {
+        var url = entryInfo.value;
+        if (!url.match(/^http/i)) {
+          url = 'http://' + url;
+        }
+        entryInput.append($('<img>', {
+          'src': url,
+          'class': 'profileImage',
+        }));
+      }
       break;
     default:
       entryInput.append($('<input>', {

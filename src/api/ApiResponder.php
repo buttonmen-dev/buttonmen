@@ -159,6 +159,7 @@ class ApiResponder {
         $infoArray = array();
         $infoArray['name_irl'] = $args['name_irl'];
         $infoArray['comment'] = $args['comment'];
+        $infoArray['image_path'] = $args['image_path'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
 
         $addlInfo = array();
@@ -175,6 +176,10 @@ class ApiResponder {
         }
 
         return $interface->set_player_info($_SESSION['user_id'], $infoArray, $addlInfo);
+    }
+
+    protected function get_interface_response_loadProfileInfo($interface, $args) {
+        return $interface->get_profile_info($_SESSION['user_id'], $args['playerName']);
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {

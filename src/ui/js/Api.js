@@ -8,6 +8,23 @@ var Api = (function () {
   // Valid email match
   my.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
 
+  // Array of the names of the months, indexed from 1-12 (plus a bonus Month 0!)
+  my.MONTH_NAMES = [
+    'Month',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   // private methods and variables should be defined separately
   var activity = {};
 
@@ -499,6 +516,29 @@ var Api = (function () {
       return false;
     }
     my.gameNavigation.nextGameId = data.gameId;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the ID of the player's next pending game
+
+  my.loadProfileInfo = function(playerName, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadProfileInfo',
+        'playerName': playerName,
+      },
+      'profile_info',
+      my.parseProfileInfo,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseProfileInfo = function(data) {
+    $.each(data.profile_info, function(key, value) {
+      my.profile_info[key] = value;
+    });
     return true;
   };
 

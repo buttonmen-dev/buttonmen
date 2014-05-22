@@ -67,8 +67,13 @@ class BMInterface {
         $dob_day = 0;
         if ($infoArray['dob'] != NULL) {
             $dob = new DateTime($infoArray['dob']);
-            $dob_month = $dob->format("m");
-            $dob_day = $dob->format("d");
+            $dob_month = (int)$dob->format("m");
+            $dob_day = (int)$dob->format("d");
+        }
+
+        $last_action_time = (int)$infoArray['last_action_timestamp'];
+        if ($last_action_time == 0) {
+            $last_action_time = NULL;
         }
 
         // set the values we want to actually return
@@ -83,7 +88,7 @@ class BMInterface {
             'autopass' => (bool)$infoArray['autopass'],
             'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
-            'last_action_time' => (int)$infoArray['last_action_timestamp'],
+            'last_action_time' => $last_action_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
             'n_games_won' => (int)$infoArray['n_games_won'],
@@ -165,6 +170,34 @@ class BMInterface {
         }
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
+    }
+
+    public function get_profile_info($currentPlayerId, $profilePlayerName) {
+        $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
+        if (!is_int($profilePlayerId)) {
+            return NULL;
+        }
+        $playerInfo = $this->get_player_info($profilePlayerId)['user_prefs'];
+
+        // Just select the fields we want to expose publically
+        $profileInfoArray = array(
+            'id' => $playerInfo['id'],
+            'name_ingame' => $playerInfo['name_ingame'],
+            'name_irl' => $playerInfo['name_irl'],
+            // We'll only expose this if they've set it to be public
+            'email' => NULL,
+            'dob_month' => $playerInfo['dob_month'],
+            'dob_day' => $playerInfo['dob_day'],
+            'image_path' => $playerInfo['image_path'],
+            'comment' => $playerInfo['comment'],
+            'last_action_time' => $playerInfo['last_action_time'],
+            'creation_time' => $playerInfo['creation_time'],
+            'fanatic_button_id' => $playerInfo['fanatic_button_id'],
+            'n_games_won' => $playerInfo['n_games_won'],
+            'n_games_lost' => $playerInfo['n_games_lost'],
+        );
+
+        return array('profile_info' => $profileInfoArray);
     }
 
     public function create_game(

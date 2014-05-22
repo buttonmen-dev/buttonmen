@@ -76,6 +76,12 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadProfileInfo' => array(
+            'mandatory' => array(
+                'playerName' => 'alnum',
+            ),
+            'permitted' => array(),
+        ),
         'login' => array(
             'mandatory' => array(
                 'username' => 'alnum',
@@ -129,6 +135,7 @@ class ApiSpec {
                 'dob_month' => 'number',
                 'dob_day' => 'number',
                 'comment' => 'string',
+                'image_path' => 'string',
                 'autopass' => 'boolean',
             ),
             'permitted' => array(
