@@ -66,6 +66,9 @@ Env.showStatusMessage = function() {
 //   'time' for '17:54:32'
 //   'datetime' for '2014-03-23 17:54:32'
 Env.formatTimestamp = function(timestamp, format) {
+  if (!timestamp) {
+    return '';
+  }
   if (format === null || format === undefined) {
     format = 'datetime';
   }

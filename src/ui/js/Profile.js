@@ -86,16 +86,19 @@ Profile.buildProfileTable = function() {
   table.append(tbody);
 
   var birthday = null;
-  if (Api.profile_info.dob_month != 0 && Api.profile_info.dob_day != 0) {
+  if (Api.profile_info.dob_month !== 0 && Api.profile_info.dob_day !== 0) {
     birthday = Api.MONTH_NAMES[Api.profile_info.dob_month] + ' ' +
       Api.profile_info.dob_day;
   }
 
-  var challengeLink = $('<a>', {
-    'href': 'create_game.html?playerName=' +
-      encodeURIComponent(Api.profile_info.name_ingame),
-    'text': 'Create game!',
-  });
+  var challengeLink = null;
+  if (Login.player != Api.profile_info.name_ingame) {
+    challengeLink = $('<a>', {
+      'href': 'create_game.html?playerName=' +
+        encodeURIComponent(Api.profile_info.name_ingame),
+      'text': 'Create game!',
+    });
+  }
 
   tbody.append(Profile.buildProfileTableRow('Real name',
     Api.profile_info.name_irl, 'unknown', true));
@@ -111,11 +114,11 @@ Profile.buildProfileTable = function() {
     true));
   //TODO make this last_access_time
   tbody.append(Profile.buildProfileTableRow('Last visit',
-    Env.formatTimestamp(Api.profile_info.last_action_time, 'date'), 'never, \n\
-    true'));
+    Env.formatTimestamp(Api.profile_info.last_action_time, 'date'), 'never',
+    true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
-    challengeLink, 'unavailable', true));
+    challengeLink, 'solipsism overflow', true));
   tbody.append(Profile.buildProfileTableRow('Comment',
     Api.profile_info.comment, 'none', false));
 
@@ -127,7 +130,7 @@ Profile.buildProfileTable = function() {
     var image = $('<img>', {
       'src': url,
       'class': 'profileImage',
-    })
+    });
 
     var valueTds = table.find('td.shrinkable');
     valueTds.removeClass('value');
@@ -137,7 +140,7 @@ Profile.buildProfileTable = function() {
     valueTds.first().parent().append(imageTd);
     imageTd.append(image);
 
-    var valueTds = table.find('td.unshrinkable');
+    valueTds = table.find('td.unshrinkable');
     valueTds.attr('colspan', '2');
   }
 
@@ -154,8 +157,8 @@ Profile.buildProfileTableRow =
       tr.append($('<td>', { 'class': 'value ' + valueClass }).append(value));
     } else {
       tr.append($('<td>', {
-        'text': value, 'class':
-          'value ' + valueClass
+        'text': value,
+        'class': 'value ' + valueClass,
       }));
     }
   } else {
@@ -165,4 +168,4 @@ Profile.buildProfileTableRow =
     }));
   }
   return tr;
-}
+};

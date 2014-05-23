@@ -177,7 +177,34 @@ class BMInterface {
         if (!is_int($profilePlayerId)) {
             return NULL;
         }
-        $playerInfo = $this->get_player_info($profilePlayerId)['user_prefs'];
+        $playerInfoResults = $this->get_player_info($profilePlayerId);
+        $playerInfo = $playerInfoResults['user_prefs'];
+
+        $query =
+            'SELECT ' .
+                'COUNT(*) AS number_of_games, ' .
+                'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
+            'FROM game AS g ' .
+                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                'INNER JOIN game_player_view AS v ' .
+                    'ON v.game_id = g.id AND v.player_id = :player_id ' .
+            'WHERE s.name = "COMPLETE" ' .
+            'GROUP BY v.n_rounds_won >= g.n_target_wins;';
+
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $profilePlayerId));
+
+        $nWins = 0;
+        $nLosses = 0;
+
+        while ($row = $statement->fetch()) {
+            if ((int)$row['win_or_loss'] == 1) {
+                $nWins = (int)$row['number_of_games'];
+            }
+            if ((int)$row['win_or_loss'] == 0) {
+                $nLosses = (int)$row['number_of_games'];
+            }
+        }
 
         // Just select the fields we want to expose publically
         $profileInfoArray = array(
@@ -193,8 +220,8 @@ class BMInterface {
             'last_action_time' => $playerInfo['last_action_time'],
             'creation_time' => $playerInfo['creation_time'],
             'fanatic_button_id' => $playerInfo['fanatic_button_id'],
-            'n_games_won' => $playerInfo['n_games_won'],
-            'n_games_lost' => $playerInfo['n_games_lost'],
+            'n_games_won' => $nWins,
+            'n_games_lost' => $nLosses,
         );
 
         return array('profile_info' => $profileInfoArray);
