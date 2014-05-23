@@ -97,11 +97,11 @@ History.searchParameterInfo = {
 // * History.showHistoryPage() is the landing function. Always call
 //   this first. On the initial page load, it sets History.searchParameters
 //   based on the hashbang of the incoming URL, then calls History.getHistory().
+// * History.getFilters() gets data from the API to populate the filters
+//   with. It sets Api.player and Api.button, then calls History.getHistory()
 // * History.getHistory() calls the API, passing it the History.searchParameters
 //   collection and causing Api.search_results to be set. It then calls
-//   History.getFilters()
-// * History.getFilters() gets data from the API to populate the filters
-//   with. It sets Api.player and Api.button, then calls History.showPage()
+//   History.showPage()
 // * History.showPage() uses the data returned by the API to build the contents
 //   of the page as History.page and calls History.layoutPage()
 // * History.layoutPage() sets the contents of <div id="history_page">
@@ -137,15 +137,39 @@ History.showHistoryPage = function() {
     // Since we just entered the page, we should set up a history state for
     // this URL, in case the user presses the back button
     Env.history.replaceState(History.searchParameters,
-        'Button Men Online &mdash History', Env.window.location.hash);
+        'Button Men Online &mdash; History', Env.window.location.hash);
 
     // Get all needed information, then display History page
-    History.getHistory(function() {
-      History.getFilters(History.showPage);
+    History.getFilters(function() {
+      History.getHistory(History.showPage);
     });
   } else {
     History.getFilters(History.showPage);
   }
+};
+
+History.getFilters = function(callback) {
+  Api.getPlayerData(function() {
+    Api.getButtonData(function() {
+      var playerValues = { };
+      $.each(Api.player.list, function(name, playerInfo) {
+        if (playerInfo.status == 'active') {
+          playerValues[name] = name;
+        }
+      });
+      History.searchParameterInfo.playerNameA.source = playerValues;
+      History.searchParameterInfo.playerNameB.source = playerValues;
+
+      var buttonValues = { };
+      $.each(Api.button.list, function(name) {
+        buttonValues[name] = name;
+      });
+      History.searchParameterInfo.buttonNameA.source = buttonValues;
+      History.searchParameterInfo.buttonNameB.source = buttonValues;
+
+      callback();
+    });
+  });
 };
 
 History.getHistory = function(callback) {
@@ -159,6 +183,29 @@ History.getHistory = function(callback) {
     History.layoutPage();
     return;
   }
+
+  // Validate the search parameters that are supposed to be derived from set
+  // lists of values (like player names).
+  var validationError = '';
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (History.searchParameters[name] !== undefined &&
+      info.source !== undefined) {
+      if (info.source[History.searchParameters[name]] === undefined) {
+        validationError += name + ' is not recognized. ';
+      }
+    }
+  });
+
+  if (validationError) {
+    Env.message = {
+      'type': 'error',
+      'text': validationError,
+    };
+    History.page = $('<div>');
+    History.layoutPage();
+    return;
+  }
+
 
   $('#searchButton').attr('disabled', 'disabled');
 
@@ -174,12 +221,6 @@ History.getHistory = function(callback) {
     History.searchParameters,
     callback
   );
-};
-
-History.getFilters = function(callback) {
-  Api.getButtonData(function() {
-    Api.getPlayerData(callback);
-  });
 };
 
 History.showPage = function() {
@@ -236,8 +277,8 @@ History.performManualSearch = function() {
   History.writeSearchParametersToUrl();
 
   // Get all needed information, then display History page
-  History.getHistory(function() {
-    History.getFilters(History.showPage);
+  History.getFilters(function() {
+    History.getHistory(History.showPage);
   });
 };
 
@@ -248,8 +289,8 @@ History.performAutomaticSearch = function() {
   }
 
   // Get all needed information, then display History page
-  History.getHistory(function() {
-    History.getFilters(History.showPage);
+  History.getFilters(function() {
+    History.getHistory(History.showPage);
   });
 };
 
@@ -264,7 +305,7 @@ History.readSearchParametersFromUrl = function() {
 
   History.searchParameters = { };
   $.each(History.searchParameterInfo, function(name, info) {
-    if (info.inputType == 'date') {
+    if (info.inputType == 'dateRange') {
       var minValue = Env.getParameterByName(name + 'Min');
       History.assignSearchParameter(name + 'Min', info.dataType, minValue);
       var maxValue = Env.getParameterByName(name + 'Max');
@@ -280,11 +321,11 @@ History.readSearchParametersFromForm = function() {
   History.searchParameters = { };
 
   $.each(History.searchParameterInfo, function(name, info) {
-    if (info.inputType == 'date') {
+    if (info.inputType == 'dateRange') {
       var minValue = History.page.find('#parameter_' + name + 'Min').val();
-      History.assignSearchParameter(name + 'Min', info.inputType, minValue);
+      History.assignSearchParameter(name + 'Min', info.dataType, minValue);
       var maxValue = History.page.find('#parameter_' + name + 'Max').val();
-      History.assignSearchParameter(name + 'Max', info.inputType, maxValue);
+      History.assignSearchParameter(name + 'Max', info.dataType, maxValue);
     } else {
       var value = History.page.find('#parameter_' + name).val();
       History.assignSearchParameter(name, info.inputType, value);
@@ -351,7 +392,7 @@ History.writeSearchParametersToUrl = function() {
   // Trim off the trailing &
   parameterHash = parameterHash.replace(/&$/, '');
   Env.history.pushState(History.searchParameters,
-    'Button Men Online &mdash History', parameterHash);
+    'Button Men Online &mdash; History', parameterHash);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -422,22 +463,6 @@ History.buildResultsTableHeader = function() {
   head.append(headerRow);
   var filterRow = $('<tr>');
   head.append(filterRow);
-
-  var playerValues = { };
-  $.each(Api.player.list, function(name, playerInfo) {
-    if (playerInfo.status == 'active') {
-      playerValues[name] = name;
-    }
-  });
-  History.searchParameterInfo.playerNameA.source = playerValues;
-  History.searchParameterInfo.playerNameB.source = playerValues;
-
-  var buttonValues = { };
-  $.each(Api.button.list, function(name) {
-    buttonValues[name] = name;
-  });
-  History.searchParameterInfo.buttonNameA.source = buttonValues;
-  History.searchParameterInfo.buttonNameB.source = buttonValues;
 
   $.each(History.searchParameterInfo, function(columnId, columnInfo) {
     if (columnInfo.inputType == 'hidden' || columnInfo.inputType == 'special') {

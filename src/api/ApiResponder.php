@@ -99,18 +99,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_searchGameHistory($interface, $args) {
-        $searchFilters = $interface->assemble_search_filters($args);
-        $searchOptions = $interface->assemble_search_options($args);
-
-        if ($searchFilters === NULL || $searchOptions === NULL) {
-            return NULL;
-        }
-
-        return $interface->search_game_history(
-            $searchFilters,
-            $searchOptions,
-            $_SESSION['user_id']
-        );
+        return $interface->search_game_history($_SESSION['user_id'], $args);
     }
 
     protected function get_interface_response_loadActiveGames($interface) {

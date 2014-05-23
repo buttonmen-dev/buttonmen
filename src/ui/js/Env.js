@@ -86,11 +86,11 @@ Env.showStatusMessage = function() {
 //   'time' for '17:54:32'
 //   'datetime' for '2014-03-23 17:54:32'
 Env.formatTimestamp = function(timestamp, format) {
-  if (timestamp === undefined || timestamp === null) {
+  if (!timestamp) {
     return '';
   }
 
-  if (format === null || format === undefined) {
+  if (!format) {
     format = 'datetime';
   }
 
@@ -124,16 +124,13 @@ Env.formatTimestamp = function(timestamp, format) {
 //   'datetime' for '2014-03-23 17:54:32'
 // strict is a bool indicating whether the specified format should be strictly
 // required.
-Env.parseDateTime = function(input, format, strict) {
-  if (input === undefined || input === null || input === '') {
+Env.parseDateTime = function(input, format) {
+  if (!input) {
     return null;
   }
 
-  if (format === null || format === undefined) {
+  if (!format) {
     format = 'datetime';
-    strict = false;
-  } else if (strict === null || strict === undefined) {
-    strict = true;
   }
 
   // Most pages don't use moment, so we don't always load it in the HTML
@@ -145,13 +142,13 @@ Env.parseDateTime = function(input, format, strict) {
 
   var datetime;
   if (format == 'date') {
-    datetime = moment(input, 'YYYY-MM-DD', strict);
+    datetime = moment(input, 'YYYY-MM-DD', true);
   } else if (format == 'time') {
-    datetime = moment(input, ' HH:mm:ss', strict);
+    datetime = moment(input, ' HH:mm:ss', true);
   } else if (format == 'datetime') {
-    datetime = moment(input, 'YYYY-MM-DD HH:mm:ss', strict);
+    datetime = moment(input, 'YYYY-MM-DD HH:mm:ss', true);
   } else {
-    datetime = moment(input, format, strict);
+    datetime = moment(input, format, true);
   }
   if (!datetime.isValid()) {
     return null;

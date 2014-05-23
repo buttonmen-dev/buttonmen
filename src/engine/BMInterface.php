@@ -968,7 +968,7 @@ class BMInterface {
             return $searchFilters;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::assemble_search_filters: " .
+                'Caught exception in BMInterface::assemble_search_filters: ' .
                 $e->getMessage()
             );
             $this->message = 'Game search failed.';
@@ -1004,7 +1004,7 @@ class BMInterface {
             return $searchOptions;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::assemble_search_options: " .
+                'Caught exception in BMInterface::assemble_search_options: ' .
                 $e->getMessage()
             );
             $this->message = 'Game search failed.';
@@ -1012,10 +1012,16 @@ class BMInterface {
         }
     }
 
-    // Get all games matching the specified search filters. Filters are
-    // expected to have already been validated.
-    public function search_game_history($searchFilters, $searchOptions, $currentPlayerId) {
+    // Get all games matching the specified search parameters.
+    public function search_game_history($currentPlayerId, $args) {
         try {
+            $searchFilters = $this->assemble_search_filters($args);
+            $searchOptions = $this->assemble_search_options($args);
+
+            if ($searchFilters === NULL || $searchOptions === NULL) {
+                return NULL;
+            }
+
             $combinedQuery = '';
 
             // Get all the colors the current player has set in his or her
@@ -1295,8 +1301,8 @@ class BMInterface {
                 $this->message = 'Retrieving summary data for history search failed';
                 error_log(
                     $this->message .
-                    " in BMInterface::search_game_history" .
-                    " -- Full SQL query: " . $combinedQuery
+                    ' in BMInterface::search_game_history' .
+                    ' -- Full SQL query: ' . $combinedQuery
                 );
             }
 
@@ -1304,9 +1310,9 @@ class BMInterface {
             return array('games' => $games, 'summary' => $summary);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::search_game_history: " .
+                'Caught exception in BMInterface::search_game_history: ' .
                 $e->getMessage() .
-                " -- Full SQL query: " . $combinedQuery
+                ' -- Full SQL query: ' . $combinedQuery
             );
             $this->message = 'Game search failed.';
             return NULL;
@@ -1611,7 +1617,7 @@ class BMInterface {
         return $idNameMapping;
     }
 
-    public function get_button_id_from_name($name) {
+    protected function get_button_id_from_name($name) {
         try {
             $query = 'SELECT id FROM button '.
                      'WHERE name = :input';

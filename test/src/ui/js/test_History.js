@@ -73,6 +73,7 @@ asyncTest("test_History.getHistory", function() {
     'playerNameA': 'tester',
     'status': 'COMPLETE',
   };
+  History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
 
   History.getHistory(function() {
     ok(Api.search_results.games, "games list is parsed from server");
@@ -98,6 +99,7 @@ test("test_History.showPage", function() {
     'playerNameA': 'tester',
     'status': 'COMPLETE',
   };
+  History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
 
   // showPage is apparently just too amazing for qunit to handle testing
   // it asynchronously
@@ -120,6 +122,7 @@ asyncTest("test_History.layoutPage", function() {
     'playerNameA': 'tester',
     'status': 'COMPLETE',
   };
+  History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
 
   History.getHistory(function() {
     History.page = $('<div>');
@@ -230,6 +233,7 @@ asyncTest("test_History.buildResultsTableBody", function() {
     'playerNameA': 'tester',
     'status': 'COMPLETE',
   };
+  History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
 
   History.getHistory(function() {
     var tbody = History.buildResultsTableBody();
@@ -249,6 +253,7 @@ asyncTest("test_History.buildResultsTableFooter", function() {
     'playerNameA': 'tester',
     'status': 'COMPLETE',
   };
+  History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
 
   History.getHistory(function() {
     var tfoot = History.buildResultsTableFooter();
