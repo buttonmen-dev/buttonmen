@@ -488,6 +488,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummydata['gameData']['data']['playerIdArray'] = $retdata['gameData']['data']['playerIdArray'];
         $dummydata['playerNameArray'] = $retdata['playerNameArray'];
         $dummydata['timestamp'] = $retdata['timestamp'];
+        $dummydata['gameData']['data']['lastActionTimeArray'] = $retdata['gameData']['data']['lastActionTimeArray'];
 
         $this->assertEquals($dummydata, $retdata);
     }
