@@ -2363,26 +2363,37 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::update_last_action_time
      */
     public function test_update_last_action_time() {
-//        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
-//                                                   self::$userId2WithoutAutopass),
-//                                                   array('Avis', 'Hammer'), 4);
-//        $gameId = $retval['gameId'];
-//
-//        $query = 'SELECT last_action_time FROM player WHERE id = :id';
-//        $statement = $this->object->conn->prepare($query);
-//        $retval = $statement->execute(array(':id' => self::$userId2WithoutAutopass));
-//
-//        var_dump($retval);
-//
-//        $this->object->update_last_action_time($playerId);
-//
-//        $this->object->update_last_action_time($playerId, $gameId);
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Avis', 'Hammer'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = $this->object->load_game($gameId);
+        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
+
+        $this->object->update_last_action_time(self::$userId1WithoutAutopass);
+        $game = $this->object->load_game($gameId);
+        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
+
+        $this->object->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
+        $game = $this->object->load_game($gameId);
+        $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
+        $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
+        $this->assertEquals(0, $game->lastActionTimeArray[1]);
     }
 
     /**
      * @covers BMInterface::update_last_access_time
      */
     public function test_update_last_access_time() {
+        $playerInfoArray = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $preTime = $playerInfoArray['last_access_time'];
 
+        $this->object->update_last_access_time(self::$userId1WithoutAutopass);
+
+        $playerInfoArray = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $postTime = $playerInfoArray['last_access_time'];
+
+        $this->assertGreaterThan($preTime, $postTime);
     }
 }
