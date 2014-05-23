@@ -95,7 +95,7 @@ class BMInterface {
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
-                $this->message = "Player info updated successfully.";
+                $this->message = 'Player info updated successfully.';
                 return array('playerId' => $playerId);
             } catch (Exception $e) {
                 $this->message = 'Player info update failed: '.$e->getMessage();
@@ -215,7 +215,7 @@ class BMInterface {
                 $this->message = 'Game create failed: ' . $e->getMessage();
             }
             error_log(
-                "Caught exception in BMInterface::create_game: " .
+                'Caught exception in BMInterface::create_game: ' .
                 $e->getMessage()
             );
             return NULL;
@@ -531,7 +531,7 @@ class BMInterface {
             return $game;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::load_game: " .
+                'Caught exception in BMInterface::load_game: ' .
                 $e->getMessage()
             );
             $this->message = "Game load failed: $e";
@@ -826,7 +826,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::save_game: " .
+                'Caught exception in BMInterface::save_game: ' .
                 $e->getMessage()
             );
             $this->message = "Game save failed: $e";
@@ -977,7 +977,7 @@ class BMInterface {
             return $this->get_all_games($playerId, TRUE);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_all_active_games: " .
+                'Caught exception in BMInterface::get_all_active_games: ' .
                 $e->getMessage()
             );
             $this->message = 'Game detail get failed.';
@@ -991,7 +991,7 @@ class BMInterface {
             return $this->get_all_games($playerId, FALSE);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_all_active_games: " .
+                'Caught exception in BMInterface::get_all_active_games: ' .
                 $e->getMessage()
             );
             $this->message = 'Game detail get failed.';
@@ -1030,7 +1030,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_next_pending_game: " .
+                'Caught exception in BMInterface::get_next_pending_game: ' .
                 $e->getMessage()
             );
             $this->message = 'Game ID get failed.';
@@ -1077,7 +1077,7 @@ class BMInterface {
                          'hasUnimplementedSkillArray' => $hasUnimplSkillArray);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_all_button_names: " .
+                'Caught exception in BMInterface::get_all_button_names: ' .
                 $e->getMessage()
             );
             $this->message = 'Button name get failed.';
@@ -1096,7 +1096,7 @@ class BMInterface {
             return($row['recipe']);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_button_recipe_from_name: "
+                'Caught exception in BMInterface::get_button_recipe_from_name: '
                 . $e->getMessage()
             );
             $this->message = 'Button recipe get failed.';
@@ -1121,7 +1121,7 @@ class BMInterface {
             return array('nameArray' => $nameArray, 'statusArray' => $statusArray);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_player_names_like: " .
+                'Caught exception in BMInterface::get_player_names_like: ' .
                 $e->getMessage()
             );
             $this->message = 'Player name get failed.';
@@ -1145,7 +1145,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_player_id_from_name: " .
+                'Caught exception in BMInterface::get_player_id_from_name: ' .
                 $e->getMessage()
             );
             $this->message = 'Player ID get failed.';
@@ -1167,7 +1167,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_player_name_from_id: " .
+                'Caught exception in BMInterface::get_player_name_from_id: ' .
                 $e->getMessage()
             );
             $this->message = 'Player name get failed.';
@@ -1180,6 +1180,10 @@ class BMInterface {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
         }
         return $idNameMapping;
+    }
+
+    public function get_player_last_access($playerId) {
+
     }
 
     // Check whether a requested action still needs to be taken.
@@ -1277,7 +1281,7 @@ class BMInterface {
             return $logEntries;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::load_game_action_log: " .
+                'Caught exception in BMInterface::load_game_action_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading log entries';
@@ -1386,7 +1390,7 @@ class BMInterface {
             return $chatEntries;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::load_game_chat_log: " .
+                'Caught exception in BMInterface::load_game_chat_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading chat entries';
@@ -1539,7 +1543,7 @@ class BMInterface {
 
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_chat: " .
+                'Caught exception in BMInterface::submit_chat: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while updating game chat';
@@ -1633,7 +1637,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_die_values: " .
+                'Caught exception in BMInterface::submit_die_values: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting die sizes';
@@ -1713,7 +1717,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_swing_values: " .
+                'Caught exception in BMInterface::submit_swing_values: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting swing values';
@@ -1774,7 +1778,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_option_values: " .
+                'Caught exception in BMInterface::submit_option_values: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting option values';
@@ -1868,7 +1872,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_turn: " .
+                'Caught exception in BMInterface::submit_turn: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while submitting turn';
@@ -1949,7 +1953,7 @@ class BMInterface {
             return TRUE;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::react_to_auxiliary: " .
+                'Caught exception in BMInterface::react_to_auxiliary: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while making auxiliary decision';
@@ -2032,7 +2036,7 @@ class BMInterface {
             return TRUE;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::react_to_reserve: " .
+                'Caught exception in BMInterface::react_to_reserve: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while making reserve decision';
@@ -2128,7 +2132,7 @@ class BMInterface {
             return $isSuccessful;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::react_to_initiative: " .
+                'Caught exception in BMInterface::react_to_initiative: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
@@ -2155,7 +2159,7 @@ class BMInterface {
 
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::update_last_action_time: " .
+                'Caught exception in BMInterface::update_last_action_time: ' .
                 $e->getMessage()
             );
             return NULL;
@@ -2169,7 +2173,7 @@ class BMInterface {
             $statement->execute(array(':id' => $playerId));
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::update_last_access_time: " .
+                'Caught exception in BMInterface::update_last_access_time: ' .
                 $e->getMessage()
             );
             return NULL;
@@ -2184,13 +2188,13 @@ class BMInterface {
             $fetchResult = $statement->fetchAll();
 
             if (count($fetchResult) != 1) {
-                error_log("Wrong number of config values with key " . $conf_key);
+                error_log('Wrong number of config values with key ' . $conf_key);
                 return NULL;
             }
             return $fetchResult[0]['conf_value'];
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_config: " .
+                'Caught exception in BMInterface::get_config: ' .
                 $e->getMessage()
             );
             return NULL;
