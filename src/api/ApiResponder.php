@@ -100,7 +100,7 @@ class ApiResponder {
         if (isset($retval)) {
             foreach ($playerIdArray as $playerId) {
                 if (isset($playerId)) {
-                    $interface->update_last_action_time($playerId, $args['game']);
+                    $interface->update_last_action_time($playerId, $retval['gameId']);
                 }
             }
         }
