@@ -2383,9 +2383,16 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMInterface::get_player_last_access
      * @covers BMInterface::update_last_access_time
      */
     public function test_update_last_access_time() {
+        $preTime = $this->object->get_player_last_access(self::$userId1WithoutAutopass);
 
+        $this->object->update_last_access_time(self::$userId1WithoutAutopass);
+
+        $postTime = $this->object->get_player_last_access(self::$userId1WithoutAutopass);
+
+        $this->assertGreaterThan($preTime, $postTime);
     }
 }

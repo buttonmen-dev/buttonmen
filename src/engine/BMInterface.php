@@ -1183,7 +1183,25 @@ class BMInterface {
     }
 
     public function get_player_last_access($playerId) {
-
+        try {
+            $query = 'SELECT last_access_time FROM player '.
+                     'WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Player ID does not exist.';
+                return('');
+            } else {
+                return($result[0]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_player_last_access: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Player last access time get failed.';
+        }
     }
 
     // Check whether a requested action still needs to be taken.
