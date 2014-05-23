@@ -265,17 +265,10 @@ class BMInterface {
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
                      'v.is_awaiting_action, '.
-                     'UNIX_TIMESTAMP(last_gal.action_time) AS player_last_action_timestamp '.
+                     'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp '.
                      'FROM game AS g '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
-                     'LEFT JOIN game_action_log AS last_gal '.
-                     'ON last_gal.game_id = g.id AND last_gal.id = '.
-                     '(SELECT j_gal.id '.
-                     'FROM game_action_log AS j_gal '.
-                     'WHERE j_gal.game_id = g.id AND j_gal.acting_player = v.player_id '.
-                     'ORDER BY j_gal.action_time DESC '.
-                     'LIMIT 1) '.
                      'WHERE g.id = :game_id '.
                      'ORDER BY g.id;';
             $statement1 = self::$conn->prepare($query);
