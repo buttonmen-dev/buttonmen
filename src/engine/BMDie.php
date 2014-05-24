@@ -387,8 +387,8 @@ class BMDie extends BMCanHaveSkill {
         if (isset($result)) {
             if (array_key_exists('BMSkillMorphing', $result)) {
                 return $result['BMSkillMorphing'];
-            } elseif (array_key_exists('BMSkillDoppleganger', $result)) {
-                return $result['BMSkillDoppleganger'];
+            } elseif (array_key_exists('BMSkillDoppelganger', $result)) {
+                return $result['BMSkillDoppelganger'];
             }
         }
     }
