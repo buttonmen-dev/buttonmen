@@ -37,6 +37,8 @@ module("Game", {
     $('#game_page').remove();
     $('#game_page').empty();
 
+    BMTestUtils.restoreGetParameterByName();
+
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
 

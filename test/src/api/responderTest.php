@@ -525,7 +525,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('savePlayerInfo');
 
-        $args = array('type' => 'savePlayerInfo', 'autopass' => 'True', );
+        $args = array(
+            'type' => 'savePlayerInfo',
+            'name_irl' => 'Test User',
+            'dob_month' => '2',
+            'dob_day' => '29',
+            'comment' => '',
+            'image_path' => '',
+            'autopass' => 'True',
+        );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
 
@@ -537,6 +545,30 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata),
             "Real and dummy player data update return values should have matching structures");
+    }
+
+    public function test_request_loadProfileInfo() {
+        $this->verify_login_required('loadProfileInfo');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadProfileInfo');
+        $this->verify_mandatory_args_required(
+            'loadProfileInfo',
+            array('playerName' => 'foobar',)
+        );
+
+        $args = array('type' => 'loadProfileInfo', 'playerName' => 'responder003');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy player data should have matching structures");
     }
 
     public function test_request_loadPlayerNames() {

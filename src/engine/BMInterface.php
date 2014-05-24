@@ -63,29 +63,98 @@ class BMInterface {
 
         $infoArray = $result[0];
 
+        $dob_month = 0;
+        $dob_day = 0;
+        if ($infoArray['dob'] != NULL) {
+            $dob = new DateTime($infoArray['dob']);
+            $dob_month = (int)$dob->format("m");
+            $dob_day = (int)$dob->format("d");
+        }
+
+        $last_action_time = (int)$infoArray['last_action_timestamp'];
+        if ($last_action_time == 0) {
+            $last_action_time = NULL;
+        }
+
         // set the values we want to actually return
         $playerInfoArray = array(
             'id' => (int)$infoArray['id'],
             'name_ingame' => $infoArray['name_ingame'],
-            'name_irl' => $infoArray['name_irl'],
+            'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
             'email' => $infoArray['email'],
             'status' => $infoArray['status'],
-            'dob' => $infoArray['dob'],
+            'dob_month' => $dob_month,
+            'dob_day' => $dob_day,
             'autopass' => (bool)$infoArray['autopass'],
             'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
-            'last_action_time' => (int)$infoArray['last_action_timestamp'],
+            'last_action_time' => $last_action_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
             'n_games_won' => (int)$infoArray['n_games_won'],
             'n_games_lost' => (int)$infoArray['n_games_lost'],
         );
 
-        return $playerInfoArray;
+        return array('user_prefs' => $playerInfoArray);
     }
 
-    public function set_player_info($playerId, array $infoArray) {
+    public function set_player_info($playerId, array $infoArray, array $addlInfo) {
+        // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
+
+        // Validate everything that needs validating
+        if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
+            ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
+            $this->message = 'DOB is incomplete.';
+            return NULL;
+        }
+
+        if ($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] != 0 &&
+            !checkdate($addlInfo['dob_month'], $addlInfo['dob_day'], 4)) {
+            $this->message = 'DOB is not a valid date.';
+            return NULL;
+        }
+
+        if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
+            !isset($addlInfo['current_password'])) {
+            $this->message = 'Current password is required to change password or email.';
+            return NULL;
+        }
+
+        if (isset($addlInfo['current_password'])) {
+            $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
+            $passwordQuery = self::$conn->prepare($passwordQuery);
+            $passwordQuery->execute(array(':playerId' => $playerId));
+
+            $passwordResults = $passwordQuery->fetchAll();
+            if (count($passwordResults) != 1) {
+                $this->message = 'An error occurred in BMInterface::set_player_info().';
+                return NULL;
+            }
+            $password_hashed = $passwordResults[0]['password_hashed'];
+            if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
+                $this->message = 'Current password is incorrect.';
+                return NULL;
+            }
+        }
+
+        // Read special values into $infoArray
+        if ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] == 0) {
+            $infoArray['dob'] = NULL;
+        } else {
+            // We set the year to 0004 because it was a leap year, to permit Feb. 29
+            $dateString = '0004-' . $addlInfo['dob_month'] . '-' .  $addlInfo['dob_day'];
+            $infoArray['dob'] = date($dateString);
+        }
+
+        if (isset($addlInfo['new_password'])) {
+            $infoArray['password_hashed'] = crypt($addlInfo['new_password']);
+        }
+
+        if (isset($addlInfo['new_email'])) {
+            $infoArray['email'] = $addlInfo['new_email'];
+        }
+
         foreach ($infoArray as $infoType => $info) {
             try {
                 $query = 'UPDATE player '.
@@ -101,7 +170,63 @@ class BMInterface {
                 $this->message = 'Player info update failed: '.$e->getMessage();
             }
         }
+        $this->message = "Player info updated successfully.";
+        return array('playerId' => $playerId);
+    }
 
+    public function get_profile_info($profilePlayerName) {
+        $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
+        if (!is_int($profilePlayerId)) {
+            return NULL;
+        }
+        $playerInfoResults = $this->get_player_info($profilePlayerId);
+        $playerInfo = $playerInfoResults['user_prefs'];
+
+        $query =
+            'SELECT ' .
+                'COUNT(*) AS number_of_games, ' .
+                'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
+            'FROM game AS g ' .
+                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                'INNER JOIN game_player_view AS v ' .
+                    'ON v.game_id = g.id AND v.player_id = :player_id ' .
+            'WHERE s.name = "COMPLETE" ' .
+            'GROUP BY v.n_rounds_won >= g.n_target_wins;';
+
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $profilePlayerId));
+
+        $nWins = 0;
+        $nLosses = 0;
+
+        while ($row = $statement->fetch()) {
+            if ((int)$row['win_or_loss'] == 1) {
+                $nWins = (int)$row['number_of_games'];
+            }
+            if ((int)$row['win_or_loss'] == 0) {
+                $nLosses = (int)$row['number_of_games'];
+            }
+        }
+
+        // Just select the fields we want to expose publically
+        $profileInfoArray = array(
+            'id' => $playerInfo['id'],
+            'name_ingame' => $playerInfo['name_ingame'],
+            'name_irl' => $playerInfo['name_irl'],
+            // We'll only expose this if they've set it to be public
+            'email' => NULL,
+            'dob_month' => $playerInfo['dob_month'],
+            'dob_day' => $playerInfo['dob_day'],
+            'image_path' => $playerInfo['image_path'],
+            'comment' => $playerInfo['comment'],
+            'last_action_time' => $playerInfo['last_action_time'],
+            'creation_time' => $playerInfo['creation_time'],
+            'fanatic_button_id' => $playerInfo['fanatic_button_id'],
+            'n_games_won' => $nWins,
+            'n_games_lost' => $nLosses,
+        );
+
+        return array('profile_info' => $profileInfoArray);
     }
 
     public function create_game(
