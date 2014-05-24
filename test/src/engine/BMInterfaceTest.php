@@ -97,7 +97,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      */
     public function test_get_player_info() {
         $data = $this->object->get_player_info(1);
-        $resultArray = $this['user_prefs'];
+        $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
         $this->assertArrayHasKey('id', $resultArray);
@@ -140,14 +140,16 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
                                        $addlInfo);
-        $playerInfoArray = $this->object->get_player_info(self::$userId1WithoutAutopass)['user_prefs'];
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
 
         $infoArray['autopass'] = 0;
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
                                        $addlInfo);
-        $playerInfoArray = $this->object->get_player_info(self::$userId1WithoutAutopass)['user_prefs'];
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
     }
 
