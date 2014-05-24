@@ -5,14 +5,12 @@ var Profile = {};
 // Action flow through this page:
 // * Profile.showProfilePage() is the landing function. Always call
 // this first. It sets up #profile_page and calls Profile.getProfile()
-// * Profile.getProfile() calls the API, setting Api.button and
-// Api.open_games. It calls Profile.showPage()
+// * Profile.getProfile() calls the API, setting Api.profile_info. It calls
+//   Profile.showPage()
 // * Profile.showPage() uses the data returned by the API to build
-// the contents of the page as Profile.page and calls Profile.layoutPage()
-//
-//* Profile.joinOpenGame() is called whenever the user clicks on one of the
-// Join Game buttons. It calls the API to join the game, setting
-// Api.join_game_result if successful
+//   the contents of the page as Profile.page and calls Profile.layoutPage()
+// * Profile.layoutPage() sets the contents of <div id="profile_page"> on the
+//   live page
 ////////////////////////////////////////////////////////////////////////
 
 Profile.showProfilePage = function() {
@@ -94,7 +92,7 @@ Profile.buildProfileTable = function() {
   var challengeLink = null;
   if (Login.player != Api.profile_info.name_ingame) {
     challengeLink = $('<a>', {
-      'href': 'create_game.html?playerName=' +
+      'href': 'create_game.html?opponent=' +
         encodeURIComponent(Api.profile_info.name_ingame),
       'text': 'Create game!',
     });
