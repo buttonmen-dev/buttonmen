@@ -81,14 +81,20 @@ ActivePlayers.layoutPage = function() {
 // Helper routines to add HTML entities to existing pages
 
 ActivePlayers.buildPlayerTable = function() {
-  var table = $('<table>', { 'class': 'playerList', });
+  var table = $('<table>', { 'class': 'activePlayerList', });
 
   var thead = $('<thead>');
   table.append(thead);
   var headerRow = $('<tr>');
   thead.append(headerRow);
-  headerRow.append($('<th>', { 'text': 'Player', }));
-  headerRow.append($('<th>', { 'text': 'Idle', }));
+  headerRow.append($('<th>', {
+    'class': 'player',
+    'text': 'Player',
+  }));
+  headerRow.append($('<th>', {
+    'class': 'idleness',
+    'text': 'Idle',
+  }));
 
   var tbody = $('<tbody>');
   table.append(tbody);
@@ -100,8 +106,13 @@ ActivePlayers.buildPlayerTable = function() {
         'profile.html?player=' + encodeURIComponent(playerData.playerName),
       'text': playerData.playerName,
     });
-    playerRow.append($('<td>').append(profileLink));
-    playerRow.append($('<td>', { 'text': playerData.idleness }));
+    playerRow.append($('<td>', {
+      'class': 'player',
+    }).append(profileLink));
+    playerRow.append($('<td>', {
+      'class': 'idleness',
+      'text': playerData.idleness
+    }));
   });
 
   return table;
