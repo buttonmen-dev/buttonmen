@@ -542,5 +542,26 @@ var Api = (function () {
     return true;
   };
 
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the list of recently-active players
+
+  my.getActivePlayers = function(numberOfPlayers, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadActivePlayers',
+        'numberOfPlayers': numberOfPlayers,
+      },
+      'active_players',
+      my.parseActivePlayers,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseActivePlayers = function(data) {
+    my.active_players.players = data.players;
+    return true;
+  };
+
   return my;
 }());

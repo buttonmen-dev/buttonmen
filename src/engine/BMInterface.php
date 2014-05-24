@@ -1166,6 +1166,41 @@ class BMInterface {
         }
     }
 
+    public function get_active_players($numberOfPlayers) {
+        try {
+            $query =
+                'SELECT ' .
+                    'name_ingame, ' .
+                    'UNIX_TIMESTAMP(last_access_time) AS last_access_timestamp ' .
+                'FROM player ' .
+                'WHERE UNIX_TIMESTAMP(last_access_time) > 0 ' .
+                'ORDER BY last_access_time DESC ' .
+                'LIMIT :number_of_players;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':number_of_players' => $numberOfPlayers));
+
+            $now = strtotime('now');
+
+            $players = array();
+            while ($row = $statement->fetch()) {
+                $players[] = array(
+                    'playerName' => $row['name_ingame'],
+                    'idleness' =>
+                        $this->get_friendly_time_span((int)$row['last_access_timestamp'], $now),
+                );
+            }
+            $this->message = 'Active players retrieved successfully.';
+            return array('players' => $players);
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_active_players: " .
+                $e->getMessage()
+            );
+            $this->message = 'Getting active players failed.';
+            return NULL;
+        }
+    }
+
     public function get_all_button_names() {
         try {
             // if the site is production, don't report unimplemented buttons at all
