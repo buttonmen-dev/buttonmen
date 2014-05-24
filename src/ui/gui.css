@@ -304,24 +304,32 @@ table.profileTable thead td {
     padding-bottom: 1em;
 }
 
-table.prefsTable td.label,
-table.profileTable td.label {
+table.prefsTable td.label {
     text-align: right;
-    max-width: 400px;
+    width: 50%;
     vertical-align: top;
 }
 
 table.profileTable td.label {
+    text-align: right;
+    max-width: 400px;
+    vertical-align: top;
     font-weight: bold;
-    padding-right: 10px;
+    padding-right: 5px;
 }
 
-table.prefsTable td.value,
+table.prefsTable td.value {
+    text-align: left;
+    width: 50%;
+    vertical-align: top;
+}
+
 table.profileTable td.value,
 table.profileTable td.missingValue {
     text-align: left;
     max-width: 400px;
     vertical-align: top;
+    padding-left: 5px;
 }
 
 table.profileTable td.missingValue {
