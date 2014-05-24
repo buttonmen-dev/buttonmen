@@ -4,7 +4,7 @@ var UserPrefs = {};
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
-UserPrefs.IAMGE_PATH_MAX_LENGTH = 100;
+UserPrefs.IMAGE_PATH_MAX_LENGTH = 100;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -188,7 +188,7 @@ UserPrefs.actionSetPrefs = function() {
     'you\'re currently using.';
   var browserPrefs = {
     'noImages': {
-      'text': 'Don\'t load button images',
+      'text': 'Don\'t load button or player images',
       'type': 'checkbox',
       'checked': Env.getCookieNoImages(),
     },
@@ -384,9 +384,8 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
       entryInput.append($('<textarea>', {
         'name': entryKey,
         'id': 'userprefs_' + entryKey,
-        'text': entryInfo.value,
         'maxlength': entryInfo.length,
-      }));
+      }).val(entryInfo.value));
       break;
     case 'image':
       if (entryInfo.value) {

@@ -30,7 +30,7 @@ if ('unit_test' in Env) {
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
   var match = new RegExp('[?&]' + name + '=([^&]*)').exec(
-    window.location.search
+    Env.window.location.search
   );
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };

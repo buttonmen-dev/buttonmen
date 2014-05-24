@@ -100,11 +100,12 @@ Profile.buildProfileTable = function() {
     });
   }
 
+  var record = Api.profile_info.n_games_won + ' W / ' +
+    Api.profile_info.n_games_lost + ' L';
+
   tbody.append(Profile.buildProfileTableRow('Real name',
     Api.profile_info.name_irl, 'unknown', true));
-  tbody.append(Profile.buildProfileTableRow('Record (W/L)',
-    Api.profile_info.n_games_won + ' / ' + Api.profile_info.n_games_lost,
-    'none', true));
+  tbody.append(Profile.buildProfileTableRow('Record', record, 'none', true));
   tbody.append(Profile.buildProfileTableRow('Birthday', birthday, 'unknown',
     true));
   tbody.append(Profile.buildProfileTableRow('Email address',
@@ -122,7 +123,7 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Comment',
     Api.profile_info.comment, 'none', false));
 
-  if (Api.profile_info.image_path) {
+  if (Api.profile_info.image_path && !Env.getCookieNoImages()) {
     var url = Api.profile_info.image_path;
     if (!url.match(/^http/i)) {
       url = 'http://' + url;

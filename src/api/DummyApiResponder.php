@@ -1185,6 +1185,26 @@ class DummyApiResponder {
         return array(array('playerId' => 1), 'Player info updated successfully.');
     }
 
+    protected function get_interface_response_loadProfileInfo($args) {
+        $profileInfoArray = array(
+            'id' => 3,
+            'name_ingame' => $args['playerName'],
+            'name_irl' => 'Test User',
+            'email' => NULL,
+            'dob_month' => 2,
+            'dob_day' => 29,
+            'image_path' => '',
+            'comment' => '',
+            'last_action_time' => 0,
+            'creation_time' => 0,
+            'fanatic_button_id' => 0,
+            'n_games_won' => 0,
+            'n_games_lost' => 0,
+        );
+
+        return array(array('profile_info' => $profileInfoArray), NULL);
+    }
+
     protected function get_interface_response_loadPlayerNames() {
         $data = array(
             'nameArray' => array(),
