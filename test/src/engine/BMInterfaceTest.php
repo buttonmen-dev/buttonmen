@@ -96,7 +96,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $resultArray = $this->object->get_player_info(1)['user_prefs'];
+        $data = $this->object->get_player_info(1);
+        $resultArray = $this['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
         $this->assertArrayHasKey('id', $resultArray);

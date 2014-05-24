@@ -179,7 +179,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadProfileInfo($interface, $args) {
-        return $interface->get_profile_info($_SESSION['user_id'], $args['playerName']);
+        return $interface->get_profile_info($args['playerName']);
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {
