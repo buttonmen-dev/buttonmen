@@ -79,7 +79,7 @@ asyncTest("test_ActivePlayers.layoutPage", function() {
   });
 });
 
-asyncTest("test_ActivePlayers.buildActivePlayersTable", function() {
+asyncTest("test_ActivePlayers.buildPlayersTable", function() {
   ActivePlayers.getActivePlayers(function() {
     var table = ActivePlayers.buildPlayersTable();
     var htmlout = table.html();
