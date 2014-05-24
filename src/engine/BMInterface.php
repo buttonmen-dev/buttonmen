@@ -149,7 +149,7 @@ class BMInterface {
             $infoArray['dob'] = NULL;
         } else {
             // We set the year to 0004 because it was a leap year, to permit Feb. 29
-            $dateString = '0004-' . $addlInfo['dob_month'] . '-' .  $addlInfo['dob_day'];
+            $dateString = '0004-' . $addlInfo['dob_month'] . '-' . $addlInfo['dob_day'];
             $infoArray['dob'] = date($dateString);
         }
 
@@ -177,7 +177,6 @@ class BMInterface {
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
     }
-
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {

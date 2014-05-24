@@ -1,7 +1,7 @@
 // namespace for this "module"
 var ActivePlayers = {};
 
-Api.NUMBEER_OF_ACTIVE_PLAYERS = 50;
+ActivePlayers.NUMBEER_OF_ACTIVE_PLAYERS = 50;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -33,7 +33,7 @@ ActivePlayers.showActivePlayersPage = function() {
 
 ActivePlayers.getActivePlayers = function(callback) {
   if (Login.logged_in) {
-    Api.getActivePlayers(Api.NUMBEER_OF_ACTIVE_PLAYERS, callback);
+    Api.getActivePlayers(ActivePlayers.NUMBEER_OF_ACTIVE_PLAYERS, callback);
   } else {
     return callback();
   }
@@ -61,7 +61,7 @@ ActivePlayers.showPage = function() {
     };
   } else {
     ActivePlayers.page.append($('<h2>', {'text': 'Who\'s Online', }));
-    ActivePlayers.page.append(ActivePlayers.buildPlayerTable());
+    ActivePlayers.page.append(ActivePlayers.buildPlayersTable());
   }
 
   // Actually layout the page
@@ -80,7 +80,7 @@ ActivePlayers.layoutPage = function() {
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
 
-ActivePlayers.buildPlayerTable = function() {
+ActivePlayers.buildPlayersTable = function() {
   var table = $('<table>', { 'class': 'activePlayerList', });
 
   var thead = $('<thead>');
