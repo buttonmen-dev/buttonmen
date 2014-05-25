@@ -61,6 +61,10 @@ Game.showGamePage = function() {
     $('body').append($('<div>', {'id': 'game_page', }));
   }
 
+  if (Game.logEntryLimit && Env.getCookieCompactMode()) {
+    Game.logEntryLimit = 5;
+  }
+
   // Find the current game, and invoke that with the "parse game state"
   // callback
   Game.getCurrentGame(Game.showStatePage);
@@ -1343,14 +1347,14 @@ Game.pageAddLogFooter = function() {
   if ((Api.game.chatLog.length > 0) || (Api.game.actionLog.length > 0)) {
     var logdiv = $('<div>');
     var logtable = $('<table>');
-    if (Api.game.actionLog.length > 0 && Api.game.chatLog.length > 0) {
+    if (Api.game.actionLog.length > 0 && Api.game.chatLog.length > 0 &&
+      !Env.getCookieCompactMode()) {
       logtable.addClass('twocolumn');
     }
-    var logrow = $('<tr>');
 
-
+    var actiontd;
     if (Api.game.actionLog.length > 0) {
-      var actiontd = $('<td>', {'class': 'logtable', });
+      actiontd = $('<td>', {'class': 'logtable', });
       actiontd.append($('<p>', {'text': 'Recent game activity', }));
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Api.game.actionLog, function(logindex, logentry) {
@@ -1383,11 +1387,11 @@ Game.pageAddLogFooter = function() {
         actiontable.append(actionrow);
       });
       actiontd.append(actiontable);
-      logrow.append(actiontd);
     }
 
+    var chattd;
     if (Api.game.chatLog.length > 0) {
-      var chattd = $('<td>', {'class': 'logtable', });
+      chattd = $('<td>', {'class': 'logtable', });
       chattd.append($('<p>', {'text': 'Recent game chat', }));
       var chattable = $('<table>', {'border': 'on', });
       $.each(Api.game.chatLog, function(logindex, logentry) {
@@ -1419,12 +1423,33 @@ Game.pageAddLogFooter = function() {
         chattable.append(chatrow);
       });
       chattd.append(chattable);
-      logrow.append(chattd);
+    }
+
+    if (Env.getCookieCompactMode()) {
+      if (chattd) {
+        var chatRow = $('<tr>');
+        logtable.append(chatRow);
+        chatRow.append(chattd);
+      }
+      if (actiontd) {
+        var actionRow = $('<tr>');
+        logtable.append(actionRow);
+        actionRow.append(actiontd);
+      }
+    } else {
+      var logRow = $('<tr>');
+      logtable.append(logRow);
+      if (actiontd) {
+        logRow.append(actiontd);
+      }
+      if (chattd) {
+        logRow.append(chattd);
+      }
     }
 
     // Replace text-y whitespace with HTML whitespace to preserve things
     // like newlines and indentation in chat.
-    logrow.find('.logmessage').each(function() {
+    logtable.find('.logmessage').each(function() {
       // We originally added the log messages to the page as text; by reading
       // them back as HTML now, we're getting the version of them that's
       // already been safely HTML-encoded.
@@ -1441,8 +1466,6 @@ Game.pageAddLogFooter = function() {
 
       $(this).html(messagehtml);
     });
-
-    logtable.append(logrow);
 
     if (Game.logEntryLimit !== undefined) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
