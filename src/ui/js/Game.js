@@ -1369,7 +1369,8 @@ Game.pageAddLogFooter = function() {
             'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
         var messageClass = 'left logmessage';
-        if (logentry.timestamp > Api.game.player.lastActionTime) {
+        if (Api.game.isParticipant && Api.game.player.lastActionTime &&
+          logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
         // We add the log message as 'text' to ensure that jquery knows it's
@@ -1406,7 +1407,8 @@ Game.pageAddLogFooter = function() {
             Env.formatTimestamp(logentry.timestamp) + ')',
         }));
         var messageClass = 'left logmessage';
-        if (logentry.timestamp > Api.game.player.lastActionTime) {
+        if (Api.game.isParticipant && Api.game.player.lastActionTime &&
+          logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
         // We add the log message as 'text' to ensure that jquery knows it's
