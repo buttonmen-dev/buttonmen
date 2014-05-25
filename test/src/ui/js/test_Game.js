@@ -797,6 +797,29 @@ asyncTest("test_Game.pageAddFooter", function() {
   });
 });
 
+asyncTest("test_Game.pageAddFooter", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddFooter();
+    ok(true, "No special testing of pageAddFooter() as a whole is done");
+    start();
+  });
+});
+
+test("test_Game.pageAddUnhideChatButton", function() {
+  Game.page = $('<div>');
+  Game.pageAddUnhideChatButton(true);
+  var unhideButton = Game.page.find('.unhideChat');
+  ok(unhideButton.length, 'Add/Edit Chat button should appear when requested');
+
+  Game.page.empty();
+  Game.pageAddUnhideChatButton(false);
+  var unhideButton = Game.page.find('.unhideChat');
+  ok(!unhideButton.length,
+    'Add/Edit Chat button should not appear when not requested');
+});
+
 asyncTest("test_Game.pageAddGameNavigationFooter", function() {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
