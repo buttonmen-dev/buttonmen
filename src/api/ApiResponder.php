@@ -275,12 +275,18 @@ class ApiResponder {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
         }
-        return $interface->submit_chat(
+        $retval = $interface->submit_chat(
             $_SESSION['user_id'],
             $args['game'],
             $args['edit'],
             $args['chat']
         );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_submitTurn($interface, $args) {

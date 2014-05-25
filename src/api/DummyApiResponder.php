@@ -1172,6 +1172,7 @@ class DummyApiResponder {
                            'image_path' => NULL,
                            'comment' => NULL,
                            'last_action_time' => 0,
+                           'last_access_time' => 0,
                            'creation_time' => 1388193734,
                            'fanatic_button_id' => 0,
                            'n_games_won' => 0,
