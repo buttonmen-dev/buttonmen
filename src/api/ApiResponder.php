@@ -312,6 +312,49 @@ class ApiResponder {
         return $retval;
     }
 
+    ////////////////////////////////////////////////////////////
+    // Forum-related methods
+
+    protected function get_interface_response_loadForumOverview($interface) {
+        return $interface->load_forum_overview($_SESSION['user_id']);
+    }
+
+    protected function get_interface_response_loadForumBoard($interface, $args) {
+        return $interface->load_forum_board($_SESSION['user_id'], (int)$args['boardId']);
+    }
+
+    protected function get_interface_response_loadForumThread($interface, $args) {
+        return $interface->load_forum_thread($_SESSION['user_id'], (int)$args['threadId']);
+    }
+
+    protected function get_interface_response_markForumBoardRead($interface, $args) {
+        return $interface->mark_forum_board_read($_SESSION['user_id'], (int)$args['boardId']);
+    }
+
+    protected function get_interface_response_markForumThreadRead($interface, $args) {
+        return $interface->mark_forum_thread_read($_SESSION['user_id'], (int)$args['threadId']);
+    }
+
+    protected function get_interface_response_createForumThread($interface, $args) {
+        return $interface->create_forum_thread(
+            $_SESSION['user_id'],
+            (int)$args['boardId'],
+            $args['title'],
+            $args['body']
+        );
+    }
+
+    protected function get_interface_response_createForumPost($interface, $args) {
+        return $interface->create_forum_post(
+            $_SESSION['user_id'],
+            (int)$args['threadId'],
+            $args['body']
+        );
+    }
+
+    // End of Forum-related methods
+    ////////////////////////////////////////////////////////////
+
     protected function get_interface_response_login($interface, $args) {
         assert(!is_array($interface));
         $login_success = login($args['username'], $args['password']);

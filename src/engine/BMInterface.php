@@ -2138,6 +2138,367 @@ class BMInterface {
         }
     }
 
+    ////////////////////////////////////////////////////////////
+    // Forum-related methods
+
+    // Retrieves an overview of all of the boards available on the forum
+    public function load_forum_overview($currentPlayerId) {
+        try {
+            $results = array();
+
+            // Get the list of all boards
+            $query =
+                'SELECT b.*, COUNT(t.id) AS number_of_threads ' .
+                'FROM forum_board AS b '.
+                    'LEFT JOIN forum_thread AS t ON t.board_id = b.id ' .
+                'GROUP BY b.id ' .
+                'ORDER BY b.sort_order ASC;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute();
+
+            $boards = array();
+            while ($row = $statement->fetch()) {
+                $boards[(int)$row['id']] = array(
+                    'boardName' => $row['name'],
+                    'description' => $row['description'],
+                    'numberOfThreads' => (int)$row['number_of_threads'],
+                );
+            }
+
+            // Identify the first new post for each board
+            $query =
+                'SELECT b.id AS board_id, v.id AS post_id, v.thread_id AS thread_id ' .
+                'FROM forum_board AS b ' .
+                    'LEFT JOIN forum_player_post_view AS v ' .
+                        'ON v.board_id = b.id AND v.reader_player_id = :current_player_id ' .
+                'WHERE v.is_new ' .
+                'ORDER BY v.creation_time ASC ' .
+                'LIMIT 1;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':current_player_id', currentPlayerId));
+
+            while ($row = $statement->fetch()) {
+                $boards[(int)$row['id']]['firstNewPostId'] = (int)$row['post_id'];
+                $boards[(int)$row['id']]['firstNewPostThreadId'] = (int)$row['thread_id'];
+            }
+
+            $results['boards'] = $boards;
+
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_forum_overview: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Retrieves an overview of a specific forum board, plus information on all
+    // the threads on that board
+    public function load_forum_board($currentPlayerId, $boardId) {
+        try {
+            $results = array();
+
+            // Get the details about the board itself
+            $query =
+                'SELECT b.* ' .
+                'FROM forum_board AS b ' .
+                'WHERE b.id = :board_id';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':board_id' => $boardId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $this->message = 'Forum board loading failed';
+                error_log('Wrong number of records returned for forum_board.id = ' . $boardId);
+                return NULL;
+            }
+            $results['boardId'] = (int)$fetchResult[0]['id'];
+            $results['boardName'] = $fetchResult[0]['name'];
+            $results['description'] = $fetchResult[0]['description'];
+
+            // Get a list of threads on this board, with info on their original posts
+            $query =
+                'SELECT ' .
+                    't.*, ' .
+                    'COUNT(v.id) AS number_of_posts, ' .
+                    'v.poster_name, ' .
+                    'v.creation_time ' .
+                'FROM forum_thread t ' .
+                    'INNER JOIN forum_player_post_view AS v ' .
+                        'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
+                'WHERE t.board_id = :board_id AND t.deleted = 0' .
+                'GROUP BY t.id ASC ' .
+                'ORDER BY v.creation_time ASC;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':current_player_id' => $currentPlayerId,
+                ':board_id' => $boardId,
+            ));
+
+            $threads = array();
+            while ($row = $statement->fetch()) {
+                $threads[(int)$row['id']] = array(
+                    'threadTitle' => $row['title'],
+                    'numberOfPosts' => (int)$row['number_of_posts'],
+                    'originalPosterName' => $row['poster_name'],
+                    'originalCreationTime' => (int)$row['creation_time'],
+                );
+            }
+
+            // Now, with info on their latest posts
+            $query =
+                'SELECT t.id, v.poster_name, v.last_update_time ' .
+                'FROM forum_thread t ' .
+                    'INNER JOIN forum_player_post_view AS v ' .
+                        'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
+                'WHERE t.board_id = :board_id AND t.deleted = 0 ' .
+                'GROUP BY t.id ASC ' .
+                'ORDER BY v.last_update_time DESC;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':current_player_id' => $currentPlayerId,
+                ':board_id' => $boardId,
+            ));
+
+            while ($row = $statement->fetch()) {
+                $threads[(int)$row['id']]['latestPosterName'] = $row['poster_name'];
+                $threads[(int)$row['id']]['latestLastUpdateTime'] = (int)$row['last_update_time'];
+            }
+
+            // Finally, with their first new posts
+            $query =
+                'SELECT t.id, v.id AS post_id ' .
+                'FROM forum_thread t ' .
+                    'INNER JOIN forum_player_post_view AS v ' .
+                        'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
+                'WHERE t.board_id = :board_id AND t.deleted = 0 AND v.is_new ' .
+                'GROUP BY t.id ASC ' .
+                'ORDER BY v.creation_time ASC;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':current_player_id' => $currentPlayerId,
+                ':board_id' => $boardId,
+            ));
+
+            while ($row = $statement->fetch()) {
+                $threads[(int)$row['id']]['firstNewPostId'] = (int)$row['post_id'];
+            }
+
+            $results['threads'] = $threads;
+
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_forum_board: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Retrieves an overview of a specific forum thread, plus information on
+    // the posts in that thread
+    public function load_forum_thread($currentPlayerId, $threadId) {
+        try {
+            $results = array();
+
+            // Get the details about the thread itself
+            $query =
+                'SELECT t.*, b.name AS board_name ' .
+                'FROM forum_thread AS t ' .
+                    'INNER JOIN forum_board AS b ON b.id = t.board_id ' .
+                'WHERE t.id = :thread_id AND t.deleted = 0;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':thread_id' => $threadId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $this->message = 'Forum thread loading failed';
+                error_log('Wrong number of records returned for forum_thread.id = ' . $threadId);
+                return NULL;
+            }
+            $results['threadId'] = (int)$fetchResult[0]['id'];
+            $results['threadTitle'] = $fetchResult[0]['title'];
+            $results['boardId'] = (int)$fetchResult[0]['board_id'];
+            $results['boardName'] = $fetchResult[0]['board_name'];
+
+            // Get a list of posts in this thread
+            $query =
+                'SELECT v.* ' .
+                'FROM forum_player_post_view v ' .
+                'WHERE v.thread_id = :thread_id AND v.reader_player_id = :current_player_id ' .
+                'ORDER BY v.creation_time ASC;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':current_player_id' => $currentPlayerId,
+                ':thread_id' => $threadId,
+            ));
+
+            $posts = array();
+            while ($row = $statement->fetch()) {
+                $posts[(int)$row['id']] = array(
+                    'posterName' => $row['poster_name'],
+                    'creationTime' => (int)$row['creation_time'],
+                    'lastUpdateTime' => (int)$row['last_update_time'],
+                    'isNew' => (bool)$row['is_new'],
+                    'body' => ((bool)$row['deleted'] ? '[DELETED]' : $row['body']),
+                    'deleted' => (bool)$row['deleted'],
+                );
+            }
+
+            $results['posts'] = $posts;
+
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::load_forum_thread: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Indicates that the reader has finished reading all of the posts on this
+    // board which they care to read
+    public function mark_forum_board_read($currentPlayerId, $boardId) {
+        try {
+            $query =
+                'INSERT INTO forum_board_player_map ' .
+                    '(board_id, player_id, read_time) ' .
+                'VALUES ' .
+                    '(:board_id, :current_player_id, NOW()) ' .
+                'ON DUPLICATE KEY UPDATE read_time = NOW();';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':board_id' => $boardId,
+                ':current_player_id' => $currentPlayerId,
+            ));
+
+            return array('success' => TRUE);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::mark_forum_board_read: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Indicates that the reader has finished reading all of the posts in this
+    // thread which they care to read
+    public function mark_forum_thread_read($currentPlayerId, $threadId) {
+        try {
+            $query =
+                'INSERT INTO forum_thread_player_map ' .
+                    '(thread_id, player_id, read_time) ' .
+                'VALUES (:thread_id, :current_player_id, NOW()) ' .
+                'ON DUPLICATE KEY UPDATE read_time = NOW();';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':thread_id' => $threadId,
+                ':current_player_id' => $currentPlayerId,
+            ));
+
+            return array('success' => TRUE);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::mark_forum_thread_read: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Adds a new thread to the specified board
+    public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
+        try {
+            $query =
+                'INSERT INTO forum_thread (board_id, title, deleted) ' .
+                'VALUES (:board_id, :title, 0);';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':board_id' => $boardId,
+                ':title' => $title,
+            ));
+
+            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
+            $statement->execute();
+            $fetchData = $statement->fetch();
+            $threadId = (int)$fetchData[0];
+
+            $query =
+                'INSERT INTO forum_post ' .
+                    '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
+                'VALUES ' .
+                    '(:thread_id, :current_player_id, NOW(), NOW(), :body, 0);';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':thread_id' => $threadId,
+                ':current_player_id' => $currentPlayerId,
+                ':body' => $body,
+            ));
+
+            return array('boardId' => $boardId, 'threadId' => $threadId);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::create_forum_thread: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Adds a new post to the specified thread
+    public function create_forum_post($currentPlayerId, $threadId, $body) {
+        try {
+            $query =
+                'INSERT INTO forum_post ' .
+                    '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
+                'VALUES ' .
+                    '(:thread_id, :current_player_id, NOW(), NOW(), :body, 0);';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':thread_id' => $threadId,
+                ':current_player_id' => $currentPlayerId,
+                ':body' => $body,
+            ));
+
+            $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
+            $statement->execute();
+            $fetchData = $statement->fetch();
+            $postId = (int)$fetchData[0];
+
+            $results = load_forum_thread($currentPlayerId, $threadId);
+            $results['newPostId'] = $postId;
+
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::create_forum_post: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // End of Forum-related methods
+    ////////////////////////////////////////////////////////////
+
     public function update_last_action_time($playerId, $gameId = NULL) {
         try {
             $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';

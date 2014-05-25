@@ -12,6 +12,38 @@ class ApiSpec {
     // * mandatory: argument which must be present
     // * permitted: additional argument which may be present
     private $functionArgs = array(
+        // createForumPost returns:
+        //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   posts[postId: int]: {
+        //     posterName: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     isNew: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        //   newPostId: int,
+        'createForumPost' => array(
+            'mandatory' => array(
+                'threadId' => 'number',
+                'body' => 'string',
+            ),
+            'permitted' => array(),
+        ),
+        // createForumThread returns:
+        //   boardId: int,
+        //   threadId: int,
+        'createForumThread' => array(
+            'mandatory' => array(
+                'boardId' => 'number',
+                'title' => 'string',
+                'body' => 'string',
+            ),
+            'permitted' => array(),
+        ),
         'createUser' => array(
             'mandatory' => array(
                 'username' => 'alnum',
@@ -50,6 +82,56 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        // loadForumBoard returns:
+        //   boardId: int,
+        //   boardName: string,
+        //   description: string,
+        //   threads[threadId: int]: {
+        //     threadTitle: string,
+        //     numberOfPosts: int,
+        //     originalPosterName: string,
+        //     originalCreationTime: int,
+        //     latestPosterName: string,
+        //     latestLastUpdateTime: int,
+        //     firstNewPostId: int,
+        //   },
+        'loadForumBoard' => array(
+            'mandatory' => array(
+                'boardId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        // loadForumOverview returns:
+        //   boards[boardId: int]: {
+        //     boardName: string,
+        //     description: string,
+        //     numberOfThreads: int,
+        //     firstNewPostId: int,
+        //     firstNewPostThreadId: int,
+        //   },
+        'loadForumOverview' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        // loadForumThread returns:
+        //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   posts[postId: int]: {
+        //     posterName: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     new: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        'loadForumThread' => array(
+            'mandatory' => array(
+                'threadId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'loadGameData' => array(
             'mandatory' => array(
                 'game' => 'number',
@@ -85,6 +167,22 @@ class ApiSpec {
         ),
         'logout' => array(
             'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        // markForumBoardRead returns:
+        //   success: bool,
+        'markForumBoardRead' => array(
+            'mandatory' => array(
+                'boardId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        // markForumThreadRead returns:
+        //   success: bool,
+        'markForumThreadRead' => array(
+            'mandatory' => array(
+                'threadid' => 'number',
+            ),
             'permitted' => array(),
         ),
         'reactToAuxiliary' => array(
