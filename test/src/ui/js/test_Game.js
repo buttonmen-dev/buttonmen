@@ -797,16 +797,6 @@ asyncTest("test_Game.pageAddFooter", function() {
   });
 });
 
-asyncTest("test_Game.pageAddFooter", function() {
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    Game.page = $('<div>');
-    Game.pageAddFooter();
-    ok(true, "No special testing of pageAddFooter() as a whole is done");
-    start();
-  });
-});
-
 test("test_Game.pageAddUnhideChatButton", function() {
   Game.page = $('<div>');
   Game.pageAddUnhideChatButton(true);
