@@ -324,15 +324,33 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadForumThread($interface, $args) {
-        return $interface->load_forum_thread($_SESSION['user_id'], (int)$args['threadId']);
+        if (isset($args['currentPostId'])) {
+            $currentPostId = (int)$args['currentPostId'];
+        } else {
+            $currentPostId = NULL;
+        }
+        return $interface->load_forum_thread(
+            $_SESSION['user_id'],
+            (int)$args['threadId'],
+            $currentPostId
+        );
     }
 
     protected function get_interface_response_markForumBoardRead($interface, $args) {
-        return $interface->mark_forum_board_read($_SESSION['user_id'], (int)$args['boardId']);
+        return $interface->mark_forum_board_read(
+            $_SESSION['user_id'],
+            (int)$args['boardId'],
+            (int)$args['timestamp']
+        );
     }
 
     protected function get_interface_response_markForumThreadRead($interface, $args) {
-        return $interface->mark_forum_thread_read($_SESSION['user_id'], (int)$args['threadId']);
+        return $interface->mark_forum_thread_read(
+            $_SESSION['user_id'],
+            (int)$args['threadId'],
+            (int)$args['boardId'],
+            (int)$args['timestamp']
+        );
     }
 
     protected function get_interface_response_createForumThread($interface, $args) {

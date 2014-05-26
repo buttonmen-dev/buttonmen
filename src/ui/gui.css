@@ -344,3 +344,104 @@ table.gameList tfoot:before {
     color: white; /* to hide text */
     display: block;
 }
+
+/* Forum */
+
+div.forum,
+div.forum div,
+div.forum td {
+    text-align: left;
+}
+
+div.forum .pseudoLink {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+div.forum div.breadcrumb {
+    font-size: 1.2em;
+}
+
+div.forum > table {
+    max-width: 1000px;
+}
+
+div.forum td.heading,
+div.forum td.attribution,
+div.forum td.body {
+    border: 2px solid #cccccc;
+    vertical-align: top;
+    padding: 0.4em;
+}
+
+div.forum td.heading {
+    background-color: #cccccc;
+}
+
+div.forum div.titleHeader {
+    font-size: 1.6em;
+    margin: 0.2em 0 0.2em 1.2em;
+}
+
+div.forum table.posts {
+    border-collapse: separate;
+    border-spacing: 0 1em;
+}
+
+div.forum td.attribution {
+    background-color: #cccccc;
+    white-space: nowrap;
+    /* This is so we don't get the borders from both cells together */
+    border-right: 0;
+}
+
+div.forum td.attribution .name {
+    font-weight: bold;
+}
+
+div.forum td.attribution .postAnchor {
+    color: white;
+    text-decoration: none;
+    margin-right: 0.4em;
+    cursor: pointer;
+}
+
+div.forum td.attribution .date {
+    font-size: 0.8em;
+}
+
+div.forum td.attribution .new {
+    text-align: center;
+    color: black;
+    background-color: white;
+    font-weight: bold;
+    width: 4em;
+    margin: 0.4em auto 0.2em auto;
+    border-radius: 0.5em;
+}
+
+div.forum td.body {
+    min-width: 600px;
+}
+
+div.forum td.body deleted {
+    color: #cccccc;
+}
+
+div.forum tr.reply td.attribution {
+    font-weight: bold;
+    background-color: #dddddd;
+}
+
+div.forum tr.reply textarea {
+    width: 99%;
+    height: 10em;
+}
+
+div.forum tr.reply td {
+    text-align: right;
+}
+
+div.forum div.markRead {
+    text-align: center;
+}

@@ -146,7 +146,7 @@ var Api = (function () {
 
 // Verifies that the API data loaded correctly and displays the page with
 // an error message otherwise.
-my.verifyApiData = function(apiKey, layoutPage) {
+my.verifyApiData = function(apiKey, layOutPage) {
   if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
     return true;
   }
@@ -157,7 +157,7 @@ my.verifyApiData = function(apiKey, layoutPage) {
       'text': 'An internal error occurred while loading the page.',
     };
   }
-  layoutPage();
+  layOutPage();
   return false;
 };
 
@@ -547,11 +547,73 @@ my.verifyApiData = function(apiKey, layoutPage) {
     );
   };
 
-  my.loadForumThread = function(threadId, callbackfunc) {
+  my.loadForumThread = function(threadId, currentPostId, callbackfunc) {
+    if (!currentPostId) {
+      currentPostId = undefined;
+    }
     my.apiParsePost(
       {
         'type': 'loadForumThread',
         'threadId': threadId,
+        'currentPostId': currentPostId,
+      },
+      'forum_thread',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.markForumBoardRead = function(callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'markForumBoardRead',
+        'boardId': my.forum_board.boardId,
+        'timestamp': my.forum_board.timestamp,
+      },
+      'forum_overview',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.markForumThreadRead = function(callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'markForumThreadRead',
+        'threadId': my.forum_thread.threadId,
+        'boardId': my.forum_thread.boardId,
+        'timestamp': my.forum_thread.timestamp,
+      },
+      'forum_board',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.createForumThread = function(title, body, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'createForumThread',
+        'boardId': my.forum_board.boardId,
+        'title': title,
+        'body': body,
+      },
+      'forum_board',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.createForumPost = function(body, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'createForumPost',
+        'threadId': my.forum_thread.threadId,
+        'body': body,
       },
       'forum_thread',
       my.parseGenericData,

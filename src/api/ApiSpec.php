@@ -12,11 +12,12 @@ class ApiSpec {
     // * mandatory: argument which must be present
     // * permitted: additional argument which may be present
     private $functionArgs = array(
-        // createForumPost returns:
+        // createForumPost returns (from loadForumThread):
         //   threadId: int,
         //   threadTitle: string,
         //   boardId: int,
         //   boardName: string,
+        //   currentPostId: int (nullable),
         //   posts[postId: int]: {
         //     posterName: string,
         //     creationTime: int,
@@ -25,7 +26,7 @@ class ApiSpec {
         //     body: string,
         //     deleted: bool,
         //   },
-        //   newPostId: int,
+        //   timestamp: int,
         'createForumPost' => array(
             'mandatory' => array(
                 'threadId' => 'number',
@@ -33,8 +34,21 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
-        // createForumThread returns:
+        // createForumThread returns (from loadForumThread):
         //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   currentPostId: int (nullable),
+        //   posts[postId: int]: {
+        //     posterName: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     isNew: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        //   timestamp: int,
         'createForumThread' => array(
             'mandatory' => array(
                 'boardId' => 'number',
@@ -94,6 +108,7 @@ class ApiSpec {
         //     latestLastUpdateTime: int,
         //     firstNewPostId: int,
         //   },
+        //   timestamp: int,
         'loadForumBoard' => array(
             'mandatory' => array(
                 'boardId' => 'number',
@@ -108,6 +123,7 @@ class ApiSpec {
         //     firstNewPostId: int,
         //     firstNewPostThreadId: int,
         //   },
+        //   timestamp: int,
         'loadForumOverview' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -117,6 +133,7 @@ class ApiSpec {
         //   threadTitle: string,
         //   boardId: int,
         //   boardName: string,
+        //   currentPostId: int (nullable),
         //   posts[postId: int]: {
         //     posterName: string,
         //     creationTime: int,
@@ -125,11 +142,14 @@ class ApiSpec {
         //     body: string,
         //     deleted: bool,
         //   },
+        //   timestamp: int,
         'loadForumThread' => array(
             'mandatory' => array(
                 'threadId' => 'number',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'currentPostId' => 'number',
+            ),
         ),
         'loadGameData' => array(
             'mandatory' => array(
@@ -168,19 +188,41 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
-        // markForumBoardRead returns:
-        //   success: bool,
+        // markForumBoardRead returns (from loadForumOverview):
+        //   boards[boardId: int]: {
+        //     boardName: string,
+        //     description: string,
+        //     numberOfThreads: int,
+        //     firstNewPostId: int,
+        //     firstNewPostThreadId: int,
+        //   },
+        //   timestamp: int,
         'markForumBoardRead' => array(
             'mandatory' => array(
                 'boardId' => 'number',
+                'timestamp' => 'number',
             ),
             'permitted' => array(),
         ),
-        // markForumThreadRead returns:
-        //   success: bool,
+        // markForumThreadRead returns (from loadForumBoard):
+        //   boardId: int,
+        //   boardName: string,
+        //   description: string,
+        //   threads[threadId: int]: {
+        //     threadTitle: string,
+        //     numberOfPosts: int,
+        //     originalPosterName: string,
+        //     originalCreationTime: int,
+        //     latestPosterName: string,
+        //     latestLastUpdateTime: int,
+        //     firstNewPostId: int,
+        //   },
+        //   timestamp: int,
         'markForumThreadRead' => array(
             'mandatory' => array(
                 'threadId' => 'number',
+                'boardId' => 'number',
+                'timestamp' => 'number',
             ),
             'permitted' => array(),
         ),
@@ -309,7 +351,7 @@ class ApiSpec {
                     return array(
                         'ok' => FALSE,
                         'message' => 'Argument (' . $argname . ') to function ' .
-                                     $args['type'] . ' is invalid',
+                                     $args['type'] . ' is invalid - ',
                     );
                 }
             }

@@ -878,12 +878,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_invalid_arg_rejected('markForumBoardRead');
         $this->verify_mandatory_args_required(
             'markForumBoardRead',
-            array('boardId' => 1)
+            array('boardId' => 1, 'timestamp' => strtotime('now'))
         );
 
         $args = array(
             'type' => 'markForumBoardRead',
             'boardId' => 1,
+            'timestamp' => strtotime('now'),
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -903,12 +904,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_invalid_arg_rejected('markForumThreadRead');
         $this->verify_mandatory_args_required(
             'markForumThreadRead',
-            array('threadId' => 1)
+            array(
+                'threadId' => 1,
+                'boardId' => 1,
+                'timestamp' => strtotime('now'),
+            )
         );
 
         $args = array(
             'type' => 'markForumThreadRead',
             'threadId' => 1,
+            'boardId' => 1,
+            'timestamp' => strtotime('now'),
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);

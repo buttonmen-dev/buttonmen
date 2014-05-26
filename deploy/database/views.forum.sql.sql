@@ -7,7 +7,8 @@ AS SELECT
     poster.name_ingame AS poster_name,
     thread.board_id AS board_id,
     reader.id AS reader_player_id,
-    (post.last_update_time > GREATEST(COALESCE(tpm.read_time, 0), COALESCE(bpm.read_time, 0))) AS is_new
+    (post.last_update_time > GREATEST(COALESCE(tpm.read_time, 0), COALESCE(bpm.read_time, 0)) &&
+        reader.id != poster.id) AS is_new
 FROM forum_post AS post
     INNER JOIN player AS poster ON poster.id = post.poster_player_id
     INNER JOIN forum_thread AS thread ON thread.id = post.thread_id AND thread.deleted = 0

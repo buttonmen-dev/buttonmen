@@ -2187,6 +2187,7 @@ class BMInterface {
             }
 
             $results['boards'] = $boards;
+            $results['timestamp'] = strtotime('now');
 
             $this->message = 'Forum overview loading succeeded';
             return $results;
@@ -2303,6 +2304,7 @@ class BMInterface {
             }
 
             $results['threads'] = $threads;
+            $results['timestamp'] = strtotime('now');
 
             $this->message = 'Forum board loading succeeded';
             return $results;
@@ -2317,7 +2319,7 @@ class BMInterface {
 
     // Retrieves an overview of a specific forum thread, plus information on
     // the posts in that thread
-    public function load_forum_thread($currentPlayerId, $threadId) {
+    public function load_forum_thread($currentPlayerId, $threadId, $currentPostId) {
         try {
             $results = array();
 
@@ -2341,6 +2343,7 @@ class BMInterface {
             $results['threadTitle'] = $fetchResult[0]['title'];
             $results['boardId'] = (int)$fetchResult[0]['board_id'];
             $results['boardName'] = $fetchResult[0]['board_name'];
+            $results['currentPostId'] = $currentPostId;
 
             // Get a list of posts in this thread
             $query =
@@ -2371,6 +2374,7 @@ class BMInterface {
             }
 
             $results['posts'] = $posts;
+            $results['timestamp'] = strtotime('now');
 
             $this->message = 'Forum thread loading succeeded';
             return $results;
@@ -2385,23 +2389,25 @@ class BMInterface {
 
     // Indicates that the reader has finished reading all of the posts on this
     // board which they care to read
-    public function mark_forum_board_read($currentPlayerId, $boardId) {
+    public function mark_forum_board_read($currentPlayerId, $boardId, $timestamp) {
         try {
             $query =
                 'INSERT INTO forum_board_player_map ' .
                     '(board_id, player_id, read_time) ' .
                 'VALUES ' .
-                    '(:board_id, :current_player_id, NOW()) ' .
-                'ON DUPLICATE KEY UPDATE read_time = NOW();';
+                    '(:board_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
+                'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
 
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':board_id' => $boardId,
                 ':current_player_id' => $currentPlayerId,
+                ':timestamp_insert' => $timestamp,
+                ':timestamp_update' => $timestamp,
             ));
 
             $this->message = 'Forum board marked read successfully';
-            return array('success' => TRUE);
+            return $this->load_forum_overview($currentPlayerId);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::mark_forum_board_read: ' .
@@ -2413,22 +2419,24 @@ class BMInterface {
 
     // Indicates that the reader has finished reading all of the posts in this
     // thread which they care to read
-    public function mark_forum_thread_read($currentPlayerId, $threadId) {
+    public function mark_forum_thread_read($currentPlayerId, $threadId, $boardId, $timestamp) {
         try {
             $query =
                 'INSERT INTO forum_thread_player_map ' .
                     '(thread_id, player_id, read_time) ' .
-                'VALUES (:thread_id, :current_player_id, NOW()) ' .
-                'ON DUPLICATE KEY UPDATE read_time = NOW();';
+                'VALUES (:thread_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
+                'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
 
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':thread_id' => $threadId,
                 ':current_player_id' => $currentPlayerId,
+                ':timestamp_insert' => $timestamp,
+                ':timestamp_update' => $timestamp,
             ));
 
             $this->message = 'Forum thread marked read successfully';
-            return array('success' => TRUE);
+            return $this->load_forum_board($currentPlayerId, $boardId);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::mark_forum_thread_read: ' .
@@ -2470,7 +2478,7 @@ class BMInterface {
             ));
 
             $this->message = 'Forum thread created successfully';
-            return array('threadId' => $threadId);
+            return $this->load_forum_thread($currentPlayerId, $threadId, NULL);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::create_forum_thread: ' .
@@ -2501,7 +2509,7 @@ class BMInterface {
             $fetchData = $statement->fetch();
             $postId = (int)$fetchData[0];
 
-            $results = $this->load_forum_thread($currentPlayerId, $threadId);
+            $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
             $results['newPostId'] = $postId;
 
             $this->message = 'Forum post created successfully';

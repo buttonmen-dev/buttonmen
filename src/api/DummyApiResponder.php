@@ -1271,6 +1271,7 @@ class DummyApiResponder {
         );
 
         $results['boards'] = $boards;
+        $results['timestamp'] = 1401118756;
 
         return array($results, 'Forum overview loading succeeded');
     }
@@ -1302,6 +1303,7 @@ class DummyApiResponder {
         );
 
         $results['threads'] = $threads;
+        $results['timestamp'] = 1401118756;
 
         return array($results, 'Forum board loading succeeded');
     }
@@ -1332,28 +1334,32 @@ class DummyApiResponder {
         );
 
         $results['posts'] = $posts;
+        $results['timestamp'] = 1401118756;
 
         return array($results, 'Forum thread loading succeeded');
     }
 
     protected function get_interface_response_markForumBoardRead($args) {
-        $results = array('success' => TRUE);
+        $otherResults = $this->get_interface_response_loadForumOverview();
+        $results = $otherResults[0];
         return array($results, 'Forum board marked read successfully');
     }
 
     protected function get_interface_response_markForumThreadRead($args) {
-        $results = array('success' => TRUE);
+        $otherResults = $this->get_interface_response_loadForumBoard(NULL);
+        $results = $otherResults[0];
         return array($results, 'Forum thread marked read successfully');
     }
 
     protected function get_interface_response_createForumThread($args) {
-        $results = array('threadId' => 3);
+        $otherResults = $this->get_interface_response_loadForumThread(NULL);
+        $results = $otherResults[0];
         return array($results, 'Forum thread created successfully');
     }
 
     protected function get_interface_response_createForumPost($args) {
-        $loadForumThreadResults = $this->get_interface_response_loadForumThread(2);
-        $results = $loadForumThreadResults[0];
+        $otherResults = $this->get_interface_response_loadForumThread(NULL);
+        $results = $otherResults[0];
         $results['newPostId'] = 4;
         return array($results, 'Forum post created successfully');
     }
