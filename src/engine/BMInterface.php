@@ -2163,6 +2163,8 @@ class BMInterface {
                     'boardName' => $row['name'],
                     'description' => $row['description'],
                     'numberOfThreads' => (int)$row['number_of_threads'],
+                    'firstNewPostId' => NULL,
+                    'firstNewPostThreadId' => NULL,
                 );
             }
 
@@ -2172,26 +2174,28 @@ class BMInterface {
                 'FROM forum_board AS b ' .
                     'LEFT JOIN forum_player_post_view AS v ' .
                         'ON v.board_id = b.id AND v.reader_player_id = :current_player_id ' .
-                'WHERE v.is_new ' .
-                'ORDER BY v.creation_time ASC ' .
-                'LIMIT 1;';
+                'WHERE v.is_new = 1 ' .
+                'GROUP BY b.id ' .
+                'ORDER BY v.creation_time ASC ';
 
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':current_player_id', currentPlayerId));
+            $statement->execute(array(':current_player_id' => $currentPlayerId));
 
             while ($row = $statement->fetch()) {
-                $boards[(int)$row['id']]['firstNewPostId'] = (int)$row['post_id'];
-                $boards[(int)$row['id']]['firstNewPostThreadId'] = (int)$row['thread_id'];
+                $boards[(int)$row['board_id']]['firstNewPostId'] = (int)$row['post_id'];
+                $boards[(int)$row['board_id']]['firstNewPostThreadId'] = (int)$row['thread_id'];
             }
 
             $results['boards'] = $boards;
 
+            $this->message = 'Forum overview loading succeeded';
             return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_forum_overview: ' .
                 $e->getMessage()
             );
+            $this->message = 'Forum overview loading failed';
             return NULL;
         }
     }
@@ -2231,7 +2235,7 @@ class BMInterface {
                 'FROM forum_thread t ' .
                     'INNER JOIN forum_player_post_view AS v ' .
                         'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
-                'WHERE t.board_id = :board_id AND t.deleted = 0' .
+                'WHERE t.board_id = :board_id AND t.deleted = 0 ' .
                 'GROUP BY t.id ASC ' .
                 'ORDER BY v.creation_time ASC;';
 
@@ -2248,6 +2252,9 @@ class BMInterface {
                     'numberOfPosts' => (int)$row['number_of_posts'],
                     'originalPosterName' => $row['poster_name'],
                     'originalCreationTime' => (int)$row['creation_time'],
+                    'latestPosterName' => NULL,
+                    'latestLastUpdateTime' => NULL,
+                    'firstNewPostId' => NULL,
                 );
             }
 
@@ -2274,11 +2281,11 @@ class BMInterface {
 
             // Finally, with their first new posts
             $query =
-                'SELECT t.id, v.id AS post_id ' .
+                'SELECT t.id AS thread_id, v.id AS post_id ' .
                 'FROM forum_thread t ' .
                     'INNER JOIN forum_player_post_view AS v ' .
                         'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
-                'WHERE t.board_id = :board_id AND t.deleted = 0 AND v.is_new ' .
+                'WHERE t.board_id = :board_id AND t.deleted = 0 AND v.is_new = 1 ' .
                 'GROUP BY t.id ASC ' .
                 'ORDER BY v.creation_time ASC;';
 
@@ -2289,11 +2296,12 @@ class BMInterface {
             ));
 
             while ($row = $statement->fetch()) {
-                $threads[(int)$row['id']]['firstNewPostId'] = (int)$row['post_id'];
+                $threads[(int)$row['thread_id']]['firstNewPostId'] = (int)$row['post_id'];
             }
 
             $results['threads'] = $threads;
 
+            $this->message = 'Forum board loading succeeded';
             return $results;
         } catch (Exception $e) {
             error_log(
@@ -2358,6 +2366,7 @@ class BMInterface {
 
             $results['posts'] = $posts;
 
+            $this->message = 'Forum thread loading succeeded';
             return $results;
         } catch (Exception $e) {
             error_log(
@@ -2385,6 +2394,7 @@ class BMInterface {
                 ':current_player_id' => $currentPlayerId,
             ));
 
+            $this->message = 'Forum board marked read successfully';
             return array('success' => TRUE);
         } catch (Exception $e) {
             error_log(
@@ -2411,6 +2421,7 @@ class BMInterface {
                 ':current_player_id' => $currentPlayerId,
             ));
 
+            $this->message = 'Forum thread marked read successfully';
             return array('success' => TRUE);
         } catch (Exception $e) {
             error_log(
@@ -2452,7 +2463,8 @@ class BMInterface {
                 ':body' => $body,
             ));
 
-            return array('boardId' => $boardId, 'threadId' => $threadId);
+            $this->message = 'Forum thread created successfully';
+            return array('threadId' => $threadId);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::create_forum_thread: ' .
@@ -2483,9 +2495,10 @@ class BMInterface {
             $fetchData = $statement->fetch();
             $postId = (int)$fetchData[0];
 
-            $results = load_forum_thread($currentPlayerId, $threadId);
+            $results = $this->load_forum_thread($currentPlayerId, $threadId);
             $results['newPostId'] = $postId;
 
+            $this->message = 'Forum post created successfully';
             return $results;
         } catch (Exception $e) {
             error_log(

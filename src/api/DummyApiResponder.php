@@ -1248,6 +1248,119 @@ class DummyApiResponder {
         return array(NULL, "function not implemented");
     }
 
+    ////////////////////////////////////////////////////////////
+    // Forum-related methods
+
+    protected function get_interface_response_loadForumOverview() {
+        $results = array();
+
+        $boards = array();
+        $boards[1] = array(
+            'boardName' => 'Miscellaneous Chatting',
+            'description' => 'Any topic that doesn\'t fit anywhere else.',
+            'numberOfThreads' => 2,
+            'firstNewPostId' => 3,
+            'firstNewPostThreadId' => 2,
+        );
+        $boards[2] = array(
+            'boardName' => 'Features and Bugs',
+            'description' => 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.',
+            'numberOfThreads' => 0,
+            'firstNewPostId' => NULL,
+            'firstNewPostThreadId' => NULL,
+        );
+
+        $results['boards'] = $boards;
+
+        return array($results, 'Forum overview loading succeeded');
+    }
+
+    protected function get_interface_response_loadForumBoard($args) {
+        $results = array();
+        $results['boardId'] = 1;
+        $results['boardName'] = 'Miscellaneous Chatting';
+        $results['description'] = 'Any topic that doesn\'t fit anywhere else.';
+
+        $threads = array();
+        $threads[1] = array(
+            'threadTitle' => 'Who likes ice cream?',
+            'numberOfPosts' => 2,
+            'originalPosterName' => 'responder003',
+            'originalCreationTime' => 1401055337,
+            'latestPosterName' => 'responder004',
+            'latestLastUpdateTime' => 1401055397,
+            'firstNewPostId' => 2,
+        );
+        $threads[2] = array(
+            'threadTitle' => 'Welcome to Button Men',
+            'numberOfPosts' => 1,
+            'originalPosterName' => 'responder003',
+            'originalCreationTime' => 1401055367,
+            'latestPosterName' => 'responder003',
+            'latestLastUpdateTime' => 1401055367,
+            'firstNewPostId' => NULL,
+        );
+
+        $results['threads'] = $threads;
+
+        return array($results, 'Forum board loading succeeded');
+    }
+
+    protected function get_interface_response_loadForumThread($args) {
+        $results = array();
+        $results['threadId'] = 1;
+        $results['threadTitle'] = 'Who likes ice cream?';
+        $results['boardId'] = 1;
+        $results['boardName'] = 'Miscellaneous Chatting';
+
+        $posts = array();
+        $posts[1] = array(
+            'posterName' => 'responder003',
+            'creationTime' => 1401055337,
+            'lastUpdateTime' => 1401055337,
+            'isNew' => FALSE,
+            'body' => 'I can\'t be the only one!',
+            'deleted' => FALSE,
+        );
+        $posts[2] = array(
+            'posterName' => 'responder004',
+            'creationTime' => 1401055397,
+            'lastUpdateTime' => 1401055397,
+            'isNew' => TRUE,
+            'body' => 'Hey, wow, I do too!',
+            'deleted' => FALSE,
+        );
+
+        $results['posts'] = $posts;
+
+        return array($results, 'Forum thread loading succeeded');
+    }
+
+    protected function get_interface_response_markForumBoardRead($args) {
+        $results = array('success' => TRUE);
+        return array($results, 'Forum board marked read successfully');
+    }
+
+    protected function get_interface_response_markForumThreadRead($args) {
+        $results = array('success' => TRUE);
+        return array($results, 'Forum thread marked read successfully');
+    }
+
+    protected function get_interface_response_createForumThread($args) {
+        $results = array('threadId' => 3);
+        return array($results, 'Forum thread created successfully');
+    }
+
+    protected function get_interface_response_createForumPost($args) {
+        $loadForumThreadResults = $this->get_interface_response_loadForumThread(2);
+        $results = $loadForumThreadResults[0];
+        $results['newPostId'] = 4;
+        return array($results, 'Forum post created successfully');
+    }
+
+    // End of Forum-related methods
+    ////////////////////////////////////////////////////////////
+
     protected function get_interface_response_logout() {
 //            logout();
 //            $data = array('userName' => FALSE);

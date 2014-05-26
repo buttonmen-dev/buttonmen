@@ -34,7 +34,6 @@ class ApiSpec {
             'permitted' => array(),
         ),
         // createForumThread returns:
-        //   boardId: int,
         //   threadId: int,
         'createForumThread' => array(
             'mandatory' => array(
@@ -181,7 +180,7 @@ class ApiSpec {
         //   success: bool,
         'markForumThreadRead' => array(
             'mandatory' => array(
-                'threadid' => 'number',
+                'threadId' => 'number',
             ),
             'permitted' => array(),
         ),
