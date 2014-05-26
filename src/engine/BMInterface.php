@@ -2231,7 +2231,7 @@ class BMInterface {
                     't.*, ' .
                     'COUNT(v.id) AS number_of_posts, ' .
                     'v.poster_name, ' .
-                    'v.creation_time ' .
+                    'UNIX_TIMESTAMP(v.creation_time) AS creation_timestamp ' .
                 'FROM forum_thread t ' .
                     'INNER JOIN forum_player_post_view AS v ' .
                         'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
@@ -2251,7 +2251,7 @@ class BMInterface {
                     'threadTitle' => $row['title'],
                     'numberOfPosts' => (int)$row['number_of_posts'],
                     'originalPosterName' => $row['poster_name'],
-                    'originalCreationTime' => (int)$row['creation_time'],
+                    'originalCreationTime' => (int)$row['creation_timestamp'],
                     'latestPosterName' => NULL,
                     'latestLastUpdateTime' => NULL,
                     'firstNewPostId' => NULL,
@@ -2260,7 +2260,10 @@ class BMInterface {
 
             // Now, with info on their latest posts
             $query =
-                'SELECT t.id, v.poster_name, v.last_update_time ' .
+                'SELECT ' .
+                    't.id, ' .
+                    'v.poster_name, ' .
+                    'UNIX_TIMESTAMP(v.last_update_time) AS last_update_timestamp ' .
                 'FROM forum_thread t ' .
                     'INNER JOIN forum_player_post_view AS v ' .
                         'ON v.thread_id = t.id AND v.reader_player_id = :current_player_id ' .
@@ -2276,7 +2279,7 @@ class BMInterface {
 
             while ($row = $statement->fetch()) {
                 $threads[(int)$row['id']]['latestPosterName'] = $row['poster_name'];
-                $threads[(int)$row['id']]['latestLastUpdateTime'] = (int)$row['last_update_time'];
+                $threads[(int)$row['id']]['latestLastUpdateTime'] = (int)$row['last_update_timestamp'];
             }
 
             // Finally, with their first new posts
@@ -2341,7 +2344,10 @@ class BMInterface {
 
             // Get a list of posts in this thread
             $query =
-                'SELECT v.* ' .
+                'SELECT ' .
+                    'v.*, ' .
+                    'UNIX_TIMESTAMP(v.creation_time) AS creation_timestamp, ' .
+                    'UNIX_TIMESTAMP(v.last_update_time) AS last_update_timestamp ' .
                 'FROM forum_player_post_view v ' .
                 'WHERE v.thread_id = :thread_id AND v.reader_player_id = :current_player_id ' .
                 'ORDER BY v.creation_time ASC;';
@@ -2356,8 +2362,8 @@ class BMInterface {
             while ($row = $statement->fetch()) {
                 $posts[(int)$row['id']] = array(
                     'posterName' => $row['poster_name'],
-                    'creationTime' => (int)$row['creation_time'],
-                    'lastUpdateTime' => (int)$row['last_update_time'],
+                    'creationTime' => (int)$row['creation_timestamp'],
+                    'lastUpdateTime' => (int)$row['last_update_timestamp'],
                     'isNew' => (bool)$row['is_new'],
                     'body' => ((bool)$row['deleted'] ? '[DELETED]' : $row['body']),
                     'deleted' => (bool)$row['deleted'],

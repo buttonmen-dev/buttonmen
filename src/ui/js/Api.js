@@ -50,7 +50,7 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (parser(rs.data)) {
+          if (parser(rs.data, apikey)) {
             my[apikey].load_status = 'ok';
             return callback();
           } else {
@@ -136,6 +136,30 @@ var Api = (function () {
       }
     );
   };
+
+  my.parseGenericData = function(data, apiKey) {
+    $.each(data, function(key, value) {
+      my[apiKey][key] = value;
+    });
+    return true;
+  };
+
+// Verifies that the API data loaded correctly and displays the page with
+// an error message otherwise.
+my.verifyApiData = function(apiKey, layoutPage) {
+  if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
+    return true;
+  }
+
+  if (Env.message === undefined || Env.message === null) {
+    Env.message = {
+      'type': 'error',
+      'text': 'An internal error occurred while loading the page.',
+    };
+  }
+  layoutPage();
+  return false;
+};
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
@@ -496,6 +520,48 @@ var Api = (function () {
     my.gameNavigation.nextGameId = data.gameId;
     return true;
   };
+
+  ////////////////////////////////////////////////////////////
+  // Forum-related methods
+
+  my.loadForumOverview = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadForumOverview', },
+      'forum_overview',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumBoard = function(boardId, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadForumBoard',
+        'boardId': boardId,
+      },
+      'forum_board',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumThread = function(threadId, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadForumThread',
+        'threadId': threadId,
+      },
+      'forum_thread',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  // End of Forum-related methods
+  ////////////////////////////////////////////////////////////
 
   return my;
 }());

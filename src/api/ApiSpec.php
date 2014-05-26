@@ -121,7 +121,7 @@ class ApiSpec {
         //     posterName: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
-        //     new: bool,
+        //     isNew: bool,
         //     body: string,
         //     deleted: bool,
         //   },
