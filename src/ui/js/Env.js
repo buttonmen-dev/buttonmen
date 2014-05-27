@@ -47,6 +47,8 @@ Env.setupEnvStub = function() {
 Env.showStatusMessage = function() {
   $('#env_message').empty();
   if (Env.message) {
+    // Make sure we're at the top of the page so the user will see the message
+    $('html, body').animate({ scrollTop: 0 }, 200);
     var msgobj = $('<p>');
     msgobj.append(
       $('<font>', {

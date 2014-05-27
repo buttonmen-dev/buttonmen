@@ -18,7 +18,8 @@ class ApiSpec {
         //   boardId: int,
         //   boardName: string,
         //   currentPostId: int (nullable),
-        //   posts[postId: int]: {
+        //   posts[]: {
+        //     postId: int,
         //     posterName: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
@@ -40,7 +41,8 @@ class ApiSpec {
         //   boardId: int,
         //   boardName: string,
         //   currentPostId: int (nullable),
-        //   posts[postId: int]: {
+        //   posts[]: {
+        //     postId: int,
         //     posterName: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
@@ -99,7 +101,8 @@ class ApiSpec {
         //   boardId: int,
         //   boardName: string,
         //   description: string,
-        //   threads[threadId: int]: {
+        //   threads[]: {
+        //     threadId: int,
         //     threadTitle: string,
         //     numberOfPosts: int,
         //     originalPosterName: string,
@@ -116,7 +119,8 @@ class ApiSpec {
             'permitted' => array(),
         ),
         // loadForumOverview returns:
-        //   boards[boardId: int]: {
+        //   boards[]: {
+        //     boardId: int,
         //     boardName: string,
         //     description: string,
         //     numberOfThreads: int,
@@ -134,7 +138,8 @@ class ApiSpec {
         //   boardId: int,
         //   boardName: string,
         //   currentPostId: int (nullable),
-        //   posts[postId: int]: {
+        //   posts[]: {
+        //     postId: int,
         //     posterName: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
@@ -189,7 +194,8 @@ class ApiSpec {
             'permitted' => array(),
         ),
         // markForumBoardRead returns (from loadForumOverview):
-        //   boards[boardId: int]: {
+        //   boards[]: {
+        //     boardId: int,
         //     boardName: string,
         //     description: string,
         //     numberOfThreads: int,
@@ -208,7 +214,8 @@ class ApiSpec {
         //   boardId: int,
         //   boardName: string,
         //   description: string,
-        //   threads[threadId: int]: {
+        //   threads[]: {
+        //     threadId: int,
         //     threadTitle: string,
         //     numberOfPosts: int,
         //     originalPosterName: string,

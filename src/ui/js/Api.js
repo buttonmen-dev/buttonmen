@@ -601,7 +601,7 @@ my.verifyApiData = function(apiKey, layOutPage) {
         'title': title,
         'body': body,
       },
-      'forum_board',
+      'forum_thread',
       my.parseGenericData,
       callbackfunc,
       callbackfunc

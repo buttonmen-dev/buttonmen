@@ -46,7 +46,7 @@ DROP TABLE IF EXISTS forum_thread_player_map;
 CREATE TABLE forum_thread_player_map(
     thread_id SMALLINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
-    read_time TIMESTAMP NOT NULL,
+    read_time TIMESTAMP,
     PRIMARY KEY (thread_id, player_id),
     FOREIGN KEY (thread_id) REFERENCES forum_thread(id),
     FOREIGN KEY (player_id) REFERENCES player(id)

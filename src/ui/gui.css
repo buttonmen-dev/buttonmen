@@ -364,11 +364,15 @@ div.forum div.breadcrumb {
 
 div.forum > table {
     max-width: 1000px;
+    border-collapse: separate;
+    border-spacing: 0 0.5em;
 }
 
 div.forum td.heading,
 div.forum td.attribution,
-div.forum td.body {
+div.forum td.body,
+div.forum td.threadTitle,
+div.forum td.threadNotes {
     border: 2px solid #cccccc;
     vertical-align: top;
     padding: 0.4em;
@@ -376,23 +380,45 @@ div.forum td.body {
 
 div.forum td.heading {
     background-color: #cccccc;
+    vertical-align: middle;
+}
+
+div.forum .boardNameHeader {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+div.forum .boardDescriptionHeader {
+    font-size: 0.8em;
+    margin: 0.2em 0 0.2em 1.2em;
 }
 
 div.forum div.titleHeader {
     font-size: 1.6em;
+    font-weight: bold;
     margin: 0.2em 0 0.2em 1.2em;
 }
 
-div.forum table.posts {
-    border-collapse: separate;
-    border-spacing: 0 1em;
+div.forum td.threadNotes {
+    background-color: #cccccc;
+    white-space: nowrap;
+    /* This is so we don't get the borders from both cells together */
+    border-left: 0;
 }
 
 div.forum td.attribution {
     background-color: #cccccc;
     white-space: nowrap;
+}
+
+div.forum table.posts td.attribution {
     /* This is so we don't get the borders from both cells together */
     border-right: 0;
+}
+
+div.forum table.threads td.attribution {
+    /* This is so we don't get the borders from both cells together */
+    border-left: 0;
 }
 
 div.forum td.attribution .name {
@@ -406,11 +432,11 @@ div.forum td.attribution .postAnchor {
     cursor: pointer;
 }
 
-div.forum td.attribution .date {
+div.forum .minor {
     font-size: 0.8em;
 }
 
-div.forum td.attribution .new {
+div.forum .new {
     text-align: center;
     color: black;
     background-color: white;
@@ -420,7 +446,8 @@ div.forum td.attribution .new {
     border-radius: 0.5em;
 }
 
-div.forum td.body {
+div.forum td.body,
+div.forum td.threadTitle {
     min-width: 600px;
 }
 
@@ -428,17 +455,35 @@ div.forum td.body deleted {
     color: #cccccc;
 }
 
-div.forum tr.reply td.attribution {
+div.forum .threads tr.writePost {
+    display: none;
+}
+
+div.forum tr.writePost td.attribution {
     font-weight: bold;
     background-color: #dddddd;
 }
 
-div.forum tr.reply textarea {
+div.forum tr.writePost input.title {
     width: 99%;
-    height: 10em;
+    display: block;
 }
 
-div.forum tr.reply td {
+div.forum tr.writePost textarea {
+    width: 99%;
+    height: 10em;
+    display: block;
+}
+
+/* Weirdly, text inputs and textareas default to using different fonts */
+div.forum tr.writePost input[type=text],
+div.forum tr.writePost textarea {
+    font-family: sans-serif;
+    font-size: 1em;
+    margin-bottom: 0.4em;
+}
+
+div.forum tr.writePost td {
     text-align: right;
 }
 
