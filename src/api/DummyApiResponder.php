@@ -487,6 +487,7 @@ class DummyApiResponder {
             "sideScoreArray" => array(NULL, NULL),
             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                            array("W" => 0, "L" => 0, "D" => 0)),
+            "lastActionTimeArray" => array(0, 0),
         );
 
         // base params for a John Kovalic vs John Kovalic game, here to
@@ -763,6 +764,8 @@ class DummyApiResponder {
                                                          array(12, 10, 4));
             $gameData['capturedRecipeArrayArray'] = array(array("(10)", "(X)"),
                                                           array("(12)", "(10)", "(4)"));
+            $gameData['capturedDiePropsArrayArray'] = array(array(array(), array()),
+                                                            array(array(), array(), array("WasJustCaptured" => TRUE)));
             $gameData['validAttackTypeArray'] = array("Power" => "Power", "Skill" => "Skill", );
             $gameData['roundScoreArray'] = array(18, 36);
             $gameData['sideScoreArray'] = array(-12, 12);
@@ -1169,6 +1172,7 @@ class DummyApiResponder {
                            'image_path' => NULL,
                            'comment' => NULL,
                            'last_action_time' => 0,
+                           'last_access_time' => 0,
                            'creation_time' => 1388193734,
                            'fanatic_button_id' => 0,
                            'n_games_won' => 0,

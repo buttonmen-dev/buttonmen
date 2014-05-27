@@ -388,6 +388,8 @@ var Api = (function () {
       'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
       'gameScoreDict':
         my.game.gameData.data.gameScoreArrayArray[playerIdx],
+      'lastActionTime':
+        my.game.gameData.data.lastActionTimeArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
       'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
       'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
@@ -409,6 +411,8 @@ var Api = (function () {
         my.game.gameData.data.capturedSidesArrayArray[playerIdx],
       'capturedRecipeArray':
         my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+      'capturedDiePropertiesArray':
+        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
 
       'swingRequestArray': {},
       'optRequestArray':

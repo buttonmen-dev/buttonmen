@@ -73,9 +73,13 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
             $maxArray[$idx] = $die->max;
         }
 
-        $this->assertNotEquals(min($maxArray), max($maxArray));
-        $this->assertEquals(6, min($maxArray));
-        $this->assertEquals(12, max($maxArray));
+        $counts = array_count_values($maxArray);
+        $values = array_keys($counts);
+        asort($values);
+        // reset keys
+        $values = array_values($values);
+
+        $this->assertEquals(array(6, 8, 10, 12), $values);
     }
 
     /**
@@ -103,9 +107,13 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
             $maxArray[$idx] = $die->max;
         }
 
-        $this->assertNotEquals(min($maxArray), max($maxArray));
-        $this->assertEquals(12, min($maxArray));
-        $this->assertEquals(24, max($maxArray));
+        $counts = array_count_values($maxArray);
+        $values = array_keys($counts);
+        asort($values);
+        // reset keys
+        $values = array_values($values);
+
+        $this->assertEquals(array(12, 16, 20, 24), $values);
     }
 
     /**
@@ -124,5 +132,16 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
         $die = BMDie::create_from_recipe('(X)?');
         $this->assertTrue($die->has_skill('Mood'));
         $this->assertEquals('(X)?', $die->recipe);
+    }
+
+    /**
+     * @covers BMSkillMood::valid_die_sizes
+     */
+    public function testValid_die_sizes() {
+        $this->assertEquals(array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30),
+                            BMSkillMood::valid_die_sizes(array(1, 30)));
+
+        $this->assertEquals(array(4, 6, 8, 10, 12, 16, 20),
+                            BMSkillMood::valid_die_sizes(array(4, 20)));
     }
 }

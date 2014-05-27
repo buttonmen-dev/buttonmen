@@ -33,13 +33,15 @@ BMTestUtils.getAllElements = function() {
   var jsInfo = {
     'Api':      JSON.stringify(Api, null, "  "),
     'Env':      JSON.stringify(Env, null, "  "),
+    'Config':   JSON.stringify(Config, null, "  "),
     'Game':     JSON.stringify(Game, null, "  "),
+    'Loader':   JSON.stringify(Loader, null, "  "),
     'Login':    JSON.stringify(Login, null, "  "),
     'Newgame':  JSON.stringify(Newgame, null, "  "),
     'Newuser':  JSON.stringify(Newuser, null, "  "),
     'Overview': JSON.stringify(Overview, null, "  "),
   };
-  
+
   return {
     'DOM': elementInfo,
     'JS': jsInfo
