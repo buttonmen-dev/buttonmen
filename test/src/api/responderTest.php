@@ -897,6 +897,31 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy forum board marking as read return values should have matching structures");
     }
 
+    public function test_request_markForumRead() {
+        $this->verify_login_required('markForumRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumRead');
+        $this->verify_mandatory_args_required(
+            'markForumRead',
+            array('timestamp' => strtotime('now'))
+        );
+
+        $args = array(
+            'type' => 'markForumRead',
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Entire forum marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy entire forum marking as read return values should have matching structures");
+    }
+
     public function test_request_markForumThreadRead() {
         $this->verify_login_required('markForumThreadRead');
 

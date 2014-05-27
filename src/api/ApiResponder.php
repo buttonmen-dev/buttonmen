@@ -336,6 +336,13 @@ class ApiResponder {
         );
     }
 
+    protected function get_interface_response_markForumRead($interface, $args) {
+        return $interface->mark_forum_read(
+            $_SESSION['user_id'],
+            (int)$args['timestamp']
+        );
+    }
+
     protected function get_interface_response_markForumBoardRead($interface, $args) {
         return $interface->mark_forum_board_read(
             $_SESSION['user_id'],

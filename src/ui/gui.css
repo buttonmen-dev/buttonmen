@@ -368,11 +368,7 @@ div.forum > table {
     border-spacing: 0 0.5em;
 }
 
-div.forum td.heading,
-div.forum td.attribution,
-div.forum td.body,
-div.forum td.threadTitle,
-div.forum td.threadNotes {
+div.forum > table td {
     border: 2px solid #cccccc;
     vertical-align: top;
     padding: 0.4em;
@@ -383,7 +379,7 @@ div.forum td.heading {
     vertical-align: middle;
 }
 
-div.forum .boardNameHeader {
+div.forum .mainBreadrumb {
     font-size: 1.2em;
     font-weight: bold;
 }
@@ -399,11 +395,12 @@ div.forum div.titleHeader {
     margin: 0.2em 0 0.2em 1.2em;
 }
 
-div.forum td.threadNotes {
+div.forum td.notes {
     background-color: #cccccc;
     white-space: nowrap;
     /* This is so we don't get the borders from both cells together */
     border-left: 0;
+    min-width: 100px;
 }
 
 div.forum td.attribution {
@@ -447,7 +444,7 @@ div.forum .new {
 }
 
 div.forum td.body,
-div.forum td.threadTitle {
+div.forum td.title {
     min-width: 600px;
 }
 

@@ -2146,44 +2146,39 @@ class BMInterface {
         try {
             $results = array();
 
-            // Get the list of all boards
+            // Get the list of all boards, identifying the first new post on each
             $query =
-                'SELECT b.*, COUNT(t.id) AS number_of_threads ' .
-                'FROM forum_board AS b '.
-                    'LEFT JOIN forum_thread AS t ON t.board_id = b.id ' .
-                'GROUP BY b.id ' .
-                'ORDER BY b.sort_order ASC;';
-
-            $statement = self::$conn->prepare($query);
-            $statement->execute();
-
-            $boards = array();
-            while ($row = $statement->fetch()) {
-                $boards[(int)$row['id']] = array(
-                    'boardName' => $row['name'],
-                    'description' => $row['description'],
-                    'numberOfThreads' => (int)$row['number_of_threads'],
-                    'firstNewPostId' => NULL,
-                    'firstNewPostThreadId' => NULL,
-                );
-            }
-
-            // Identify the first new post for each board
-            $query =
-                'SELECT b.id AS board_id, v.id AS post_id, v.thread_id AS thread_id ' .
-                'FROM forum_board AS b ' .
-                    'LEFT JOIN forum_player_post_view AS v ' .
-                        'ON v.board_id = b.id AND v.reader_player_id = :current_player_id ' .
-                'WHERE v.is_new = 1 ' .
-                'GROUP BY b.id ' .
-                'ORDER BY v.creation_time ASC ';
+                'SELECT ' .
+                    'b_plus.*, '.
+                    'COUNT(t.id) AS number_of_threads, '.
+                    'first_new_post.thread_id AS first_new_post_thread_id '.
+                'FROM '.
+                    '(SELECT '.
+                        'b.*, '.
+                        '(SELECT v.id FROM forum_player_post_view AS v '.
+                        'WHERE v.board_id = b.id AND v.reader_player_id = :current_player_id AND v.is_new = 1 '.
+                        'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id '.
+                    'FROM forum_board AS b) AS b_plus '.
+                    'INNER JOIN forum_thread AS t '.
+                        'ON t.board_id = b_plus.id AND t.deleted = 0 '.
+                    'LEFT JOIN forum_post AS first_new_post '.
+                        'ON first_new_post.id = b_plus.first_new_post_id '.
+                'GROUP BY b_plus.id '.
+                'ORDER BY b_plus.sort_order ASC;';
 
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':current_player_id' => $currentPlayerId));
 
+            $boards = array();
             while ($row = $statement->fetch()) {
-                $boards[(int)$row['board_id']]['firstNewPostId'] = (int)$row['post_id'];
-                $boards[(int)$row['board_id']]['firstNewPostThreadId'] = (int)$row['thread_id'];
+                $boards[] = array(
+                    'boardId' => (int)$row['id'],
+                    'boardName' => $row['name'],
+                    'description' => $row['description'],
+                    'numberOfThreads' => (int)$row['number_of_threads'],
+                    'firstNewPostId' => (int)$row['first_new_post_id'],
+                    'firstNewPostThreadId' => (int)$row['first_new_post_thread_id'],
+                );
             }
 
             $results['boards'] = $boards;
@@ -2344,7 +2339,7 @@ class BMInterface {
             $posts = array();
             while ($row = $statement->fetch()) {
                 $posts[] = array(
-                    'postId' => $row['id'],
+                    'postId' => (int)$row['id'],
                     'posterName' => $row['poster_name'],
                     'creationTime' => (int)$row['creation_timestamp'],
                     'lastUpdateTime' => (int)$row['last_update_timestamp'],
@@ -2368,9 +2363,39 @@ class BMInterface {
         }
     }
 
+    // Indicates that the reader has finished reading all of the posts on every
+    // board which they care to read
+    public function mark_forum_read($currentPlayerId, $timestamp) {
+        try {
+            $query = 'SELECT b.id FROM forum_board AS b;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute();
+
+            while ($row = $statement->fetch()) {
+                $boardId = (int)$row['id'];
+                $results = $this->mark_forum_board_read($currentPlayerId, $boardId, $timestamp, TRUE);
+                if (!$results || !$results['success']) {
+                    $this->message = 'Marking board ' . $boardId . ' read failed: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            $this->message = 'Entire forum marked read successfully';
+            return $this->load_forum_overview($currentPlayerId);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::mark_forum_read: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+
     // Indicates that the reader has finished reading all of the posts on this
     // board which they care to read
-    public function mark_forum_board_read($currentPlayerId, $boardId, $timestamp) {
+    public function mark_forum_board_read($currentPlayerId, $boardId, $timestamp, $suppressResults = FALSE) {
         try {
             $query =
                 'INSERT INTO forum_board_player_map ' .
@@ -2388,7 +2413,11 @@ class BMInterface {
             ));
 
             $this->message = 'Forum board marked read successfully';
-            return $this->load_forum_overview($currentPlayerId);
+            if ($suppressResults) {
+                return array('success' => TRUE);
+            } else {
+                return $this->load_forum_overview($currentPlayerId);
+            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::mark_forum_board_read: ' .
@@ -2491,7 +2520,6 @@ class BMInterface {
             $postId = (int)$fetchData[0];
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
-            $results['newPostId'] = $postId;
 
             $this->message = 'Forum post created successfully';
             return $results;

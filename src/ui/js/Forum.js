@@ -61,19 +61,34 @@ Forum.showOverview = function() {
     return;
   }
 
-  Forum.page.append($('<h2>', {'text': 'Message Boards', }));
+  var table = $('<table>', { 'class': 'boards' });
+  Forum.page.append(table);
 
-  var boardsTable = $('<table>');
-  Forum.page.append(boardsTable);
+  var headingTr = $('<tr>');
+  table.append(headingTr);
+  var headingTd = $('<td>', { 'class': 'heading', 'colspan': '2' });
+  headingTr.append(headingTd);
 
-  $.each(Api.forum_overview.boards, function(boardId, board) {
-    var boardTr = $('<tr>');
-    boardsTable.append(boardTr);
-    var boardTd = $('<td>');
-    boardTr.append(boardTd);
-    boardTd.append('Board ' + boardId + ': ' + board.boardName + '. ');
-    boardTd.append('Description: ' + board.description + '. ');
-    boardTd.append(board.numberOfThreads + ' threads. First new post: ' + board.firstNewPostId + ', in thread: ' + board.firstNewPostThreadId);
+  var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
+  headingTd.append(breadcrumb);
+  breadcrumb.append($('<span>', {
+    'class': 'mainBreadrumb',
+    'text': 'Button Men Forums',
+  }));
+
+  $.each(Api.forum_overview.boards, function(index, board) {
+    table.append(Forum.buildBoardRow(board));
+  });
+
+  var markReadDiv = $('<div>', { 'class': 'markRead' });
+  Forum.page.append(markReadDiv);
+  var markReadButton = $('<input>', {
+    'type': 'button',
+    'value': 'Mark all boards as read',
+  });
+  markReadDiv.append(markReadButton);
+  markReadButton.click(function() {
+    Api.markForumRead(Forum.showOverview);
   });
 
   // Actually lay out the page
@@ -102,27 +117,13 @@ Forum.showBoard = function() {
   }));
   breadcrumb.append(' &gt; ');
   breadcrumb.append($('<span>', {
-    'class': 'boardNameHeader',
+    'class': 'mainBreadrumb',
     'text': Api.forum_board.boardName,
   }));
   headingTd.append($('<div>', {
     'class': 'boardDescriptionHeader',
     'text': Api.forum_board.description,
   }));
-
-  var toggleNewThreadForm = function() {
-    // Using visibility rather than display: hidden so we don't reflow the table
-    if ($('#newThreadButton').css('visibility') == 'visible') {
-      $('#newThreadButton').css('visibility', 'hidden');
-      $('tr.writePost textarea').val('');
-      $('tr.writePost input.title').val('');
-      $('tr.writePost').show();
-      $('tr.writePost input.title').focus();
-    } else {
-      $('tr.writePost').hide();
-      $('#newThreadButton').css('visibility', 'visible');
-    }
-  };
 
   var newThreadTd = $('<td>', { 'class': 'heading' });
   headingTr.append(newThreadTd);
@@ -132,7 +133,7 @@ Forum.showBoard = function() {
     'value': 'New thread',
   });
   newThreadTd.append(newThreadButton);
-  newThreadButton.click(toggleNewThreadForm);
+  newThreadButton.click(Forum.toggleNewThreadForm);
 
   var newThreadTr = $('<tr>', { 'class': 'writePost' });
   table.append(newThreadTr);
@@ -149,7 +150,7 @@ Forum.showBoard = function() {
     'value': 'Cancel',
   });
   contentTd.append(cancelButton);
-  cancelButton.click(toggleNewThreadForm);
+  cancelButton.click(Forum.toggleNewThreadForm);
   var replyButton = $('<input>', {
     'type': 'button',
     'value': 'Post new thread',
@@ -362,7 +363,7 @@ Forum.postNewThread = function() {
 Forum.buildThreadRow = function(thread) {
   var tr = $('<tr>');
 
-  var titleTd = $('<td>', { 'class': 'threadTitle' });
+  var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);
 
   titleTd.append($('<div>', {
@@ -383,7 +384,7 @@ Forum.buildThreadRow = function(thread) {
     'text': postDates,
   }));
 
-  var notesTd = $('<td>', { 'class': 'threadNotes' });
+  var notesTd = $('<td>', { 'class': 'notes' });
   tr.append(notesTd);
   var numberOfPosts =
     thread.numberOfPosts + ' post' + (thread.numberOfPosts != 1 ? 's ' : ' ');
@@ -402,3 +403,55 @@ Forum.buildThreadRow = function(thread) {
 
   return tr;
 };
+
+Forum.toggleNewThreadForm = function() {
+  // Using visibility rather than display: hidden so we don't reflow the table
+  if ($('#newThreadButton').css('visibility') == 'visible') {
+    $('#newThreadButton').css('visibility', 'hidden');
+    $('tr.writePost textarea').val('');
+    $('tr.writePost input.title').val('');
+    $('tr.writePost').show();
+    $('tr.writePost input.title').focus();
+  } else {
+    $('tr.writePost').hide();
+    $('#newThreadButton').css('visibility', 'visible');
+  }
+};
+
+Forum.buildBoardRow = function(board) {
+  var tr = $('<tr>');
+
+  var titleTd = $('<td>', { 'class': 'title' });
+  tr.append(titleTd);
+
+  titleTd.append($('<div>', {
+    'class': 'pseudoLink',
+    'text': board.boardName,
+    'data-boardId': board.boardId,
+  }));
+
+  titleTd.append($('<div>', {
+    'class': 'minor',
+    'text': board.description,
+  }));
+
+  var notesTd = $('<td>', { 'class': 'notes' });
+  tr.append(notesTd);
+  var numberOfThreads = board.numberOfThreads + ' thread' +
+    (board.numberOfThreads != 1 ? 's ' : ' ');
+  notesTd.append($('<div>', {
+    'class': 'minor',
+    'text': numberOfThreads,
+  }));
+  if (board.firstNewPostId) {
+    notesTd.append($('<div>', {
+      'class': 'pseudoLink new',
+      'text': '*NEW*',
+      'data-threadId': board.firstNewPostThreadId,
+      'data-postId': board.firstNewPostId,
+    }));
+  }
+
+  return tr;
+};
+

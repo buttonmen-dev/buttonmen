@@ -203,6 +203,22 @@ class ApiSpec {
         //     firstNewPostThreadId: int,
         //   },
         //   timestamp: int,
+        'markForumRead' => array(
+            'mandatory' => array(
+                'timestamp' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        // markForumBoardRead returns (from loadForumOverview):
+        //   boards[]: {
+        //     boardId: int,
+        //     boardName: string,
+        //     description: string,
+        //     numberOfThreads: int,
+        //     firstNewPostId: int,
+        //     firstNewPostThreadId: int,
+        //   },
+        //   timestamp: int,
         'markForumBoardRead' => array(
             'mandatory' => array(
                 'boardId' => 'number',
@@ -358,7 +374,7 @@ class ApiSpec {
                     return array(
                         'ok' => FALSE,
                         'message' => 'Argument (' . $argname . ') to function ' .
-                                     $args['type'] . ' is invalid - ',
+                                     $args['type'] . ' is invalid',
                     );
                 }
             }

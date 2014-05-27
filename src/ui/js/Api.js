@@ -564,6 +564,19 @@ my.verifyApiData = function(apiKey, layOutPage) {
     );
   };
 
+  my.markForumRead = function(callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'markForumRead',
+        'timestamp': my.forum_overview.timestamp,
+      },
+      'forum_overview',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
   my.markForumBoardRead = function(callbackfunc) {
     my.apiParsePost(
       {

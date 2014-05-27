@@ -1255,14 +1255,16 @@ class DummyApiResponder {
         $results = array();
 
         $boards = array();
-        $boards[1] = array(
+        $boards[] = array(
+            'boardId' => 1,
             'boardName' => 'Miscellaneous Chatting',
             'description' => 'Any topic that doesn\'t fit anywhere else.',
             'numberOfThreads' => 2,
             'firstNewPostId' => 3,
             'firstNewPostThreadId' => 2,
         );
-        $boards[2] = array(
+        $boards[] = array(
+            'boardId' => 2,
             'boardName' => 'Features and Bugs',
             'description' => 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.',
             'numberOfThreads' => 0,
@@ -1283,7 +1285,8 @@ class DummyApiResponder {
         $results['description'] = 'Any topic that doesn\'t fit anywhere else.';
 
         $threads = array();
-        $threads[1] = array(
+        $threads[] = array(
+            'threadId' => 1,
             'threadTitle' => 'Who likes ice cream?',
             'numberOfPosts' => 2,
             'originalPosterName' => 'responder003',
@@ -1292,7 +1295,8 @@ class DummyApiResponder {
             'latestLastUpdateTime' => 1401055397,
             'firstNewPostId' => 2,
         );
-        $threads[2] = array(
+        $threads[] = array(
+            'threadId' => 2,
             'threadTitle' => 'Welcome to Button Men',
             'numberOfPosts' => 1,
             'originalPosterName' => 'responder003',
@@ -1314,9 +1318,16 @@ class DummyApiResponder {
         $results['threadTitle'] = 'Who likes ice cream?';
         $results['boardId'] = 1;
         $results['boardName'] = 'Miscellaneous Chatting';
+        if (isset($args['currentPostId'])) {
+            $results['currentPostId'] = (int)$args['currentPostId'];
+        } else {
+            $results['currentPostId'] = NULL;
+        }
+
 
         $posts = array();
-        $posts[1] = array(
+        $posts[] = array(
+            'postId' => 1,
             'posterName' => 'responder003',
             'creationTime' => 1401055337,
             'lastUpdateTime' => 1401055337,
@@ -1324,7 +1335,8 @@ class DummyApiResponder {
             'body' => 'I can\'t be the only one!',
             'deleted' => FALSE,
         );
-        $posts[2] = array(
+        $posts[] = array(
+            'postId' => 2,
             'posterName' => 'responder004',
             'creationTime' => 1401055397,
             'lastUpdateTime' => 1401055397,
@@ -1337,6 +1349,12 @@ class DummyApiResponder {
         $results['timestamp'] = 1401118756;
 
         return array($results, 'Forum thread loading succeeded');
+    }
+
+    protected function get_interface_response_markForumRead($args) {
+        $otherResults = $this->get_interface_response_loadForumOverview();
+        $results = $otherResults[0];
+        return array($results, 'Forum board marked read successfully');
     }
 
     protected function get_interface_response_markForumBoardRead($args) {
@@ -1352,15 +1370,18 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_createForumThread($args) {
-        $otherResults = $this->get_interface_response_loadForumThread(NULL);
+        $otherResults = $this->get_interface_response_loadForumThread(
+            array()
+        );
         $results = $otherResults[0];
         return array($results, 'Forum thread created successfully');
     }
 
     protected function get_interface_response_createForumPost($args) {
-        $otherResults = $this->get_interface_response_loadForumThread(NULL);
+        $otherResults = $this->get_interface_response_loadForumThread(
+            array('currentPostId' => 2)
+        );
         $results = $otherResults[0];
-        $results['newPostId'] = 4;
         return array($results, 'Forum post created successfully');
     }
 
