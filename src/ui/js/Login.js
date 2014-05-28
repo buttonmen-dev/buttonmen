@@ -165,6 +165,7 @@ Login.addMainNavbar = function() {
     'index.html': 'Overview',
     'create_game.html': 'Create game',
     'prefs.html': 'Preferences',
+    'forum.html': 'Forum',
     'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
   };
   $.each(links, function(url, text) {

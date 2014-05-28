@@ -1373,13 +1373,12 @@ Game.pageAddLogFooter = function() {
           logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         actionrow.append(
           $('<td>', {
             'class': messageClass,
-            'text': logentry.message,
+            'html': Env.prepareRawTextForDisplay(logentry.message),
           }));
         actiontable.append(actionrow);
       });
@@ -1411,38 +1410,17 @@ Game.pageAddLogFooter = function() {
           logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         chatrow.append($('<td>', {
           'class': messageClass,
-          'text': logentry.message,
+          'html': Env.prepareRawTextForDisplay(logentry.message),
         }));
         chattable.append(chatrow);
       });
       chattd.append(chattable);
       logrow.append(chattd);
     }
-
-    // Replace text-y whitespace with HTML whitespace to preserve things
-    // like newlines and indentation in chat.
-    logrow.find('.logmessage').each(function() {
-      // We originally added the log messages to the page as text; by reading
-      // them back as HTML now, we're getting the version of them that's
-      // already been safely HTML-encoded.
-      var messagehtml = $(this).html();
-
-      // HTML-ify initial spaces, to preserve indentation
-      messagehtml = messagehtml.replace(/^ /, '&nbsp;');
-      // Likewise for spaces at the start of each line
-      messagehtml = messagehtml.replace(/\n /, '\n&nbsp;');
-      // Preserve strings of multiple spaces
-      messagehtml = messagehtml.replace(/  /g, '&nbsp;&nbsp;');
-      // HTML-ify line breaks to preserve newlines
-      messagehtml = messagehtml.replace(/\n/g, '<br />');
-
-      $(this).html(messagehtml);
-    });
 
     logtable.append(logrow);
 

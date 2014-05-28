@@ -124,3 +124,29 @@ Env.getCookieCompactMode = function() {
   // Cookies are stored as strings, but we want to return a bool
   return ($.cookie(Login.player + '_compactMode') == 'true');
 };
+
+// Takes text that was entered by a user and turns it into HTML that's ready to
+// be displayed on a page.
+Env.prepareRawTextForDisplay = function(rawText) {
+  // First, we write it into an HTML element as text; this way, jQuery treat
+  // any special characters like < as things that need to be escaped (into
+  // things like &lt;). Then we can pull the clean HTML version back out again.
+  var tempDiv = $('<div>', { 'text': rawText });
+  var html = tempDiv.html();
+
+  // Next, we deal with any whitespace in the string that might not be
+  // displayed correctly in HTML, like newlines and indentation.
+
+  // HTML-ify initial spaces, to preserve indentation
+  html = html.replace(/^ /, '&nbsp;');
+  // Likewise for spaces at the start of each line
+  html = html.replace(/\n /, '\n&nbsp;');
+  // Preserve strings of multiple spaces
+  html = html.replace(/  /g, '&nbsp;&nbsp;');
+  // HTML-ify line breaks to preserve newlines
+  html = html.replace(/\n/g, '<br />');
+
+  //TODO process some subset of BB code, plus special tags like [game=123]
+
+  return html;
+};

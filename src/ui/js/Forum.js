@@ -338,8 +338,9 @@ Forum.buildPostRow = function(post) {
 
   var bodyTd = $('<td>', { 'class': 'body' });
   tr.append(bodyTd);
-  // TODO use the code from the chat to escape stuff here
-  bodyTd.append(post.body);
+  // Env.prepareRawTextForDisplay() converts the dangerous raw text
+  // into safe HTML.
+  bodyTd.append(Env.prepareRawTextForDisplay(post.body));
   if (post.deleted) {
     bodyTd.addClass('deleted');
   }
@@ -348,15 +349,29 @@ Forum.buildPostRow = function(post) {
 };
 
 Forum.replyToThread = function() {
-  //TODO this needs validation!
-  var body = $(this).parent().find('textarea').val();
+  var body = $(this).parent().find('textarea').val().trim();
+  if (!body) {
+    Env.message = {
+      'type': 'error',
+      'text': 'The post body is required',
+    };
+    Env.showStatusMessage();
+    return;
+  }
   Api.createForumPost(body, Forum.showThread);
 };
 
 Forum.postNewThread = function() {
-  //TODO this needs validation!
-  var title = $(this).parent().find('input.title').val();
-  var body = $(this).parent().find('textarea').val();
+  var title = $(this).parent().find('input.title').val().trim();
+  var body = $(this).parent().find('textarea').val().trim();
+  if (!title || !body) {
+    Env.message = {
+      'type': 'error',
+      'text': 'The thread title and body are both required',
+    };
+    Env.showStatusMessage();
+    return;
+  }
   Api.createForumThread(title, body, Forum.showThread);
 };
 
