@@ -1,14 +1,22 @@
 # Table schemas for forum-related tables
 
+# Drop order and create order are the reverse of each other because of the
+# foreign keys.
+
+DROP TABLE IF EXISTS forum_thread_player_map;
+DROP TABLE IF EXISTS forum_board_player_map;
+DROP TABLE IF EXISTS forum_post;
+DROP TABLE IF EXISTS forum_thread;
 DROP TABLE IF EXISTS forum_board;
+
 CREATE TABLE forum_board (
     id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
+    short_name VARCHAR(20) NOT NULL,
     description VARCHAR(255),
     sort_order TINYINT UNSIGNED NOT NULL
 );
 
-DROP TABLE IF EXISTS forum_thread;
 CREATE TABLE forum_thread (
     id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     board_id TINYINT UNSIGNED NOT NULL,
@@ -18,7 +26,6 @@ CREATE TABLE forum_thread (
     FOREIGN KEY (board_id) REFERENCES forum_board(id)
 );
 
-DROP TABLE IF EXISTS forum_post;
 CREATE TABLE forum_post(
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     thread_id SMALLINT UNSIGNED NOT NULL,
@@ -32,7 +39,6 @@ CREATE TABLE forum_post(
     FOREIGN KEY (poster_player_id) REFERENCES player(id)
 );
 
-DROP TABLE IF EXISTS forum_board_player_map;
 CREATE TABLE forum_board_player_map(
     board_id TINYINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
@@ -42,7 +48,6 @@ CREATE TABLE forum_board_player_map(
     FOREIGN KEY (player_id) REFERENCES player(id)
 );
 
-DROP TABLE IF EXISTS forum_thread_player_map;
 CREATE TABLE forum_thread_player_map(
     thread_id SMALLINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,

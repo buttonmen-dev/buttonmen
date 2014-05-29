@@ -17,6 +17,7 @@ class ApiSpec {
         //   threadTitle: string,
         //   boardId: int,
         //   boardName: string,
+        //   boardShortName: string,
         //   currentPostId: int (nullable),
         //   posts[]: {
         //     postId: int,
@@ -40,6 +41,7 @@ class ApiSpec {
         //   threadTitle: string,
         //   boardId: int,
         //   boardName: string,
+        //   boardShortName: string,
         //   currentPostId: int (nullable),
         //   posts[]: {
         //     postId: int,
@@ -100,6 +102,7 @@ class ApiSpec {
         // loadForumBoard returns:
         //   boardId: int,
         //   boardName: string,
+        //   shortName: string,
         //   description: string,
         //   threads[]: {
         //     threadId: int,
@@ -122,6 +125,7 @@ class ApiSpec {
         //   boards[]: {
         //     boardId: int,
         //     boardName: string,
+        //     shortName: string,
         //     description: string,
         //     numberOfThreads: int,
         //     firstNewPostId: int,
@@ -137,6 +141,7 @@ class ApiSpec {
         //   threadTitle: string,
         //   boardId: int,
         //   boardName: string,
+        //   boardShortName: string,
         //   currentPostId: int (nullable),
         //   posts[]: {
         //     postId: int,
@@ -197,6 +202,7 @@ class ApiSpec {
         //   boards[]: {
         //     boardId: int,
         //     boardName: string,
+        //     shortName: string,
         //     description: string,
         //     numberOfThreads: int,
         //     firstNewPostId: int,
@@ -213,6 +219,7 @@ class ApiSpec {
         //   boards[]: {
         //     boardId: int,
         //     boardName: string,
+        //     shortName: string,
         //     description: string,
         //     numberOfThreads: int,
         //     firstNewPostId: int,
@@ -229,6 +236,7 @@ class ApiSpec {
         // markForumThreadRead returns (from loadForumBoard):
         //   boardId: int,
         //   boardName: string,
+        //   shortName: string,
         //   description: string,
         //   threads[]: {
         //     threadId: int,

@@ -27,9 +27,13 @@ Forum.showForumPage = function() {
     $('body').append($('<div>', {'id': 'forum_page', }));
   }
 
+  // wire up an event to catch the back/forward button and call .showPage()
+
   var boardId = Env.getParameterByName('boardId');
   var threadId = Env.getParameterByName('threadId');
   var postId = Env.getParameterByName('postId');
+
+  // Update the current state + hash in history
 
   Forum.showPage(boardId, threadId, postId);
 };
@@ -101,7 +105,9 @@ Forum.showBoard = function() {
     return;
   }
 
-  var table = $('<table>', { 'class': 'threads' });
+  var table = $('<table>', {
+    'class': 'threads ' + Api.forum_board.shortName
+  });
   Forum.page.append(table);
 
   var headingTr = $('<tr>');
@@ -125,7 +131,7 @@ Forum.showBoard = function() {
     'text': Api.forum_board.description,
   }));
 
-  var newThreadTd = $('<td>', { 'class': 'heading' });
+  var newThreadTd = $('<td>', { 'class': 'notes' });
   headingTr.append(newThreadTd);
   var newThreadButton = $('<input>', {
     'id': 'newThreadButton',
@@ -165,6 +171,13 @@ Forum.showBoard = function() {
   });
   newThreadTr.append(notesTd);
 
+  if (Api.forum_board.threads.length === 0) {
+    var emptyTr = $('<tr>');
+    table.append(emptyTr);
+    emptyTr.append($('<td>', { 'text': 'No threads', 'class': 'title', }));
+    emptyTr.append($('<td>', { 'html': '&nbsp;', 'class': 'notes', }));
+  }
+
   $.each(Api.forum_board.threads, function(index, thread) {
     table.append(Forum.buildThreadRow(thread));
   });
@@ -197,7 +210,9 @@ Forum.showThread = function() {
     'class': 'heading',
     'colspan': 2,
   });
-  table.append($('<tr>').append(headingTd));
+  table.append(
+    $('<tr>', { 'class': Api.forum_thread.boardShortName }).append(headingTd)
+  );
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
   headingTd.append(breadcrumb);
@@ -280,6 +295,8 @@ Forum.linkToSubPage = function() {
   var boardId = $(this).attr('data-boardId');
   var threadId = $(this).attr('data-threadId');
   var postId = $(this).attr('data-postId');
+
+  //TODO push the new state + hash into history
 
   Forum.showPage(boardId, threadId, postId);
 };
@@ -434,7 +451,7 @@ Forum.toggleNewThreadForm = function() {
 };
 
 Forum.buildBoardRow = function(board) {
-  var tr = $('<tr>');
+  var tr = $('<tr>', { 'class': board.shortName });
 
   var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);

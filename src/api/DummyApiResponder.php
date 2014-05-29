@@ -1258,6 +1258,7 @@ class DummyApiResponder {
         $boards[] = array(
             'boardId' => 1,
             'boardName' => 'Miscellaneous Chatting',
+            'shortName' => 'miscChat',
             'description' => 'Any topic that doesn\'t fit anywhere else.',
             'numberOfThreads' => 2,
             'firstNewPostId' => 3,
@@ -1266,6 +1267,7 @@ class DummyApiResponder {
         $boards[] = array(
             'boardId' => 2,
             'boardName' => 'Features and Bugs',
+            'shortName' => 'featureBug',
             'description' => 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.',
             'numberOfThreads' => 0,
             'firstNewPostId' => NULL,
@@ -1282,6 +1284,7 @@ class DummyApiResponder {
         $results = array();
         $results['boardId'] = 1;
         $results['boardName'] = 'Miscellaneous Chatting';
+        $results['shortName'] = 'miscChat';
         $results['description'] = 'Any topic that doesn\'t fit anywhere else.';
 
         $threads = array();
@@ -1318,6 +1321,7 @@ class DummyApiResponder {
         $results['threadTitle'] = 'Who likes ice cream?';
         $results['boardId'] = 1;
         $results['boardName'] = 'Miscellaneous Chatting';
+        $results['boardShortName'] = 'miscChat';
         if (isset($args['currentPostId'])) {
             $results['currentPostId'] = (int)$args['currentPostId'];
         } else {

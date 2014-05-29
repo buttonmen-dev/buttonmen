@@ -2149,21 +2149,21 @@ class BMInterface {
             // Get the list of all boards, identifying the first new post on each
             $query =
                 'SELECT ' .
-                    'b_plus.*, '.
-                    'COUNT(t.id) AS number_of_threads, '.
-                    'first_new_post.thread_id AS first_new_post_thread_id '.
-                'FROM '.
-                    '(SELECT '.
-                        'b.*, '.
-                        '(SELECT v.id FROM forum_player_post_view AS v '.
-                        'WHERE v.board_id = b.id AND v.reader_player_id = :current_player_id AND v.is_new = 1 '.
-                        'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id '.
-                    'FROM forum_board AS b) AS b_plus '.
-                    'INNER JOIN forum_thread AS t '.
-                        'ON t.board_id = b_plus.id AND t.deleted = 0 '.
-                    'LEFT JOIN forum_post AS first_new_post '.
-                        'ON first_new_post.id = b_plus.first_new_post_id '.
-                'GROUP BY b_plus.id '.
+                    'b_plus.*, ' .
+                    'COUNT(t.id) AS number_of_threads, ' .
+                    'first_new_post.thread_id AS first_new_post_thread_id ' .
+                'FROM ' .
+                    '(SELECT ' .
+                        'b.*, ' .
+                        '(SELECT v.id FROM forum_player_post_view AS v ' .
+                        'WHERE v.board_id = b.id AND v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
+                        'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id ' .
+                    'FROM forum_board AS b) AS b_plus ' .
+                    'LEFT JOIN forum_thread AS t ' .
+                        'ON t.board_id = b_plus.id AND t.deleted = 0 ' .
+                    'LEFT JOIN forum_post AS first_new_post ' .
+                        'ON first_new_post.id = b_plus.first_new_post_id ' .
+                'GROUP BY b_plus.id ' .
                 'ORDER BY b_plus.sort_order ASC;';
 
             $statement = self::$conn->prepare($query);
@@ -2174,6 +2174,7 @@ class BMInterface {
                 $boards[] = array(
                     'boardId' => (int)$row['id'],
                     'boardName' => $row['name'],
+                    'shortName' => $row['short_name'],
                     'description' => $row['description'],
                     'numberOfThreads' => (int)$row['number_of_threads'],
                     'firstNewPostId' => (int)$row['first_new_post_id'],
@@ -2219,6 +2220,7 @@ class BMInterface {
             }
             $results['boardId'] = (int)$fetchResult[0]['id'];
             $results['boardName'] = $fetchResult[0]['name'];
+            $results['shortName'] = $fetchResult[0]['short_name'];
             $results['description'] = $fetchResult[0]['description'];
 
             // Get a list of threads on this board, with info on their old and new posts
@@ -2245,15 +2247,15 @@ class BMInterface {
                         'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id ' .
                     'FROM forum_thread AS t ' .
                     'WHERE t.board_id = :board_id AND t.deleted = 0) AS t_plus ' .
-                    'INNER JOIN forum_post AS all_posts ' .
+                    'LEFT JOIN forum_post AS all_posts ' .
                         'ON all_posts.thread_id = t_plus.id ' .
-                    'INNER JOIN forum_post AS first_post ' .
+                    'LEFT JOIN forum_post AS first_post ' .
                         'ON first_post.id = t_plus.first_post_id ' .
-                    'INNER JOIN player AS first_post_poster ' .
+                    'LEFT JOIN player AS first_post_poster ' .
                         'ON first_post_poster.id = first_post.poster_player_id ' .
-                    'INNER JOIN forum_post AS lastest_post ' .
+                    'LEFT JOIN forum_post AS lastest_post ' .
                         'ON lastest_post.id = t_plus.lastest_post_id ' .
-                    'INNER JOIN player AS lastest_post_poster ' .
+                    'LEFT JOIN player AS lastest_post_poster ' .
                         'ON lastest_post_poster.id = lastest_post.poster_player_id ' .
                 'GROUP BY t_plus.id ' .
                 'ORDER BY lastest_post.last_update_time DESC';
@@ -2300,7 +2302,7 @@ class BMInterface {
 
             // Get the details about the thread itself
             $query =
-                'SELECT t.*, b.name AS board_name ' .
+                'SELECT t.*, b.name AS board_name, b.short_name AS board_short_name ' .
                 'FROM forum_thread AS t ' .
                     'INNER JOIN forum_board AS b ON b.id = t.board_id ' .
                 'WHERE t.id = :thread_id AND t.deleted = 0;';
@@ -2318,6 +2320,7 @@ class BMInterface {
             $results['threadTitle'] = $fetchResult[0]['title'];
             $results['boardId'] = (int)$fetchResult[0]['board_id'];
             $results['boardName'] = $fetchResult[0]['board_name'];
+            $results['boardShortName'] = $fetchResult[0]['board_short_name'];
             $results['currentPostId'] = $currentPostId;
 
             // Get a list of posts in this thread

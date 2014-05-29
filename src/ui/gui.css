@@ -379,7 +379,37 @@ div.forum td.heading {
     vertical-align: middle;
 }
 
+div.forum table.miscChat td.heading {
+    background-color: #d0e0f0;
+}
+
+div.forum table.gameplay td.heading {
+    background-color: #f0f0c0;
+}
+
+div.forum table.featureBug td.heading {
+    background-color: #f0d0d0;
+}
+
+div.forum .posts tr.miscChat td.heading {
+    background-color: #e7f0f7;
+}
+
+div.forum .posts tr.gameplay td.heading {
+    background-color: #f7f7e0;
+}
+
+div.forum .posts tr.featureBug td.heading {
+    background-color: #f7e7e7;
+}
+
+
 div.forum .mainBreadrumb {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+div.forum .boards .mainBreadrumb {
     font-size: 1.2em;
     font-weight: bold;
 }
@@ -446,6 +476,34 @@ div.forum .new {
 div.forum td.body,
 div.forum td.title {
     min-width: 600px;
+}
+
+div.forum .boards td.title {
+    background-color: #dddddd;
+}
+
+div.forum .boards tr.miscChat td.title {
+    background-color: #d0e0f0;
+}
+
+div.forum .boards tr.gameplay td.title {
+    background-color: #f0f0c0;
+}
+
+div.forum .boards tr.featureBug td.title {
+    background-color: #f0d0d0;
+}
+
+div.forum table.miscChat td.title {
+    background-color: #e7f0f7;
+}
+
+div.forum table.gameplay td.title {
+    background-color: #f7f7e0;
+}
+
+div.forum table.featureBug td.title {
+    background-color: #f7e7e7;
 }
 
 div.forum td.body deleted {
