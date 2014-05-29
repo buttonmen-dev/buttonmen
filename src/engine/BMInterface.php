@@ -77,7 +77,7 @@ class BMInterface {
             $last_action_time = NULL;
         }
 
-        $last_access_time = (int)$infoArray['last_access_time'];
+        $last_access_time = (int)$infoArray['last_access_timestamp'];
         if ($last_access_time == 0) {
             $last_access_time = NULL;
         }
@@ -94,6 +94,7 @@ class BMInterface {
             'autopass' => (bool)$infoArray['autopass'],
             'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
+            'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
@@ -223,7 +224,6 @@ class BMInterface {
             'dob_day' => $playerInfo['dob_day'],
             'image_path' => $playerInfo['image_path'],
             'comment' => $playerInfo['comment'],
-            'last_action_time' => $playerInfo['last_action_time'],
             'last_access_time' => $playerInfo['last_access_time'],
             'creation_time' => $playerInfo['creation_time'],
             'fanatic_button_id' => $playerInfo['fanatic_button_id'],
