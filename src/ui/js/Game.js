@@ -814,10 +814,11 @@ Game.actionPlayTurnInactive = function() {
     Game.activity.chat = Api.game.chatLog[0].message;
   }
   var chatdiv = $('<div>');
-  chatdiv.append(Game.chatBox());
+  chatdiv.append(Game.chatBox(true));
   var chatform = $('<form>', {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
+    'class': 'hiddenChatForm',
   });
   chatform.append($('<button>', {
     'id': 'game_action_button',
@@ -826,7 +827,7 @@ Game.actionPlayTurnInactive = function() {
   chatdiv.append(chatform);
   Game.page.append(chatdiv);
 
-  Game.pageAddFooter();
+  Game.pageAddFooter(true);
 
   // Function to invoke on button click
   Game.form = Game.formPlayTurnInactive;
@@ -1303,10 +1304,32 @@ Game.pageAddGameHeader = function(action_desc) {
 };
 
 // Display common page footer data
-Game.pageAddFooter = function() {
+Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
+  Game.pageAddUnhideChatButton(isChatHidden);
   Game.pageAddTimestampFooter();
   Game.pageAddLogFooter();
+};
+
+Game.pageAddUnhideChatButton = function(isChatHidden) {
+  if (!isChatHidden) {
+    return false;
+  }
+
+  var unhideButton = $('<input>', {
+    'type': 'button',
+    'value': 'Add/Edit Chat',
+  });
+  unhideButton.click(function() {
+    $('.hiddenChatForm').show();
+    $('.unhideChat').hide();
+  });
+
+  var unhideDiv = $('<div>', { 'class': 'unhideChat', });
+  Game.page.append(unhideDiv);
+  unhideDiv.append($('<br>'));
+  unhideDiv.append(unhideButton);
+  unhideDiv.append($('<br>'));
 };
 
 // Display a link to the next game requiring action
@@ -2158,8 +2181,11 @@ Game.dieValueSelectTd = function(
   return selectTd;
 };
 
-Game.chatBox = function() {
+Game.chatBox = function(hidden) {
   var chattable = $('<table>');
+  if (hidden) {
+    chattable.addClass('hiddenChatForm');
+  }
   var chatrow = $('<tr>');
   chatrow.append($('<td>', {'text': 'Chat:', }));
   var chattd = $('<td>');
