@@ -26,5 +26,4 @@ class BMSkillStinger extends BMSkill {
 
         $args['attackValues'] = range(1, max($args['attackValues']));
     }
-
 }
