@@ -10,6 +10,10 @@
  *
  */
 class BMInterface {
+    // constants
+    const MYSQL_TEXT_MAX_LENGTH = 16383;
+    const FORUM_TITLE_MAX_LENGTH = 100;
+
     // properties
     private $message;               // message intended for GUI
     private $timestamp;             // timestamp of last game action
@@ -2462,6 +2466,18 @@ class BMInterface {
     // Adds a new thread to the specified board
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
         try {
+            if (strlen($title) > self::FORUM_TITLE_MAX_LENGTH) {
+                $this->message = 'Thread titles cannot be longer than ' .
+                    self::FORUM_TITLE_MAX_LENGTH . ' characters';
+                return NULL;
+            }
+
+            if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+                $this->message = 'Posts cannot be longer than ' .
+                    self::MYSQL_TEXT_MAX_LENGTH . ' characters';
+                return NULL;
+            }
+
             $query =
                 'INSERT INTO forum_thread (board_id, title, deleted) ' .
                 'VALUES (:board_id, :title, 0);';
@@ -2504,7 +2520,13 @@ class BMInterface {
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
-            $query =
+             if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+                $this->message = 'Posts cannot be longer than ' .
+                    self::MYSQL_TEXT_MAX_LENGTH . ' characters';
+                return NULL;
+            }
+
+           $query =
                 'INSERT INTO forum_post ' .
                     '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
                 'VALUES ' .

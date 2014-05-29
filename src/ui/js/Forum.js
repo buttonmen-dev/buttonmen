@@ -6,6 +6,13 @@ var Forum = {
 Forum.OPEN_STAR = '&#9734;';
 Forum.SOLID_STAR = '&#9733;';
 
+// I believe that a mySQL TEXT column can hold up to 2^16 - 1 bytes of UTF-8
+// text, and a UTF-8 character can theoretically be up to four bytes wide (even
+// if this is rare in practice), so our post bodies should be guaranteed to be
+// able to hold at least (2^16 - 1)/4 characters.
+Forum.BODY_MAX_LENGTH = 16383;
+Forum.TITLE_MAX_LENGTH = 100;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Forum.showForumPage() is the landing function. Always call
@@ -70,7 +77,7 @@ Forum.showOverview = function() {
 
   var headingTr = $('<tr>');
   table.append(headingTr);
-  var headingTd = $('<td>', { 'class': 'heading', 'colspan': '2' });
+  var headingTd = $('<td>', { 'class': 'heading' });
   headingTr.append(headingTd);
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
@@ -79,6 +86,8 @@ Forum.showOverview = function() {
     'class': 'mainBreadrumb',
     'text': 'Button Men Forums',
   }));
+
+  headingTr.append($('<td>', { 'class': 'notes', 'html': '&nbsp;', }));
 
   $.each(Api.forum_overview.boards, function(index, board) {
     table.append(Forum.buildBoardRow(board));
@@ -121,13 +130,13 @@ Forum.showBoard = function() {
     'class': 'pseudoLink',
     'text': 'Forum',
   }));
-  breadcrumb.append(' &gt; ');
+  breadcrumb.append(': ');
   breadcrumb.append($('<span>', {
     'class': 'mainBreadrumb',
     'text': Api.forum_board.boardName,
   }));
   headingTd.append($('<div>', {
-    'class': 'boardDescriptionHeader',
+    'class': 'subHeader minor',
     'text': Api.forum_board.description,
   }));
 
@@ -149,8 +158,9 @@ Forum.showBoard = function() {
     'type': 'text',
     'class': 'title',
     'placeholder': 'Thread title...',
+    'maxlength': Forum.TITLE_MAX_LENGTH,
   }));
-  contentTd.append($('<textarea>'));
+  contentTd.append($('<textarea>', { 'maxlength': Forum.BODY_MAX_LENGTH }));
   var cancelButton = $('<input>', {
     'type': 'button',
     'value': 'Cancel',
@@ -206,6 +216,18 @@ Forum.showThread = function() {
   var table = $('<table>', { 'class': 'posts' });
   Forum.page.append(table);
 
+  // Well, this is awkward and ugly, but it *seems* to fix a problem I was
+  // having. To wit: using table-layout: fixed; on a table, giving widths to
+  // individual cells, but then starting the table with a row containing
+  // colspan="2" cell meant that the individual widths of the cells in the
+  // other rows were ignored. So instead, we'll start the table with a dummy
+  // empty row with properly-widthed cells that will hopefully be invisible to
+  // everyone.
+  var dummyTr = $('<tr>');
+  table.append(dummyTr);
+  dummyTr.append($('<td>', { 'class': 'attribution' }));
+  dummyTr.append($('<td>', { 'class': 'body' }));
+
   var headingTd = $('<td>', {
     'class': 'heading',
     'colspan': 2,
@@ -216,21 +238,23 @@ Forum.showThread = function() {
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
   headingTd.append(breadcrumb);
-  breadcrumb.append($('<span>', {
+  breadcrumb.append($('<div>', {
+    'class': 'mainBreadrumb',
+    'text': Api.forum_thread.threadTitle,
+  }));
+
+
+  var subHeader = $('<div>', { 'class': 'subHeader' });
+  headingTd.append(subHeader);
+  subHeader.append($('<span>', {
     'class': 'pseudoLink',
     'text': 'Forum',
   }));
-  breadcrumb.append(' &gt; ');
-  breadcrumb.append($('<span>', {
+  subHeader.append(': ');
+  subHeader.append($('<span>', {
     'class': 'pseudoLink',
     'text': Api.forum_thread.boardName,
     'data-boardId': Api.forum_thread.boardId,
-  }));
-  breadcrumb.append(' &gt; ');
-
-  headingTd.append($('<div>', {
-    'class': 'titleHeader',
-    'text': Api.forum_thread.threadTitle,
   }));
 
   $.each(Api.forum_thread.posts, function(index, post) {
@@ -246,10 +270,14 @@ Forum.showThread = function() {
   }));
   var replyBodyTd = $('<td>', { 'class': 'body' });
   replyTr.append(replyBodyTd);
-  replyBodyTd.append($('<textarea>', { 'placeholder': 'Reply to thread...' }));
+  replyBodyTd.append($('<textarea>', {
+    'placeholder': 'Reply to thread...',
+    'maxlength': Forum.BODY_MAX_LENGTH,
+  }));
   var replyButton = $('<input>', {
     'type': 'button',
     'value': 'Post reply',
+    'maxlength': Forum.BODY_MAX_LENGTH,
   });
   replyBodyTd.append(replyButton);
   replyButton.click(Forum.replyToThread);
@@ -393,7 +421,7 @@ Forum.postNewThread = function() {
 };
 
 Forum.buildThreadRow = function(thread) {
-  var tr = $('<tr>');
+  var tr = $('<tr>', { 'class': 'thread' });
 
   var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);
@@ -442,10 +470,12 @@ Forum.toggleNewThreadForm = function() {
     $('#newThreadButton').css('visibility', 'hidden');
     $('tr.writePost textarea').val('');
     $('tr.writePost input.title').val('');
+    $('tr.thread').hide();
     $('tr.writePost').show();
     $('tr.writePost input.title').focus();
   } else {
     $('tr.writePost').hide();
+    $('tr.thread').show();
     $('#newThreadButton').css('visibility', 'visible');
   }
 };

@@ -351,6 +351,7 @@ div.forum,
 div.forum div,
 div.forum td {
     text-align: left;
+    word-wrap: break-word;
 }
 
 div.forum .pseudoLink {
@@ -363,9 +364,11 @@ div.forum div.breadcrumb {
 }
 
 div.forum > table {
-    max-width: 1000px;
+    width: 100%;
+    max-width: 960px;
     border-collapse: separate;
     border-spacing: 0 0.5em;
+    table-layout: fixed;
 }
 
 div.forum > table td {
@@ -414,14 +417,7 @@ div.forum .boards .mainBreadrumb {
     font-weight: bold;
 }
 
-div.forum .boardDescriptionHeader {
-    font-size: 0.8em;
-    margin: 0.2em 0 0.2em 1.2em;
-}
-
-div.forum div.titleHeader {
-    font-size: 1.6em;
-    font-weight: bold;
+div.forum .subHeader {
     margin: 0.2em 0 0.2em 1.2em;
 }
 
@@ -430,12 +426,12 @@ div.forum td.notes {
     white-space: nowrap;
     /* This is so we don't get the borders from both cells together */
     border-left: 0;
-    min-width: 100px;
+    width: 100px;
 }
 
 div.forum td.attribution {
     background-color: #cccccc;
-    white-space: nowrap;
+    width: 160px;
 }
 
 div.forum table.posts td.attribution {
