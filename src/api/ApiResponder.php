@@ -95,7 +95,17 @@ class ApiResponder {
         $buttonNameArray = $args['buttonNameArray'];
         $maxWins = $args['maxWins'];
 
-        return $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
+        $retval = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
+
+        if (isset($retval)) {
+            foreach ($playerIdArray as $playerId) {
+                if (isset($playerId)) {
+                    $interface->update_last_action_time($playerId, $retval['gameId']);
+                }
+            }
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_loadActiveGames($interface) {
@@ -175,7 +185,18 @@ class ApiResponder {
             $addlInfo['new_email'] = $args['new_email'];
         }
 
-        return $interface->set_player_info($_SESSION['user_id'], $infoArray, $addlInfo);
+        $retval = $interface->set_player_info(
+            $_SESSION['user_id'],
+            $infoArray,
+            $addlInfo
+        );
+
+        if (isset($retval)) {
+            $interface->update_last_action_time($_SESSION['user_id']);
+        }
+
+        return $retval;
+
     }
 
     protected function get_interface_response_loadProfileInfo($interface, $args) {
@@ -197,13 +218,19 @@ class ApiResponder {
         } else {
             $optionValueArray = array();
         }
-        return $interface->submit_die_values(
+        $retval = $interface->submit_die_values(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
             $swingValueArray,
             $optionValueArray
         );
+
+        if (isset($retval)) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_reactToAuxiliary($interface, $args) {
@@ -211,12 +238,18 @@ class ApiResponder {
             $args['dieIdx'] = NULL;
         }
 
-        return $interface->react_to_auxiliary(
+        $retval = $interface->react_to_auxiliary(
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
             $args['dieIdx']
         );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_reactToReserve($interface, $args) {
@@ -224,12 +257,18 @@ class ApiResponder {
             $args['dieIdx'] = NULL;
         }
 
-        return $interface->react_to_reserve(
+        $retval = $interface->react_to_reserve(
             $_SESSION['user_id'],
             $args['game'],
             $args['action'],
             $args['dieIdx']
         );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_reactToInitiative($interface, $args) {
@@ -239,7 +278,7 @@ class ApiResponder {
         if (!(array_key_exists('dieValueArray', $args))) {
             $args['dieValueArray'] = NULL;
         }
-        return $interface->react_to_initiative(
+        $retval = $interface->react_to_initiative(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -248,25 +287,37 @@ class ApiResponder {
             $args['dieIdxArray'],
             $args['dieValueArray']
         );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_submitChat($interface, $args) {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
         }
-        return $interface->submit_chat(
+        $retval = $interface->submit_chat(
             $_SESSION['user_id'],
             $args['game'],
             $args['edit'],
             $args['chat']
         );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_submitTurn($interface, $args) {
         if (!(array_key_exists('chat', $args))) {
             $args['chat'] = '';
         }
-        return $interface->submit_turn(
+        $retval = $interface->submit_turn(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -277,6 +328,12 @@ class ApiResponder {
             (int)$args['defenderIdx'],
             $args['chat']
         );
+
+        if (isset($retval)) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_login($interface, $args) {
@@ -314,6 +371,7 @@ class ApiResponder {
                 // object, invoke the function, and return the result
                 if ($check['functype'] == 'auth') {
                     $interface = new BMInterface($this->isTest);
+                    $interface->update_last_access_time($_SESSION['user_id']);
                 } else {
                     $interface = new BMInterfaceNewuser($this->isTest);
                 }
