@@ -44,6 +44,7 @@ class BMInterface {
     public function get_player_info($playerId) {
         try {
             $query = 'SELECT *, ' .
+                     'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
                      'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
                      'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
                      'FROM player p ' .
@@ -76,6 +77,11 @@ class BMInterface {
             $last_action_time = NULL;
         }
 
+        $last_access_time = (int)$infoArray['last_access_timestamp'];
+        if ($last_access_time == 0) {
+            $last_access_time = NULL;
+        }
+
         // set the values we want to actually return
         $playerInfoArray = array(
             'id' => (int)$infoArray['id'],
@@ -89,6 +95,7 @@ class BMInterface {
             'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
             'last_action_time' => $last_action_time,
+            'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
             'n_games_won' => (int)$infoArray['n_games_won'],
@@ -216,7 +223,7 @@ class BMInterface {
             'dob_day' => $playerInfo['dob_day'],
             'image_path' => $playerInfo['image_path'],
             'comment' => $playerInfo['comment'],
-            'last_action_time' => $playerInfo['last_action_time'],
+            'last_access_time' => $playerInfo['last_access_time'],
             'creation_time' => $playerInfo['creation_time'],
             'fanatic_button_id' => $playerInfo['fanatic_button_id'],
             'n_games_won' => $nWins,
@@ -1337,28 +1344,6 @@ class BMInterface {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
         }
         return $idNameMapping;
-    }
-
-    public function get_player_last_access($playerId) {
-        try {
-            $query = 'SELECT last_access_time FROM player '.
-                     'WHERE id = :id';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':id' => $playerId));
-            $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Player ID does not exist.';
-                return('');
-            } else {
-                return($result[0]);
-            }
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::get_player_last_access: ' .
-                $e->getMessage()
-            );
-            $this->message = 'Player last access time get failed.';
-        }
     }
 
     // Check whether a requested action still needs to be taken.

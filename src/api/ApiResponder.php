@@ -189,7 +189,12 @@ class ApiResponder {
             $addlInfo['new_email'] = $args['new_email'];
         }
 
-        $retval = $interface->set_player_info($_SESSION['user_id'], $infoArray, $addlInfo);
+        $retval = $interface->set_player_info(
+            $_SESSION['user_id'],
+            $infoArray,
+            $addlInfo
+        );
+
         if (isset($retval)) {
             $interface->update_last_action_time($_SESSION['user_id']);
         }
@@ -297,12 +302,18 @@ class ApiResponder {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
         }
-        return $interface->submit_chat(
+        $retval = $interface->submit_chat(
             $_SESSION['user_id'],
             $args['game'],
             $args['edit'],
             $args['chat']
         );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
     }
 
     protected function get_interface_response_submitTurn($interface, $args) {

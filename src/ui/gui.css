@@ -110,6 +110,10 @@ td.chat {
     text-align: right;
 }
 
+.hiddenChatForm {
+    display: none;
+}
+
 .logtable .new {
     background-color: #ffffcc;
 }

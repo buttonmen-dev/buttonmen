@@ -111,9 +111,8 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Member since',
     Env.formatTimestamp(Api.profile_info.creation_time, 'date'), 'unknown',
     true));
-  //TODO make this last_access_time
   tbody.append(Profile.buildProfileTableRow('Last visit',
-    Env.formatTimestamp(Api.profile_info.last_action_time, 'date'), 'never',
+    Env.formatTimestamp(Api.profile_info.last_access_time, 'date'), 'never',
     true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',

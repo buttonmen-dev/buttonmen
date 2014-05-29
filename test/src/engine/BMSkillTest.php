@@ -28,25 +28,25 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
 
         // check that the comparator works in the correct direction
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'BMSkillNull'));
 
         $this->assertEquals(1,
             BMSkill::skill_order_comparator('BMSkillNull',
-                                            'BMSkillDoppleganger'));
+                                            'BMSkillDoppelganger'));
 
         // check that unknown skills are applied last
         $this->assertEquals(1,
             BMSkill::skill_order_comparator('Test',
-                                            'BMSkillDoppleganger'));
+                                            'BMSkillDoppelganger'));
 
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'Test'));
 
         // check specific orderings of skills
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'BMSkillValue'));
 
         // stealth must come after all others that set attack types,
