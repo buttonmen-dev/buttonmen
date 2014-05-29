@@ -298,6 +298,11 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
     public function testDescribe() {
         $die1 = new BMDieTwin;
+
+        $die1->init(array(1,1));
+        $this->assertEquals('Twin Die (both with 1 side)', $die1->describe(TRUE));
+        $this->assertEquals('Twin Die (both with 1 side)', $die1->describe(FALSE));
+
         $die1->init(array(6,6));
         $this->assertEquals('Twin Die (both with 6 sides)', $die1->describe(TRUE));
         $this->assertEquals('Twin Die (both with 6 sides)', $die1->describe(FALSE));
@@ -320,6 +325,15 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
             'Poison Shadow Twin Die (both with 6 sides)', $die1->describe(FALSE));
 
         $die2 = new BMDieTwin;
+
+        $die2->init(array(1,2));
+        $this->assertEquals('Twin Die (with 1 and 2 sides)', $die2->describe(TRUE));
+        $this->assertEquals('Twin Die (with 1 and 2 sides)', $die2->describe(FALSE));
+
+        $die2->init(array(2,1));
+        $this->assertEquals('Twin Die (with 2 and 1 sides)', $die2->describe(TRUE));
+        $this->assertEquals('Twin Die (with 2 and 1 sides)', $die2->describe(FALSE));
+
         $die2->init(array(6,12));
         $this->assertEquals('Twin Die (with 6 and 12 sides)', $die2->describe(TRUE));
         $this->assertEquals('Twin Die (with 6 and 12 sides)', $die2->describe(FALSE));
