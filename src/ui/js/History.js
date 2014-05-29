@@ -328,7 +328,7 @@ History.readSearchParametersFromForm = function() {
       History.assignSearchParameter(name + 'Max', info.dataType, maxValue);
     } else {
       var value = History.page.find('#parameter_' + name).val();
-      History.assignSearchParameter(name, info.inputType, value);
+      History.assignSearchParameter(name, info.dataType, value);
     }
   });
 };
