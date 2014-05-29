@@ -116,7 +116,11 @@ class BMDieTwin extends BMDie {
         $sideStr = '';
         if (isset($this->dice[0]->max)) {
             if ($this->dice[0]->max == $this->dice[1]->max) {
-                $sideStr = " (both with {$this->dice[0]->max} sides)";
+                $sideStr = " (both with {$this->dice[0]->max} side";
+                if ($this->dice[0]->max != 1) {
+                    $sideStr .= 's';
+                }
+                $sideStr .= ')';
             } else {
                 $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
             }
