@@ -169,7 +169,6 @@ class ApiResponder {
         $infoArray = array();
         $infoArray['name_irl'] = $args['name_irl'];
         $infoArray['comment'] = $args['comment'];
-        $infoArray['image_path'] = $args['image_path'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
 
         $addlInfo = array();

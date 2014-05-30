@@ -520,7 +520,7 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse the ID of the player's next pending game
+  // Load and parse profile data for the indicated player
 
   my.loadProfileInfo = function(playerName, callbackfunc) {
     my.apiParsePost(

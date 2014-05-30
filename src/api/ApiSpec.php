@@ -135,7 +135,6 @@ class ApiSpec {
                 'dob_month' => 'number',
                 'dob_day' => 'number',
                 'comment' => 'string',
-                'image_path' => 'string',
                 'autopass' => 'boolean',
             ),
             'permitted' => array(

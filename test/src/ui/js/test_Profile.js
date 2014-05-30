@@ -95,12 +95,14 @@ asyncTest("test_Profile.buildProfileTable", function() {
 
 test("test_Profile.buildProfileTableRow", function() {
   var tr = Profile.buildProfileTableRow('Things', 'something', 'nothing', true);
+  var valueTd = tr.find('td.partialValue');
+  equal(valueTd.text(), 'something', 'Value should be in partialValue cell');
+
+  var tr = Profile.buildProfileTableRow('Things', 'something', 'nothing', false);
   var valueTd = tr.find('td.value');
   equal(valueTd.text(), 'something', 'Value should be in value cell');
-  ok(valueTd.is('.shrinkable'), 'Value cell should be shrinkable');
 
   tr = Profile.buildProfileTableRow('Things', null, 'nothing', false);
   valueTd = tr.find('td.missingValue');
-  equal(valueTd.text(), 'nothing', 'Missing value should be in value cell');
-  ok(valueTd.is('.unshrinkable'), 'Value cell should not be shrinkable');
+  equal(valueTd.text(), 'nothing', 'Missing value should be in missingValue cell');
 });

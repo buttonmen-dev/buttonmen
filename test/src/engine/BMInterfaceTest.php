@@ -108,7 +108,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('dob_month', $resultArray);
         $this->assertArrayHasKey('dob_day', $resultArray);
         $this->assertArrayHasKey('autopass', $resultArray);
-        $this->assertArrayHasKey('image_path', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
         $this->assertArrayHasKey('creation_time', $resultArray);
