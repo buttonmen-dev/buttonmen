@@ -25,6 +25,9 @@ Forum.TITLE_MAX_LENGTH = 100;
 //
 ////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////
+// These functions are part of the main action flow to load the page
+
 Forum.showForumPage = function() {
   // Setup necessary elements for displaying status messages
   Env.setupEnvStub();
@@ -310,14 +313,9 @@ Forum.layOutPage = function() {
   Forum.scrollTo(Forum.scrollTarget);
 };
 
-Forum.scrollTo = function(scrollTarget) {
-  var scrollTop = 0;
-  if (scrollTarget) {
-    scrollTarget = $(scrollTarget);
-    scrollTop = scrollTarget.offset().top - 5;
-  }
-  $('html, body').animate({ scrollTop: scrollTop }, 200);
-};
+
+////////////////////////////////////////////////////////////////////////
+// These are events that are triggered by user actions
 
 Forum.linkToSubPage = function() {
   var boardId = $(this).attr('data-boardId');
@@ -327,6 +325,134 @@ Forum.linkToSubPage = function() {
   //TODO push the new state + hash into history
 
   Forum.showPage(boardId, threadId, postId);
+};
+
+Forum.toggleNewThreadForm = function() {
+  // Using visibility rather than display: hidden so we don't reflow the table
+  if ($('#newThreadButton').css('visibility') == 'visible') {
+    $('#newThreadButton').css('visibility', 'hidden');
+    $('tr.writePost textarea').val('');
+    $('tr.writePost input.title').val('');
+    $('tr.thread').hide();
+    $('tr.writePost').show();
+    $('tr.writePost input.title').focus();
+  } else {
+    $('tr.writePost').hide();
+    $('tr.thread').show();
+    $('#newThreadButton').css('visibility', 'visible');
+  }
+};
+
+Forum.postNewThread = function() {
+  var title = $(this).parent().find('input.title').val().trim();
+  var body = $(this).parent().find('textarea').val().trim();
+  if (!title || !body) {
+    Env.message = {
+      'type': 'error',
+      'text': 'The thread title and body are both required',
+    };
+    Env.showStatusMessage();
+    return;
+  }
+  Api.createForumThread(title, body, Forum.showThread);
+};
+
+Forum.replyToThread = function() {
+  var body = $(this).parent().find('textarea').val().trim();
+  if (!body) {
+    Env.message = {
+      'type': 'error',
+      'text': 'The post body is required',
+    };
+    Env.showStatusMessage();
+    return;
+  }
+  Api.createForumPost(body, Forum.showThread);
+};
+
+
+////////////////////////////////////////////////////////////////////////
+// These functions build HTML to help render the page
+
+Forum.buildBoardRow = function(board) {
+  var tr = $('<tr>', { 'class': board.shortName });
+
+  var titleTd = $('<td>', { 'class': 'title' });
+  tr.append(titleTd);
+
+  titleTd.append($('<div>', {
+    'class': 'pseudoLink',
+    'text': board.boardName,
+    'data-boardId': board.boardId,
+  }));
+
+  titleTd.append($('<div>', {
+    'class': 'minor',
+    'text': board.description,
+  }));
+
+  var notesTd = $('<td>', { 'class': 'notes' });
+  tr.append(notesTd);
+  var numberOfThreads = board.numberOfThreads + ' thread' +
+    (board.numberOfThreads != 1 ? 's ' : ' ');
+  notesTd.append($('<div>', {
+    'class': 'minor',
+    'text': numberOfThreads,
+  }));
+  if (board.firstNewPostId) {
+    notesTd.append($('<div>', {
+      'class': 'pseudoLink new',
+      'text': '*NEW*',
+      'data-threadId': board.firstNewPostThreadId,
+      'data-postId': board.firstNewPostId,
+    }));
+  }
+
+  return tr;
+};
+
+Forum.buildThreadRow = function(thread) {
+  var tr = $('<tr>', { 'class': 'thread' });
+
+  var titleTd = $('<td>', { 'class': 'title' });
+  tr.append(titleTd);
+
+  titleTd.append($('<div>', {
+    'class': 'pseudoLink',
+    'text': thread.threadTitle,
+    'data-threadId': thread.threadId,
+  }));
+
+  var postDates =
+    'Originally by ' + thread.originalPosterName + ' at ' +
+      Env.formatTimestamp(thread.originalCreationTime) + '.';
+  if (thread.latestLastUpdateTime != thread.originalCreationTime) {
+    postDates += ' Updated by ' + thread.latestPosterName + ' at ' +
+      Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
+  }
+  titleTd.append($('<div>', {
+    'class': 'minor',
+    'text': postDates,
+  }));
+
+  var notesTd = $('<td>', { 'class': 'notes' });
+  tr.append(notesTd);
+  var numberOfPosts =
+    thread.numberOfPosts + ' post' + (thread.numberOfPosts != 1 ? 's ' : ' ');
+  notesTd.append($('<div>', {
+    'class': 'minor',
+    'text': numberOfPosts,
+  }));
+  if (thread.firstNewPostId) {
+    notesTd.append($('<div>', {
+      'class': 'pseudoLink new',
+      'text': '*NEW*',
+      'data-threadId': thread.threadId,
+      'data-postId': thread.firstNewPostId,
+    }));
+  }
+
+  return tr;
 };
 
 Forum.buildPostRow = function(post) {
@@ -393,127 +519,16 @@ Forum.buildPostRow = function(post) {
   return tr;
 };
 
-Forum.replyToThread = function() {
-  var body = $(this).parent().find('textarea').val().trim();
-  if (!body) {
-    Env.message = {
-      'type': 'error',
-      'text': 'The post body is required',
-    };
-    Env.showStatusMessage();
-    return;
+
+////////////////////////////////////////////////////////////////////////
+// Miscellaneous utility functions
+
+Forum.scrollTo = function(scrollTarget) {
+  var scrollTop = 0;
+  if (scrollTarget) {
+    scrollTarget = $(scrollTarget);
+    scrollTop = scrollTarget.offset().top - 5;
   }
-  Api.createForumPost(body, Forum.showThread);
-};
-
-Forum.postNewThread = function() {
-  var title = $(this).parent().find('input.title').val().trim();
-  var body = $(this).parent().find('textarea').val().trim();
-  if (!title || !body) {
-    Env.message = {
-      'type': 'error',
-      'text': 'The thread title and body are both required',
-    };
-    Env.showStatusMessage();
-    return;
-  }
-  Api.createForumThread(title, body, Forum.showThread);
-};
-
-Forum.buildThreadRow = function(thread) {
-  var tr = $('<tr>', { 'class': 'thread' });
-
-  var titleTd = $('<td>', { 'class': 'title' });
-  tr.append(titleTd);
-
-  titleTd.append($('<div>', {
-    'class': 'pseudoLink',
-    'text': thread.threadTitle,
-    'data-threadId': thread.threadId,
-  }));
-
-  var postDates =
-    'Originally by ' + thread.originalPosterName + ' at ' +
-      Env.formatTimestamp(thread.originalCreationTime) + '.';
-  if (thread.latestLastUpdateTime != thread.originalCreationTime) {
-    postDates += ' Updated by ' + thread.latestPosterName + ' at ' +
-      Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
-  }
-  titleTd.append($('<div>', {
-    'class': 'minor',
-    'text': postDates,
-  }));
-
-  var notesTd = $('<td>', { 'class': 'notes' });
-  tr.append(notesTd);
-  var numberOfPosts =
-    thread.numberOfPosts + ' post' + (thread.numberOfPosts != 1 ? 's ' : ' ');
-  notesTd.append($('<div>', {
-    'class': 'minor',
-    'text': numberOfPosts,
-  }));
-  if (thread.firstNewPostId) {
-    notesTd.append($('<div>', {
-      'class': 'pseudoLink new',
-      'text': '*NEW*',
-      'data-threadId': thread.threadId,
-      'data-postId': thread.firstNewPostId,
-    }));
-  }
-
-  return tr;
-};
-
-Forum.toggleNewThreadForm = function() {
-  // Using visibility rather than display: hidden so we don't reflow the table
-  if ($('#newThreadButton').css('visibility') == 'visible') {
-    $('#newThreadButton').css('visibility', 'hidden');
-    $('tr.writePost textarea').val('');
-    $('tr.writePost input.title').val('');
-    $('tr.thread').hide();
-    $('tr.writePost').show();
-    $('tr.writePost input.title').focus();
-  } else {
-    $('tr.writePost').hide();
-    $('tr.thread').show();
-    $('#newThreadButton').css('visibility', 'visible');
-  }
-};
-
-Forum.buildBoardRow = function(board) {
-  var tr = $('<tr>', { 'class': board.shortName });
-
-  var titleTd = $('<td>', { 'class': 'title' });
-  tr.append(titleTd);
-
-  titleTd.append($('<div>', {
-    'class': 'pseudoLink',
-    'text': board.boardName,
-    'data-boardId': board.boardId,
-  }));
-
-  titleTd.append($('<div>', {
-    'class': 'minor',
-    'text': board.description,
-  }));
-
-  var notesTd = $('<td>', { 'class': 'notes' });
-  tr.append(notesTd);
-  var numberOfThreads = board.numberOfThreads + ' thread' +
-    (board.numberOfThreads != 1 ? 's ' : ' ');
-  notesTd.append($('<div>', {
-    'class': 'minor',
-    'text': numberOfThreads,
-  }));
-  if (board.firstNewPostId) {
-    notesTd.append($('<div>', {
-      'class': 'pseudoLink new',
-      'text': '*NEW*',
-      'data-threadId': board.firstNewPostThreadId,
-      'data-postId': board.firstNewPostId,
-    }));
-  }
-
-  return tr;
+  $('html, body').animate({ scrollTop: scrollTop }, 200);
 };
 
