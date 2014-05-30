@@ -123,7 +123,11 @@ class BMDieSwing extends BMDie {
 
         $sideStr = '';
         if (isset($this->max)) {
-            $sideStr = " (with {$this->max} sides)";
+            $sideStr = " (with {$this->max} side";
+            if ($this->max != 1) {
+                $sideStr .= 's';
+            }
+            $sideStr .= ')';
         }
 
         $valueStr = '';
