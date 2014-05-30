@@ -30,8 +30,8 @@ CREATE TABLE forum_post(
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     thread_id SMALLINT UNSIGNED NOT NULL,
     poster_player_id SMALLINT UNSIGNED NOT NULL,
-    creation_time TIMESTAMP NOT NULL,
-    last_update_time TIMESTAMP NOT NULL,
+    creation_time TIMESTAMP NOT NULL DEFAULT '0000-00-00',
+    last_update_time TIMESTAMP NOT NULL DEFAULT '0000-00-00',
     body TEXT NOT NULL,
     deleted BIT NOT NULL DEFAULT 0,
     INDEX (thread_id),
@@ -42,7 +42,7 @@ CREATE TABLE forum_post(
 CREATE TABLE forum_board_player_map(
     board_id TINYINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
-    read_time TIMESTAMP,
+    read_time TIMESTAMP DEFAULT '0000-00-00',
     PRIMARY KEY (board_id, player_id),
     FOREIGN KEY (board_id) REFERENCES forum_board(id),
     FOREIGN KEY (player_id) REFERENCES player(id)
@@ -51,7 +51,7 @@ CREATE TABLE forum_board_player_map(
 CREATE TABLE forum_thread_player_map(
     thread_id SMALLINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
-    read_time TIMESTAMP,
+    read_time TIMESTAMP DEFAULT '0000-00-00',
     PRIMARY KEY (thread_id, player_id),
     FOREIGN KEY (thread_id) REFERENCES forum_thread(id),
     FOREIGN KEY (player_id) REFERENCES player(id)

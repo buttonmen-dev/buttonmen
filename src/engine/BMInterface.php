@@ -2189,7 +2189,9 @@ class BMInterface {
             $results['boards'] = $boards;
             $results['timestamp'] = strtotime('now');
 
-            $this->message = 'Forum overview loading succeeded';
+            if ($results) {
+                $this->message = 'Forum overview loading succeeded';
+            }
             return $results;
         } catch (Exception $e) {
             error_log(
@@ -2287,7 +2289,9 @@ class BMInterface {
             $results['threads'] = $threads;
             $results['timestamp'] = strtotime('now');
 
-            $this->message = 'Forum board loading succeeded';
+            if ($results) {
+                $this->message = 'Forum board loading succeeded';
+            }
             return $results;
         } catch (Exception $e) {
             error_log(
@@ -2351,7 +2355,7 @@ class BMInterface {
                     'creationTime' => (int)$row['creation_timestamp'],
                     'lastUpdateTime' => (int)$row['last_update_timestamp'],
                     'isNew' => (bool)$row['is_new'],
-                    'body' => ((bool)$row['deleted'] ? '[DELETED]' : $row['body']),
+                    'body' => ((bool)$row['deleted'] ? '[DELETED POST]' : $row['body']),
                     'deleted' => (bool)$row['deleted'],
                 );
             }
@@ -2359,7 +2363,9 @@ class BMInterface {
             $results['posts'] = $posts;
             $results['timestamp'] = strtotime('now');
 
-            $this->message = 'Forum thread loading succeeded';
+            if ($results) {
+                $this->message = 'Forum thread loading succeeded';
+            }
             return $results;
         } catch (Exception $e) {
             error_log(
@@ -2546,7 +2552,9 @@ class BMInterface {
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
 
-            $this->message = 'Forum post created successfully';
+            if ($results) {
+                $this->message = 'Forum post created successfully';
+            }
             return $results;
         } catch (Exception $e) {
             error_log(

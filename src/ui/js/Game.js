@@ -1470,8 +1470,6 @@ Game.pageAddLogFooter = function() {
       }
     }
 
-    logtable.append(logrow);
-
     if (Game.logEntryLimit !== undefined) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
       var historytd = $('<td>');
