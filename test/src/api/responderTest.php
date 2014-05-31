@@ -272,11 +272,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             array(
                 'data' => NULL,
-                'message' => 'Argument (playerInfoArray) to function createGame is invalid',
+                'message' => 'Game create failed because a button name was not valid.',
                 'status' => 'failed',
             ),
             $retval,
-            "Button name containing a backtick should be rejected"
+            "Button name containing a backtick should be invalid"
         );
 
         $args = array(
