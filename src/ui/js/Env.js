@@ -27,6 +27,9 @@ if ('unit_test' in Env) {
   Env.window = window;
 }
 
+// UI portion of the location at which the user is accessing the site
+Env.ui_root = Env.window.location.pathname.replace(/\/ui\/.*/, '/ui/');
+
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
   var match = new RegExp('[?&]' + name + '=([^&]*)').exec(
