@@ -31,21 +31,22 @@ BMTestUtils.getAllElements = function() {
 
   // Populate javascript variable info
   var jsInfo = {
-    'Api':        JSON.stringify(Api, null, "  "),
-    'Config':     JSON.stringify(Config, null, "  "),
-    'Env':        JSON.stringify(Env, null, "  "),
-    'Game':       JSON.stringify(Game, null, "  "),
-    'Loader':     JSON.stringify(Loader, null, "  "),
-    'Login':      JSON.stringify(Login, null, "  "),
-    'Newgame':    JSON.stringify(Newgame, null, "  "),
-    'Newuser':    JSON.stringify(Newuser, null, "  "),
-    'OpenGames':  JSON.stringify(OpenGames, null, "  "),
-    'Overview':   JSON.stringify(Overview, null, "  "),
-    'Profile':    JSON.stringify(Profile, null, "  "),
+    'ActivePlayers':  JSON.stringify(Api, null, "  "),
+    'Api':            JSON.stringify(Api, null, "  "),
+    'Config':         JSON.stringify(Config, null, "  "),
+    'Env':            JSON.stringify(Env, null, "  "),
+    'Game':           JSON.stringify(Game, null, "  "),
+    'Loader':         JSON.stringify(Loader, null, "  "),
+    'Login':          JSON.stringify(Login, null, "  "),
+    'Newgame':        JSON.stringify(Newgame, null, "  "),
+    'OpenGames':      JSON.stringify(OpenGames, null, "  "),
+    'Newuser':        JSON.stringify(Newuser, null, "  "),
+    'Overview':       JSON.stringify(Overview, null, "  "),
+    'Profile':        JSON.stringify(Profile, null, "  "),
     // UserPrefs should be added at some point, but it presently contains
     // circular structures
-    //'UserPrefs': JSON.stringify(UserPrefs, null, "  "),
-    'Verify': JSON.stringify(Verify, null, "  "),
+    //'UserPrefs':    JSON.stringify(UserPrefs, null, "  "),
+    'Verify':         JSON.stringify(Verify, null, "  "),
   };
 
   return {

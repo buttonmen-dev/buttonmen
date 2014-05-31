@@ -14,6 +14,7 @@ module("Api", {
     delete Api.gameNavigation;
     delete Api.open_games;
     delete Api.join_game_result;
+    delete Api.active_players;
     delete Api.profile_info;
     BMTestUtils.deleteEnvMessage();
 
@@ -307,6 +308,24 @@ asyncTest("test_Api.getOpenGamesData", function() {
     function() {
       equal(Api.open_games.load_status, 'ok',
         'Successfully retrieved open games');
+      start();
+    });
+});
+
+asyncTest("test_Api.getActivePlayers", function() {
+  Api.getActivePlayers(20,
+    function() {
+      equal(Api.active_players.load_status, 'ok',
+        'Successfully retrieved active players');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseActivePlayers", function() {
+  Api.getActivePlayers(20,
+    function() {
+      ok(Api.active_players.players.length,
+        "Successfully parsed active players info");
       start();
     });
 });

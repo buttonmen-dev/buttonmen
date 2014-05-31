@@ -50,6 +50,12 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadActivePlayers' => array(
+            'mandatory' => array(
+                'numberOfPlayers' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'loadButtonNames' => array(
             'mandatory' => array(),
             'permitted' => array(),
