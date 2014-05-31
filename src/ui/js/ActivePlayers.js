@@ -1,7 +1,7 @@
 // namespace for this "module"
 var ActivePlayers = {};
 
-ActivePlayers.NUMBEER_OF_ACTIVE_PLAYERS = 50;
+ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS = 50;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -33,7 +33,7 @@ ActivePlayers.showActivePlayersPage = function() {
 
 ActivePlayers.getActivePlayers = function(callback) {
   if (Login.logged_in) {
-    Api.getActivePlayers(ActivePlayers.NUMBEER_OF_ACTIVE_PLAYERS, callback);
+    Api.getActivePlayers(ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS, callback);
   } else {
     return callback();
   }
