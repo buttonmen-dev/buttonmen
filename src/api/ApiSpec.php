@@ -44,6 +44,12 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadActivePlayers' => array(
+            'mandatory' => array(
+                'numberOfPlayers' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'searchGameHistory' => array(
             'mandatory' => array(
                 'sortColumn' => array(

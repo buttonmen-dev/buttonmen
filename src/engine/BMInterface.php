@@ -149,7 +149,7 @@ class BMInterface {
             $infoArray['dob'] = NULL;
         } else {
             // We set the year to 0004 because it was a leap year, to permit Feb. 29
-            $dateString = '0004-' . $addlInfo['dob_month'] . '-' .  $addlInfo['dob_day'];
+            $dateString = '0004-' . $addlInfo['dob_month'] . '-' . $addlInfo['dob_day'];
             $infoArray['dob'] = date($dateString);
         }
 
@@ -177,7 +177,7 @@ class BMInterface {
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
     }
-
+    
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {
@@ -1588,6 +1588,41 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Game ID get failed.';
+            return NULL;
+        }
+    }
+
+    public function get_active_players($numberOfPlayers) {
+        try {
+            $query =
+                'SELECT ' .
+                    'name_ingame, ' .
+                    'UNIX_TIMESTAMP(last_access_time) AS last_access_timestamp ' .
+                'FROM player ' .
+                'WHERE UNIX_TIMESTAMP(last_access_time) > 0 ' .
+                'ORDER BY last_access_time DESC ' .
+                'LIMIT :number_of_players;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':number_of_players' => $numberOfPlayers));
+
+            $now = strtotime('now');
+
+            $players = array();
+            while ($row = $statement->fetch()) {
+                $players[] = array(
+                    'playerName' => $row['name_ingame'],
+                    'idleness' =>
+                        $this->get_friendly_time_span((int)$row['last_access_timestamp'], $now),
+                );
+            }
+            $this->message = 'Active players retrieved successfully.';
+            return array('players' => $players);
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_active_players: " .
+                $e->getMessage()
+            );
+            $this->message = 'Getting active players failed.';
             return NULL;
         }
     }

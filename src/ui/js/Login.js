@@ -167,6 +167,7 @@ Login.addMainNavbar = function() {
     'Preferences': 'prefs.html',
     'Profile': 'profile.html?player=' + encodeURIComponent(Login.player),
     'History': 'history.html',
+    'Who\'s online': 'active_players.html',
     'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
   };
   $.each(links, function(text, url) {

@@ -520,6 +520,50 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
+  // Load and parse the list of recently-active players
+
+  my.getActivePlayers = function(numberOfPlayers, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadActivePlayers',
+        'numberOfPlayers': numberOfPlayers,
+      },
+      'active_players',
+      my.parseActivePlayers,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseActivePlayers = function(data) {
+    my.active_players.players = data.players;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the profile info for the specified player
+
+  my.loadProfileInfo = function(playerName, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadProfileInfo',
+        'playerName': playerName,
+      },
+      'profile_info',
+      my.parseProfileInfo,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseProfileInfo = function(data) {
+    $.each(data.profile_info, function(key, value) {
+      my.profile_info[key] = value;
+    });
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
   // Search historic games and parse the result
 
   my.searchGameHistory = function(searchParameters, callbackfunc) {
@@ -539,29 +583,6 @@ var Api = (function () {
     my.search_results.games = data.games;
     my.search_results.summary = data.summary;
 
-    return true;
-  };
-
-  ////////////////////////////////////////////////////////////////////////
-  // Load and parse profile data for the indicated player
-
-  my.loadProfileInfo = function(playerName, callbackfunc) {
-    my.apiParsePost(
-      {
-        'type': 'loadProfileInfo',
-        'playerName': playerName,
-      },
-      'profile_info',
-      my.parseProfileInfo,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.parseProfileInfo = function(data) {
-    $.each(data.profile_info, function(key, value) {
-      my.profile_info[key] = value;
-    });
     return true;
   };
 

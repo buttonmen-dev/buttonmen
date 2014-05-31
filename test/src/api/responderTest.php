@@ -422,6 +422,31 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy pending game data should have matching structures");
     }
 
+    public function test_request_loadActivePlayers() {
+        $this->verify_login_required('loadActivePlayers');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadActivePlayers');
+
+        $this->verify_mandatory_args_required(
+            'loadActivePlayers',
+            array('numberOfPlayers' => 20)
+        );
+
+        $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 20);
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy player names should have matching structures");
+    }
+
     public function test_request_loadButtonNames() {
         $this->verify_login_required('loadButtonNames');
 

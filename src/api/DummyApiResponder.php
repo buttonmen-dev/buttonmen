@@ -452,6 +452,22 @@ class DummyApiResponder {
         return array($data, 'Next game ID retrieved successfully.');
     }
 
+    protected function get_interface_response_loadActivePlayers() {
+        $players = array(
+            array(
+                'playerName' => 'responder003',
+                'idleness' => '0 seconds',
+            ),
+            array(
+                'playerName' => 'responder004',
+                'idleness' => '12 minutes',
+            ),
+        );
+
+        return array(array('players' => $players),
+            'Active players retrieved successfully.');
+    }
+
     protected function get_interface_response_loadButtonNames() {
         $data = array(
           'buttonNameArray' => array(),

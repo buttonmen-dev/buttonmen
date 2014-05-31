@@ -14,6 +14,7 @@ module("Api", {
     delete Api.gameNavigation;
     delete Api.search_results;
     delete Api.siteConfig;
+    delete Api.active_players;
     delete Api.profile_info;
     BMTestUtils.deleteEnvMessage();
 
@@ -300,6 +301,24 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
     equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
     start();
   });
+});
+
+asyncTest("test_Api.getActivePlayers", function() {
+  Api.getActivePlayers(20,
+    function() {
+      equal(Api.active_players.load_status, 'ok',
+        'Successfully retrieved active players');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseActivePlayers", function() {
+  Api.getActivePlayers(20,
+    function() {
+      ok(Api.active_players.players.length,
+        "Successfully parsed active players info");
+      start();
+    });
 });
 
 asyncTest("test_Api.loadProfileInfo", function() {
