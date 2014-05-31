@@ -325,8 +325,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $createGameArgs = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder004', ''),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(
+                array('responder004', 'Avis'),
+                array('', 'Avis')
+            ),
             'maxWins' => '3',
         );
         $createGameResult = $this->object->process_request($createGameArgs);
