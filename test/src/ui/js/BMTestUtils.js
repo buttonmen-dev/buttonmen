@@ -31,15 +31,21 @@ BMTestUtils.getAllElements = function() {
 
   // Populate javascript variable info
   var jsInfo = {
-    'Api':      JSON.stringify(Api, null, "  "),
-    'Env':      JSON.stringify(Env, null, "  "),
-    'Config':   JSON.stringify(Config, null, "  "),
-    'Game':     JSON.stringify(Game, null, "  "),
-    'Loader':   JSON.stringify(Loader, null, "  "),
-    'Login':    JSON.stringify(Login, null, "  "),
-    'Newgame':  JSON.stringify(Newgame, null, "  "),
-    'Newuser':  JSON.stringify(Newuser, null, "  "),
-    'Overview': JSON.stringify(Overview, null, "  "),
+    'ActivePlayers':  JSON.stringify(Api, null, "  "),
+    'Api':            JSON.stringify(Api, null, "  "),
+    'Config':         JSON.stringify(Config, null, "  "),
+    'Env':            JSON.stringify(Env, null, "  "),
+    'Game':           JSON.stringify(Game, null, "  "),
+    'Loader':         JSON.stringify(Loader, null, "  "),
+    'Login':          JSON.stringify(Login, null, "  "),
+    'Newgame':        JSON.stringify(Newgame, null, "  "),
+    'Newuser':        JSON.stringify(Newuser, null, "  "),
+    'Overview':       JSON.stringify(Overview, null, "  "),
+    'Profile':        JSON.stringify(Profile, null, "  "),
+    // UserPrefs should be added at some point, but it presently contains
+    // circular structures
+    //'UserPrefs': JSON.stringify(UserPrefs, null, "  "),
+    'Verify': JSON.stringify(Verify, null, "  "),
   };
 
   return {
@@ -77,6 +83,8 @@ BMTestUtils.cleanupFakeLogin = function() {
 // the fake test data returned by DummyResponder in order for good
 // things to happen.
 BMTestUtils.overrideGetParameterByName = function() {
+  BMTestUtils.realGetParameterByName = Env.getParameterByName;
+
   Env.getParameterByName = function(name) {
     if (name == 'game') {
       if (BMTestUtils.GameType == 'newgame') { return '1'; }
@@ -109,5 +117,14 @@ BMTestUtils.overrideGetParameterByName = function() {
     if (name == 'key') {
       return 'facadefacadefacadefacadefacade12';
     }
+  }
+}
+
+// We also need to restore the original version after testing, for the
+// benefit of any tests that expect non-dummy data.
+BMTestUtils.restoreGetParameterByName = function() {
+  if (BMTestUtils.realGetParameterByName !== undefined) {
+    Env.getParameterByName = BMTestUtils.realGetParameterByName;
+    delete BMTestUtils.realGetParameterByName;
   }
 }

@@ -301,6 +301,74 @@ select.center {
     border-top-left-radius: 1em;
 }
 
+table.profileTable thead td {
+    font-size: 2em;
+    font-weight: bold;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+table.prefsTable td.label {
+    text-align: right;
+    width: 50%;
+    vertical-align: top;
+}
+
+table.profileTable td.label {
+    text-align: right;
+    max-width: 400px;
+    vertical-align: top;
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+table.prefsTable td.value {
+    text-align: left;
+    width: 50%;
+    vertical-align: top;
+}
+
+table.profileTable td.value,
+table.profileTable td.missingValue {
+    text-align: left;
+    max-width: 400px;
+    vertical-align: top;
+    padding-left: 5px;
+}
+
+table.profileTable td.missingValue {
+    font-style: italic;
+}
+
+table.profileTable td.partialValue {
+    text-align: left;
+    max-width: 200px;
+    vertical-align: top;
+}
+
+img.profileImage {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+table.activePlayerList td.player,
+table.activePlayerList th.player {
+    text-align: right;
+    padding-right: 10px;
+    width: 50%;
+}
+
+table.activePlayerList td.player a {
+    color: black;
+}
+
+table.activePlayerList td.idleness,
+table.activePlayerList th.idleness {
+    text-align: left;
+    padding-left: 10px;
+    width: 50%;
+}
+
 /* Game lists (Overview, Game History) */
 table.gameList a {
     color: black;

@@ -162,12 +162,14 @@ Login.addMainNavbar = function() {
   var navtable = $('<table>');
   var navrow = $('<tr>');
   var links = {
-    'index.html': 'Overview',
-    'create_game.html': 'Create game',
-    'prefs.html': 'Preferences',
-    'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
+    'Overview': 'index.html',
+    'Create game': 'create_game.html',
+    'Preferences': 'prefs.html',
+    'Profile': 'profile.html?player=' + encodeURIComponent(Login.player),
+    'Who\'s online': 'active_players.html',
+    'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
   };
-  $.each(links, function(url, text) {
+  $.each(links, function(text, url) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
     navrow.append(navtd);
