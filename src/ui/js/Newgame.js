@@ -28,6 +28,10 @@ Newgame.showNewgamePage = function() {
   $.getScript('js/Env.js');
   Env.setupEnvStub();
 
+  if (!Newgame.activity.opponentName) {
+    Newgame.activity.opponentName = Env.getParameterByName('opponent');
+  }
+
   // Make sure the div element that we will need exists in the page body
   if ($('#newgame_page').length === 0) {
     $('body').append($('<div>', {'id': 'newgame_page', }));
@@ -35,7 +39,6 @@ Newgame.showNewgamePage = function() {
 
   // Get all needed information, then display newgame page
   Newgame.getNewgameData(Newgame.showPage);
-
 };
 
 Newgame.getNewgameData = function(callback) {

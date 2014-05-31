@@ -44,6 +44,7 @@ class BMInterface {
     public function get_player_info($playerId) {
         try {
             $query = 'SELECT *, ' .
+                     'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
                      'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
                      'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
                      'FROM player p ' .
@@ -63,29 +64,103 @@ class BMInterface {
 
         $infoArray = $result[0];
 
+        $dob_month = 0;
+        $dob_day = 0;
+        if ($infoArray['dob'] != NULL) {
+            $dob = new DateTime($infoArray['dob']);
+            $dob_month = (int)$dob->format("m");
+            $dob_day = (int)$dob->format("d");
+        }
+
+        $last_action_time = (int)$infoArray['last_action_timestamp'];
+        if ($last_action_time == 0) {
+            $last_action_time = NULL;
+        }
+
+        $last_access_time = (int)$infoArray['last_access_timestamp'];
+        if ($last_access_time == 0) {
+            $last_access_time = NULL;
+        }
+
         // set the values we want to actually return
         $playerInfoArray = array(
             'id' => (int)$infoArray['id'],
             'name_ingame' => $infoArray['name_ingame'],
-            'name_irl' => $infoArray['name_irl'],
+            'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
             'email' => $infoArray['email'],
             'status' => $infoArray['status'],
-            'dob' => $infoArray['dob'],
+            'dob_month' => $dob_month,
+            'dob_day' => $dob_day,
             'autopass' => (bool)$infoArray['autopass'],
-            'image_path' => $infoArray['image_path'],
             'comment' => $infoArray['comment'],
-            'last_action_time' => (int)$infoArray['last_action_timestamp'],
+            'last_action_time' => $last_action_time,
+            'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
             'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
             'n_games_won' => (int)$infoArray['n_games_won'],
             'n_games_lost' => (int)$infoArray['n_games_lost'],
         );
 
-        return $playerInfoArray;
+        return array('user_prefs' => $playerInfoArray);
     }
 
-    public function set_player_info($playerId, array $infoArray) {
+    public function set_player_info($playerId, array $infoArray, array $addlInfo) {
+        // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
+
+        // Validate everything that needs validating
+        if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
+            ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
+            $this->message = 'DOB is incomplete.';
+            return NULL;
+        }
+
+        if ($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] != 0 &&
+            !checkdate($addlInfo['dob_month'], $addlInfo['dob_day'], 4)) {
+            $this->message = 'DOB is not a valid date.';
+            return NULL;
+        }
+
+        if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
+            !isset($addlInfo['current_password'])) {
+            $this->message = 'Current password is required to change password or email.';
+            return NULL;
+        }
+
+        if (isset($addlInfo['current_password'])) {
+            $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
+            $passwordQuery = self::$conn->prepare($passwordQuery);
+            $passwordQuery->execute(array(':playerId' => $playerId));
+
+            $passwordResults = $passwordQuery->fetchAll();
+            if (count($passwordResults) != 1) {
+                $this->message = 'An error occurred in BMInterface::set_player_info().';
+                return NULL;
+            }
+            $password_hashed = $passwordResults[0]['password_hashed'];
+            if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
+                $this->message = 'Current password is incorrect.';
+                return NULL;
+            }
+        }
+
+        // Read special values into $infoArray
+        if ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] == 0) {
+            $infoArray['dob'] = NULL;
+        } else {
+            // We set the year to 0004 because it was a leap year, to permit Feb. 29
+            $dateString = '0004-' . $addlInfo['dob_month'] . '-' .  $addlInfo['dob_day'];
+            $infoArray['dob'] = date($dateString);
+        }
+
+        if (isset($addlInfo['new_password'])) {
+            $infoArray['password_hashed'] = crypt($addlInfo['new_password']);
+        }
+
+        if (isset($addlInfo['new_email'])) {
+            $infoArray['email'] = $addlInfo['new_email'];
+        }
+
         foreach ($infoArray as $infoType => $info) {
             try {
                 $query = 'UPDATE player '.
@@ -95,13 +170,66 @@ class BMInterface {
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
-                $this->message = "Player info updated successfully.";
-                return array('playerId' => $playerId);
             } catch (Exception $e) {
                 $this->message = 'Player info update failed: '.$e->getMessage();
             }
         }
+        $this->message = "Player info updated successfully.";
+        return array('playerId' => $playerId);
+    }
 
+    public function get_profile_info($profilePlayerName) {
+        $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
+        if (!is_int($profilePlayerId)) {
+            return NULL;
+        }
+        $playerInfoResults = $this->get_player_info($profilePlayerId);
+        $playerInfo = $playerInfoResults['user_prefs'];
+
+        $query =
+            'SELECT ' .
+                'COUNT(*) AS number_of_games, ' .
+                'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
+            'FROM game AS g ' .
+                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                'INNER JOIN game_player_view AS v ' .
+                    'ON v.game_id = g.id AND v.player_id = :player_id ' .
+            'WHERE s.name = "COMPLETE" ' .
+            'GROUP BY v.n_rounds_won >= g.n_target_wins;';
+
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':player_id' => $profilePlayerId));
+
+        $nWins = 0;
+        $nLosses = 0;
+
+        while ($row = $statement->fetch()) {
+            if ((int)$row['win_or_loss'] == 1) {
+                $nWins = (int)$row['number_of_games'];
+            }
+            if ((int)$row['win_or_loss'] == 0) {
+                $nLosses = (int)$row['number_of_games'];
+            }
+        }
+
+        // Just select the fields we want to expose publically
+        $profileInfoArray = array(
+            'id' => $playerInfo['id'],
+            'name_ingame' => $playerInfo['name_ingame'],
+            'name_irl' => $playerInfo['name_irl'],
+            // We'll only expose this if they've set it to be public
+            'email' => NULL,
+            'dob_month' => $playerInfo['dob_month'],
+            'dob_day' => $playerInfo['dob_day'],
+            'comment' => $playerInfo['comment'],
+            'last_access_time' => $playerInfo['last_access_time'],
+            'creation_time' => $playerInfo['creation_time'],
+            'fanatic_button_id' => $playerInfo['fanatic_button_id'],
+            'n_games_won' => $nWins,
+            'n_games_lost' => $nLosses,
+        );
+
+        return array('profile_info' => $profileInfoArray);
     }
 
     public function create_game(
@@ -224,7 +352,7 @@ class BMInterface {
                 $this->message = 'Game create failed: ' . $e->getMessage();
             }
             error_log(
-                "Caught exception in BMInterface::create_game: " .
+                'Caught exception in BMInterface::create_game: ' .
                 $e->getMessage()
             );
             return NULL;
@@ -275,19 +403,12 @@ class BMInterface {
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                      'v.did_win_initiative,'.
                      'v.is_awaiting_action, '.
-                     'UNIX_TIMESTAMP(last_gal.action_time) AS player_last_action_timestamp '.
+                     'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp '.
                      'FROM game AS g '.
                      'LEFT JOIN game_status AS s '.
                      'ON s.id = g.status_id '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
-                     'LEFT JOIN game_action_log AS last_gal '.
-                     'ON last_gal.game_id = g.id AND last_gal.id = '.
-                     '(SELECT j_gal.id '.
-                     'FROM game_action_log AS j_gal '.
-                     'WHERE j_gal.game_id = g.id AND j_gal.acting_player = v.player_id '.
-                     'ORDER BY j_gal.action_time DESC '.
-                     'LIMIT 1) '.
                      'WHERE g.id = :game_id '.
                      'ORDER BY g.id;';
             $statement1 = self::$conn->prepare($query);
@@ -572,7 +693,7 @@ class BMInterface {
             return $game;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::load_game: " .
+                'Caught exception in BMInterface::load_game: ' .
                 $e->getMessage()
             );
             $this->message = "Game load failed: $e";
@@ -787,7 +908,6 @@ class BMInterface {
                                           ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
             }
 
-
             // set players awaiting action
             foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
                 $query = 'UPDATE game_player_map '.
@@ -867,10 +987,9 @@ class BMInterface {
             if ($game->chat['chat']) {
                 $this->log_game_chat($game);
             }
-
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::save_game: " .
+                'Caught exception in BMInterface::save_game: ' .
                 $e->getMessage()
             );
             $this->message = "Game save failed: $e";
@@ -1021,7 +1140,7 @@ class BMInterface {
             return $this->get_all_games($playerId, TRUE);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_all_active_games: " .
+                'Caught exception in BMInterface::get_all_active_games: ' .
                 $e->getMessage()
             );
             $this->message = 'Game detail get failed.';
@@ -1035,7 +1154,7 @@ class BMInterface {
             return $this->get_all_games($playerId, FALSE);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_all_active_games: " .
+                'Caught exception in BMInterface::get_all_active_games: ' .
                 $e->getMessage()
             );
             $this->message = 'Game detail get failed.';
@@ -1136,7 +1255,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_next_pending_game: " .
+                'Caught exception in BMInterface::get_next_pending_game: ' .
                 $e->getMessage()
             );
             $this->message = 'Game ID get failed.';
@@ -1183,7 +1302,7 @@ class BMInterface {
                          'hasUnimplementedSkillArray' => $hasUnimplSkillArray);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_all_button_names: " .
+                'Caught exception in BMInterface::get_all_button_names: ' .
                 $e->getMessage()
             );
             $this->message = 'Button name get failed.';
@@ -1202,7 +1321,7 @@ class BMInterface {
             return($row['recipe']);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_button_recipe_from_name: "
+                'Caught exception in BMInterface::get_button_recipe_from_name: '
                 . $e->getMessage()
             );
             $this->message = 'Button recipe get failed.';
@@ -1227,7 +1346,7 @@ class BMInterface {
             return array('nameArray' => $nameArray, 'statusArray' => $statusArray);
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_player_names_like: " .
+                'Caught exception in BMInterface::get_player_names_like: ' .
                 $e->getMessage()
             );
             $this->message = 'Player name get failed.';
@@ -1251,7 +1370,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_player_id_from_name: " .
+                'Caught exception in BMInterface::get_player_id_from_name: ' .
                 $e->getMessage()
             );
             $this->message = 'Player ID get failed.';
@@ -1277,7 +1396,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_player_name_from_id: " .
+                'Caught exception in BMInterface::get_player_name_from_id: ' .
                 $e->getMessage()
             );
             $this->message = 'Player name get failed.';
@@ -1387,7 +1506,7 @@ class BMInterface {
             return $logEntries;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::load_game_action_log: " .
+                'Caught exception in BMInterface::load_game_action_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading log entries';
@@ -1496,7 +1615,7 @@ class BMInterface {
             return $chatEntries;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::load_game_chat_log: " .
+                'Caught exception in BMInterface::load_game_chat_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading chat entries';
@@ -1649,7 +1768,7 @@ class BMInterface {
 
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_chat: " .
+                'Caught exception in BMInterface::submit_chat: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while updating game chat';
@@ -1852,7 +1971,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_die_values: " .
+                'Caught exception in BMInterface::submit_die_values: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting die sizes';
@@ -1932,7 +2051,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_swing_values: " .
+                'Caught exception in BMInterface::submit_swing_values: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting swing values';
@@ -1993,7 +2112,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_option_values: " .
+                'Caught exception in BMInterface::submit_option_values: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting option values';
@@ -2086,7 +2205,7 @@ class BMInterface {
             }
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::submit_turn: " .
+                'Caught exception in BMInterface::submit_turn: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while submitting turn';
@@ -2167,7 +2286,7 @@ class BMInterface {
             return TRUE;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::react_to_auxiliary: " .
+                'Caught exception in BMInterface::react_to_auxiliary: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while making auxiliary decision';
@@ -2250,7 +2369,7 @@ class BMInterface {
             return TRUE;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::react_to_reserve: " .
+                'Caught exception in BMInterface::react_to_reserve: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while making reserve decision';
@@ -2346,11 +2465,51 @@ class BMInterface {
             return $isSuccessful;
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::react_to_initiative: " .
+                'Caught exception in BMInterface::react_to_initiative: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
             return FALSE;
+        }
+    }
+
+    public function update_last_action_time($playerId, $gameId = NULL) {
+        try {
+            $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+
+            if (is_null($gameId)) {
+                return;
+            }
+
+            $query = 'UPDATE game_player_map SET last_action_time = now() '.
+                     'WHERE player_id = :player_id '.
+                     'AND game_id = :game_id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $playerId,
+                                      ':game_id' => $gameId));
+
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::update_last_action_time: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    public function update_last_access_time($playerId) {
+        try {
+            $query = 'UPDATE player SET last_access_time = now() WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':id' => $playerId));
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::update_last_access_time: ' .
+                $e->getMessage()
+            );
+            return NULL;
         }
     }
 
@@ -2362,13 +2521,13 @@ class BMInterface {
             $fetchResult = $statement->fetchAll();
 
             if (count($fetchResult) != 1) {
-                error_log("Wrong number of config values with key " . $conf_key);
+                error_log('Wrong number of config values with key ' . $conf_key);
                 return NULL;
             }
             return $fetchResult[0]['conf_value'];
         } catch (Exception $e) {
             error_log(
-                "Caught exception in BMInterface::get_config: " .
+                'Caught exception in BMInterface::get_config: ' .
                 $e->getMessage()
             );
             return NULL;

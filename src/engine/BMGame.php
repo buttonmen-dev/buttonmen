@@ -40,9 +40,10 @@
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
- * @property      array $prevSwingValueArrayArray    Swing values for previous round for all players
+ * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
- * @property      array $prevOptValueArrayArray      Option values for previous round for all players
+ * @property      array $prevOptValueArrayArray  Option values for previous round for all players
+ * @property      array $lastActionTimeArray     Times of last actions for each player
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
@@ -94,6 +95,8 @@ class BMGame {
     public $optRequestArrayArray;
     public $optValueArrayArray;
     public $prevOptValueArrayArray;
+
+    public $lastActionTimeArray;
 
     // methods
     public function do_next_step() {

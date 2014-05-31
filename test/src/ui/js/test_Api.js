@@ -14,6 +14,7 @@ module("Api", {
     delete Api.gameNavigation;
     delete Api.open_games;
     delete Api.join_game_result;
+    delete Api.profile_info;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -310,6 +311,15 @@ asyncTest("test_Api.getOpenGamesData", function() {
     });
 });
 
+asyncTest("test_Api.loadProfileInfo", function() {
+  Api.loadProfileInfo('tester',
+    function() {
+      equal(Api.profile_info.load_status, 'ok',
+        'Successfully retrieved profile info');
+      start();
+    });
+});
+
 asyncTest("test_Api.parseOpenGames", function() {
   Api.getOpenGamesData(function() {
     ok(Api.open_games.games.length > 0, "Successfully parsed open games");
@@ -339,6 +349,15 @@ asyncTest("test_Api.parseJoinGameResult", function() {
     },
     function() {
       ok(false, 'Retrieving game data should succeed');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseNextGameId", function() {
+  Api.loadProfileInfo('tester',
+    function() {
+      equal(Api.profile_info.name_ingame, 'tester',
+        "Successfully parsed profile info");
       start();
     });
 });

@@ -39,7 +39,8 @@ CREATE TABLE game_player_map (
     n_rounds_lost      TINYINT UNSIGNED DEFAULT 0,
     n_rounds_drawn     TINYINT UNSIGNED DEFAULT 0,
     handicap           TINYINT UNSIGNED DEFAULT 0,
-    is_player_hidden   BOOLEAN DEFAULT FALSE
+    is_player_hidden   BOOLEAN DEFAULT FALSE,
+    last_action_time   TIMESTAMP DEFAULT 0
 );
 
 DROP TABLE IF EXISTS game_swing_map;

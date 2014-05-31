@@ -2,7 +2,7 @@
 
 class BMSkillNullTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillValue
+     * @var BMSkillNull
      */
     protected $object;
 

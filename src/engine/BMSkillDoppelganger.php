@@ -1,6 +1,6 @@
 <?php
 
-class BMSkillDoppleganger extends BMSkillMorphing {
+class BMSkillDoppelganger extends BMSkillMorphing {
     public static $hooked_methods = array('capture');
 
     public static function capture(&$args) {
