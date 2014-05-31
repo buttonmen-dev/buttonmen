@@ -550,6 +550,16 @@ div.forum td.title {
     min-width: 600px;
 }
 
+div.forum td.body hr {
+    color: #cccccc;
+    border: 1px solid #cccccc;
+}
+
+div.forum td.body .postFooter {
+    font-size: 0.8em;
+    color: #777777;
+}
+
 div.forum .boards td.title {
     background-color: #dddddd;
 }
@@ -632,13 +642,13 @@ div.forum div.markRead {
 div.forum div.splitLeft {
     display: inline-block;
     text-align: left;
-    width: 50%;
+    width: 60%;
 }
 
 div.forum div.splitRight {
     display: inline-block;
     text-align: right;
-    width: 50%;
+    width: 40%;
 }
 
 /* end Forum*/

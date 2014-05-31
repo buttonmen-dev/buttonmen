@@ -368,6 +368,23 @@ Forum.replyToThread = function() {
   Api.createForumPost(body, Forum.showThread);
 };
 
+Forum.quotePost = function() {
+  var postRow = $(this).closest('tr');
+  var quotedText = postRow.find('td.body').attr('data-rawPost');
+  var replyBox = $('tr.writePost td.body textarea');
+
+  var replyText = replyBox.val();
+  //TODO
+  if (replyText && replyText.slice(-1) != '\n') {
+    replyText += '\n';
+  }
+  replyText += '[quote]' + quotedText + '[/quote]' + '\n';
+
+  replyBox.val(replyText);
+  replyBox.prop('scrollTop', replyBox.prop('scrollHeight'));
+  replyBox.focus();
+  Forum.scrollTo(replyBox.closest('tr'));
+};
 
 ////////////////////////////////////////////////////////////////////////
 // These functions build HTML to help render the page
@@ -426,9 +443,9 @@ Forum.buildThreadRow = function(thread) {
   var postDates =
     'Originally by ' +
       Forum.buildProfileLink(thread.originalPosterName).prop('outerHTML') +
-      ' at ' + Env.formatTimestamp(thread.originalCreationTime) + '.';
+      ' at ' + Env.formatTimestamp(thread.originalCreationTime) + '. ';
   if (thread.latestLastUpdateTime != thread.originalCreationTime) {
-    postDates += ' Latest by ' +
+    postDates += 'Latest by ' +
       Forum.buildProfileLink(thread.latestPosterName).prop('outerHTML') + ' at ' +
       Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
   }
@@ -493,17 +510,6 @@ Forum.buildPostRow = function(post) {
     Forum.scrollTo($(this).closest('tr'));
   });
 
-  attributionTd.append($('<div>', {
-    'class': 'minor',
-    'text': 'Posted: ' + Env.formatTimestamp(post.creationTime, 'datetime'),
-  }));
-  if (post.lastUpdateTime != post.creationTime) {
-    attributionTd.append($('<div>', {
-      'class': 'minor',
-      'text': 'Edited: ' + Env.formatTimestamp(post.lastUpdateTime, 'datetime'),
-    }));
-  }
-
   if (post.isNew) {
     attributionTd.append($('<div>', {
       'class': 'new',
@@ -516,6 +522,23 @@ Forum.buildPostRow = function(post) {
   // Env.prepareRawTextForDisplay() converts the dangerous raw text
   // into safe HTML.
   bodyTd.append(Env.prepareRawTextForDisplay(post.body));
+  bodyTd.append($('<hr>'));
+  var postFooter = $('<div>', { 'class': 'postFooter' });
+  bodyTd.append(postFooter);
+  var postDates =
+    'Posted at ' + Env.formatTimestamp(post.creationTime, 'datetime') + '. ';
+  if (post.lastUpdateTime != post.creationTime) {
+    postDates +=
+      'Edited at ' + Env.formatTimestamp(post.lastUpdateTime, 'datetime') + '.';
+  }
+  postFooter.append($('<div>', {
+    'class': 'splitLeft',
+    'text': postDates,
+  }));
+  var quoteButton = $('<input>', { 'type': 'button', 'value': 'Quote' });
+  postFooter.append($('<div>', { 'class': 'splitRight', }).append(quoteButton));
+  quoteButton.click(Forum.quotePost);
+
   bodyTd.attr('data-rawPost', post.body);
   if (post.deleted) {
     bodyTd.addClass('deleted');
