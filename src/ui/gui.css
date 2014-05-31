@@ -466,6 +466,15 @@ div.forum table.featureBug td.heading {
     background-color: #f0d0d0;
 }
 
+/*
+  This is, sadly, necessary to compensate for the dummy row in this table,
+  which is, sadly, necessary to make it respect the cell widths when using
+  table-layout: fixed, which is, necessary to make word-wrap: break-word work.
+*/
+div.forum .posts {
+    margin-top: -1.4em;
+}
+
 div.forum .posts tr.miscChat td.heading {
     background-color: #e7f0f7;
 }
@@ -550,9 +559,14 @@ div.forum td.title {
     min-width: 600px;
 }
 
+div.forum td.body {
+    padding-top: 0.4em;
+}
+
 div.forum td.body hr {
     color: #cccccc;
     border: 1px solid #cccccc;
+    margin: 0.6em 0 0.1em 0;
 }
 
 div.forum td.body .postFooter {
@@ -679,6 +693,13 @@ div.forum div.splitRight {
     background: rgba(0, 0, 0, .05);
     border: 1px solid grey;
     margin: 0.5em 0.2em;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+    padding-bottom: 0.2em;
+}
+
+.chatQuote + br {
+    display: none;
 }
 
 .chatQuotee {
