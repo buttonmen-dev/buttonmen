@@ -31,7 +31,7 @@ class ApiSpec {
                                          'minlength' => 0,
                                          'maxlength' => 2,
                                          'key_type' => 'number',
-                                         'elem_type' => 'alnum'),
+                                         'elem_type' => 'string'),
                 ),
                 'maxWins' => 'number',
             ),
