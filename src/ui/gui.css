@@ -351,6 +351,24 @@ img.profileImage {
     max-height: 200px;
 }
 
+table.activePlayerList td.player,
+table.activePlayerList th.player {
+    text-align: right;
+    padding-right: 10px;
+    width: 50%;
+}
+
+table.activePlayerList td.player a {
+    color: black;
+}
+
+table.activePlayerList td.idleness,
+table.activePlayerList th.idleness {
+    text-align: left;
+    padding-left: 10px;
+    width: 50%;
+}
+
 /* Game lists (Overview, Game History) */
 table.gameList a {
     color: black;
