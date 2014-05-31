@@ -177,6 +177,7 @@ class BMInterface {
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
     }
+    
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {
