@@ -261,12 +261,14 @@ Newgame.formCreateGame = function() {
     };
     Newgame.showNewgamePage();
   } else {
-    var playerNameArray = [
+    // create an array with one element for each player/button combination
+    var playerInfoArray = [];
+    playerInfoArray[0] = [
       Login.player,
-      Newgame.activity.opponentName,
-    ];
-    var buttonNameArray = [
       Newgame.activity.playerButton,
+    ];
+    playerInfoArray[1] = [
+      Newgame.activity.opponentName,
       Newgame.activity.opponentButton,
     ];
 
@@ -280,8 +282,7 @@ Newgame.formCreateGame = function() {
     Api.apiFormPost(
       {
         type: 'createGame',
-        playerNameArray: playerNameArray,
-        buttonNameArray: buttonNameArray,
+        playerInfoArray: playerInfoArray,
         maxWins: Newgame.activity.nRounds,
       },
       { 'ok':

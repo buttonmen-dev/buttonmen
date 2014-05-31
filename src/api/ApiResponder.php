@@ -81,18 +81,30 @@ class ApiResponder {
     }
 
     protected function get_interface_response_createGame($interface, $args) {
-        $playerNameArray = $args['playerNameArray'];
+        // $args['playerInfoArray'] contains an array of arrays, with one
+        // subarray for each player/button combination,
+        //   e.g., [0 => ['playerName1', 'buttonName1'],
+        //          1 => ['playerName2', NULL]]
         $playerIdArray = array();
-        foreach ($playerNameArray as $playerName) {
-            $playerId = $interface->get_player_id_from_name($playerName);
+        $buttonNameArray = array();
+        foreach ($args['playerInfoArray'] as $playerIdx => $playerInfo) {
+            $playerId = '';
+            if (isset($playerInfo[0])) {
+                $playerId = $interface->get_player_id_from_name($playerInfo[0]);
+            }
             if (is_int($playerId)) {
-                $playerIdArray[] = $playerId;
+                $playerIdArray[$playerIdx] = $playerId;
             } else {
-                $playerIdArray[] = NULL;
+                $playerIdArray[$playerIdx] = NULL;
+            }
+
+            if (isset($playerInfo[1])) {
+                $buttonNameArray[$playerIdx] = $playerInfo[1];
+            } else {
+                $buttonNameArray[$playerIdx] = NULL;
             }
         }
 
-        $buttonNameArray = $args['buttonNameArray'];
         $maxWins = $args['maxWins'];
 
         $retval = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);

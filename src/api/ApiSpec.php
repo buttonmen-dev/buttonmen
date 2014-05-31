@@ -22,17 +22,16 @@ class ApiSpec {
         ),
         'createGame' => array(
             'mandatory' => array(
-                'playerNameArray' => array(
-                    'has_keys' => FALSE,
+                'playerInfoArray' => array(
+                    'has_keys' => TRUE,
                     'minlength' => 2,
                     'maxlength' => 2,
-                    'elem_type' => 'alnum',
-                ),
-                'buttonNameArray' => array(
-                    'has_keys' => FALSE,
-                    'minlength' => 2,
-                    'maxlength' => 2,
-                    'elem_type' => 'button',
+                    'key_type' => 'number',
+                    'elem_type' => array('has_keys' => TRUE,
+                                         'minlength' => 0,
+                                         'maxlength' => 2,
+                                         'key_type' => 'number',
+                                         'elem_type' => 'string'),
                 ),
                 'maxWins' => 'number',
             ),
@@ -318,7 +317,7 @@ class ApiSpec {
     // verify that the argument is an alphanumeric string (allow underscores)
     protected function verify_argument_of_type_alnum($arg) {
         if (is_string($arg) &&
-            preg_match('/^[a-zA-Z0-9_]*$/', $arg)) {
+            preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
             return TRUE;
         }
         return FALSE;
@@ -343,7 +342,7 @@ class ApiSpec {
     // * these special characters: . ' ( ) ! & + _ -
     protected function verify_argument_of_type_button($arg) {
         if (is_string($arg) &&
-            preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]*$/', $arg)) {
+            preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]+$/', $arg)) {
             return TRUE;
         }
         return FALSE;
