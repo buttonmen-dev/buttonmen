@@ -82,6 +82,7 @@ class BMSkill {
                      'Shadow'       => 's',
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
+                     'Stinger'      => 'g',
                      'Trip'         => 't',
                      'Value'        => 'v');
     }
@@ -139,6 +140,7 @@ class BMSkill {
                      'BMSkillSpeed',
                      'BMSkillShadow',
                      'BMSkillTrip',
+                     'BMSkillStinger',
                      'BMSkillStealth',
                      'BMSkillMood',
                      'BMSkillMad',

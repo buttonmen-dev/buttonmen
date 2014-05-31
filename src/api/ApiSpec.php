@@ -91,6 +91,12 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadActivePlayers' => array(
+            'mandatory' => array(
+                'numberOfPlayers' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'loadButtonNames' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -185,6 +191,12 @@ class ApiSpec {
         ),
         'loadPlayerNames' => array(
             'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        'loadProfileInfo' => array(
+            'mandatory' => array(
+                'playerName' => 'alnum',
+            ),
             'permitted' => array(),
         ),
         'login' => array(
@@ -295,9 +307,17 @@ class ApiSpec {
         ),
         'savePlayerInfo' => array(
             'mandatory' => array(
+                'name_irl' => 'string',
+                'dob_month' => 'number',
+                'dob_day' => 'number',
+                'comment' => 'string',
                 'autopass' => 'boolean',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'current_password' => 'string',
+                'new_password' => 'string',
+                'new_email' => 'email',
+            ),
         ),
         'submitDieValues' => array(
             'mandatory' => array(

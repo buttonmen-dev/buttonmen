@@ -344,6 +344,22 @@ class DummyApiResponder {
         return array($data, 'Next game ID retrieved successfully.');
     }
 
+    protected function get_interface_response_loadActivePlayers() {
+        $players = array(
+            array(
+                'playerName' => 'responder003',
+                'idleness' => '0 seconds',
+            ),
+            array(
+                'playerName' => 'responder004',
+                'idleness' => '12 minutes',
+            ),
+        );
+
+        return array(array('players' => $players),
+            'Active players retrieved successfully.');
+    }
+
     protected function get_interface_response_loadButtonNames() {
         $data = array(
           'buttonNameArray' => array(),
@@ -1162,26 +1178,46 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_loadPlayerInfo() {
-        return array(array('id' => 1,
-                           'name_ingame' => 'tester1',
-                           'name_irl' => '',
-                           'email' => 'tester1@example.com',
-                           'status' => 'active',
-                           'dob' => NULL,
-                           'autopass' => TRUE,
-                           'image_path' => NULL,
-                           'comment' => NULL,
-                           'last_action_time' => 0,
-                           'last_access_time' => 0,
-                           'creation_time' => 1388193734,
-                           'fanatic_button_id' => 0,
-                           'n_games_won' => 0,
-                           'n_games_lost' => 0,
-                          ), NULL);
+        $playerInfoArray = array('id' => 1,
+                                'name_ingame' => 'tester1',
+                                'name_irl' => '',
+                                'email' => 'tester1@example.com',
+                                'status' => 'active',
+                                'dob' => NULL,
+                                'autopass' => TRUE,
+                                'comment' => NULL,
+                                'last_action_time' => 0,
+                                'last_access_time' => 0,
+                                'creation_time' => 1388193734,
+                                'fanatic_button_id' => 0,
+                                'n_games_won' => 0,
+                                'n_games_lost' => 0,
+                               );
+
+        return array(array('user_prefs' => $playerInfoArray), NULL);
     }
 
     protected function get_interface_response_savePlayerInfo() {
         return array(array('playerId' => 1), 'Player info updated successfully.');
+    }
+
+    protected function get_interface_response_loadProfileInfo($args) {
+        $profileInfoArray = array(
+            'id' => 3,
+            'name_ingame' => $args['playerName'],
+            'name_irl' => 'Test User',
+            'email' => NULL,
+            'dob_month' => 2,
+            'dob_day' => 29,
+            'comment' => '',
+            'last_access_time' => 0,
+            'creation_time' => 0,
+            'fanatic_button_id' => 0,
+            'n_games_won' => 0,
+            'n_games_lost' => 0,
+        );
+
+        return array(array('profile_info' => $profileInfoArray), NULL);
     }
 
     protected function get_interface_response_loadPlayerNames() {

@@ -140,6 +140,10 @@ class ApiResponder {
         return $interface->get_next_pending_game($_SESSION['user_id'], $skippedGames);
     }
 
+    protected function get_interface_response_loadActivePlayers($interface, $args) {
+        return $interface->get_active_players((int)$args['numberOfPlayers']);
+    }
+
     protected function get_interface_response_loadButtonNames($interface) {
         return $interface->get_all_button_names();
     }
@@ -166,10 +170,28 @@ class ApiResponder {
     }
 
     protected function get_interface_response_savePlayerInfo($interface, $args) {
-        $autopass = 'true' == $args['autopass'];
+        $infoArray = array();
+        $infoArray['name_irl'] = $args['name_irl'];
+        $infoArray['comment'] = $args['comment'];
+        $infoArray['autopass'] = ('true' == $args['autopass']);
+
+        $addlInfo = array();
+        $addlInfo['dob_month'] = (int)$args['dob_month'];
+        $addlInfo['dob_day'] = (int)$args['dob_day'];
+        if (isset($args['current_password'])) {
+            $addlInfo['current_password'] = $args['current_password'];
+        }
+        if (isset($args['new_password'])) {
+            $addlInfo['new_password'] = $args['new_password'];
+        }
+        if (isset($args['new_email'])) {
+            $addlInfo['new_email'] = $args['new_email'];
+        }
+
         $retval = $interface->set_player_info(
             $_SESSION['user_id'],
-            array('autopass' => $autopass)
+            $infoArray,
+            $addlInfo
         );
 
         if (isset($retval)) {
@@ -177,6 +199,10 @@ class ApiResponder {
         }
 
         return $retval;
+    }
+
+    protected function get_interface_response_loadProfileInfo($interface, $args) {
+        return $interface->get_profile_info($args['playerName']);
     }
 
     protected function get_interface_response_loadPlayerNames($interface) {

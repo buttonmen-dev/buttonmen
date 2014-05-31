@@ -531,4 +531,3 @@ Forum.scrollTo = function(scrollTarget) {
   }
   $('html, body').animate({ scrollTop: scrollTop }, 200);
 };
-
