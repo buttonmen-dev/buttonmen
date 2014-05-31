@@ -446,7 +446,7 @@ div.forum > table {
 div.forum > table td {
     border: 2px solid #cccccc;
     vertical-align: top;
-    padding: 0.4em;
+    padding: 0.2em 0.4em;
 }
 
 div.forum td.heading {
@@ -478,7 +478,6 @@ div.forum .posts tr.featureBug td.heading {
     background-color: #f7e7e7;
 }
 
-
 div.forum .mainBreadrumb {
     font-size: 1.1em;
     font-weight: bold;
@@ -498,7 +497,12 @@ div.forum td.notes {
     white-space: nowrap;
     /* This is so we don't get the borders from both cells together */
     border-left: 0;
-    width: 100px;
+    width: 160px;
+}
+
+div.forum tr:first-child td.notes {
+    text-align: center;
+    vertical-align: middle;
 }
 
 div.forum td.attribution {
@@ -574,6 +578,11 @@ div.forum table.featureBug td.title {
     background-color: #f7e7e7;
 }
 
+div.forum td.title a,
+div.forum td.attribution a {
+    color: black;
+}
+
 div.forum td.deleted {
     color: #cccccc;
 }
@@ -583,8 +592,14 @@ div.forum .threads tr.writePost {
 }
 
 div.forum tr.writePost td.attribution {
-    font-weight: bold;
     background-color: #dddddd;
+    font-size: 0.8em;
+    text-align: left;
+    vertical-align: top;
+}
+
+div.forum tr.writePost td.attribution .help {
+    margin-left: 1em;
 }
 
 div.forum tr.writePost input.title {
@@ -612,6 +627,18 @@ div.forum tr.writePost td {
 
 div.forum div.markRead {
     text-align: center;
+}
+
+div.forum div.splitLeft {
+    display: inline-block;
+    text-align: left;
+    width: 50%;
+}
+
+div.forum div.splitRight {
+    display: inline-block;
+    text-align: right;
+    width: 50%;
 }
 
 /* end Forum*/

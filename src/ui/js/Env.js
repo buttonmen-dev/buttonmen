@@ -226,9 +226,11 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     // The (?:... part means that we want parentheses around the whole
     // thing (so we we can OR it together with other ones), but we don't
     // want to capture the value of the whole thing as a group
+    // The (?:\\s|&nbsp;)* is to match any whitespace or HTML non-breaking
+    // space characters.
     allStartTagsPattern +=
-      '(?:\\[\\s*(' + Env.escapeRegexp(tagName) +
-        ')\\s*(?:=\\s*"([^"]*)")?\\s*])';
+      '(?:\\[(?:\\s|&nbsp;)*(' + Env.escapeRegexp(tagName) +
+        ')(?:\\s|&nbsp;)*(?:=(?:\\s|&nbsp;)*"([^"]*)")?(?:\\s|&nbsp;)*])';
   });
 
   var tagName;
@@ -239,10 +241,10 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       // The tag that was most recently opened
       tagName = tagStack[tagStack.length - 1];
       // Matches '[/i]' et al.
-      // (so that we can spot the end of the current tag as well as start
-      // tags)
+      // (so that we can spot the end of the current tag as well)
       currentPattern +=
-        '|(?:\\[\\s*(/\\s*' + Env.escapeRegexp(tagName) + ')\\s*])';
+        '|(?:\\[(?:\\s|&nbsp;)*(/(?:\\s|&nbsp;)*' + Env.escapeRegexp(tagName) +
+          ')(?:\\s|&nbsp;)*])';
     }
     // The first group should be non-greedy (hence the ?), and the last one
     // should be greedy, so that nested tags work right

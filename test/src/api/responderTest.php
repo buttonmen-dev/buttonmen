@@ -843,10 +843,19 @@ class responderTest extends PHPUnit_Framework_TestCase {
             )
         );
 
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
         $args = array(
             'type' => 'createForumPost',
-                'threadId' => 1,
-                'body' => 'Hey, wow, I do too!',
+            'threadId' => $thread['data']['threadId'],
+            'body' => 'Hey, wow, I do too!',
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -912,9 +921,18 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array('threadId' => 2)
         );
 
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
         $args = array(
             'type' => 'loadForumThread',
-            'threadId' => 2,
+            'threadId' => $thread['data']['threadId'],
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -992,15 +1010,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
             )
         );
 
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
         $args = array(
             'type' => 'markForumThreadRead',
-            'threadId' => 1,
+            'threadId' => $thread['data']['threadId'],
             'boardId' => 1,
             'timestamp' => strtotime('now'),
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
-        $this->assertEquals('ok', $retval['status'], 'Forum thread marking as read should succeed');
+        $this->assertEquals('ok', $retval['status'],
+            'Forum thread marking as read should succeed');
 
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];

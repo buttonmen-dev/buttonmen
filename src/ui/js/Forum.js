@@ -177,11 +177,9 @@ Forum.showBoard = function() {
   contentTd.append(replyButton);
   replyButton.click(Forum.postNewThread);
 
-  //TODO when we support BB code, put instructions for it here
   var notesTd = $('<td>', {
     'class': 'attribution',
-    'html': '&nbsp;',
-  });
+  }).append(Forum.buildHelp());
   newThreadTr.append(notesTd);
 
   if (Api.forum_board.threads.length === 0) {
@@ -266,11 +264,11 @@ Forum.showThread = function() {
 
   var replyTr = $('<tr>', { 'class': 'writePost' });
   table.append(replyTr);
-  //TODO when we support BB code, put instructions for it here
+
   replyTr.append($('<td>', {
-    'class': 'attribution',
-    'html': '&nbsp;',
-  }));
+    'class': 'attribution'
+  }).append(Forum.buildHelp()));
+
   var replyBodyTd = $('<td>', { 'class': 'body' });
   replyTr.append(replyBodyTd);
   replyBodyTd.append($('<textarea>', {
@@ -396,11 +394,13 @@ Forum.buildBoardRow = function(board) {
   var numberOfThreads = board.numberOfThreads + ' thread' +
     (board.numberOfThreads != 1 ? 's ' : ' ');
   notesTd.append($('<div>', {
-    'class': 'minor',
+    'class': 'minor splitLeft',
     'text': numberOfThreads,
   }));
+  var newDiv = $('<div>', { 'class': 'splitRight' });
+  notesTd.append(newDiv);
   if (board.firstNewPostId) {
-    notesTd.append($('<div>', {
+    newDiv.append($('<div>', {
       'class': 'pseudoLink new',
       'text': '*NEW*',
       'data-threadId': board.firstNewPostThreadId,
@@ -424,15 +424,17 @@ Forum.buildThreadRow = function(thread) {
   }));
 
   var postDates =
-    'Originally by ' + thread.originalPosterName + ' at ' +
-      Env.formatTimestamp(thread.originalCreationTime) + '.';
+    'Originally by ' +
+      Forum.buildProfileLink(thread.originalPosterName).prop('outerHTML') +
+      ' at ' + Env.formatTimestamp(thread.originalCreationTime) + '.';
   if (thread.latestLastUpdateTime != thread.originalCreationTime) {
-    postDates += ' Updated by ' + thread.latestPosterName + ' at ' +
+    postDates += ' Latest by ' +
+      Forum.buildProfileLink(thread.latestPosterName).prop('outerHTML') + ' at ' +
       Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
   }
   titleTd.append($('<div>', {
     'class': 'minor',
-    'text': postDates,
+    'html': postDates,
   }));
 
   var notesTd = $('<td>', { 'class': 'notes' });
@@ -440,11 +442,13 @@ Forum.buildThreadRow = function(thread) {
   var numberOfPosts =
     thread.numberOfPosts + ' post' + (thread.numberOfPosts != 1 ? 's ' : ' ');
   notesTd.append($('<div>', {
-    'class': 'minor',
+    'class': 'minor splitLeft',
     'text': numberOfPosts,
   }));
+  var newDiv = $('<div>', { 'class': 'splitRight' });
+  notesTd.append(newDiv);
   if (thread.firstNewPostId) {
-    notesTd.append($('<div>', {
+    newDiv.append($('<div>', {
       'class': 'pseudoLink new',
       'text': '*NEW*',
       'data-threadId': thread.threadId,
@@ -480,7 +484,7 @@ Forum.buildPostRow = function(post) {
     'html': anchorSymbol,
   });
   nameDiv.append(postAnchor);
-  nameDiv.append(post.posterName);
+  nameDiv.append(Forum.buildProfileLink(post.posterName));
 
   postAnchor.click(function() {
     //TODO set the hashbang!
@@ -512,6 +516,7 @@ Forum.buildPostRow = function(post) {
   // Env.prepareRawTextForDisplay() converts the dangerous raw text
   // into safe HTML.
   bodyTd.append(Env.prepareRawTextForDisplay(post.body));
+  bodyTd.attr('data-rawPost', post.body);
   if (post.deleted) {
     bodyTd.addClass('deleted');
   }
@@ -519,6 +524,57 @@ Forum.buildPostRow = function(post) {
   return tr;
 };
 
+Forum.buildProfileLink = function(playerName) {
+  return $('<a>', {
+    'href': 'profile.html?player=' + encodeURIComponent(playerName),
+    'text': playerName,
+  });
+};
+
+Forum.buildHelp = function() {
+  var helpDiv = $('<div>', { 'text': 'Available markup: ' });
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[b]text[/b]: <span class="chatBold">text</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[i]text[/i]: <span class="chatItalic">text</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[u]text[/u]: <span class="chatUnderlined">text</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[s]text[/s]: <span class="chatStruckthrough">text</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[code]text[/code]: <span class="chatCode">text</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[spoiler]text[/spoiler]: <span class="chatSpoiler">text</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[quote]text[/quote]: <span class="chatQuote">&nbsp;text&nbsp;</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[game="123"]: <a href="game.html?game=123">Game 123</a>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[player="Jota"]: <a href="profilep.html?player=Jota">Jota</a>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html': '[[]b]text[/b]: [b]text[/b]',
+  }));
+  return helpDiv;
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Miscellaneous utility functions
