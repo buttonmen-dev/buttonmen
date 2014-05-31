@@ -545,3 +545,46 @@ div.forum tr.writePost td {
 div.forum div.markRead {
     text-align: center;
 }
+
+/* end Forum*/
+
+/* BB Code (OK technically also forum but chat too) */
+
+.chatBold {
+    font-weight: bold;
+}
+
+.chatItalic {
+    font-style: italic;
+}
+
+.chatUnderlined {
+    text-decoration: underline;
+}
+
+.chatStruckthrough {
+    text-decoration: line-through;
+}
+
+.chatCode {
+    font-family: monospace;
+}
+
+.chatQuote {
+    background: rgba(0, 0, 0, .05);
+    border: 1px solid grey;
+    margin: 0.5em 0.2em;
+}
+
+.chatQuotee {
+    font-weight: bold;
+    font-size: 0.7em;
+    margin-bottom: 0.4em;
+}
+
+.chatSpoiler {
+    color: black;
+    background-color: black;
+}
+
+/* end BB Code */

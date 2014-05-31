@@ -144,22 +144,22 @@ var Api = (function () {
     return true;
   };
 
-// Verifies that the API data loaded correctly and displays the page with
-// an error message otherwise.
-my.verifyApiData = function(apiKey, layOutPage) {
-  if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
-    return true;
-  }
+  // Verifies that the API data loaded correctly and displays the page with
+  // an error message otherwise.
+  my.verifyApiData = function(apiKey, layOutPage) {
+    if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
+      return true;
+    }
 
-  if (Env.message === undefined || Env.message === null) {
-    Env.message = {
-      'type': 'error',
-      'text': 'An internal error occurred while loading the page.',
-    };
-  }
-  layOutPage();
-  return false;
-};
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'An internal error occurred while loading the page.',
+      };
+    }
+    layOutPage();
+    return false;
+  };
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
