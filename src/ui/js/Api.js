@@ -5,6 +5,26 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
+  // Valid email match
+  my.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+
+  // Array of the names of the months, indexed from 1-12 (plus a bonus Month 0!)
+  my.MONTH_NAMES = [
+    'Month',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   // private methods and variables should be defined separately
   var activity = {};
 
@@ -297,7 +317,9 @@ var Api = (function () {
   };
 
   my.parseUserPrefsData = function(data) {
-    my.user_prefs.autopass = data.autopass;
+    $.each(data.user_prefs, function(key, value) {
+      my.user_prefs[key] = value;
+    });
     return true;
   };
 
@@ -388,6 +410,8 @@ var Api = (function () {
       'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
       'gameScoreDict':
         my.game.gameData.data.gameScoreArrayArray[playerIdx],
+      'lastActionTime':
+        my.game.gameData.data.lastActionTimeArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
       'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
       'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
@@ -409,15 +433,17 @@ var Api = (function () {
         my.game.gameData.data.capturedSidesArrayArray[playerIdx],
       'capturedRecipeArray':
         my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+      'capturedDiePropertiesArray':
+        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
 
       'swingRequestArray': {},
       'optRequestArray':
         my.game.gameData.data.optRequestArrayArray[playerIdx],
 
       'prevSwingValueArray':
-        my.game.gameData.data.prevSwingValueArrArr[playerIdx],
+        my.game.gameData.data.prevSwingValueArrayArray[playerIdx],
       'prevOptValueArray':
-        my.game.gameData.data.prevOptValueArrArr[playerIdx],
+        my.game.gameData.data.prevOptValueArrayArray[playerIdx],
     };
 
     $.each(
@@ -490,6 +516,50 @@ var Api = (function () {
       return false;
     }
     my.gameNavigation.nextGameId = data.gameId;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the list of recently-active players
+
+  my.getActivePlayers = function(numberOfPlayers, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadActivePlayers',
+        'numberOfPlayers': numberOfPlayers,
+      },
+      'active_players',
+      my.parseActivePlayers,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseActivePlayers = function(data) {
+    my.active_players.players = data.players;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the profile info for the specified player
+
+  my.loadProfileInfo = function(playerName, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadProfileInfo',
+        'playerName': playerName,
+      },
+      'profile_info',
+      my.parseProfileInfo,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseProfileInfo = function(data) {
+    $.each(data.profile_info, function(key, value) {
+      my.profile_info[key] = value;
+    });
     return true;
   };
 

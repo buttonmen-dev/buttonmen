@@ -92,14 +92,16 @@ class BMDieTwin extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                if ('Mood' != $skill) {
+                if (('Mood' != $skill) && 'Mad' != $skill) {
                     $skillStr .= "$skill ";
                 }
             }
         }
 
         $moodStr = '';
-        if ($this->has_skill('Mood')) {
+        if ($this->has_skill('Mad')) {
+            $moodStr = ' Mad';
+        } elseif ($this->has_skill('Mood')) {
             $moodStr = ' Mood';
         }
 
@@ -114,7 +116,11 @@ class BMDieTwin extends BMDie {
         $sideStr = '';
         if (isset($this->dice[0]->max)) {
             if ($this->dice[0]->max == $this->dice[1]->max) {
-                $sideStr = " (both with {$this->dice[0]->max} sides)";
+                $sideStr = " (both with {$this->dice[0]->max} side";
+                if ($this->dice[0]->max != 1) {
+                    $sideStr .= 's';
+                }
+                $sideStr .= ')';
             } else {
                 $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
             }

@@ -71,8 +71,13 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $username = 'interface' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
         $createResult = $this->newuserObject->create_user($username, 't', $email);
+
+        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
+        $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
+
         $this->object->set_player_info($createResult['playerId'],
-                                       array('autopass' => 1));
+                                       $infoArray,
+                                       $addlInfo);
         self::$userId3WithAutopass = (int)$createResult['playerId'];
 
         $trynum++;
@@ -80,7 +85,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $email = $username . '@example.com';
         $createResult = $this->newuserObject->create_user($username, 't', $email);
         $this->object->set_player_info($createResult['playerId'],
-                                       array('autopass' => 1));
+                                       $infoArray,
+                                       $addlInfo);
         self::$userId4WithAutopass = (int)$createResult['playerId'];
     }
 
@@ -90,7 +96,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $resultArray = $this->object->get_player_info(1, array('autopass'));
+        $data = $this->object->get_player_info(1);
+        $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
         $this->assertArrayHasKey('id', $resultArray);
@@ -98,9 +105,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('password_hashed', $resultArray);
         $this->assertArrayHasKey('name_irl', $resultArray);
         $this->assertArrayHasKey('email', $resultArray);
-        $this->assertArrayHasKey('dob', $resultArray);
+        $this->assertArrayHasKey('dob_month', $resultArray);
+        $this->assertArrayHasKey('dob_day', $resultArray);
         $this->assertArrayHasKey('autopass', $resultArray);
-        $this->assertArrayHasKey('image_path', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
         $this->assertArrayHasKey('creation_time', $resultArray);
@@ -126,14 +133,22 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::set_player_info
      */
     public function test_set_player_info() {
-        $this->object->set_player_info(self::$userId1WithoutAutopass,
-                                       array('autopass' => 1));
-        $playerInfoArray = $this->object->get_player_info(self::$userId1WithoutAutopass);
-        $this->assertEquals(TRUE, $playerInfoArray['autopass']);
+        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
+        $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
 
         $this->object->set_player_info(self::$userId1WithoutAutopass,
-                                       array('autopass' => 0));
-        $playerInfoArray = $this->object->get_player_info(self::$userId1WithoutAutopass);
+                                       $infoArray,
+                                       $addlInfo);
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $data['user_prefs'];
+        $this->assertEquals(TRUE, $playerInfoArray['autopass']);
+
+        $infoArray['autopass'] = 0;
+        $this->object->set_player_info(self::$userId1WithoutAutopass,
+                                       $infoArray,
+                                       $addlInfo);
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
     }
 
@@ -951,7 +966,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array('X' => NULL), array('V' => 11)),
                             $game->swingValueArrayArray);
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
-                            $game->prevSwingValueArrArr);
+                            $game->prevSwingValueArrayArray);
     }
 
     /**
@@ -1606,6 +1621,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $game->activeDieArrayArray[0][0]->value);
         $this->assertEquals(1, $game->activeDieArrayArray[0][1]->value);
         $this->assertEquals(2, $game->capturedDieArrayArray[0][0]->value);
+        $this->assertTrue($game->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
 
         // round 1, turn 2, player 2 to attack
         // [1 1 1] vs [1 1 2]
@@ -1627,6 +1643,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
         $this->assertEquals(1, $game->activeDieArrayArray[1][0]->value);
         $this->assertEquals(1, $game->capturedDieArrayArray[1][0]->value);
+        $this->assertFalse($game->capturedDieArrayArray[0][0]->has_flag('WasJustCaptured'));
+        $this->assertTrue($game->capturedDieArrayArray[1][0]->has_flag('WasJustCaptured'));
 
         // round 1, turn 3, player 1 to attack
         // [1 1] vs [1 1 2]
@@ -2366,7 +2384,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->optValueArrayArray);
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
-                            $game->prevOptValueArrArr);
+                            $game->prevOptValueArrayArray);
     }
 
     /**
@@ -2637,5 +2655,45 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($preSaveMoodMax, $postSaveMoodMax);
         $this->assertEquals($preProceedSwingSize1, $postSaveSwingSize1);
         $this->assertEquals($postSaveSwingSize1, $postSaveSwingSize2);
+    }
+
+    /**
+     * @covers BMInterface::update_last_action_time
+     */
+    public function test_update_last_action_time() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Avis', 'Hammer'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = $this->object->load_game($gameId);
+        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
+
+        $this->object->update_last_action_time(self::$userId1WithoutAutopass);
+        $game = $this->object->load_game($gameId);
+        $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
+
+        $this->object->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
+        $game = $this->object->load_game($gameId);
+        $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
+        $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
+        $this->assertEquals(0, $game->lastActionTimeArray[1]);
+    }
+
+    /**
+     * @covers BMInterface::update_last_access_time
+     */
+    public function test_update_last_access_time() {
+        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $retval['user_prefs'];
+        $preTime = $playerInfoArray['last_access_time'];
+
+        $this->object->update_last_access_time(self::$userId1WithoutAutopass);
+
+        $retval =  $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $playerInfoArray = $retval['user_prefs'];
+        $postTime = $playerInfoArray['last_access_time'];
+
+        $this->assertGreaterThan($preTime, $postTime);
     }
 }

@@ -108,20 +108,26 @@ class BMDieSwing extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                if ('Mood' != $skill) {
+                if (('Mood' != $skill) && ('Mad' != $skill)) {
                     $skillStr .= "$skill ";
                 }
             }
         }
 
         $moodStr = '';
-        if ($this->has_skill('Mood')) {
+        if ($this->has_skill('Mad')) {
+            $moodStr = ' Mad';
+        } elseif ($this->has_skill('Mood')) {
             $moodStr = ' Mood';
         }
 
         $sideStr = '';
         if (isset($this->max)) {
-            $sideStr = " (with {$this->max} sides)";
+            $sideStr = " (with {$this->max} side";
+            if ($this->max != 1) {
+                $sideStr .= 's';
+            }
+            $sideStr .= ')';
         }
 
         $valueStr = '';

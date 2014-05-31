@@ -30,7 +30,7 @@ if ('unit_test' in Env) {
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
   var match = new RegExp('[?&]' + name + '=([^&]*)').exec(
-    window.location.search
+    Env.window.location.search
   );
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
@@ -66,6 +66,9 @@ Env.showStatusMessage = function() {
 //   'time' for '17:54:32'
 //   'datetime' for '2014-03-23 17:54:32'
 Env.formatTimestamp = function(timestamp, format) {
+  if (!timestamp) {
+    return '';
+  }
   if (format === null || format === undefined) {
     format = 'datetime';
   }
@@ -103,4 +106,22 @@ Env.padLeft = function(input, paddingCharacter, minLength) {
 
   var output = padding + input;
   return output.slice(minLength * -1);
+};
+
+Env.setCookieNoImages = function(value) {
+  // Set the cookie to expire ten years from now (expect bug reports in 2024)
+  $.cookie(Login.player + '_noImages', value, { expires: 3650, });
+};
+Env.getCookieNoImages = function() {
+  // Cookies are stored as strings, but we want to return a bool
+  return ($.cookie(Login.player + '_noImages') == 'true');
+};
+
+Env.setCookieCompactMode = function(value) {
+  // Set the cookie to expire ten years from now (expect bug reports in 2024)
+  $.cookie(Login.player + '_compactMode', value, { expires: 3650, });
+};
+Env.getCookieCompactMode = function() {
+  // Cookies are stored as strings, but we want to return a bool
+  return ($.cookie(Login.player + '_compactMode') == 'true');
 };

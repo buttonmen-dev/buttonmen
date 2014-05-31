@@ -60,7 +60,7 @@ INSERT INTO buttonset (name) VALUES
 ('Unexploded Cow'),
 ('ZOECon'),
 
-# ButtonMen Online sets - virtual fan and vanity sets 
+# ButtonMen Online sets - virtual fan and vanity sets
 ('Iron Chef'),
 ('7 deadly sins'),
 ('Chicago Crew'),
@@ -601,12 +601,12 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # UNEXPLODED COW (Cheapass Games)   INTRODUCES Boom(b) Dice AND Mad Swing(&) Dice
 # ASSUMED ALL TO BE TL
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('George',     '(4) (6) b(6) b(20) (&)',       0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Violette',   '(8) (8)  b(10) b(12) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Elsie',      '(4) b(4) (10) b(12) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Kasper',     '(6) b(8) (12) b(20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Montague',   'b(4) b(10) (12) (20) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Neville',    ' b(4) (8) b(8) (20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('George',     '(4) (6) b(6) b(20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Violette',   '(8) (8) b(10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Elsie',      '(4) b(4) (10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Kasper',     '(6) b(8) (12) b(20) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Montague',   'b(4) b(10) (12) (20) &(Y)',    0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Neville',    'b(4) (8) b(8) (20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Thaddeus',   '(10) (14) (14) (18) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Buckley',    '(4) (4) (18) (X) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow"));
 
@@ -647,7 +647,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Iron Chef Japanese',    '(9/17) (17) (17) (21) (29)',              0, 0, (SELECT id FROM buttonset WHERE name="Iron Chef"));
 
 # BUTTONMEN.DHS.ORG: the following sets make use of die types designed specifically for the old buttonmen online
-# 7 DEADLY SINS                                  SKILLS Doppleganger; Mighty; Morphing; Option; Posion; Queer; Rage; Speed; Turbo
+# 7 DEADLY SINS                                  SKILLS Doppelganger; Mighty; Morphing; Option; Posion; Queer; Rage; Speed; Turbo
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Anger',        '(10) (10) (10) (12/20) (20/30)!',     0, 0, (SELECT id FROM buttonset WHERE name="7 deadly sins")),
 ('Envy',         'D(4) D(6) D(10) D(12) D(X)',          0, 0, (SELECT id FROM buttonset WHERE name="7 deadly sins")),
@@ -674,7 +674,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Pestilence',    '(4) pH(6) (12) (20) (S)',            0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen")),
 ('War',           'z(4) (6) z(10) B(20) (W,W)!',        0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen"));
 
-# FREE RADICALS                                SKILLS Doppleganger; Ornery
+# FREE RADICALS                                SKILLS Doppelganger; Ornery
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('CynCyn',       '(6) D(10) (20) D(X) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="Free Radicals")),
 ('Loren',        '(4) (6) Do(6) D(20) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="Free Radicals")),
@@ -684,7 +684,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Tony',         'D(6) (8) (10) (12) D(X)',           0, 0, (SELECT id FROM buttonset WHERE name="Free Radicals"));
 
 # HODGE PODGE             SKILLS Chance; Chaotic; Focus; Mood Swing; Option; Ornery; Reserve; Slow; Twin
-#       SKILLS Berserk; Doppleganger; Fire; Jolt; Konstant; Maximum; Mighty; Rage; Shadow; Speed; Stealth; Time and Space; Trip
+#       SKILLS Berserk; Doppelganger; Fire; Jolt; Konstant; Maximum; Mighty; Rage; Shadow; Speed; Stealth; Time and Space; Trip
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('BabyBM',              '(7) o(8,8) (11) (21) HG(V)',                0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Bull',                '(6) (8) (12) (X) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),

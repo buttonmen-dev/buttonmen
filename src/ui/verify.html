@@ -7,21 +7,21 @@
 <head>
 
     <meta charset="utf-8" />
-    <title>Button Men Online Game</title>
+    <title>Button Men Online</title>
     <link rel="stylesheet" href="gui.css" />
-    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="Cache-control" content="no-cache" />
 
 </head>
 
 <body>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
-    <script src="js/Env.js"></script>
-    <script src="js/Api.js"></script>
-    <script src="js/Login.js"></script>
-    <script src="js/Verify.js"></script>
     <script>
 $(document).ready(function() {
-  Login.showLoginHeader(Verify.showVerifyPage);
+  $.getScript('js/Loader.js', function() {
+    Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Verify.js' ], function() {
+        Login.showLoginHeader(Verify.showVerifyPage);
+    });
+  });
 });
     </script>
 </body>

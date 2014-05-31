@@ -28,6 +28,10 @@ Newgame.showNewgamePage = function() {
   $.getScript('js/Env.js');
   Env.setupEnvStub();
 
+  if (!Newgame.activity.opponentName) {
+    Newgame.activity.opponentName = Env.getParameterByName('opponent');
+  }
+
   // Make sure the div element that we will need exists in the page body
   if ($('#newgame_page').length === 0) {
     $('body').append($('<div>', {'id': 'newgame_page', }));
@@ -35,7 +39,6 @@ Newgame.showNewgamePage = function() {
 
   // Get all needed information, then display newgame page
   Newgame.getNewgameData(Newgame.showPage);
-
 };
 
 Newgame.getNewgameData = function(callback) {
@@ -111,6 +114,9 @@ Newgame.actionCreateGame = function() {
 
   // Create empty page and undefined form objects to be filled later
   Newgame.page = $('<div>');
+  if (Newgame.justCreatedGame === true) {
+    Newgame.page.css('display', 'none');
+  }
   Newgame.form = null;
 
   var creatediv = $('<div>');
@@ -328,6 +334,8 @@ Newgame.addInternalErrorPage = function() {
 };
 
 Newgame.setCreateGameSuccessMessage = function(message, data) {
+  Newgame.justCreatedGame = true;
+
   var gameId = data.gameId;
   var gameLink = $('<a>', {
     'href': 'game.html?game=' + gameId,
@@ -335,6 +343,20 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
   });
   var gamePar = $('<p>', {'text': message + ' ', });
   gamePar.append(gameLink);
+
+  var anotherGamePar = $('<p>', { 'id': 'createAnotherGame', });
+  var anotherGameBtn = $('<input>', {
+    'type': 'button',
+    'value': 'Create another game?',
+  });
+  anotherGameBtn.click(function() {
+    Newgame.justCreatedGame = false;
+    $('p#createAnotherGame').hide();
+    $('div#newgame_page > div').show();
+  });
+  anotherGamePar.append(anotherGameBtn);
+  gamePar.append(anotherGamePar);
+
   Env.message = {
     'type': 'success',
     'text': '',

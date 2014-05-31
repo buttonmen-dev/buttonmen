@@ -101,3 +101,20 @@ asyncTest("test_UserPrefs.formSetPrefs", function() {
     start();
   });
 });
+
+test("test_UserPrefs.appendToPreferencesTable", function() {
+  var table = $('<table>');
+  var prefs = {
+    'testing' : {
+      'text': 'Testing',
+      'type': 'checkbox',
+      'checked': true,
+    },
+  };
+
+  UserPrefs.appendToPreferencesTable(table, 'Test Preferences',
+    'These are not real. There is no spoon.', prefs);
+  var checkbox = table.find('input#userprefs_testing');
+
+  ok(checkbox.val(), 'User preference control created and populated');
+});

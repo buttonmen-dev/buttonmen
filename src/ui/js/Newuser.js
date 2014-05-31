@@ -4,8 +4,10 @@ var Newuser = {};
 // Valid username match
 Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 
-// Valid email match
-Newuser.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+// Input field limits
+Newuser.USERNAME_MAX_LENGTH = 25;
+Newuser.EMAIL_MAX_LENGTH = 254;
+
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -32,8 +34,12 @@ Newuser.showNewuserPage = function() {
     $('body').append($('<div>', {'id': 'newuser_page', }));
   }
 
-  // Don't allow logged-in users to create new accounts
-  if (Login.logged_in === true) {
+  if (Newuser.justCreatedAccount === true) {
+    // Don't re-display the form if they've already created an account
+    Newuser.page = $('<div>');
+    Newuser.layoutPage();
+  } else if (Login.logged_in === true) {
+    // Don't allow logged-in users to create new accounts
     Newuser.actionLoggedIn();
   } else {
     Newuser.actionCreateUser();
@@ -105,6 +111,7 @@ Newuser.actionCreateUser = function() {
     'username': {
       'text': 'Username',
       'type': 'text',
+      'maxlength': Newuser.USERNAME_MAX_LENGTH,
     },
     'password': {
       'text': 'Password',
@@ -117,10 +124,12 @@ Newuser.actionCreateUser = function() {
     'email': {
       'text': 'E-mail address',
       'type': 'text',
+      'maxlength': Newuser.EMAIL_MAX_LENGTH,
     },
     'email_confirm': {
       'text': 'E-mail address (again)',
       'type': 'text',
+      'maxlength': Newuser.EMAIL_MAX_LENGTH,
     },
   };
 
@@ -135,6 +144,7 @@ Newuser.actionCreateUser = function() {
       'type': entryinfo.type,
       'name': entryid,
       'id': 'newuser_' + entryid,
+      'maxlength': entryinfo.maxlength,
     }));
     entryrow.append(entryinput);
     createtable.append(entryrow);
@@ -180,6 +190,13 @@ Newuser.formCreateUser = function() {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (!(email.match(Api.VALID_EMAIL_REGEX))) {
+    Env.message = {
+      'type': 'error',
+      'text': 'A valid email address is required',
     };
     Newuser.showNewuserPage();
 
@@ -230,6 +247,7 @@ Newuser.formCreateUser = function() {
 };
 
 Newuser.setCreateUserSuccessMessage = function(message) {
+  Newuser.justCreatedAccount = true;
   Env.message = {
     'type': 'success',
     'text': message,
