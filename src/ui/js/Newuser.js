@@ -4,9 +4,6 @@ var Newuser = {};
 // Valid username match
 Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 
-// Valid email match
-Newuser.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
-
 // Input field limits
 Newuser.USERNAME_MAX_LENGTH = 25;
 Newuser.EMAIL_MAX_LENGTH = 254;
@@ -193,6 +190,13 @@ Newuser.formCreateUser = function() {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (!(email.match(Api.VALID_EMAIL_REGEX))) {
+    Env.message = {
+      'type': 'error',
+      'text': 'A valid email address is required',
     };
     Newuser.showNewuserPage();
 
