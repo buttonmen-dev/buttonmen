@@ -556,7 +556,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_month' => '2',
             'dob_day' => '29',
             'comment' => '',
-            'image_path' => '',
             'autopass' => 'True',
         );
         $retval = $this->object->process_request($args);

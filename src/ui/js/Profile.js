@@ -120,49 +120,46 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Comment',
     Api.profile_info.comment, 'none', false));
 
-  if (Api.profile_info.image_path && !Env.getCookieNoImages()) {
-    var url = Api.profile_info.image_path;
-    if (!url.match(/^http/i)) {
-      url = 'http://' + url;
-    }
+  if (!Env.getCookieNoImages()) {
+    var url = 'images/no-image.png';
     var image = $('<img>', {
       'src': url,
       'class': 'profileImage',
     });
 
-    var valueTds = table.find('td.shrinkable');
-    valueTds.removeClass('value');
-    valueTds.addClass('partialValue');
+    var partialTds = table.find('td.partialValue');
 
     var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '7', });
-    valueTds.first().parent().append(imageTd);
+    partialTds.first().parent().append(imageTd);
     imageTd.append(image);
-
-    valueTds = table.find('td.unshrinkable');
-    valueTds.attr('colspan', '2');
   }
 
   return table;
 };
 
-Profile.buildProfileTableRow =
-  function(label, value, missingValue, shrinkable) {
-  var valueClass = (shrinkable ? 'shrinkable' : 'unshrinkable');
+Profile.buildProfileTableRow = function(
+    label, value, missingValue, shrinkable) {
+  var valueClass = (shrinkable ? 'partialValue' : 'value');
   var tr = $('<tr>');
   tr.append($('<td>', { 'text': label + ':', 'class': 'label' }));
   if (value) {
     if (value instanceof jQuery) {
-      tr.append($('<td>', { 'class': 'value ' + valueClass }).append(value));
+      tr.append($('<td>', {
+        'class': valueClass,
+        'colspan': (shrinkable ? '1': '2'),
+      }).append(value));
     } else {
       tr.append($('<td>', {
         'text': value,
-        'class': 'value ' + valueClass,
+        'class': valueClass,
+        'colspan': (shrinkable ? '1': '2'),
       }));
     }
   } else {
     tr.append($('<td>', {
       'text': missingValue,
-      'class': 'missingValue ' + valueClass
+      'class': 'missingValue ' + valueClass,
+      'colspan': (shrinkable ? '1': '2'),
     }));
   }
   return tr;

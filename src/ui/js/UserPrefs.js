@@ -4,7 +4,6 @@ var UserPrefs = {};
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
-UserPrefs.IMAGE_PATH_MAX_LENGTH = 100;
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -124,17 +123,13 @@ UserPrefs.actionSetPrefs = function() {
       'value': Api.user_prefs.comment,
       'length': UserPrefs.COMMENT_MAX_LENGTH,
     },
-    'image_path': {
-      'text': 'Image URL',
-      'type': 'text',
-      'value': Api.user_prefs.image_path,
-      'length': UserPrefs.IMAGE_PATH_MAX_LENGTH,
-    },
-    'image': {
-      'text': '',
-      'type': 'image',
-      'value': Api.user_prefs.image_path,
-    },
+    // We can put this back when we have an acceptable implementation of
+    // profile images
+//    'image': {
+//      'text': '',
+//      'type': 'image',
+//      'value': '',
+//    },
   };
 
   var gameplayBlurb = 'These preferences affect the actions you take during ' +
@@ -238,7 +233,6 @@ UserPrefs.formSetPrefs = function() {
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
   var comment = $('#userprefs_comment').val();
-  var image_path = $('#userprefs_image_path').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var current_password = $('#userprefs_current_password').val();
   var new_password = $('#userprefs_new_password').val();
@@ -300,7 +294,6 @@ UserPrefs.formSetPrefs = function() {
       'dob_month': dob_month,
       'dob_day': dob_day,
       'comment': comment,
-      'image_path': image_path,
       'autopass': autopass,
       'current_password': current_password,
       'new_password': new_password,
