@@ -14,6 +14,7 @@ module("Api", {
     delete Api.gameNavigation;
     delete Api.search_results;
     delete Api.siteConfig;
+    delete Api.profile_info;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -301,6 +302,15 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
   });
 });
 
+asyncTest("test_Api.loadProfileInfo", function() {
+  Api.loadProfileInfo('tester',
+    function() {
+      equal(Api.profile_info.load_status, 'ok',
+        'Successfully retrieved profile info');
+      start();
+    });
+});
+
 asyncTest("test_Api.searchGameHistory", function() {
   var searchParameters = {
             'sortColumn': 'lastMove',
@@ -318,6 +328,16 @@ asyncTest("test_Api.searchGameHistory", function() {
       start();
     });
 });
+
+asyncTest("test_Api.parseNextGameId", function() {
+  Api.loadProfileInfo('tester',
+    function() {
+      equal(Api.profile_info.name_ingame, 'tester',
+        "Successfully parsed profile info");
+      start();
+    });
+});
+
 
 asyncTest("test_Api.parseSearchResults_games", function() {
   var searchParameters = {
