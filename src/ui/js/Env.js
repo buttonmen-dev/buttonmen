@@ -155,7 +155,7 @@ Env.prepareRawTextForDisplay = function(rawText) {
   return html;
 };
 
-  Env.applyBbCodeToHtml = function(htmlToParse) {
+Env.applyBbCodeToHtml = function(htmlToParse) {
   // This is all rather more complicated than one might expect, but any attempt
   // to parse BB code using simple regular expressions rather than tokenization
   // is in the same family as parsing HTML with regular expressions, which
@@ -218,7 +218,7 @@ Env.prepareRawTextForDisplay = function(rawText) {
   // We want to build a pattern that we can use to identify any single
   // BB code start tag
   var allStartTagsPattern = '';
-  $.each(replacements, function(tagName, tagInfo) {
+  $.each(replacements, function(tagName) {
     if (allStartTagsPattern !== '') {
       allStartTagsPattern += '|';
     }
@@ -231,11 +231,13 @@ Env.prepareRawTextForDisplay = function(rawText) {
         ')\\s*(?:=\\s*"([^"]*)")?\\s*])';
   });
 
+  var tagName;
+
   while (htmlToParse) {
     var currentPattern = allStartTagsPattern;
     if (tagStack.length !== 0) {
       // The tag that was most recently opened
-      var tagName = tagStack[tagStack.length - 1];
+      tagName = tagStack[tagStack.length - 1];
       // Matches '[/i]' et al.
       // (so that we can spot the end of the current tag as well as start
       // tags)
@@ -256,7 +258,7 @@ Env.prepareRawTextForDisplay = function(rawText) {
       // javascript apparently believes that capture groups that don't
       // match anything are just important as those that do. So we need
       // to do some acrobatics to find the ones we actually care about.
-      var tagName = '';
+      tagName = '';
       for (var i = 2; i < match.length; i++) {
         tagName = match[i];
         if (tagName) {
@@ -276,7 +278,8 @@ Env.prepareRawTextForDisplay = function(rawText) {
       } else {
         var htmlOpeningTag = replacements[tagName].openingHtml;
         // Insert things like the game ID into a game.html link
-        htmlOpeningTag = htmlOpeningTag.replace('###', encodeURIComponent(tagParameter));
+        htmlOpeningTag =
+          htmlOpeningTag.replace('###', encodeURIComponent(tagParameter));
         outputHtml += htmlOpeningTag;
         if (!replacements[tagName].isAtomic) {
           // If there's a closing tag coming along later, push this tag
@@ -301,13 +304,13 @@ Env.prepareRawTextForDisplay = function(rawText) {
 
   // If any tags didn't get closed properly, then close them now
   while (tagStack.length > 0) {
-    var tagName = tagStack.pop();
+    tagName = tagStack.pop();
     outputHtml += replacements[tagName].closingHtml;
   }
 
   return outputHtml;
-}
+};
 
 Env.escapeRegexp = function(str) {
-  return str.replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+  return str.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
 };

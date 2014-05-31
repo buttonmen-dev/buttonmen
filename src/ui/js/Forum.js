@@ -478,7 +478,7 @@ Forum.buildPostRow = function(post) {
       'forum.html#!threadId=' + Api.forum_thread.threadId +
         '&postId=' + post.postId,
     'html': anchorSymbol,
-  })
+  });
   nameDiv.append(postAnchor);
   nameDiv.append(post.posterName);
 
