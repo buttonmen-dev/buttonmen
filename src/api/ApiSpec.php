@@ -22,6 +22,7 @@ class ApiSpec {
         //   posts[]: {
         //     postId: int,
         //     posterName: string,
+        //     posterColor: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
         //     isNew: bool,
@@ -46,6 +47,7 @@ class ApiSpec {
         //   posts[]: {
         //     postId: int,
         //     posterName: string,
+        //     posterColor: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
         //     isNew: bool,
@@ -197,6 +199,7 @@ class ApiSpec {
         //   posts[]: {
         //     postId: int,
         //     posterName: string,
+        //     posterColor: string,
         //     creationTime: int,
         //     lastUpdateTime: int,
         //     isNew: bool,

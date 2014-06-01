@@ -2918,6 +2918,8 @@ class BMInterface {
         try {
             $results = array();
 
+            $playerColors = $this->load_player_colors($currentPlayerId);
+
             // Get the details about the thread itself
             $query =
                 'SELECT t.*, b.name AS board_name, b.short_name AS board_short_name ' .
@@ -2959,9 +2961,17 @@ class BMInterface {
 
             $posts = array();
             while ($row = $statement->fetch()) {
+                $posterColor =
+                    $this->determine_game_colors(
+                        $currentPlayerId,
+                        $playerColors,
+                        (int)$row['poster_player_id'],
+                        NULL
+                    );
                 $posts[] = array(
                     'postId' => (int)$row['id'],
                     'posterName' => $row['poster_name'],
+                    'posterColor' => $posterColor['playerA'],
                     'creationTime' => (int)$row['creation_timestamp'],
                     'lastUpdateTime' => (int)$row['last_update_timestamp'],
                     'isNew' => (bool)$row['is_new'],

@@ -63,7 +63,7 @@ test("test_Forum.showForumPage", function() {
   Forum.showForumPage();
 });
 
-asyncTest("test_Forum.showPage_overview", function() {
+asyncTest("test_Forum.showPage", function() {
   expect(2); // tests plus teardown test
 
   Env.history.state = { };
@@ -156,7 +156,7 @@ test("test_Forum.linkToSubPage", function() {
   });
   Forum.showPage = function() { };
   // .call() calls a function, setting the passed-in parameter as 'this'
-  Forum.linkToSubPage.call(element);
+  Forum.linkToSubPage.call(element, $.Event());
   equal(Env.history.state.threadId, 6,
     'The threadId should be set in the history state');
   equal(Env.history.state.threadId, 6,
@@ -298,29 +298,36 @@ test("test_Forum.buildProfileLink", function() {
     'Link should point to profile page.');
 });
 
-test("test_Forum.buildProfileLink", function() {
+test("test_Forum.buildHelp", function() {
   var help = Forum.buildHelp();
   var helpText = help.text();
   ok(helpText.match(/\[spoiler]/), 'Help text should mention BB code tags.');
 });
 
 test("test_Forum.scrollTo", function() {
+  expect(3); // tests plus teardown test
+
   var massiveDiv = $('<div>', { 'html': '&nbsp;' });
-  // This will fail if you test it using a display larger than 5000px in height.
-  // Also, you'll go blind.
   massiveDiv.css('height', '5000px');
   $('#forum_page').append(massiveDiv);
-
   var scrollTarget = $('<div>', { 'html': '&nbsp;' });
   $('#forum_page').append(scrollTarget);
 
-  Forum.SCROLL_ANIMATION_MILLISECONDS = 0;
-
-  var oldScrollPosition = window.scrollY;
+  // This is a bit kludgy, but scrolling is apparently not something that is
+  // not practical to test here, so let's mock away...
+  var real$ = $;
+  $ = function(selector) {
+    mockObj = real$(selector);
+    mockObj.animate = function(options, duration) {
+      notEqual(options.scrollTop, 0,
+        'Forum.scrollTo() should attempt to scroll down the page');
+      equal(duration, Forum.SCROLL_ANIMATION_MILLISECONDS,
+        'Scrolling duration should be configured in pseudoconstant');
+    };
+    return mockObj;
+  };
   Forum.scrollTo(scrollTarget);
-
-  notEqual(window.scrollY, oldScrollPosition,
-    'The window should have been scrolled.');
+  $ = real$;
 });
 
 test("test_Forum.readStateFromElement", function() {

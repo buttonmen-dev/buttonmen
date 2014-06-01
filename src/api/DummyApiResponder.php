@@ -1477,6 +1477,7 @@ class DummyApiResponder {
         $posts[] = array(
             'postId' => 1,
             'posterName' => 'responder003',
+            'posterColor' => '#cccccc',
             'creationTime' => 1401055337,
             'lastUpdateTime' => 1401055337,
             'isNew' => FALSE,
@@ -1486,6 +1487,7 @@ class DummyApiResponder {
         $posts[] = array(
             'postId' => 2,
             'posterName' => 'responder004',
+            'posterColor' => '#cccccc',
             'creationTime' => 1401055397,
             'lastUpdateTime' => 1401055397,
             'isNew' => TRUE,

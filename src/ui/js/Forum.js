@@ -334,6 +334,10 @@ Forum.layOutPage = function() {
     var state = Forum.readStateFromElement(this);
     $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
   });
+  Forum.page.find('a.postAnchor').each(function() {
+    var state = Forum.readStateFromElement(this);
+    $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
+  });
 
   $('#forum_page').empty();
   $('#forum_page').append(Forum.page);
@@ -345,7 +349,8 @@ Forum.layOutPage = function() {
 ////////////////////////////////////////////////////////////////////////
 // These are events that are triggered by user actions
 
-Forum.linkToSubPage = function() {
+Forum.linkToSubPage = function(e) {
+  e.preventDefault();
   var state = Forum.readStateFromElement(this);
   Env.history.pushState(state, 'Button Men Online &mdash; Forum',
     Forum.buildUrlHash(state));
@@ -516,6 +521,7 @@ Forum.buildPostRow = function(post) {
 
   var attributionTd = $('<td>', { 'class': 'attribution' });
   tr.append(attributionTd);
+  attributionTd.css('background-color', post.posterColor);
 
   var nameDiv = $('<div>', {
     'class': 'name',
@@ -525,7 +531,7 @@ Forum.buildPostRow = function(post) {
     ((post.postId == Api.forum_thread.currentPostId) ?
       Forum.SOLID_STAR :
       Forum.OPEN_STAR);
-  var postAnchor = $('<span>', {
+  var postAnchor = $('<a>', {
     'class': 'postAnchor',
     'data-threadId': Api.forum_thread.threadId,
     'data-postId': post.postId,
@@ -534,7 +540,8 @@ Forum.buildPostRow = function(post) {
   nameDiv.append(postAnchor);
   nameDiv.append(Forum.buildProfileLink(post.posterName));
 
-  postAnchor.click(function() {
+  postAnchor.click(function(e) {
+    e.preventDefault();
     var state = Forum.readStateFromElement(this);
     Env.history.pushState(state, 'Button Men Online &mdash; Forum',
       Forum.buildUrlHash(state));
@@ -668,6 +675,9 @@ Forum.buildUrlHash = function(state) {
   }
   if (hash) {
     hash = '#!' + hash.substr(1);
+  } else {
+    hash = '#';
   }
+
   return hash;
 };

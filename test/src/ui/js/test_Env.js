@@ -149,3 +149,30 @@ test("test_Env.getCookieCompactMode", function() {
   Env.setCookieCompactMode(value);
   equal(Env.getCookieCompactMode(), value, 'compactMode is true');
 });
+
+test("test_Env.prepareRawTextForDisplay", function() {
+  var rawText = '<b>HTML</b>\n[i]BB Code[/i]';
+  var holder = $('<div>');
+  holder.append(Env.prepareRawTextForDisplay(rawText));
+
+  ok(holder.find('b').length == 0, '<b> tag should not be allowed unmolested');
+  ok(holder.find('.chatItalic').length == 1, '[i] tag should be converted to HTML');
+  ok(holder.find('br').length == 1, 'Newline should become <br> tag');
+});
+
+test("test_Env.applyBbCodeToHtml", function() {
+  var rawHtml = '<b>HTML</b><br/>[i]BB Code[/i]';
+  var holder = $('<div>');
+  holder.append(Env.applyBbCodeToHtml(rawHtml));
+  ok(holder.find('b').length == 1, '<b> tag *should* be allowed unmolested');
+  ok(holder.find('.chatItalic').length == 1, '[i] tag should be converted to HTML');
+});
+
+test("test_Env.escapeRegexp ", function() {
+  var rawText = 'example.com';
+  var escapedPattern = Env.escapeRegexp(rawText);
+  ok('example.com'.match(escapedPattern),
+    'Pattern should still match original text');
+  ok(!'example_com'.match(escapedPattern),
+    'Pattern should not match variant text');
+});
