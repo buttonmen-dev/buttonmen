@@ -2974,9 +2974,9 @@ class BMInterface {
                     'posterColor' => $posterColor['playerA'],
                     'creationTime' => (int)$row['creation_timestamp'],
                     'lastUpdateTime' => (int)$row['last_update_timestamp'],
-                    'isNew' => (bool)$row['is_new'],
-                    'body' => ((bool)$row['deleted'] ? '[DELETED POST]' : $row['body']),
-                    'deleted' => (bool)$row['deleted'],
+                    'isNew' => ($row['is_new'] == 1),
+                    'body' => (($row['deleted'] == 1) ? '[DELETED POST]' : $row['body']),
+                    'deleted' => ($row['deleted'] == 1),
                 );
             }
 
