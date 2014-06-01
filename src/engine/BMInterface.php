@@ -3146,13 +3146,13 @@ class BMInterface {
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
-             if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+            if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
                 $this->message = 'Posts cannot be longer than ' .
                     self::MYSQL_TEXT_MAX_LENGTH . ' characters';
                 return NULL;
             }
 
-           $query =
+            $query =
                 'INSERT INTO forum_post ' .
                     '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
                 'VALUES ' .

@@ -1412,7 +1412,9 @@ class DummyApiResponder {
             'boardId' => 2,
             'boardName' => 'Features and Bugs',
             'shortName' => 'featureBug',
-            'description' => 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.',
+            'description' =>
+                'Feedback on new features that have been added, features ' .
+                    'you\'d like to see or bugs you\'ve discovered.',
             'numberOfThreads' => 0,
             'firstNewPostId' => NULL,
             'firstNewPostThreadId' => NULL,
@@ -1424,7 +1426,7 @@ class DummyApiResponder {
         return array($results, 'Forum overview loading succeeded');
     }
 
-    protected function get_interface_response_loadForumBoard($args) {
+    protected function get_interface_response_loadForumBoard() {
         $results = array();
         $results['boardId'] = 1;
         $results['boardName'] = 'Miscellaneous Chatting';
@@ -1501,25 +1503,25 @@ class DummyApiResponder {
         return array($results, 'Forum thread loading succeeded');
     }
 
-    protected function get_interface_response_markForumRead($args) {
+    protected function get_interface_response_markForumRead() {
         $otherResults = $this->get_interface_response_loadForumOverview();
         $results = $otherResults[0];
         return array($results, 'Forum board marked read successfully');
     }
 
-    protected function get_interface_response_markForumBoardRead($args) {
+    protected function get_interface_response_markForumBoardRead() {
         $otherResults = $this->get_interface_response_loadForumOverview();
         $results = $otherResults[0];
         return array($results, 'Forum board marked read successfully');
     }
 
-    protected function get_interface_response_markForumThreadRead($args) {
+    protected function get_interface_response_markForumThreadRead() {
         $otherResults = $this->get_interface_response_loadForumBoard(NULL);
         $results = $otherResults[0];
         return array($results, 'Forum thread marked read successfully');
     }
 
-    protected function get_interface_response_createForumThread($args) {
+    protected function get_interface_response_createForumThread() {
         $otherResults = $this->get_interface_response_loadForumThread(
             array()
         );
@@ -1527,7 +1529,7 @@ class DummyApiResponder {
         return array($results, 'Forum thread created successfully');
     }
 
-    protected function get_interface_response_createForumPost($args) {
+    protected function get_interface_response_createForumPost() {
         $otherResults = $this->get_interface_response_loadForumThread(
             array('currentPostId' => 2)
         );
