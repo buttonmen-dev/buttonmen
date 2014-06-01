@@ -13,16 +13,41 @@ Forum.SOLID_STAR = '&#9733;';
 Forum.BODY_MAX_LENGTH = 16383;
 Forum.TITLE_MAX_LENGTH = 100;
 
+Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Forum.showForumPage() is the landing function. Always call
 //   this first. It sets up #forum_page and reads the URL to find out
-//   the current board, thread and/or post. Then it calls Forum.showPage()
-// * Forum.showPage() calls the API to set either Api.forum_overview,
+//   the current board, thread and/or post, which it sets in Env.history.state.
+//   It also binds Forum.showPage() to the page event that triggers on the
+//   forward/backward button. Then it calls Forum.showPage() directly.
+// * Forum.showPage() reads Env.history.state to find out what it should be
+//   displaying. Then it calls the API to set either Api.forum_overview,
 //   Api.forum_board or Api.forum_thread as appropriate, then passes control
-//   to Forum.showOverview(), Forum.showBoard() or Forum.showThread()
-// * Forum.showOverview() populates the ... yeah, stuff
+//   to Forum.showOverview(), Forum.showBoard() or Forum.showThread().
+// * Forum.showOverview() builds a version of Forum.page that includes a list
+//   of boards on the Forum. Then it calls Forum.layOutPage().
+// * Forum.showBoard() builds a version of Forum.page that includes a list
+//   of threads on a given board and a form to create a new one (attaching the
+//   Forum.postNewThread() event to it). Then it calls Forum.layOutPage().
+// * Forum.showThread() builds a version of Forum.page that includes a list
+//   of posts on a given thread and a form to create a new one (attaching the
+//   Forum.replyToThread() event to it). Then it calls Forum.layOutPage().
+// * History.layoutPage() sets the contents of <div id="history_page">
+//   on the live page. It also binds Forum.linkToSubPage to every .pseudoLink
+//   element (e.g., the links to a given board or thread).
 //
+// Major events:
+// * Forum.linkToSubPage() is called every time a user clicks on an internal
+//   link that brings them from one part of the forum to another. It examines
+//   the element that was clicked on to find out the board, thread and/or post
+//   it's posting to, sets that information in Env.history.state, then calls
+//   Form.showPage().
+// * Forum.postNewThread() calls the API to create a new thread, setting
+//   Api.forum_thread with the results. It then calls Forum.showThread().
+// * Forum.replyToThread() calls the API to create a new post, setting
+//   Api.forum_thread with the results. It then calls Forum.showThread().
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
@@ -37,9 +62,7 @@ Forum.showForumPage = function() {
     $('body').append($('<div>', {'id': 'forum_page', }));
   }
 
-  $(window).bind('popstate', function() {
-    Forum.showPage(Env.history.state);
-  });
+  $(window).bind('popstate', Forum.showPage);
 
   var state = {
     'boardId': Env.getParameterByName('boardId'),
@@ -48,10 +71,10 @@ Forum.showForumPage = function() {
   };
   Env.history.replaceState(state, 'Button Men Online &mdash; Forum',
     Env.window.location.hash);
-  Forum.showPage(state);
+  Forum.showPage();
 };
 
-Forum.showPage = function(state) {
+Forum.showPage = function() {
   if (!Login.logged_in) {
     Env.message = {
       'type': 'error',
@@ -61,8 +84,8 @@ Forum.showPage = function(state) {
     return;
   }
 
-  // Get all needed information for the current mode, then display the
-  // appropriate version of the page
+  // Display the appropriate version of the page depending on the current state
+  var state = Env.history.state;
   if (state.threadId) {
     Api.loadForumThread(state.threadId, state.postId, Forum.showThread);
   } else if (state.boardId) {
@@ -326,7 +349,7 @@ Forum.linkToSubPage = function() {
   var state = Forum.readStateFromElement(this);
   Env.history.pushState(state, 'Button Men Online &mdash; Forum',
     Forum.buildUrlHash(state));
-  Forum.showPage(state);
+  Forum.showPage();
 };
 
 Forum.toggleNewThreadForm = function() {
@@ -378,7 +401,6 @@ Forum.quotePost = function() {
   var replyBox = $('tr.writePost td.body textarea');
 
   var replyText = replyBox.val();
-  //TODO
   if (replyText && replyText.slice(-1) != '\n') {
     replyText += '\n';
   }
@@ -453,8 +475,8 @@ Forum.buildThreadRow = function(thread) {
       ' at ' + Env.formatTimestamp(thread.originalCreationTime) + '. ';
   if (thread.latestLastUpdateTime != thread.originalCreationTime) {
     postDates += 'Latest by ' +
-      Forum.buildProfileLink(thread.latestPosterName).prop('outerHTML') + ' at ' +
-      Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
+      Forum.buildProfileLink(thread.latestPosterName).prop('outerHTML') +
+        ' at ' + Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
   }
   titleTd.append($('<div>', {
     'class': 'minor',
@@ -593,7 +615,8 @@ Forum.buildHelp = function() {
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
-    'html': '[quote]text[/quote]: <span class="chatQuote">&nbsp;text&nbsp;</span>',
+    'html':
+      '[quote]text[/quote]: <span class="chatQuote">&nbsp;text&nbsp;</span>',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
@@ -619,7 +642,8 @@ Forum.scrollTo = function(scrollTarget) {
     scrollTarget = $(scrollTarget);
     scrollTop = scrollTarget.offset().top - 5;
   }
-  $('html, body').animate({ scrollTop: scrollTop }, 200);
+  $('html, body').animate({ scrollTop: scrollTop },
+    Forum.SCROLL_ANIMATION_MILLISECONDS);
 };
 
 Forum.readStateFromElement = function(stateElement) {
