@@ -168,7 +168,7 @@ test("test_Env.applyBbCodeToHtml", function() {
   ok(holder.find('.chatItalic').length == 1, '[i] tag should be converted to HTML');
 });
 
-test("test_Env.escapeRegexp ", function() {
+test("test_Env.escapeRegexp", function() {
   var rawText = 'example.com';
   var escapedPattern = Env.escapeRegexp(rawText);
   ok('example.com'.match(escapedPattern),
