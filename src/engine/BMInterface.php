@@ -591,9 +591,7 @@ class BMInterface {
 
                 $die = BMDie::create_from_recipe($row['recipe']);
                 $die->playerIdx = $playerIdx;
-                if (isset($row['value'])) {
-                    $die->value = (int)$row['value'];
-                }
+                
                 $originalPlayerIdx = array_search(
                     $row['original_owner_id'],
                     $game->playerIdArray
@@ -635,6 +633,10 @@ class BMInterface {
                     } else {
                         $die->needsOptionValue = TRUE;
                     }
+                }
+
+                if (isset($row['value'])) {
+                    $die->value = (int)$row['value'];
                 }
 
                 if (!is_null($row['flags'])) {

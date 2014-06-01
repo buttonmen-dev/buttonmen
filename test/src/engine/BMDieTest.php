@@ -323,6 +323,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testAttack_list
      */
     public function testAttack_values() {
+        $this->object->init(15);
         $this->object->value = 7;
 
         foreach ($this->object->attack_list() as $att) {

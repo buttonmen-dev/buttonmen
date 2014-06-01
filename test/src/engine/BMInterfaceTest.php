@@ -2607,8 +2607,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // round 1, turn 1
         // player 1: [5 10 10 15 32] showing [3 1 8 15 7], captured []
-        // player 2: [5 10 10 15 4] showing [2 3 8 4 1], captured []
-        // player 2 takes player 1's d10 showing 1 with his/her d(2,2) twin mood swing showing 1
+        // player 2: [5 10 10 15 4] showing [2 3 8 4 2], captured []
+        // player 2 takes player 1's d10 showing 1 with his/her d(2,2) twin mood swing showing 2
         // check that the player with initiative is set as the attacking player
         $this->assertEquals($game->activePlayerIdx, $game->playerWithInitiativeIdx);
 
@@ -2627,7 +2627,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][1]->value = 3;
         $dieArrayArray[1][2]->value = 8;
         $dieArrayArray[1][3]->value = 4;
-        $dieArrayArray[1][4]->value = 1;
+        $dieArrayArray[1][4]->value = 2;
 
         $this->assertEquals(3, $game->activeDieArrayArray[0][0]->value);
 
