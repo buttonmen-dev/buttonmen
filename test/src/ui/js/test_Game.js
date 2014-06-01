@@ -41,6 +41,7 @@ module("Game", {
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
+    BMTestUtils.restoreGetParameterByName();
 
     // Fail if any other elements were added or removed
     BMTestUtils.GamePost = BMTestUtils.getAllElements();

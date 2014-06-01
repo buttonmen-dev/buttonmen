@@ -20,17 +20,37 @@ if ('unit_test' in Env) {
   } else {
     Env.api_location = '../api/dummy_responder';
   }
-  // We also want to mock the window object in unit tests
+  // We also want to mock the window and history objects in unit tests
   Env.window = { location: {} };
+  Env.history = {
+    pushState: function(state, title, url) {
+      Env.history.state = state;
+      // We can make these more sophisticated later if we need to
+      Env.window.location.href = url;
+      Env.window.location.search = url;
+      Env.window.location.hash = url;
+    },
+    replaceState: function(state, title, url) {
+      Env.history.pushState(state, title, url);
+    }
+  };
 } else {
   Env.api_location = '../api/responder';
   Env.window = window;
+  Env.history = history;
 }
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
 Env.getParameterByName = function(name) {
   var match = new RegExp('[?&]' + name + '=([^&]*)').exec(
     Env.window.location.search
+  );
+  if (match) {
+    return decodeURIComponent(match[1].replace(/\+/g, ' '));
+  }
+  // We want to check both the query string *and* the hashbang
+  match = new RegExp('[!&]' + name + '=([^&]*)').exec(
+    Env.window.location.hash
   );
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
@@ -71,43 +91,72 @@ Env.formatTimestamp = function(timestamp, format) {
   if (!timestamp) {
     return '';
   }
-  if (format === null || format === undefined) {
+
+  if (!format) {
     format = 'datetime';
   }
 
-  var dateTime = new Date(timestamp * 1000);
+  // Most pages don't use moment, so we don't always load it in the HTML
+  if (typeof moment === 'undefined') {
+    $.ajaxSetup({ async: false, });
+    $.getScript('js/extern/moment.js');
+    $.ajaxSetup({ async: true, });
+  }
 
-  var year = dateTime.getFullYear();
-  var month = Env.padLeft(dateTime.getMonth() + 1, '0', 2);
-  var day = Env.padLeft(dateTime.getDate(), '0', 2);
-  var hours = Env.padLeft(dateTime.getHours(), '0', 2);
-  var minutes = Env.padLeft(dateTime.getMinutes(), '0', 2);
-  var seconds = Env.padLeft(dateTime.getSeconds(), '0', 2);
-
-  var formattedDate = year + '-' + month + '-' + day;
-  var formattedTime = hours + ':' + minutes + ':' + seconds;
+  var datetime = moment.unix(timestamp);
+  if (!datetime.isValid()) {
+    return null;
+  }
 
   if (format == 'date') {
-    return formattedDate;
-  }
-  if (format == 'time') {
-    return formattedTime;
-  }
-  if (format == 'datetime') {
-    return formattedDate + ' ' + formattedTime;
+    return datetime.format('YYYY-MM-DD');
+  } else if (format == 'time') {
+    return datetime.format('HH:mm:ss');
+  } else if (format == 'datetime') {
+    return datetime.format('YYYY-MM-DD HH:mm:ss');
+  } else {
+    return datetime.format(format);
   }
 };
 
-// Pads the input string with copies of the paddingCharacter until it's at
-// least minLength long.
-Env.padLeft = function(input, paddingCharacter, minLength) {
-  var padding = '';
-  for (var i = 0; i < minLength; i++) {
-    padding = padding + paddingCharacter;
+// Parses a date or time string into a Unix-style timestamp.
+// format parameter options:
+//   'date' for '2014-03-23'
+//   'time' for '17:54:32'
+//   'datetime' for '2014-03-23 17:54:32'
+// strict is a bool indicating whether the specified format should be strictly
+// required.
+Env.parseDateTime = function(input, format) {
+  if (!input) {
+    return null;
   }
 
-  var output = padding + input;
-  return output.slice(minLength * -1);
+  if (!format) {
+    format = 'datetime';
+  }
+
+  // Most pages don't use moment, so we don't always load it in the HTML
+  if (typeof moment === 'undefined') {
+    $.ajaxSetup({ async: false, });
+    $.getScript('js/extern/moment.js');
+    $.ajaxSetup({ async: true, });
+  }
+
+  var datetime;
+  if (format == 'date') {
+    datetime = moment(input, 'YYYY-MM-DD', true);
+  } else if (format == 'time') {
+    datetime = moment(input, ' HH:mm:ss', true);
+  } else if (format == 'datetime') {
+    datetime = moment(input, 'YYYY-MM-DD HH:mm:ss', true);
+  } else {
+    datetime = moment(input, format, true);
+  }
+  if (!datetime.isValid()) {
+    return null;
+  }
+
+  return datetime.unix();
 };
 
 Env.setCookieNoImages = function(value) {
