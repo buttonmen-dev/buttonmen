@@ -90,7 +90,7 @@ class BMAttackSkill extends BMAttack {
 
         $this->generate_hit_table();
 
-        if ($this->is_direct_attack_valid($game, $attackers, $defenders, $dval)) {
+        if ($this->is_direct_attack_valid($attackers, $dval)) {
             return TRUE;
         }
 
@@ -109,7 +109,7 @@ class BMAttackSkill extends BMAttack {
         return -1;
     }
 
-    protected function is_direct_attack_valid($game, $attackers, $defenders, $dval) {
+    protected function is_direct_attack_valid($attackers, $dval) {
         $combos = $this->hit_table->find_hit($dval);
         if ($combos) {
             foreach ($combos as $c) {
