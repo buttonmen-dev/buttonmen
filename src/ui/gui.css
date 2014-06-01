@@ -452,7 +452,7 @@ div.forum td {
 }
 
 div.forum .pseudoLink {
-    text-decoration: underline;
+    color: black;
     cursor: pointer;
 }
 

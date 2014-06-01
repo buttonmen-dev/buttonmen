@@ -37,18 +37,21 @@ Forum.showForumPage = function() {
     $('body').append($('<div>', {'id': 'forum_page', }));
   }
 
-  // wire up an event to catch the back/forward button and call .showPage()
+  $(window).bind('popstate', function() {
+    Forum.showPage(Env.history.state);
+  });
 
-  var boardId = Env.getParameterByName('boardId');
-  var threadId = Env.getParameterByName('threadId');
-  var postId = Env.getParameterByName('postId');
-
-  // Update the current state + hash in history
-
-  Forum.showPage(boardId, threadId, postId);
+  var state = {
+    'boardId': Env.getParameterByName('boardId'),
+    'threadId': Env.getParameterByName('threadId'),
+    'postId': Env.getParameterByName('postId'),
+  };
+  Env.history.replaceState(state, 'Button Men Online &mdash; Forum',
+    Env.window.location.hash);
+  Forum.showPage(state);
 };
 
-Forum.showPage = function(boardId, threadId, postId) {
+Forum.showPage = function(state) {
   if (!Login.logged_in) {
     Env.message = {
       'type': 'error',
@@ -60,10 +63,10 @@ Forum.showPage = function(boardId, threadId, postId) {
 
   // Get all needed information for the current mode, then display the
   // appropriate version of the page
-  if (threadId) {
-    Api.loadForumThread(threadId, postId, Forum.showThread);
-  } else if (boardId) {
-    Api.loadForumBoard(boardId, Forum.showBoard);
+  if (state.threadId) {
+    Api.loadForumThread(state.threadId, state.postId, Forum.showThread);
+  } else if (state.boardId) {
+    Api.loadForumBoard(state.boardId, Forum.showBoard);
   } else {
     Api.loadForumOverview(Forum.showOverview);
   }
@@ -129,7 +132,7 @@ Forum.showBoard = function() {
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
   headingTd.append(breadcrumb);
-  breadcrumb.append($('<span>', {
+  breadcrumb.append($('<a>', {
     'class': 'pseudoLink',
     'text': 'Forum',
   }));
@@ -247,12 +250,12 @@ Forum.showThread = function() {
 
   var subHeader = $('<div>', { 'class': 'subHeader' });
   headingTd.append(subHeader);
-  subHeader.append($('<span>', {
+  subHeader.append($('<a>', {
     'class': 'pseudoLink',
     'text': 'Forum',
   }));
   subHeader.append(': ');
-  subHeader.append($('<span>', {
+  subHeader.append($('<a>', {
     'class': 'pseudoLink',
     'text': Api.forum_thread.boardName,
     'data-boardId': Api.forum_thread.boardId,
@@ -303,7 +306,11 @@ Forum.layOutPage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  Forum.page.find('.pseudoLink').click(Forum.linkToSubPage);
+  Forum.page.find('.pseudoLink').each(function() {
+    $(this).click(Forum.linkToSubPage);
+    var state = Forum.readStateFromElement(this);
+    $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
+  });
 
   $('#forum_page').empty();
   $('#forum_page').append(Forum.page);
@@ -316,13 +323,10 @@ Forum.layOutPage = function() {
 // These are events that are triggered by user actions
 
 Forum.linkToSubPage = function() {
-  var boardId = $(this).attr('data-boardId');
-  var threadId = $(this).attr('data-threadId');
-  var postId = $(this).attr('data-postId');
-
-  //TODO push the new state + hash into history
-
-  Forum.showPage(boardId, threadId, postId);
+  var state = Forum.readStateFromElement(this);
+  Env.history.pushState(state, 'Button Men Online &mdash; Forum',
+    Forum.buildUrlHash(state));
+  Forum.showPage(state);
 };
 
 Forum.toggleNewThreadForm = function() {
@@ -395,11 +399,11 @@ Forum.buildBoardRow = function(board) {
   var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);
 
-  titleTd.append($('<div>', {
+  titleTd.append($('<div>').append($('<a>', {
     'class': 'pseudoLink',
     'text': board.boardName,
     'data-boardId': board.boardId,
-  }));
+  })));
 
   titleTd.append($('<div>', {
     'class': 'minor',
@@ -417,12 +421,15 @@ Forum.buildBoardRow = function(board) {
   var newDiv = $('<div>', { 'class': 'splitRight' });
   notesTd.append(newDiv);
   if (board.firstNewPostId) {
-    newDiv.append($('<div>', {
-      'class': 'pseudoLink new',
-      'text': '*NEW*',
-      'data-threadId': board.firstNewPostThreadId,
-      'data-postId': board.firstNewPostId,
-    }));
+    newDiv.append($('<div>', { 'class': 'new' })
+      .append('*')
+      .append($('<a>', {
+        'class': 'pseudoLink',
+        'text': 'NEW',
+        'data-threadId': board.firstNewPostThreadId,
+        'data-postId': board.firstNewPostId,
+      })).append('*')
+    );
   }
 
   return tr;
@@ -434,11 +441,11 @@ Forum.buildThreadRow = function(thread) {
   var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);
 
-  titleTd.append($('<div>', {
+  titleTd.append($('<div>').append($('<a>', {
     'class': 'pseudoLink',
     'text': thread.threadTitle,
     'data-threadId': thread.threadId,
-  }));
+  })));
 
   var postDates =
     'Originally by ' +
@@ -465,12 +472,15 @@ Forum.buildThreadRow = function(thread) {
   var newDiv = $('<div>', { 'class': 'splitRight' });
   notesTd.append(newDiv);
   if (thread.firstNewPostId) {
-    newDiv.append($('<div>', {
-      'class': 'pseudoLink new',
-      'text': '*NEW*',
-      'data-threadId': thread.threadId,
-      'data-postId': thread.firstNewPostId,
-    }));
+    newDiv.append($('<div>', { 'class': 'new' })
+      .append('*')
+      .append($('<a>', {
+        'class': 'pseudoLink',
+        'text': 'NEW',
+        'data-threadId': thread.threadId,
+        'data-postId': thread.firstNewPostId,
+      })).append('*')
+    );
   }
 
   return tr;
@@ -495,16 +505,17 @@ Forum.buildPostRow = function(post) {
       Forum.OPEN_STAR);
   var postAnchor = $('<span>', {
     'class': 'postAnchor',
-    'href':
-      'forum.html#!threadId=' + Api.forum_thread.threadId +
-        '&postId=' + post.postId,
+    'data-threadId': Api.forum_thread.threadId,
+    'data-postId': post.postId,
     'html': anchorSymbol,
   });
   nameDiv.append(postAnchor);
   nameDiv.append(Forum.buildProfileLink(post.posterName));
 
   postAnchor.click(function() {
-    //TODO set the hashbang!
+    var state = Forum.readStateFromElement(this);
+    Env.history.pushState(state, 'Button Men Online &mdash; Forum',
+      Forum.buildUrlHash(state));
     $('.postAnchor').html(Forum.OPEN_STAR);
     $(this).html(Forum.SOLID_STAR);
     Forum.scrollTo($(this).closest('tr'));
@@ -609,4 +620,30 @@ Forum.scrollTo = function(scrollTarget) {
     scrollTop = scrollTarget.offset().top - 5;
   }
   $('html, body').animate({ scrollTop: scrollTop }, 200);
+};
+
+Forum.readStateFromElement = function(stateElement) {
+  var state = {
+    'boardId': $(stateElement).attr('data-boardId'),
+    'threadId': $(stateElement).attr('data-threadId'),
+    'postId': $(stateElement).attr('data-postId'),
+  };
+  return state;
+};
+
+Forum.buildUrlHash = function(state) {
+  var hash = '';
+  if (state.boardId) {
+    hash += '&boardId=' + state.boardId;
+  }
+  if (state.threadId) {
+    hash += '&threadId=' + state.threadId;
+  }
+  if (state.postId) {
+    hash += '&postId=' + state.postId;
+  }
+  if (hash) {
+    hash = '#!' + hash.substr(1);
+  }
+  return hash;
 };
