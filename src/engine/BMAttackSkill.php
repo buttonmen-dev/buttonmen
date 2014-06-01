@@ -86,36 +86,43 @@ class BMAttackSkill extends BMAttack {
             return FALSE;
         }
 
-        // array_intersect tries to convert to strings, so we
-        // use array_uintersect, which needs a comparison
-        // function
-        $cmp = function ($var1, $var2) {
-            if ($var1===$var2) {
-                return 0;
-            }
-            if ($var1 > $var2) {
-                return 1;
-            }
-            return -1;
-        };
-
         $dval = $defenders[0]->defense_value($this->type);
 
         $this->generate_hit_table();
 
-        // exact hits
+        if ($this->is_direct_attack_valid($game, $attackers, $defenders, $dval)) {
+            return TRUE;
+        }
+
+        return $this->is_assisted_attack_valid($game, $attackers, $defenders, $dval);
+    }
+
+    // array_intersect tries to convert to strings, so we use array_uintersect,
+    // which needs a comparison function
+    protected static function cmp($var1, $var2) {
+        if ($var1===$var2) {
+            return 0;
+        }
+        if ($var1 > $var2) {
+            return 1;
+        }
+        return -1;
+    }
+
+    protected function is_direct_attack_valid($game, $attackers, $defenders, $dval) {
         $combos = $this->hit_table->find_hit($dval);
         if ($combos) {
             foreach ($combos as $c) {
                 if (count($c) == count($attackers) &&
-                    count(array_uintersect($c, $attackers, $cmp)) ==
+                    count(array_uintersect($c, $attackers, 'BMAttackSkill::cmp')) ==
                     count($c)) {
                     return TRUE;
                 }
             }
         }
+    }
 
-        // assisted attacks
+    protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval) {
         $helpers = $this->collect_helpers($game, $attackers, $defenders);
         $bounds = $this->help_bounds($helpers);
         if ($bounds[0] == 0 && $bounds[1] == 0) {
@@ -127,7 +134,7 @@ class BMAttackSkill extends BMAttack {
             if ($combos) {
                 foreach ($combos as $c) {
                     if (count($c) == count($attackers) &&
-                        count(array_uintersect($c, $attackers, $cmp)) ==
+                        count(array_uintersect($c, $attackers, 'BMAttackSkill::cmp')) ==
                         count($c)) {
                         return TRUE;
                     }
