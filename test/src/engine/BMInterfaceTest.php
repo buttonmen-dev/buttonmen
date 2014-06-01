@@ -2430,8 +2430,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $boardId = $overview['boards'][0]['boardId'];
         $originalThreadsOnBoard = $overview['boards'][0]['numberOfThreads'];
 
-        $title = com_create_guid();
-        $body1 = com_create_guid();
+        $title = uniqid();
+        $body1 = uniqid();
         $this->object->create_forum_thread(self::$userId1WithoutAutopass,
             $boardId, $title, $body1);
 
@@ -2449,7 +2449,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $threadId = $board['threads'][0]['threadId'];
         $originalPostsInThread = $board['threads'][0]['numberOfPosts'];
 
-        $body2 = com_create_guid();
+        $body2 = uniqid();
         $this->object->create_forum_post(self::$userId1WithoutAutopass,
             $threadId, $body2);
 
