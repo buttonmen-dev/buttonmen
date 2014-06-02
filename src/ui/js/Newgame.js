@@ -152,7 +152,7 @@ Newgame.actionCreateGame = function() {
   }
   createtable.append(
     Newgame.getSelectRow('Opponent', 'opponent_name', playerNames,
-                         null, Newgame.activity.opponentName));
+                         null, Newgame.activity.opponentName, 'Anybody'));
 
   // Load buttons and recipes into a dict for use in selects
   var buttonRecipe = {};
@@ -185,7 +185,7 @@ Newgame.actionCreateGame = function() {
   createtable.append(
     Newgame.getSelectRow(
       'Opponent\'s button', 'opponent_button', buttonRecipe,
-      buttonGreyed, Newgame.activity.opponentButton));
+      buttonGreyed, Newgame.activity.opponentButton, 'Any button'));
 
   // Round selection
   if (!('nRounds' in Newgame.activity)) {
@@ -235,44 +235,29 @@ Newgame.formCreateGame = function() {
   Newgame.activity.playerButton = $('#player_button').val();
   Newgame.activity.opponentButton = $('#opponent_button').val();
 
-// james: for Jota, for an open game, you want less validation here, more like:
-// var validSelect = Newgame.activity.playerButton;
-//  if (!validSelect) {
-//    Env.message = {
-//      'type': 'error',
-//      'text':
-//        'Please select your button',
-//    };
-//    Newgame.showNewgamePage();
-//  }  else if (!(Newgame.activity.opponentName in Api.player.list) &&
-//
-// attn:Jota here, you'll need a check explicitly allowing empty opponent names
-//
-//              ) {
-//   Env.message = {
-//     'type': 'error',
-//     'text': 'Specified opponent ' + Newgame.activity.opponentName +
-//             ' is not recognized',
-//   };
-//   Newgame.showNewgamePage();
-// ...
+  var validSelect = true;
+  var errorMessage;
 
-  var validSelect = Newgame.activity.opponentName &&
-                    Newgame.activity.opponentButton &&
-                    Newgame.activity.playerButton;
+  if (!Newgame.activity.playerButton) {
+    validSelect = false;
+    errorMessage = 'Please select a button for yourself.';
+  } else if (Newgame.activity.opponentName &&
+    !(Newgame.activity.opponentName in Api.player.list)) {
+    validSelect = false;
+    errorMessage =
+      'Specified opponent ' + Newgame.activity.opponentName +
+      ' is not recognized';
+  } else if (Newgame.activity.opponentName &&
+    !Newgame.activity.opponentButton) {
+    validSelect = false;
+    errorMessage =
+      'Please select a button for ' + Newgame.activity.opponentName;
+  }
 
   if (!validSelect) {
     Env.message = {
       'type': 'error',
-      'text':
-        'Please select an opponent, your button, and your opponent\'s button',
-    };
-    Newgame.showNewgamePage();
-  } else if (!(Newgame.activity.opponentName in Api.player.list)) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Specified opponent ' + Newgame.activity.opponentName +
-              ' is not recognized',
+      'text': errorMessage,
     };
     Newgame.showNewgamePage();
   } else {
@@ -338,10 +323,20 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
   Newgame.justCreatedGame = true;
 
   var gameId = data.gameId;
-  var gameLink = $('<a>', {
-    'href': 'game.html?game=' + gameId,
-    'text': 'Go to game page',
-  });
+  var gameLink;
+  if (Newgame.activity.opponentName)
+  {
+    gameLink = $('<a>', {
+      'href': 'game.html?game=' + gameId,
+      'text': 'Go to game page',
+    });
+  } else {
+    gameLink = $('<a>', {
+      'href': 'open_games.html',
+      'text': 'Go to open games page',
+    });
+  }
+
   var gamePar = $('<p>', {'text': message + ' ', });
   gamePar.append(gameLink);
 
@@ -369,7 +364,7 @@ Newgame.setCreateGameSuccessMessage = function(message, data) {
 // These functions generate and return pieces of HTML
 
 Newgame.getSelectRow = function(rowname, selectname, valuedict,
-                                greydict, selectedval) {
+                                greydict, selectedval, blankOption) {
   var selectRow = $('<tr>');
   selectRow.append($('<th>', {'text': rowname + ':', }));
 
@@ -378,13 +373,21 @@ Newgame.getSelectRow = function(rowname, selectname, valuedict,
     'name': selectname,
   });
 
-  // If there's no default, put an invalid default value first
-  if (selectedval === null) {
+  if (blankOption !== undefined) {
+    // If blanks are allowed, then display a special entry for that
     select.append($('<option>', {
       'value': '',
-      'class': 'yellowed',
-      'text': 'Choose ' + rowname.toLowerCase(),
+      'text': blankOption,
     }));
+  } else {
+    // If there's no default, put an invalid default value first
+    if (selectedval === null) {
+      select.append($('<option>', {
+        'value': '',
+        'class': 'yellowed',
+        'text': 'Choose ' + rowname.toLowerCase(),
+      }));
+    }
   }
 
   $.each(valuedict, function(key, value) {

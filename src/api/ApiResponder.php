@@ -121,15 +121,27 @@ class ApiResponder {
     }
 
     protected function get_interface_response_joinOpenGame($interface, $args) {
-        return $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
+        $success = $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
+        if ($success && isset($args['buttonName'])) {
+            $success = $interface->select_button(
+                $_SESSION['user_id'],
+                (int)$args['gameId'],
+                $args['buttonName']
+            );
+        }
+        return $success;
     }
 
     protected function get_interface_response_selectButton($interface, $args) {
         return $interface->select_button(
             $_SESSION['user_id'],
-            $args['gameId'],
+            (int)$args['gameId'],
             $args['buttonName']
         );
+    }
+
+    protected function get_interface_response_loadOpenGames($interface) {
+        return $interface->get_all_open_games($_SESSION['user_id']);
     }
 
     protected function get_interface_response_loadActiveGames($interface) {

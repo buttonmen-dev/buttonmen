@@ -37,6 +37,14 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'joinOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(
+                'buttonName' => 'button',
+            ),
+        ),
         'loadActiveGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -68,6 +76,10 @@ class ApiSpec {
             'permitted' => array(
               'currentGameId' => 'number',
             ),
+        ),
+        'loadOpenGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
         ),
         'loadPlayerInfo' => array(
             'mandatory' => array(),
