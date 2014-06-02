@@ -255,8 +255,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_mandatory_args_required(
             'createGame',
             array(
-                'playerNameArray' => array('responder003', 'responder004'),
-                'buttonNameArray' => array('Avis', 'Avis'),
+                'playerInfoArray' => array(array('responder003', 'Avis'),
+                                           array('responder004', 'Avis')),
                 'maxWins' => '3',
             )
         );
@@ -264,25 +264,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Make sure a button name with a backtick is rejected
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Av`is'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Av`is')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
         $this->assertEquals(
             array(
                 'data' => NULL,
-                'message' => 'Argument (buttonNameArray) to function createGame is invalid',
+                'message' => 'Game create failed because a button name was not valid.',
                 'status' => 'failed',
             ),
             $retval,
-            "Button name containing a backtick should be rejected"
+            "Button name containing a backtick should be invalid"
         );
 
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -325,6 +325,91 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy game lists should have matching structures");
+    }
+
+    public function test_request_joinOpenGame() {
+        $this->verify_login_required('joinOpenGame');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('joinOpenGame');
+        $this->verify_mandatory_args_required(
+            'joinOpenGame',
+            array('gameId' => 21)
+        );
+
+        // Make sure a button name with a backtick is rejected
+        $args = array(
+            'type' => 'joinOpenGame',
+            'gameId' => 21,
+            'buttonName' => 'Av`is',
+        );
+        $retval = $this->object->process_request($args);
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Argument (buttonName) to function joinOpenGame is invalid',
+                'status' => 'failed',
+            ),
+            $retval,
+            "Button name containing a backtick should be rejected"
+        );
+
+        $createGameArgs = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(
+                array('responder004', 'Avis'),
+                array('', 'Avis')
+            ),
+            'maxWins' => '3',
+        );
+        $createGameResult = $this->object->process_request($createGameArgs);
+        $gameId = $createGameResult['data']['gameId'];
+
+        $args = array(
+            'type' => 'joinOpenGame',
+            'gameId' => $gameId,
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], $retval['message']);
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+
+        $this->assertEquals($retdata, $dummydata,
+            "Real and dummy game joining return values should both be true");
+    }
+
+    public function test_request_loadOpenGames() {
+        $this->verify_login_required('loadOpenGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadOpenGames');
+
+        $createGameArgs = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(
+                array('responder004', 'Avis'),
+                array('', 'Avis')
+            ),
+            'maxWins' => '3',
+        );
+        $createGameResult = $this->object->process_request($createGameArgs);
+        $gameId = $createGameResult['data']['gameId'];
+
+        $args = array(
+            'type' => 'loadOpenGames',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], $retval['message']);
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
             "Real and dummy game lists should have matching structures");
@@ -519,8 +604,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -667,8 +752,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -700,8 +785,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Apples', 'Apples'),
+            'playerInfoArray' => array(array('responder003', 'Apples'),
+                                       array('responder004', 'Apples')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -775,8 +860,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 	// state, and the other player has initiative
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Crab', 'Crab'),
+            'playerInfoArray' => array(array('responder003', 'Crab'),
+                                       array('responder004', 'Crab')),
             'maxWins' => '3',
         );
 
