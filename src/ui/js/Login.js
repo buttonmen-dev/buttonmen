@@ -164,6 +164,7 @@ Login.addMainNavbar = function() {
   var links = {
     'Overview': 'index.html',
     'Create game': 'create_game.html',
+    'Open games': 'open_games.html',
     'Preferences': 'prefs.html',
     'Profile': 'profile.html?player=' + encodeURIComponent(Login.player),
     'Who\'s online': 'active_players.html',

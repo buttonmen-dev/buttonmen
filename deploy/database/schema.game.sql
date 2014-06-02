@@ -29,7 +29,7 @@ CREATE TABLE game_status (
 DROP TABLE IF EXISTS game_player_map;
 CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
-    player_id          SMALLINT UNSIGNED NOT NULL,
+    player_id          SMALLINT UNSIGNED,
     button_id          SMALLINT UNSIGNED,
     alt_recipe         VARCHAR(100),
     position           TINYINT UNSIGNED NOT NULL,

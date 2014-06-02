@@ -4,9 +4,9 @@ var Loader = {};
 // These scripts are loaded by every page, so we have them here by default
 Loader.defaultScripts = [
   'js/extern/jquery.cookie.js',
-  'js/Env.js',
-  'js/Config.js',
   'js/Api.js',
+  'js/Config.js',
+  'js/Env.js',
   'js/Login.js',
 ];
 
