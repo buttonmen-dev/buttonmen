@@ -255,8 +255,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_mandatory_args_required(
             'createGame',
             array(
-                'playerNameArray' => array('responder003', 'responder004'),
-                'buttonNameArray' => array('Avis', 'Avis'),
+                'playerInfoArray' => array(array('responder003', 'Avis'),
+                                           array('responder004', 'Avis')),
                 'maxWins' => '3',
             )
         );
@@ -264,25 +264,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Make sure a button name with a backtick is rejected
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Av`is'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Av`is')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
         $this->assertEquals(
             array(
                 'data' => NULL,
-                'message' => 'Argument (buttonNameArray) to function createGame is invalid',
+                'message' => 'Game create failed because a button name was not valid.',
                 'status' => 'failed',
             ),
             $retval,
-            "Button name containing a backtick should be rejected"
+            "Button name containing a backtick should be invalid"
         );
 
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -485,8 +485,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -633,8 +633,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -666,8 +666,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Apples', 'Apples'),
+            'playerInfoArray' => array(array('responder003', 'Apples'),
+                                       array('responder004', 'Apples')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -741,8 +741,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 	// state, and the other player has initiative
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Crab', 'Crab'),
+            'playerInfoArray' => array(array('responder003', 'Crab'),
+                                       array('responder004', 'Crab')),
             'maxWins' => '3',
         );
 

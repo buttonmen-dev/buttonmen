@@ -22,17 +22,16 @@ class ApiSpec {
         ),
         'createGame' => array(
             'mandatory' => array(
-                'playerNameArray' => array(
-                    'has_keys' => FALSE,
+                'playerInfoArray' => array(
+                    'has_keys' => TRUE,
                     'minlength' => 2,
                     'maxlength' => 2,
-                    'elem_type' => 'alnum',
-                ),
-                'buttonNameArray' => array(
-                    'has_keys' => FALSE,
-                    'minlength' => 2,
-                    'maxlength' => 2,
-                    'elem_type' => 'button',
+                    'key_type' => 'number',
+                    'elem_type' => array('has_keys' => TRUE,
+                                         'minlength' => 0,
+                                         'maxlength' => 2,
+                                         'key_type' => 'number',
+                                         'elem_type' => 'string'),
                 ),
                 'maxWins' => 'number',
             ),
