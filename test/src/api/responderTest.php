@@ -325,8 +325,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];
-        var_dump($retdata);
-        var_dump($dummydata);
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
             "Real and dummy game lists should have matching structures");
