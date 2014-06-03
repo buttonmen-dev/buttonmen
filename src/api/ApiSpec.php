@@ -22,21 +22,28 @@ class ApiSpec {
         ),
         'createGame' => array(
             'mandatory' => array(
-                'playerNameArray' => array(
-                    'has_keys' => FALSE,
+                'playerInfoArray' => array(
+                    'has_keys' => TRUE,
                     'minlength' => 2,
                     'maxlength' => 2,
-                    'elem_type' => 'alnum',
-                ),
-                'buttonNameArray' => array(
-                    'has_keys' => FALSE,
-                    'minlength' => 2,
-                    'maxlength' => 2,
-                    'elem_type' => 'button',
+                    'key_type' => 'number',
+                    'elem_type' => array('has_keys' => TRUE,
+                                         'minlength' => 0,
+                                         'maxlength' => 2,
+                                         'key_type' => 'number',
+                                         'elem_type' => 'string'),
                 ),
                 'maxWins' => 'number',
             ),
             'permitted' => array(),
+        ),
+        'joinOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(
+                'buttonName' => 'button',
+            ),
         ),
         'loadActiveGames' => array(
             'mandatory' => array(),
@@ -69,6 +76,10 @@ class ApiSpec {
             'permitted' => array(
               'currentGameId' => 'number',
             ),
+        ),
+        'loadOpenGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
         ),
         'loadPlayerInfo' => array(
             'mandatory' => array(),

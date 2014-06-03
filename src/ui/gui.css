@@ -416,3 +416,10 @@ table.gameList tfoot:before {
     color: white; /* to hide text */
     display: block;
 }
+
+table.gameList select {
+    max-width: 120px;
+}
+
+/* END: Game lists */
+

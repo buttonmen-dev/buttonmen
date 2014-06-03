@@ -519,8 +519,66 @@ var Api = (function () {
     return true;
   };
 
+  my.getOpenGamesData = function(callbackfunc) {
+    my.apiParsePost( { 'type': 'loadOpenGames', },
+      'open_games',
+      my.parseOpenGames,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseOpenGames = function(data) {
+    my.open_games.games = data.games;
+    return true;
+  };
+
+  my.joinOpenGame = function(gameId, buttonName, callback, failCallback) {
+    var parameters = {
+      'type': 'joinOpenGame',
+      'gameId': gameId,
+    };
+    if (buttonName !== undefined && buttonName !== null) {
+      parameters.buttonName = buttonName;
+    }
+
+    my.apiParsePost(
+      parameters,
+      'join_game_result',
+      my.parseJoinGameResult,
+      callback,
+      failCallback
+    );
+  };
+
+  my.parseJoinGameResult = function(data) {
+    my.join_game_result.success = data;
+    return true;
+  };
+
   ////////////////////////////////////////////////////////////////////////
-  // Load and parse profile data for the indicated player
+  // Load and parse the list of recently-active players
+
+  my.getActivePlayers = function(numberOfPlayers, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadActivePlayers',
+        'numberOfPlayers': numberOfPlayers,
+      },
+      'active_players',
+      my.parseActivePlayers,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseActivePlayers = function(data) {
+    my.active_players.players = data.players;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the profile info for the specified player
 
   my.loadProfileInfo = function(playerName, callbackfunc) {
     my.apiParsePost(
