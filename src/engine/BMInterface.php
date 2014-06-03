@@ -241,8 +241,17 @@ class BMInterface {
         array $buttonNameArray,
         $maxWins = 3
     ) {
+        $areAllPlayersPresent = TRUE;
+        // check for the possibility of unspecified players
+        foreach ($playerIdArray as $playerId) {
+            if (is_null($playerId)) {
+                $areAllPlayersPresent = FALSE;
+            }
+        }
+
         // check for nonunique player ids
-        if (count(array_flip($playerIdArray)) < count($playerIdArray)) {
+        if ($areAllPlayersPresent &&
+            count(array_flip($playerIdArray)) < count($playerIdArray)) {
             $this->message = 'Game create failed because a player has been selected more than once.';
             return NULL;
         }
@@ -268,10 +277,10 @@ class BMInterface {
         }
 
         $buttonIdArray = array();
-        foreach ($playerIdArray as $position => $playerId) {
+        foreach (array_keys($playerIdArray) as $position) {
             // get button ID
             $buttonName = $buttonNameArray[$position];
-            if (!is_null($buttonName)) {
+            if (!empty($buttonName)) {
                 $query = 'SELECT id FROM button '.
                          'WHERE name = :button_name';
                 $statement = self::$conn->prepare($query);
@@ -392,6 +401,7 @@ class BMInterface {
             // check that the gameId exists
             $query = 'SELECT g.*,'.
                      'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
+                     's.name AS status_name,'.
                      'v.player_id, v.position, v.autopass,'.
                      'v.button_name, v.alt_recipe,'.
                      'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
@@ -399,6 +409,8 @@ class BMInterface {
                      'v.is_awaiting_action, '.
                      'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp '.
                      'FROM game AS g '.
+                     'LEFT JOIN game_status AS s '.
+                     'ON s.id = g.status_id '.
                      'LEFT JOIN game_player_view AS v '.
                      'ON g.id = v.game_id '.
                      'WHERE g.id = :game_id '.
@@ -416,11 +428,21 @@ class BMInterface {
                     $game->turnNumberInRound = $row['turn_number_in_round'];
                     $game->nRecentPasses = $row['n_recent_passes'];
                     $this->timestamp = (int)$row['last_action_timestamp'];
+
+                     // initialise all temporary arrays
+                    $nPlayers = $row['n_players'];
+                    $playerIdArray = array_fill(0, $nPlayers, NULL);
+                    $gameScoreArrayArray = array_fill(0, $nPlayers, array(0, 0, 0));
+                    $buttonArray = array_fill(0, $nPlayers, NULL);
+                    $waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+                    $autopassArray = array_fill(0, $nPlayers, FALSE);
                 }
 
                 $pos = $row['position'];
-                $playerIdArray[$pos] = $row['player_id'];
-                $autopassArray[$pos] = (bool)$row['autopass'];
+                if (isset($pos)) {
+                    $playerIdArray[$pos] = $row['player_id'];
+                    $autopassArray[$pos] = (bool)$row['autopass'];
+                }
 
                 if (1 == $row['did_win_initiative']) {
                     $game->playerWithInitiativeIdx = $pos;
@@ -437,20 +459,22 @@ class BMInterface {
                 }
 
                 // load button attributes
-                if (isset($row['alt_recipe'])) {
-                    $recipe = $row['alt_recipe'];
-                } else {
-                    $recipe = $this->get_button_recipe_from_name($row['button_name']);
-                }
-                if (isset($recipe)) {
-                    $button = new BMButton;
-                    $button->load($recipe, $row['button_name']);
+                if (isset($row['button_name'])) {
                     if (isset($row['alt_recipe'])) {
-                        $button->hasAlteredRecipe = TRUE;
+                        $recipe = $row['alt_recipe'];
+                    } else {
+                        $recipe = $this->get_button_recipe_from_name($row['button_name']);
                     }
-                    $buttonArray[$pos] = $button;
-                } else {
-                    throw new InvalidArgumentException('Invalid button name.');
+                    if (isset($recipe)) {
+                        $button = new BMButton;
+                        $button->load($recipe, $row['button_name']);
+                        if (isset($row['alt_recipe'])) {
+                            $button->hasAlteredRecipe = TRUE;
+                        }
+                        $buttonArray[$pos] = $button;
+                    } else {
+                        throw new InvalidArgumentException('Invalid button name.');
+                    }
                 }
 
                 // load player attributes
@@ -463,7 +487,9 @@ class BMInterface {
                         break;
                 }
 
-                if ($row['current_player_id'] == $row['player_id']) {
+                if (isset($row['current_player_id']) &&
+                    isset($row['player_id']) &&
+                    ($row['current_player_id'] === $row['player_id'])) {
                     $game->activePlayerIdx = $pos;
                 }
 
@@ -658,6 +684,14 @@ class BMInterface {
                 }
             }
 
+            if (!isset($game->swingRequestArrayArray)) {
+                $game->swingValueArrayArray = NULL;
+            }
+
+            if (!isset($game->optRequestArrayArray)) {
+                $game->optValueArrayArray = NULL;
+            }
+
             $this->message = $this->message."Loaded data for game $gameId.";
 
             return $game;
@@ -684,7 +718,7 @@ class BMInterface {
 
             if (BMGameState::END_GAME == $game->gameState) {
                 $status = 'COMPLETE';
-            } elseif (in_array(0, $game->playerIdArray) ||
+            } elseif (in_array(NULL, $game->playerIdArray) ||
                       in_array(NULL, $game->buttonArray)) {
                 $status = 'OPEN';
             } else {
@@ -719,7 +753,8 @@ class BMInterface {
             // button recipes if altered
             if (isset($game->buttonArray)) {
                 foreach ($game->buttonArray as $playerIdx => $button) {
-                    if ($button->hasAlteredRecipe) {
+                    if (($button instanceof BMButton) &&
+                        ($button->hasAlteredRecipe)) {
                         $query = 'UPDATE game_player_map '.
                                  'SET alt_recipe = :alt_recipe '.
                                  'WHERE game_id = :game_id '.
@@ -882,7 +917,7 @@ class BMInterface {
                 $query = 'UPDATE game_player_map '.
                          'SET is_awaiting_action = :is_awaiting_action '.
                          'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
+                         'AND position = :position;';
                 $statement = self::$conn->prepare($query);
                 if ($waitingOnAction) {
                     $is_awaiting_action = 1;
@@ -891,7 +926,7 @@ class BMInterface {
                 }
                 $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
                                           ':game_id' => $game->gameId,
-                                          ':player_id' => $game->playerIdArray[$playerIdx]));
+                                          ':position' => $playerIdx));
             }
 
             // set existing dice to have a status of DELETED and get die ids
@@ -1470,7 +1505,7 @@ class BMInterface {
                  'WHERE v2.player_id = :player_id '.
                  'AND v1.player_id != v2.player_id ';
         if ($getActiveGames) {
-            $query .= 'AND s.name != "COMPLETE" ';
+            $query .= 'AND s.name = "ACTIVE" ';
         } else {
             $query .= 'AND s.name = "COMPLETE" ';
         }
@@ -1550,6 +1585,68 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_all_active_games: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Game detail get failed.';
+            return NULL;
+        }
+    }
+
+    public function get_all_open_games($currentPlayerId) {
+        try {
+            // Get all the colors the current player has set in his or her
+            // preferences
+            $playerColors = $this->load_player_colors($currentPlayerId);
+
+            $query =
+                'SELECT ' .
+                    'g.id AS game_id, ' .
+                    'v_challenger.player_id AS challenger_id, ' .
+                    'v_challenger.player_name AS challenger_name, ' .
+                    'v_challenger.button_name AS challenger_button, ' .
+                    'v_victim.button_name AS victim_button, ' .
+                    'g.n_target_wins AS target_wins ' .
+                'FROM game AS g ' .
+                    'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                    // For the time being, I'm assuming there are only two
+                    // players. If we later implement 3+ player games, this
+                    // will need to be updated.
+                    'INNER JOIN game_player_view AS v_challenger ' .
+                        'ON v_challenger.game_id = g.id AND v_challenger.player_id IS NOT NULL ' .
+                    'INNER JOIN game_player_view AS v_victim ' .
+                        'ON v_victim.game_id = g.id AND v_victim.player_id IS NULL ' .
+                'WHERE s.name = "OPEN"' .
+                'ORDER BY g.id ASC;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute();
+
+            $games = array();
+
+            while ($row = $statement->fetch()) {
+                $gameColors = $this->determine_game_colors(
+                    $currentPlayerId,
+                    $playerColors,
+                    -1, // There is no other player yet
+                    (int)$row['challenger_id']
+                );
+
+                $games[] = array(
+                    'gameId' => (int)$row['game_id'],
+                    'challengerId' => (int)$row['challenger_id'],
+                    'challengerName' => $row['challenger_name'],
+                    'challengerButton' => $row['challenger_button'],
+                    'challengerColor' => $gameColors['playerB'],
+                    'victimButton' => $row['victim_button'],
+                    'targetWins' => (int)$row['target_wins'],
+                );
+            }
+
+            $this->message = 'Open games retrieved successfully.';
+            return array('games' => $games);
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_all_open_games: " .
                 $e->getMessage()
             );
             $this->message = 'Game detail get failed.';
@@ -1747,6 +1844,10 @@ class BMInterface {
 
     public function get_player_name_from_id($playerId) {
         try {
+            if (is_null($playerId)) {
+                return('');
+            }
+
             $query = 'SELECT name_ingame FROM player '.
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);
@@ -2162,6 +2263,115 @@ class BMInterface {
         }
     }
 
+    public function join_open_game($currentPlayerId, $gameId) {
+        try {
+            $game = $this->load_game($gameId);
+
+            // check that there are still unspecified players and
+            // that the player is not already part of the game
+            $emptyPlayerIdx = NULL;
+            $isPlayerPartOfGame = FALSE;
+
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                if (is_null($playerId) && is_null($emptyPlayerIdx)) {
+                    $emptyPlayerIdx = $playerIdx;
+                } elseif ($currentPlayerId == $playerId) {
+                    $isPlayerPartOfGame = TRUE;
+                    break;
+                }
+            }
+
+            if ($isPlayerPartOfGame) {
+                $this->message = 'You are already playing in this game.';
+                return FALSE;
+            }
+
+            if (is_null($emptyPlayerIdx)) {
+                $this->message = 'No empty player slots in game '.$gameId.'.';
+                return FALSE;
+            }
+
+            $query = 'UPDATE game_player_map SET player_id = :player_id '.
+                     'WHERE game_id = :game_id '.
+                     'AND position = :position';
+            $statement = self::$conn->prepare($query);
+
+            $statement->execute(array(':game_id'   => $gameId,
+                                      ':player_id' => $currentPlayerId,
+                                      ':position'  => $emptyPlayerIdx));
+
+            $game = $this->load_game($gameId);
+            $this->save_game($game);
+
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::join_open_game: ".
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while joining open game';
+        }
+    }
+
+    public function select_button(
+        $playerId,
+        $gameId,
+        $buttonName
+    ) {
+        try {
+            if (empty($buttonName)) {
+                return FALSE;
+            }
+
+            $game = $this->load_game($gameId);
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            if (FALSE === $playerIdx) {
+                $this->message = 'Player is not a participant in game.';
+                return FALSE;
+            }
+
+            if (!is_null($game->buttonArray[$playerIdx])) {
+                $this->message = 'Button has already been selected.';
+                return FALSE;
+            }
+
+            $query = 'SELECT id FROM button '.
+                     'WHERE name = :button_name';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':button_name' => $buttonName));
+            $fetchData = $statement->fetch();
+            if (FALSE === $fetchData) {
+                $this->message = 'Button select failed because button name was not valid.';
+                return FALSE;
+            }
+            $buttonId = $fetchData[0];
+
+            $query = 'UPDATE game_player_map SET button_id = :button_id '.
+                     'WHERE game_id = :game_id '.
+                     'AND player_id = :player_id';
+
+            $statement = self::$conn->prepare($query);
+
+            $statement->execute(array(':game_id'   => $gameId,
+                                      ':player_id' => $playerId,
+                                      ':button_id' => $buttonId));
+
+            $game = $this->load_game($gameId);
+            $this->save_game($game);
+
+            return TRUE;
+
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::select_button: ".
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while selecting button';
+        }
+    }
+
     public function submit_die_values(
         $playerId,
         $gameId,
@@ -2396,7 +2606,6 @@ class BMInterface {
             $this->message = 'Internal error while setting option values';
         }
     }
-
 
     public function submit_turn(
         $playerId,

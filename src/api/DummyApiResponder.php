@@ -72,6 +72,45 @@ class DummyApiResponder {
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
+    protected function get_interface_response_joinOpenGame() {
+        // join_open_game() does not need to return much data
+        return array(TRUE, "");
+    }
+
+    protected function get_interface_response_selectButton() {
+        // select_button() does not need to return much data
+        return array(TRUE, "");
+    }
+
+    protected function get_interface_response_loadOpenGames() {
+        // Use games that didn't appear in loadGameData
+        $games = array();
+
+        // game 20
+        $games[] = array(
+            'gameId' => 20,
+            'challengerId' => 1,
+            'challengerName' => 'tester',
+            'challengerButton' => 'Avis',
+            'challengerColor' => '#cccccc',
+            'victimButton' => NULL,
+            'targetWins' => 3,
+        );
+
+        // game 21
+        $games[] = array(
+            'gameId' => 21,
+            'challengerId' => 2,
+            'challengerName' => 'tester2',
+            'challengerButton' => 'Agatha',
+            'challengerColor' => '#cccccc',
+            'victimButton' => 'Krosp',
+            'targetWins' => 3,
+        );
+
+        return array(array('games' => $games), "Open games retrieved successfully.");
+    }
+    
     protected function get_interface_response_searchGameHistory($args) {
         $games = array();
 

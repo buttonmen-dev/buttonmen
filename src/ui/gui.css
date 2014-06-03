@@ -442,6 +442,9 @@ table.gameList img.calendar {
     vertical-align: middle;
     margin: 0.2em;
 }
+
+/* END: Game lists */
+
 /* Forum */
 
 div.forum,
@@ -689,7 +692,7 @@ div.forum div.splitRight {
     width: 40%;
 }
 
-/* end Forum*/
+/* END: Forum*/
 
 /* BB Code (OK technically also forum but chat too) */
 
@@ -741,4 +744,4 @@ div.forum div.splitRight {
     background-color: black;
 }
 
-/* end BB Code */
+/* END: BB Code */

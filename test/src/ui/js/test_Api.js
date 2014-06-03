@@ -18,6 +18,8 @@ module("Api", {
     delete Api.forum_board;
     delete Api.forum_thread;
     delete Api.search_results;
+    delete Api.open_games;
+    delete Api.join_game_result;
     delete Api.active_players;
     delete Api.profile_info;
     delete Env.message;
@@ -339,6 +341,15 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
   });
 });
 
+asyncTest("test_Api.getOpenGamesData", function() {
+  Api.getOpenGamesData(
+    function() {
+      equal(Api.open_games.load_status, 'ok',
+        'Successfully retrieved open games');
+      start();
+    });
+});
+
 asyncTest("test_Api.loadForumOverview", function() {
   Api.loadForumOverview(
     function() {
@@ -457,6 +468,39 @@ asyncTest("test_Api.searchGameHistory", function() {
     function() {
       equal(Api.search_results.load_status, 'ok',
         'Successfully performed search');
+    start();
+  });
+});
+
+asyncTest("test_Api.parseOpenGames", function() {
+  Api.getOpenGamesData(function() {
+    ok(Api.open_games.games.length > 0, "Successfully parsed open games");
+    start();
+  });
+});
+
+asyncTest("test_Api.joinOpenGame", function() {
+  Api.joinOpenGame(21, 'Avis',
+    function() {
+      equal(Api.join_game_result.load_status, 'ok',
+        'Successfully retrieved open games');
+      start();
+    },
+    function() {
+      ok(false, 'Retrieving game data should succeed');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseJoinGameResult", function() {
+  Api.joinOpenGame(21, 'Avis',
+    function() {
+      equal(Api.join_game_result.success, true,
+        "Successfully parsed join game result");
+      start();
+    },
+    function() {
+      ok(false, 'Retrieving game data should succeed');
       start();
     });
 });
