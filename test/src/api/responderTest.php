@@ -317,7 +317,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'sortDirection' => 'DESC',
             'numberOfResults' => '20',
             'page' => '1',
-            'buttonNameA' => 'Stark');
+            'buttonNameA' => 'Avis');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
 
@@ -325,6 +325,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];
+        var_dump($retdata);
+        var_dump($dummydata);
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
             "Real and dummy game lists should have matching structures");
