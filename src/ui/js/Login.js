@@ -201,7 +201,7 @@ Login.postToResponder = function(responder_args) {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
       if (responder_args.type == 'logout') {
-        Env.window.location.href = '/ui';
+        Env.window.location.href = Env.ui_root;
       } else {
         Login.showLoginHeader(Login.callback);
       }

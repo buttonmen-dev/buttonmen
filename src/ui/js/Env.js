@@ -20,6 +20,10 @@ if ('unit_test' in Env) {
   } else {
     Env.api_location = '../api/dummy_responder';
   }
+
+  // Also place the UI root in a reasonable location
+  Env.ui_root = '../ui/';
+
   // We also want to mock the window and history objects in unit tests
   Env.window = { location: {} };
   Env.history = {
@@ -38,6 +42,9 @@ if ('unit_test' in Env) {
   Env.api_location = '../api/responder';
   Env.window = window;
   Env.history = history;
+
+  // UI portion of the location at which the user is accessing the site
+  Env.ui_root = Env.window.location.pathname.replace(/\/ui\/.*/, '/ui/');
 }
 
 // Courtesy of stackoverflow: http://stackoverflow.com/a/5158301
