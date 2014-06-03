@@ -1741,11 +1741,12 @@ Game.buttonImageDisplay = function(player) {
   } else {
     buttonTd.append($('<img>', {
       'src':
-        '/ui/images/button/' +
+        Env.ui_root + 'images/button/' +
         Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
         '.png',
       'width': '150px',
-      'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
+      'onerror':
+        'this.src="' + Env.ui_root + 'images/button/BMdefaultRound.png"',
     }));
   }
   if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
