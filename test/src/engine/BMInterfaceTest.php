@@ -2816,7 +2816,6 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             $thread1['threadId'], $boardId1, $thread1['timestamp']);
         $thread1 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
             $thread1['threadId'], NULL);
-        var_dump($thread1);
         $this->assertFalse($thread1['posts'][0]['isNew']);
         $thread2 = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
             $thread2['threadId'], NULL);
