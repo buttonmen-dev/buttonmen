@@ -1160,15 +1160,11 @@ class BMGame {
             foreach ($dieIdxArray as $listIdx => $dieIdx) {
                 $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
 
-                // check for ANY selected dice, not just a single die
-                $possChanceAction = $die->has_skill('Chance') &&
-                                    !isset($dieValueArray) &&
-                                    (count($dieIdxArray) >= 1);
-                // check for ANY change in die value, also invalid changes
-                $possFocusAction = $die->has_skill('Focus') &&
-                                   is_array($dieValueArray) &&
-                                   (count($dieIdxArray) == count($dieValueArray)) &&
-                                   ($die->value != $dieValueArray[$listIdx]);
+                $possChanceAction = 
+                    $this->possibleChanceAction($die, $dieValueArray, $dieIdxArray);
+                $possFocusAction =
+                    $this->possibleFocusAction ($die, $dieValueArray, $dieIdxArray, $listIdx);
+
                 if ($possChanceAction || $possFocusAction) {
                     return FALSE;
                 }
@@ -1186,6 +1182,25 @@ class BMGame {
         }
 
         return array('gainedInitiative' => FALSE);
+    }
+
+    private function possibleChanceAction($die, $dieValueArray, $dieIdxArray) {
+        // check for ANY selected dice, not just a single die
+        $possChanceAction = $die->has_skill('Chance') &&
+                            !isset($dieValueArray) &&
+                            (count($dieIdxArray) >= 1);
+
+        return $possChanceAction;
+    }
+
+    private function possibleFocusAction($die, $dieValueArray, $dieIdxArray, $listIdx) {
+        // check for ANY change in die value, also invalid changes
+        $possFocusAction = $die->has_skill('Focus') &&
+                           is_array($dieValueArray) &&
+                           (count($dieIdxArray) == count($dieValueArray)) &&
+                           ($die->value != $dieValueArray[$listIdx]);
+
+        return $possFocusAction;
     }
 
     protected function react_to_initiative_focus($args) {
