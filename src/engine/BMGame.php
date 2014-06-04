@@ -1774,20 +1774,8 @@ class BMGame {
     }
 
     protected function set__buttonArray($value) {
-        if (!is_array($value) ||
-            count($value) !== count($this->playerIdArray)) {
-            throw new InvalidArgumentException(
-                'Number of buttons must equal the number of players.'
-            );
-        }
-        foreach ($value as $tempValueElement) {
-            if (!($tempValueElement instanceof BMButton) &&
-                !is_null($tempValueElement)) {
-                throw new InvalidArgumentException(
-                    'Input must be an array of BMButtons.'
-                );
-            }
-        }
+        $this->validateButtonArray($value);
+        
         $this->buttonArray = $value;
         foreach ($this->buttonArray as $playerIdx => $button) {
             if ($button instanceof BMButton) {
@@ -1821,6 +1809,23 @@ class BMGame {
         }
     }
 
+    protected function validateButtonArray($value) {
+        if (!is_array($value) ||
+            count($value) !== count($this->playerIdArray)) {
+            throw new InvalidArgumentException(
+                'Number of buttons must equal the number of players.'
+            );
+        }
+        foreach ($value as $tempValueElement) {
+            if (!($tempValueElement instanceof BMButton) &&
+                !is_null($tempValueElement)) {
+                throw new InvalidArgumentException(
+                    'Input must be an array of BMButtons.'
+                );
+            }
+        }
+    }
+
     protected function set__activeDieArrayArray($value) {
         if (!is_array($value)) {
             throw new InvalidArgumentException(
@@ -1846,32 +1851,7 @@ class BMGame {
 
     protected function set__attack($value) {
         $value = array_values($value);
-        if (!is_array($value) || (5 !== count($value))) {
-            throw new InvalidArgumentException(
-                'There must be exactly five elements in attack.'
-            );
-        }
-        if (!is_integer($value[0])) {
-            throw new InvalidArgumentException(
-                'The first element in attack must be an integer.'
-            );
-        }
-        if (!is_integer($value[1]) && !is_null($value[1])) {
-            throw new InvalidArgumentException(
-                'The second element in attack must be an integer or a NULL.'
-            );
-        }
-        if (!is_array($value[2]) || !is_array($value[3])) {
-            throw new InvalidArgumentException(
-                'The third and fourth elements in attack must be arrays.'
-            );
-        }
-        if (($value[2] !== array_filter($value[2], 'is_int')) ||
-            ($value[3] !== array_filter($value[3], 'is_int'))) {
-            throw new InvalidArgumentException(
-                'The third and fourth elements in attack must contain integers.'
-            );
-        }
+        $this->validateAttackFormat($value);
 
         if (!preg_match(
             '/'.
@@ -1907,6 +1887,35 @@ class BMGame {
                               'attackerAttackDieIdxArray' => $value[2],
                               'defenderAttackDieIdxArray' => $value[3],
                               'attackType' => $value[4]);
+    }
+
+    protected function validateAttackFormat($value) {
+        if (!is_array($value) || (5 !== count($value))) {
+            throw new InvalidArgumentException(
+                'There must be exactly five elements in attack.'
+            );
+        }
+        if (!is_integer($value[0])) {
+            throw new InvalidArgumentException(
+                'The first element in attack must be an integer.'
+            );
+        }
+        if (!is_integer($value[1]) && !is_null($value[1])) {
+            throw new InvalidArgumentException(
+                'The second element in attack must be an integer or a NULL.'
+            );
+        }
+        if (!is_array($value[2]) || !is_array($value[3])) {
+            throw new InvalidArgumentException(
+                'The third and fourth elements in attack must be arrays.'
+            );
+        }
+        if (($value[2] !== array_filter($value[2], 'is_int')) ||
+            ($value[3] !== array_filter($value[3], 'is_int'))) {
+            throw new InvalidArgumentException(
+                'The third and fourth elements in attack must contain integers.'
+            );
+        }
     }
 
     protected function set__attackerAttackDieArray() {
