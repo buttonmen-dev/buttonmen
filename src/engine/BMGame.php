@@ -1204,6 +1204,60 @@ class BMGame {
     }
 
     protected function react_to_initiative_focus($args) {
+        $isValid = $this->validateFocusAction($args);
+
+        if (!$isValid) {
+            return FALSE;
+        }
+
+        // change specified die values
+        $oldDieValueArray = array();
+        $preTurndownData = array();
+        $postTurndownData = array();
+        foreach ($focusValueArray as $dieIdx => $newDieValue) {
+            $preTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
+            $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
+            $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
+            $postTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
+        }
+        $newInitiativeArray = BMGame::does_player_have_initiative_array(
+            $this->activeDieArrayArray
+        );
+
+        // if the change is successful, disable focus dice that changed
+        // value
+        if ($newInitiativeArray[$playerIdx] &&
+            1 == array_sum($newInitiativeArray)) {
+            foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                if ($oldDieValue >
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->dizzy = TRUE;
+                }
+            }
+        } else {
+            // if the change does not gain initiative unambiguously, it is
+            // invalid, so reset die values to original values
+            foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
+                $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
+            }
+            $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
+            return FALSE;
+        }
+
+        $this->log_action(
+            'turndown_focus',
+            $this->playerIdArray[$playerIdx],
+            array(
+                'preTurndown' => $preTurndownData,
+                'postTurndown' => $postTurndownData,
+            )
+        );
+
+        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
+        return array('gainedInitiative' => TRUE);
+    }
+
+    protected function validateFocusAction($args) {
         if (!array_key_exists('focusValueArray', $args)) {
             $this->message = 'focusValueArray must exist.';
             return FALSE;
@@ -1253,51 +1307,7 @@ class BMGame {
             }
         }
 
-        // change specified die values
-        $oldDieValueArray = array();
-        $preTurndownData = array();
-        $postTurndownData = array();
-        foreach ($focusValueArray as $dieIdx => $newDieValue) {
-            $preTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
-            $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
-            $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
-            $postTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
-        }
-        $newInitiativeArray = BMGame::does_player_have_initiative_array(
-            $this->activeDieArrayArray
-        );
-
-        // if the change is successful, disable focus dice that changed
-        // value
-        if ($newInitiativeArray[$playerIdx] &&
-            1 == array_sum($newInitiativeArray)) {
-            foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
-                if ($oldDieValue >
-                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->value) {
-                    $this->activeDieArrayArray[$playerIdx][$dieIdx]->dizzy = TRUE;
-                }
-            }
-        } else {
-            // if the change does not gain initiative unambiguously, it is
-            // invalid, so reset die values to original values
-            foreach ($oldDieValueArray as $dieIdx => $oldDieValue) {
-                $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $oldDieValue;
-            }
-            $this->message = 'You did not turn your focus dice down far enough to gain initiative.';
-            return FALSE;
-        }
-
-        $this->log_action(
-            'turndown_focus',
-            $this->playerIdArray[$playerIdx],
-            array(
-                'preTurndown' => $preTurndownData,
-                'postTurndown' => $postTurndownData,
-            )
-        );
-
-        $this->gameState = BMGameState::DETERMINE_INITIATIVE;
-        return array('gainedInitiative' => TRUE);
+        return TRUE;
     }
 
     protected function run_die_hooks($gameState, array $args = array()) {
