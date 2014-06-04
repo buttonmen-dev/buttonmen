@@ -133,31 +133,31 @@ OpenGames.joinOpenGame = function() {
     });
 };
 
-OpenGames.displayJoinResult =
-  function(joinButton, buttonSelect, gameId, buttonName) {
-    // If an error occurred, display it
-    if (joinButton === undefined) {
-      if (Env.message === undefined || Env.message === null) {
-        Env.message = {
-          'type': 'error',
-          'text': 'An internal error occurred while trying to join the game.',
-        };
-      }
-      OpenGames.getOpenGames(OpenGames.showPage);
-      return;
+OpenGames.displayJoinResult = function(
+    joinButton, buttonSelect, gameId, buttonName) {
+  // If an error occurred, display it
+  if (joinButton === undefined) {
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'An internal error occurred while trying to join the game.',
+      };
     }
+    OpenGames.getOpenGames(OpenGames.showPage);
+    return;
+  }
 
-    joinButton.hide();
-    joinButton.after($('<a>', {
-      'text': 'Go to Game ' + gameId,
-      'href': 'game.html?game=' + gameId,
-    }));
+  joinButton.hide();
+  joinButton.after($('<a>', {
+    'text': 'Go to Game ' + gameId,
+    'href': 'game.html?game=' + gameId,
+  }));
 
-    if (buttonSelect !== undefined) {
-      buttonSelect.hide();
-      buttonSelect.after($('<span>', { 'text': buttonName, }));
-    }
-  };
+  if (buttonSelect !== undefined) {
+    buttonSelect.hide();
+    buttonSelect.after($('<span>', { 'text': buttonName, }));
+  }
+};
 
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
