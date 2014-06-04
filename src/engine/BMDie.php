@@ -637,7 +637,7 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
-    protected function set__min($value) {
+    protected function set__min() {
         throw new LogicException(
             'min is set at creation time.'
         );
@@ -678,7 +678,7 @@ class BMDie extends BMCanHaveSkill {
         $this->value = $value;
     }
 
-    protected function set__recipe($value) {
+    protected function set__recipe() {
         throw new LogicException(
             'Die recipe is derived automatically.'
         );
