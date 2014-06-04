@@ -12,6 +12,8 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.search_results;
+    delete Api.siteConfig;
     delete Api.open_games;
     delete Api.join_game_result;
     delete Api.active_players;
@@ -339,6 +341,24 @@ asyncTest("test_Api.loadProfileInfo", function() {
     });
 });
 
+asyncTest("test_Api.searchGameHistory", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters,
+    function() {
+      equal(Api.search_results.load_status, 'ok',
+        'Successfully performed search');
+    start();
+  });
+});
+
 asyncTest("test_Api.parseOpenGames", function() {
   Api.getOpenGamesData(function() {
     ok(Api.open_games.games.length > 0, "Successfully parsed open games");
@@ -379,4 +399,38 @@ asyncTest("test_Api.parseNextGameId", function() {
         "Successfully parsed profile info");
       start();
     });
+});
+
+
+asyncTest("test_Api.parseSearchResults_games", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.search_results.games.length, 1,
+      "Successfully parsed search results games list");
+    start();
+  });
+});
+
+asyncTest("test_Api.parseSearchResults_summary", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester2',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.search_results.summary.matchesFound, 2,
+      "Successfully parsed search results summary data");
+    start();
+  });
 });

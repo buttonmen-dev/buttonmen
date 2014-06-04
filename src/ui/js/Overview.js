@@ -87,9 +87,19 @@ Overview.layoutPage = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
+  // This is being temporarily removed, but will be added back soon (once
+  // dismissing completed games from this list is implemented)
+  //Overview.pageAddGameTable('finished', 'Completed games');
   Overview.pageAddGameTable('awaitingPlayer', 'Active games');
   Overview.pageAddGameTable('awaitingOpponent', 'Active games');
-  Overview.pageAddGameTable('finished', 'Completed games');
+  var historyLink = $('<a>', {
+    'text': 'History',
+    'href': 'history.html#!playerNameA=' +
+      encodeURIComponent(Login.player) + '&status=COMPLETE',
+  });
+  Overview.page.append(
+    $('<div>').append('Completed games have been moved to the ')
+      .append(historyLink).append(' page.'));
 };
 
 Overview.pageAddNewgameLink = function() {

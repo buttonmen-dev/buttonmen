@@ -1047,6 +1047,432 @@ class BMInterface {
                                   ':flags' => $flags));
     }
 
+    // Parse the search filters, converting them to standardized forms (such
+    // as converting names to ID's), and validating them against the database
+    public function assemble_search_filters($searchParameters) {
+        try {
+            $searchFilters = array();
+
+            if (isset($searchParameters['gameId'])) {
+                $searchFilters['gameId'] = (int)$searchParameters['gameId'];
+            }
+
+            if (isset($searchParameters['playerNameA'])) {
+                $playerIdA = $this->get_player_id_from_name($searchParameters['playerNameA']);
+                if (is_int($playerIdA)) {
+                    $searchFilters['playerIdA'] = $playerIdA;
+                } else {
+                    $this->message = 'Player A: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['buttonNameA'])) {
+                $buttonIdA = $this->get_button_id_from_name($searchParameters['buttonNameA']);
+                if (is_int($buttonIdA)) {
+                    $searchFilters['buttonIdA'] = $buttonIdA;
+                } else {
+                    $this->message = 'Button A: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['playerNameB'])) {
+                $playerIdB = $this->get_player_id_from_name($searchParameters['playerNameB']);
+                if (is_int($playerIdB)) {
+                    $searchFilters['playerIdB'] = $playerIdB;
+                } else {
+                    $this->message = 'Player B: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['buttonNameB'])) {
+                $buttonIdB = $this->get_button_id_from_name($searchParameters['buttonNameB']);
+                if (is_int($buttonIdB)) {
+                    $searchFilters['buttonIdB'] = $buttonIdB;
+                } else {
+                    $this->message = 'Button B: ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            if (isset($searchParameters['gameStartMin'])) {
+                $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
+            }
+            if (isset($searchParameters['gameStartMax'])) {
+                $searchFilters['gameStartMax'] = (int)$searchParameters['gameStartMax'];
+            }
+
+            if (isset($searchParameters['lastMoveMin'])) {
+                $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
+            }
+            if (isset($searchParameters['lastMoveMax'])) {
+                $searchFilters['lastMoveMax'] = (int)$searchParameters['lastMoveMax'];
+            }
+
+            if (isset($searchParameters['winningPlayer'])) {
+                $searchFilters['winningPlayer'] = $searchParameters['winningPlayer'];
+            }
+
+            if (isset($searchParameters['status'])) {
+                $searchFilters['status'] = $searchParameters['status'];
+            }
+
+            return $searchFilters;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::assemble_search_filters: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Game search failed.';
+            return NULL;
+        }
+    }
+
+    // Parse out the additional options that affect how search results
+    // are to be presented
+    public function assemble_search_options($searchParameters) {
+        try {
+            $searchOptions = array();
+
+            if (isset($searchParameters['sortColumn'])) {
+                $searchOptions['sortColumn'] = $searchParameters['sortColumn'];
+            }
+            if (isset($searchParameters['sortDirection'])) {
+                $searchOptions['sortDirection'] = $searchParameters['sortDirection'];
+            }
+            if (isset($searchParameters['numberOfResults'])) {
+                $numberOfResults = (int)$searchParameters['numberOfResults'];
+                if ($numberOfResults <= 1000) {
+                    $searchOptions['numberOfResults'] = $numberOfResults;
+                } else {
+                    $this->message = 'numberOfResults may not exceed 1000';
+                    return NULL;
+                }
+            }
+            if (isset($searchParameters['page'])) {
+                $searchOptions['page'] = (int)$searchParameters['page'];
+            }
+
+            return $searchOptions;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::assemble_search_options: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Game search failed.';
+            return NULL;
+        }
+    }
+
+    // Get all games matching the specified search parameters.
+    public function search_game_history($currentPlayerId, $args) {
+        try {
+            $searchFilters = $this->assemble_search_filters($args);
+            $searchOptions = $this->assemble_search_options($args);
+
+            if ($searchFilters === NULL || $searchOptions === NULL) {
+                return NULL;
+            }
+
+            $combinedQuery = '';
+
+            // Get all the colors the current player has set in his or her
+            // preferences
+            $playerColors = $this->load_player_colors($currentPlayerId);
+
+            // We're going to build (and then UNION) two queries: one where we
+            // check all the Player A filters against the player in position 0
+            // and all the Player B filters against the player and position 1,
+            // and one where we do the opposite.
+            // (If we just did it with OR clauses, then we wouldn't know at the
+            // end which player matched which.)
+
+            $baseQuery =
+                'SELECT ' .
+                    'g.id AS game_id, ' .
+                    'vA.player_id AS player_id_A, ' .
+                    'vA.player_name AS player_name_A, ' .
+                    'vA.button_name AS button_name_A, ' .
+                    'vA.is_awaiting_action AS waiting_on_A, '.
+                    'vB.player_id AS player_id_B, ' .
+                    'vB.player_name AS player_name_B, ' .
+                    'vB.button_name AS button_name_B, ' .
+                    'vB.is_awaiting_action AS waiting_on_B, '.
+                    // Reinstate this once g.creation_time exists
+                    //'UNIX_TIMESTAMP(g.creation_time) AS game_start, ' .
+                    '0 AS game_start, ' .
+                    'UNIX_TIMESTAMP(g.last_action_time) AS last_move, ' .
+                    'vA.n_rounds_won AS rounds_won_A, ' .
+                    'vB.n_rounds_won AS rounds_won_B, ' .
+                    'vA.n_rounds_drawn AS rounds_drawn, ' .
+                    'g.n_target_wins AS target_wins, ' .
+                    's.name AS status ' .
+                'FROM game AS g ' .
+                    'INNER JOIN game_status AS s ON s.id = g.status_id ';
+
+            $playerJoin_0 =
+                'INNER JOIN game_player_view AS vA ' .
+                    'ON vA.game_id = g.id AND vA.position = 0 ' .
+                'INNER JOIN game_player_view AS vB ' .
+                    'ON vB.game_id = g.id AND vB.position = 1 ';
+
+            $playerJoin_1 =
+                'INNER JOIN game_player_view AS vA ' .
+                    'ON vA.game_id = g.id AND vA.position = 1 ' .
+                'INNER JOIN game_player_view AS vB ' .
+                    'ON vB.game_id = g.id AND vB.position = 0 ';
+
+            $where = 'WHERE 1=1 ';
+
+            $whereParameters = array();
+
+            if (isset($searchFilters['gameId'])) {
+                // See about 70 lines down for an explanation of the _%%%
+                $where .= 'AND g.id = :game_id_%%% ';
+                $whereParameters[':game_id_%%%'] = $searchFilters['gameId'];
+            }
+
+            if (isset($searchFilters['playerIdA'])) {
+                $where .= 'AND vA.player_id = :player_id_A_%%% ';
+                $whereParameters[':player_id_A_%%%'] = $searchFilters['playerIdA'];
+            }
+
+            if (isset($searchFilters['buttonIdA'])) {
+                $where .= 'AND vA.button_id = :button_id_A_%%% ';
+                $whereParameters[':button_id_A_%%%'] = $searchFilters['buttonIdA'];
+            }
+
+            if (isset($searchFilters['playerIdB'])) {
+                $where .= 'AND vB.player_id = :player_id_B_%%% ';
+                $whereParameters[':player_id_B_%%%'] = $searchFilters['playerIdB'];
+            }
+
+            if (isset($searchFilters['buttonIdB'])) {
+                $where .= 'AND vB.button_id = :button_id_B_%%% ';
+                $whereParameters[':button_id_B_%%%'] = $searchFilters['buttonIdB'];
+            }
+
+            if (isset($searchFilters['gameStartMin'])) {
+                $where .= 'AND UNIX_TIMESTAMP(g.creation_time) >= :game_start_min_%%% ';
+                $whereParameters[':game_start_min_%%%'] = $searchFilters['gameStartMin'];
+            }
+            if (isset($searchFilters['gameStartMax'])) {
+                $where .= 'AND UNIX_TIMESTAMP(g.creation_time) < :game_start_max_%%% ';
+                // We want the range to end at the *end* of the day (i.e.,
+                // the start of the next one).
+                $whereParameters[':game_start_max_%%%'] =
+                    $searchFilters['gameStartMax'] + 24 * 60 * 60;
+            }
+
+            if (isset($searchFilters['lastMoveMin'])) {
+                $where .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_%%% ';
+                $whereParameters[':last_move_min_%%%'] = $searchFilters['lastMoveMin'];
+            }
+            if (isset($searchFilters['lastMoveMax'])) {
+                $where .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_%%% ';
+                // We want the range to end at the *end* of the day (i.e.,
+                // the start of the next one).
+                $whereParameters[':last_move_max_%%%'] =
+                    $searchFilters['lastMoveMax'] + 24 * 60 * 60;
+            }
+
+            if (isset($searchFilters['winningPlayer'])) {
+                if ($searchFilters['winningPlayer'] == 'A') {
+                    $where .= 'AND vA.n_rounds_won > vB.n_rounds_won ';
+                } elseif ($searchFilters['winningPlayer'] == 'B') {
+                    $where .= 'AND vA.n_rounds_won < vB.n_rounds_won ';
+                } elseif ($searchFilters['winningPlayer'] == 'Tie') {
+                    $where .= 'AND vA.n_rounds_won = vB.n_rounds_won ';
+                }
+            }
+
+            if (isset($searchFilters['status'])) {
+                $where .= 'AND s.name = :status_%%% ';
+                $whereParameters[':status_%%%'] = $searchFilters['status'];
+            } else {
+                // We'll only display games that have actually started
+                $where .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
+            }
+
+            // I want to use the same WHERE clause for both sides of the
+            // UNION, but PHP won't let us use the same parameter twice in
+            // a query (without PDO::ATTR_EMULATE_PREPARES).
+            // So I've used _%%% as a placeholder which I'm now replacing
+            // with _0 and _1, to produce the two otherwise identical
+            // versions.
+            $where_0 = str_replace('_%%%', '_0', $where);
+            $where_1 = str_replace('_%%%', '_1', $where);
+            $whereParameters_0 = array();
+            $whereParameters_1 = array();
+            foreach ($whereParameters as $parameterName => $parameterValue) {
+                $whereParameters_0[str_replace('_%%%', '_0', $parameterName)] =
+                    $parameterValue;
+                $whereParameters_1[str_replace('_%%%', '_1', $parameterName)] =
+                    $parameterValue;
+            }
+
+            $sort = 'ORDER BY ';
+            switch($searchOptions['sortColumn']) {
+                case 'gameId':
+                    $sort .= 'game_id ';
+                    break;
+                case 'playerNameA':
+                    $sort .= 'player_name_A ';
+                    break;
+                case 'buttonNameA':
+                    $sort .= 'button_name_A ';
+                    break;
+                case 'playerNameB':
+                    $sort .= 'player_name_B ';
+                    break;
+                case 'buttonNameB':
+                    $sort .= 'button_name_B ';
+                    break;
+                case 'gameStart':
+                    $sort .= 'game_start ';
+                    break;
+                case 'lastMove':
+                    $sort .= 'last_move ';
+                    break;
+                case 'winningPlayer':
+                    // We want to rank games where A has already won the
+                    // highest, followed by games in progress, followed by
+                    // games where B has already won. And within those, we
+                    // should rank by how many rounds A is ahead or behind by.
+                    $sort .=
+                        '1000 * (rounds_won_A >= target_wins) + ' .
+                        'CAST(rounds_won_A AS SIGNED INTEGER) - ' .
+                            'CAST(rounds_won_B AS SIGNED INTEGER) + ' .
+                        '-1000 * (rounds_won_B >= target_wins) ';
+                    break;
+                case 'status':
+                    $sort .= 'status ';
+                    break;
+            }
+            switch($searchOptions['sortDirection']) {
+                case 'ASC':
+                    $sort .= 'ASC ';
+                    break;
+                case 'DESC':
+                    $sort .= 'DESC ';
+                    break;
+            }
+
+            $limit = 'LIMIT :offset, :page_size ';
+            $limitParameters = array();
+            $limitParameters[':offset'] =
+                ($searchOptions['page'] - 1) * $searchOptions['numberOfResults'];
+            $limitParameters[':page_size'] = $searchOptions['numberOfResults'];
+
+            $combinedQuery =
+                'SELECT * FROM (( ' .
+                    $baseQuery . $playerJoin_0 . $where_0 .
+                ') UNION (' .
+                    $baseQuery . $playerJoin_1 . $where_1 .
+                ')) AS games ' .
+                'GROUP BY game_id ' . $sort . $limit . ';';
+
+            $statement = self::$conn->prepare($combinedQuery);
+            $statement->execute(array_merge($whereParameters_0, $whereParameters_1, $limitParameters));
+
+            $games = array();
+
+            while ($row = $statement->fetch()) {
+                $gameColors = $this->determine_game_colors(
+                    $currentPlayerId,
+                    $playerColors,
+                    (int)$row['player_id_A'],
+                    (int)$row['player_id_B']
+                );
+
+                $games[] = array(
+                    'gameId' => (int)$row['game_id'],
+                    'playerIdA' => (int)$row['player_id_A'],
+                    'playerNameA' => $row['player_name_A'],
+                    'buttonNameA' => $row['button_name_A'],
+                    'waitingOnA' => ($row['waiting_on_A'] == 1),
+                    'colorA' => $gameColors['playerA'],
+                    'playerIdB' => (int)$row['player_id_B'],
+                    'playerNameB' => $row['player_name_B'],
+                    'buttonNameB' => $row['button_name_B'],
+                    'waitingOnB' => ($row['waiting_on_B'] == 1),
+                    'colorB' => $gameColors['playerB'],
+                    'gameStart' => (int)$row['game_start'],
+                    'lastMove' => (int)$row['last_move'],
+                    'roundsWonA' => (int)$row['rounds_won_A'],
+                    'roundsWonB' => (int)$row['rounds_won_B'],
+                    'roundsDrawn' => (int)$row['rounds_drawn'],
+                    'targetWins' => (int)$row['target_wins'],
+                    'status' => $row['status'],
+                );
+            }
+
+            $combinedQuery =
+                'SELECT ' .
+                    'COUNT(*) AS matches_found, ' .
+                    'MIN(game_start) AS earliest_start, ' .
+                    'MAX(last_move) AS latest_move, ' .
+                    'SUM(rounds_won_A > rounds_won_B) AS games_winning_A, ' .
+                    'SUM(rounds_won_A < rounds_won_B) AS games_winning_B, ' .
+                    'SUM(rounds_won_A = rounds_won_B) AS games_drawn, ' .
+                    'SUM(status = "COMPLETE") AS games_completed ' .
+                'FROM (' .
+                    'SELECT * FROM (( ' .
+                        $baseQuery . $playerJoin_0 . $where_0 .
+                    ') UNION (' .
+                        $baseQuery . $playerJoin_1 . $where_1 .
+                    ')) AS games ' .
+                    'GROUP BY game_id ' .
+                ') AS summary;';
+
+            $statement = self::$conn->prepare($combinedQuery);
+            $statement->execute(array_merge($whereParameters_0, $whereParameters_1));
+
+            $summary = array();
+            $summaryRows = $statement->fetchAll();
+            // If it fails mysteriously, it's probably better to ignore that
+            // and still return the games list than to error out and return
+            // nothing
+            if (count($summaryRows) == 1) {
+                $summary['matchesFound'] = (int)$summaryRows[0]['matches_found'];
+                if ($summaryRows[0]['earliest_start'] == NULL) {
+                    $summary['earliestStart'] = NULL;
+                } else {
+                    $summary['earliestStart'] = (int)$summaryRows[0]['earliest_start'];
+                }
+                if ($summaryRows[0]['latest_move'] == NULL) {
+                    $summary['latestMove'] = NULL;
+                } else {
+                    $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
+                }
+                $summary['gamesWinningA'] = (int)$summaryRows[0]['games_winning_A'];
+                $summary['gamesWinningB'] = (int)$summaryRows[0]['games_winning_B'];
+                $summary['gamesDrawn'] = (int)$summaryRows[0]['games_drawn'];
+                $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
+            } else {
+                $this->message = 'Retrieving summary data for history search failed';
+                error_log(
+                    $this->message .
+                    ' in BMInterface::search_game_history' .
+                    ' -- Full SQL query: ' . $combinedQuery
+                );
+            }
+
+            $this->message = 'Sought games retrieved successfully.';
+            return array('games' => $games, 'summary' => $summary);
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::search_game_history: ' .
+                $e->getMessage() .
+                ' -- Full SQL query: ' . $combinedQuery
+            );
+            $this->message = 'Game search failed.';
+            return NULL;
+        }
+    }
+
     // Get all player games (either active or inactive) from the database
     // No error checking - caller must do it
     protected function get_all_games($playerId, $getActiveGames) {
@@ -1444,6 +1870,29 @@ class BMInterface {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
         }
         return $idNameMapping;
+    }
+
+    protected function get_button_id_from_name($name) {
+        try {
+            $query = 'SELECT id FROM button '.
+                     'WHERE name = :input';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':input' => $name));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Button name does not exist.';
+                return('');
+            } else {
+                $this->message = 'Button ID retrieved successfully.';
+                return((int)$result[0]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_button_id_from_name: " .
+                $e->getMessage()
+            );
+            $this->message = 'Button ID get failed.';
+        }
     }
 
     // Check whether a requested action still needs to be taken.

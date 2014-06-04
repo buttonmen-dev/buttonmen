@@ -120,6 +120,10 @@ class ApiResponder {
         return $retval;
     }
 
+    protected function get_interface_response_searchGameHistory($interface, $args) {
+        return $interface->search_game_history($_SESSION['user_id'], $args);
+    }
+    
     protected function get_interface_response_joinOpenGame($interface, $args) {
         $success = $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
         if ($success && isset($args['buttonName'])) {

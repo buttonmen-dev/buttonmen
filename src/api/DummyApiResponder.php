@@ -110,6 +110,114 @@ class DummyApiResponder {
 
         return array(array('games' => $games), "Open games retrieved successfully.");
     }
+    
+    protected function get_interface_response_searchGameHistory($args) {
+        $games = array();
+
+        if ((!isset($args['status']) || $args['status'] == 'COMPLETE')) {
+            if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester') {
+                // game 5
+                $games[] = array(
+                    'gameId' => 5,
+                    'playerIdA' => 1,
+                    'playerNameA' => 'tester',
+                    'buttonNameA' => 'Avis',
+                    'colorA' => '#cccccc',
+                    'playerIdB' => 2,
+                    'playerNameB' => 'tester2',
+                    'buttonNameB' => 'Avis',
+                    'colorB' => '#dddddd',
+                    'gameStart' => 1399605464,
+                    'lastMove' => 1399691804,
+                    'roundsWonA' => 3,
+                    'roundsWonB' => 2,
+                    'roundsDrawn' => 0,
+                    'targetWins' => 3,
+                    'status' => 'COMPLETE',
+                );
+            } elseif (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
+                // game 5
+                $games[] = array(
+                    'gameId' => 5,
+                    'playerIdA' => 2,
+                    'playerNameA' => 'tester2',
+                    'buttonNameA' => 'Avis',
+                    'colorA' => '#cccccc',
+                    'playerIdB' => 1,
+                    'playerNameB' => 'tester',
+                    'buttonNameB' => 'Avis',
+                    'colorB' => '#dddddd',
+                    'gameStart' => 1399605464,
+                    'lastMove' => 1399691804,
+                    'roundsWonA' => 3,
+                    'roundsWonB' => 2,
+                    'roundsDrawn' => 0,
+                    'targetWins' => 3,
+                    'status' => 'COMPLETE',
+                );
+            }
+        }
+
+        if ((!isset($args['status']) || $args['status'] == 'ACTIVE')) {
+            if (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester') {
+                // game 6
+                $games[] = array(
+                    'gameId' => 6,
+                    'playerIdA' => 1,
+                    'playerNameA' => 'tester',
+                    'buttonNameA' => 'Buck Godot',
+                    'colorA' => '#cccccc',
+                    'playerIdB' => 2,
+                    'playerNameB' => 'tester2',
+                    'buttonNameB' => 'Von Pinn',
+                    'colorB' => '#dddddd',
+                    'gameStart' => 1399605469,
+                    'lastMove' => 1399691809,
+                    'roundsWonA' => 0,
+                    'roundsWonB' => 0,
+                    'roundsDrawn' => 0,
+                    'targetWins' => 3,
+                    'status' => 'ACTIVE',
+                );
+            } elseif (!isset($args['playerNameA']) || $args['playerNameA'] == 'tester2') {
+                // game 5
+                $games[] = array(
+                    'gameId' => 6,
+                    'playerIdA' => 2,
+                    'playerNameA' => 'tester2',
+                    'buttonNameA' => 'Buck Godot',
+                    'colorA' => '#cccccc',
+                    'playerIdB' => 1,
+                    'playerNameB' => 'tester',
+                    'buttonNameB' => 'Von Pinn',
+                    'colorB' => '#dddddd',
+                    'gameStart' => 1399605469,
+                    'lastMove' => 1399691809,
+                    'roundsWonA' => 0,
+                    'roundsWonB' => 0,
+                    'roundsDrawn' => 0,
+                    'targetWins' => 3,
+                    'status' => 'ACTIVE',
+                );
+            }
+        }
+
+        $summary = array();
+        $summary['matchesFound'] = count($games);
+        $summary['earliestStart'] = 1399605464;
+        $summary['latestMove'] = 1399691809;
+        $summary['gamesWinningA'] = count($games);
+        $summary['gamesWinningB'] = 0;
+        $summary['gamesDrawn'] = 0;
+        $summary['gamesCompleted'] = 1;
+
+        $data = array(
+            'games' => $games,
+            'summary' => $summary
+        );
+
+        return array($data, "Search results retrieved successfully.");
+    }
 
     protected function get_interface_response_loadActiveGames() {
         // Use the same fake games here which were described in loadGameData
