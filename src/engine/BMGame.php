@@ -875,7 +875,7 @@ class BMGame {
     }
 
     protected function do_next_step_end_round() {
-        $roundScoreArray = $this->get_roundScoreArray();
+        $roundScoreArray = $this->get__roundScoreArray();
         if (isset($this->forceRoundResult)) {
             $this->isPrevRoundWinnerArray = $this->forceRoundResult;
             $isDraw = FALSE;
@@ -1523,57 +1523,15 @@ class BMGame {
         $this->actionLog = array();
     }
 
-    private function get_roundNumber() {
-        $roundNumber = array_sum($this->gameScoreArrayArray[0]) + 1;
-
-        if (max($this->gameScoreArrayArray[0]['W'], $this->gameScoreArrayArray[0]['L']) >=
-            $this->maxWins) {
-            $roundNumber--;
-        }
-
-        return $roundNumber;
-    }
-
     // After a round has ended, get the number of the round which just ended
-    // This is simpler than the logic in get_roundNumber(), because
+    // This is simpler than the logic in get__roundNumber(), because
     // the behavior is the same in both the endgame and during-game cases
     private function get_prevRoundNumber() {
         return array_sum($this->gameScoreArrayArray[0]);
     }
 
-    private function get_roundScoreArray() {
-        if ($this->gameState <= BMGameState::SPECIFY_DICE) {
-            return array_fill(0, $this->nPlayers, NULL);
-        }
-
-        $roundScoreX10Array = array_fill(0, $this->nPlayers, 0);
-        $roundScoreArray = array_fill(0, $this->nPlayers, 0);
-
-        foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            $activeDieScoreX10 = 0;
-            foreach ($activeDieArray as $activeDie) {
-                $activeDieScoreX10 += $activeDie->get_scoreValueTimesTen();
-            }
-            $roundScoreX10Array[$playerIdx] = $activeDieScoreX10;
-        }
-
-        foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-            $capturedDieScoreX10 = 0;
-            foreach ($capturedDieArray as $capturedDie) {
-                $capturedDieScoreX10 += $capturedDie->get_scoreValueTimesTen();
-            }
-            $roundScoreX10Array[$playerIdx] += $capturedDieScoreX10;
-        }
-
-        foreach ($roundScoreX10Array as $playerIdx => $roundScoreX10) {
-            $roundScoreArray[$playerIdx] = $roundScoreX10/10;
-        }
-
-        return $roundScoreArray;
-    }
-
     private function get_sideScoreArray() {
-        $roundScoreArray = $this->get_roundScoreArray();
+        $roundScoreArray = $this->get__roundScoreArray();
 
         if (2 != count($roundScoreArray) ||
             is_null($roundScoreArray[0]) ||
@@ -1624,61 +1582,111 @@ class BMGame {
     // to allow array elements to be set directly, change the __get to &__get
     // to return the result by reference
     public function __get($property) {
-        if (property_exists($this, $property)) {
-            switch ($property) {
-                case 'attackerPlayerIdx':
-                    if (!isset($this->attack)) {
-                        return NULL;
-                    }
-                    return $this->attack['attackerPlayerIdx'];
-                case 'defenderPlayerIdx':
-                    if (!isset($this->attack)) {
-                        return NULL;
-                    }
-                    return $this->attack['defenderPlayerIdx'];
-                case 'attackerAllDieArray':
-                    if (!isset($this->attack) ||
-                        !isset($this->activeDieArrayArray)) {
-                        return NULL;
-                    }
-                    return $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']];
-                case 'defenderAllDieArray':
-                    if (!isset($this->attack) ||
-                        !isset($this->activeDieArrayArray)) {
-                        return NULL;
-                    }
-                    return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];
-                case 'attackerAttackDieArray':
-                    if (!isset($this->attack) ||
-                        !isset($this->activeDieArrayArray)) {
-                        return NULL;
-                    }
-                    $attAttackDieArray = array();
-                    foreach ($this->attack['attackerAttackDieIdxArray'] as $attAttackDieIdx) {
-                        $attAttackDieArray[] =
-                            $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                                      [$attAttackDieIdx];
-                    }
-                    return $attAttackDieArray;
-                case 'defenderAttackDieArray':
-                    if (!isset($this->attack)) {
-                        return NULL;
-                    }
-                    $defAttackDieArray = array();
-                    foreach ($this->attack['defenderAttackDieIdxArray'] as $defAttackDieIdx) {
-                        $defAttackDieArray[] =
-                            $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
-                                                      [$defAttackDieIdx];
-                    }
-                    return $defAttackDieArray;
-                case 'roundNumber':
-                    return $this->get_roundNumber();
-                case 'roundScoreArray':
-                    return $this->get_roundScoreArray();
-                default:
-                    return $this->$property;
-            }
+        $funcName = 'get__'.$property;
+        if (method_exists($this, $funcName)) {
+            return $this->$funcName();
+        } elseif (property_exists($this, $property)) {
+            return $this->$property;
         }
+    }
+
+    protected function get__attackerPlayerIdx() {
+        if (!isset($this->attack)) {
+            return NULL;
+        }
+        return $this->attack['attackerPlayerIdx'];
+    }
+
+    protected function get__defenderPlayerIdx() {
+        if (!isset($this->attack)) {
+            return NULL;
+        }
+        return $this->attack['defenderPlayerIdx'];
+    }
+
+    protected function get__attackerAllDieArray() {
+        if (!isset($this->attack) ||
+            !isset($this->activeDieArrayArray)) {
+            return NULL;
+        }
+        return $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']];
+    }
+
+    protected function get__defenderAllDieArray() {
+        if (!isset($this->attack) ||
+            !isset($this->activeDieArrayArray)) {
+            return NULL;
+        }
+        return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];
+    }
+
+    protected function get__attackerAttackDieArray() {
+        if (!isset($this->attack) ||
+            !isset($this->activeDieArrayArray)) {
+            return NULL;
+        }
+        $attAttackDieArray = array();
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attAttackDieIdx) {
+            $attAttackDieArray[] =
+                $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                          [$attAttackDieIdx];
+        }
+        return $attAttackDieArray;
+    }
+
+    protected function get__defenderAttackDieArray() {
+        if (!isset($this->attack)) {
+            return NULL;
+        }
+        $defAttackDieArray = array();
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defAttackDieIdx) {
+            $defAttackDieArray[] =
+                $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                          [$defAttackDieIdx];
+        }
+        return $defAttackDieArray;
+    }
+
+    protected function get__roundNumber() {
+        $roundNumber = array_sum($this->gameScoreArrayArray[0]) + 1;
+
+        if (max($this->gameScoreArrayArray[0]['W'], $this->gameScoreArrayArray[0]['L']) >=
+            $this->maxWins) {
+            $roundNumber--;
+        }
+
+        return $roundNumber;
+    }
+
+    private function get__roundScoreArray() {
+        if ($this->gameState <= BMGameState::SPECIFY_DICE) {
+            return array_fill(0, $this->nPlayers, NULL);
+        }
+
+        $roundScoreX10Array = array_fill(0, $this->nPlayers, 0);
+        $roundScoreArray = array_fill(0, $this->nPlayers, 0);
+
+        foreach ((array)$this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            $activeDieScoreX10 = 0;
+            foreach ($activeDieArray as $activeDie) {
+                $activeDieScoreX10 += $activeDie->get_scoreValueTimesTen();
+            }
+            $roundScoreX10Array[$playerIdx] = $activeDieScoreX10;
+        }
+
+        foreach ((array)$this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
+            $capturedDieScoreX10 = 0;
+            foreach ($capturedDieArray as $capturedDie) {
+                $capturedDieScoreX10 += $capturedDie->get_scoreValueTimesTen();
+            }
+            $roundScoreX10Array[$playerIdx] += $capturedDieScoreX10;
+        }
+
+        foreach ($roundScoreX10Array as $playerIdx => $roundScoreX10) {
+            $roundScoreArray[$playerIdx] = $roundScoreX10/10;
+        }
+
+        return $roundScoreArray;
     }
 
     public function __set($property, $value) {
@@ -2291,7 +2299,7 @@ class BMGame {
         $dataArray =
             array('gameId'                   => $this->gameId,
                   'gameState'                => BMGameState::as_string($this->gameState),
-                  'roundNumber'              => $this->get_roundNumber(),
+                  'roundNumber'              => $this->get__roundNumber(),
                   'maxWins'                  => $this->maxWins,
                   'activePlayerIdx'          => $this->activePlayerIdx,
                   'playerWithInitiativeIdx'  => $this->playerWithInitiativeIdx,
@@ -2316,7 +2324,7 @@ class BMGame {
                   'prevSwingValueArrayArray'     => $prevSwingValueArrayArray,
                   'prevOptValueArrayArray'       => $prevOptValueArrayArray,
                   'validAttackTypeArray'     => $validAttackTypeArray,
-                  'roundScoreArray'          => $this->get_roundScoreArray(),
+                  'roundScoreArray'          => $this->get__roundScoreArray(),
                   'sideScoreArray'           => $this->get_sideScoreArray(),
                   'gameScoreArrayArray'      => $this->gameScoreArrayArray,
                   'lastActionTimeArray'      => $this->lastActionTimeArray);
