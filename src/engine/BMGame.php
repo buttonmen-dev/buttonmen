@@ -1160,10 +1160,10 @@ class BMGame {
             foreach ($dieIdxArray as $listIdx => $dieIdx) {
                 $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
 
-                $possChanceAction = 
+                $possChanceAction =
                     $this->possibleChanceAction($die, $dieValueArray, $dieIdxArray);
                 $possFocusAction =
-                    $this->possibleFocusAction ($die, $dieValueArray, $dieIdxArray, $listIdx);
+                    $this->possibleFocusAction($die, $dieValueArray, $dieIdxArray, $listIdx);
 
                 if ($possChanceAction || $possFocusAction) {
                     return FALSE;
