@@ -89,6 +89,21 @@ class BMDieTwin extends BMDie {
             throw new InvalidArgumentException('isValueRequired must be boolean');
         }
 
+        $skillStr = $this->skillStr();
+        $typeStr = $this->typeStr();
+        $sideStr = $this->sideStr();
+
+        $valueStr = '';
+        if ($isValueRequired && isset($this->value)) {
+            $valueStr = " showing {$this->value}";
+        }
+
+        $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
+
+        return $result;
+    }
+
+    protected function skillStr() {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
@@ -98,6 +113,10 @@ class BMDieTwin extends BMDie {
             }
         }
 
+        return $skillStr;
+    }
+
+    protected function moodStr() {
         $moodStr = '';
         if ($this->has_skill('Mad')) {
             $moodStr = ' Mad';
@@ -105,14 +124,22 @@ class BMDieTwin extends BMDie {
             $moodStr = ' Mood';
         }
 
+        return $moodStr;
+    }
+
+    protected function typeStr() {
         $typeStr = '';
         if ($this->dice[0] instanceof BMDieSwing &&
             $this->dice[1] instanceof BMDieSwing) {
-            $typeStr = "Twin {$this->dice[0]->swingType}{$moodStr} Swing Die";
+            $typeStr = "Twin {$this->dice[0]->swingType}{$this->moodStr()} Swing Die";
         } else {
             $typeStr = 'Twin Die';
         }
 
+        return $typeStr;
+    }
+
+    protected function sideStr() {
         $sideStr = '';
         if (isset($this->dice[0]->max)) {
             if ($this->dice[0]->max == $this->dice[1]->max) {
@@ -126,14 +153,7 @@ class BMDieTwin extends BMDie {
             }
         }
 
-        $valueStr = '';
-        if ($isValueRequired && isset($this->value)) {
-            $valueStr = " showing {$this->value}";
-        }
-
-        $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
-
-        return $result;
+        return $sideStr;
     }
 
     public function split() {

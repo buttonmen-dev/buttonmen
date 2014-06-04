@@ -1690,7 +1690,7 @@ class BMGame {
         }
     }
 
-    protected function set__nPlayers($value) {
+    protected function set__nPlayers() {
         throw new LogicException(
             'nPlayers is derived from BMGame->playerIdArray'
         );
@@ -1909,13 +1909,13 @@ class BMGame {
                               'attackType' => $value[4]);
     }
 
-    protected function set__attackerAttackDieArray($value) {
+    protected function set__attackerAttackDieArray() {
         throw new LogicException(
             'BMGame->attackerAttackDieArray is derived from BMGame->attack.'
         );
     }
 
-    protected function set__defenderAttackDieArray($value) {
+    protected function set__defenderAttackDieArray() {
         throw new LogicException(
             'BMGame->defenderAttackDieArray is derived from BMGame->attack.'
         );
@@ -1959,13 +1959,13 @@ class BMGame {
         $this->capturedDieArrayArray = $value;
     }
 
-    protected function set__roundNumber($value) {
+    protected function set__roundNumber() {
         throw new LogicException(
             'BMGame->roundNumber is derived automatically from BMGame.'
         );
     }
 
-    protected function set__roundScoreArray($value) {
+    protected function set__roundScoreArray() {
         throw new LogicException(
             'BMGame->roundScoreArray is derived automatically from BMGame.'
         );
