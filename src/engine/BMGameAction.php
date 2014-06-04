@@ -113,13 +113,35 @@ class BMGameAction {
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
             $preAttackDefenders[] = $defenderInfo['recipeStatus'];
         }
+        $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders);
+
+        $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
+        $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
+
+        if ($defenderRerollsEarly) {
+            $message .= $messageAttacker.$messageDefender;
+        } else {
+            $message .= $messageDefender.$messageAttacker;
+        }
+
+        return $message;
+    }
+
+    protected function preAttackMessage($preAttackAttackers, $preAttackDefenders) {
+        $message = '';
+
         if (count($preAttackAttackers) > 0) {
             $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
         }
+        
         if (count($preAttackDefenders) > 0) {
             $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
         }
+        
+        return $message;
+    }
 
+    protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
         $messageDefender = '';
         // Report what happened to each defending die
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
@@ -145,6 +167,10 @@ class BMGameAction {
             $messageDefender .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
 
+        return $messageDefender;
+    }
+
+    protected function messageAttacker($preAttackDice, $postAttackDice) {
         $messageAttacker = '';
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
@@ -167,13 +193,7 @@ class BMGameAction {
             }
         }
 
-        if ($defenderRerollsEarly) {
-            $message .= $messageAttacker.$messageDefender;
-        } else {
-            $message .= $messageDefender.$messageAttacker;
-        }
-
-        return $message;
+        return $messageAttacker;
     }
 
     protected function friendly_message_choose_die_values() {
