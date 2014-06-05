@@ -133,9 +133,9 @@ class ApiSpec {
             ),
             'permitted' => array(
                 'gameId' => 'number',
-                'playerNameA' => 'string',
+                'playerNameA' => 'alnum',
                 'buttonNameA' => 'button',
-                'playerNameB' => 'string',
+                'playerNameB' => 'alnum',
                 'buttonNameB' => 'button',
                 'gameStartMin' => 'number',
                 'gameStartMax' => 'number',

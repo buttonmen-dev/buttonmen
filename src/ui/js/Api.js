@@ -749,7 +749,7 @@ var Api = (function () {
 
     my.apiParsePost(
       searchParameters,
-      'search_results',
+      'game_history',
       my.parseSearchResults,
 
       callbackfunc,
@@ -758,8 +758,8 @@ var Api = (function () {
   };
 
   my.parseSearchResults = function(data) {
-    my.search_results.games = data.games;
-    my.search_results.summary = data.summary;
+    my.game_history.games = data.games;
+    my.game_history.summary = data.summary;
 
     return true;
   };

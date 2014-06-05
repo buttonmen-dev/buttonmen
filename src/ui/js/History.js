@@ -100,7 +100,7 @@ History.searchParameterInfo = {
 // * History.getFilters() gets data from the API to populate the filters
 //   with. It sets Api.player and Api.button, then calls History.getHistory()
 // * History.getHistory() calls the API, passing it the History.searchParameters
-//   collection and causing Api.search_results to be set. It then calls
+//   collection and causing Api.game_history to be set. It then calls
 //   History.showPage()
 // * History.showPage() uses the data returned by the API to build the contents
 //   of the page as History.page and calls History.layoutPage()
@@ -181,53 +181,51 @@ History.getHistory = function(callback) {
     };
     History.page = $('<div>');
     History.layoutPage();
-    return;
-  }
-
-  // Validate the search parameters that are supposed to be derived from set
-  // lists of values (like player names).
-  var validationError = '';
-  $.each(History.searchParameterInfo, function(name, info) {
-    if (History.searchParameters[name] !== undefined &&
-      info.source !== undefined) {
-      if (info.source[History.searchParameters[name]] === undefined) {
-        validationError += name + ' is not recognized. ';
+  } else {
+    // Validate the search parameters that are supposed to be derived from set
+    // lists of values (like player names).
+    var validationError = '';
+    $.each(History.searchParameterInfo, function(name, info) {
+      if (History.searchParameters[name] !== undefined &&
+        info.source !== undefined) {
+        if (info.source[History.searchParameters[name]] === undefined) {
+          validationError += name + ' is not recognized. ';
+        }
       }
-    }
-  });
+    });
 
-  if (validationError) {
-    Env.message = {
-      'type': 'error',
-      'text': validationError,
-    };
-    History.page = $('<div>');
-    History.layoutPage();
-    return;
+    if (validationError) {
+      Env.message = {
+        'type': 'error',
+        'text': validationError,
+      };
+      History.page = $('<div>');
+      History.layoutPage();
+      return;
+    }
+
+    $('#searchButton').attr('disabled', 'disabled');
+
+    // For the required fields, set the default values
+    $.each(History.searchParameterInfo, function(name, info) {
+      if (info.defaultValue !== undefined &&
+        History.searchParameters[name] === undefined) {
+        History.searchParameters[name] = info.defaultValue;
+      }
+    });
+
+    Api.searchGameHistory(
+      History.searchParameters,
+      callback
+    );
   }
-
-
-  $('#searchButton').attr('disabled', 'disabled');
-
-  // For the required fields, set the default values
-  $.each(History.searchParameterInfo, function(name, info) {
-    if (info.defaultValue !== undefined &&
-      History.searchParameters[name] === undefined) {
-      History.searchParameters[name] = info.defaultValue;
-    }
-  });
-
-  Api.searchGameHistory(
-    History.searchParameters,
-    callback
-  );
 };
 
 History.showPage = function() {
   History.page = $('<div>');
 
-  if (Api.search_results !== undefined &&
-    Api.search_results.load_status != 'ok') {
+  if (Api.game_history !== undefined &&
+    Api.game_history.load_status != 'ok') {
     // An error has occurred, and we've presumably already registered the
     // error message, so we should just display it.
     History.layoutPage();
@@ -244,7 +242,7 @@ History.showPage = function() {
   // Display the column headers and search filters
   resultsTable.append(History.buildResultsTableHeader());
 
-  if (Api.search_results !== undefined) {
+  if (Api.game_history !== undefined) {
     // List the games that were returned
     resultsTable.append(History.buildResultsTableBody());
     // Show summary data
@@ -382,7 +380,9 @@ History.writeSearchParametersToUrl = function() {
         parameterHash += name + 'Max' + '=' + encodeURIComponent(value) + '&';
       }
     } else {
-      if (History.searchParameters[name] !== undefined) {
+      if (History.searchParameters[name] !== undefined &&
+        History.searchParameters[name] !=
+          History.searchParameterInfo[name].defaultValue) {
         value = History.searchParameters[name];
         parameterHash += name + '=' + encodeURIComponent(value) + '&';
       }
@@ -597,12 +597,12 @@ History.buildResultsTableHeader = function() {
 History.buildResultsTableBody = function() {
   var body = $('<tbody>');
 
-  if (Api.search_results === undefined ||
-    Api.search_results.games === undefined)  {
+  if (Api.game_history === undefined ||
+    Api.game_history.games === undefined)  {
     return body;
   }
 
-  $.each(Api.search_results.games, function(index, game) {
+  $.each(Api.game_history.games, function(index, game) {
     var gameRow = $('<tr>');
     body.append(gameRow);
 
@@ -699,8 +699,8 @@ History.buildResultsTableBody = function() {
 History.buildResultsTableFooter = function() {
   var foot = $('<tfoot>');
 
-  if (Api.search_results === undefined ||
-    Api.search_results.summary === undefined)  {
+  if (Api.game_history === undefined ||
+    Api.game_history.summary === undefined)  {
     return foot;
   }
 
@@ -722,7 +722,7 @@ History.buildResultsTableFooter = function() {
   var footerDataRow = $('<tr>');
   foot.append(footerDataRow);
 
-  var summary = Api.search_results.summary;
+  var summary = Api.game_history.summary;
 
   footerDataRow.append($('<td>', { 'text': summary.matchesFound }));
 
