@@ -18,7 +18,7 @@ module("History", {
     delete Env.window.location.search;
     delete Env.window.location.hash;
     delete Env.history.state;
-    delete Api.search_results;
+    delete Api.game_history;
     delete Api.player;
     delete Api.button;
     delete History.searchParameters;
@@ -76,8 +76,8 @@ asyncTest("test_History.getHistory", function() {
   History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
 
   History.getHistory(function() {
-    ok(Api.search_results.games, "games list is parsed from server");
-    ok(Api.search_results.summary, "summary data is parsed from server");
+    ok(Api.game_history.games, "games list is parsed from server");
+    ok(Api.game_history.summary, "summary data is parsed from server");
     start();
   });
 });
@@ -141,8 +141,8 @@ test("test_History.performManualSearch", function() {
   $.ajaxSetup({ async: false });
   History.page = $('<div>');
   History.performManualSearch();
-  ok(Api.search_results.games, "games list is parsed from server");
-  ok(Api.search_results.summary, "summary data is parsed from server");
+  ok(Api.game_history.games, "games list is parsed from server");
+  ok(Api.game_history.summary, "summary data is parsed from server");
   $.ajaxSetup({ async: true });
 });
 
@@ -153,8 +153,8 @@ test("test_History.performAutomaticSearch", function() {
   History.page = $('<div>');
   Env.history.pushState({ }, null, '#!hash');
   History.performAutomaticSearch();
-  ok(Api.search_results.games, "games list is parsed from server");
-  ok(Api.search_results.summary, "summary data is parsed from server");
+  ok(Api.game_history.games, "games list is parsed from server");
+  ok(Api.game_history.summary, "summary data is parsed from server");
   $.ajaxSetup({ async: true });
 });
 

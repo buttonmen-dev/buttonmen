@@ -12,7 +12,7 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
-    delete Api.search_results;
+    delete Api.game_history;
     delete Api.siteConfig;
     delete Api.open_games;
     delete Api.join_game_result;
@@ -353,7 +353,7 @@ asyncTest("test_Api.searchGameHistory", function() {
 
   Api.searchGameHistory(searchParameters,
     function() {
-      equal(Api.search_results.load_status, 'ok',
+      equal(Api.game_history.load_status, 'ok',
         'Successfully performed search');
     start();
   });
@@ -413,7 +413,7 @@ asyncTest("test_Api.parseSearchResults_games", function() {
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    equal(Api.search_results.games.length, 1,
+    equal(Api.game_history.games.length, 1,
       "Successfully parsed search results games list");
     start();
   });
@@ -429,7 +429,7 @@ asyncTest("test_Api.parseSearchResults_summary", function() {
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    equal(Api.search_results.summary.matchesFound, 2,
+    equal(Api.game_history.summary.matchesFound, 2,
       "Successfully parsed search results summary data");
     start();
   });
