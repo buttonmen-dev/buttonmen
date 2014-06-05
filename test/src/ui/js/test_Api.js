@@ -12,6 +12,10 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.game_history;
+    delete Api.siteConfig;
+    delete Api.open_games;
+    delete Api.join_game_result;
     delete Api.active_players;
     delete Api.profile_info;
     BMTestUtils.deleteEnvMessage();
@@ -301,6 +305,15 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
   });
 });
 
+asyncTest("test_Api.getOpenGamesData", function() {
+  Api.getOpenGamesData(
+    function() {
+      equal(Api.open_games.load_status, 'ok',
+        'Successfully retrieved open games');
+      start();
+    });
+});
+
 asyncTest("test_Api.getActivePlayers", function() {
   Api.getActivePlayers(20,
     function() {
@@ -328,6 +341,57 @@ asyncTest("test_Api.loadProfileInfo", function() {
     });
 });
 
+asyncTest("test_Api.searchGameHistory", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters,
+    function() {
+      equal(Api.game_history.load_status, 'ok',
+        'Successfully performed search');
+    start();
+  });
+});
+
+asyncTest("test_Api.parseOpenGames", function() {
+  Api.getOpenGamesData(function() {
+    ok(Api.open_games.games.length > 0, "Successfully parsed open games");
+    start();
+  });
+});
+
+asyncTest("test_Api.joinOpenGame", function() {
+  Api.joinOpenGame(21, 'Avis',
+    function() {
+      equal(Api.join_game_result.load_status, 'ok',
+        'Successfully retrieved open games');
+      start();
+    },
+    function() {
+      ok(false, 'Retrieving game data should succeed');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseJoinGameResult", function() {
+  Api.joinOpenGame(21, 'Avis',
+    function() {
+      equal(Api.join_game_result.success, true,
+        "Successfully parsed join game result");
+      start();
+    },
+    function() {
+      ok(false, 'Retrieving game data should succeed');
+      start();
+    });
+});
+
 asyncTest("test_Api.parseNextGameId", function() {
   Api.loadProfileInfo('tester',
     function() {
@@ -335,4 +399,38 @@ asyncTest("test_Api.parseNextGameId", function() {
         "Successfully parsed profile info");
       start();
     });
+});
+
+
+asyncTest("test_Api.parseSearchResults_games", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.game_history.games.length, 1,
+      "Successfully parsed search results games list");
+    start();
+  });
+});
+
+asyncTest("test_Api.parseSearchResults_summary", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester2',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.game_history.summary.matchesFound, 2,
+      "Successfully parsed search results summary data");
+    start();
+  });
 });

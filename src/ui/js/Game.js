@@ -175,6 +175,11 @@ Game.showStatePage = function() {
       }
     } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
+    } else if (Api.game.gameState == Game.GAME_STATE_START_GAME) {
+      Game.page =
+        $('<p>', {'text': 'The game hasn\'t started yet.', });
+      Game.form = null;
+      Game.layoutPage();
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
@@ -1758,11 +1763,12 @@ Game.buttonImageDisplay = function(player) {
   } else {
     buttonTd.append($('<img>', {
       'src':
-        '/ui/images/button/' +
+        Env.ui_root + 'images/button/' +
         Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
         '.png',
       'width': '150px',
-      'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
+      'onerror':
+        'this.src="' + Env.ui_root + 'images/button/BMdefaultRound.png"',
     }));
   }
   if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {

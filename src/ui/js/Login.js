@@ -164,8 +164,10 @@ Login.addMainNavbar = function() {
   var links = {
     'Overview': 'index.html',
     'Create game': 'create_game.html',
+    'Open games': 'open_games.html',
     'Preferences': 'prefs.html',
     'Profile': 'profile.html?player=' + encodeURIComponent(Login.player),
+    'History': 'history.html',
     'Who\'s online': 'active_players.html',
     'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
   };
@@ -199,7 +201,7 @@ Login.postToResponder = function(responder_args) {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
       if (responder_args.type == 'logout') {
-        Env.window.location.href = '/ui';
+        Env.window.location.href = Env.ui_root;
       } else {
         Login.showLoginHeader(Login.callback);
       }

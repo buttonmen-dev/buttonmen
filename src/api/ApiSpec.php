@@ -23,11 +23,13 @@ class ApiSpec {
         'createGame' => array(
             'mandatory' => array(
                 'playerInfoArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => TRUE,
                     'minlength' => 2,
                     'maxlength' => 2,
                     'key_type' => 'number',
-                    'elem_type' => array('has_keys' => TRUE,
+                    'elem_type' => array('arg_type' => 'array',
+                                         'has_keys' => TRUE,
                                          'minlength' => 0,
                                          'maxlength' => 2,
                                          'key_type' => 'number',
@@ -36,6 +38,14 @@ class ApiSpec {
                 'maxWins' => 'number',
             ),
             'permitted' => array(),
+        ),
+        'joinOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(
+                'buttonName' => 'button',
+            ),
         ),
         'loadActiveGames' => array(
             'mandatory' => array(),
@@ -46,6 +56,49 @@ class ApiSpec {
                 'numberOfPlayers' => 'number',
             ),
             'permitted' => array(),
+        ),
+        'searchGameHistory' => array(
+            'mandatory' => array(
+                'sortColumn' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array(
+                        'gameId',
+                        'playerNameA',
+                        'buttonNameA',
+                        'playerNameB',
+                        'buttonNameB',
+                        'gameStart',
+                        'lastMove',
+                        'winningPlayer',
+                        'status',
+                    ),
+                ),
+                'sortDirection' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('ASC', 'DESC'),
+                ),
+                'numberOfResults' => 'number',
+                'page' => 'number'
+            ),
+            'permitted' => array(
+                'gameId' => 'number',
+                'playerNameA' => 'alnum',
+                'buttonNameA' => 'button',
+                'playerNameB' => 'alnum',
+                'buttonNameB' => 'button',
+                'gameStartMin' => 'number',
+                'gameStartMax' => 'number',
+                'lastMoveMin' => 'number',
+                'lastMoveMax' => 'number',
+                'winningPlayer' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('A', 'B', 'Tie'),
+                ),
+                'status' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('ACTIVE', 'COMPLETE'),
+                ),
+            ),
         ),
         'loadButtonNames' => array(
             'mandatory' => array(),
@@ -68,6 +121,10 @@ class ApiSpec {
             'permitted' => array(
               'currentGameId' => 'number',
             ),
+        ),
+        'loadOpenGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
         ),
         'loadPlayerInfo' => array(
             'mandatory' => array(),
@@ -116,10 +173,12 @@ class ApiSpec {
             ),
             'permitted' => array(
                 'dieIdxArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => FALSE,
                     'elem_type' => 'number',
                 ),
                 'dieValueArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => FALSE,
                     'elem_type' => 'alnum',
                 ),
@@ -156,12 +215,14 @@ class ApiSpec {
             ),
             'permitted' => array(
                 'optionValueArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => TRUE,
                     'minlength' => 1,
                     'key_type' => 'number',
                     'elem_type' => 'number',
                 ),
                 'swingValueArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => TRUE,
                     'minlength' => 1,
                     'key_type' => 'alnum',
@@ -184,6 +245,7 @@ class ApiSpec {
                 'roundNumber' => 'number',
                 'timestamp' => 'number',
                 'dieSelectStatus' => array(
+                    'arg_type' => 'array',
                     'has_keys' => TRUE,
                     'key_type' => 'alnum',
                     'elem_type' => 'boolean',
@@ -256,7 +318,13 @@ class ApiSpec {
     // landing function for verifying that an argument is of the correct type
     protected function verify_argument_type($arg, $argtype) {
         if (is_array($argtype)) {
-            return $this->verify_argument_array_type($arg, $argtype);
+            switch ($argtype['arg_type']) {
+                case 'exactString':
+                    return $this->verify_argument_exact_string_type($arg, $argtype['values']);
+                case 'array':
+                default:
+                    return $this->verify_argument_array_type($arg, $argtype);
+            }
         } else {
             $checkfunc = 'verify_argument_of_type_' . $argtype;
 
@@ -300,6 +368,11 @@ class ApiSpec {
             return TRUE;
         }
         return FALSE;
+    }
+
+    // verify that the argument is one of the exact strings permitted
+    protected function verify_argument_exact_string_type($arg, $values) {
+        return (is_string($arg) && in_array($arg, $values));
     }
 
     // verify that the argument is an alphanumeric string (allow underscores)

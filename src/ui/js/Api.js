@@ -369,7 +369,7 @@ var Api = (function () {
     }
 
     // Parse some top-level items from gameData
-    my.game.gameId =  my.game.gameData.data.gameId;
+    my.game.gameId = my.game.gameData.data.gameId;
     my.game.roundNumber = my.game.gameData.data.roundNumber;
     my.game.maxWins = my.game.gameData.data.maxWins;
     my.game.gameState = my.game.gameData.data.gameState;
@@ -519,6 +519,43 @@ var Api = (function () {
     return true;
   };
 
+  my.getOpenGamesData = function(callbackfunc) {
+    my.apiParsePost( { 'type': 'loadOpenGames', },
+      'open_games',
+      my.parseOpenGames,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseOpenGames = function(data) {
+    my.open_games.games = data.games;
+    return true;
+  };
+
+  my.joinOpenGame = function(gameId, buttonName, callback, failCallback) {
+    var parameters = {
+      'type': 'joinOpenGame',
+      'gameId': gameId,
+    };
+    if (buttonName !== undefined && buttonName !== null) {
+      parameters.buttonName = buttonName;
+    }
+
+    my.apiParsePost(
+      parameters,
+      'join_game_result',
+      my.parseJoinGameResult,
+      callback,
+      failCallback
+    );
+  };
+
+  my.parseJoinGameResult = function(data) {
+    my.join_game_result.success = data;
+    return true;
+  };
+
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the list of recently-active players
 
@@ -560,6 +597,29 @@ var Api = (function () {
     $.each(data.profile_info, function(key, value) {
       my.profile_info[key] = value;
     });
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Search historic games and parse the result
+
+  my.searchGameHistory = function(searchParameters, callbackfunc) {
+    searchParameters.type = 'searchGameHistory';
+
+    my.apiParsePost(
+      searchParameters,
+      'game_history',
+      my.parseSearchResults,
+
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseSearchResults = function(data) {
+    my.game_history.games = data.games;
+    my.game_history.summary = data.summary;
+
     return true;
   };
 
