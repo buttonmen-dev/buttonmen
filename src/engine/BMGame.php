@@ -1210,11 +1210,13 @@ class BMGame {
             return FALSE;
         }
 
+        $playerIdx = $args['playerIdx'];
+
         // change specified die values
         $oldDieValueArray = array();
         $preTurndownData = array();
         $postTurndownData = array();
-        foreach ($focusValueArray as $dieIdx => $newDieValue) {
+        foreach ($args['focusValueArray'] as $dieIdx => $newDieValue) {
             $preTurndownData[] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->get_action_log_data();
             $oldDieValueArray[$dieIdx] = $this->activeDieArrayArray[$playerIdx][$dieIdx]->value;
             $this->activeDieArrayArray[$playerIdx][$dieIdx]->value = $newDieValue;
@@ -1808,7 +1810,7 @@ class BMGame {
 
     protected function set__buttonArray($value) {
         $this->validateButtonArray($value);
-        
+
         $this->buttonArray = $value;
         foreach ($this->buttonArray as $playerIdx => $button) {
             if ($button instanceof BMButton) {
