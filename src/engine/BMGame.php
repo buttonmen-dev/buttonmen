@@ -2230,16 +2230,6 @@ class BMGame {
         $swingValsSpecified = TRUE;
 
         if (isset($this->activeDieArrayArray)) {
-            foreach ($this->activeDieArrayArray as $activeDieArray) {
-                foreach ($activeDieArray as $die) {
-                    // hide swing information if appropriate
-                    if (is_null($die->max)) {
-                        $swingValsSpecified = FALSE;
-                        break 2;
-                    }
-                }
-            }
-
             $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
