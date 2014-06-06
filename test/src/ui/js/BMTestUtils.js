@@ -36,6 +36,7 @@ BMTestUtils.getAllElements = function() {
     'Config':         JSON.stringify(Config, null, "  "),
     'Env':            JSON.stringify(Env, null, "  "),
     'Game':           JSON.stringify(Game, null, "  "),
+    'History':        JSON.stringify(History, null, "  "),
     'Loader':         JSON.stringify(Loader, null, "  "),
     'Login':          JSON.stringify(Login, null, "  "),
     'Newgame':        JSON.stringify(Newgame, null, "  "),
@@ -76,7 +77,7 @@ BMTestUtils.cleanupFakeLogin = function() {
   Login.logged_in = BMTestUtils.OverviewOldLoginLoggedin;
 }
 
-// We don't currently test reading the URL bar contents, because
+// We don't currently usually test reading the URL bar contents, because
 // that's hard to do within QUnit, but rather override those contents
 // with hardcoded values that we want to test.
 //

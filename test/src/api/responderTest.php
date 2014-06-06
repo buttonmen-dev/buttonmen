@@ -296,6 +296,40 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy game creation return values should have matching structures");
     }
 
+    public function test_request_searchGameHistory() {
+        $this->verify_login_required('searchGameHistory');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('searchGameHistory');
+
+        // make sure there's at least one game
+        $args = array(
+            'type' => 'createGame',
+            'playerNameArray' => array('responder003', 'responder004'),
+            'buttonNameArray' => array('Hammer', 'Stark'),
+            'maxWins' => '3',
+        );
+        $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+            'buttonNameA' => 'Avis');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], 'Loading games should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy game lists should have matching structures");
+    }
+
     public function test_request_joinOpenGame() {
         $this->verify_login_required('joinOpenGame');
 

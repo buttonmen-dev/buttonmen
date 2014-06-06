@@ -101,6 +101,43 @@ Profile.buildProfileTable = function() {
   var record = Api.profile_info.n_games_won + ' W / ' +
     Api.profile_info.n_games_lost + ' L';
 
+  var solipsismAlternatives = [
+    'solipsism overflow',
+    'autoludic prohibition',
+    'cloning tanks offline',
+    'tu ipse es',
+    'can\'t. shan\'t. won\'t.',
+    'on your own? no',
+    'it\'d never work out',
+    'solitaire unavailable',
+    'try another castle',
+    'expand your search',
+    'you and your shadow?',
+    'mirror match = mistake',
+    'two\'s company; one\'s not',
+    'other people exist!',
+    'you know you too well',
+    'isn\'t that cheating?',
+    'you\'d probably lose',
+    'you\'d obviously win',
+    'it\'d just be a draw',
+    'let others play you',
+    'the loneliest number',
+    'are you twins?',
+    'one hand clapping',
+    '1 + 0 != 2',
+    'not yourself, silly',
+    'I\'m sorry, Dave...',
+    'ceci n\'est pas une erreur',
+    'the site doesn\'t like that',
+    'would summon Cthulhu',
+    'spatio-temporal paradox',
+    'bilocate much?',
+    'looking out for #1?'
+  ];
+  var solipsindex = Math.floor(Math.random() * solipsismAlternatives.length);
+  var solipsismNotification = solipsismAlternatives[solipsindex];
+
   tbody.append(Profile.buildProfileTableRow('Real name',
     Api.profile_info.name_irl, 'unknown', true));
   tbody.append(Profile.buildProfileTableRow('Record', record, 'none', true));
@@ -116,7 +153,7 @@ Profile.buildProfileTable = function() {
     true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
-    challengeLink, 'solipsism overflow', true));
+    challengeLink, solipsismNotification, true));
   tbody.append(Profile.buildProfileTableRow('Comment',
     Api.profile_info.comment, 'none', false));
 

@@ -417,9 +417,30 @@ table.gameList tfoot:before {
     display: block;
 }
 
+table.gameList input[type=text] {
+    width: 70px;
+}
+
 table.gameList select {
     max-width: 120px;
 }
 
-/* END: Game lists */
+#history_page table.gameList th,
+#history_page table.gameList thead td,
+#history_page table.gameList tfoot td {
+    padding: 0.2em 0.4em;
+}
 
+table.gameList span.sortButton,
+table.gameList span.pageLink {
+    cursor: pointer;
+    margin: 0.2em;
+    display: inline-block;
+}
+
+table.gameList img.calendar {
+    vertical-align: middle;
+    margin: 0.2em;
+}
+
+/* END: Game lists */

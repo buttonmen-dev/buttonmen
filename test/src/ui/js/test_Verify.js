@@ -22,6 +22,7 @@ module("Verify", {
     $('#verify_page').empty();
 
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.restoreGetParameterByName();
 
     BMTestUtils.restoreGetParameterByName();
 

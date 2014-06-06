@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<!--
+    This document should be written in polyglot HTML5/XHTML5, and therefore
+    should run when served either as text/html or application/xhtml+xml.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Button Men Online &mdash; History</title>
+    <link rel="stylesheet" href="js/extern/jquery-ui.css" />
+    <link rel="stylesheet" href="gui.css" />
+    <meta http-equiv="Cache-control" content="no-cache" />
+</head>
+
+<body>
+    <script src="js/extern/jquery-1.9.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+          $.getScript('js/Loader.js', function() {
+            Loader.loadScripts([
+                'js/extern/jquery-ui.min.js',
+                'js/extern/moment.js',
+                'js/History.js',
+            ], function() {
+                Login.showLoginHeader(History.showHistoryPage);
+            });
+          });
+        });
+    </script>
+</body>
+
+</html>
