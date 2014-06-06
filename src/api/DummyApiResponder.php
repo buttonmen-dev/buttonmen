@@ -967,6 +967,7 @@ class DummyApiResponder {
     }
 
     protected function load_game_data_2() {
+        $gameData = $this->mock_base_game_data();
         $gameData['gameId'] = 2;
         $gameData['gameState'] = "SPECIFY_DICE";
         $gameData['waitingOnActionArray'] = array(FALSE, TRUE);
@@ -1326,6 +1327,8 @@ class DummyApiResponder {
         $data['gameData']['data']['gameId'] = 11;
         $data['currentPlayerIdx'] = FALSE;
         $data['playerNameArray'] = array('tester2', 'tester3');
+
+        return $data;
     }
 
     protected function load_game_data_12() {
@@ -1452,7 +1455,7 @@ class DummyApiResponder {
             'gameChatLog' => array(),
         );
 
-        return $gameData;
+        return $data;
     }
 
     protected function load_game_data_19() {
