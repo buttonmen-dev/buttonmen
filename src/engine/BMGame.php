@@ -2171,6 +2171,22 @@ class BMGame {
         return array('status' => 'ok', 'data' => $dataArray);
     }
 
+    protected function clone_activeDieArrayArray() {
+        // create a deep clone of the original activeDieArrayArray so that changes
+        // don't propagate back into the real game data
+        $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            if (count($activeDieArray) > 0) {
+                foreach ($activeDieArray as $dieIdx => $activeDie) {
+                    $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
+                }
+            }
+        }
+
+        return $activeDieArrayArray;
+    }
+
     protected function get_buttonNameArray() {
         $buttonNameArray = array();
 
@@ -2224,17 +2240,7 @@ class BMGame {
                 }
             }
 
-            // create a deep clone of the original activeDieArrayArray so that changes
-            // don't propagate back into the real game data
-            $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
-
-            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                if (count($activeDieArray) > 0) {
-                    foreach ($activeDieArray as $dieIdx => $activeDie) {
-                        $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
-                    }
-                }
-            }
+            $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
                 foreach ($activeDieArray as $dieIdx => $die) {
@@ -2268,17 +2274,7 @@ class BMGame {
         $sidesArrayArray = array_fill(0, $this->nPlayers, array());
 
         if (isset($this->activeDieArrayArray)) {
-            // create a deep clone of the original activeDieArrayArray so that changes
-            // don't propagate back into the real game data
-            $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
-
-            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                if (count($activeDieArray) > 0) {
-                    foreach ($activeDieArray as $dieIdx => $activeDie) {
-                        $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
-                    }
-                }
-            }
+            $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
                 foreach ($activeDieArray as $dieIdx => $die) {
@@ -2382,17 +2378,7 @@ class BMGame {
         $dieDescArrayArray = array();
 
         if (isset($this->activeDieArrayArray)) {
-            // create a deep clone of the original activeDieArrayArray so that changes
-            // don't propagate back into the real game data
-            $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
-
-            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                if (count($activeDieArray) > 0) {
-                    foreach ($activeDieArray as $dieIdx => $activeDie) {
-                        $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
-                    }
-                }
-            }
+            $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
             foreach ($activeDieArrayArray as $playerIdx => $activeDieArray) {
                 foreach ($activeDieArray as $dieIdx => $die) {
@@ -2443,15 +2429,7 @@ class BMGame {
         if (isset($this->capturedDieArrayArray)) {
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
                 foreach ($capturedDieArray as $dieIdx => $die) {
-                    // hide swing information if appropriate
-                    $dieValue = $die->value;
-
-                    if ($this->wereSwingOrOptionValuesReset() &&
-                        ($this->gameState <= BMGameState::SPECIFY_DICE) &&
-                        ($playerIdx !== $requestingPlayerIdx)) {
-                        $dieValue = NULL;
-                    }
-                    $captValueArrayArray[$playerIdx][$dieIdx] = $dieValue;
+                    $captValueArrayArray[$playerIdx][$dieIdx] = $die->value;
                 }
             }
         }
@@ -2465,15 +2443,7 @@ class BMGame {
         if (isset($this->capturedDieArrayArray)) {
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
                 foreach ($capturedDieArray as $dieIdx => $die) {
-                    // hide swing information if appropriate
-                    $dieMax = $die->max;
-
-                    if ($this->wereSwingOrOptionValuesReset() &&
-                        ($this->gameState <= BMGameState::SPECIFY_DICE) &&
-                        ($playerIdx !== $requestingPlayerIdx)) {
-                        $dieMax = NULL;
-                    }
-                    $captSidesArrayArray[$playerIdx][$dieIdx] = $dieMax;
+                    $captSidesArrayArray[$playerIdx][$dieIdx] = $die->max;
                 }
             }
         }
@@ -2487,7 +2457,7 @@ class BMGame {
         if (isset($this->capturedDieArrayArray)) {
             foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
                 foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captRecipeArrayArray[$playerIdx][] = $die->recipe;
+                    $captRecipeArrayArray[$playerIdx][$dieIdx] = $die->recipe;
                 }
             }
         }
@@ -2517,7 +2487,7 @@ class BMGame {
         $swingReqArrayArray = array_fill(0, $this->nPlayers, array());
 
         if (isset($this->activeDieArrayArray)) {
-            foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach (array_keys($this->activeDieArrayArray) as $playerIdx) {
                 $swingRequestArray = array();
                 if (isset($this->swingRequestArrayArray[$playerIdx])) {
                     foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
