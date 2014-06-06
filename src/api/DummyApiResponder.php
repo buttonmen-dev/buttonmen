@@ -433,7 +433,7 @@ class DummyApiResponder {
         $data['inactivityArray'][] = "38 minutes";
     }
 
-    protected function add_active_game_data_15(&$data) {
+    protected function add_active_game_data_15() {
         // tester1 is not a participant in fake game 15
     }
 
@@ -989,35 +989,23 @@ class DummyApiResponder {
     protected function load_game_data_3() {
         $gameData = $this->mock_base_game_data();
         $gameData['gameId'] = 3;
-
         $gameData['gameState'] = "START_TURN";
         $gameData['activePlayerIdx'] = 0;
         $gameData['playerWithInitiativeIdx'] = 1;
         $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
         $gameData['nDieArray'] = array(2, 3);
-        $gameData['valueArrayArray'] = array(array(4, 2),
-                                             array(4, 4, 5));
-        $gameData['sidesArrayArray'] = array(array(4,4),
-                                             array(4,4,12));
+        $gameData['valueArrayArray'] = array(array(4, 2), array(4, 4, 5));
+        $gameData['sidesArrayArray'] = array(array(4,4), array(4,4,12));
         $gameData['dieRecipeArrayArray'] = array(array("(4)","(X)"),
                                                  array("(4)","(4)","(12)"));
         $gameData['dieDescriptionArrayArray'] =
             array(
-                array(
-                    '4-sided die',
-                    'X Swing Die (with 4 sides)'
-                ),
-                array(
-                    '4-sided die',
-                    '4-sided die',
-                    '12-sided die'
-                )
+                array('4-sided die', 'X Swing Die (with 4 sides)'),
+                array('4-sided die', '4-sided die', '12-sided die')
             );
         $gameData['nCapturedDieArray'] = array(2, 3);
-        $gameData['capturedValueArrayArray'] = array(array(3, 1),
-                                                     array(11, 7, 1));
-        $gameData['capturedSidesArrayArray'] = array(array(10, 4),
-                                                     array(12, 10, 4));
+        $gameData['capturedValueArrayArray'] = array(array(3, 1), array(11, 7, 1));
+        $gameData['capturedSidesArrayArray'] = array(array(10, 4), array(12, 10, 4));
         $gameData['capturedRecipeArrayArray'] = array(array("(10)", "(X)"),
                                                       array("(12)", "(10)", "(4)"));
         $gameData['capturedDiePropsArrayArray'] = array(array(array(), array()),
