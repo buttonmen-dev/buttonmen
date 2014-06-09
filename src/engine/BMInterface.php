@@ -2397,7 +2397,6 @@ class BMInterface {
 
             $isSwingSetSuccessful = $this->set_swing_values($swingValueArray, $currentPlayerIdx, $game);
             if (!$isSwingSetSuccessful) {
-                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
                 return NULL;
             }
 
@@ -2460,7 +2459,13 @@ class BMInterface {
             $swingSubmitted = array();
         }
 
-        return ($swingRequested == $swingSubmitted);
+        $isSwingSetSuccessful = ($swingRequested == $swingSubmitted);
+
+        if (!$isSwingSetSuccessful) {
+            $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
+        }
+
+        return $isSwingSetSuccessful;
     }
 
     protected function set_option_values($optionValueArray, $currentPlayerIdx, $game) {
