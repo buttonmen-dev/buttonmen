@@ -8,6 +8,7 @@
  * @property-read string $message                Message intended for GUI
  * @property-read DateTime $timestamp            Timestamp of last game action
  *
+ * @SuppressWarnings(PMD.CouplingBetweenObjects)
  */
 class BMInterface {
     // properties
