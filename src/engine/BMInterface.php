@@ -109,7 +109,8 @@ class BMInterface {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
 
-        $isValidData = $this->validate_player_info($addlInfo, $playerId);
+        $isValidData = $this->validate_player_dob($addlInfo) &&
+                       $this->validate_player_password_and_email($addlInfo, $playerId);
         if (!$isValidData) {
             return NULL;
         }
@@ -148,7 +149,7 @@ class BMInterface {
         return array('playerId' => $playerId);
     }
 
-    protected function validate_player_info(array $addlInfo, $playerId) {
+    protected function validate_player_dob(array $addlInfo) {
         if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
             ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
             $this->message = 'DOB is incomplete.';
@@ -161,6 +162,10 @@ class BMInterface {
             return FALSE;
         }
 
+        return TRUE;
+    }
+
+    protected function validate_player_password_and_email(array $addlInfo, $playerId) {
         if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
             !isset($addlInfo['current_password'])) {
             $this->message = 'Current password is required to change password or email.';
