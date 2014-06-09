@@ -246,38 +246,8 @@ class BMInterface {
         array $buttonNameArray,
         $maxWins = 3
     ) {
-        $areAllPlayersPresent = TRUE;
-        // check for the possibility of unspecified players
-        foreach ($playerIdArray as $playerId) {
-            if (is_null($playerId)) {
-                $areAllPlayersPresent = FALSE;
-            }
-        }
-
-        // check for nonunique player ids
-        if ($areAllPlayersPresent &&
-            count(array_flip($playerIdArray)) < count($playerIdArray)) {
-            $this->message = 'Game create failed because a player has been selected more than once.';
-            return NULL;
-        }
-
-        // validate all inputs
-        foreach ($playerIdArray as $playerId) {
-            if (!(is_null($playerId) || is_int($playerId))) {
-                $this->message = 'Game create failed because player ID is not valid.';
-                return NULL;
-            }
-        }
-
-        if (FALSE ===
-            filter_var(
-                $maxWins,
-                FILTER_VALIDATE_INT,
-                array('options'=>
-                      array('min_range' => 1,
-                            'max_range' => 5))
-            )) {
-            $this->message = 'Game create failed because the maximum number of wins was invalid.';
+        $isValidInfo = $this->validate_game_info($playerIdArray, $buttonNameArray, $maxWins);
+        if (!$isValidInfo) {
             return NULL;
         }
 
@@ -366,6 +336,45 @@ class BMInterface {
             );
             return NULL;
         }
+    }
+
+    protected function validate_game_info(array $playerIdArray, array $buttonNameArray, $maxWins) {
+        $areAllPlayersPresent = TRUE;
+        // check for the possibility of unspecified players
+        foreach ($playerIdArray as $playerId) {
+            if (is_null($playerId)) {
+                $areAllPlayersPresent = FALSE;
+            }
+        }
+
+        // check for nonunique player ids
+        if ($areAllPlayersPresent &&
+            count(array_flip($playerIdArray)) < count($playerIdArray)) {
+            $this->message = 'Game create failed because a player has been selected more than once.';
+            return FALSE;
+        }
+
+        // validate all inputs
+        foreach ($playerIdArray as $playerId) {
+            if (!(is_null($playerId) || is_int($playerId))) {
+                $this->message = 'Game create failed because player ID is not valid.';
+                return FALSE;
+            }
+        }
+
+        if (FALSE ===
+            filter_var(
+                $maxWins,
+                FILTER_VALIDATE_INT,
+                array('options'=>
+                      array('min_range' => 1,
+                            'max_range' => 5))
+            )) {
+            $this->message = 'Game create failed because the maximum number of wins was invalid.';
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
