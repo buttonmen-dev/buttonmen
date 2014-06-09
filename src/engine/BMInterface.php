@@ -777,293 +777,340 @@ class BMInterface {
         $game->proceed_to_next_user_action();
 
         try {
-            if (is_null($game->activePlayerIdx)) {
-                $currentPlayerId = NULL;
-            } else {
-                $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
-            }
-
-            if (BMGameState::END_GAME == $game->gameState) {
-                $status = 'COMPLETE';
-            } elseif (in_array(NULL, $game->playerIdArray) ||
-                      in_array(NULL, $game->buttonArray)) {
-                $status = 'OPEN';
-            } else {
-                $status = 'ACTIVE';
-            }
-
-            // game
-            $query = 'UPDATE game '.
-                     'SET last_action_time = NOW(),'.
-                     '    status_id = '.
-                     '        (SELECT id FROM game_status WHERE name = :status),'.
-                     '    game_state = :game_state,'.
-                     '    round_number = :round_number,'.
-                     '    turn_number_in_round = :turn_number_in_round,'.
-            //:n_recent_draws
-                     '    n_recent_passes = :n_recent_passes,'.
-                     '    current_player_id = :current_player_id '.
-            //:last_winner_id
-            //:tournament_id
-            //:description
-            //:chat
-                     'WHERE id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':status' => $status,
-                                      ':game_state' => $game->gameState,
-                                      ':round_number' => $game->roundNumber,
-                                      ':turn_number_in_round' => $game->turnNumberInRound,
-                                      ':n_recent_passes' => $game->nRecentPasses,
-                                      ':current_player_id' => $currentPlayerId,
-                                      ':game_id' => $game->gameId));
-
-            // button recipes if altered
-            if (isset($game->buttonArray)) {
-                foreach ($game->buttonArray as $playerIdx => $button) {
-                    if (($button instanceof BMButton) &&
-                        ($button->hasAlteredRecipe)) {
-                        $query = 'UPDATE game_player_map '.
-                                 'SET alt_recipe = :alt_recipe '.
-                                 'WHERE game_id = :game_id '.
-                                 'AND player_id = :player_id;';
-                        $statement = self::$conn->prepare($query);
-                        $statement->execute(array(':alt_recipe' => $button->recipe,
-                                                  ':game_id' => $game->gameId,
-                                                  ':player_id' => $game->playerIdArray[$playerIdx]));
-                    }
-                }
-            }
-
-            // set round scores
-            if (isset($game->gameScoreArrayArray)) {
-                foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    $query = 'UPDATE game_player_map '.
-                             'SET n_rounds_won = :n_rounds_won,'.
-                             '    n_rounds_lost = :n_rounds_lost,'.
-                             '    n_rounds_drawn = :n_rounds_drawn '.
-                             'WHERE game_id = :game_id '.
-                             'AND player_id = :player_id;';
-                    $statement = self::$conn->prepare($query);
-                    $statement->execute(array(':n_rounds_won' => $game->gameScoreArrayArray[$playerIdx]['W'],
-                                              ':n_rounds_lost' => $game->gameScoreArrayArray[$playerIdx]['L'],
-                                              ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
-                                              ':game_id' => $game->gameId,
-                                              ':player_id' => $playerId));
-                }
-            }
-
-            // clear swing values
-            $query = 'DELETE FROM game_swing_map '.
-                     'WHERE game_id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
-
-            // clear option values
-            $query = 'DELETE FROM game_option_map '.
-                     'WHERE game_id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
-
-            // store swing values from previous round
-            if (isset($game->prevSwingValueArrayArray)) {
-                foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->prevSwingValueArrayArray)) {
-                        continue;
-                    }
-                    $swingValueArray = $game->prevSwingValueArrayArray[$playerIdx];
-                    if (!empty($swingValueArray)) {
-                        foreach ($swingValueArray as $swingType => $swingValue) {
-                            $query = 'INSERT INTO game_swing_map '.
-                                     '(game_id, player_id, swing_type, swing_value, is_expired) '.
-                                     'VALUES '.
-                                     '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                            $statement = self::$conn->prepare($query);
-                            $statement->execute(array(':game_id'     => $game->gameId,
-                                                      ':player_id'   => $playerId,
-                                                      ':swing_type'  => $swingType,
-                                                      ':swing_value' => $swingValue,
-                                                      ':is_expired'  => TRUE));
-                        }
-                    }
-                }
-            }
-
-            // store swing values
-            if (isset($game->swingValueArrayArray)) {
-                foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
-                        continue;
-                    }
-                    $swingValueArray = $game->swingValueArrayArray[$playerIdx];
-                    if (!empty($swingValueArray)) {
-                        foreach ($swingValueArray as $swingType => $swingValue) {
-                            $query = 'INSERT INTO game_swing_map '.
-                                     '(game_id, player_id, swing_type, swing_value, is_expired) '.
-                                     'VALUES '.
-                                     '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
-                            $statement = self::$conn->prepare($query);
-                            $statement->execute(array(':game_id'     => $game->gameId,
-                                                      ':player_id'   => $playerId,
-                                                      ':swing_type'  => $swingType,
-                                                      ':swing_value' => $swingValue,
-                                                      ':is_expired'  => FALSE));
-                        }
-                    }
-                }
-            }
-
-            // store option values from previous round
-            if (isset($game->prevOptValueArrayArray)) {
-                foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->prevOptValueArrayArray)) {
-                        continue;
-                    }
-                    $optValueArray = $game->prevOptValueArrayArray[$playerIdx];
-                    if (isset($optValueArray)) {
-                        foreach ($optValueArray as $dieIdx => $optionValue) {
-                            $query = 'INSERT INTO game_option_map '.
-                                     '(game_id, player_id, die_idx, option_value, is_expired) '.
-                                     'VALUES '.
-                                     '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                            $statement = self::$conn->prepare($query);
-                            $statement->execute(array(':game_id'   => $game->gameId,
-                                                      ':player_id' => $playerId,
-                                                      ':die_idx'   => $dieIdx,
-                                                      ':option_value' => $optionValue,
-                                                      ':is_expired' => TRUE));
-                        }
-                    }
-                }
-            }
-
-            // store option values
-            if (isset($game->optValueArrayArray)) {
-                foreach ($game->playerIdArray as $playerIdx => $playerId) {
-                    if (!array_key_exists($playerIdx, $game->optValueArrayArray)) {
-                        continue;
-                    }
-                    $optValueArray = $game->optValueArrayArray[$playerIdx];
-                    if (isset($optValueArray)) {
-                        foreach ($optValueArray as $dieIdx => $optionValue) {
-                            $query = 'INSERT INTO game_option_map '.
-                                     '(game_id, player_id, die_idx, option_value, is_expired) '.
-                                     'VALUES '.
-                                     '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
-                            $statement = self::$conn->prepare($query);
-                            $statement->execute(array(':game_id'   => $game->gameId,
-                                                      ':player_id' => $playerId,
-                                                      ':die_idx'   => $dieIdx,
-                                                      ':option_value' => $optionValue,
-                                                      ':is_expired' => FALSE));
-                        }
-                    }
-                }
-            }
-
-            // set player that won initiative
-            if (isset($game->playerWithInitiativeIdx)) {
-                // set all players to not having initiative
-                $query = 'UPDATE game_player_map '.
-                         'SET did_win_initiative = 0 '.
-                         'WHERE game_id = :game_id;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id' => $game->gameId));
-
-                // set player that won initiative
-                $query = 'UPDATE game_player_map '.
-                         'SET did_win_initiative = 1 '.
-                         'WHERE game_id = :game_id '.
-                         'AND player_id = :player_id;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':game_id' => $game->gameId,
-                                          ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
-            }
-
-            // set players awaiting action
-            foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
-                $query = 'UPDATE game_player_map '.
-                         'SET is_awaiting_action = :is_awaiting_action '.
-                         'WHERE game_id = :game_id '.
-                         'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-                if ($waitingOnAction) {
-                    $is_awaiting_action = 1;
-                } else {
-                    $is_awaiting_action = 0;
-                }
-                $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
-                                          ':game_id' => $game->gameId,
-                                          ':position' => $playerIdx));
-            }
-
-            // set existing dice to have a status of DELETED and get die ids
-            //
-            // note that the logic is written this way to make debugging easier
-            // in case something fails during the addition of dice
-            $query = 'UPDATE die '.
-                     'SET status_id = '.
-                     '    (SELECT id FROM die_status WHERE name = "DELETED") '.
-                     'WHERE game_id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
-
-            // add active dice to table 'die'
-            if (isset($game->activeDieArrayArray)) {
-                foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
-                    foreach ($activeDieArray as $dieIdx => $activeDie) {
-                        // james: set status, this is currently INCOMPLETE
-                        $status = 'NORMAL';
-                        if ($activeDie->selected) {
-                            $status = 'SELECTED';
-                        } elseif ($activeDie->disabled) {
-                            $status = 'DISABLED';
-                        } elseif ($activeDie->dizzy) {
-                            $status = 'DIZZY';
-                        }
-
-                        $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
-                    }
-                }
-            }
-
-            // add captured dice to table 'die'
-            if (isset($game->capturedDieArrayArray)) {
-                foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
-                    foreach ($activeDieArray as $dieIdx => $activeDie) {
-                        // james: set status, this is currently INCOMPLETE
-                        $status = 'CAPTURED';
-
-                        $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
-                    }
-                }
-            }
-
-            // delete dice with a status of "DELETED" for this game
-            $query = 'DELETE FROM die '.
-                     'WHERE status_id = '.
-                     '    (SELECT id FROM die_status WHERE name = "DELETED") '.
-                     'AND game_id = :game_id;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
-
-            // If any game action entries were generated, load them
-            // into the message so the calling player can see them,
-            // then save them to the historical log
-            if (count($game->actionLog) > 0) {
-                $this->load_message_from_game_actions($game);
-                $this->log_game_actions($game);
-            }
-            // If the player sent a chat message, insert it now
-            // then save them to the historical log
-            if ($game->chat['chat']) {
-                $this->log_game_chat($game);
-            }
+            $this->save_basic_game_parameters($game);
+            $this->save_button_recipes($game);
+            $this->save_round_scores($game);
+            $this->clear_swing_values_from_database($game);
+            $this->clear_option_values_from_database($game);
+            $this->save_swing_values_from_last_round($game);
+            $this->save_swing_values_from_this_round($game);
+            $this->save_option_values_from_last_round($game);
+            $this->save_option_values_from_this_round($game);
+            $this->save_player_with_initiative($game);
+            $this->save_players_awaiting_action($game);
+            $this->mark_existing_dice_as_deleted($game);
+            $this->save_captured_dice($game);
+            $this->delete_dice_marked_as_deleted($game);
+            $this->save_action_log($game);
+            $this->save_chat_log($game);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::save_game: ' .
                 $e->getMessage()
             );
             $this->message = "Game save failed: $e";
+        }
+    }
+
+    protected function save_basic_game_parameters($game) {
+        $query = 'UPDATE game '.
+                 'SET last_action_time = NOW(),'.
+                 '    status_id = '.
+                 '        (SELECT id FROM game_status WHERE name = :status),'.
+                 '    game_state = :game_state,'.
+                 '    round_number = :round_number,'.
+                 '    turn_number_in_round = :turn_number_in_round,'.
+        //:n_recent_draws
+                 '    n_recent_passes = :n_recent_passes,'.
+                 '    current_player_id = :current_player_id '.
+        //:last_winner_id
+        //:tournament_id
+        //:description
+        //:chat
+                 'WHERE id = :game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':status' => $this->get_game_status($game),
+                                  ':game_state' => $game->gameState,
+                                  ':round_number' => $game->roundNumber,
+                                  ':turn_number_in_round' => $game->turnNumberInRound,
+                                  ':n_recent_passes' => $game->nRecentPasses,
+                                  ':current_player_id' => $this->get_currentPlayerId($game),
+                                  ':game_id' => $game->gameId));
+    }
+
+    protected function get_currentPlayerId($game) {
+        if (is_null($game->activePlayerIdx)) {
+            $currentPlayerId = NULL;
+        } else {
+            $currentPlayerId = $game->playerIdArray[$game->activePlayerIdx];
+        }
+
+        return $currentPlayerId;
+    }
+
+    protected function get_game_status($game) {
+        if (BMGameState::END_GAME == $game->gameState) {
+            $status = 'COMPLETE';
+        } elseif (in_array(NULL, $game->playerIdArray) ||
+                  in_array(NULL, $game->buttonArray)) {
+            $status = 'OPEN';
+        } else {
+            $status = 'ACTIVE';
+        }
+
+        return $status;
+    }
+
+    protected function save_button_recipes($game) {
+        if (isset($game->buttonArray)) {
+            foreach ($game->buttonArray as $playerIdx => $button) {
+                if (($button instanceof BMButton) &&
+                    ($button->hasAlteredRecipe)) {
+                    $query = 'UPDATE game_player_map '.
+                             'SET alt_recipe = :alt_recipe '.
+                             'WHERE game_id = :game_id '.
+                             'AND player_id = :player_id;';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':alt_recipe' => $button->recipe,
+                                              ':game_id' => $game->gameId,
+                                              ':player_id' => $game->playerIdArray[$playerIdx]));
+                }
+            }
+        }
+    }
+
+    protected function save_round_scores($game) {
+        if (isset($game->gameScoreArrayArray)) {
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                $query = 'UPDATE game_player_map '.
+                         'SET n_rounds_won = :n_rounds_won,'.
+                         '    n_rounds_lost = :n_rounds_lost,'.
+                         '    n_rounds_drawn = :n_rounds_drawn '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':n_rounds_won' => $game->gameScoreArrayArray[$playerIdx]['W'],
+                                          ':n_rounds_lost' => $game->gameScoreArrayArray[$playerIdx]['L'],
+                                          ':n_rounds_drawn' => $game->gameScoreArrayArray[$playerIdx]['D'],
+                                          ':game_id' => $game->gameId,
+                                          ':player_id' => $playerId));
+            }
+        }
+    }
+
+    protected function clear_swing_values_from_database($game) {
+        $query = 'DELETE FROM game_swing_map '.
+                 'WHERE game_id = :game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $game->gameId));
+    }
+
+    protected function clear_option_values_from_database($game) {
+        $query = 'DELETE FROM game_option_map '.
+                 'WHERE game_id = :game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $game->gameId));
+    }
+
+    protected function save_swing_values_from_last_round($game) {
+        if (isset($game->prevSwingValueArrayArray)) {
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                if (!array_key_exists($playerIdx, $game->prevSwingValueArrayArray)) {
+                    continue;
+                }
+                $swingValueArray = $game->prevSwingValueArrayArray[$playerIdx];
+                if (!empty($swingValueArray)) {
+                    foreach ($swingValueArray as $swingType => $swingValue) {
+                        $query = 'INSERT INTO game_swing_map '.
+                                 '(game_id, player_id, swing_type, swing_value, is_expired) '.
+                                 'VALUES '.
+                                 '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':game_id'     => $game->gameId,
+                                                  ':player_id'   => $playerId,
+                                                  ':swing_type'  => $swingType,
+                                                  ':swing_value' => $swingValue,
+                                                  ':is_expired'  => TRUE));
+                    }
+                }
+            }
+        }
+    }
+
+    protected function save_swing_values_from_this_round($game) {
+        if (isset($game->swingValueArrayArray)) {
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                if (!array_key_exists($playerIdx, $game->swingValueArrayArray)) {
+                    continue;
+                }
+                $swingValueArray = $game->swingValueArrayArray[$playerIdx];
+                if (!empty($swingValueArray)) {
+                    foreach ($swingValueArray as $swingType => $swingValue) {
+                        $query = 'INSERT INTO game_swing_map '.
+                                 '(game_id, player_id, swing_type, swing_value, is_expired) '.
+                                 'VALUES '.
+                                 '(:game_id, :player_id, :swing_type, :swing_value, :is_expired)';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':game_id'     => $game->gameId,
+                                                  ':player_id'   => $playerId,
+                                                  ':swing_type'  => $swingType,
+                                                  ':swing_value' => $swingValue,
+                                                  ':is_expired'  => FALSE));
+                    }
+                }
+            }
+        }
+    }
+
+    protected function save_option_values_from_last_round($game) {
+        if (isset($game->prevOptValueArrayArray)) {
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                if (!array_key_exists($playerIdx, $game->prevOptValueArrayArray)) {
+                    continue;
+                }
+                $optValueArray = $game->prevOptValueArrayArray[$playerIdx];
+                if (isset($optValueArray)) {
+                    foreach ($optValueArray as $dieIdx => $optionValue) {
+                        $query = 'INSERT INTO game_option_map '.
+                                 '(game_id, player_id, die_idx, option_value, is_expired) '.
+                                 'VALUES '.
+                                 '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':game_id'   => $game->gameId,
+                                                  ':player_id' => $playerId,
+                                                  ':die_idx'   => $dieIdx,
+                                                  ':option_value' => $optionValue,
+                                                  ':is_expired' => TRUE));
+                    }
+                }
+            }
+        }
+    }
+
+    protected function save_option_values_from_this_round($game) {
+        if (isset($game->optValueArrayArray)) {
+            foreach ($game->playerIdArray as $playerIdx => $playerId) {
+                if (!array_key_exists($playerIdx, $game->optValueArrayArray)) {
+                    continue;
+                }
+                $optValueArray = $game->optValueArrayArray[$playerIdx];
+                if (isset($optValueArray)) {
+                    foreach ($optValueArray as $dieIdx => $optionValue) {
+                        $query = 'INSERT INTO game_option_map '.
+                                 '(game_id, player_id, die_idx, option_value, is_expired) '.
+                                 'VALUES '.
+                                 '(:game_id, :player_id, :die_idx, :option_value, :is_expired)';
+                        $statement = self::$conn->prepare($query);
+                        $statement->execute(array(':game_id'   => $game->gameId,
+                                                  ':player_id' => $playerId,
+                                                  ':die_idx'   => $dieIdx,
+                                                  ':option_value' => $optionValue,
+                                                  ':is_expired' => FALSE));
+                    }
+                }
+            }
+        }
+    }
+
+    protected function save_player_with_initiative($game) {
+        if (isset($game->playerWithInitiativeIdx)) {
+            // set all players to not having initiative
+            $query = 'UPDATE game_player_map '.
+                     'SET did_win_initiative = 0 '.
+                     'WHERE game_id = :game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+
+            // set player that won initiative
+            $query = 'UPDATE game_player_map '.
+                     'SET did_win_initiative = 1 '.
+                     'WHERE game_id = :game_id '.
+                     'AND player_id = :player_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId,
+                                      ':player_id' => $game->playerIdArray[$game->playerWithInitiativeIdx]));
+        }
+    }
+
+    protected function save_players_awaiting_action($game) {
+        foreach ($game->waitingOnActionArray as $playerIdx => $waitingOnAction) {
+            $query = 'UPDATE game_player_map '.
+                     'SET is_awaiting_action = :is_awaiting_action '.
+                     'WHERE game_id = :game_id '.
+                     'AND position = :position;';
+            $statement = self::$conn->prepare($query);
+            if ($waitingOnAction) {
+                $is_awaiting_action = 1;
+            } else {
+                $is_awaiting_action = 0;
+            }
+            $statement->execute(array(':is_awaiting_action' => $is_awaiting_action,
+                                      ':game_id' => $game->gameId,
+                                      ':position' => $playerIdx));
+        }
+    }
+
+    protected function mark_existing_dice_as_deleted($game) {
+        // set existing dice to have a status of DELETED and get die ids
+        //
+        // note that the logic is written this way to make debugging easier
+        // in case something fails during the addition of dice
+        $query = 'UPDATE die '.
+                 'SET status_id = '.
+                 '    (SELECT id FROM die_status WHERE name = "DELETED") '.
+                 'WHERE game_id = :game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $game->gameId));
+
+        // add active dice to table 'die'
+        if (isset($game->activeDieArrayArray)) {
+            foreach ($game->activeDieArrayArray as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $dieIdx => $activeDie) {
+                    // james: set status, this is currently INCOMPLETE
+                    $status = 'NORMAL';
+                    if ($activeDie->selected) {
+                        $status = 'SELECTED';
+                    } elseif ($activeDie->disabled) {
+                        $status = 'DISABLED';
+                    } elseif ($activeDie->dizzy) {
+                        $status = 'DIZZY';
+                    }
+
+                    $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
+                }
+            }
+        }
+    }
+
+    protected function save_captured_dice($game){
+        // add captured dice to table 'die'
+        if (isset($game->capturedDieArrayArray)) {
+            foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
+                foreach ($activeDieArray as $dieIdx => $activeDie) {
+                    // james: set status, this is currently INCOMPLETE
+                    $status = 'CAPTURED';
+
+                    $this->db_insert_die($game, $playerIdx, $activeDie, $status, $dieIdx);
+                }
+            }
+        }
+    }
+
+    protected function delete_dice_marked_as_deleted($game) {
+        // delete dice with a status of "DELETED" for this game
+        $query = 'DELETE FROM die '.
+                 'WHERE status_id = '.
+                 '    (SELECT id FROM die_status WHERE name = "DELETED") '.
+                 'AND game_id = :game_id;';
+        $statement = self::$conn->prepare($query);
+        $statement->execute(array(':game_id' => $game->gameId));
+    }
+
+    protected function save_action_log($game) {
+        // If any game action entries were generated, load them
+        // into the message so the calling player can see them,
+        // then save them to the historical log
+        if (count($game->actionLog) > 0) {
+            $this->load_message_from_game_actions($game);
+            $this->log_game_actions($game);
+        }
+    }
+
+    protected function save_chat_log($game) {
+        // If the player sent a chat message, insert it now
+        // then save them to the historical log
+        if ($game->chat['chat']) {
+            $this->log_game_chat($game);
         }
     }
 
