@@ -191,7 +191,7 @@ class BMInterface {
 
         return TRUE;
     }
-    
+
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {
@@ -543,7 +543,7 @@ class BMInterface {
         $game->waitingOnActionArray = $waitingOnActionArray;
         $game->autopassArray = $autopassArray;
         $game->lastActionTimeArray = $lastActionTimeArray;
-        
+
         return $game;
     }
 
@@ -673,41 +673,9 @@ class BMInterface {
             $die->originalPlayerIdx = $originalPlayerIdx;
             $die->ownerObject = $game;
 
-            if (isset($die->swingType)) {
-                $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
-                $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
-
-                if (isset($row['actual_max'])) {
-                    $die->max = $row['actual_max'];
-                }
-            }
-
-            if ($die instanceof BMDieTwin &&
-                (($die->dice[0] instanceof BMDieSwing) ||
-                 ($die->dice[1] instanceof BMDieSwing))) {
-
-                foreach ($die->dice as $subdie) {
-                    if ($subdie instanceof BMDieSwing) {
-                        $swingType = $subdie->swingType;
-                        $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
-
-                        if (isset($row['actual_max'])) {
-                            $subdie->max = (int)($row['actual_max']/2);
-                        }
-                    }
-                }
-
-                $game->request_swing_values($die, $swingType, $originalPlayerIdx);
-            }
-
-            if ($die instanceof BMDieOption) {
-                if (isset($row['actual_max'])) {
-                    $die->max = $row['actual_max'];
-                    $die->needsOptionValue = FALSE;
-                } else {
-                    $die->needsOptionValue = TRUE;
-                }
-            }
+            $this->set_swing_max($die, $originalPlayerIdx, $game, $row);
+            $this->set_twin_swing_max($die, $originalPlayerIdx, $game, $row);
+            $this->set_option_max($die, $row);
 
             if (isset($row['value'])) {
                 $die->value = (int)$row['value'];
@@ -742,6 +710,48 @@ class BMInterface {
 
         $game->activeDieArrayArray = $activeDieArrayArray;
         $game->capturedDieArrayArray = $captDieArrayArray;
+    }
+
+    protected function set_swing_max($die, $originalPlayerIdx, $game, $row) {
+        if (isset($die->swingType)) {
+            $game->request_swing_values($die, $die->swingType, $originalPlayerIdx);
+            $die->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+
+            if (isset($row['actual_max'])) {
+                $die->max = $row['actual_max'];
+            }
+        }
+    }
+
+    protected function set_twin_swing_max($die, $originalPlayerIdx, $game, $row) {
+        if ($die instanceof BMDieTwin &&
+            (($die->dice[0] instanceof BMDieSwing) ||
+             ($die->dice[1] instanceof BMDieSwing))) {
+
+            foreach ($die->dice as $subdie) {
+                if ($subdie instanceof BMDieSwing) {
+                    $swingType = $subdie->swingType;
+                    $subdie->set_swingValue($game->swingValueArrayArray[$originalPlayerIdx]);
+
+                    if (isset($row['actual_max'])) {
+                        $subdie->max = (int)($row['actual_max']/2);
+                    }
+                }
+            }
+
+            $game->request_swing_values($die, $swingType, $originalPlayerIdx);
+        }
+    }
+
+    protected function set_option_max($die, $row) {
+        if ($die instanceof BMDieOption) {
+            if (isset($row['actual_max'])) {
+                $die->max = $row['actual_max'];
+                $die->needsOptionValue = FALSE;
+            } else {
+                $die->needsOptionValue = TRUE;
+            }
+        }
     }
 
     protected function recreate_optRequestArrayArray($game) {
