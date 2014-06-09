@@ -251,7 +251,7 @@ class BMInterface {
         array $buttonNameArray,
         $maxWins = 3
     ) {
-        $isValidInfo = $this->validate_game_info($playerIdArray, $buttonNameArray, $maxWins);
+        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins);
         if (!$isValidInfo) {
             return NULL;
         }
@@ -343,7 +343,7 @@ class BMInterface {
         }
     }
 
-    protected function validate_game_info(array $playerIdArray, array $buttonNameArray, $maxWins) {
+    protected function validate_game_info(array $playerIdArray, $maxWins) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
