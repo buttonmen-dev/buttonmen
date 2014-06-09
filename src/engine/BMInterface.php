@@ -1175,59 +1175,18 @@ class BMInterface {
                 $searchFilters['gameId'] = (int)$searchParameters['gameId'];
             }
 
-            if (isset($searchParameters['playerNameA'])) {
-                $playerIdA = $this->get_player_id_from_name($searchParameters['playerNameA']);
-                if (is_int($playerIdA)) {
-                    $searchFilters['playerIdA'] = $playerIdA;
-                } else {
-                    $this->message = 'Player A: ' . $this->message;
-                    return NULL;
-                }
+            $arePlayerNamesValid = $this->set_playerNames($searchFilters, $searchParameters);
+            if (!$arePlayerNamesValid) {
+                return NULL;
             }
 
-            if (isset($searchParameters['buttonNameA'])) {
-                $buttonIdA = $this->get_button_id_from_name($searchParameters['buttonNameA']);
-                if (is_int($buttonIdA)) {
-                    $searchFilters['buttonIdA'] = $buttonIdA;
-                } else {
-                    $this->message = 'Button A: ' . $this->message;
-                    return NULL;
-                }
+            $areButtonNamesValid = $this->set_buttonNames($searchFilters, $searchParameters);
+            if (!$areButtonNamesValid) {
+                return NULL;
             }
 
-            if (isset($searchParameters['playerNameB'])) {
-                $playerIdB = $this->get_player_id_from_name($searchParameters['playerNameB']);
-                if (is_int($playerIdB)) {
-                    $searchFilters['playerIdB'] = $playerIdB;
-                } else {
-                    $this->message = 'Player B: ' . $this->message;
-                    return NULL;
-                }
-            }
-
-            if (isset($searchParameters['buttonNameB'])) {
-                $buttonIdB = $this->get_button_id_from_name($searchParameters['buttonNameB']);
-                if (is_int($buttonIdB)) {
-                    $searchFilters['buttonIdB'] = $buttonIdB;
-                } else {
-                    $this->message = 'Button B: ' . $this->message;
-                    return NULL;
-                }
-            }
-
-            if (isset($searchParameters['gameStartMin'])) {
-                $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
-            }
-            if (isset($searchParameters['gameStartMax'])) {
-                $searchFilters['gameStartMax'] = (int)$searchParameters['gameStartMax'];
-            }
-
-            if (isset($searchParameters['lastMoveMin'])) {
-                $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
-            }
-            if (isset($searchParameters['lastMoveMax'])) {
-                $searchFilters['lastMoveMax'] = (int)$searchParameters['lastMoveMax'];
-            }
+            $this->set_gameStart_limits($searchFilters, $searchParameters);
+            $this->set_lastMove_limits($searchFilters, $searchParameters);
 
             if (isset($searchParameters['winningPlayer'])) {
                 $searchFilters['winningPlayer'] = $searchParameters['winningPlayer'];
@@ -1245,6 +1204,72 @@ class BMInterface {
             );
             $this->message = 'Game search failed.';
             return NULL;
+        }
+    }
+
+    protected function set_playerNames(&$searchFilters, $searchParameters) {
+        if (isset($searchParameters['playerNameA'])) {
+            $playerIdA = $this->get_player_id_from_name($searchParameters['playerNameA']);
+            if (is_int($playerIdA)) {
+                $searchFilters['playerIdA'] = $playerIdA;
+            } else {
+                $this->message = 'Player A: ' . $this->message;
+                return FALSE;
+            }
+        }
+
+        if (isset($searchParameters['playerNameB'])) {
+            $playerIdB = $this->get_player_id_from_name($searchParameters['playerNameB']);
+            if (is_int($playerIdB)) {
+                $searchFilters['playerIdB'] = $playerIdB;
+            } else {
+                $this->message = 'Player B: ' . $this->message;
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
+    protected function set_buttonNames(&$searchFilters, $searchParameters) {
+        if (isset($searchParameters['buttonNameA'])) {
+            $buttonIdA = $this->get_button_id_from_name($searchParameters['buttonNameA']);
+            if (is_int($buttonIdA)) {
+                $searchFilters['buttonIdA'] = $buttonIdA;
+            } else {
+                $this->message = 'Button A: ' . $this->message;
+                return FALSE;
+            }
+        }
+
+        if (isset($searchParameters['buttonNameB'])) {
+            $buttonIdB = $this->get_button_id_from_name($searchParameters['buttonNameB']);
+            if (is_int($buttonIdB)) {
+                $searchFilters['buttonIdB'] = $buttonIdB;
+            } else {
+                $this->message = 'Button B: ' . $this->message;
+                return FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
+    protected function set_gameStart_limits(&$searchFilters, $searchParameters) {
+        if (isset($searchParameters['gameStartMin'])) {
+                $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
+            }
+        if (isset($searchParameters['gameStartMax'])) {
+            $searchFilters['gameStartMax'] = (int)$searchParameters['gameStartMax'];
+        }
+    }
+
+    protected function set_lastMove_limits($searchFilters, $searchParameters) {
+        if (isset($searchParameters['lastMoveMin'])) {
+            $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
+        }
+        if (isset($searchParameters['lastMoveMax'])) {
+            $searchFilters['lastMoveMax'] = (int)$searchParameters['lastMoveMax'];
         }
     }
 
