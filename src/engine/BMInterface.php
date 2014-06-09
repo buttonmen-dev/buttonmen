@@ -1072,7 +1072,7 @@ class BMInterface {
         }
     }
 
-    protected function save_captured_dice($game){
+    protected function save_captured_dice($game) {
         // add captured dice to table 'die'
         if (isset($game->capturedDieArrayArray)) {
             foreach ($game->capturedDieArrayArray as $playerIdx => $activeDieArray) {
@@ -1257,8 +1257,8 @@ class BMInterface {
 
     protected function set_gameStart_limits(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['gameStartMin'])) {
-                $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
-            }
+            $searchFilters['gameStartMin'] = (int)$searchParameters['gameStartMin'];
+        }
         if (isset($searchParameters['gameStartMax'])) {
             $searchFilters['gameStartMax'] = (int)$searchParameters['gameStartMax'];
         }
