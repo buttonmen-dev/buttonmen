@@ -417,7 +417,8 @@ class BMInterface {
 
     public function load_game($gameId, $logEntryLimit = NULL) {
         try {
-            $game = $this->load_game_parameters($gameId, $logEntryLimit);
+            $game = $this->load_game_parameters($gameId);
+            $this->set_logEntryLimit($game, $logEntryLimit);
 
             // check whether the game exists
             if (!isset($game)) {
@@ -450,7 +451,7 @@ class BMInterface {
         }
     }
 
-    protected function load_game_parameters($gameId, $logEntryLimit) {
+    protected function load_game_parameters($gameId) {
         // check that the gameId exists
         $query = 'SELECT g.*,'.
                  'UNIX_TIMESTAMP(g.last_action_time) AS last_action_timestamp, '.
@@ -506,30 +507,7 @@ class BMInterface {
                                                $row['n_rounds_lost'],
                                                $row['n_rounds_drawn']);
 
-            if ($game->gameState == BMGameState::END_GAME) {
-                $game->logEntryLimit = NULL;
-            } else {
-                $game->logEntryLimit = $logEntryLimit;
-            }
-
-            // load button attributes
-            if (isset($row['button_name'])) {
-                if (isset($row['alt_recipe'])) {
-                    $recipe = $row['alt_recipe'];
-                } else {
-                    $recipe = $this->get_button_recipe_from_name($row['button_name']);
-                }
-                if (isset($recipe)) {
-                    $button = new BMButton;
-                    $button->load($recipe, $row['button_name']);
-                    if (isset($row['alt_recipe'])) {
-                        $button->hasAlteredRecipe = TRUE;
-                    }
-                    $buttonArray[$pos] = $button;
-                } else {
-                    throw new InvalidArgumentException('Invalid button name.');
-                }
-            }
+            $this->load_button($buttonArray, $pos, $row);
 
             // load player attributes
             switch ($row['is_awaiting_action']) {
@@ -551,25 +529,59 @@ class BMInterface {
                 $game->playerWithInitiativeIdx = $pos;
             }
 
-            if (isset($row['player_last_action_timestamp'])) {
-                $lastActionTimeArray[$pos] =
-                    (int)$row['player_last_action_timestamp'];
-            } else {
-                $lastActionTimeArray[$pos] = 0;
-            }
+            $this->load_lastActionTime($lastActionTimeArray, $pos, $row);
         }
-        
+
+        if (!isset($game)) {
+            return NULL;
+        }
+
         // fill up the game object with the database data
-        if (isset($game)) {
-            $game->playerIdArray = $playerIdArray;
-            $game->gameScoreArrayArray = $gameScoreArrayArray;
-            $game->buttonArray = $buttonArray;
-            $game->waitingOnActionArray = $waitingOnActionArray;
-            $game->autopassArray = $autopassArray;
-            $game->lastActionTimeArray = $lastActionTimeArray;
-        }
+        $game->playerIdArray = $playerIdArray;
+        $game->gameScoreArrayArray = $gameScoreArrayArray;
+        $game->buttonArray = $buttonArray;
+        $game->waitingOnActionArray = $waitingOnActionArray;
+        $game->autopassArray = $autopassArray;
+        $game->lastActionTimeArray = $lastActionTimeArray;
         
         return $game;
+    }
+
+    protected function load_button(&$buttonArray, $pos, $row) {
+        if (isset($row['button_name'])) {
+            if (isset($row['alt_recipe'])) {
+                $recipe = $row['alt_recipe'];
+            } else {
+                $recipe = $this->get_button_recipe_from_name($row['button_name']);
+            }
+            if (isset($recipe)) {
+                $button = new BMButton;
+                $button->load($recipe, $row['button_name']);
+                if (isset($row['alt_recipe'])) {
+                    $button->hasAlteredRecipe = TRUE;
+                }
+                $buttonArray[$pos] = $button;
+            } else {
+                throw new InvalidArgumentException('Invalid button name.');
+            }
+        }
+    }
+
+    protected function load_lastActionTime(&$lastActionTimeArray, $pos, $row) {
+        if (isset($row['player_last_action_timestamp'])) {
+            $lastActionTimeArray[$pos] =
+                (int)$row['player_last_action_timestamp'];
+        } else {
+            $lastActionTimeArray[$pos] = 0;
+        }
+    }
+
+    protected function set_logEntryLimit($game, $logEntryLimit) {
+        if ($game->gameState == BMGameState::END_GAME) {
+            $game->logEntryLimit = NULL;
+        } else {
+            $game->logEntryLimit = $logEntryLimit;
+        }
     }
 
     protected function load_swing_values_from_last_round($game) {
