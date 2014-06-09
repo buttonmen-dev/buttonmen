@@ -109,40 +109,9 @@ class BMInterface {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
 
-        // Validate everything that needs validating
-        if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
-            ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
-            $this->message = 'DOB is incomplete.';
+        $isValidData = $this->validate_player_info($addlInfo, $playerId);
+        if (!$isValidData) {
             return NULL;
-        }
-
-        if ($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] != 0 &&
-            !checkdate($addlInfo['dob_month'], $addlInfo['dob_day'], 4)) {
-            $this->message = 'DOB is not a valid date.';
-            return NULL;
-        }
-
-        if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
-            !isset($addlInfo['current_password'])) {
-            $this->message = 'Current password is required to change password or email.';
-            return NULL;
-        }
-
-        if (isset($addlInfo['current_password'])) {
-            $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
-            $passwordQuery = self::$conn->prepare($passwordQuery);
-            $passwordQuery->execute(array(':playerId' => $playerId));
-
-            $passwordResults = $passwordQuery->fetchAll();
-            if (count($passwordResults) != 1) {
-                $this->message = 'An error occurred in BMInterface::set_player_info().';
-                return NULL;
-            }
-            $password_hashed = $passwordResults[0]['password_hashed'];
-            if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
-                $this->message = 'Current password is incorrect.';
-                return NULL;
-            }
         }
 
         // Read special values into $infoArray
@@ -177,6 +146,45 @@ class BMInterface {
         }
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
+    }
+
+    protected function validate_player_info(array $addlInfo, $playerId) {
+        if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
+            ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
+            $this->message = 'DOB is incomplete.';
+            return FALSE;
+        }
+
+        if ($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] != 0 &&
+            !checkdate($addlInfo['dob_month'], $addlInfo['dob_day'], 4)) {
+            $this->message = 'DOB is not a valid date.';
+            return FALSE;
+        }
+
+        if ((isset($addlInfo['new_password']) || isset($addlInfo['new_email'])) &&
+            !isset($addlInfo['current_password'])) {
+            $this->message = 'Current password is required to change password or email.';
+            return FALSE;
+        }
+
+        if (isset($addlInfo['current_password'])) {
+            $passwordQuery = 'SELECT password_hashed FROM player WHERE id = :playerId';
+            $passwordQuery = self::$conn->prepare($passwordQuery);
+            $passwordQuery->execute(array(':playerId' => $playerId));
+
+            $passwordResults = $passwordQuery->fetchAll();
+            if (count($passwordResults) != 1) {
+                $this->message = 'An error occurred in BMInterface::set_player_info().';
+                return FALSE;
+            }
+            $password_hashed = $passwordResults[0]['password_hashed'];
+            if ($password_hashed != crypt($addlInfo['current_password'], $password_hashed)) {
+                $this->message = 'Current password is incorrect.';
+                return FALSE;
+            }
+        }
+
+        return TRUE;
     }
     
     public function get_profile_info($profilePlayerName) {
