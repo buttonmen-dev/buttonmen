@@ -2383,7 +2383,7 @@ class BMInterface {
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
             // check that the timestamp and the game state are correct, and that
-            // the swing values still need to be set
+            // the die values still need to be set
             if (!$this->is_action_current(
                 $game,
                 BMGameState::SPECIFY_DICE,
@@ -2395,35 +2395,13 @@ class BMInterface {
                 return NULL;
             }
 
-            // try to set swing values
-            $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
-            if (is_array($swingRequestArray)) {
-                $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-                sort($swingRequested);
-            } else {
-                $swingRequested = array();
-            }
-
-            if (is_array($swingValueArray)) {
-                $swingSubmitted = array_keys($swingValueArray);
-                sort($swingSubmitted);
-            } else {
-                $swingSubmitted = array();
-            }
-
-            if ($swingRequested != $swingSubmitted) {
+            $isSwingSetSuccessful = $this->set_swing_values($swingValueArray, $currentPlayerIdx, $game);
+            if (!$isSwingSetSuccessful) {
                 $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
                 return NULL;
             }
 
-            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
-
-            // try to set option values
-            if (is_array($optionValueArray)) {
-                foreach ($optionValueArray as $dieIdx => $optionValue) {
-                    $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
-                }
-            }
+            $this->set_option_values($optionValueArray, $currentPlayerIdx, $game);
 
             $game->proceed_to_next_user_action();
 
@@ -2462,6 +2440,34 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while setting die sizes';
+        }
+    }
+
+    protected function set_swing_values($swingValueArray, $currentPlayerIdx, $game) {
+        $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
+        $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
+        if (is_array($swingRequestArray)) {
+            $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
+            sort($swingRequested);
+        } else {
+            $swingRequested = array();
+        }
+
+        if (is_array($swingValueArray)) {
+            $swingSubmitted = array_keys($swingValueArray);
+            sort($swingSubmitted);
+        } else {
+            $swingSubmitted = array();
+        }
+
+        return ($swingRequested == $swingSubmitted);
+    }
+
+    protected function set_option_values($optionValueArray, $currentPlayerIdx, $game) {
+        if (is_array($optionValueArray)) {
+            foreach ($optionValueArray as $dieIdx => $optionValue) {
+                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
+            }
         }
     }
 
