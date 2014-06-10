@@ -1428,8 +1428,8 @@ class BMInterface {
     }
 
     protected function apply_all_filters($searchFilters, &$where, &$wherePars) {
-        $this->apply_filter($searchFilters, 'gameId',    'g.id',         'game_id_%%%',     $where, $wherePars);
-        $this->apply_filter($searchFilters, 'playerIdA', 'g.id',         'game_id_%%%',     $where, $wherePars);
+        $this->apply_filter($searchFilters, 'gameId', 'g.id', 'game_id_%%%', $where, $wherePars);
+        $this->apply_filter($searchFilters, 'playerIdA', 'g.id', 'game_id_%%%', $where, $wherePars);
         $this->apply_filter($searchFilters, 'playerIdA', 'vA.player_id', 'player_id_A_%%%', $where, $wherePars);
         $this->apply_filter($searchFilters, 'buttonIdA', 'vA.button_id', 'button_id_A_%%%', $where, $wherePars);
         $this->apply_filter($searchFilters, 'playerIdB', 'vB.player_id', 'player_id_B_%%%', $where, $wherePars);
@@ -1484,7 +1484,8 @@ class BMInterface {
         $whereKeyStr,
         $whereParameterStr,
         &$where,
-        &$whereParameters) {
+        &$whereParameters
+    ) {
         if (isset($searchFilters[$searchFilterType])) {
             $where .= 'AND ' . $whereKeyStr . ' = :' . $whereParameterStr . ' ';
             $whereParameters[':' . $whereParameterStr] = $searchFilters[$searchFilterType];
