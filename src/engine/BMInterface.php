@@ -3212,8 +3212,10 @@ class BMInterface {
     }
 
     // Retrieves the colors that the user has saved in their preferences
-    protected function load_player_colors($currentPlayerId) {
-        $playerInfoArray = $this->get_player_info($currentPlayerId);
+// AdmiralJota: the next two lines have been commented out to satisfy PMD
+//    protected function load_player_colors($currentPlayerId) {
+//        $playerInfoArray = $this->get_player_info($currentPlayerId);
+    protected function load_player_colors() {
         // Ultimately, these values should come from the database, but that
         // hasn't been implemented yet, so we'll just hard code them for now
         $colors = array(
