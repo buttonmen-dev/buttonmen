@@ -524,6 +524,9 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('playerIdx_0_dieIdx_0');
     equal(item.innerHTML.match('selected'), null,
       'No attacking die is initially selected');
+    equal(item.tabIndex, 0,
+      'Attacking die should be accessible via the keyboard');
+
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
     equal(item.innerHTML.match('selected'), null,
@@ -531,6 +534,8 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
+    equal(item.tabIndex, 0,
+      'Chat box should be accessible via the keyboard');
     var item = document.getElementById('game_action_button');
     ok(item.innerHTML.match('Beat People UP!'),
        "Attack submit button says Beat People UP!");
