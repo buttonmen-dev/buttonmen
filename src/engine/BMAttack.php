@@ -227,15 +227,19 @@ abstract class BMAttack {
             $game->activeDieArrayArray = $activeDiceCopy;
         }
 
-        // process captured dice
+        $this->process_captured_dice($game, $defenders);
+
+        return TRUE;
+    }
+
+
+    protected function process_captured_dice($game, array $defenders) {
         // james: currently only defenders, but could conceivably also include attackers
         foreach ($defenders as &$def) {
             if ($def->captured) {
                 $game->capture_die($def);
             }
         }
-
-        return TRUE;
     }
 
 

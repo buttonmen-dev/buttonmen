@@ -2199,9 +2199,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::get_roundNumber
+     * @covers BMGame::get__roundNumber
      */
-    public function testGet_roundNumber() {
+    public function testGet__roundNumber() {
         $this->object->maxWins = 4;
 
         $this->object->gameScoreArrayArray = array(array('W' => 0, 'L' => 0, 'D' => 0),
@@ -5877,7 +5877,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][0]->value = 4;
         $dieArrayArray[1][1]->value = 12;
         $dieArrayArray[1][2]->value = 5;
-        $dieArrayArray[1][3]->value = 0;
+        $dieArrayArray[1][3]->value = 1;
         $dieArrayArray[1][4]->value = 7;
 
         $this->assertEquals(array(4.0, -2.5), $game->roundScoreArray);
@@ -5900,10 +5900,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             case 4:
                 $this->assertCount(1, $game->capturedDieArrayArray[0]);
                 $capturedDie = $game->capturedDieArrayArray[0][0];
-
-
-
-
                 $this->assertEquals(1, $capturedDie->value);
                 break;
             // die not taken
