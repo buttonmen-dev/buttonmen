@@ -1395,13 +1395,25 @@ Game.pageAddSkillListFooter = function() {
   });
 
   var firstSkill = true;
-  $.each(Api.game.gameSkillsInfo, function(skill) {
+  var firstInteract;
+  var skillDesc;
+  $.each(Api.game.gameSkillsInfo, function(skill, info) {
+    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+
+    firstInteract = true;
+    $.each(info.interacts, function(otherSkill, interactDesc) {
+      if (firstInteract) {
+        skillDesc += '\n\nInteraction with other skills in this game:';
+      }
+      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+    });
+
     if (!(firstSkill)) {
       gameSkillDiv.append(', ');
     }
-    gameSkillDiv.append($('<a>', {
-      'href': 'help.html?skill=' + skill,
+    gameSkillDiv.append($('<span>', {
       'text': skill,
+      'title': skillDesc,
     }));
     firstSkill = false;
   });

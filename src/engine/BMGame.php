@@ -2570,7 +2570,7 @@ class BMGame {
         $gameSkillsList = array();
 
         if (isset($this->buttonArray)) {
-            foreach ($this->buttonArray as $playerIdx => $playerButton) {
+            foreach ($this->buttonArray as $playerButton) {
                 if (count($playerButton->dieArray) > 0) {
                     foreach ($playerButton->dieArray as $buttonDie) {
                         if (count($buttonDie->skillList) > 0) {
@@ -2588,7 +2588,7 @@ class BMGame {
 
         $gameSkillsInfo = array();
         foreach ($gameSkillsList as $skillType) {
-            $gameSkillsInfo[$skillType] = TRUE;
+            $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
         }
         return $gameSkillsInfo;
     }

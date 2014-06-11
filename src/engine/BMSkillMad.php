@@ -25,4 +25,19 @@ class BMSkillMad extends BMSkillMood {
             $args['die']->remove_skill('Mad');
         }
     }
+
+    protected function get_description() {
+        return 'These are a subcategory of Swing dice, whose size ' .
+               'changes randomly when rerolled. At the very start of the ' .
+               'game (and again after any round they lose, just as with ' .
+               'normal Swing dice) the player sets the initial size of Mad ' .
+               'Swing dice, but from then on whenever they are rolled their ' .
+               'size is set randomly to any even-numbered legal size for ' .
+               'that Swing type. The initial size of a Mad Swing die may ' .
+               'be set to an odd number.';
+    }
+
+    protected function get_interaction_descriptions() {
+        return array();
+    }
 }
