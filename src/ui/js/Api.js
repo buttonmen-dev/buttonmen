@@ -166,7 +166,7 @@ var Api = (function () {
 
   // Verifies that the API data loaded correctly and displays the page with
   // an error message otherwise.
-  my.verifyApiData = function(apiKey, layOutPage) {
+  my.verifyApiData = function(apiKey, arrangePageCallback) {
     if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
       return true;
     }
@@ -174,10 +174,11 @@ var Api = (function () {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
-        'text': 'An internal error occurred while loading the page.',
+        'text': 'Internal error: Could not load ' + apiKey +
+                'data from server',
       };
     }
-    layOutPage();
+    arrangePageCallback();
     return false;
   };
 

@@ -30,23 +30,23 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 //   of boards on the Forum. Then it calls Forum.layOutPage().
 // * Forum.showBoard() builds a version of Forum.page that includes a list
 //   of threads on a given board and a form to create a new one (attaching the
-//   Forum.postNewThread() event to it). Then it calls Forum.layOutPage().
+//   Forum.formPostNewThread() event to it). Then it calls Forum.layOutPage().
 // * Forum.showThread() builds a version of Forum.page that includes a list
 //   of posts on a given thread and a form to create a new one (attaching the
-//   Forum.replyToThread() event to it). Then it calls Forum.layOutPage().
-// * History.layoutPage() sets the contents of <div id="history_page">
-//   on the live page. It also binds Forum.linkToSubPage to every .pseudoLink
-//   element (e.g., the links to a given board or thread).
+//   Forum.formReplyToThread() event to it). Then it calls Forum.layOutPage().
+// * Forum.layOutPage() sets the contents of <div id="forum_page">
+//   on the live page. It also binds Forum.formLinkToSubPage to every
+//   .pseudoLink element (e.g., the links to a given board or thread).
 //
 // Major events:
-// * Forum.linkToSubPage() is called every time a user clicks on an internal
+// * Forum.formLinkToSubPage() is called every time a user clicks on an internal
 //   link that brings them from one part of the forum to another. It examines
 //   the element that was clicked on to find out the board, thread and/or post
 //   it's posting to, sets that information in Env.history.state, then calls
 //   Form.showPage().
-// * Forum.postNewThread() calls the API to create a new thread, setting
+// * Forum.formPostNewThread() calls the API to create a new thread, setting
 //   Api.forum_thread with the results. It then calls Forum.showThread().
-// * Forum.replyToThread() calls the API to create a new post, setting
+// * Forum.formReplyToThread() calls the API to create a new post, setting
 //   Api.forum_thread with the results. It then calls Forum.showThread().
 ////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +112,7 @@ Forum.showOverview = function() {
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
   headingTd.append(breadcrumb);
   breadcrumb.append($('<span>', {
-    'class': 'mainBreadrumb',
+    'class': 'mainBreadcrumb',
     'text': 'Button Men Forums',
   }));
 
@@ -122,13 +122,13 @@ Forum.showOverview = function() {
     table.append(Forum.buildBoardRow(board));
   });
 
-  var markReadDiv = $('<div>', { 'class': 'markRead' });
-  Forum.page.append(markReadDiv);
+  var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
+  table.append($('<tr>').append(markReadTd));
   var markReadButton = $('<input>', {
     'type': 'button',
     'value': 'Mark all boards as read',
   });
-  markReadDiv.append(markReadButton);
+  markReadTd.append(markReadButton);
   markReadButton.click(function() {
     Api.markForumRead(Forum.showOverview);
   });
@@ -144,7 +144,7 @@ Forum.showBoard = function() {
   }
 
   var table = $('<table>', {
-    'class': 'threads ' + Api.forum_board.shortName
+    'class': 'threads'
   });
   Forum.page.append(table);
 
@@ -152,6 +152,7 @@ Forum.showBoard = function() {
   table.append(headingTr);
   var headingTd = $('<td>', { 'class': 'heading' });
   headingTr.append(headingTd);
+  headingTd.css('background-color', Api.forum_board.boardColor);
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
   headingTd.append(breadcrumb);
@@ -161,7 +162,7 @@ Forum.showBoard = function() {
   }));
   breadcrumb.append(': ');
   breadcrumb.append($('<span>', {
-    'class': 'mainBreadrumb',
+    'class': 'mainBreadcrumb',
     'text': Api.forum_board.boardName,
   }));
   headingTd.append($('<div>', {
@@ -201,7 +202,7 @@ Forum.showBoard = function() {
     'value': 'Post new thread',
   });
   contentTd.append(replyButton);
-  replyButton.click(Forum.postNewThread);
+  replyButton.click(Forum.formPostNewThread);
 
   var notesTd = $('<td>', {
     'class': 'attribution',
@@ -216,16 +217,16 @@ Forum.showBoard = function() {
   }
 
   $.each(Api.forum_board.threads, function(index, thread) {
-    table.append(Forum.buildThreadRow(thread));
+    table.append(Forum.buildThreadRow(thread, Api.forum_board.threadColor));
   });
 
-  var markReadDiv = $('<div>', { 'class': 'markRead' });
-  Forum.page.append(markReadDiv);
+  var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
+  table.append($('<tr>').append(markReadTd));
   var markReadButton = $('<input>', {
     'type': 'button',
     'value': 'Mark board as read',
   });
-  markReadDiv.append(markReadButton);
+  markReadTd.append(markReadButton);
   markReadButton.click(function() {
     Api.markForumBoardRead(Forum.showOverview);
   });
@@ -259,14 +260,13 @@ Forum.showThread = function() {
     'class': 'heading',
     'colspan': 2,
   });
-  table.append(
-    $('<tr>', { 'class': Api.forum_thread.boardShortName }).append(headingTd)
-  );
+  table.append($('<tr>').append(headingTd));
+  headingTd.css('background-color', Api.forum_thread.boardThreadColor);
 
   var breadcrumb = $('<div>', { 'class': 'breadcrumb' });
   headingTd.append(breadcrumb);
   breadcrumb.append($('<div>', {
-    'class': 'mainBreadrumb',
+    'class': 'mainBreadcrumb',
     'text': Api.forum_thread.threadTitle,
   }));
 
@@ -307,15 +307,15 @@ Forum.showThread = function() {
     'maxlength': Forum.BODY_MAX_LENGTH,
   });
   replyBodyTd.append(replyButton);
-  replyButton.click(Forum.replyToThread);
+  replyButton.click(Forum.formReplyToThread);
 
-  var markReadDiv = $('<div>', { 'class': 'markRead' });
-  Forum.page.append(markReadDiv);
+  var markReadTd = $('<td>', { 'class': 'markRead', 'colspan': 2, });
+  table.append($('<tr>').append(markReadTd));
   var markReadButton = $('<input>', {
     'type': 'button',
     'value': 'Mark thread as read',
   });
-  markReadDiv.append(markReadButton);
+  markReadTd.append(markReadButton);
   markReadButton.click(function() {
     Api.markForumThreadRead(Forum.showBoard);
   });
@@ -330,7 +330,7 @@ Forum.layOutPage = function() {
   Env.showStatusMessage();
 
   Forum.page.find('.pseudoLink').each(function() {
-    $(this).click(Forum.linkToSubPage);
+    $(this).click(Forum.formLinkToSubPage);
     var state = Forum.readStateFromElement(this);
     $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
   });
@@ -349,7 +349,7 @@ Forum.layOutPage = function() {
 ////////////////////////////////////////////////////////////////////////
 // These are events that are triggered by user actions
 
-Forum.linkToSubPage = function(e) {
+Forum.formLinkToSubPage = function(e) {
   e.preventDefault();
   var state = Forum.readStateFromElement(this);
   Env.history.pushState(state, 'Button Men Online &mdash; Forum',
@@ -373,7 +373,7 @@ Forum.toggleNewThreadForm = function() {
   }
 };
 
-Forum.postNewThread = function() {
+Forum.formPostNewThread = function() {
   var title = $(this).parent().find('input.title').val().trim();
   var body = $(this).parent().find('textarea').val().trim();
   if (!title || !body) {
@@ -387,7 +387,7 @@ Forum.postNewThread = function() {
   Api.createForumThread(title, body, Forum.showThread);
 };
 
-Forum.replyToThread = function() {
+Forum.formReplyToThread = function() {
   var body = $(this).parent().find('textarea').val().trim();
   if (!body) {
     Env.message = {
@@ -421,10 +421,11 @@ Forum.quotePost = function() {
 // These functions build HTML to help render the page
 
 Forum.buildBoardRow = function(board) {
-  var tr = $('<tr>', { 'class': board.shortName });
+  var tr = $('<tr>');
 
   var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);
+  titleTd.css('background-color', board.boardColor);
 
   titleTd.append($('<div>').append($('<a>', {
     'class': 'pseudoLink',
@@ -462,11 +463,12 @@ Forum.buildBoardRow = function(board) {
   return tr;
 };
 
-Forum.buildThreadRow = function(thread) {
+Forum.buildThreadRow = function(thread, threadColor) {
   var tr = $('<tr>', { 'class': 'thread' });
 
   var titleTd = $('<td>', { 'class': 'title' });
   tr.append(titleTd);
+  titleTd.css('background-color', threadColor);
 
   titleTd.append($('<div>').append($('<a>', {
     'class': 'pseudoLink',
@@ -631,7 +633,10 @@ Forum.buildHelp = function() {
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
-    'html': '[player="Jota"]: <a href="profilep.html?player=Jota">Jota</a>',
+    'html': '[player="Jota"]: <a href="profile.html?player=Jota">Jota</a>',
+  }));
+  helpDiv.append($('<text>', {
+    'text': 'Actual brackets: ',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',

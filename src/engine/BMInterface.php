@@ -595,7 +595,7 @@ class BMInterface {
 
                 $die = BMDie::create_from_recipe($row['recipe']);
                 $die->playerIdx = $playerIdx;
-                
+
                 $originalPlayerIdx = array_search(
                     $row['original_owner_id'],
                     $game->playerIdArray
@@ -2999,7 +2999,8 @@ class BMInterface {
                 $boards[] = array(
                     'boardId' => (int)$row['id'],
                     'boardName' => $row['name'],
-                    'shortName' => $row['short_name'],
+                    'boardColor' => $row['board_color'],
+                    'threadColor' => $row['thread_color'],
                     'description' => $row['description'],
                     'numberOfThreads' => (int)$row['number_of_threads'],
                     'firstNewPostId' => (int)$row['first_new_post_id'],
@@ -3047,7 +3048,8 @@ class BMInterface {
             }
             $results['boardId'] = (int)$fetchResult[0]['id'];
             $results['boardName'] = $fetchResult[0]['name'];
-            $results['shortName'] = $fetchResult[0]['short_name'];
+            $results['boardColor'] = $fetchResult[0]['board_color'];
+            $results['threadColor'] = $fetchResult[0]['thread_color'];
             $results['description'] = $fetchResult[0]['description'];
 
             // Get a list of threads on this board, with info on their old and new posts
@@ -3133,7 +3135,7 @@ class BMInterface {
 
             // Get the details about the thread itself
             $query =
-                'SELECT t.*, b.name AS board_name, b.short_name AS board_short_name ' .
+                'SELECT t.*, b.name AS board_name, b.board_color, b.thread_color AS board_thread_color ' .
                 'FROM forum_thread AS t ' .
                     'INNER JOIN forum_board AS b ON b.id = t.board_id ' .
                 'WHERE t.id = :thread_id AND t.deleted = 0;';
@@ -3151,7 +3153,8 @@ class BMInterface {
             $results['threadTitle'] = $fetchResult[0]['title'];
             $results['boardId'] = (int)$fetchResult[0]['board_id'];
             $results['boardName'] = $fetchResult[0]['board_name'];
-            $results['boardShortName'] = $fetchResult[0]['board_short_name'];
+            $results['boardColor'] = $fetchResult[0]['board_color'];
+            $results['boardThreadColor'] = $fetchResult[0]['board_thread_color'];
             $results['currentPostId'] = $currentPostId;
 
             // Get a list of posts in this thread

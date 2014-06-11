@@ -175,4 +175,6 @@ test("test_Env.escapeRegexp", function() {
     'Pattern should still match original text');
   ok(!'example_com'.match(escapedPattern),
     'Pattern should not match variant text');
+  equal(escapedPattern, 'example\\.com',
+    'Escaped pattern should be as expected');
 });

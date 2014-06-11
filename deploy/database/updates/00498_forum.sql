@@ -13,16 +13,17 @@ DROP TABLE IF EXISTS forum_thread;
 DROP TABLE IF EXISTS forum_board;
 
 CREATE TABLE forum_board (
-    id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    short_name VARCHAR(20) NOT NULL,
+    board_color VARCHAR(7) NOT NULL,
+    thread_color VARCHAR(7) NOT NULL,
     description VARCHAR(255),
     sort_order TINYINT UNSIGNED NOT NULL
 );
 
 CREATE TABLE forum_thread (
-    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    board_id TINYINT UNSIGNED NOT NULL,
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    board_id SMALLINT UNSIGNED NOT NULL,
     title VARCHAR(100) NOT NULL,
     deleted BIT NOT NULL DEFAULT 0,
     INDEX (board_id),
@@ -31,7 +32,7 @@ CREATE TABLE forum_thread (
 
 CREATE TABLE forum_post(
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    thread_id SMALLINT UNSIGNED NOT NULL,
+    thread_id MEDIUMINT UNSIGNED NOT NULL,
     poster_player_id SMALLINT UNSIGNED NOT NULL,
     creation_time TIMESTAMP NOT NULL DEFAULT '0000-00-00',
     last_update_time TIMESTAMP NOT NULL DEFAULT '0000-00-00',
@@ -43,7 +44,7 @@ CREATE TABLE forum_post(
 );
 
 CREATE TABLE forum_board_player_map(
-    board_id TINYINT UNSIGNED NOT NULL,
+    board_id SMALLINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
     read_time TIMESTAMP DEFAULT '0000-00-00',
     PRIMARY KEY (board_id, player_id),
@@ -52,7 +53,7 @@ CREATE TABLE forum_board_player_map(
 );
 
 CREATE TABLE forum_thread_player_map(
-    thread_id SMALLINT UNSIGNED NOT NULL,
+    thread_id MEDIUMINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
     read_time TIMESTAMP DEFAULT '0000-00-00',
     PRIMARY KEY (thread_id, player_id),
@@ -73,11 +74,11 @@ DELETE FROM forum_thread;
 DELETE FROM forum_board;
 
 INSERT INTO forum_board
-    (id, name, short_name, description, sort_order)
+    (id, name, board_color, thread_color, description, sort_order)
 VALUES
-    ('1', 'Miscellaneous Chatting', 'miscChat', 'Any topic that doesn\'t fit anywhere else.', '20'),
-    ('2', 'Gameplay', 'gameplay', 'Button Men itself: sharing strategies, comparing buttons and skills, etc.', '40'),
-    ('3', 'Features and Bugs', 'featureBug', 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.', '60');
+    ('1', 'Miscellaneous Chatting', '#d0e0f0', '#e7f0f7', 'Any topic that doesn\'t fit anywhere else.', '20'),
+    ('2', 'Gameplay', '#f0f0c0', '#f7f7e0', 'Button Men itself: sharing strategies, comparing buttons and skills, etc.', '40'),
+    ('3', 'Features and Bugs', '#f0d0d0', '#f7e7e7', 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.', '60');
 
 
 # Views for forum-related tables
@@ -96,4 +97,4 @@ FROM forum_post AS post
     INNER JOIN forum_thread AS thread ON thread.id = post.thread_id AND thread.deleted = 0
     INNER JOIN player AS reader
     LEFT JOIN forum_thread_player_map AS tpm ON reader.id = tpm.player_id AND tpm.thread_id = post.thread_id
-    LEFT JOIN forum_board_player_map AS bpm ON reader.id = bpm.player_id AND bpm.board_id = thread.board_id
+    LEFT JOIN forum_board_player_map AS bpm ON reader.id = bpm.player_id AND bpm.board_id = thread.board_id;

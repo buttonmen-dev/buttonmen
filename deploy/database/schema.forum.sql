@@ -10,16 +10,17 @@ DROP TABLE IF EXISTS forum_thread;
 DROP TABLE IF EXISTS forum_board;
 
 CREATE TABLE forum_board (
-    id TINYINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
-    short_name VARCHAR(20) NOT NULL,
+    board_color VARCHAR(7) NOT NULL,
+    thread_color VARCHAR(7) NOT NULL,
     description VARCHAR(255),
     sort_order TINYINT UNSIGNED NOT NULL
 );
 
 CREATE TABLE forum_thread (
-    id SMALLINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    board_id TINYINT UNSIGNED NOT NULL,
+    id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    board_id SMALLINT UNSIGNED NOT NULL,
     title VARCHAR(100) NOT NULL,
     deleted BIT NOT NULL DEFAULT 0,
     INDEX (board_id),
@@ -28,7 +29,7 @@ CREATE TABLE forum_thread (
 
 CREATE TABLE forum_post(
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    thread_id SMALLINT UNSIGNED NOT NULL,
+    thread_id MEDIUMINT UNSIGNED NOT NULL,
     poster_player_id SMALLINT UNSIGNED NOT NULL,
     creation_time TIMESTAMP NOT NULL DEFAULT '0000-00-00',
     last_update_time TIMESTAMP NOT NULL DEFAULT '0000-00-00',
@@ -40,7 +41,7 @@ CREATE TABLE forum_post(
 );
 
 CREATE TABLE forum_board_player_map(
-    board_id TINYINT UNSIGNED NOT NULL,
+    board_id SMALLINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
     read_time TIMESTAMP DEFAULT '0000-00-00',
     PRIMARY KEY (board_id, player_id),
@@ -49,7 +50,7 @@ CREATE TABLE forum_board_player_map(
 );
 
 CREATE TABLE forum_thread_player_map(
-    thread_id SMALLINT UNSIGNED NOT NULL,
+    thread_id MEDIUMINT UNSIGNED NOT NULL,
     player_id SMALLINT UNSIGNED NOT NULL,
     read_time TIMESTAMP DEFAULT '0000-00-00',
     PRIMARY KEY (thread_id, player_id),

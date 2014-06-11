@@ -282,11 +282,8 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     // The (?:... part means that we want parentheses around the whole
     // thing (so we we can OR it together with other ones), but we don't
     // want to capture the value of the whole thing as a group
-    // The (?:\\s|&nbsp;)* is to match any whitespace or HTML non-breaking
-    // space characters.
     allStartTagsPattern +=
-      '(?:\\[(?:\\s|&nbsp;)*(' + Env.escapeRegexp(tagName) +
-        ')(?:\\s|&nbsp;)*(?:=(?:\\s|&nbsp;)*"([^"]*)")?(?:\\s|&nbsp;)*])';
+      '(?:\\[(' + Env.escapeRegexp(tagName) + ')(?:=([^\\]]*?))?])';
   });
 
   var tagName;
@@ -299,8 +296,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       // Matches '[/i]' et al.
       // (so that we can spot the end of the current tag as well)
       currentPattern +=
-        '|(?:\\[(?:\\s|&nbsp;)*(/(?:\\s|&nbsp;)*' + Env.escapeRegexp(tagName) +
-          ')(?:\\s|&nbsp;)*])';
+        '|(?:\\[(/' + Env.escapeRegexp(tagName) + ')])';
     }
     // The first group should be non-greedy (hence the ?), and the last one
     // should be greedy, so that nested tags work right
@@ -316,6 +312,8 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       // javascript apparently believes that capture groups that don't
       // match anything are just important as those that do. So we need
       // to do some acrobatics to find the ones we actually care about.
+      // (match[0] is the whole matched string; match[1] is the stuff before
+      // the tag. So we start with match[2].)
       tagName = '';
       for (var i = 2; i < match.length; i++) {
         tagName = match[i];

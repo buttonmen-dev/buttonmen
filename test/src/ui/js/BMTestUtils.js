@@ -132,11 +132,13 @@ BMTestUtils.restoreGetParameterByName = function() {
   }
 }
 
-// Copies all top-level properties from one object to another, so that you can
-// (e.g.) back up an object, replace some of its functions with mocked ones
-// for testing, then restore it afterward.
-BMTestUtils.CopyAllProperties = function(objA, objB) {
+// Copies all top-level function-type properties from one object to another,
+// so that you can (e.g.) back up an object, replace some of its functions
+// with mocked ones for testing, then restore it afterward.
+BMTestUtils.CopyAllMethods = function(objA, objB) {
   $.each(objA, function(key, value) {
-    objB[key] = value;
+    if ($.isFunction(value)) {
+      objB[key] = value;
+    }
   });
 };

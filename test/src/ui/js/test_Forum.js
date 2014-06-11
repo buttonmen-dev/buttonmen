@@ -4,7 +4,7 @@ module("Forum", {
 
     // Back up any properties that we might decide to replace with mocks
     BMTestUtils.ForumBackup = { };
-    BMTestUtils.CopyAllProperties(Forum, BMTestUtils.ForumBackup);
+    BMTestUtils.CopyAllMethods(Forum, BMTestUtils.ForumBackup);
 
     BMTestUtils.setupFakeLogin();
 
@@ -26,6 +26,7 @@ module("Forum", {
     delete Env.window.location.hash;
     delete Env.history.state;
     delete Forum.page;
+    delete Forum.scrollTarget;
 
     // Page elements
     $('#forum_page').remove();
@@ -35,7 +36,7 @@ module("Forum", {
     BMTestUtils.cleanupFakeLogin();
 
     // Restore any properties that we might have replaced with mocks
-    BMTestUtils.CopyAllProperties(BMTestUtils.ForumBackup, Forum);
+    BMTestUtils.CopyAllMethods(BMTestUtils.ForumBackup, Forum);
 
     // Fail if any other elements were added or removed
     BMTestUtils.ForumPost = BMTestUtils.getAllElements();
@@ -149,14 +150,14 @@ test("test_Forum.layOutPage", function() {
     'The pseudoLink should have been assigned an href');
 });
 
-test("test_Forum.linkToSubPage", function() {
+test("test_Forum.formLinkToSubPage", function() {
   var element = $('<a>', {
     'data-threadId': 6,
     'data-postId': 9,
   });
   Forum.showPage = function() { };
   // .call() calls a function, setting the passed-in parameter as 'this'
-  Forum.linkToSubPage.call(element, $.Event());
+  Forum.formLinkToSubPage.call(element, $.Event());
   equal(Env.history.state.threadId, 6,
     'The threadId should be set in the history state');
   equal(Env.history.state.threadId, 6,
@@ -177,7 +178,7 @@ test("test_Forum.toggleNewThreadForm", function() {
     '#newThreadButton should have been unhidden');
 });
 
-asyncTest("test_Forum.postNewThread", function() {
+asyncTest("test_Forum.formPostNewThread", function() {
   expect(2); // tests plus teardown test
 
   Api.forum_board = { 'boardId': 3 };
@@ -194,10 +195,10 @@ asyncTest("test_Forum.postNewThread", function() {
     start();
   };
   // .call() calls a function, setting the passed-in parameter as 'this'
-  Forum.postNewThread.call(button);
+  Forum.formPostNewThread.call(button);
 });
 
-asyncTest("test_Forum.replyToThread", function() {
+asyncTest("test_Forum.formReplyToThread", function() {
   expect(2); // tests plus teardown test
 
   Api.forum_thread = { 'threadId': 3 };
@@ -213,7 +214,7 @@ asyncTest("test_Forum.replyToThread", function() {
     start();
   };
   // .call() calls a function, setting the passed-in parameter as 'this'
-  Forum.replyToThread.call(button);
+  Forum.formReplyToThread.call(button);
 });
 
 test("test_Forum.quotePost", function() {
@@ -241,7 +242,8 @@ test("test_Forum.buildBoardRow", function() {
   var board = {
     'boardId': 3,
     'boardName': 'Features and Bugs',
-    'shortName': 'featureBug',
+    'boardColor': '#d0e0f0',
+    'threadColor': '#e7f0f7',
     'description':
       'Feedback on new features that have been added, features you\'d like ' +
         'to see or bugs you\'ve discovered.',

@@ -482,18 +482,6 @@ div.forum td.heading {
     vertical-align: middle;
 }
 
-div.forum table.miscChat td.heading {
-    background-color: #d0e0f0;
-}
-
-div.forum table.gameplay td.heading {
-    background-color: #f0f0c0;
-}
-
-div.forum table.featureBug td.heading {
-    background-color: #f0d0d0;
-}
-
 /*
   This is, sadly, necessary to compensate for the dummy row in this table,
   which is, sadly, necessary to make it respect the cell widths when using
@@ -503,24 +491,12 @@ div.forum .posts {
     margin-top: -1.4em;
 }
 
-div.forum .posts tr.miscChat td.heading {
-    background-color: #e7f0f7;
-}
-
-div.forum .posts tr.gameplay td.heading {
-    background-color: #f7f7e0;
-}
-
-div.forum .posts tr.featureBug td.heading {
-    background-color: #f7e7e7;
-}
-
-div.forum .mainBreadrumb {
+div.forum .mainBreadcrumb {
     font-size: 1.1em;
     font-weight: bold;
 }
 
-div.forum .boards .mainBreadrumb {
+div.forum .boards .mainBreadcrumb {
     font-size: 1.2em;
     font-weight: bold;
 }
@@ -532,7 +508,11 @@ div.forum .subHeader {
 div.forum td.notes {
     background-color: #cccccc;
     white-space: nowrap;
-    /* This is so we don't get the borders from both cells together */
+    /*
+      If we showed the right border from the left cell and the left border from
+      the right one, it would look like one double-thick monster border.
+      So don't do that.
+    */
     border-left: 0;
     width: 160px;
 }
@@ -605,30 +585,6 @@ div.forum .boards td.title {
     background-color: #dddddd;
 }
 
-div.forum .boards tr.miscChat td.title {
-    background-color: #d0e0f0;
-}
-
-div.forum .boards tr.gameplay td.title {
-    background-color: #f0f0c0;
-}
-
-div.forum .boards tr.featureBug td.title {
-    background-color: #f0d0d0;
-}
-
-div.forum table.miscChat td.title {
-    background-color: #e7f0f7;
-}
-
-div.forum table.gameplay td.title {
-    background-color: #f7f7e0;
-}
-
-div.forum table.featureBug td.title {
-    background-color: #f7e7e7;
-}
-
 div.forum td.title a,
 div.forum td.attribution a {
     color: black;
@@ -676,8 +632,9 @@ div.forum tr.writePost td {
     text-align: right;
 }
 
-div.forum div.markRead {
-    text-align: center;
+div.forum td.markRead {
+    text-align: left;
+    border: 0;
 }
 
 div.forum div.splitLeft {

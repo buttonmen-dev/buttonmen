@@ -10,8 +10,8 @@ DELETE FROM forum_thread;
 DELETE FROM forum_board;
 
 INSERT INTO forum_board
-    (id, name, short_name, description, sort_order)
+    (id, name, board_color, thread_color, description, sort_order)
 VALUES
-    ('1', 'Miscellaneous Chatting', 'miscChat', 'Any topic that doesn\'t fit anywhere else.', '20'),
-    ('2', 'Gameplay', 'gameplay', 'Button Men itself: sharing strategies, comparing buttons and skills, etc.', '40'),
-    ('3', 'Features and Bugs', 'featureBug', 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.', '60');
+    ('1', 'Miscellaneous Chatting', '#d0e0f0', '#e7f0f7', 'Any topic that doesn\'t fit anywhere else.', '20'),
+    ('2', 'Gameplay', '#f0f0c0', '#f7f7e0', 'Button Men itself: sharing strategies, comparing buttons and skills, etc.', '40'),
+    ('3', 'Features and Bugs', '#f0d0d0', '#f7e7e7', 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.', '60');

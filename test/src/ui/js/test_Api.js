@@ -18,7 +18,6 @@ module("Api", {
     delete Api.forum_overview;
     delete Api.forum_board;
     delete Api.forum_thread;
-    delete Api.search_results;
     delete Api.open_games;
     delete Api.join_game_result;
     delete Api.active_players;

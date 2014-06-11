@@ -1583,7 +1583,8 @@ class DummyApiResponder {
         $boards[] = array(
             'boardId' => 1,
             'boardName' => 'Miscellaneous Chatting',
-            'shortName' => 'miscChat',
+            'boardColor' => '#d0e0f0',
+            'threadColor' => '#e7f0f7',
             'description' => 'Any topic that doesn\'t fit anywhere else.',
             'numberOfThreads' => 2,
             'firstNewPostId' => 3,
@@ -1592,7 +1593,8 @@ class DummyApiResponder {
         $boards[] = array(
             'boardId' => 2,
             'boardName' => 'Features and Bugs',
-            'shortName' => 'featureBug',
+            'boardColor' => '#f0d0d0',
+            'threadColor' => '#f7e7e7',
             'description' =>
                 'Feedback on new features that have been added, features ' .
                     'you\'d like to see or bugs you\'ve discovered.',
@@ -1611,7 +1613,8 @@ class DummyApiResponder {
         $results = array();
         $results['boardId'] = 1;
         $results['boardName'] = 'Miscellaneous Chatting';
-        $results['shortName'] = 'miscChat';
+        $results['boardColor'] = '#d0e0f0';
+        $results['threadColor'] = '#e7f0f7';
         $results['description'] = 'Any topic that doesn\'t fit anywhere else.';
 
         $threads = array();
@@ -1648,7 +1651,8 @@ class DummyApiResponder {
         $results['threadTitle'] = 'Who likes ice cream?';
         $results['boardId'] = 1;
         $results['boardName'] = 'Miscellaneous Chatting';
-        $results['boardShortName'] = 'miscChat';
+        $results['boardColor'] = '#d0e0f0';
+        $results['boardThreadColor'] = '#e7f0f7';
         if (isset($args['currentPostId'])) {
             $results['currentPostId'] = (int)$args['currentPostId'];
         } else {
