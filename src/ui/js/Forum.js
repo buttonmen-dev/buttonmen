@@ -130,7 +130,10 @@ Forum.showOverview = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Api.markForumRead(Forum.showOverview);
+    Forum.parseFormPost({
+      'type': 'markForumRead',
+      'timestamp': Api.forum_overview.timestamp,
+    }, 'forum_overview', $(this), Forum.showOverview);
   });
 
   // Actually lay out the page
@@ -228,7 +231,11 @@ Forum.showBoard = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Api.markForumBoardRead(Forum.showOverview);
+    Forum.parseFormPost({
+      'type': 'markForumBoardRead',
+      'boardId': Api.forum_board.boardId,
+      'timestamp': Api.forum_board.timestamp,
+    }, 'forum_overview', $(this), Forum.showOverview);
   });
 
   // Actually lay out the page
@@ -317,7 +324,12 @@ Forum.showThread = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Api.markForumThreadRead(Forum.showBoard);
+    Forum.parseFormPost({
+      'type': 'markForumThreadRead',
+      'threadId': Api.forum_thread.threadId,
+      'boardId': Api.forum_thread.boardId,
+      'timestamp': Api.forum_thread.timestamp,
+    }, 'forum_board', $(this), Forum.showBoard);
   });
 
   // Actually lay out the page
@@ -384,7 +396,15 @@ Forum.formPostNewThread = function() {
     Env.showStatusMessage();
     return;
   }
-  Api.createForumThread(title, body, Forum.showThread);
+
+  var args = {
+    'type': 'createForumThread',
+    'boardId': Api.forum_board.boardId,
+    'title': title,
+    'body': body,
+  };
+
+  Forum.parseFormPost(args, 'forum_thread', $(this), Forum.showThread);
 };
 
 Forum.formReplyToThread = function() {
@@ -397,7 +417,14 @@ Forum.formReplyToThread = function() {
     Env.showStatusMessage();
     return;
   }
-  Api.createForumPost(body, Forum.showThread);
+
+  var args = {
+    'type': 'createForumPost',
+    'threadId': Api.forum_thread.threadId,
+    'body': body,
+  };
+
+  Forum.parseFormPost(args, 'forum_thread', $(this), Forum.showThread);
 };
 
 Forum.quotePost = function() {
@@ -636,7 +663,7 @@ Forum.buildHelp = function() {
     'html': '[player="Jota"]: <a href="profile.html?player=Jota">Jota</a>',
   }));
   helpDiv.append($('<text>', {
-    'text': 'Actual brackets: ',
+    'text': 'For actual brackets: ',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
@@ -685,4 +712,19 @@ Forum.buildUrlHash = function(state) {
   }
 
   return hash;
+};
+
+Forum.parseFormPost = function(args, apiKey, submitButton, callback) {
+  var messages = {
+    'ok': {
+      'type': 'function',
+      'msgfunc': function(message, data) {
+        Api[apiKey] = { 'load_status': 'ok' };
+        Api.parseGenericData(data, apiKey);
+      },
+    },
+    'notok': { 'type': 'server', },
+  };
+
+  Api.apiFormPost(args, messages, submitButton, callback, callback);
 };

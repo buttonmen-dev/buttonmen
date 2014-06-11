@@ -101,8 +101,9 @@ var Api = (function () {
     );
   };
 
-  my.apiFormPost = function(args, messages, submitid, callback, failcallback) {
-    my.disableSubmitButton(submitid);
+  my.apiFormPost = function(
+      args, messages, submitButton, callback, failcallback) {
+    my.disableSubmitButton(submitButton);
     $.post(
       Env.api_location,
       args,
@@ -506,9 +507,12 @@ var Api = (function () {
     return text;
   };
 
-  my.disableSubmitButton = function(button_id) {
-    if (button_id) {
-      $('#' + button_id).attr('disabled', 'disabled');
+  my.disableSubmitButton = function(button) {
+    if (button) {
+      if (!(button instanceof jQuery)) {
+        button = $('#' + button);
+      }
+      button.attr('disabled', 'disabled');
     }
   };
 
@@ -616,77 +620,6 @@ var Api = (function () {
         'type': 'loadForumThread',
         'threadId': threadId,
         'currentPostId': currentPostId,
-      },
-      'forum_thread',
-      my.parseGenericData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.markForumRead = function(callbackfunc) {
-    my.apiParsePost(
-      {
-        'type': 'markForumRead',
-        'timestamp': my.forum_overview.timestamp,
-      },
-      'forum_overview',
-      my.parseGenericData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.markForumBoardRead = function(callbackfunc) {
-    my.apiParsePost(
-      {
-        'type': 'markForumBoardRead',
-        'boardId': my.forum_board.boardId,
-        'timestamp': my.forum_board.timestamp,
-      },
-      'forum_overview',
-      my.parseGenericData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.markForumThreadRead = function(callbackfunc) {
-    my.apiParsePost(
-      {
-        'type': 'markForumThreadRead',
-        'threadId': my.forum_thread.threadId,
-        'boardId': my.forum_thread.boardId,
-        'timestamp': my.forum_thread.timestamp,
-      },
-      'forum_board',
-      my.parseGenericData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.createForumThread = function(title, body, callbackfunc) {
-    my.apiParsePost(
-      {
-        'type': 'createForumThread',
-        'boardId': my.forum_board.boardId,
-        'title': title,
-        'body': body,
-      },
-      'forum_thread',
-      my.parseGenericData,
-      callbackfunc,
-      callbackfunc
-    );
-  };
-
-  my.createForumPost = function(body, callbackfunc) {
-    my.apiParsePost(
-      {
-        'type': 'createForumPost',
-        'threadId': my.forum_thread.threadId,
-        'body': body,
       },
       'forum_thread',
       my.parseGenericData,

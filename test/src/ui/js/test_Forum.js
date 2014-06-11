@@ -191,7 +191,7 @@ asyncTest("test_Forum.formPostNewThread", function() {
 
   Forum.showThread = function() {
     equal(Api.forum_thread.load_status, 'ok',
-       'The thread should be loaded after it was added');
+      'The thread should be loaded after it was added');
     start();
   };
   // .call() calls a function, setting the passed-in parameter as 'this'

@@ -377,56 +377,6 @@ asyncTest("test_Api.loadForumThread", function() {
     });
 });
 
-asyncTest("test_Api.markForumRead", function() {
-  Api.forum_overview = { 'timestamp': 1 };
-  Api.markForumRead(
-    function() {
-      equal(Api.forum_overview.load_status, 'ok',
-        'Successfully marked forum read');
-      start();
-    });
-});
-
-asyncTest("test_Api.markForumBoardRead", function() {
-  Api.forum_board = { 'boardId': 1, 'timestamp': 1 };
-  Api.markForumBoardRead(
-    function() {
-      equal(Api.forum_overview.load_status, 'ok',
-        'Successfully marked board read');
-      start();
-    });
-});
-
-asyncTest("test_Api.markForumThreadRead", function() {
-  Api.forum_thread = { 'threadId': 1, 'boardId': 1, 'timestamp': 1 };
-  Api.markForumThreadRead(
-    function() {
-      equal(Api.forum_board.load_status, 'ok',
-        'Successfully marked thread read');
-      start();
-    });
-});
-
-asyncTest("test_Api.createForumThread", function() {
-  Api.forum_board = { 'boardId': 1 };
-  Api.createForumThread('Title', 'Body',
-    function() {
-      equal(Api.forum_thread.load_status, 'ok',
-        'Successfully created forum thread');
-      start();
-    });
-});
-
-asyncTest("test_Api.createForumPost", function() {
-  Api.forum_thread = { 'threadId': 1 };
-  Api.createForumPost('Body',
-    function() {
-      equal(Api.forum_thread.load_status, 'ok',
-        'Successfully created forum post');
-      start();
-    });
-});
-
 asyncTest("test_Api.getActivePlayers", function() {
   Api.getActivePlayers(20,
     function() {
