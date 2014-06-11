@@ -177,7 +177,7 @@ class BMInterface {
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
     }
-    
+
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {
@@ -299,19 +299,22 @@ class BMInterface {
                      '     n_players, '.
                      '     n_target_wins, '.
                      '     n_recent_passes, '.
-                     '     creator_id) '.
+                     '     creator_id, '.
+                     '     creation_time) '.
                      'VALUES '.
                      '    ((SELECT id FROM game_status WHERE name = :status), '.
                      '     :n_players, '.
                      '     :n_target_wins, '.
                      '     :n_recent_passes, '.
-                     '     :creator_id)';
+                     '     :creator_id, '.
+                     '     FROM_UNIXTIME(:creation_time))';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':status'        => 'OPEN',
                                       ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
-                                      ':creator_id'    => $playerIdArray[0]));
+                                      ':creator_id'    => $playerIdArray[0],
+                                      ':creation_time' => time()));
 
             $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
             $statement->execute();
@@ -591,7 +594,7 @@ class BMInterface {
 
                 $die = BMDie::create_from_recipe($row['recipe']);
                 $die->playerIdx = $playerIdx;
-                
+
                 $originalPlayerIdx = array_search(
                     $row['original_owner_id'],
                     $game->playerIdArray
@@ -2298,6 +2301,13 @@ class BMInterface {
                                       ':player_id' => $currentPlayerId,
                                       ':position'  => $emptyPlayerIdx));
 
+            $query = 'UPDATE game SET creation_time = FROM_UNIXTIME(:creation_time) '.
+                     'WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+
+            $statement->execute(array(':creation_time' => time(),
+                                      ':id'            => $gameId));
+
             $game = $this->load_game($gameId);
             $this->save_game($game);
 
@@ -2355,6 +2365,13 @@ class BMInterface {
             $statement->execute(array(':game_id'   => $gameId,
                                       ':player_id' => $playerId,
                                       ':button_id' => $buttonId));
+
+            $query = 'UPDATE game SET creation_time = FROM_UNIXTIME(:creation_time) '.
+                     'WHERE id = :id';
+            $statement = self::$conn->prepare($query);
+
+            $statement->execute(array(':creation_time' => time(),
+                                      ':id'            => $gameId));
 
             $game = $this->load_game($gameId);
             $this->save_game($game);

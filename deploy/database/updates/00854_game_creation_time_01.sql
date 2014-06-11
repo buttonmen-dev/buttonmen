@@ -1,0 +1,1 @@
+ALTER TABLE game ADD creation_time TIMESTAMP DEFAULT 0;
