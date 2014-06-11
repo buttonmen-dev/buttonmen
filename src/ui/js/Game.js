@@ -204,6 +204,9 @@ Game.layoutPage = function() {
   $('#game_page').empty();
   $('#game_page').append(Game.page);
 
+  // If a game form is specified, activate the game form on mouse click.
+  // (The form will automatically be invoked when the player presses
+  // the return key as well.)
   if (Game.form) {
     $('#game_action_button').click(Game.form);
   }
@@ -281,6 +284,10 @@ Game.parseAuxiliaryDieOptions = function() {
 
 // It is time to choose swing dice, and the current player has dice to choose
 Game.actionSpecifyDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formSpecifyDiceActive;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('Your turn to choose die sizes');
 
@@ -387,14 +394,15 @@ Game.actionSpecifyDiceActive = function() {
   Game.page.append(dietable);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formSpecifyDiceActive;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionSpecifyDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('Opponent\'s turn to choose die sizes');
 
@@ -403,13 +411,15 @@ Game.actionSpecifyDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionSpecifyDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
 
   Game.pageAddGameHeader(
@@ -422,13 +432,16 @@ Game.actionSpecifyDiceNonplayer = function() {
   Game.page.append($('<br>'));
 
   Game.pageAddFooter();
-  Game.form = null;
 
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseAuxiliaryDiceActive;
+
   Game.parseAuxiliaryDieOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -478,14 +491,15 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   Game.page.append(auxform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseAuxiliaryDiceActive;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to decide whether to use auxiliary dice');
@@ -502,14 +516,15 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -523,14 +538,15 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionChooseReserveDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseReserveDiceActive;
+
   Game.parseValidReserveOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -578,14 +594,15 @@ Game.actionChooseReserveDiceActive = function() {
   Game.page.append(reserveform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseReserveDiceActive;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionChooseReserveDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to choose reserve dice');
@@ -602,14 +619,15 @@ Game.actionChooseReserveDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -623,14 +641,15 @@ Game.actionChooseReserveDiceNonplayer = function() {
   Game.page.append(dietable);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionReactToInitiativeActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formReactToInitiativeActive;
+
   Game.parseValidInitiativeActions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -690,14 +709,15 @@ Game.actionReactToInitiativeActive = function() {
   Game.page.append(reactform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formReactToInitiativeActive;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionReactToInitiativeInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to try to gain initiative using die skills');
@@ -709,14 +729,15 @@ Game.actionReactToInitiativeInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -730,14 +751,15 @@ Game.actionReactToInitiativeNonplayer = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionPlayTurnActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnActive;
+
   Game.page = $('<div>');
   if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
@@ -763,10 +785,22 @@ Game.actionPlayTurnActive = function() {
   validAttackTypes.push('');
   validAttackTypes.push('Surrender');
 
+  // configure the attack type select object
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
   });
+
+  // install a keyboard handler so that hitting "return" while on
+  // the attack type select submits the form (don't install any
+  // mouse click or space bar behavior)
+  Env.addClickKeyboardHandlers(
+    attacktypeselect,
+    null,
+    null,
+    Game.form
+  );
+
   for (var i = 0; i < validAttackTypes.length; i++) {
     var attacktype = validAttackTypes[i];
     var typetext;
@@ -799,14 +833,15 @@ Game.actionPlayTurnActive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formPlayTurnActive;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionPlayTurnInactive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnInactive;
+
   Game.page = $('<div>');
   if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
@@ -834,14 +869,15 @@ Game.actionPlayTurnInactive = function() {
 
   Game.pageAddFooter(true);
 
-  // Function to invoke on button click
-  Game.form = Game.formPlayTurnInactive;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionPlayTurnNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
@@ -856,13 +892,15 @@ Game.actionPlayTurnNonplayer = function() {
   Game.pageAddDieBattleTable(false);
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
   Game.layoutPage();
 };
 
 Game.actionShowFinishedGame = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('This game is over');
 
@@ -881,8 +919,6 @@ Game.actionShowFinishedGame = function() {
   Game.page.append(dieEndgameTable);
   Game.logEntryLimit = undefined;
   Game.pageAddFooter();
-
-  Game.form = null;
 
   // Now layout the page
   Game.layoutPage();
@@ -1864,6 +1900,8 @@ Game.gamePlayerDice = function(player, player_active) {
     var divOpts = { };
 
     if (clickable) {
+      // clickable dice should be selectable via keyboard as well
+      containerDivOpts.tabIndex = 0;
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
@@ -1877,9 +1915,19 @@ Game.gamePlayerDice = function(player, player_active) {
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
-        dieContainerDiv.click(Game.dieBorderTogglePlayerHandler);
+        Env.addClickKeyboardHandlers(
+          dieContainerDiv,
+          Game.dieBorderTogglePlayerHandler,
+          Game.dieBorderTogglePlayerHandler,
+          Game.form
+        );
       } else {
-        dieContainerDiv.click(Game.dieBorderToggleOpponentHandler);
+        Env.addClickKeyboardHandlers(
+          dieContainerDiv,
+          Game.dieBorderToggleOpponentHandler,
+          Game.dieBorderToggleOpponentHandler,
+          Game.form
+        );
       }
     } else {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];

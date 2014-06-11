@@ -3,6 +3,10 @@ if (!(Env)) {
   var Env = {};
 }
 
+// Keycodes for use when handling keyboard events
+Env.KEYCODE_RETURN = 13;
+Env.KEYCODE_SPACEBAR = 32;
+
 // Colors for status messages
 Env.messageTypeColors = {
   'none': 'black',
@@ -182,6 +186,35 @@ Env.setCookieCompactMode = function(value) {
 Env.getCookieCompactMode = function() {
   // Cookies are stored as strings, but we want to return a bool
   return ($.cookie(Login.player + '_compactMode') == 'true');
+};
+
+// utility function to add a click handler and also handle keydown
+// effects
+Env.addClickKeyboardHandlers = function(
+     element, clickHandlerCallback, spaceHandlerCallback,
+     returnHandlerCallback) {
+
+  // invoke the click handler on mouse click
+  if (clickHandlerCallback) {
+    element.click(clickHandlerCallback);
+  }
+
+  // If the caller specified either "spacebar" or "return" keydown
+  // behavior, install a keydown handler.
+  if (spaceHandlerCallback || returnHandlerCallback) {
+    element.keydown(function(eventData) {
+
+      // if a space handler was specified, invoke it on spacebar
+      if (spaceHandlerCallback && eventData.which == Env.KEYCODE_SPACEBAR) {
+        spaceHandlerCallback.call(element, eventData);
+      }
+
+      // if a return handler was specified, invoke it on return
+      if (returnHandlerCallback && eventData.which == Env.KEYCODE_RETURN) {
+        returnHandlerCallback.call(element, eventData);
+      }
+    });
+  }
 };
 
 // Takes text that was entered by a user and turns it into HTML that's ready to

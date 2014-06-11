@@ -150,6 +150,63 @@ test("test_Env.getCookieCompactMode", function() {
   equal(Env.getCookieCompactMode(), value, 'compactMode is true');
 });
 
+asyncTest("test_Env.addClickKeyboardHandlers", function() {
+  $('body').append($('h1', {'text': 'is there anybody out there?', 'id': 'env_handler_test', }));
+  $('body').append($('<div>', {'id': 'env_message', }));
+  $('#env_message').append($('<button>', {
+    'id': 'env_handler_test',
+    'text': 'Submit',
+    'tabIndex': 0,
+  }));
+  item = $('#env_handler_test');
+
+  var mouseClicked;
+  var registerMouseClick = function() {
+    mouseClicked = true;
+  }
+  var spacePressed;
+  var registerSpacePress = function() {
+    spacePressed = true;
+  }
+  var returnPressed;
+  var registerReturnPress = function() {
+    returnPressed = true;
+  }
+  Env.addClickKeyboardHandlers(item, registerMouseClick, registerSpacePress, registerReturnPress);
+
+  var spacePress = jQuery.Event('keydown');
+  spacePress.which = 32;
+
+  var returnPress = jQuery.Event('keydown');
+  returnPress.which = 13;
+
+  mouseClicked = false;
+  spacePressed = false;
+  returnPressed = false;
+  item.trigger('click');
+  equal(mouseClicked, true, "Mouse handler was invoked on mouse click");
+  equal(spacePressed, false, "Spacebar handler was not invoked on mouse click");
+  equal(returnPressed, false, "Return key handler was not invoked on mouse click");
+
+  mouseClicked = false;
+  spacePressed = false;
+  returnPressed = false;
+  item.trigger(spacePress);
+  equal(mouseClicked, false, "Mouse handler was not invoked on spacebar key press");
+  equal(spacePressed, true, "Spacebar handler was invoked on spacebar key press");
+  equal(returnPressed, false, "Return key handler was not invoked on spacebar key press");
+
+  mouseClicked = false;
+  spacePressed = false;
+  returnPressed = false;
+  item.trigger(returnPress);
+  equal(mouseClicked, false, "Mouse handler was not invoked on return key press");
+  equal(spacePressed, false, "Spacebar handler was not invoked on return key press");
+  equal(returnPressed, true, "Return key handler was invoked on return key press");
+
+  start();
+});
+
 test("test_Env.prepareRawTextForDisplay", function() {
   var rawText = '<b>HTML</b>\n[i]BB Code[/i]';
   var holder = $('<div>');
