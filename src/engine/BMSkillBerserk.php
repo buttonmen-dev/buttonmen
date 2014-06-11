@@ -67,7 +67,7 @@ class BMSkillBerserk extends BMSkill {
     }
 
     protected function get_description() {
-	return 'These dice cannot participate in Skill Attacks; ' .
+        return 'These dice cannot participate in Skill Attacks; ' .
                'instead they can make a Berserk Attack. These work exactly ' .
                'like Speed Attacks - one Berserk Die can capture any number ' .
                'of dice which add up exactly to its value. Once a Berserk ' .
@@ -78,8 +78,8 @@ class BMSkillBerserk extends BMSkill {
 
     protected function get_interaction_descriptions() {
         return array(
-	    'Speed' => 'Dice with both Berserk and Speed skills may ' .
-	               'choose to make either kind of attack',
+            'Speed' => 'Dice with both Berserk and Speed skills may ' .
+                       'choose to make either kind of attack',
         );
     }
 }

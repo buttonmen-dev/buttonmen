@@ -43,7 +43,7 @@ class BMSkillShadow extends BMSkill {
                          'whose value is greater than or equal to their own, or ' .
                          'a skill attack against a die whose value is lower than ' .
                          'or equal to their own)',
-	    'Trip' => 'Dice with both Shadow and Trip skills always ' .
+            'Trip' => 'Dice with both Shadow and Trip skills always ' .
                       'determine their success or failure at Trip Attacking ' .
                       'via a Power Attack',
         );

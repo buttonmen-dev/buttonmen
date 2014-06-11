@@ -19,7 +19,7 @@ class BMSkillDoppelganger extends BMSkillMorphing {
     }
 
     protected function get_description() {
-	return 'When a Doppelganger Die performs a Power Attack on ' .
+        return 'When a Doppelganger Die performs a Power Attack on ' .
                'another die, the Doppelganger Die becomes an exact copy of ' .
                'the die it captured. The newly copied die is then rerolled, ' .
                'and has all the abilities of the captured die. For instance, ' .

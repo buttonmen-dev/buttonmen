@@ -35,7 +35,7 @@ class BMSkillFocus extends BMSkill {
     }
 
     protected function get_description() {
-	return 'If you do not have the initiative at the start of ' .
+        return 'If you do not have the initiative at the start of ' .
                'a round you may reduce the values showing on one or more ' .
                'of your Focus Dice. You may only do this if it results in ' .
                'your gaining the initiative. If your opponent has Focus ' .

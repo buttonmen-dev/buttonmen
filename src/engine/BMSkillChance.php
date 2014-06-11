@@ -8,7 +8,7 @@ class BMSkillChance extends BMSkill {
     }
 
     protected function get_description() {
-	return 'If you do not have the initiative at the start of ' .
+        return 'If you do not have the initiative at the start of ' .
                'a round you may re-roll one of your Chance Dice. If this ' .
                'results in you gaining the initiative, your opponent may ' .
                're-roll one of their Chance Dice. This can continue with ' .
