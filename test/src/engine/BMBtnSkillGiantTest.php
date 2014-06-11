@@ -1,8 +1,8 @@
 <?php
 
-class BMSkillSlowTest extends PHPUnit_Framework_TestCase {
+class BMBtnSkillGiantTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillSlow
+     * @var BMBtnSkillGiant
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMSkillSlowTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMSkillSlow;
+        $this->object = new BMBtnSkillGiant;
     }
 
     /**
@@ -24,13 +24,11 @@ class BMSkillSlowTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMSkillSlow::initiative_value
+     * @covers BMBtnSkillGiant::is_button_slow
      */
-    public function testInitiative_value()
-    {
-        $a = 15;
-        $b = array('initiativeValue' => &$a);
-        $this->object->initiative_value($b);
-        $this->assertEquals(0, $a);
+    public function testIs_button_slow() {
+        $retVal = BMBtnSkillGiant::is_button_slow(array('name' => 'Giant'));
+        $this->assertTrue($retVal['is_button_slow']);
     }
 }
+

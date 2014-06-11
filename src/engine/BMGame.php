@@ -573,7 +573,10 @@ class BMGame {
 
     protected function do_next_step_determine_initiative() {
         $hasInitiativeArray =
-            BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
+            BMGame::does_player_have_initiative_array(
+                $this->activeDieArrayArray,
+                $this->buttonArray
+            );
 
         if (array_sum($hasInitiativeArray) > 1) {
             $playersWithInit = array();
@@ -1392,7 +1395,10 @@ class BMGame {
         $this->optRequestArrayArray[$playerIdx][$dieIdx] = $optionArray;
     }
 
-    public static function does_player_have_initiative_array(array $activeDieArrayArray) {
+    public static function does_player_have_initiative_array(
+        array $activeDieArrayArray,
+        $buttonArray = array()
+    ) {
         $initiativeArrayArray = array();
         foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
             $initiativeArrayArray[] = array();
@@ -1403,6 +1409,16 @@ class BMGame {
                     $initiativeArrayArray[$playerIdx][] = $tempInitiative;
                 }
             }
+
+            if (!empty($buttonArray)) {
+                // add an artificial PHP_INT_MAX to each array, except if the button is slow
+                if (BMGame::is_button_slow($buttonArray[$playerIdx])) {
+                    $initiativeArrayArray[$playerIdx] = array();
+                } else {
+                    $initiativeArrayArray[$playerIdx][] = PHP_INT_MAX - 1;
+                }
+            }
+
             sort($initiativeArrayArray[$playerIdx]);
         }
 
@@ -1433,6 +1449,18 @@ class BMGame {
         }
 
         return $hasPlayerInitiative;
+    }
+
+    protected static function is_button_slow($button) {
+        $hookResult = $button->run_hooks(
+            'is_button_slow',
+            array('name' => $button->name)
+        );
+
+        $isSlow = isset($hookResult['BMBtnSkill'.$button->name]['is_button_slow']) &&
+                  $hookResult['BMBtnSkill'.$button->name]['is_button_slow'];
+
+        return $isSlow;
     }
 
     public static function is_die_specified($die) {
@@ -1836,7 +1864,7 @@ class BMGame {
                           'oppname' => $oppButtonName,
                           'opprecipe' => $oppButtonRecipe)
                 );
-                if (isset($hookResult) && (FALSE !== $hookResult)) {
+                if (isset($hookResult['BMBtnSkill'.$button->name]['recipe'])) {
                     $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
                     $button->hasAlteredRecipe = TRUE;
                 }
