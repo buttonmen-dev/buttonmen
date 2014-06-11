@@ -1218,6 +1218,9 @@ class DummyApiResponder {
                                              array(8,10,12,20,20));
         $gameData['dieRecipeArrayArray'] = array(array("(8)","(10)","(12)","f(20)","f(20)"),
                                                  array("(8)","(10)","(12)","f(20)","f(20)"));
+        $gameData['dieSkillsArrayArray'] =
+            array(array(array(), array(), array(), array('Focus' => TRUE), array('Focus' => TRUE)),
+                  array(array(), array(), array(), array('Focus' => TRUE), array('Focus' => TRUE)));
         $gameData['dieDescriptionArrayArray'] =
             array(
                 array(

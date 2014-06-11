@@ -1348,7 +1348,7 @@ Game.pageAddGameHeader = function(action_desc) {
 Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
-  Game.pageAddTimestampFooter();
+  Game.pageAddSkillListFooter();
   Game.pageAddLogFooter();
 };
 
@@ -1388,21 +1388,42 @@ Game.pageAddGameNavigationFooter = function() {
   return true;
 };
 
-// Display a footer-style message with the last action timestamp
-Game.pageAddTimestampFooter = function() {
+// Display a footer-style message with the list of skills in this game
+Game.pageAddSkillListFooter = function() {
+  var gameDieSkills = {};
+  var gameSkillDiv = $('<div>', {
+    'text': 'Die skills in this game: ',
+  });
 
-  // Timestamp has a different meaning if the game is over
-  var timestamptext;
-  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    timestamptext = 'Game completed at';
-  } else {
-    timestamptext = 'Last action time';
+  $.each(Api.game.player.dieSkillsArray, function(i) {
+    $.each(Api.game.player.dieSkillsArray[i], function(skill) {
+      gameDieSkills[skill] = true;
+    });
+  });
+  $.each(Api.game.opponent.dieSkillsArray, function(i) {
+    $.each(Api.game.opponent.dieSkillsArray[i], function(skill) {
+      gameDieSkills[skill] = true;
+    });
+  });
+
+  var firstSkill = true;
+  $.each(Array.sort(Object.keys(gameDieSkills)), function(i, skill) {
+    if (!(firstSkill)) {
+      gameSkillDiv.append(', ');
+    }
+    gameSkillDiv.append($('<a>', {
+      'href': 'help.html?skill=' + skill,
+      'text': skill,
+    }));
+    firstSkill = false;
+  });
+
+  if (firstSkill) {
+    gameSkillDiv.append('none');
   }
 
   Game.page.append($('<br>'));
-  Game.page.append($('<div>', {
-    'text': timestamptext + ': ' + Env.formatTimestamp(Api.game.timestamp),
-  }));
+  Game.page.append(gameSkillDiv);
   return true;
 };
 

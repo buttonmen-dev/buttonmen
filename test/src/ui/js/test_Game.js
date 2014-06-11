@@ -855,15 +855,17 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
   });
 });
 
-asyncTest("test_Game.pageAddTimestampFooter", function() {
-  BMTestUtils.GameType = 'newgame';
+asyncTest("test_Game.pageAddSkillListFooter", function() {
+  BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddTimestampFooter();
+    Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Timestamp footer should insert line break");
-    ok(htmlout.match('<div>Last action time: '),
-       "Timestamp footer text seems reasonable");
+    ok(htmlout.match('<br>'), "Skill list footer should insert line break");
+    ok(htmlout.match('<div>Die skills in this game: '),
+       "Die skills footer text is present");
+    ok(htmlout.match('Focus'),
+       "Die skills footer text lists the Focus skill");
     start();
   });
 });
