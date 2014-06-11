@@ -2165,6 +2165,7 @@ class BMGame {
                   'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
                   'roundScoreArray'            => $this->get__roundScoreArray(),
                   'sideScoreArray'             => $this->get_sideScoreArray(),
+                  'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
                   'gameScoreArrayArray'        => $this->gameScoreArrayArray,
                   'lastActionTimeArray'        => $this->lastActionTimeArray);
 
@@ -2554,5 +2555,41 @@ class BMGame {
         }
 
         return TRUE;
+    }
+
+    /**
+     * Return an array of all skills appearing in die recipes in this game
+     *
+     * This returns all skills appearing on any die which is in a
+     * button recipe in this game, whether or not that die is currently
+     * in play.
+     *
+     * @return array   Array of skill information, indexed by skill name
+     */
+    protected function get_gameSkillsInfo() {
+        $gameSkillsList = array();
+
+        if (isset($this->buttonArray)) {
+            foreach ($this->buttonArray as $playerIdx => $playerButton) {
+                if (count($playerButton->dieArray) > 0) {
+                    foreach ($playerButton->dieArray as $buttonDie) {
+                        if (count($buttonDie->skillList) > 0) {
+                            foreach (array_keys($buttonDie->skillList) as $skillType) {
+                                if (!in_array($skillType, $gameSkillsList)) {
+                                    $gameSkillsList[] = $skillType;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        sort($gameSkillsList);
+
+        $gameSkillsInfo = array();
+        foreach ($gameSkillsList as $skillType) {
+            $gameSkillsInfo[$skillType] = TRUE;
+        }
+        return $gameSkillsInfo;
     }
 }

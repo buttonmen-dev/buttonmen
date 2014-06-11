@@ -374,6 +374,7 @@ var Api = (function () {
     my.game.maxWins = my.game.gameData.data.maxWins;
     my.game.gameState = my.game.gameData.data.gameState;
     my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
+    my.game.gameSkillsInfo = my.game.gameData.data.gameSkillsInfo;
 
     if (my.game.isParticipant) {
       my.game.playerIdx = data.currentPlayerIdx;

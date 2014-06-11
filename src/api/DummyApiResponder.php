@@ -722,6 +722,7 @@ class DummyApiResponder {
             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                            array("W" => 0, "L" => 0, "D" => 0)),
             "lastActionTimeArray" => array(0, 0),
+            "gameSkillsInfo" => array(),
         );
 
         return $gameData;
@@ -1221,6 +1222,7 @@ class DummyApiResponder {
         $gameData['dieSkillsArrayArray'] =
             array(array(array(), array(), array(), array('Focus' => TRUE), array('Focus' => TRUE)),
                   array(array(), array(), array(), array('Focus' => TRUE), array('Focus' => TRUE)));
+        $gameData['gameSkillsInfo'] = array('Focus' => TRUE);
         $gameData['dieDescriptionArrayArray'] =
             array(
                 array(

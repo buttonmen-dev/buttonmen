@@ -1390,24 +1390,12 @@ Game.pageAddGameNavigationFooter = function() {
 
 // Display a footer-style message with the list of skills in this game
 Game.pageAddSkillListFooter = function() {
-  var gameDieSkills = {};
   var gameSkillDiv = $('<div>', {
     'text': 'Die skills in this game: ',
   });
 
-  $.each(Api.game.player.dieSkillsArray, function(i) {
-    $.each(Api.game.player.dieSkillsArray[i], function(skill) {
-      gameDieSkills[skill] = true;
-    });
-  });
-  $.each(Api.game.opponent.dieSkillsArray, function(i) {
-    $.each(Api.game.opponent.dieSkillsArray[i], function(skill) {
-      gameDieSkills[skill] = true;
-    });
-  });
-
   var firstSkill = true;
-  $.each(Array.sort(Object.keys(gameDieSkills)), function(i, skill) {
+  $.each(Api.game.gameSkillsInfo, function(skill) {
     if (!(firstSkill)) {
       gameSkillDiv.append(', ');
     }
