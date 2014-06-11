@@ -350,3 +350,19 @@ test("test_Forum.buildUrlHash", function() {
 
   equal(hash, '#!boardId=3', 'The hash should reflect the state.');
 });
+
+asyncTest("test_Forum.apiFormPost", function() {
+  expect(2); // tests plus teardown test
+
+  Forum.parseFormPost(
+    {
+      'type': 'markForumRead',
+      'timestamp': 0,
+    }, 'forum_overview',
+    null,
+    function() {
+      equal(Api.forum_overview.load_status, 'ok', 'Response be loaded');
+      start();
+    }
+  );
+});
