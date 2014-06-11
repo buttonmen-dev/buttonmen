@@ -27,14 +27,14 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 //   Api.forum_board or Api.forum_thread as appropriate, then passes control
 //   to Forum.showOverview(), Forum.showBoard() or Forum.showThread().
 // * Forum.showOverview() builds a version of Forum.page that includes a list
-//   of boards on the Forum. Then it calls Forum.layOutPage().
+//   of boards on the Forum. Then it calls Forum.arrangePage().
 // * Forum.showBoard() builds a version of Forum.page that includes a list
 //   of threads on a given board and a form to create a new one (attaching the
-//   Forum.formPostNewThread() event to it). Then it calls Forum.layOutPage().
+//   Forum.formPostNewThread() event to it). Then it calls Forum.arrangePage().
 // * Forum.showThread() builds a version of Forum.page that includes a list
 //   of posts on a given thread and a form to create a new one (attaching the
-//   Forum.formReplyToThread() event to it). Then it calls Forum.layOutPage().
-// * Forum.layOutPage() sets the contents of <div id="forum_page">
+//   Forum.formReplyToThread() event to it). Then it calls Forum.arrangePage().
+// * Forum.arrangePage() sets the contents of <div id="forum_page">
 //   on the live page. It also binds Forum.formLinkToSubPage to every
 //   .pseudoLink element (e.g., the links to a given board or thread).
 //
@@ -80,7 +80,7 @@ Forum.showPage = function() {
       'type': 'error',
       'text': 'Can\'t view the forum because you\'re not logged in',
     };
-    Forum.layOutPage();
+    Forum.arrangePage();
     return;
   }
 
@@ -97,7 +97,7 @@ Forum.showPage = function() {
 
 Forum.showOverview = function() {
   Forum.page = $('<div>', { 'class': 'forum' });
-  if (!Api.verifyApiData('forum_overview', Forum.layOutPage)) {
+  if (!Api.verifyApiData('forum_overview', Forum.arrangePage)) {
     return;
   }
 
@@ -134,12 +134,12 @@ Forum.showOverview = function() {
   });
 
   // Actually lay out the page
-  Forum.layOutPage();
+  Forum.arrangePage();
 };
 
 Forum.showBoard = function() {
   Forum.page = $('<div>', { 'class': 'forum' });
-  if (!Api.verifyApiData('forum_board', Forum.layOutPage)) {
+  if (!Api.verifyApiData('forum_board', Forum.arrangePage)) {
     return;
   }
 
@@ -232,12 +232,12 @@ Forum.showBoard = function() {
   });
 
   // Actually lay out the page
-  Forum.layOutPage();
+  Forum.arrangePage();
 };
 
 Forum.showThread = function() {
   Forum.page = $('<div>', { 'class': 'forum' });
-  if (!Api.verifyApiData('forum_thread', Forum.layOutPage)) {
+  if (!Api.verifyApiData('forum_thread', Forum.arrangePage)) {
     return;
   }
 
@@ -321,10 +321,10 @@ Forum.showThread = function() {
   });
 
   // Actually lay out the page
-  Forum.layOutPage();
+  Forum.arrangePage();
 };
 
-Forum.layOutPage = function() {
+Forum.arrangePage = function() {
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();

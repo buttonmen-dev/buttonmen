@@ -15,8 +15,8 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 //   this first.  It calls one of a couple of functions,
 //   Newuser.action<SomeAction>()
 // * each Newuser.action<SomeAction>() function must set Newuser.page and
-//   Newuser.form, then call Newuser.layoutPage()
-// * Newuser.layoutPage() sets the contents of <div id="newuser_page">
+//   Newuser.form, then call Newuser.arrangePage()
+// * Newuser.arrangePage() sets the contents of <div id="newuser_page">
 //   on the live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ Newuser.showNewuserPage = function() {
   if (Newuser.justCreatedAccount === true) {
     // Don't re-display the form if they've already created an account
     Newuser.page = $('<div>');
-    Newuser.layoutPage();
+    Newuser.arrangePage();
   } else if (Login.logged_in === true) {
     // Don't allow logged-in users to create new accounts
     Newuser.actionLoggedIn();
@@ -47,7 +47,7 @@ Newuser.showNewuserPage = function() {
 };
 
 // Actually lay out the page
-Newuser.layoutPage = function() {
+Newuser.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -65,7 +65,7 @@ Newuser.layoutPage = function() {
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newuser.js.
 // Each function should start by populating Newuser.page and Newuser.form
-// ane end by invoking Newuser.layoutPage();
+// ane end by invoking Newuser.arrangePage();
 
 Newuser.actionLoggedIn = function() {
 
@@ -77,7 +77,7 @@ Newuser.actionLoggedIn = function() {
   Newuser.addLoggedInPage();
 
   // Lay out the page
-  Newuser.layoutPage();
+  Newuser.arrangePage();
 };
 
 Newuser.actionCreateUser = function() {
@@ -165,7 +165,7 @@ Newuser.actionCreateUser = function() {
   Newuser.form = Newuser.formCreateUser;
 
   // Lay out the page
-  Newuser.layoutPage();
+  Newuser.arrangePage();
 };
 
 

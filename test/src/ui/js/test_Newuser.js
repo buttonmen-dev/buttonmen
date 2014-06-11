@@ -69,8 +69,8 @@ asyncTest("test_Newuser.showNewuserPage_no_page_element", function() {
   start();
 });
 
-asyncTest("test_Newuser.layoutPage", function() {
-  ok(true, "INCOMPLETE: Test of Newuser.layoutPage not implemented");
+asyncTest("test_Newuser.arrangePage", function() {
+  ok(true, "INCOMPLETE: Test of Newuser.arrangePage not implemented");
   start();
 });
 

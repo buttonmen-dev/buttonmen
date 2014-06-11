@@ -68,7 +68,7 @@ asyncTest("test_Forum.showPage", function() {
   expect(2); // tests plus teardown test
 
   Env.history.state = { };
-  Forum.layOutPage = Forum.showBoard = Forum.showThread =
+  Forum.arrangePage = Forum.showBoard = Forum.showThread =
     function() {
       ok(false, 'Forum.showPage() should call Forum.showOverview()');
       start();
@@ -84,7 +84,7 @@ asyncTest("test_Forum.showPage_board", function() {
   expect(2); // tests plus teardown test
 
   Env.history.state = { 'boardId': 3 };
-  Forum.layOutPage = Forum.showOverview = Forum.showThread =
+  Forum.arrangePage = Forum.showOverview = Forum.showThread =
     function() {
       ok(false, 'Forum.showPage() should call Forum.showBoard()');
       start();
@@ -100,7 +100,7 @@ asyncTest("test_Forum.showPage_thread", function() {
   expect(2); // tests plus teardown test
 
   Env.history.state = { 'threadId': 6 };
-  Forum.layOutPage = Forum.showOverview = Forum.showBoard =
+  Forum.arrangePage = Forum.showOverview = Forum.showBoard =
     function() {
       ok(false, 'Forum.showPage() should call Forum.showThread()');
       start();
@@ -139,11 +139,11 @@ asyncTest("test_Forum.showThread", function() {
   });
 });
 
-test("test_Forum.layOutPage", function() {
+test("test_Forum.arrangePage", function() {
   Forum.page = $('<div>');
   Forum.page.append($('<p>', { 'text': 'hi world', }));
   Forum.page.append($('<a>', { 'class': 'pseudoLink', }));
-  Forum.layOutPage();
+  Forum.arrangePage();
   var pseudoLink = $('a.pseudoLink');
   equal(pseudoLink.length, 1, 'There should be one pseudoLink on the page.');
   ok(pseudoLink.attr('href'),

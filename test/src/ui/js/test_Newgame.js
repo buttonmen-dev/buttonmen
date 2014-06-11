@@ -124,14 +124,14 @@ asyncTest("test_Newgame.showPage_player_load_failed", function() {
   });
 });
 
-asyncTest("test_Newgame.layoutPage", function() {
+asyncTest("test_Newgame.arrangePage", function() {
   Newgame.getNewgameData(function() {
     Newgame.page = $('<div>');
     Newgame.page.append($('<p>', {'text': 'hi world', }));
-    Newgame.layoutPage();
+    Newgame.arrangePage();
     var item = document.getElementById('newgame_page');
     equal(item.nodeName, "DIV",
-          "#newgame_page is a div after layoutPage() is called");
+          "#newgame_page is a div after arrangePage() is called");
     start();
   });
 });

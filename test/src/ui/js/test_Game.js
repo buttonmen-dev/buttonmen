@@ -249,17 +249,17 @@ asyncTest("test_Game.showStatePage_turn_nonplayer", function() {
   });
 });
 
-asyncTest("test_Game.layoutPage", function() {
+asyncTest("test_Game.arrangePage", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
 
     $('body').append($('<div>', {'id': 'game_page', }));
     Game.page = $('<div>');
     Game.page.append($('<p>', {'text': 'hi world', }));
-    Game.layoutPage();
+    Game.arrangePage();
     var item = document.getElementById('game_page');
     equal(item.nodeName, "DIV",
-          "#game_page is a div after layoutPage() is called");
+          "#game_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -911,7 +911,7 @@ asyncTest("test_Game.dieRecipeTable", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -932,7 +932,7 @@ asyncTest("test_Game.dieRecipeTable_focus", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -959,7 +959,7 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -1134,7 +1134,7 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
     var table = $('<table>');
     table.append(row);
     Game.page.append(table);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('game_page');
     ok(item.innerHTML.match('<th>'),
@@ -1193,7 +1193,7 @@ asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
-    Game.layoutPage();
+    Game.arrangePage();
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
@@ -1220,7 +1220,7 @@ asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
-    Game.layoutPage();
+    Game.arrangePage();
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
