@@ -1411,7 +1411,8 @@ class BMGame {
             }
 
             if (!empty($buttonArray)) {
-                // add an artificial PHP_INT_MAX to each array, except if the button is slow
+                // add an artificial PHP_INT_MAX - 1 to each array,
+                // except if the button is slow
                 if (BMGame::is_button_slow($buttonArray[$playerIdx])) {
                     $initiativeArrayArray[$playerIdx] = array();
                 } else {
