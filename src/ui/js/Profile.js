@@ -8,8 +8,8 @@ var Profile = {};
 // * Profile.getProfile() calls the API, setting Api.profile_info. It calls
 //   Profile.showPage()
 // * Profile.showPage() uses the data returned by the API to build
-//   the contents of the page as Profile.page and calls Profile.layoutPage()
-// * Profile.layoutPage() sets the contents of <div id="profile_page"> on the
+//   the contents of the page as Profile.page and calls Profile.arrangePage()
+// * Profile.arrangePage() sets the contents of <div id="profile_page"> on the
 //   live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -57,10 +57,10 @@ Profile.showPage = function() {
   }
 
   // Actually layout the page
-  Profile.layoutPage();
+  Profile.arrangePage();
 };
 
-Profile.layoutPage = function() {
+Profile.arrangePage = function() {
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();

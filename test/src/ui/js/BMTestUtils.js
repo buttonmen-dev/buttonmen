@@ -35,6 +35,7 @@ BMTestUtils.getAllElements = function() {
     'Api':            JSON.stringify(Api, null, "  "),
     'Config':         JSON.stringify(Config, null, "  "),
     'Env':            JSON.stringify(Env, null, "  "),
+    'Forum':          JSON.stringify(Forum, null, "  "),
     'Game':           JSON.stringify(Game, null, "  "),
     'History':        JSON.stringify(History, null, "  "),
     'Loader':         JSON.stringify(Loader, null, "  "),
@@ -130,3 +131,14 @@ BMTestUtils.restoreGetParameterByName = function() {
     delete BMTestUtils.realGetParameterByName;
   }
 }
+
+// Copies all top-level function-type properties from one object to another,
+// so that you can (e.g.) back up an object, replace some of its functions
+// with mocked ones for testing, then restore it afterward.
+BMTestUtils.CopyAllMethods = function(objA, objB) {
+  $.each(objA, function(key, value) {
+    if ($.isFunction(value)) {
+      objB[key] = value;
+    }
+  });
+};

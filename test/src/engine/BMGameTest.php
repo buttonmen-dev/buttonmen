@@ -2199,9 +2199,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::get_roundNumber
+     * @covers BMGame::get__roundNumber
      */
-    public function testGet_roundNumber() {
+    public function testGet__roundNumber() {
         $this->object->maxWins = 4;
 
         $this->object->gameScoreArrayArray = array(array('W' => 0, 'L' => 0, 'D' => 0),
@@ -5877,7 +5877,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[1][0]->value = 4;
         $dieArrayArray[1][1]->value = 12;
         $dieArrayArray[1][2]->value = 5;
-        $dieArrayArray[1][3]->value = 0;
+        $dieArrayArray[1][3]->value = 1;
         $dieArrayArray[1][4]->value = 7;
 
         $this->assertEquals(array(4.0, -2.5), $game->roundScoreArray);
@@ -5900,10 +5900,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             case 4:
                 $this->assertCount(1, $game->capturedDieArrayArray[0]);
                 $capturedDie = $game->capturedDieArrayArray[0][0];
-
-
-
-
                 $this->assertEquals(1, $capturedDie->value);
                 break;
             // die not taken
@@ -8617,5 +8613,42 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             ($preAttackMoodMax != $postAttackMoodMax);
 
         $this->assertTrue($doesMoodRerollMax);
+    }
+
+    public function test_Giant_last() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('g(10) g(12) g(20) g(X)', 'Golo');
+        $this->assertEquals('Golo', $button1->name);
+        $this->assertEquals('g(10) g(12) g(20) g(X)', $button1->recipe);
+
+        $button2 = new BMButton;
+        $button2->load('(20) (20) (20) (20) (20) (20)', 'Giant');
+        $this->assertEquals('Giant', $button2->name);
+        $this->assertEquals('(20) (20) (20) (20) (20) (20)', $button2->recipe);
+
+        // load game
+        $game = new BMGame(424242, array(123, 456), array('', ''), 2);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+        $this->assertEquals(2, $game->maxWins);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals(array(array('X' => NULL), array()),
+                            $game->swingValueArrayArray);
+
+        // specify swing dice correctly
+        $game->swingValueArrayArray = array(array('X' => 4), array());
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
     }
 }

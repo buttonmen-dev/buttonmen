@@ -4,39 +4,54 @@
  * BMDie: the fundamental unit of game mechanics
  *
  * @author: Julian Lighton
+ *
+ * @property-read int    $min                   Minimum die value
+ * @property-read int    $max                   Maximum die value
+ * @property      int    $value                 Current die value
+ * @property-read string $recipe                Die recipe
+ * @property      BMGame/BMButton $ownerObject  Game or button that owns the die
+ * @property      int    $playerIdx             Index of player that currently owns the die
+ * @property      int    $originalPlayerIdx     Index of player that originally owned the die
+ * @property      bool   $doesReroll            Can the die reroll?
+ * @property      bool   $captured              Has the die has been captured?
+ * @property      bool   $hasAttacked           Has the die attacked this turn?
+ * @property      bool   $selected              Does the player want to add this auxiliary die?
+ * @property      string $inactive              Why may this die not attack?
+ * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
+ * @property-read array  $flagList              Array designed to contain various BMFlags
  */
 
 class BMDie extends BMCanHaveSkill {
     // properties
 
 // Basic facts about the die
-    public $min;
-    public $max;
-    public $value;
+    protected $min;
+    protected $max;
+    protected $value;
     protected $recipe;
 
 // references back to the owner
-    public $ownerObject;
-    public $playerIdx;
-    public $originalPlayerIdx;
+    protected $ownerObject;
+    protected $playerIdx;
+    protected $originalPlayerIdx;
 
     protected $doesReroll = TRUE;
-    public $captured = FALSE;
+    protected $captured = FALSE;
 
-    public $hasAttacked = FALSE;
+    protected $hasAttacked = FALSE;
 
     // $selected is set when a player wants to add an auxiliary die
-    public $selected = FALSE;
+    protected $selected = FALSE;
 
-// This is set when the button may not attack (sleep or focus, for instance)
+// This is set when the die may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
 // the end of each of your turns.
-    public $inactive = "";
+    protected $inactive = "";
 
-// Set when the button isn't in the game for whatever reason, but
-//  could suddenly join (Warrior Dice). Prevents from being attacked,
-//  but not attacking
-    public $unavailable = FALSE;
+// Set when the die isn't in the game for whatever reason, but
+// could suddenly join (Warrior Dice). Prevents from being attacked,
+// but not attacking
+    protected $unavailable = FALSE;
 
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
@@ -614,14 +629,190 @@ class BMDie extends BMCanHaveSkill {
     }
 
     public function __set($property, $value) {
-//        switch ($property) {
-//            default:
-                $this->$property = $value;
-//        }
+        $funcName = 'set__'.$property;
+        if (method_exists($this, $funcName)) {
+            $this->$funcName($value);
+        } else {
+            $this->$property = $value;
+        }
+    }
+
+    protected function set__min() {
+        throw new LogicException(
+            'min is set at creation time.'
+        );
+    }
+
+    protected function set__max($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>$this->min))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid max die value.'
+            );
+        }
+        $this->max = $value;
+    }
+
+    protected function set__value($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>$this->min,
+                                          "max_range"=>$this->max))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid die value.'
+            );
+        }
+        $this->value = $value;
+    }
+
+    protected function set__recipe() {
+        throw new LogicException(
+            'Die recipe is derived automatically.'
+        );
+    }
+
+    protected function set__ownerObject($value) {
+        if (!(is_null($value) ||
+              ($value instanceof BMButton) ||
+              ($value instanceof BMGame) ||
+              ($value instanceof TestDummyGame))) {
+            throw new LogicException(
+                'ownerObject must be NULL, a BMButton, a BMGame, or a TestDummyGame.'
+            );
+        }
+        $this->ownerObject = $value;
+    }
+
+    protected function set__playerIdx($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>0,
+                                          "max_range"=>1))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid player index.'
+            );
+        }
+        $this->playerIdx = $value;
+    }
+
+    protected function set__originalPlayerIdx($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>0,
+                                          "max_range"=>1))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid original player index.'
+            );
+        }
+        $this->originalPlayerIdx = $value;
+    }
+
+    protected function set__doesReroll($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'doesReroll is a boolean.'
+            );
+        }
+        $this->doesReroll = $value;
+    }
+
+    protected function set__captured($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'captured is a boolean.'
+            );
+        }
+        $this->captured = $value;
+    }
+
+    protected function set__hasAttacked($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'hasAttacked is a boolean.'
+            );
+        }
+        $this->hasAttacked = $value;
+    }
+
+    protected function set__selected($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'selected is a boolean.'
+            );
+        }
+        $this->selected = $value;
+    }
+
+    protected function set__inactive($value) {
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                'inactive is a string.'
+            );
+        }
+        $this->inactive = $value;
+    }
+
+    protected function set__unavailable($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'unavailable is a boolean.'
+            );
+        }
+        $this->unavailable = $value;
+    }
+
+    protected function set__flagList($value) {
+        if (!is_array($value)) {
+            throw new InvalidArgumentException(
+                'flagList is an array.'
+            );
+        }
+        foreach ($value as $item) {
+            if (!($item instanceof BMFlag)) {
+                throw new InvalidArgumentException(
+                    'flagList can only contain BMFlag objects.'
+                );
+            }
+        }
+        $this->flagList = $value;
     }
 
     public function __isset($property) {
         return isset($this->$property);
+    }
+
+    public function __unset($property) {
+        if (isset($this->$property)) {
+            unset($this->$property);
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
 
     public function __toString() {

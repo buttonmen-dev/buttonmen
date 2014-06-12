@@ -70,15 +70,15 @@ asyncTest("test_Profile.showPage", function() {
   });
 });
 
-asyncTest("test_Profile.layoutPage", function() {
+asyncTest("test_Profile.arrangePage", function() {
   Env.window.location.search = '?player=tester';
   Profile.getProfile(function() {
     Profile.page = $('<div>');
     Profile.page.append($('<p>', {'text': 'hi world', }));
-    Profile.layoutPage();
+    Profile.arrangePage();
     var item = document.getElementById('profile_page');
     equal(item.nodeName, "DIV",
-          "#profile_page is a div after layoutPage() is called");
+          "#profile_page is a div after arrangePage() is called");
     start();
   });
 });

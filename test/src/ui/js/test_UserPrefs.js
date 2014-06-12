@@ -55,14 +55,14 @@ asyncTest("test_UserPrefs.assemblePage", function() {
   });
 });
 
-asyncTest("test_UserPrefs.layoutPage", function() {
+asyncTest("test_UserPrefs.arrangePage", function() {
   Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
-    UserPrefs.layoutPage();
+    UserPrefs.arrangePage();
     var item = document.getElementById('userprefs_page');
     equal(item.nodeName, "DIV",
-          "#userprefs_page is a div after layoutPage() is called");
+          "#userprefs_page is a div after arrangePage() is called");
     start();
   });
 });

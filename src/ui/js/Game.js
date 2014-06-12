@@ -42,8 +42,8 @@ Game.logEntryLimit = 10;
 //   the received data from getCurrentGame().  It calls one of several
 //   functions, Game.action<SomeAction>()
 // * each Game.action<SomeAction>() function must set Game.page and
-//   Game.form, then call Game.layoutPage()
-// * Game.layoutPage() sets the contents of <div id="game_page"> on the
+//   Game.form, then call Game.arrangePage()
+// * Game.arrangePage() sets the contents of <div id="game_page"> on the
 //   live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -179,12 +179,12 @@ Game.showStatePage = function() {
       Game.page =
         $('<p>', {'text': 'The game hasn\'t started yet.', });
       Game.form = null;
-      Game.layoutPage();
+      Game.arrangePage();
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
-      Game.layoutPage();
+      Game.arrangePage();
     }
   } else {
 
@@ -192,18 +192,21 @@ Game.showStatePage = function() {
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Game.layoutPage();
+    Game.arrangePage();
   }
 };
 
-Game.layoutPage = function() {
+Game.arrangePage = function() {
   if ($('#game_page').length === 0) {
-    throw('Internal error: #game_page not defined in layoutPage()');
+    throw('Internal error: #game_page not defined in arrangePage()');
   }
 
   $('#game_page').empty();
   $('#game_page').append(Game.page);
 
+  // If a game form is specified, activate the game form on mouse click.
+  // (The form will automatically be invoked when the player presses
+  // the return key as well.)
   if (Game.form) {
     $('#game_action_button').click(Game.form);
   }
@@ -281,6 +284,10 @@ Game.parseAuxiliaryDieOptions = function() {
 
 // It is time to choose swing dice, and the current player has dice to choose
 Game.actionSpecifyDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formSpecifyDiceActive;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('Your turn to choose die sizes');
 
@@ -387,14 +394,15 @@ Game.actionSpecifyDiceActive = function() {
   Game.page.append(dietable);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formSpecifyDiceActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionSpecifyDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('Opponent\'s turn to choose die sizes');
 
@@ -403,13 +411,15 @@ Game.actionSpecifyDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionSpecifyDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
 
   Game.pageAddGameHeader(
@@ -422,13 +432,16 @@ Game.actionSpecifyDiceNonplayer = function() {
   Game.page.append($('<br>'));
 
   Game.pageAddFooter();
-  Game.form = null;
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseAuxiliaryDiceActive;
+
   Game.parseAuxiliaryDieOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -478,14 +491,15 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   Game.page.append(auxform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseAuxiliaryDiceActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to decide whether to use auxiliary dice');
@@ -502,14 +516,15 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -523,14 +538,15 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseReserveDiceActive;
+
   Game.parseValidReserveOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -578,14 +594,15 @@ Game.actionChooseReserveDiceActive = function() {
   Game.page.append(reserveform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseReserveDiceActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to choose reserve dice');
@@ -602,14 +619,15 @@ Game.actionChooseReserveDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -623,14 +641,15 @@ Game.actionChooseReserveDiceNonplayer = function() {
   Game.page.append(dietable);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formReactToInitiativeActive;
+
   Game.parseValidInitiativeActions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -690,14 +709,15 @@ Game.actionReactToInitiativeActive = function() {
   Game.page.append(reactform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formReactToInitiativeActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to try to gain initiative using die skills');
@@ -709,14 +729,15 @@ Game.actionReactToInitiativeInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -730,14 +751,15 @@ Game.actionReactToInitiativeNonplayer = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnActive;
+
   Game.page = $('<div>');
   if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
@@ -763,10 +785,22 @@ Game.actionPlayTurnActive = function() {
   validAttackTypes.push('');
   validAttackTypes.push('Surrender');
 
+  // configure the attack type select object
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
   });
+
+  // install a keyboard handler so that hitting "return" while on
+  // the attack type select submits the form (don't install any
+  // mouse click or space bar behavior)
+  Env.addClickKeyboardHandlers(
+    attacktypeselect,
+    null,
+    null,
+    Game.form
+  );
+
   for (var i = 0; i < validAttackTypes.length; i++) {
     var attacktype = validAttackTypes[i];
     var typetext;
@@ -799,14 +833,15 @@ Game.actionPlayTurnActive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formPlayTurnActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnInactive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnInactive;
+
   Game.page = $('<div>');
   if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
@@ -834,14 +869,15 @@ Game.actionPlayTurnInactive = function() {
 
   Game.pageAddFooter(true);
 
-  // Function to invoke on button click
-  Game.form = Game.formPlayTurnInactive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   if (Env.getCookieCompactMode()) {
     Game.page.addClass('compactMode');
@@ -856,13 +892,15 @@ Game.actionPlayTurnNonplayer = function() {
   Game.pageAddDieBattleTable(false);
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionShowFinishedGame = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('This game is over');
 
@@ -882,10 +920,8 @@ Game.actionShowFinishedGame = function() {
   Game.logEntryLimit = undefined;
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1312,7 +1348,7 @@ Game.pageAddGameHeader = function(action_desc) {
 Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
-  Game.pageAddTimestampFooter();
+  Game.pageAddSkillListFooter();
   Game.pageAddLogFooter();
 };
 
@@ -1352,21 +1388,42 @@ Game.pageAddGameNavigationFooter = function() {
   return true;
 };
 
-// Display a footer-style message with the last action timestamp
-Game.pageAddTimestampFooter = function() {
+// Display a footer-style message with the list of skills in this game
+Game.pageAddSkillListFooter = function() {
+  var gameSkillDiv = $('<div>', {
+    'text': 'Die skills in this game: ',
+  });
 
-  // Timestamp has a different meaning if the game is over
-  var timestamptext;
-  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    timestamptext = 'Game completed at';
-  } else {
-    timestamptext = 'Last action time';
+  var firstSkill = true;
+  var firstInteract;
+  var skillDesc;
+  $.each(Api.game.gameSkillsInfo, function(skill, info) {
+    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+
+    firstInteract = true;
+    $.each(info.interacts, function(otherSkill, interactDesc) {
+      if (firstInteract) {
+        skillDesc += '\n\nInteraction with other skills in this game:';
+      }
+      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+    });
+
+    if (!(firstSkill)) {
+      gameSkillDiv.append(', ');
+    }
+    gameSkillDiv.append($('<span>', {
+      'text': skill,
+      'title': skillDesc,
+    }));
+    firstSkill = false;
+  });
+
+  if (firstSkill) {
+    gameSkillDiv.append('none');
   }
 
   Game.page.append($('<br>'));
-  Game.page.append($('<div>', {
-    'text': timestamptext + ': ' + Env.formatTimestamp(Api.game.timestamp),
-  }));
+  Game.page.append(gameSkillDiv);
   return true;
 };
 
@@ -1405,13 +1462,12 @@ Game.pageAddLogFooter = function() {
           logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         actionrow.append(
           $('<td>', {
             'class': messageClass,
-            'text': logentry.message,
+            'html': Env.prepareRawTextForDisplay(logentry.message),
           }));
         actiontable.append(actionrow);
       });
@@ -1443,12 +1499,11 @@ Game.pageAddLogFooter = function() {
           logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         chatrow.append($('<td>', {
           'class': messageClass,
-          'text': logentry.message,
+          'html': Env.prepareRawTextForDisplay(logentry.message),
         }));
         chattable.append(chatrow);
       });
@@ -1476,26 +1531,6 @@ Game.pageAddLogFooter = function() {
         logRow.append(chattd);
       }
     }
-
-    // Replace text-y whitespace with HTML whitespace to preserve things
-    // like newlines and indentation in chat.
-    logtable.find('.logmessage').each(function() {
-      // We originally added the log messages to the page as text; by reading
-      // them back as HTML now, we're getting the version of them that's
-      // already been safely HTML-encoded.
-      var messagehtml = $(this).html();
-
-      // HTML-ify initial spaces, to preserve indentation
-      messagehtml = messagehtml.replace(/^ /, '&nbsp;');
-      // Likewise for spaces at the start of each line
-      messagehtml = messagehtml.replace(/\n /, '\n&nbsp;');
-      // Preserve strings of multiple spaces
-      messagehtml = messagehtml.replace(/  /g, '&nbsp;&nbsp;');
-      // HTML-ify line breaks to preserve newlines
-      messagehtml = messagehtml.replace(/\n/g, '<br />');
-
-      $(this).html(messagehtml);
-    });
 
     if (Game.logEntryLimit !== undefined) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
@@ -1886,6 +1921,8 @@ Game.gamePlayerDice = function(player, player_active) {
     var divOpts = { };
 
     if (clickable) {
+      // clickable dice should be selectable via keyboard as well
+      containerDivOpts.tabIndex = 0;
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
@@ -1899,9 +1936,19 @@ Game.gamePlayerDice = function(player, player_active) {
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
-        dieContainerDiv.click(Game.dieBorderTogglePlayerHandler);
+        Env.addClickKeyboardHandlers(
+          dieContainerDiv,
+          Game.dieBorderTogglePlayerHandler,
+          Game.dieBorderTogglePlayerHandler,
+          Game.form
+        );
       } else {
-        dieContainerDiv.click(Game.dieBorderToggleOpponentHandler);
+        Env.addClickKeyboardHandlers(
+          dieContainerDiv,
+          Game.dieBorderToggleOpponentHandler,
+          Game.dieBorderToggleOpponentHandler,
+          Game.form
+        );
       }
     } else {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];

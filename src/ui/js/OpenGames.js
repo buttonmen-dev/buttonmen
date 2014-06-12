@@ -8,7 +8,8 @@ var OpenGames = {};
 // * OpenGames.getOpenGames() calls the API, setting Api.button and
 //   Api.open_games. It calls OpenGames.showPage()
 // * OpenGames.showPage() uses the data returned by the API to build
-//   the contents of the page as OpenGames.page and calls OpenGames.layoutPage()
+//   the contents of the page as OpenGames.page and calls
+//   OpenGames.arrangePage()
 //
 //* OpenGames.joinOpenGame() is called whenever the user clicks on one of the
 //  Join Game buttons. It calls the API to join the game, setting
@@ -93,10 +94,10 @@ OpenGames.showPage = function() {
   }
 
   // Actually layout the page
-  OpenGames.layoutPage();
+  OpenGames.arrangePage();
 };
 
-OpenGames.layoutPage = function() {
+OpenGames.arrangePage = function() {
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();

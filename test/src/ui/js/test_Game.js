@@ -249,17 +249,17 @@ asyncTest("test_Game.showStatePage_turn_nonplayer", function() {
   });
 });
 
-asyncTest("test_Game.layoutPage", function() {
+asyncTest("test_Game.arrangePage", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
 
     $('body').append($('<div>', {'id': 'game_page', }));
     Game.page = $('<div>');
     Game.page.append($('<p>', {'text': 'hi world', }));
-    Game.layoutPage();
+    Game.arrangePage();
     var item = document.getElementById('game_page');
     equal(item.nodeName, "DIV",
-          "#game_page is a div after layoutPage() is called");
+          "#game_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -524,6 +524,9 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('playerIdx_0_dieIdx_0');
     equal(item.innerHTML.match('selected'), null,
       'No attacking die is initially selected');
+    equal(item.tabIndex, 0,
+      'Attacking die should be accessible via the keyboard');
+
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
     equal(item.innerHTML.match('selected'), null,
@@ -531,6 +534,8 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
+    equal(item.tabIndex, 0,
+      'Chat box should be accessible via the keyboard');
     var item = document.getElementById('game_action_button');
     ok(item.innerHTML.match('Beat People UP!'),
        "Attack submit button says Beat People UP!");
@@ -850,15 +855,17 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
   });
 });
 
-asyncTest("test_Game.pageAddTimestampFooter", function() {
-  BMTestUtils.GameType = 'newgame';
+asyncTest("test_Game.pageAddSkillListFooter", function() {
+  BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddTimestampFooter();
+    Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Timestamp footer should insert line break");
-    ok(htmlout.match('<div>Last action time: '),
-       "Timestamp footer text seems reasonable");
+    ok(htmlout.match('<br>'), "Skill list footer should insert line break");
+    ok(htmlout.match('<div>Die skills in this game: '),
+       "Die skills footer text is present");
+    ok(htmlout.match('Focus'),
+       "Die skills footer text lists the Focus skill");
     start();
   });
 });
@@ -906,7 +913,7 @@ asyncTest("test_Game.dieRecipeTable", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -927,7 +934,7 @@ asyncTest("test_Game.dieRecipeTable_focus", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -954,7 +961,7 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -1129,7 +1136,7 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
     var table = $('<table>');
     table.append(row);
     Game.page.append(table);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('game_page');
     ok(item.innerHTML.match('<th>'),
@@ -1188,7 +1195,7 @@ asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
-    Game.layoutPage();
+    Game.arrangePage();
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
@@ -1215,7 +1222,7 @@ asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
-    Game.layoutPage();
+    Game.arrangePage();
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
