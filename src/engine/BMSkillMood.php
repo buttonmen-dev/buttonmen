@@ -60,4 +60,17 @@ class BMSkillMood extends BMSkill {
                 (($obj->dice[0] instanceof BMDieSwing) ||
                  ($obj->dice[1] instanceof BMDieSwing)));
     }
+
+    protected static function get_description() {
+        return 'These are a subcategory of Swing dice, whose size ' .
+               'changes randomly when rerolled. At the very start of the ' .
+               'game (and again after any round they lose, just as with ' .
+               'normal Swing dice) the player sets the initial size of Mood ' .
+               'Swing dice, but from then on whenever they are rolled their ' .
+               'size is set randomly to any legal size for that Swing type.';
+    }
+
+    protected static function get_interaction_descriptions() {
+        return array();
+    }
 }

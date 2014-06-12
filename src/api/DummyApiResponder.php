@@ -722,6 +722,7 @@ class DummyApiResponder {
             "gameScoreArrayArray" => array(array("W" => 0, "L" => 0, "D" => 0),
                                            array("W" => 0, "L" => 0, "D" => 0)),
             "lastActionTimeArray" => array(0, 0),
+            "gameSkillsInfo" => array(),
         );
 
         return $gameData;
@@ -1218,6 +1219,24 @@ class DummyApiResponder {
                                              array(8,10,12,20,20));
         $gameData['dieRecipeArrayArray'] = array(array("(8)","(10)","(12)","f(20)","f(20)"),
                                                  array("(8)","(10)","(12)","f(20)","f(20)"));
+        $gameData['dieSkillsArrayArray'] =
+            array(array(array(), array(), array(), array('Focus' => TRUE), array('Focus' => TRUE)),
+                  array(array(), array(), array(), array('Focus' => TRUE), array('Focus' => TRUE)));
+        $gameData['gameSkillsInfo'] = array(
+            'Focus' => array(
+                'code' => 'f',
+                'description' => 'If you do not have the initiative at the start of ' .
+                    'a round you may reduce the values showing on one or more ' .
+                    'of your Focus Dice. You may only do this if it results in ' .
+                    'your gaining the initiative. If your opponent has Focus ' .
+                    'Dice, they may now do the same, and each player may respond ' .
+                    'by turning down one or more Focus Dice until no further ' .
+                    'moves are legal, or until one player allows the other to ' .
+                    'take the first turn. IMPORTANT: If you go first, any Focus ' .
+                    'Dice you have reduced may not be used as part of your first ' .
+                    'attack. (The second player has no such restriction.)',
+                'interacts' => array(),
+            ));
         $gameData['dieDescriptionArrayArray'] =
             array(
                 array(
