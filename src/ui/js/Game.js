@@ -42,8 +42,8 @@ Game.logEntryLimit = 10;
 //   the received data from getCurrentGame().  It calls one of several
 //   functions, Game.action<SomeAction>()
 // * each Game.action<SomeAction>() function must set Game.page and
-//   Game.form, then call Game.layoutPage()
-// * Game.layoutPage() sets the contents of <div id="game_page"> on the
+//   Game.form, then call Game.arrangePage()
+// * Game.arrangePage() sets the contents of <div id="game_page"> on the
 //   live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -179,12 +179,12 @@ Game.showStatePage = function() {
       Game.page =
         $('<p>', {'text': 'The game hasn\'t started yet.', });
       Game.form = null;
-      Game.layoutPage();
+      Game.arrangePage();
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
-      Game.layoutPage();
+      Game.arrangePage();
     }
   } else {
 
@@ -192,13 +192,13 @@ Game.showStatePage = function() {
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Game.layoutPage();
+    Game.arrangePage();
   }
 };
 
-Game.layoutPage = function() {
+Game.arrangePage = function() {
   if ($('#game_page').length === 0) {
-    throw('Internal error: #game_page not defined in layoutPage()');
+    throw('Internal error: #game_page not defined in arrangePage()');
   }
 
   $('#game_page').empty();
@@ -395,7 +395,7 @@ Game.actionSpecifyDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionSpecifyDiceInactive = function() {
@@ -412,7 +412,7 @@ Game.actionSpecifyDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionSpecifyDiceNonplayer = function() {
@@ -434,7 +434,7 @@ Game.actionSpecifyDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
@@ -492,7 +492,7 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
@@ -517,7 +517,7 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
@@ -539,7 +539,7 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceActive = function() {
@@ -595,7 +595,7 @@ Game.actionChooseReserveDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceInactive = function() {
@@ -620,7 +620,7 @@ Game.actionChooseReserveDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
@@ -642,7 +642,7 @@ Game.actionChooseReserveDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeActive = function() {
@@ -710,7 +710,7 @@ Game.actionReactToInitiativeActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeInactive = function() {
@@ -730,7 +730,7 @@ Game.actionReactToInitiativeInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
@@ -752,7 +752,7 @@ Game.actionReactToInitiativeNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnActive = function() {
@@ -834,7 +834,7 @@ Game.actionPlayTurnActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnInactive = function() {
@@ -870,7 +870,7 @@ Game.actionPlayTurnInactive = function() {
   Game.pageAddFooter(true);
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnNonplayer = function() {
@@ -893,7 +893,7 @@ Game.actionPlayTurnNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionShowFinishedGame = function() {
@@ -921,7 +921,7 @@ Game.actionShowFinishedGame = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1348,7 +1348,7 @@ Game.pageAddGameHeader = function(action_desc) {
 Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
-  Game.pageAddTimestampFooter();
+  Game.pageAddSkillListFooter();
   Game.pageAddLogFooter();
 };
 
@@ -1388,21 +1388,42 @@ Game.pageAddGameNavigationFooter = function() {
   return true;
 };
 
-// Display a footer-style message with the last action timestamp
-Game.pageAddTimestampFooter = function() {
+// Display a footer-style message with the list of skills in this game
+Game.pageAddSkillListFooter = function() {
+  var gameSkillDiv = $('<div>', {
+    'text': 'Die skills in this game: ',
+  });
 
-  // Timestamp has a different meaning if the game is over
-  var timestamptext;
-  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    timestamptext = 'Game completed at';
-  } else {
-    timestamptext = 'Last action time';
+  var firstSkill = true;
+  var firstInteract;
+  var skillDesc;
+  $.each(Api.game.gameSkillsInfo, function(skill, info) {
+    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+
+    firstInteract = true;
+    $.each(info.interacts, function(otherSkill, interactDesc) {
+      if (firstInteract) {
+        skillDesc += '\n\nInteraction with other skills in this game:';
+      }
+      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+    });
+
+    if (!(firstSkill)) {
+      gameSkillDiv.append(', ');
+    }
+    gameSkillDiv.append($('<span>', {
+      'text': skill,
+      'title': skillDesc,
+    }));
+    firstSkill = false;
+  });
+
+  if (firstSkill) {
+    gameSkillDiv.append('none');
   }
 
   Game.page.append($('<br>'));
-  Game.page.append($('<div>', {
-    'text': timestamptext + ': ' + Env.formatTimestamp(Api.game.timestamp),
-  }));
+  Game.page.append(gameSkillDiv);
   return true;
 };
 
@@ -1441,13 +1462,12 @@ Game.pageAddLogFooter = function() {
           logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         actionrow.append(
           $('<td>', {
             'class': messageClass,
-            'text': logentry.message,
+            'html': Env.prepareRawTextForDisplay(logentry.message),
           }));
         actiontable.append(actionrow);
       });
@@ -1479,12 +1499,11 @@ Game.pageAddLogFooter = function() {
           logentry.timestamp > Api.game.player.lastActionTime) {
           messageClass += ' new';
         }
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         chatrow.append($('<td>', {
           'class': messageClass,
-          'text': logentry.message,
+          'html': Env.prepareRawTextForDisplay(logentry.message),
         }));
         chattable.append(chatrow);
       });
@@ -1512,26 +1531,6 @@ Game.pageAddLogFooter = function() {
         logRow.append(chattd);
       }
     }
-
-    // Replace text-y whitespace with HTML whitespace to preserve things
-    // like newlines and indentation in chat.
-    logtable.find('.logmessage').each(function() {
-      // We originally added the log messages to the page as text; by reading
-      // them back as HTML now, we're getting the version of them that's
-      // already been safely HTML-encoded.
-      var messagehtml = $(this).html();
-
-      // HTML-ify initial spaces, to preserve indentation
-      messagehtml = messagehtml.replace(/^ /, '&nbsp;');
-      // Likewise for spaces at the start of each line
-      messagehtml = messagehtml.replace(/\n /, '\n&nbsp;');
-      // Preserve strings of multiple spaces
-      messagehtml = messagehtml.replace(/  /g, '&nbsp;&nbsp;');
-      // HTML-ify line breaks to preserve newlines
-      messagehtml = messagehtml.replace(/\n/g, '<br />');
-
-      $(this).html(messagehtml);
-    });
 
     if (Game.logEntryLimit !== undefined) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });

@@ -2233,6 +2233,76 @@ class BMGame {
     protected function get_buttonRecipeArray() {
         $buttonRecipeArray = array();
 
+        $dataArray =
+            array('gameId'                     => $this->gameId,
+                  'gameState'                  => BMGameState::as_string($this->gameState),
+                  'roundNumber'                => $this->get__roundNumber(),
+                  'maxWins'                    => $this->maxWins,
+                  'activePlayerIdx'            => $this->activePlayerIdx,
+                  'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
+                  'playerIdArray'              => $this->playerIdArray,
+                  'buttonNameArray'            => $this->get_buttonNameArray(),
+                  'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
+                  'waitingOnActionArray'       => $this->waitingOnActionArray,
+                  'nDieArray'                  => $this->get_nDieArray(),
+                  'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
+                  'sidesArrayArray'            => $this->get_sidesArrayArray($requestingPlayerIdx),
+                  'dieSkillsArrayArray'        => $this->get_dieSkillsArrayArray(),
+                  'diePropertiesArrayArray'    => $this->get_diePropsArrayArray(),
+                  'dieRecipeArrayArray'        => $this->get_dieRecipeArrayArray(),
+                  'dieDescriptionArrayArray'   => $this->get_dieDescriptionArrayArray($requestingPlayerIdx),
+                  'nCapturedDieArray'          => $this->get_nCapturedDieArray(),
+                  'capturedValueArrayArray'    => $this->get_capturedValueArrayArray(),
+                  'capturedSidesArrayArray'    => $this->get_capturedSidesArrayArray(),
+                  'capturedRecipeArrayArray'   => $this->get_capturedRecipeArrayArray(),
+                  'capturedDiePropsArrayArray' => $this->get_capturedDiePropsArrayArray(),
+                  'swingRequestArrayArray'     => $this->get_swingRequestArrayArray(),
+                  'optRequestArrayArray'       => $this->get_optRequestArrayArray(),
+                  'prevSwingValueArrayArray'   => $this->get_prevSwingValueArrayArray(),
+                  'prevOptValueArrayArray'     => $this->get_prevOptValueArrayArray(),
+                  'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
+                  'roundScoreArray'            => $this->get__roundScoreArray(),
+                  'sideScoreArray'             => $this->get_sideScoreArray(),
+                  'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
+                  'gameScoreArrayArray'        => $this->gameScoreArrayArray,
+                  'lastActionTimeArray'        => $this->lastActionTimeArray);
+
+        return array('status' => 'ok', 'data' => $dataArray);
+    }
+
+    protected function clone_activeDieArrayArray() {
+        // create a deep clone of the original activeDieArrayArray so that changes
+        // don't propagate back into the real game data
+        $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            if (count($activeDieArray) > 0) {
+                foreach ($activeDieArray as $dieIdx => $activeDie) {
+                    $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
+                }
+            }
+        }
+
+        return $activeDieArrayArray;
+    }
+
+    protected function get_buttonNameArray() {
+        $buttonNameArray = array();
+
+        foreach ($this->buttonArray as $button) {
+            $buttonName = '';
+            if ($button instanceof BMButton) {
+                $buttonName = $button->name;
+            }
+            $buttonNameArray[] = $buttonName;
+        }
+
+        return $buttonNameArray;
+    }
+
+    protected function get_buttonRecipeArray() {
+        $buttonRecipeArray = array();
+
         foreach ($this->buttonArray as $button) {
             $buttonRecipe = '';
             if ($button instanceof BMButton) {
@@ -2258,6 +2328,7 @@ class BMGame {
         $valueArrayArray = array_fill(0, $this->nPlayers, array());
         $swingValsSpecified = TRUE;
 
+    protected function get_nDieArray() {
         if (isset($this->activeDieArrayArray)) {
             $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
@@ -2583,5 +2654,39 @@ class BMGame {
         }
 
         return TRUE;
+    }
+
+    /**
+     * Return an array of all skills appearing in die recipes in this game
+     *
+     * This returns all skills appearing on any die which is in a
+     * button recipe in this game, whether or not that die is currently
+     * in play.
+     *
+     * @return array   Array of skill information, indexed by skill name
+     */
+    protected function get_gameSkillsInfo() {
+        $gameSkillsWithKeysList = array();
+
+        if (isset($this->buttonArray)) {
+            foreach ($this->buttonArray as $playerButton) {
+                if (count($playerButton->dieArray) > 0) {
+                    foreach ($playerButton->dieArray as $buttonDie) {
+                        if (count($buttonDie->skillList) > 0) {
+                            $gameSkillsWithKeysList += $buttonDie->skillList;
+                        }
+                    }
+                }
+            }
+        }
+
+        $gameSkillsList = array_keys($gameSkillsWithKeysList);
+        sort($gameSkillsList);
+
+        $gameSkillsInfo = array();
+        foreach ($gameSkillsList as $skillType) {
+            $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
+        }
+        return $gameSkillsInfo;
     }
 }

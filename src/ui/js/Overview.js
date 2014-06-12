@@ -14,7 +14,7 @@ Overview.GAME_STATE_END_GAME = 60;
 //   It sets Api.active_games and Api.completed_games.  If successful,
 //   it calls
 // * Overview.showPage() assembles the page contents as a variable
-// * Overview.layoutPage() sets the contents of <div id="overview_page">
+// * Overview.arrangePage() sets the contents of <div id="overview_page">
 //   on the live page
 //
 // N.B. There is no form submission on this page, it's just a landing
@@ -69,10 +69,10 @@ Overview.showPage = function() {
   }
 
   // Actually layout the page
-  Overview.layoutPage();
+  Overview.arrangePage();
 };
 
-Overview.layoutPage = function() {
+Overview.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now

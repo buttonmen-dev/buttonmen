@@ -15,4 +15,20 @@ class BMSkillPoison extends BMSkill {
             $args['div'] = 1;
         }
     }
+
+    protected static function get_description() {
+        return 'These dice are worth negative points. If you keep ' .
+               'a Poison Die of your own at the end of a round, subtract ' .
+               'its full value from your score. If you capture a Poison Die ' .
+               'from someone else, subtract half its value from your score.';
+    }
+
+    protected static function get_interaction_descriptions() {
+        return array(
+            'Null' => 'Dice with both Null and Poison skills are Null',
+            'Value' => 'Dice with both Poison and Value skills are ' .
+                       'Poison dice that score based on the negative of their ' .
+                       'current value rather than on their number of sides',
+        );
+    }
 }

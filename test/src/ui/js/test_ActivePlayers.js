@@ -67,14 +67,14 @@ asyncTest("test_ActivePlayers.showPage", function() {
   });
 });
 
-asyncTest("test_ActivePlayers.layoutPage", function() {
+asyncTest("test_ActivePlayers.arrangePage", function() {
   ActivePlayers.getActivePlayers(function() {
     ActivePlayers.page = $('<div>');
     ActivePlayers.page.append($('<p>', {'text': 'hi world', }));
-    ActivePlayers.layoutPage();
+    ActivePlayers.arrangePage();
     var item = document.getElementById('activeplayers_page');
     equal(item.nodeName, "DIV",
-          "#activeplayers_page is a div after layoutPage() is called");
+          "#activeplayers_page is a div after arrangePage() is called");
     start();
   });
 });

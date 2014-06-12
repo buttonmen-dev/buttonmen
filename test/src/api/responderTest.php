@@ -915,6 +915,250 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->markTestIncomplete("No test for submitTurn responder yet");
     }
 
+    ////////////////////////////////////////////////////////////
+    // Forum-related methods
+
+    public function test_request_createForumThread() {
+        $this->verify_login_required('createForumThread');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('createForumThread');
+        $this->verify_mandatory_args_required(
+            'createForumThread',
+            array(
+                'boardId' => 1,
+                'title' => 'Who likes ice cream?',
+                'body' => 'I can\'t be the only one!',
+            )
+        );
+
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Who likes ice cream?',
+            'body' => 'I can\'t be the only one!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum thread creation should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum thread creation return values should have matching structures");
+    }
+
+    public function test_request_createForumPost() {
+        $this->verify_login_required('createForumPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('createForumPost');
+        $this->verify_mandatory_args_required(
+            'createForumPost',
+            array(
+                'threadId' => 1,
+                'body' => 'Hey, wow, I do too!',
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'createForumPost',
+            'threadId' => $thread['data']['threadId'],
+            'body' => 'Hey, wow, I do too!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum post creation should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum post creation return values should have matching structures");
+    }
+
+    public function test_request_loadForumOverview() {
+        $this->verify_login_required('loadForumOverview');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadForumOverview');
+
+        $args = array('type' => 'loadForumOverview');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum overview loading should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum overview loading return values should have matching structures");
+    }
+
+    public function test_request_loadForumBoard() {
+        $this->verify_login_required('loadForumBoard');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadForumBoard');
+        $this->verify_mandatory_args_required(
+            'loadForumBoard',
+            array('boardId' => 1)
+        );
+
+        $args = array(
+            'type' => 'loadForumBoard',
+            'boardId' => 1,
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum board loading should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum board loading return values should have matching structures");
+    }
+
+    public function test_request_loadForumThread() {
+        $this->verify_login_required('loadForumThread');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadForumThread');
+        $this->verify_mandatory_args_required(
+            'loadForumThread',
+            array('threadId' => 2)
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'loadForumThread',
+            'threadId' => $thread['data']['threadId'],
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum thread loading should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum thread loading return values should have matching structures");
+    }
+
+    public function test_request_markForumBoardRead() {
+        $this->verify_login_required('markForumBoardRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumBoardRead');
+        $this->verify_mandatory_args_required(
+            'markForumBoardRead',
+            array('boardId' => 1, 'timestamp' => strtotime('now'))
+        );
+
+        $args = array(
+            'type' => 'markForumBoardRead',
+            'boardId' => 1,
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum board marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum board marking as read return values should have matching structures");
+    }
+
+    public function test_request_markForumRead() {
+        $this->verify_login_required('markForumRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumRead');
+        $this->verify_mandatory_args_required(
+            'markForumRead',
+            array('timestamp' => strtotime('now'))
+        );
+
+        $args = array(
+            'type' => 'markForumRead',
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Entire forum marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy entire forum marking as read return values should have matching structures");
+    }
+
+    public function test_request_markForumThreadRead() {
+        $this->verify_login_required('markForumThreadRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumThreadRead');
+        $this->verify_mandatory_args_required(
+            'markForumThreadRead',
+            array(
+                'threadId' => 1,
+                'boardId' => 1,
+                'timestamp' => strtotime('now'),
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'markForumThreadRead',
+            'threadId' => $thread['data']['threadId'],
+            'boardId' => 1,
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'],
+            'Forum thread marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum thread marking as read return values should have matching structures");
+    }
+
+    // End of Forum-related methods
+    ////////////////////////////////////////////////////////////
+
     public function test_request_login() {
         $this->verify_invalid_arg_rejected('login');
         $this->markTestIncomplete("No test for login responder yet");

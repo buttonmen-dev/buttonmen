@@ -70,7 +70,7 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (parser(rs.data)) {
+          if (parser(rs.data, apikey)) {
             my[apikey].load_status = 'ok';
             return callback();
           } else {
@@ -101,8 +101,9 @@ var Api = (function () {
     );
   };
 
-  my.apiFormPost = function(args, messages, submitid, callback, failcallback) {
-    my.disableSubmitButton(submitid);
+  my.apiFormPost = function(
+      args, messages, submitButton, callback, failcallback) {
+    my.disableSubmitButton(submitButton);
     $.post(
       Env.api_location,
       args,
@@ -155,6 +156,31 @@ var Api = (function () {
         return failcallback();
       }
     );
+  };
+
+  my.parseGenericData = function(data, apiKey) {
+    $.each(data, function(key, value) {
+      my[apiKey][key] = value;
+    });
+    return true;
+  };
+
+  // Verifies that the API data loaded correctly and displays the page with
+  // an error message otherwise.
+  my.verifyApiData = function(apiKey, arrangePageCallback) {
+    if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
+      return true;
+    }
+
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error: Could not load ' + apiKey +
+                'data from server',
+      };
+    }
+    arrangePageCallback();
+    return false;
   };
 
   ////////////////////////////////////////////////////////////////////////
@@ -374,6 +400,7 @@ var Api = (function () {
     my.game.maxWins = my.game.gameData.data.maxWins;
     my.game.gameState = my.game.gameData.data.gameState;
     my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
+    my.game.gameSkillsInfo = my.game.gameData.data.gameSkillsInfo;
 
     if (my.game.isParticipant) {
       my.game.playerIdx = data.currentPlayerIdx;
@@ -481,9 +508,12 @@ var Api = (function () {
     return text;
   };
 
-  my.disableSubmitButton = function(button_id) {
-    if (button_id) {
-      $('#' + button_id).attr('disabled', 'disabled');
+  my.disableSubmitButton = function(button) {
+    if (button) {
+      if (!(button instanceof jQuery)) {
+        button = $('#' + button);
+      }
+      button.attr('disabled', 'disabled');
     }
   };
 
@@ -555,6 +585,52 @@ var Api = (function () {
     my.join_game_result.success = data;
     return true;
   };
+
+  ////////////////////////////////////////////////////////////
+  // Forum-related methods
+
+  my.loadForumOverview = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadForumOverview', },
+      'forum_overview',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumBoard = function(boardId, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadForumBoard',
+        'boardId': boardId,
+      },
+      'forum_board',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumThread = function(threadId, currentPostId, callbackfunc) {
+    if (!currentPostId) {
+      currentPostId = undefined;
+    }
+    my.apiParsePost(
+      {
+        'type': 'loadForumThread',
+        'threadId': threadId,
+        'currentPostId': currentPostId,
+      },
+      'forum_thread',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  // End of Forum-related methods
+  ////////////////////////////////////////////////////////////
 
   ////////////////////////////////////////////////////////////////////////
   // Load and parse the list of recently-active players
