@@ -69,14 +69,14 @@ asyncTest("test_OpenGames.showPage", function() {
   });
 });
 
-asyncTest("test_OpenGames.layoutPage", function() {
+asyncTest("test_OpenGames.arrangePage", function() {
   OpenGames.getOpenGames(function() {
     OpenGames.page = $('<div>');
     OpenGames.page.append($('<p>', {'text': 'hi world', }));
-    OpenGames.layoutPage();
+    OpenGames.arrangePage();
     var item = document.getElementById('opengames_page');
     equal(item.nodeName, "DIV",
-          "#opengames_page is a div after layoutPage() is called");
+          "#opengames_page is a div after arrangePage() is called");
     start();
   });
 });

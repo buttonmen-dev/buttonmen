@@ -13,8 +13,8 @@ UserPrefs.COMMENT_MAX_LENGTH = 255;
 // * UserPrefs.assemblePage(), which calls one of a number of functions
 //   UserPrefs.action<SomeAction>()
 // * each UserPrefs.action<SomeAction>() function must set UserPrefs.page and
-//   UserPrefs.form, then call UserPrefs.layoutPage()
-// * UserPrefs.layoutPage() sets the contents of <div id="userprefs_page">
+//   UserPrefs.form, then call UserPrefs.arrangePage()
+// * UserPrefs.arrangePage() sets the contents of <div id="userprefs_page">
 //   on the live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -56,7 +56,7 @@ UserPrefs.assemblePage = function() {
 };
 
 // Actually lay out the page
-UserPrefs.layoutPage = function() {
+UserPrefs.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -74,7 +74,7 @@ UserPrefs.layoutPage = function() {
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by UserPrefs.js.
 // Each function should start by populating UserPrefs.page and
-// UserPrefs.form and end by invoking UserPrefs.layoutPage();
+// UserPrefs.form and end by invoking UserPrefs.arrangePage();
 
 UserPrefs.actionFailed = function() {
 
@@ -86,7 +86,7 @@ UserPrefs.actionFailed = function() {
   // will tell the user what happened
 
   // Lay out the page
-  UserPrefs.layoutPage();
+  UserPrefs.arrangePage();
 };
 
 UserPrefs.actionSetPrefs = function() {
@@ -219,7 +219,7 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.form = UserPrefs.formSetPrefs;
 
   // Lay out the page
-  UserPrefs.layoutPage();
+  UserPrefs.arrangePage();
 };
 
 ////////////////////////////////////////////////////////////////////////

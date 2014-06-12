@@ -113,7 +113,7 @@ test("test_History.showPage", function() {
   $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_History.layoutPage", function() {
+asyncTest("test_History.arrangePage", function() {
   History.searchParameters = {
     'sortColumn': 'lastMove',
     'sortDirection': 'DESC',
@@ -127,10 +127,10 @@ asyncTest("test_History.layoutPage", function() {
   History.getHistory(function() {
     History.page = $('<div>');
     History.page.append($('<p>', {'text': 'hi world', }));
-    History.layoutPage();
+    History.arrangePage();
     var item = document.getElementById('history_page');
     equal(item.nodeName, "DIV",
-          "#overview_page is a div after layoutPage() is called");
+          "#overview_page is a div after arrangePage() is called");
     start();
   });
 });

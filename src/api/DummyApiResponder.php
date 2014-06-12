@@ -1592,6 +1592,158 @@ class DummyApiResponder {
         return array(NULL, "function not implemented");
     }
 
+    ////////////////////////////////////////////////////////////
+    // Forum-related methods
+
+    protected function get_interface_response_loadForumOverview() {
+        $results = array();
+
+        $boards = array();
+        $boards[] = array(
+            'boardId' => 1,
+            'boardName' => 'Miscellaneous Chatting',
+            'boardColor' => '#d0e0f0',
+            'threadColor' => '#e7f0f7',
+            'description' => 'Any topic that doesn\'t fit anywhere else.',
+            'numberOfThreads' => 2,
+            'firstNewPostId' => 3,
+            'firstNewPostThreadId' => 2,
+        );
+        $boards[] = array(
+            'boardId' => 2,
+            'boardName' => 'Features and Bugs',
+            'boardColor' => '#f0d0d0',
+            'threadColor' => '#f7e7e7',
+            'description' =>
+                'Feedback on new features that have been added, features ' .
+                    'you\'d like to see or bugs you\'ve discovered.',
+            'numberOfThreads' => 0,
+            'firstNewPostId' => NULL,
+            'firstNewPostThreadId' => NULL,
+        );
+
+        $results['boards'] = $boards;
+        $results['timestamp'] = 1401118756;
+
+        return array($results, 'Forum overview loading succeeded');
+    }
+
+    protected function get_interface_response_loadForumBoard() {
+        $results = array();
+        $results['boardId'] = 1;
+        $results['boardName'] = 'Miscellaneous Chatting';
+        $results['boardColor'] = '#d0e0f0';
+        $results['threadColor'] = '#e7f0f7';
+        $results['description'] = 'Any topic that doesn\'t fit anywhere else.';
+
+        $threads = array();
+        $threads[] = array(
+            'threadId' => 1,
+            'threadTitle' => 'Who likes ice cream?',
+            'numberOfPosts' => 2,
+            'originalPosterName' => 'responder003',
+            'originalCreationTime' => 1401055337,
+            'latestPosterName' => 'responder004',
+            'latestLastUpdateTime' => 1401055397,
+            'firstNewPostId' => 2,
+        );
+        $threads[] = array(
+            'threadId' => 2,
+            'threadTitle' => 'Welcome to Button Men',
+            'numberOfPosts' => 1,
+            'originalPosterName' => 'responder003',
+            'originalCreationTime' => 1401055367,
+            'latestPosterName' => 'responder003',
+            'latestLastUpdateTime' => 1401055367,
+            'firstNewPostId' => NULL,
+        );
+
+        $results['threads'] = $threads;
+        $results['timestamp'] = 1401118756;
+
+        return array($results, 'Forum board loading succeeded');
+    }
+
+    protected function get_interface_response_loadForumThread($args) {
+        $results = array();
+        $results['threadId'] = 1;
+        $results['threadTitle'] = 'Who likes ice cream?';
+        $results['boardId'] = 1;
+        $results['boardName'] = 'Miscellaneous Chatting';
+        $results['boardColor'] = '#d0e0f0';
+        $results['boardThreadColor'] = '#e7f0f7';
+        if (isset($args['currentPostId'])) {
+            $results['currentPostId'] = (int)$args['currentPostId'];
+        } else {
+            $results['currentPostId'] = NULL;
+        }
+
+
+        $posts = array();
+        $posts[] = array(
+            'postId' => 1,
+            'posterName' => 'responder003',
+            'posterColor' => '#cccccc',
+            'creationTime' => 1401055337,
+            'lastUpdateTime' => 1401055337,
+            'isNew' => FALSE,
+            'body' => 'I can\'t be the only one!',
+            'deleted' => FALSE,
+        );
+        $posts[] = array(
+            'postId' => 2,
+            'posterName' => 'responder004',
+            'posterColor' => '#cccccc',
+            'creationTime' => 1401055397,
+            'lastUpdateTime' => 1401055397,
+            'isNew' => TRUE,
+            'body' => 'Hey, wow, I do too!',
+            'deleted' => FALSE,
+        );
+
+        $results['posts'] = $posts;
+        $results['timestamp'] = 1401118756;
+
+        return array($results, 'Forum thread loading succeeded');
+    }
+
+    protected function get_interface_response_markForumRead() {
+        $otherResults = $this->get_interface_response_loadForumOverview();
+        $results = $otherResults[0];
+        return array($results, 'Forum board marked read successfully');
+    }
+
+    protected function get_interface_response_markForumBoardRead() {
+        $otherResults = $this->get_interface_response_loadForumOverview();
+        $results = $otherResults[0];
+        return array($results, 'Forum board marked read successfully');
+    }
+
+    protected function get_interface_response_markForumThreadRead() {
+        $otherResults = $this->get_interface_response_loadForumBoard(NULL);
+        $results = $otherResults[0];
+        return array($results, 'Forum thread marked read successfully');
+    }
+
+    protected function get_interface_response_createForumThread() {
+        $otherResults = $this->get_interface_response_loadForumThread(
+            array()
+        );
+        $results = $otherResults[0];
+        return array($results, 'Forum thread created successfully');
+    }
+
+    protected function get_interface_response_createForumPost() {
+        $otherResults = $this->get_interface_response_loadForumThread(
+            array('currentPostId' => 2)
+        );
+        $results = $otherResults[0];
+        return array($results, 'Forum post created successfully');
+    }
+
+    // End of Forum-related methods
+    ////////////////////////////////////////////////////////////
+
     protected function get_interface_response_logout() {
 //            logout();
 //            $data = array('userName' => FALSE);
