@@ -300,21 +300,21 @@ class BMInterface {
                      '     n_target_wins, '.
                      '     n_recent_passes, '.
                      '     creator_id, '.
-                     '     creation_time) '.
+                     '     start_time) '.
                      'VALUES '.
                      '    ((SELECT id FROM game_status WHERE name = :status), '.
                      '     :n_players, '.
                      '     :n_target_wins, '.
                      '     :n_recent_passes, '.
                      '     :creator_id, '.
-                     '     FROM_UNIXTIME(:creation_time))';
+                     '     FROM_UNIXTIME(:start_time))';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':status'        => 'OPEN',
                                       ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0],
-                                      ':creation_time' => time()));
+                                      ':start_time' => time()));
 
             $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
             $statement->execute();
@@ -1205,8 +1205,8 @@ class BMInterface {
                     'vB.player_name AS player_name_B, ' .
                     'vB.button_name AS button_name_B, ' .
                     'vB.is_awaiting_action AS waiting_on_B, '.
-                    // Reinstate this once g.creation_time exists
-                    //'UNIX_TIMESTAMP(g.creation_time) AS game_start, ' .
+                    // Reinstate this once g.start_time exists
+                    //'UNIX_TIMESTAMP(g.start_time) AS game_start, ' .
                     '0 AS game_start, ' .
                     'UNIX_TIMESTAMP(g.last_action_time) AS last_move, ' .
                     'vA.n_rounds_won AS rounds_won_A, ' .
@@ -1260,11 +1260,11 @@ class BMInterface {
             }
 
             if (isset($searchFilters['gameStartMin'])) {
-                $where .= 'AND UNIX_TIMESTAMP(g.creation_time) >= :game_start_min_%%% ';
+                $where .= 'AND UNIX_TIMESTAMP(g.start_time) >= :game_start_min_%%% ';
                 $whereParameters[':game_start_min_%%%'] = $searchFilters['gameStartMin'];
             }
             if (isset($searchFilters['gameStartMax'])) {
-                $where .= 'AND UNIX_TIMESTAMP(g.creation_time) < :game_start_max_%%% ';
+                $where .= 'AND UNIX_TIMESTAMP(g.start_time) < :game_start_max_%%% ';
                 // We want the range to end at the *end* of the day (i.e.,
                 // the start of the next one).
                 $whereParameters[':game_start_max_%%%'] =
@@ -2301,12 +2301,12 @@ class BMInterface {
                                       ':player_id' => $currentPlayerId,
                                       ':position'  => $emptyPlayerIdx));
 
-            $query = 'UPDATE game SET creation_time = FROM_UNIXTIME(:creation_time) '.
+            $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);
 
-            $statement->execute(array(':creation_time' => time(),
-                                      ':id'            => $gameId));
+            $statement->execute(array(':start_time' => time(),
+                                      ':id'         => $gameId));
 
             $game = $this->load_game($gameId);
             $this->save_game($game);
@@ -2366,12 +2366,12 @@ class BMInterface {
                                       ':player_id' => $playerId,
                                       ':button_id' => $buttonId));
 
-            $query = 'UPDATE game SET creation_time = FROM_UNIXTIME(:creation_time) '.
+            $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);
 
-            $statement->execute(array(':creation_time' => time(),
-                                      ':id'            => $gameId));
+            $statement->execute(array(':start_time' => time(),
+                                      ':id'         => $gameId));
 
             $game = $this->load_game($gameId);
             $this->save_game($game);
