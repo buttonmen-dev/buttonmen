@@ -1264,7 +1264,7 @@ class BMInterface {
         }
     }
 
-    protected function set_lastMove_limits($searchFilters, $searchParameters) {
+    protected function set_lastMove_limits(&$searchFilters, $searchParameters) {
         if (isset($searchParameters['lastMoveMin'])) {
             $searchFilters['lastMoveMin'] = (int)$searchParameters['lastMoveMin'];
         }
@@ -1356,10 +1356,10 @@ class BMInterface {
             $limitParameters = array();
             $this->apply_limit($searchOptions, $limitParameters);
 
-            $combinedGameQuery = $this->game_query($where_0, $where_1, $sort, $limit);
+            $combinedQuery = $this->game_query($where_0, $where_1, $sort, $limit);
             $games = array();
             $this->execute_game_query(
-                $combinedGameQuery,
+                $combinedQuery,
                 $currentPlayerId,
                 $whereParameters_0,
                 $whereParameters_1,
@@ -1427,35 +1427,34 @@ class BMInterface {
                     'ON vB.game_id = g.id AND vB.position = 0 ';
     }
 
-    protected function apply_all_filters($searchFilters, &$where, &$wherePars) {
-        $this->apply_filter($searchFilters, 'gameId', 'g.id', 'game_id_%%%', $where, $wherePars);
-        $this->apply_filter($searchFilters, 'playerIdA', 'g.id', 'game_id_%%%', $where, $wherePars);
-        $this->apply_filter($searchFilters, 'playerIdA', 'vA.player_id', 'player_id_A_%%%', $where, $wherePars);
-        $this->apply_filter($searchFilters, 'buttonIdA', 'vA.button_id', 'button_id_A_%%%', $where, $wherePars);
-        $this->apply_filter($searchFilters, 'playerIdB', 'vB.player_id', 'player_id_B_%%%', $where, $wherePars);
-        $this->apply_filter($searchFilters, 'buttonIdB', 'vB.button_id', 'button_id_B_%%%', $where, $wherePars);
+    protected function apply_all_filters($searchFilters, &$where, &$whereParameters) {
+        $this->apply_filter($searchFilters, 'gameId', 'g.id', 'game_id_%%%', $where, $whereParameters);
+        $this->apply_filter($searchFilters, 'playerIdA', 'vA.player_id', 'player_id_A_%%%', $where, $whereParameters);
+        $this->apply_filter($searchFilters, 'buttonIdA', 'vA.button_id', 'button_id_A_%%%', $where, $whereParameters);
+        $this->apply_filter($searchFilters, 'playerIdB', 'vB.player_id', 'player_id_B_%%%', $where, $whereParameters);
+        $this->apply_filter($searchFilters, 'buttonIdB', 'vB.button_id', 'button_id_B_%%%', $where, $whereParameters);
 
         if (isset($searchFilters['gameStartMin'])) {
             $where .= 'AND UNIX_TIMESTAMP(g.creation_time) >= :game_start_min_%%% ';
-            $wherePars[':game_start_min_%%%'] = $searchFilters['gameStartMin'];
+            $whereParameters[':game_start_min_%%%'] = $searchFilters['gameStartMin'];
         }
         if (isset($searchFilters['gameStartMax'])) {
             $where .= 'AND UNIX_TIMESTAMP(g.creation_time) < :game_start_max_%%% ';
             // We want the range to end at the *end* of the day (i.e.,
             // the start of the next one).
-            $wherePars[':game_start_max_%%%'] =
+            $whereParameters[':game_start_max_%%%'] =
                 $searchFilters['gameStartMax'] + 24 * 60 * 60;
         }
 
         if (isset($searchFilters['lastMoveMin'])) {
             $where .= 'AND UNIX_TIMESTAMP(g.last_action_time) >= :last_move_min_%%% ';
-            $wherePars[':last_move_min_%%%'] = $searchFilters['lastMoveMin'];
+            $whereParameters[':last_move_min_%%%'] = $searchFilters['lastMoveMin'];
         }
         if (isset($searchFilters['lastMoveMax'])) {
             $where .= 'AND UNIX_TIMESTAMP(g.last_action_time) < :last_move_max_%%% ';
             // We want the range to end at the *end* of the day (i.e.,
             // the start of the next one).
-            $wherePars[':last_move_max_%%%'] =
+            $whereParameters[':last_move_max_%%%'] =
                 $searchFilters['lastMoveMax'] + 24 * 60 * 60;
         }
 
@@ -1471,7 +1470,7 @@ class BMInterface {
 
         if (isset($searchFilters['status'])) {
             $where .= 'AND s.name = :status_%%% ';
-            $wherePars[':status_%%%'] = $searchFilters['status'];
+            $whereParameters[':status_%%%'] = $searchFilters['status'];
         } else {
             // We'll only display games that have actually started
             $where .= 'AND (s.name = "COMPLETE" OR s.name = "ACTIVE") ';
@@ -1566,10 +1565,12 @@ class BMInterface {
         $statement = self::$conn->prepare($combinedGameQuery);
         $statement->execute(array_merge($whereParameters_0, $whereParameters_1, $limitParameters));
 
+        $playerColors = $this->load_player_colors($currentPlayerId);
+
         while ($row = $statement->fetch()) {
             $gameColors = $this->determine_game_colors(
                 $currentPlayerId,
-                $this->load_player_colors($currentPlayerId),
+                $playerColors,
                 (int)$row['player_id_A'],
                 (int)$row['player_id_B']
             );
