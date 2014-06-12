@@ -2596,23 +2596,21 @@ class BMGame {
      * @return array   Array of skill information, indexed by skill name
      */
     protected function get_gameSkillsInfo() {
-        $gameSkillsList = array();
+        $gameSkillsWithKeysList = array();
 
         if (isset($this->buttonArray)) {
             foreach ($this->buttonArray as $playerButton) {
                 if (count($playerButton->dieArray) > 0) {
                     foreach ($playerButton->dieArray as $buttonDie) {
                         if (count($buttonDie->skillList) > 0) {
-                            foreach (array_keys($buttonDie->skillList) as $skillType) {
-                                if (!in_array($skillType, $gameSkillsList)) {
-                                    $gameSkillsList[] = $skillType;
-                                }
-                            }
+                            $gameSkillsWithKeysList += $buttonDie->skillList;
                         }
                     }
                 }
             }
         }
+
+        $gameSkillsList = array_keys($gameSkillsWithKeysList);
         sort($gameSkillsList);
 
         $gameSkillsInfo = array();
