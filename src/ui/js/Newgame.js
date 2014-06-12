@@ -14,8 +14,8 @@ var Newgame = {
 //   the received data from getNewgameOptions().  It calls one of several
 //   functions, Newgame.action<SomeAction>()
 // * each Newgame.action<SomeAction>() function must set Newgame.page and
-//   Newgame.form, then call Newgame.layoutPage()
-// * Newgame.layoutPage() sets the contents of <div id="newgame_page">
+//   Newgame.form, then call Newgame.arrangePage()
+// * Newgame.arrangePage() sets the contents of <div id="newgame_page">
 //   on the live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,7 @@ Newgame.showPage = function() {
 };
 
 // Actually lay out the page
-Newgame.layoutPage = function() {
+Newgame.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -82,7 +82,7 @@ Newgame.layoutPage = function() {
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newgame.js.
 // Each function should start by populating Newgame.page and Newgame.form
-// ane end by invoking Newgame.layoutPage();
+// ane end by invoking Newgame.arrangePage();
 
 Newgame.actionLoggedOut = function() {
 
@@ -94,7 +94,7 @@ Newgame.actionLoggedOut = function() {
   Newgame.addLoggedOutPage();
 
   // Lay out the page
-  Newgame.layoutPage();
+  Newgame.arrangePage();
 };
 
 Newgame.actionInternalErrorPage = function() {
@@ -107,7 +107,7 @@ Newgame.actionInternalErrorPage = function() {
   Newgame.addInternalErrorPage();
 
   // Lay out the page
-  Newgame.layoutPage();
+  Newgame.arrangePage();
 };
 
 Newgame.actionCreateGame = function() {
@@ -222,7 +222,7 @@ Newgame.actionCreateGame = function() {
   Newgame.form = Newgame.formCreateGame;
 
   // Lay out the page
-  Newgame.layoutPage();
+  Newgame.arrangePage();
 };
 
 

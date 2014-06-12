@@ -88,14 +88,14 @@ asyncTest("test_Overview.showPage", function() {
   });
 });
 
-asyncTest("test_Overview.layoutPage", function() {
+asyncTest("test_Overview.arrangePage", function() {
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.page.append($('<p>', {'text': 'hi world', }));
-    Overview.layoutPage();
+    Overview.arrangePage();
     var item = document.getElementById('overview_page');
     equal(item.nodeName, "DIV",
-          "#overview_page is a div after layoutPage() is called");
+          "#overview_page is a div after arrangePage() is called");
     start();
   });
 });

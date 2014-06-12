@@ -5,6 +5,7 @@ module("Api", {
   'teardown': function() {
 
     // Delete all elements we expect this module to create
+    delete Api.test_data;
     delete Api.button;
     delete Api.player;
     delete Api.active_games;
@@ -14,10 +15,14 @@ module("Api", {
     delete Api.gameNavigation;
     delete Api.game_history;
     delete Api.siteConfig;
+    delete Api.forum_overview;
+    delete Api.forum_board;
+    delete Api.forum_thread;
     delete Api.open_games;
     delete Api.join_game_result;
     delete Api.active_players;
     delete Api.profile_info;
+    delete Env.message;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -36,6 +41,37 @@ module("Api", {
 test("test_Api_is_loaded", function() {
   expect(2); // number of tests plus 1 for the teardown test
   ok(Api, "The Api namespace exists");
+});
+
+test("test_Api.parseGenericData", function() {
+  expect(2); // number of tests plus 1 for the teardown test
+
+  var apiKey = 'test_data';
+  Api[apiKey] = { };
+  var data = { 'value': 37 };
+  Api.parseGenericData(data, apiKey);
+  equal(Api.test_data.value, 37, 'Data value should be set on the Api object');
+});
+
+test("test_Api.verifyApiData", function() {
+  expect(3); // number of tests plus 1 for the teardown test
+
+  var apiKey = 'test_data';
+
+  Env.message = undefined;
+  var message = undefined;
+  Api.verifyApiData(apiKey, function() {
+    message = Env.message;
+  });
+  equal(message.type, 'error', 'Should error if data is missing');
+
+  Env.message = undefined;
+  message = undefined;
+  Api[apiKey] = { 'load_status': 'ok' };
+  Api.verifyApiData(apiKey, function() {
+    message = Env.message;
+  });
+  equal(message, undefined, 'Should not error if data is present');
 });
 
 asyncTest("test_Api.getButtonData", function() {
@@ -310,6 +346,33 @@ asyncTest("test_Api.getOpenGamesData", function() {
     function() {
       equal(Api.open_games.load_status, 'ok',
         'Successfully retrieved open games');
+      start();
+    });
+});
+
+asyncTest("test_Api.loadForumOverview", function() {
+  Api.loadForumOverview(
+    function() {
+      equal(Api.forum_overview.load_status, 'ok',
+        'Successfully loaded forum overview');
+      start();
+    });
+});
+
+asyncTest("test_Api.loadForumBoard", function() {
+  Api.loadForumBoard(1,
+    function() {
+      equal(Api.forum_board.load_status, 'ok',
+        'Successfully loaded forum board');
+      start();
+    });
+});
+
+asyncTest("test_Api.loadForumThread", function() {
+  Api.loadForumThread(1, 2,
+    function() {
+      equal(Api.forum_thread.load_status, 'ok',
+        'Successfully loaded forum overview');
       start();
     });
 });

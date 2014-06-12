@@ -103,8 +103,8 @@ History.searchParameterInfo = {
 //   collection and causing Api.game_history to be set. It then calls
 //   History.showPage()
 // * History.showPage() uses the data returned by the API to build the contents
-//   of the page as History.page and calls History.layoutPage()
-// * History.layoutPage() sets the contents of <div id="history_page">
+//   of the page as History.page and calls History.arrangePage()
+// * History.arrangePage() sets the contents of <div id="history_page">
 //   on the live page
 //
 // Events:
@@ -180,7 +180,7 @@ History.getHistory = function(callback) {
       'text': 'You must be logged in in order to view game history.',
     };
     History.page = $('<div>');
-    History.layoutPage();
+    History.arrangePage();
   } else {
     // Validate the search parameters that are supposed to be derived from set
     // lists of values (like player names).
@@ -200,7 +200,7 @@ History.getHistory = function(callback) {
         'text': validationError,
       };
       History.page = $('<div>');
-      History.layoutPage();
+      History.arrangePage();
       return;
     }
 
@@ -228,7 +228,7 @@ History.showPage = function() {
     Api.game_history.load_status != 'ok') {
     // An error has occurred, and we've presumably already registered the
     // error message, so we should just display it.
-    History.layoutPage();
+    History.arrangePage();
     return;
   }
 
@@ -250,10 +250,10 @@ History.showPage = function() {
   }
 
   // Actually lay out the page
-  History.layoutPage();
+  History.arrangePage();
 };
 
-History.layoutPage = function() {
+History.arrangePage = function() {
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();

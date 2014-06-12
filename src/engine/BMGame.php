@@ -573,7 +573,10 @@ class BMGame {
 
     protected function do_next_step_determine_initiative() {
         $hasInitiativeArray =
-            BMGame::does_player_have_initiative_array($this->activeDieArrayArray);
+            BMGame::does_player_have_initiative_array(
+                $this->activeDieArrayArray,
+                $this->buttonArray
+            );
 
         if (array_sum($hasInitiativeArray) > 1) {
             $playersWithInit = array();
@@ -1392,7 +1395,10 @@ class BMGame {
         $this->optRequestArrayArray[$playerIdx][$dieIdx] = $optionArray;
     }
 
-    public static function does_player_have_initiative_array(array $activeDieArrayArray) {
+    public static function does_player_have_initiative_array(
+        array $activeDieArrayArray,
+        $buttonArray = array()
+    ) {
         $initiativeArrayArray = array();
         foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
             $initiativeArrayArray[] = array();
@@ -1403,6 +1409,17 @@ class BMGame {
                     $initiativeArrayArray[$playerIdx][] = $tempInitiative;
                 }
             }
+
+            if (!empty($buttonArray)) {
+                // add an artificial PHP_INT_MAX - 1 to each array,
+                // except if the button is slow
+                if (BMGame::is_button_slow($buttonArray[$playerIdx])) {
+                    $initiativeArrayArray[$playerIdx] = array();
+                } else {
+                    $initiativeArrayArray[$playerIdx][] = PHP_INT_MAX - 1;
+                }
+            }
+
             sort($initiativeArrayArray[$playerIdx]);
         }
 
@@ -1433,6 +1450,18 @@ class BMGame {
         }
 
         return $hasPlayerInitiative;
+    }
+
+    protected static function is_button_slow($button) {
+        $hookResult = $button->run_hooks(
+            'is_button_slow',
+            array('name' => $button->name)
+        );
+
+        $isSlow = isset($hookResult['BMBtnSkill'.$button->name]['is_button_slow']) &&
+                  $hookResult['BMBtnSkill'.$button->name]['is_button_slow'];
+
+        return $isSlow;
     }
 
     public static function is_die_specified($die) {
@@ -1836,7 +1865,7 @@ class BMGame {
                           'oppname' => $oppButtonName,
                           'opprecipe' => $oppButtonRecipe)
                 );
-                if (isset($hookResult) && (FALSE !== $hookResult)) {
+                if (isset($hookResult['BMBtnSkill'.$button->name]['recipe'])) {
                     $button->recipe = $hookResult['BMBtnSkill'.$button->name]['recipe'];
                     $button->hasAlteredRecipe = TRUE;
                 }
@@ -2165,6 +2194,7 @@ class BMGame {
                   'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
                   'roundScoreArray'            => $this->get__roundScoreArray(),
                   'sideScoreArray'             => $this->get_sideScoreArray(),
+                  'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
                   'gameScoreArrayArray'        => $this->gameScoreArrayArray,
                   'lastActionTimeArray'        => $this->lastActionTimeArray);
 
@@ -2554,5 +2584,39 @@ class BMGame {
         }
 
         return TRUE;
+    }
+
+    /**
+     * Return an array of all skills appearing in die recipes in this game
+     *
+     * This returns all skills appearing on any die which is in a
+     * button recipe in this game, whether or not that die is currently
+     * in play.
+     *
+     * @return array   Array of skill information, indexed by skill name
+     */
+    protected function get_gameSkillsInfo() {
+        $gameSkillsWithKeysList = array();
+
+        if (isset($this->buttonArray)) {
+            foreach ($this->buttonArray as $playerButton) {
+                if (count($playerButton->dieArray) > 0) {
+                    foreach ($playerButton->dieArray as $buttonDie) {
+                        if (count($buttonDie->skillList) > 0) {
+                            $gameSkillsWithKeysList += $buttonDie->skillList;
+                        }
+                    }
+                }
+            }
+        }
+
+        $gameSkillsList = array_keys($gameSkillsWithKeysList);
+        sort($gameSkillsList);
+
+        $gameSkillsInfo = array();
+        foreach ($gameSkillsList as $skillType) {
+            $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
+        }
+        return $gameSkillsInfo;
     }
 }

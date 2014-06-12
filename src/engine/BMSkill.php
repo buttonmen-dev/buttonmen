@@ -7,6 +7,32 @@
  */
 
 class BMSkill {
+
+    /**
+     * Description of skill
+     *
+     * Each skill class must override this with a meaningful
+     * description of how the skill works
+     *
+     * @return string
+     */
+    protected static function get_description() {
+        return 'UNDOCUMENTED';
+    }
+
+    /**
+     * Array of descriptions of interactions between this skill and other skills
+     *
+     * Each skill class must override this with an array, indexed
+     * by other skill name, whose values are descriptions of
+     * interactions between the relevant skills
+     *
+     * @return array
+     */
+    protected static function get_interaction_descriptions() {
+        return array();
+    }
+
     public static function expand_skill_string($skillString) {
         if ('' === $skillString) {
             return array();
@@ -80,6 +106,7 @@ class BMSkill {
                      'Queer'        => 'q',
                      'Reserve'      => 'r',
                      'Shadow'       => 's',
+                     'Slow'         => 'w',
                      'Speed'        => 'z',
                      'Stealth'      => 'd',
                      'Stinger'      => 'g',
@@ -139,6 +166,7 @@ class BMSkill {
                      'BMSkillBerserk',
                      'BMSkillSpeed',
                      'BMSkillShadow',
+                     'BMSkillSlow',
                      'BMSkillTrip',
                      'BMSkillStinger',
                      'BMSkillStealth',
@@ -159,5 +187,21 @@ class BMSkill {
         }
 
         return TRUE;
+    }
+
+    public static function describe($skill, $interactionList = NULL) {
+        $skillClass = "BMSkill$skill";
+        $skillDescription = array(
+            'code' => BMSkill::abbreviate_skill_name($skill),
+            'description' => $skillClass::get_description(),
+            'interacts' => array(),
+        );
+        $allInteractions = $skillClass::get_interaction_descriptions();
+        foreach ($allInteractions as $otherSkill => $interactionDesc) {
+            if (is_null($interactionList) || (in_array($otherSkill, $interactionList))) {
+                $skillDescription['interacts'][$otherSkill] = $interactionDesc;
+            }
+        }
+        return $skillDescription;
     }
 }

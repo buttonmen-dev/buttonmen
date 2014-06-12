@@ -12,8 +12,8 @@ ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS = 50;
 //   It calls ActivePlayers.showPage()
 // * ActivePlayers.showPage() uses the data returned by the API to build
 //   the contents of the page as ActivePlayers.page and calls
-//   ActivePlayers.layoutPage()
-// * ActivePlayers.layoutPage() sets the contents of
+//   ActivePlayers.arrangePage()
+// * ActivePlayers.arrangePage() sets the contents of
 //   <div id="activeplayers_page"> on the live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -65,10 +65,10 @@ ActivePlayers.showPage = function() {
   }
 
   // Actually layout the page
-  ActivePlayers.layoutPage();
+  ActivePlayers.arrangePage();
 };
 
-ActivePlayers.layoutPage = function() {
+ActivePlayers.arrangePage = function() {
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
