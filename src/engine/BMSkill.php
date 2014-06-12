@@ -16,7 +16,7 @@ class BMSkill {
      *
      * @return string
      */
-    protected function get_description() {
+    protected static function get_description() {
         return 'UNDOCUMENTED';
     }
 
@@ -29,7 +29,7 @@ class BMSkill {
      *
      * @return array
      */
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array();
     }
 
@@ -196,7 +196,7 @@ class BMSkill {
         );
         $allInteractions = $skillClass::get_interaction_descriptions();
         foreach ($allInteractions as $otherSkill => $interactionDesc) {
-            if (($interactionList == NULL) || (in_array($otherSkill, $interactionList))) {
+            if (is_null($interactionList) || (in_array($otherSkill, $interactionList))) {
                 $skillDescription['interacts'][$otherSkill] = $interactionDesc;
             }
         }

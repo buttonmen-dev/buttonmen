@@ -17,13 +17,13 @@ class BMSkillNull extends BMSkill {
         }
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'When a Null Die participates in any attack, the ' .
                'dice that are captured are worth zero points. Null Dice ' .
                'themselves are worth zero points.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Poison' => 'Dice with both Null and Poison skills are Null',
             'Value' => 'Dice with both Null and Value skills are Null',

@@ -40,7 +40,7 @@ class BMSkillTrip extends BMSkill {
         $defender->captured = ($defender->value <= $attacker->value);
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These dice can also make Trip Attacks. To make a Trip Attack, choose any one opposing die as the ' .
                'Target. Roll both the Trip Die and the Target, then compare the numbers they show. If the Trip Die ' .
                'now shows an equal or greater number than the Target, the Target is captured. Otherwise, the attack ' .
@@ -49,7 +49,7 @@ class BMSkillTrip extends BMSkill {
                'not count for determining who goes first.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip ' .
                        'Attacking via a Power Attack',

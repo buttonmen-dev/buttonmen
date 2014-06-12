@@ -84,7 +84,7 @@ class BMSkillKonstant extends BMSkill {
         }
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These dice do not reroll after an attack; they keep ' .
                'their current value. Konstant Dice can not Power Attack, ' .
                'and cannot perform a Skill Attack by themselves, but they ' .
@@ -92,7 +92,7 @@ class BMSkillKonstant extends BMSkill {
                'Attack.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Chance' => 'Dice with both Chance and Konstant skills always retain their current value',
         );

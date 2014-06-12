@@ -18,7 +18,7 @@ class BMSkillDoppelganger extends BMSkillMorphing {
         return $att;
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'When a Doppelganger Die performs a Power Attack on ' .
                'another die, the Doppelganger Die becomes an exact copy of ' .
                'the die it captured. The newly copied die is then rerolled, ' .
@@ -30,7 +30,7 @@ class BMSkillDoppelganger extends BMSkillMorphing {
                'Die.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array();
     }
 }

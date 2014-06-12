@@ -66,7 +66,7 @@ class BMSkillBerserk extends BMSkill {
         $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These dice cannot participate in Skill Attacks; ' .
                'instead they can make a Berserk Attack. These work exactly ' .
                'like Speed Attacks - one Berserk Die can capture any number ' .
@@ -76,7 +76,7 @@ class BMSkillBerserk extends BMSkill {
                'had, rounding up.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Speed' => 'Dice with both Berserk and Speed skills may ' .
                        'choose to make either kind of attack',

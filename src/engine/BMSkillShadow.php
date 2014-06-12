@@ -23,7 +23,7 @@ class BMSkillShadow extends BMSkill {
         return array('Power');
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These dice are normal in all respects, except that ' .
                'they cannot make Power Attacks. Instead, they make inverted ' .
                'Power Attacks, called "Shadow Attacks." To make a Shadow ' .
@@ -35,7 +35,7 @@ class BMSkillShadow extends BMSkill {
                '2 to 10.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Stinger' => 'Dice with both Shadow and Stinger skills ' .
                          'can singly attack with any value from the min to the ' .

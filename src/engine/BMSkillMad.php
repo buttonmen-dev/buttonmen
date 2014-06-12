@@ -26,7 +26,7 @@ class BMSkillMad extends BMSkillMood {
         }
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These are a subcategory of Swing dice, whose size ' .
                'changes randomly when rerolled. At the very start of the ' .
                'game (and again after any round they lose, just as with ' .
@@ -37,7 +37,7 @@ class BMSkillMad extends BMSkillMood {
                'be set to an odd number.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array();
     }
 }

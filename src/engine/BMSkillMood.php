@@ -61,7 +61,7 @@ class BMSkillMood extends BMSkill {
                  ($obj->dice[1] instanceof BMDieSwing)));
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These are a subcategory of Swing dice, whose size ' .
                'changes randomly when rerolled. At the very start of the ' .
                'game (and again after any round they lose, just as with ' .
@@ -70,7 +70,7 @@ class BMSkillMood extends BMSkill {
                'size is set randomly to any legal size for that Swing type.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array();
     }
 }

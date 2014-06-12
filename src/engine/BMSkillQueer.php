@@ -50,13 +50,13 @@ class BMSkillQueer extends BMSkill {
         }
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'These dice behave like normal dice when they show ' .
                'an even number, and like Shadow Dice when they show an odd ' .
                'number.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Trip' => 'Dice with both Queer and Trip skills always ' .
                       'determine their success or failure at Trip Attacking ' .

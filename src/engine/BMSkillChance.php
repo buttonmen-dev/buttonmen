@@ -7,7 +7,7 @@ class BMSkillChance extends BMSkill {
         return TRUE;
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'If you do not have the initiative at the start of ' .
                'a round you may re-roll one of your Chance Dice. If this ' .
                'results in you gaining the initiative, your opponent may ' .
@@ -22,7 +22,7 @@ class BMSkillChance extends BMSkill {
                'initiative with them.';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Focus' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
             'Konstant' => 'Dice with both Chance and Konstant skills always retain their current value',

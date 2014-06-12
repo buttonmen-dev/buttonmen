@@ -34,7 +34,7 @@ class BMSkillFocus extends BMSkill {
                 1 == array_sum($hasPlayerInitArray));
     }
 
-    protected function get_description() {
+    protected static function get_description() {
         return 'If you do not have the initiative at the start of ' .
                'a round you may reduce the values showing on one or more ' .
                'of your Focus Dice. You may only do this if it results in ' .
@@ -47,7 +47,7 @@ class BMSkillFocus extends BMSkill {
                'attack. (The second player has no such restriction.)';
     }
 
-    protected function get_interaction_descriptions() {
+    protected static function get_interaction_descriptions() {
         return array(
             'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
         );
