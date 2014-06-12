@@ -656,11 +656,11 @@ Forum.buildHelp = function() {
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
-    'html': '[game="123"]: <a href="game.html?game=123">Game 123</a>',
+    'html': '[game=123]: <a href="game.html?game=123">Game 123</a>',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',
-    'html': '[player="Jota"]: <a href="profile.html?player=Jota">Jota</a>',
+    'html': '[player=Jota]: <a href="profile.html?player=Jota">Jota</a>',
   }));
   helpDiv.append($('<text>', {
     'text': 'For actual brackets: ',
