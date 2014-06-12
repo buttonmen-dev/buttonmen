@@ -2194,75 +2194,6 @@ class BMGame {
                   'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
                   'roundScoreArray'            => $this->get__roundScoreArray(),
                   'sideScoreArray'             => $this->get_sideScoreArray(),
-                  'gameScoreArrayArray'        => $this->gameScoreArrayArray,
-                  'lastActionTimeArray'        => $this->lastActionTimeArray);
-
-        return array('status' => 'ok', 'data' => $dataArray);
-    }
-
-    protected function clone_activeDieArrayArray() {
-        // create a deep clone of the original activeDieArrayArray so that changes
-        // don't propagate back into the real game data
-        $activeDieArrayArray = array_fill(0, $this->nPlayers, array());
-
-        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
-            if (count($activeDieArray) > 0) {
-                foreach ($activeDieArray as $dieIdx => $activeDie) {
-                    $activeDieArrayArray[$playerIdx][$dieIdx] = clone $activeDie;
-                }
-            }
-        }
-
-        return $activeDieArrayArray;
-    }
-
-    protected function get_buttonNameArray() {
-        $buttonNameArray = array();
-
-        foreach ($this->buttonArray as $button) {
-            $buttonName = '';
-            if ($button instanceof BMButton) {
-                $buttonName = $button->name;
-            }
-            $buttonNameArray[] = $buttonName;
-        }
-
-        return $buttonNameArray;
-    }
-
-    protected function get_buttonRecipeArray() {
-        $buttonRecipeArray = array();
-
-        $dataArray =
-            array('gameId'                     => $this->gameId,
-                  'gameState'                  => BMGameState::as_string($this->gameState),
-                  'roundNumber'                => $this->get__roundNumber(),
-                  'maxWins'                    => $this->maxWins,
-                  'activePlayerIdx'            => $this->activePlayerIdx,
-                  'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
-                  'playerIdArray'              => $this->playerIdArray,
-                  'buttonNameArray'            => $this->get_buttonNameArray(),
-                  'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
-                  'waitingOnActionArray'       => $this->waitingOnActionArray,
-                  'nDieArray'                  => $this->get_nDieArray(),
-                  'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
-                  'sidesArrayArray'            => $this->get_sidesArrayArray($requestingPlayerIdx),
-                  'dieSkillsArrayArray'        => $this->get_dieSkillsArrayArray(),
-                  'diePropertiesArrayArray'    => $this->get_diePropsArrayArray(),
-                  'dieRecipeArrayArray'        => $this->get_dieRecipeArrayArray(),
-                  'dieDescriptionArrayArray'   => $this->get_dieDescriptionArrayArray($requestingPlayerIdx),
-                  'nCapturedDieArray'          => $this->get_nCapturedDieArray(),
-                  'capturedValueArrayArray'    => $this->get_capturedValueArrayArray(),
-                  'capturedSidesArrayArray'    => $this->get_capturedSidesArrayArray(),
-                  'capturedRecipeArrayArray'   => $this->get_capturedRecipeArrayArray(),
-                  'capturedDiePropsArrayArray' => $this->get_capturedDiePropsArrayArray(),
-                  'swingRequestArrayArray'     => $this->get_swingRequestArrayArray(),
-                  'optRequestArrayArray'       => $this->get_optRequestArrayArray(),
-                  'prevSwingValueArrayArray'   => $this->get_prevSwingValueArrayArray(),
-                  'prevOptValueArrayArray'     => $this->get_prevOptValueArrayArray(),
-                  'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
-                  'roundScoreArray'            => $this->get__roundScoreArray(),
-                  'sideScoreArray'             => $this->get_sideScoreArray(),
                   'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
                   'gameScoreArrayArray'        => $this->gameScoreArrayArray,
                   'lastActionTimeArray'        => $this->lastActionTimeArray);
@@ -2328,7 +2259,6 @@ class BMGame {
         $valueArrayArray = array_fill(0, $this->nPlayers, array());
         $swingValsSpecified = TRUE;
 
-    protected function get_nDieArray() {
         if (isset($this->activeDieArrayArray)) {
             $activeDieArrayArray = $this->clone_activeDieArrayArray();
 
