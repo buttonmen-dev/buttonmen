@@ -316,7 +316,7 @@ class BMGame {
 
         foreach ($this->optValueArrayArray as $playerIdx => $optionValueArray) {
             if (!empty($optionValueArray)) {
-                foreach($optionValueArray as $dieIdx => $optionValue) {
+                foreach ($optionValueArray as $dieIdx => $optionValue) {
                     $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
                     assert($die instanceof BMDieOption);
                     $die->set_optionValue($optionValue);
