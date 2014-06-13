@@ -3,6 +3,7 @@
 DROP TABLE IF EXISTS game;
 CREATE TABLE game (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    start_time         TIMESTAMP DEFAULT 0,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status_id          TINYINT UNSIGNED NOT NULL,
     game_state         TINYINT UNSIGNED DEFAULT 10,
