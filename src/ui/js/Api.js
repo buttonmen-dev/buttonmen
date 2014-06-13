@@ -200,7 +200,8 @@ var Api = (function () {
     my.button.list = {};
     if ((!($.isArray(data.buttonNameArray))) ||
         (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray)))) {
+        (!($.isArray(data.hasUnimplementedSkillArray))) ||
+        (!($.isArray(data.buttonSetArray)))) {
       return false;
     }
     var i = 0;
@@ -208,6 +209,7 @@ var Api = (function () {
       my.button.list[data.buttonNameArray[i]] = {
         'recipe': data.recipeArray[i],
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
+        'buttonSet': data.buttonSetArray[i],
       };
       i++;
     }

@@ -1919,7 +1919,8 @@ class BMInterface {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
 
-            $statement = self::$conn->prepare('SELECT name, recipe, btn_special FROM button_view');
+            $query = 'SELECT name, recipe, btn_special, set_name FROM button_view';
+            $statement = self::$conn->prepare($query);
             $statement->execute();
 
             // Look for unimplemented skills in each button definition.
@@ -1945,12 +1946,14 @@ class BMInterface {
                     $buttonNameArray[] = $row['name'];
                     $recipeArray[] = $row['recipe'];
                     $hasUnimplSkillArray[] = $hasUnimplSkill;
+                    $buttonSetArray[] = $row['set_name'];
                 }
             }
             $this->message = 'All button names retrieved successfully.';
             return array('buttonNameArray'            => $buttonNameArray,
                          'recipeArray'                => $recipeArray,
-                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray);
+                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
+                         'buttonSetArray'             => $buttonSetArray);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_all_button_names: ' .
