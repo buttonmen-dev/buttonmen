@@ -407,7 +407,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     public function test_request_loadOpenGames() {
         $this->verify_login_required('loadOpenGames');
 
-        $_SESSION = $this->mock_test_user_login();
+        $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_invalid_arg_rejected('loadOpenGames');
 
         $createGameArgs = array(
