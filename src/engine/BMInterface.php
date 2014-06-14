@@ -378,9 +378,6 @@ class BMInterface {
         // force first player ID to be the current player ID, if specified
         if (!is_null($currentPlayerId)) {
             if ($currentPlayerId !== $playerIdArray[0]) {
-                var_dump('test');
-                var_dump($currentPlayerId);
-                var_dump($playerIdArray[0]);
                 $this->message = 'Game create failed because you must be the first player.';
                 return FALSE;
             }

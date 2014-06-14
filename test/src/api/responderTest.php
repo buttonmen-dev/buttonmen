@@ -376,10 +376,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Button name containing a backtick should be rejected"
         );
 
+        $_SESSION = $this->mock_test_user_login('responder004');
         $createGameArgs = array(
             'type' => 'createGame',
             'playerInfoArray' => array(
-                array('responder003', 'Avis'),
+                array('responder004', 'Avis'),
                 array('', 'Avis')
             ),
             'maxWins' => '3',
@@ -387,7 +388,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $createGameResult = $this->object->process_request($createGameArgs);
         $gameId = $createGameResult['data']['gameId'];
 
-        $_SESSION = $this->mock_test_user_login('responder004');
+        $_SESSION = $this->mock_test_user_login('responder003');
         $args = array(
             'type' => 'joinOpenGame',
             'gameId' => $gameId,
