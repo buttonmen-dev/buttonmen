@@ -253,9 +253,10 @@ class BMInterface {
     public function create_game(
         array $playerIdArray,
         array $buttonNameArray,
-        $maxWins = 3
+        $maxWins = 3,
+        $currentPlayerId = NULL
     ) {
-        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins);
+        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins, $currentPlayerId);
         if (!$isValidInfo) {
             return NULL;
         }
@@ -350,7 +351,7 @@ class BMInterface {
         }
     }
 
-    protected function validate_game_info(array $playerIdArray, $maxWins) {
+    protected function validate_game_info(array $playerIdArray, $maxWins, $currentPlayerId) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
@@ -370,6 +371,17 @@ class BMInterface {
         foreach ($playerIdArray as $playerId) {
             if (!(is_null($playerId) || is_int($playerId))) {
                 $this->message = 'Game create failed because player ID is not valid.';
+                return FALSE;
+            }
+        }
+
+        // force first player ID to be the current player ID, if specified
+        if (!is_null($currentPlayerId)) {
+            if ($currentPlayerId !== $playerIdArray[0]) {
+                var_dump('test');
+                var_dump($currentPlayerId);
+                var_dump($playerIdArray[0]);
+                $this->message = 'Game create failed because you must be the first player.';
                 return FALSE;
             }
         }

@@ -88,7 +88,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * Make sure users responder001-004 exist, and get
      * fake session data for responder003.
      */
-    protected function mock_test_user_login() {
+    protected function mock_test_user_login($username = 'responder003') {
 
         // make sure responder001 and responder002 exist
         $args = array('type' => 'createUser',
@@ -129,7 +129,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now set dummy "logged in" variable and return $_SESSION variable style data for responder003
         global $dummyUserLoggedIn;
         $dummyUserLoggedIn = TRUE;
-        return array('user_name' => 'responder003', 'user_id' => $this->user_ids['responder003']);
+        return array('user_name' => $username, 'user_id' => $this->user_ids[$username]);
     }
 
     protected function verify_login_required($type) {
@@ -279,6 +279,25 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Button name containing a backtick should be invalid"
         );
 
+        // Make sure that the first player in a game is the current logged in player
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder001', 'Avis'),
+                                       array('responder004', 'Avis')),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args);
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Game create failed because you must be the first player.',
+                'status' => 'failed',
+            ),
+            $retval,
+            "You cannot create games between other players."
+        );
+
+
         $args = array(
             'type' => 'createGame',
             'playerInfoArray' => array(array('responder003', 'Avis'),
@@ -333,7 +352,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     public function test_request_joinOpenGame() {
         $this->verify_login_required('joinOpenGame');
 
-        $_SESSION = $this->mock_test_user_login();
+        $_SESSION = $this->mock_test_user_login('responder003');
         $this->verify_invalid_arg_rejected('joinOpenGame');
         $this->verify_mandatory_args_required(
             'joinOpenGame',
@@ -360,7 +379,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $createGameArgs = array(
             'type' => 'createGame',
             'playerInfoArray' => array(
-                array('responder004', 'Avis'),
+                array('responder003', 'Avis'),
                 array('', 'Avis')
             ),
             'maxWins' => '3',
@@ -368,6 +387,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $createGameResult = $this->object->process_request($createGameArgs);
         $gameId = $createGameResult['data']['gameId'];
 
+        $_SESSION = $this->mock_test_user_login('responder004');
         $args = array(
             'type' => 'joinOpenGame',
             'gameId' => $gameId,

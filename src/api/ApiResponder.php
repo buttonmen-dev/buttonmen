@@ -107,7 +107,12 @@ class ApiResponder {
 
         $maxWins = $args['maxWins'];
 
-        $retval = $interface->create_game($playerIdArray, $buttonNameArray, $maxWins);
+        $retval = $interface->create_game(
+            $playerIdArray,
+            $buttonNameArray,
+            $maxWins,
+            $_SESSION['user_id']
+        );
 
         if (isset($retval)) {
             foreach ($playerIdArray as $playerId) {
@@ -123,7 +128,7 @@ class ApiResponder {
     protected function get_interface_response_searchGameHistory($interface, $args) {
         return $interface->search_game_history($_SESSION['user_id'], $args);
     }
-    
+
     protected function get_interface_response_joinOpenGame($interface, $args) {
         $success = $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
         if ($success && isset($args['buttonName'])) {
