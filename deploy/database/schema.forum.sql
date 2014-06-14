@@ -21,7 +21,7 @@ CREATE TABLE forum_board (
 CREATE TABLE forum_thread (
     id MEDIUMINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
     board_id SMALLINT UNSIGNED NOT NULL,
-    title VARCHAR(100) NOT NULL,
+    title VARCHAR(400) NOT NULL,
     deleted BIT NOT NULL DEFAULT 0,
     INDEX (board_id),
     FOREIGN KEY (board_id) REFERENCES forum_board(id)

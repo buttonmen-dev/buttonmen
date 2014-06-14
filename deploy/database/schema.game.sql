@@ -79,7 +79,7 @@ CREATE TABLE game_chat_log (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     chat_time          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     chatting_player    SMALLINT UNSIGNED NOT NULL,
-    message            VARCHAR(1024)
+    message            VARCHAR(2000)
 );
 
 DROP TABLE IF EXISTS die;

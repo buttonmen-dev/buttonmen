@@ -12,7 +12,8 @@
  */
 class BMInterface {
     // constants
-    const MYSQL_TEXT_MAX_LENGTH = 16383;
+    const GAME_CHAT_MAX_LENGTH = 500;
+    const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
 
     // properties
@@ -2203,8 +2204,9 @@ class BMInterface {
 
     protected function sanitize_chat($message) {
         // if the string is too long, truncate it
-        if (strlen($message) > 1020) {
-            $message = substr($message, 0, 1020);
+        $encoding = mb_detect_encoding($message);
+        if (mb_strlen($message, $encoding) > self::GAME_CHAT_MAX_LENGTH) {
+            $message = substr($message, 0, self::GAME_CHAT_MAX_LENGTH, $encoding);
         }
         return $message;
     }
@@ -3515,15 +3517,15 @@ class BMInterface {
     // Adds a new thread to the specified board
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
         try {
-            if (strlen($title) > self::FORUM_TITLE_MAX_LENGTH) {
+            if (mb_strlen($title, mb_detect_encoding($title)) > self::FORUM_TITLE_MAX_LENGTH) {
                 $this->message = 'Thread titles cannot be longer than ' .
                     self::FORUM_TITLE_MAX_LENGTH . ' characters';
                 return NULL;
             }
 
-            if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+            if (mb_strlen($body, mb_detect_encoding($body)) > self::FORUM_BODY_MAX_LENGTH) {
                 $this->message = 'Posts cannot be longer than ' .
-                    self::MYSQL_TEXT_MAX_LENGTH . ' characters';
+                    self::FORUM_BODY_MAX_LENGTH . ' characters';
                 return NULL;
             }
 
@@ -3569,9 +3571,9 @@ class BMInterface {
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
-            if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+            if (mb_strlen($body) > self::FORUM_BODY_MAX_LENGTH) {
                 $this->message = 'Posts cannot be longer than ' .
-                    self::MYSQL_TEXT_MAX_LENGTH . ' characters';
+                    self::FORUM_BODY_MAX_LENGTH . ' characters';
                 return NULL;
             }
 

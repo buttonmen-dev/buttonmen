@@ -10,7 +10,7 @@ Forum.SOLID_STAR = '&#9733;';
 // text, and a UTF-8 character can theoretically be up to four bytes wide (even
 // if this is rare in practice), so our post bodies should be guaranteed to be
 // able to hold at least (2^16 - 1)/4 characters.
-Forum.BODY_MAX_LENGTH = 16383;
+Forum.BODY_MAX_LENGTH = 16000;
 Forum.TITLE_MAX_LENGTH = 100;
 
 Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
@@ -366,6 +366,7 @@ Forum.formLinkToSubPage = function(e) {
   var state = Forum.readStateFromElement(this);
   Env.history.pushState(state, 'Button Men Online &mdash; Forum',
     Forum.buildUrlHash(state));
+  Env.message = null;
   Forum.showPage();
 };
 
@@ -382,6 +383,8 @@ Forum.toggleNewThreadForm = function() {
     $('tr.writePost').hide();
     $('tr.thread').show();
     $('#newThreadButton').css('visibility', 'visible');
+    Env.message = null;
+    Env.showStatusMessage();
   }
 };
 
@@ -715,6 +718,8 @@ Forum.buildUrlHash = function(state) {
 };
 
 Forum.parseFormPost = function(args, apiKey, submitButton, callback) {
+  Env.message = null;
+
   var messages = {
     'ok': {
       'type': 'function',
@@ -726,5 +731,11 @@ Forum.parseFormPost = function(args, apiKey, submitButton, callback) {
     'notok': { 'type': 'server', },
   };
 
-  Api.apiFormPost(args, messages, submitButton, callback, callback);
+  var showError = function() {
+    submitButton.prop('disabled', false);
+    Forum.page = $('<div>', { 'class': 'forum' });
+    Forum.arrangePage();
+  };
+
+  Api.apiFormPost(args, messages, submitButton, callback, showError);
 };
