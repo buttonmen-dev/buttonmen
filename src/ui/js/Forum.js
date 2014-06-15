@@ -10,8 +10,8 @@ Forum.SOLID_STAR = '&#9733;';
 // text, and a UTF-8 character can theoretically be up to four bytes wide (even
 // if this is rare in practice), so our post bodies should be guaranteed to be
 // able to hold at least (2^16 - 1)/4 characters.
-Forum.BODY_MAX_LENGTH = 16000;
-Forum.TITLE_MAX_LENGTH = 100;
+Forum.FORUM_BODY_MAX_LENGTH = 16000;
+Forum.FORUM_TITLE_MAX_LENGTH = 100;
 
 Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 
@@ -191,9 +191,11 @@ Forum.showBoard = function() {
     'type': 'text',
     'class': 'title',
     'placeholder': 'Thread title...',
-    'maxlength': Forum.TITLE_MAX_LENGTH,
+    'maxlength': Forum.FORUM_TITLE_MAX_LENGTH,
   }));
-  contentTd.append($('<textarea>', { 'maxlength': Forum.BODY_MAX_LENGTH }));
+  contentTd.append($('<textarea>', {
+    'maxlength': Forum.FORUM_BODY_MAX_LENGTH
+  }));
   var cancelButton = $('<input>', {
     'type': 'button',
     'value': 'Cancel',
@@ -306,12 +308,11 @@ Forum.showThread = function() {
   replyTr.append(replyBodyTd);
   replyBodyTd.append($('<textarea>', {
     'placeholder': 'Reply to thread...',
-    'maxlength': Forum.BODY_MAX_LENGTH,
+    'maxlength': Forum.FORUM_BODY_MAX_LENGTH,
   }));
   var replyButton = $('<input>', {
     'type': 'button',
     'value': 'Post reply',
-    'maxlength': Forum.BODY_MAX_LENGTH,
   });
   replyBodyTd.append(replyButton);
   replyButton.click(Forum.formReplyToThread);
@@ -731,11 +732,10 @@ Forum.parseFormPost = function(args, apiKey, submitButton, callback) {
     'notok': { 'type': 'server', },
   };
 
-  var showError = function() {
-    submitButton.prop('disabled', false);
-    Forum.page = $('<div>', { 'class': 'forum' });
-    Forum.arrangePage();
-  };
+  Api.apiFormPost(args, messages, submitButton, callback, Forum.showError);
+};
 
-  Api.apiFormPost(args, messages, submitButton, callback, showError);
+Forum.showError = function() {
+  Forum.page = $('<div>', { 'class': 'forum' });
+  Forum.arrangePage();
 };
