@@ -10,8 +10,8 @@ Forum.SOLID_STAR = '&#9733;';
 // text, and a UTF-8 character can theoretically be up to four bytes wide (even
 // if this is rare in practice), so our post bodies should be guaranteed to be
 // able to hold at least (2^16 - 1)/4 characters.
-Forum.BODY_MAX_LENGTH = 16383;
-Forum.TITLE_MAX_LENGTH = 100;
+Forum.FORUM_BODY_MAX_LENGTH = 16000;
+Forum.FORUM_TITLE_MAX_LENGTH = 100;
 
 Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 
@@ -191,9 +191,11 @@ Forum.showBoard = function() {
     'type': 'text',
     'class': 'title',
     'placeholder': 'Thread title...',
-    'maxlength': Forum.TITLE_MAX_LENGTH,
+    'maxlength': Forum.FORUM_TITLE_MAX_LENGTH,
   }));
-  contentTd.append($('<textarea>', { 'maxlength': Forum.BODY_MAX_LENGTH }));
+  contentTd.append($('<textarea>', {
+    'maxlength': Forum.FORUM_BODY_MAX_LENGTH
+  }));
   var cancelButton = $('<input>', {
     'type': 'button',
     'value': 'Cancel',
@@ -306,12 +308,11 @@ Forum.showThread = function() {
   replyTr.append(replyBodyTd);
   replyBodyTd.append($('<textarea>', {
     'placeholder': 'Reply to thread...',
-    'maxlength': Forum.BODY_MAX_LENGTH,
+    'maxlength': Forum.FORUM_BODY_MAX_LENGTH,
   }));
   var replyButton = $('<input>', {
     'type': 'button',
     'value': 'Post reply',
-    'maxlength': Forum.BODY_MAX_LENGTH,
   });
   replyBodyTd.append(replyButton);
   replyButton.click(Forum.formReplyToThread);
@@ -366,6 +367,7 @@ Forum.formLinkToSubPage = function(e) {
   var state = Forum.readStateFromElement(this);
   Env.history.pushState(state, 'Button Men Online &mdash; Forum',
     Forum.buildUrlHash(state));
+  Env.message = null;
   Forum.showPage();
 };
 
@@ -382,6 +384,8 @@ Forum.toggleNewThreadForm = function() {
     $('tr.writePost').hide();
     $('tr.thread').show();
     $('#newThreadButton').css('visibility', 'visible');
+    Env.message = null;
+    Env.showStatusMessage();
   }
 };
 
@@ -715,6 +719,8 @@ Forum.buildUrlHash = function(state) {
 };
 
 Forum.parseFormPost = function(args, apiKey, submitButton, callback) {
+  Env.message = null;
+
   var messages = {
     'ok': {
       'type': 'function',
@@ -726,5 +732,10 @@ Forum.parseFormPost = function(args, apiKey, submitButton, callback) {
     'notok': { 'type': 'server', },
   };
 
-  Api.apiFormPost(args, messages, submitButton, callback, callback);
+  Api.apiFormPost(args, messages, submitButton, callback, Forum.showError);
+};
+
+Forum.showError = function() {
+  Forum.page = $('<div>', { 'class': 'forum' });
+  Forum.arrangePage();
 };

@@ -279,8 +279,9 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     },
     'quote': {
       'openingHtml':
-          '<div class="chatQuote"><div class="chatQuotee">Quote:</div>',
-      'closingHtml': '</div>',
+          '<div class="chatQuote"><div class="chatQuotee">Quote:</div>' +
+            '<span class="chatQuoteBody">',
+      'closingHtml': '</span></div>',
     },
     'game': {
       'isAtomic': true,

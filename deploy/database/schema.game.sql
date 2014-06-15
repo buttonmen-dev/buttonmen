@@ -79,7 +79,10 @@ CREATE TABLE game_chat_log (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     chat_time          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     chatting_player    SMALLINT UNSIGNED NOT NULL,
-    message            VARCHAR(1024)
+    -- A chat message is limited to 500 Unicode characters (see
+    -- GAME_CHAT_MAX_LENGTH in BMInterface and Game.js). Since a Unicode
+    -- character can be up to four bytes, this requires a varchar(2000).
+    message            VARCHAR(2000)
 );
 
 DROP TABLE IF EXISTS die;

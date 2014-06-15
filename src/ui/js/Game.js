@@ -33,6 +33,9 @@ Game.COLORS = {
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
 
+// Maximum number of characters permitted in a given chat message
+Game.GAME_CHAT_MAX_LENGTH = 500;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -2246,7 +2249,7 @@ Game.chatBox = function(hidden) {
     'id': 'game_chat',
     'rows': '3',
     'cols': '50',
-    'maxlength': '500',
+    'maxlength': Game.GAME_CHAT_MAX_LENGTH,
   });
 
   // Add previous chat contents from a rejected turn submission if any
