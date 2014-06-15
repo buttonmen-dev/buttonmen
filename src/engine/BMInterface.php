@@ -253,31 +253,17 @@ class BMInterface {
     public function create_game(
         array $playerIdArray,
         array $buttonNameArray,
-        $maxWins = 3
+        $maxWins = 3,
+        $currentPlayerId = NULL
     ) {
-        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins);
+        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins, $currentPlayerId);
         if (!$isValidInfo) {
             return NULL;
         }
 
-        $buttonIdArray = array();
-        foreach (array_keys($playerIdArray) as $position) {
-            // get button ID
-            $buttonName = $buttonNameArray[$position];
-            if (!empty($buttonName)) {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
-                    $this->message = 'Game create failed because a button name was not valid.';
-                    return NULL;
-                }
-                $buttonIdArray[] = $fetchData[0];
-            } else {
-                $buttonIdArray[] = NULL;
-            }
+        $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
+        if (is_null($buttonIdArray)) {
+            return NULL;
         }
 
         try {
@@ -350,7 +336,7 @@ class BMInterface {
         }
     }
 
-    protected function validate_game_info(array $playerIdArray, $maxWins) {
+    protected function validate_game_info(array $playerIdArray, $maxWins, $currentPlayerId) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
@@ -374,6 +360,14 @@ class BMInterface {
             }
         }
 
+        // force first player ID to be the current player ID, if specified
+        if (!is_null($currentPlayerId)) {
+            if ($currentPlayerId !== $playerIdArray[0]) {
+                $this->message = 'Game create failed because you must be the first player.';
+                return FALSE;
+            }
+        }
+
         if (FALSE ===
             filter_var(
                 $maxWins,
@@ -387,6 +381,30 @@ class BMInterface {
         }
 
         return TRUE;
+    }
+
+    protected function retrieve_button_ids($playerIdArray, $buttonNameArray) {
+        $buttonIdArray = array();
+        foreach (array_keys($playerIdArray) as $position) {
+            // get button ID
+            $buttonName = $buttonNameArray[$position];
+            if (!empty($buttonName)) {
+                $query = 'SELECT id FROM button '.
+                         'WHERE name = :button_name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':button_name' => $buttonName));
+                $fetchData = $statement->fetch();
+                if (FALSE === $fetchData) {
+                    $this->message = 'Game create failed because a button name was not valid.';
+                    return NULL;
+                }
+                $buttonIdArray[] = $fetchData[0];
+            } else {
+                $buttonIdArray[] = NULL;
+            }
+        }
+
+        return $buttonIdArray;
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
