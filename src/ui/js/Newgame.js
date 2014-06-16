@@ -437,7 +437,7 @@ Newgame.getSelectTd = function(nametext, selectname, valuedict,
   selectTd.append(select);
 
   return selectTd;
-}
+};
 
 Newgame.getSelectOptionList = function(
     nametext, valuedict, greydict, selectedval, blankOption) {
@@ -588,7 +588,7 @@ Newgame.updateButtonList = function(player, limitid) {
   if (limitid) {
     Newgame.updateButtonSelectTd(player);
   }
-}
+};
 
 Newgame.getButtonLimitRow = function(desctext, limitid, choices) {
   var limitRow = $('<tr>');
@@ -626,6 +626,7 @@ Newgame.getButtonLimitTd = function(player, desctext, limitid, choices) {
     'text': 'ANY',
     'selected': 'selected',
   }));
+  var inputid;
   $.each(choicekeys, function(i, choice) {
     inputid = Newgame.getChoiceId(player, limitid, choice);
     var selectopts = {
@@ -659,6 +660,7 @@ Newgame.initializeButtonLimits = function() {
   }
   var choiceid;
   var players = ['player', 'opponent'];
+  var player;
   for (var i = 0; i < 2; i++) {
     player = players[i];
     if (!(player in Newgame.activity.buttonLimits)) {
@@ -700,5 +702,5 @@ Newgame.initializeButtonLimits = function() {
         Newgame.activity.buttonLimits[player].die_skills[choiceid] = false;
       }
     });
-  };
+  }
 };
