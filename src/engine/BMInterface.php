@@ -1930,6 +1930,8 @@ class BMInterface {
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
+                    $dieSkills = array_keys($button->dieSkills);
+                    sort($dieSkills);
 
                     $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
                     if ((1 == $row['btn_special']) &&
@@ -1947,6 +1949,7 @@ class BMInterface {
                     $recipeArray[] = $row['recipe'];
                     $hasUnimplSkillArray[] = $hasUnimplSkill;
                     $buttonSetArray[] = $row['set_name'];
+                    $dieSkillsArray[] = $dieSkills;
                     $isTournLegalArray[] = ((int)$row['tourn_legal'] == 1);
                 }
             }
@@ -1955,6 +1958,7 @@ class BMInterface {
                          'recipeArray'                => $recipeArray,
                          'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
                          'buttonSetArray'             => $buttonSetArray,
+                         'dieSkillsArray'             => $dieSkillsArray,
                          'isTournLegalArray'          => $isTournLegalArray);
         } catch (Exception $e) {
             error_log(

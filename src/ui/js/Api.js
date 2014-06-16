@@ -202,6 +202,7 @@ var Api = (function () {
         (!($.isArray(data.recipeArray))) ||
         (!($.isArray(data.hasUnimplementedSkillArray))) ||
         (!($.isArray(data.buttonSetArray))) ||
+        (!($.isArray(data.dieSkillsArray))) ||
         (!($.isArray(data.isTournLegalArray)))) {
       return false;
     }
@@ -211,6 +212,7 @@ var Api = (function () {
         'recipe': data.recipeArray[i],
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
         'buttonSet': data.buttonSetArray[i],
+        'dieSkills': data.dieSkillsArray[i],
         'isTournLegal': data.isTournLegalArray[i],
       };
       i++;

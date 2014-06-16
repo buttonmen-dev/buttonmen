@@ -18,6 +18,7 @@ class BMButton extends BMCanHaveSkill {
     protected $name;
     protected $recipe;
     protected $dieArray;
+    protected $dieSkills;
     protected $ownerObject;
     protected $playerIdx;
     protected $hasUnimplementedSkill;
@@ -35,6 +36,7 @@ class BMButton extends BMCanHaveSkill {
         $this->validate_recipe($recipe);
         $this->recipe = $recipe;
         $this->dieArray = array();
+        $this->dieSkills = array();
         $this->hasUnimplementedSkill = FALSE;
         $this->hasAlteredRecipe = $isRecipeAltered;
 
@@ -56,8 +58,13 @@ class BMButton extends BMCanHaveSkill {
             $this->dieArray[] = $die;
             if (is_null($die)) {
                 $this->hasUnimplementedSkill = TRUE;
-            } elseif (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
-                $this->hasUnimplementedSkill = TRUE;
+            } else {
+                if (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
+                    $this->hasUnimplementedSkill = TRUE;
+                }
+                foreach (array_keys($die->skillList) as $skill) {
+                    $this->dieSkills[$skill] = $skill;
+                }
             }
         }
     }
