@@ -61,6 +61,10 @@ class BMSkillMood extends BMSkill {
                  ($obj->dice[1] instanceof BMDieSwing)));
     }
 
+    public static function do_print_skill_preceding() {
+        return FALSE;
+    }
+
     protected static function get_description() {
         return 'These are a subcategory of Swing dice, whose size ' .
                'changes randomly when rerolled. At the very start of the ' .

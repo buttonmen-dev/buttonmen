@@ -488,7 +488,7 @@ class BMDie extends BMCanHaveSkill {
     public function get_recipe() {
         $recipe = '';
         foreach ($this->skillList as $skill) {
-            if (BMSkill::do_print_skill_preceding($skill)) {
+            if ($skill::do_print_skill_preceding()) {
                 $recipe .= BMSkill::abbreviate_skill_name($skill);
             }
         }
@@ -521,7 +521,7 @@ class BMDie extends BMCanHaveSkill {
         $recipe .= ')';
 
         foreach ($this->skillList as $skill) {
-            if (!BMSkill::do_print_skill_preceding($skill)) {
+            if (!$skill::do_print_skill_preceding()) {
                 $recipe .= BMSkill::abbreviate_skill_name($skill);
             }
         }
