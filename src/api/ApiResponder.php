@@ -111,7 +111,7 @@ class ApiResponder {
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
-            $_SESSION['user_id']
+            (int)$_SESSION['user_id']
         );
 
         if (isset($retval)) {
