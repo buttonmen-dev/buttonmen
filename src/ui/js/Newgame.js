@@ -175,6 +175,7 @@ Newgame.actionCreateGame = function() {
   Newgame.activity.buttonRecipe = {};
   Newgame.activity.buttonGreyed = {};
   Newgame.activity.buttonSets = {};
+  Newgame.activity.dieSkills = {};
   Newgame.activity.tournLegal = {
     'yes': true,
     'no': true,
@@ -182,6 +183,9 @@ Newgame.actionCreateGame = function() {
   Newgame.activity.anyUnimplementedButtons = false;
   $.each(Api.button.list, function(button, buttoninfo) {
     Newgame.activity.buttonSets[buttoninfo.buttonSet] = true;
+    $.each(buttoninfo.dieSkills, function(i, dieSkill) {
+      Newgame.activity.dieSkills[dieSkill] = true;
+    });
     if (buttoninfo.hasUnimplementedSkill) {
       Newgame.activity.buttonRecipe[button] =
         '-- ' + button + ': ' + buttoninfo.recipe;
@@ -224,6 +228,11 @@ Newgame.actionCreateGame = function() {
     'Tournament legal:',
     'tourn_legal',
     Newgame.activity.tournLegal
+  ));
+  buttonOptionsTable.append(Newgame.getButtonLimitRow(
+    'Die skill:',
+    'die_skills',
+    Newgame.activity.dieSkills
   ));
 
   // button selection row
@@ -529,6 +538,7 @@ Newgame.updateButtonList = function(player, limitid) {
 
   Newgame.activity.buttonList[player] = {};
   var choiceid;
+  var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {
 
     // If the user has specified any limits based on button set,
@@ -539,15 +549,27 @@ Newgame.updateButtonList = function(player, limitid) {
       return true;
     }
 
-    // If the user has specified any limits based on button set,
-    // skip buttons which are not in one of the sets the user has
-    // specified
+    // If the user has specified any limits based on TL status,
+    // skip buttons which do not have the status the user has specified
     if (buttoninfo.isTournLegal) {
       choiceid = Newgame.getChoiceId(player, 'tourn_legal', 'yes');
     } else {
       choiceid = Newgame.getChoiceId(player, 'tourn_legal', 'no');
     }
     if (!Newgame.activity.buttonLimits[player].tourn_legal[choiceid]) {
+      return true;
+    }
+
+    // If the user has specified any limits based on die skills,
+    // skip buttons which do not have at least one requested skills
+    hasSkill = false;
+    $.each(buttoninfo.dieSkills, function(i, dieSkill) {
+      choiceid = Newgame.getChoiceId(player, 'die_skills', dieSkill);
+      if (Newgame.activity.buttonLimits[player].die_skills[choiceid]) {
+        hasSkill = true;
+      }
+    });
+    if (!hasSkill) {
       return true;
     }
 
@@ -650,6 +672,16 @@ Newgame.initializeButtonLimits = function() {
       choiceid = Newgame.getChoiceId(player, 'tourn_legal', yesno);
       if (!(choiceid in Newgame.activity.buttonLimits[player].tourn_legal)) {
         Newgame.activity.buttonLimits[player].tourn_legal[choiceid] = true;
+      }
+    });
+
+    if (!('die_skills' in Newgame.activity.buttonLimits[player])) {
+      Newgame.activity.buttonLimits[player].die_skills = {};
+    }
+    $.each(Newgame.activity.dieSkills, function(dieSkill) {
+      choiceid = Newgame.getChoiceId(player, 'die_skills', dieSkill);
+      if (!(choiceid in Newgame.activity.buttonLimits[player].die_skills)) {
+        Newgame.activity.buttonLimits[player].die_skills[choiceid] = true;
       }
     });
   };
