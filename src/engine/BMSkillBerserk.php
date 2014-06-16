@@ -82,4 +82,8 @@ class BMSkillBerserk extends BMSkill {
                        'choose to make either kind of attack',
         );
     }
+
+    public static function prevents_win_determination() {
+        return TRUE;
+    }
 }

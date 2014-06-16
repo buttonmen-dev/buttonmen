@@ -1,16 +1,19 @@
 <?php
-
 /*
  * BMSkill: Used to modify the operation of BMDie
  *
  * @author: James Ong
  */
 
+/*
+ * This class is the parent class for all die skills
+ */
 class BMSkill {
 
     /**
      * Convert a string of skill abbreviations into an array of BMSkills
      *
+     * @param string $skillString
      * @return array
      */
     public static function expand_skill_string($skillString) {
@@ -31,6 +34,7 @@ class BMSkill {
     /**
      * Determine if there is an unimplemented skill in a skill recipe string
      *
+     * @param string $skillString
      * @return boolean
      */
     public static function unimplemented_skill_in_string($skillString) {
@@ -49,6 +53,12 @@ class BMSkill {
         return FALSE;
     }
 
+    /**
+     * Convert a skill letter into a full skill name
+     *
+     * @param string $skillLetter
+     * @return string
+     */
     private static function expand_skill_letter($skillLetter) {
         $skillLetter = array_search(
             $skillLetter,
@@ -64,6 +74,7 @@ class BMSkill {
     /**
      * Abbreviate the name of a skill
      *
+     * @param string $fullSkillName
      * @return string
      */
     public static function abbreviate_skill_name($fullSkillName) {
@@ -81,6 +92,11 @@ class BMSkill {
         }
     }
 
+    /**
+     * All skill name abbreviations
+     *
+     * @return array
+     */
     protected static function skill_name_abbreviation_mapping() {
         return array('Auxiliary'    => '+',
                      'Berserk'      => 'B',
@@ -136,6 +152,8 @@ class BMSkill {
     /**
      * Comparator needed for skill sorting
      *
+     * @param BMSkill $skill1
+     * @param BMSkill $skill2
      * @return integer
      */
     public static function skill_order_comparator($skill1, $skill2) {
@@ -161,6 +179,11 @@ class BMSkill {
         return $cmp;
     }
 
+    /**
+     * All skills in order
+     *
+     * @return array
+     */
     protected static function skill_order_array() {
         // fires first
         return array('BMSkillAuxiliary',
@@ -198,6 +221,8 @@ class BMSkill {
     /**
      * Complete description of skill, packaged for front end
      *
+     * @param string $skill
+     * @param mixed $interactionList
      * @return array
      */
     public static function describe($skill, $interactionList = NULL) {
@@ -229,7 +254,7 @@ class BMSkill {
     }
 
     /**
-     * Array of descriptions of interactions between this skill and other skills
+     * Descriptions of interactions between this skill and other skills
      *
      * Each skill class must override this with an array, indexed
      * by other skill name, whose values are descriptions of
@@ -239,5 +264,14 @@ class BMSkill {
      */
     protected static function get_interaction_descriptions() {
         return array();
+    }
+
+    /**
+     * Does this skill prevent the determination of whether a player can win?
+     *
+     * @return boolean
+     */
+    public static function prevents_win_determination() {
+        return FALSE;
     }
 }

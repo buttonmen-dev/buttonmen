@@ -31,4 +31,8 @@ class BMSkillPoison extends BMSkill {
                        'current value rather than on their number of sides',
         );
     }
+
+    public static function prevents_win_determination() {
+        return TRUE;
+    }
 }

@@ -77,4 +77,8 @@ class BMSkillMood extends BMSkill {
     protected static function get_interaction_descriptions() {
         return array();
     }
+
+    public static function prevents_win_determination() {
+        return TRUE;
+    }
 }

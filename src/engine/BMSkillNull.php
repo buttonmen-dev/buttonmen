@@ -29,4 +29,8 @@ class BMSkillNull extends BMSkill {
             'Value' => 'Dice with both Null and Value skills are Null',
         );
     }
+
+    public static function prevents_win_determination() {
+        return TRUE;
+    }
 }
