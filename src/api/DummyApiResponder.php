@@ -553,12 +553,8 @@ class DummyApiResponder {
 
     protected function get_interface_response_loadButtonNames() {
         $data = array(
-          'buttonNameArray' => array(),
-          'recipeArray' => array(),
-          'hasUnimplementedSkillArray' => array(),
-          'buttonSetArray' => array(),
-          'dieSkillsArray' => array(),
-          'isTournLegalArray' => array(),
+          'buttonNameArray' => array(), 'recipeArray' => array(), 'hasUnimplementedSkillArray' => array(),
+          'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournLegalArray' => array(),
         );
 
         // a button with no special skills
