@@ -175,6 +175,10 @@ Newgame.actionCreateGame = function() {
   Newgame.activity.buttonRecipe = {};
   Newgame.activity.buttonGreyed = {};
   Newgame.activity.buttonSets = {};
+  Newgame.activity.tournLegal = {
+    'yes': true,
+    'no': true,
+  };
   Newgame.activity.anyUnimplementedButtons = false;
   $.each(Api.button.list, function(button, buttoninfo) {
     Newgame.activity.buttonSets[buttoninfo.buttonSet] = true;
@@ -215,6 +219,11 @@ Newgame.actionCreateGame = function() {
     'Button set:',
     'button_sets',
     Newgame.activity.buttonSets
+  ));
+  buttonOptionsTable.append(Newgame.getButtonLimitRow(
+    'Tournament legal:',
+    'tourn_legal',
+    Newgame.activity.tournLegal
   ));
 
   // button selection row
@@ -530,6 +539,18 @@ Newgame.updateButtonList = function(player, limitid) {
       return true;
     }
 
+    // If the user has specified any limits based on button set,
+    // skip buttons which are not in one of the sets the user has
+    // specified
+    if (buttoninfo.isTournLegal) {
+      choiceid = Newgame.getChoiceId(player, 'tourn_legal', 'yes');
+    } else {
+      choiceid = Newgame.getChoiceId(player, 'tourn_legal', 'no');
+    }
+    if (!Newgame.activity.buttonLimits[player].tourn_legal[choiceid]) {
+      return true;
+    }
+
     Newgame.activity.buttonList[player][button] =
       Newgame.activity.buttonRecipe[button];
   });
@@ -611,6 +632,7 @@ Newgame.initializeButtonLimits = function() {
     if (!(player in Newgame.activity.buttonLimits)) {
       Newgame.activity.buttonLimits[player] = {};
     }
+
     if (!('button_sets' in Newgame.activity.buttonLimits[player])) {
       Newgame.activity.buttonLimits[player].button_sets = {};
     }
@@ -620,8 +642,15 @@ Newgame.initializeButtonLimits = function() {
         Newgame.activity.buttonLimits[player].button_sets[choiceid] = true;
       }
     });
-    if (!('is_unimplemented' in Newgame.activity.buttonLimits[player])) {
-      Newgame.activity.buttonLimits[player].is_unimplemented = {};
+
+    if (!('tourn_legal' in Newgame.activity.buttonLimits[player])) {
+      Newgame.activity.buttonLimits[player].tourn_legal = {};
     }
+    $.each(Newgame.activity.tournLegal, function(yesno) {
+      choiceid = Newgame.getChoiceId(player, 'tourn_legal', yesno);
+      if (!(choiceid in Newgame.activity.buttonLimits[player].tourn_legal)) {
+        Newgame.activity.buttonLimits[player].tourn_legal[choiceid] = true;
+      }
+    });
   };
 };
