@@ -201,7 +201,8 @@ var Api = (function () {
     if ((!($.isArray(data.buttonNameArray))) ||
         (!($.isArray(data.recipeArray))) ||
         (!($.isArray(data.hasUnimplementedSkillArray))) ||
-        (!($.isArray(data.buttonSetArray)))) {
+        (!($.isArray(data.buttonSetArray))) ||
+        (!($.isArray(data.isTournLegalArray)))) {
       return false;
     }
     var i = 0;
@@ -210,6 +211,7 @@ var Api = (function () {
         'recipe': data.recipeArray[i],
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
         'buttonSet': data.buttonSetArray[i],
+        'isTournLegal': data.isTournLegalArray[i],
       };
       i++;
     }
