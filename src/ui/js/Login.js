@@ -25,7 +25,7 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
-      var welcomeText = 'Welcome to ButtonMen';
+      var welcomeText = 'Welcome to Button Men';
       if (Config.siteType == 'development') {
         $('#login_header').css('background-color', '#cccccc');
         $('head').append(
