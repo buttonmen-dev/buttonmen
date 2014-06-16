@@ -657,6 +657,20 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retdata['gameData']['data']['lastActionTimeArray'];
 
         $this->assertEquals($dummydata, $retdata);
+
+        // Since game IDs are sequential, $real_game_id + 1 should not be an existing game
+        $nonexistent_game_id = $real_game_id + 1;
+        $retval = $this->object->process_request(
+            array('type' => 'loadGameData', 'game' => $nonexistent_game_id, 'logEntryLimit' => 10));
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Game ' . $nonexistent_game_id . ' does not exist.',
+                'status' => 'failed',
+            ),
+            $retval,
+            'loadGameData should reject a nonexistent game ID with a friendly message'
+        );
     }
 
     public function test_request_loadPlayerName() {
