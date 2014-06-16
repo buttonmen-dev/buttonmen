@@ -295,3 +295,181 @@ test("test_Newgame.setCreateGameSuccessMessage", function() {
   );
   equal(Env.message.type, 'success', "set Env.message to a successful type");
 });
+
+test("test_Newgame.getSelectTd", function() {
+  var item = Newgame.getSelectTd(
+    'test items',
+    'test_select',
+    { 'a': 'First Value', 'b': 'Second Value', },
+    { 'b': true, },
+    'a');
+  equal(item[0].tagName, "TD", "Return value is of type td");
+});
+
+test("test_Newgame.getSelectOptionList", function() {
+  var optionlist = Newgame.getSelectOptionList(
+    'test items',
+    { 'a': 'First Value', 'b': 'Second Value', },
+    { 'b': true, },
+    'a');
+  equal(optionlist[0].html(), "First Value",
+        "Element in option list has expected value");
+});
+
+test("test_Newgame.getButtonSelectTd", function() {
+  Newgame.activity = {
+    'buttonList': {
+      'player': {
+        'Avis': 'Avis: (4) (4) (10) (12) (X)',
+        'Jellybean': 'Jellybean: p(20) s(20) (V) (X)',
+      },
+      'opponent': {
+        'Avis': 'Avis: (4) (4) (10) (12) (X)',
+        'Adam Spam': '-- Adam Spam: F(4) F(6) (6) (12) (X)',
+      },
+    },
+    'buttonGreyed': { 'Adam Spam': true, },
+    'playerButton': null,
+    'opponentButton': null,
+  };
+  var item = Newgame.getButtonSelectTd();
+  equal(item[0].tagName, "TD", "Return value is of type td");
+});
+
+asyncTest("test_Newgame.updateButtonSelectTd", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+    var item1 = $('#player_button');
+    equal(item1[0].tagName, "SELECT",
+      "Player button select is a select before update");
+    ok(item1.html().match("Avis"),
+      "before update, Avis is in the list of button options");
+    ok(item1.html().match("John Kovalic"),
+      "before update, John Kovalic is in the list of button options");
+    delete(Newgame.activity.buttonList.player["John Kovalic"]);
+    Newgame.updateButtonSelectTd('player');
+    ok(item1.html().match("Avis"),
+      "after update, Avis is in the list of button options");
+    ok(!item1.html().match("John Kovalic"),
+      "after update, John Kovalic is not in the list of button options");
+    start();
+  });
+});
+
+asyncTest("test_Newgame.updateButtonList", function() {
+  Newgame.getNewgameData(function() {
+    Newgame.actionCreateGame();
+
+    // baseline checks before update
+    var anyOption = null;
+    var bromOption = null;
+    $.each($('#limit_opponent_button_sets option'), function() {
+      if ($(this).val() == "limit_opponent_button_sets_brom") {
+        bromOption = $(this);
+      } else if ($(this).val() == "ANY") {
+        anyOption = $(this);
+      }
+    });
+    ok(("Avis" in Newgame.activity.buttonList.opponent),
+      "before update, Avis is included in the set of available buttons for the opponent");
+    ok(("Jellybean" in Newgame.activity.buttonList.opponent),
+      "before update, Jellybean is included in the set of available buttons for the opponent");
+
+    // now deselect the ANY button set and select the BROM button set
+    anyOption.removeAttr('selected');
+    bromOption.attr('selected', 'selected');
+
+    // now call updateButtonList, and make sure Jellybean (in BROM) is still in the button list,
+    // but Avis (in Soldiers, not in BROM) is gone
+    Newgame.updateButtonList('opponent', 'button_sets');
+    ok(!("Avis" in Newgame.activity.buttonList.opponent),
+      "after list update, Avis is not included in the set of available buttons for the opponent");
+    ok(("Jellybean" in Newgame.activity.buttonList.opponent),
+      "after update, Jellybean is still included in the set of available buttons for the opponent");
+    start();
+  });
+});
+
+test("test_Newgame.getButtonLimitTd", function() {
+  Newgame.activity = {
+    'buttonLimits': {
+      'player': {
+        'test_limit': {
+          'A': false,
+          'B C': true,
+        },
+      },
+    },
+  };
+  var item = Newgame.getButtonLimitTd(
+    'player',
+    'Description text',
+    'test_limit',
+    { 'A': true,
+      'B C': true,
+    });
+  equal(item[0].tagName, "TD", "result is a TD"); 
+});
+
+test("test_Newgame.getButtonLimitRow", function() {
+  Newgame.activity = {
+    'buttonLimits': {
+      'player': {
+        'test_limit': {
+          'A': false,
+          'B C': true,
+        },
+      },
+      'opponent': {
+        'test_limit': {
+          'A': true,
+          'B C': true,
+        },
+      },
+    },
+  };
+  var item = Newgame.getButtonLimitRow(
+    'Description text',
+    'test_limit',
+    { 'A': true,
+      'B C': true,
+    });
+  equal(item[0].tagName, "TR", "result is a TR"); 
+});
+
+test("test_Newgame.getLimitSelectid", function() {
+  var item = Newgame.getLimitSelectid('opponent', 'test');
+  equal(item, 'limit_opponent_test', "Expected ID is returned");
+});
+
+test("test_Newgame.getChoiceId", function() {
+  var item = Newgame.getChoiceId('opponent', 'test', 'Weird iteM?.');
+  equal(item, 'limit_opponent_test_weird_item', "Expected ID is returned");
+});
+
+test("test_Newgame.initializeButtonLimits", function() {
+  Newgame.activity = {
+    'buttonSets': {
+      'Set 1': true,
+      'Set 2': true,
+    },
+    'tournLegal': {
+      'yes': true,
+      'no': true,
+    },
+    'dieSkills': {
+      'Test': true,
+    },
+  };
+
+  Newgame.initializeButtonLimits();
+  equal(Newgame.activity.buttonLimits.opponent.tourn_legal.ANY, true,
+    "First initialization of button limits sets expected value for ANY");
+  equal(Newgame.activity.buttonLimits.opponent.tourn_legal.limit_opponent_tourn_legal_no, false,
+    "First initialization of button limits sets expected value for other options");
+
+  Newgame.activity.buttonLimits.opponent.tourn_legal.limit_player_tourn_legal_no = true;
+  Newgame.initializeButtonLimits();
+  equal(Newgame.activity.buttonLimits.opponent.tourn_legal.limit_player_tourn_legal_no, true,
+    "Second initialization of button limits does not override modified values");
+});
