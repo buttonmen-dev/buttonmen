@@ -293,6 +293,13 @@ select.center {
     border: 2px solid red;
 }
 
+span.skill_desc {
+    background: #cccccc;
+    border-radius: 5px;
+    padding: 2px 5px;
+    cursor: default;
+}
+
 .unselected_player {
     border-bottom-right-radius: 1em;
 }
