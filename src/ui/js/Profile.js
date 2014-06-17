@@ -158,7 +158,7 @@ Profile.buildProfileTable = function() {
     Api.profile_info.comment, 'none', false));
 
   if (!Env.getCookieNoImages()) {
-    var url = 'images/no-image.png';
+    var url = Env.ui_root + 'images/no-image.png';
     var image = $('<img>', {
       'src': url,
       'class': 'profileImage',
