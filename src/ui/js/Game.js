@@ -1777,8 +1777,9 @@ Game.buttonImageDisplay = function(player) {
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
-    'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
+    'html': $('<b>', { 'text': 'Player: ', }),
   });
+  playerName.append(Env.buildProfileLink(Api.game[player].playerName));
   var playerWLT = $('<div>', {
     'text': Api.game[player].gameScoreStr,
   });
@@ -2083,12 +2084,18 @@ Game.playerOpponentHeaderRow = function(label, field) {
   if (label) {
     prefix = label + ': ';
   }
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.player[field],
-  }));
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.opponent[field],
-  }));
+  var playerInfo = $('<th>', { 'text': prefix, });
+  var opponentInfo = $('<th>', { 'text': prefix, });
+  if (field == 'playerName') {
+    playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
+    opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
+  } else {
+    playerInfo.append(Api.game.player[field]);
+    opponentInfo.append(Api.game.opponent[field]);
+  }
+
+  headerrow.append(playerInfo);
+  headerrow.append(opponentInfo);
   return headerrow;
 };
 

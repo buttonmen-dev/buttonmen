@@ -509,11 +509,11 @@ Forum.buildThreadRow = function(thread, threadColor) {
 
   var postDates =
     'Originally by ' +
-      Forum.buildProfileLink(thread.originalPosterName).prop('outerHTML') +
+      Env.buildProfileLink(thread.originalPosterName).prop('outerHTML') +
       ' at ' + Env.formatTimestamp(thread.originalCreationTime) + '. ';
   if (thread.latestLastUpdateTime != thread.originalCreationTime) {
     postDates += 'Latest by ' +
-      Forum.buildProfileLink(thread.latestPosterName).prop('outerHTML') +
+      Env.buildProfileLink(thread.latestPosterName).prop('outerHTML') +
         ' at ' + Env.formatTimestamp(thread.latestLastUpdateTime) + '.';
   }
   titleTd.append($('<div>', {
@@ -571,7 +571,7 @@ Forum.buildPostRow = function(post) {
     'html': anchorSymbol,
   });
   nameDiv.append(postAnchor);
-  nameDiv.append(Forum.buildProfileLink(post.posterName));
+  nameDiv.append(Env.buildProfileLink(post.posterName));
 
   postAnchor.click(function(e) {
     e.preventDefault();
@@ -618,13 +618,6 @@ Forum.buildPostRow = function(post) {
   }
 
   return tr;
-};
-
-Forum.buildProfileLink = function(playerName) {
-  return $('<a>', {
-    'href': 'profile.html?player=' + encodeURIComponent(playerName),
-    'text': playerName,
-  });
 };
 
 Forum.buildHelp = function() {

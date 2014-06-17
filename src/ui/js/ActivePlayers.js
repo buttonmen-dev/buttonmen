@@ -101,11 +101,7 @@ ActivePlayers.buildPlayersTable = function() {
   $.each(Api.active_players.players, function(index, playerData) {
     var playerRow = $('<tr>');
     tbody.append(playerRow);
-    var profileLink = $('<a>', {
-      'href':
-        'profile.html?player=' + encodeURIComponent(playerData.playerName),
-      'text': playerData.playerName,
-    });
+    var profileLink = Env.buildProfileLink(playerData.playerName);
     playerRow.append($('<td>', {
       'class': 'player',
     }).append(profileLink));
