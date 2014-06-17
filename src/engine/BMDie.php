@@ -546,36 +546,36 @@ class BMDie extends BMCanHaveSkill {
 
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
-            $recipe .= "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}";
-            if ($this->max) {
-                $recipe .= '=' . $this->max;
-            }
+            $recipe .= $this->get_sidecount_maxval_str(
+                "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}",
+                $this->max
+            );
         } elseif ($this instanceof BMDieTwin) {
             // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {
-                $recipe .= $this->dice[0]->swingType;
-                if ($this->dice[0]->max) {
-                    $recipe .= '=' . $this->dice[0]->max;
-                }
+                $recipe .= $this->get_sidecount_maxval_str(
+                    $this->dice[0]->swingType,
+                    $this->dice[0]->max
+                );
             } else {
                 $recipe .= $this->dice[0]->max;
             }
             $recipe .= ',';
             if ($this->dice[1] instanceof BMDieSwing) {
-                $recipe .= $this->dice[1]->swingType;
-                if ($this->dice[1]->max) {
-                    $recipe .= '=' . $this->dice[1]->max;
-                }
+                $recipe .= $this->get_sidecount_maxval_str(
+                    $this->dice[1]->swingType,
+                    $this->dice[1]->max
+                );
             } else {
                 $recipe .= $this->dice[1]->max;
             }
         } elseif ($this instanceof BMDieWildcard) {
             $recipe .= 'C';
         } elseif ($this instanceof BMDieSwing) {
-            $recipe .= $this->swingType;
-            if ($this->max) {
-                $recipe .= '=' . $this->max;
-            }
+            $recipe .= $this->get_sidecount_maxval_str(
+                $this->swingType,
+                $this->max
+            );
         } else {
             $recipe .= $this->max;
         }
@@ -589,6 +589,14 @@ class BMDie extends BMCanHaveSkill {
         }
 
         return $recipe;
+    }
+
+    protected function get_sidecount_maxval_str($sidecountStr, $maxval) {
+        if ($maxval) {
+            return ($sidecountStr . '=' . $maxval);
+        } else {
+            return ($sidecountStr);
+        }
     }
 
     // Return all information about a die which is useful when
