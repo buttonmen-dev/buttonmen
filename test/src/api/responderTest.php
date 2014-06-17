@@ -671,6 +671,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval,
             'loadGameData should reject a nonexistent game ID with a friendly message'
         );
+
+        // create an open game so we have the ID to load
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('', '')),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args);
+        $open_game_id = $retval['data']['gameId'];
+        $this->assertTrue(is_int($open_game_id), "open game creation was successful");
+
+        $retval = $this->object->process_request(
+            array('type' => 'loadGameData', 'game' => $open_game_id, 'logEntryLimit' => 10));
+        $this->assertEquals('ok', $retval['status'], "loadGameData on an open game should succeed");
     }
 
     public function test_request_loadPlayerName() {

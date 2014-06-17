@@ -2618,7 +2618,7 @@ class BMGame {
 
         if (isset($this->buttonArray)) {
             foreach ($this->buttonArray as $playerButton) {
-                if (count($playerButton->dieArray) > 0) {
+                if (!is_null($playerButton) && count($playerButton->dieArray) > 0) {
                     foreach ($playerButton->dieArray as $buttonDie) {
                         if (count($buttonDie->skillList) > 0) {
                             $gameSkillsWithKeysList += $buttonDie->skillList;
