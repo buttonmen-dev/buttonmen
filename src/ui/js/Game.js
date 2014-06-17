@@ -1417,6 +1417,7 @@ Game.pageAddSkillListFooter = function() {
     gameSkillDiv.append($('<span>', {
       'text': skill,
       'title': skillDesc,
+      'class': 'skill_desc',
     }));
     firstSkill = false;
   });
