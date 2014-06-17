@@ -200,7 +200,10 @@ var Api = (function () {
     my.button.list = {};
     if ((!($.isArray(data.buttonNameArray))) ||
         (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray)))) {
+        (!($.isArray(data.hasUnimplementedSkillArray))) ||
+        (!($.isArray(data.buttonSetArray))) ||
+        (!($.isArray(data.dieSkillsArray))) ||
+        (!($.isArray(data.isTournamentLegalArray)))) {
       return false;
     }
     var i = 0;
@@ -208,6 +211,9 @@ var Api = (function () {
       my.button.list[data.buttonNameArray[i]] = {
         'recipe': data.recipeArray[i],
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
+        'buttonSet': data.buttonSetArray[i],
+        'dieSkills': data.dieSkillsArray[i],
+        'isTournamentLegal': data.isTournamentLegalArray[i],
       };
       i++;
     }
@@ -431,6 +437,8 @@ var Api = (function () {
       'playerName': playerNameArray[playerIdx],
       'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
       'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
+      'buttonArtFilename':
+        my.game.gameData.data.buttonArtFilenameArray[playerIdx],
       'waitingOnAction':
         my.game.gameData.data.waitingOnActionArray[playerIdx],
       'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],

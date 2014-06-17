@@ -366,3 +366,13 @@ asyncTest("test_Forum.parseFormPost", function() {
     }
   );
 });
+
+test("test_Forum.showError", function() {
+  Env.setupEnvStub();
+  Env.message = {
+    'type': 'error',
+    'text': 'Test error.',
+  };
+  Forum.showError();
+  equal($('#env_message').text(), 'Test error.', 'Error displayed');
+});

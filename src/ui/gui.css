@@ -293,6 +293,13 @@ select.center {
     border: 2px solid red;
 }
 
+span.skill_desc {
+    background: #cccccc;
+    border-radius: 5px;
+    padding: 2px 5px;
+    cursor: default;
+}
+
 .unselected_player {
     border-bottom-right-radius: 1em;
 }
@@ -680,6 +687,7 @@ div.forum div.splitRight {
     padding-left: 0.2em;
     padding-right: 0.2em;
     padding-bottom: 0.2em;
+    text-align: left;
 }
 
 /*
@@ -694,9 +702,12 @@ div.forum div.splitRight {
     font-weight: bold;
     font-size: 0.7em;
     margin-bottom: 0.4em;
+    text-align: left;
 }
 
-.chatSpoiler {
+.chatSpoiler,
+.chatSpoiler a,
+.chatSpoiler .chatQuoteBody {
     color: black;
     background-color: black;
 }

@@ -8651,4 +8651,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(0, $game->playerWithInitiativeIdx);
     }
+
+    /**
+     * @coversNothing
+     */
+    public function test_option_value_visibility_during_reserve_setting() {
+        // beginning of game
+        $button1 = new BMButton;
+        $button1->load('(1) (1) (1) (1/20) r(8)');
+
+        $button2 = new BMButton;
+        $button2->load('(10/20) (4/6)');
+
+        $game = new BMGame(424242, array(123, 456));
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+        $game->optValueArrayArray = array(array(3 => 20), array(0 => 20, 1 => 4));
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
+
+        $game->attack = array(0, 1, array(), array(), 'Surrender');
+
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
+        $jsonData = $game->getJsonData(123);
+        $this->assertEquals(array(array(1, 1, 1, NULL, 8), array(20, 4)),
+                            $jsonData['data']['sidesArrayArray']);
+    }
 }

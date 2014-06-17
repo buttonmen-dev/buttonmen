@@ -33,6 +33,9 @@ Game.COLORS = {
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
 
+// Maximum number of characters permitted in a given chat message
+Game.GAME_CHAT_MAX_LENGTH = 500;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -1414,6 +1417,7 @@ Game.pageAddSkillListFooter = function() {
     gameSkillDiv.append($('<span>', {
       'text': skill,
       'title': skillDesc,
+      'class': 'skill_desc',
     }));
     firstSkill = false;
   });
@@ -1798,12 +1802,8 @@ Game.buttonImageDisplay = function(player) {
   } else {
     buttonTd.append($('<img>', {
       'src':
-        Env.ui_root + 'images/button/' +
-        Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
-        '.png',
+        Env.ui_root + 'images/button/' + Api.game[player].buttonArtFilename,
       'width': '150px',
-      'onerror':
-        'this.src="' + Env.ui_root + 'images/button/BMdefaultRound.png"',
     }));
   }
   if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
@@ -2246,7 +2246,7 @@ Game.chatBox = function(hidden) {
     'id': 'game_chat',
     'rows': '3',
     'cols': '50',
-    'maxlength': '500',
+    'maxlength': Game.GAME_CHAT_MAX_LENGTH,
   });
 
   // Add previous chat contents from a rejected turn submission if any
