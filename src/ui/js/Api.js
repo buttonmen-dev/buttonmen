@@ -437,6 +437,8 @@ var Api = (function () {
       'playerName': playerNameArray[playerIdx],
       'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
       'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
+      'buttonArtFilename':
+        my.game.gameData.data.buttonArtFilenameArray[playerIdx],
       'waitingOnAction':
         my.game.gameData.data.waitingOnActionArray[playerIdx],
       'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
