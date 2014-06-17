@@ -529,12 +529,74 @@ class BMDie extends BMCanHaveSkill {
         return $recipe;
     }
 
+    /** variant of get_recipe() which includes swing/option and rolled values
+     *
+     * this must be kept in sync with get_recipe() by hand
+     *
+     * @return string  friendly information about the state of a die
+     */
+    public function get_recipe_with_maxvals() {
+        $recipe = '';
+        foreach ($this->skillList as $skill) {
+            if (BMSkill::do_print_skill_preceding($skill)) {
+                $recipe .= BMSkill::abbreviate_skill_name($skill);
+            }
+        }
+        $recipe .= '(';
+
+        // Option dice divide on a /, can contain any die type
+        if ($this instanceof BMDieOption) {
+            $recipe .= "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}";
+            if ($this->max) {
+                $recipe .= '=' . $this->max;
+            }
+        } elseif ($this instanceof BMDieTwin) {
+            // Twin dice divide on a comma, can contain any type but option
+            if ($this->dice[0] instanceof BMDieSwing) {
+                $recipe .= $this->dice[0]->swingType;
+                if ($this->dice[0]->max) {
+                    $recipe .= '=' . $this->dice[0]->max;
+                }
+            } else {
+                $recipe .= $this->dice[0]->max;
+            }
+            $recipe .= ',';
+            if ($this->dice[1] instanceof BMDieSwing) {
+                $recipe .= $this->dice[1]->swingType;
+                if ($this->dice[1]->max) {
+                    $recipe .= '=' . $this->dice[1]->max;
+                }
+            } else {
+                $recipe .= $this->dice[1]->max;
+            }
+        } elseif ($this instanceof BMDieWildcard) {
+            $recipe .= 'C';
+        } elseif ($this instanceof BMDieSwing) {
+            $recipe .= $this->swingType;
+            if ($this->max) {
+                $recipe .= '=' . $this->max;
+            }
+        } else {
+            $recipe .= $this->max;
+        }
+
+        $recipe .= ')';
+
+        foreach ($this->skillList as $skill) {
+            if (!BMSkill::do_print_skill_preceding($skill)) {
+                $recipe .= BMSkill::abbreviate_skill_name($skill);
+            }
+        }
+
+        return $recipe;
+    }
+
     // Return all information about a die which is useful when
     // constructing an action log entry, in the form of an array.
     // This function exists so that BMGame can easily compare the
     // die state before the attack to the die state after the attack.
     public function get_action_log_data() {
-        $recipe = $this->get_recipe();
+        $recipe = $this->get_recipe_with_maxvals();
         return(array(
             'recipe' => $recipe,
             'min' => $this->min,

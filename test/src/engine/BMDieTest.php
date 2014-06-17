@@ -682,6 +682,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDie::get_recipe_with_maxvals
+     */
+    public function testGet_recipe_with_maxvals() {
+        $die0 = new BMDie;
+        $die0->init(51, array());
+        $this->assertEquals('(51)', $die0->get_recipe_with_maxvals());
+    }
+
+    /*
      * @covers BMDie::has_flag
      */
     public function testHas_flag() {

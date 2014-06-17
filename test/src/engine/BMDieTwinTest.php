@@ -494,6 +494,34 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('sp(X,X)', $die4->get_recipe());
     }
 
+    /*
+     * @covers BMDie::get_recipe_with_maxvals
+     */
+    public function testGet_recipe_with_maxvals() {
+        $die0 = new BMDieTwin;
+        $die0->init(array(4, 8), array());
+        $this->assertEquals('(4,8)', $die0->get_recipe_with_maxvals());
+
+        $die1 = new BMDieTwin;
+        $die1->init(array(5, 5), array('Poison'));
+        $this->assertEquals('p(5,5)', $die1->get_recipe_with_maxvals());
+
+        $die2 = new BMDieTwin;
+        $die2->init(array(5, 'Y'), array('Shadow'));
+        $this->assertEquals('s(5,Y)', $die2->get_recipe_with_maxvals());
+        $swingList = array('Y' => 3);
+        $this->assertTrue($die2->set_swingValue($swingList));
+        $this->assertEquals('s(5,Y=3)', $die2->get_recipe_with_maxvals());
+
+        $die3 = new BMDieTwin;
+        $die3->init(array('X', 'X'), array('Shadow', 'Poison'));
+        $this->assertEquals('sp(X,X)', $die3->get_recipe_with_maxvals());
+        $swingList = array('X' => 8);
+        $this->assertTrue($die3->set_swingValue($swingList));
+        $this->assertEquals('sp(X=8,X=8)', $die3->get_recipe_with_maxvals());
+    }
+
+
     /**
      * @covers BMDieTwin::set_swingValue
      * @covers BMDieTwin::recalc_max_min
