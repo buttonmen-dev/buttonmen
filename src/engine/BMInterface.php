@@ -365,6 +365,10 @@ class BMInterface {
         if (!is_null($currentPlayerId)) {
             if ($currentPlayerId !== $playerIdArray[0]) {
                 $this->message = 'Game create failed because you must be the first player.';
+                error_log(
+                    'validate_game_info() failed because currentPlayerId (' . $currentPlayerId .
+                    ') does not match playerIdArray[0] (' . $playerIdArray[0] . ')'
+                );
                 return FALSE;
             }
         }
