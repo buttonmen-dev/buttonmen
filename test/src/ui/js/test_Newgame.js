@@ -395,8 +395,9 @@ test("test_Newgame.getButtonLimitTd", function() {
     'buttonLimits': {
       'player': {
         'test_limit': {
-          'A': false,
-          'B C': true,
+          'ANY': true,
+          'limit_player_test_limit_a': false,
+          'limit_player_test_limit_b_c': false,
         },
       },
     },
@@ -409,6 +410,54 @@ test("test_Newgame.getButtonLimitTd", function() {
       'B C': true,
     });
   equal(item[0].tagName, "TD", "result is a TD"); 
+  var buttonSelect = item.find('select');
+  ok(buttonSelect, "TD contains a select");
+  var foundLabels = { 'ANY': 0, 'A': 0, 'B C': 0, };
+  $.each(buttonSelect.children(), function(idx, child) {
+    foundLabels[child.label] += 1;
+    if (child.label == 'ANY') {
+      equal(child.selected, true, 'ANY option is initially selected');
+    } else {
+      equal(child.selected, false, 'Other options are not initially selected');
+    }
+  });
+  deepEqual(foundLabels, { 'ANY': 1, 'A': 1, 'B C': 1, },
+    "Expected set of option labels was found");
+});
+
+test("test_Newgame.getButtonLimitTd_prevvals", function() {
+  Newgame.activity = {
+    'buttonLimits': {
+      'player': {
+        'test_limit': {
+          'ANY': false,
+          'limit_player_test_limit_a': false,
+          'limit_player_test_limit_b_c': true,
+        },
+      },
+    },
+  };
+  var item = Newgame.getButtonLimitTd(
+    'player',
+    'Description text',
+    'test_limit',
+    { 'A': true,
+      'B C': true,
+    });
+  equal(item[0].tagName, "TD", "result is a TD"); 
+  var buttonSelect = item.find('select');
+  ok(buttonSelect, "TD contains a select");
+  var foundLabels = { 'ANY': 0, 'A': 0, 'B C': 0, };
+  $.each(buttonSelect.children(), function(idx, child) {
+    foundLabels[child.label] += 1;
+    if (child.label == 'B C') {
+      equal(child.selected, true, 'Previously specified "B C" option is initially selected');
+    } else {
+      equal(child.selected, false, 'Other options are not initially selected');
+    }
+  });
+  deepEqual(foundLabels, { 'ANY': 1, 'A': 1, 'B C': 1, },
+    "Expected set of option labels was found");
 });
 
 test("test_Newgame.getButtonLimitRow", function() {
