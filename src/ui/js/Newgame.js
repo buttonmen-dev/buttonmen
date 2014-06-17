@@ -555,7 +555,7 @@ Newgame.updateButtonList = function(player, limitid) {
     // If the user has specified any limits based on TL status,
     // skip buttons which do not have the status the user has specified
     if (!Newgame.activity.buttonLimits[player].tourn_legal.ANY) {
-      if (buttoninfo.isTournLegal) {
+      if (buttoninfo.isTournamentLegal) {
         choiceid = Newgame.getChoiceId(player, 'tourn_legal', 'yes');
       } else {
         choiceid = Newgame.getChoiceId(player, 'tourn_legal', 'no');

@@ -554,7 +554,7 @@ class DummyApiResponder {
     protected function get_interface_response_loadButtonNames() {
         $data = array(
           'buttonNameArray' => array(), 'recipeArray' => array(), 'hasUnimplementedSkillArray' => array(),
-          'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournLegalArray' => array(),
+          'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournamentLegalArray' => array(),
         );
 
         // a button with no special skills
@@ -563,7 +563,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Soldiers";
         $data['dieSkillsArray'][] = array();
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // a button with an unimplemented skill
         $data['buttonNameArray'][] = "Adam Spam";
@@ -571,7 +571,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = TRUE;
         $data['buttonSetArray'][] = "Polycon";
         $data['dieSkillsArray'][] = array("Fire");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // a button with four dice and some implemented skills
         $data['buttonNameArray'][] = "Jellybean";
@@ -579,7 +579,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "BROM";
         $data['dieSkillsArray'][] = array("Poison", "Shadow");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // Buck Godot
         $data['buttonNameArray'][] = "Buck Godot";
@@ -587,7 +587,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Studio Foglio";
         $data['dieSkillsArray'][] = array();
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // Von Pinn
         $data['buttonNameArray'][] = "Von Pinn";
@@ -595,7 +595,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Studio Foglio";
         $data['dieSkillsArray'][] = array("Poison");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // Crab: a button with focus dice
         $data['buttonNameArray'][] = "Crab";
@@ -603,7 +603,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Legend of the Five Rings";
         $data['dieSkillsArray'][] = array("Focus");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // John Kovalic: a button with chance dice
         $data['buttonNameArray'][] = "John Kovalic";
@@ -611,7 +611,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Yoyodyne";
         $data['dieSkillsArray'][] = array("Chance");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // King Arthur: a button with an auxiliary die
         $data['buttonNameArray'][] = "King Arthur";
@@ -619,7 +619,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Buttonlords";
         $data['dieSkillsArray'][] = array("Auxiliary");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // Cammy Neko: a button with reserve dice
         $data['buttonNameArray'][] = "Cammy Neko";
@@ -627,7 +627,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Geekz";
         $data['dieSkillsArray'][] = array("Reserve");
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // Apples: a button with option dice
         $data['buttonNameArray'][] = "Apples";
@@ -635,7 +635,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Chicagoland Gamers Conclave";
         $data['dieSkillsArray'][] = array();
-        $data['isTournLegalArray'][] = TRUE;
+        $data['isTournamentLegalArray'][] = TRUE;
 
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
         $data['buttonNameArray'][] = "CactusJack";
@@ -643,7 +643,7 @@ class DummyApiResponder {
         $data['hasUnimplementedSkillArray'][] = FALSE;
         $data['buttonSetArray'][] = "Classic Fanatics";
         $data['dieSkillsArray'][] = array("Shadow", "Speed");
-        $data['isTournLegalArray'][] = FALSE;
+        $data['isTournamentLegalArray'][] = FALSE;
 
         return array($data, "All button names retrieved successfully.");
     }

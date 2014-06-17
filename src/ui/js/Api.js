@@ -203,7 +203,7 @@ var Api = (function () {
         (!($.isArray(data.hasUnimplementedSkillArray))) ||
         (!($.isArray(data.buttonSetArray))) ||
         (!($.isArray(data.dieSkillsArray))) ||
-        (!($.isArray(data.isTournLegalArray)))) {
+        (!($.isArray(data.isTournamentLegalArray)))) {
       return false;
     }
     var i = 0;
@@ -213,7 +213,7 @@ var Api = (function () {
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
         'buttonSet': data.buttonSetArray[i],
         'dieSkills': data.dieSkillsArray[i],
-        'isTournLegal': data.isTournLegalArray[i],
+        'isTournamentLegal': data.isTournamentLegalArray[i],
       };
       i++;
     }

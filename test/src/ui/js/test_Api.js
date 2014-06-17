@@ -86,7 +86,7 @@ asyncTest("test_Api.getButtonData", function() {
         'recipe': '(4) (4) (10) (12) (X)',
         'buttonSet': 'Soldiers',
         'dieSkills': [],
-        'isTournLegal': true,
+        'isTournamentLegal': true,
       },
       "Button Avis should have correct contents");
     deepEqual(Env.message, undefined,
@@ -125,7 +125,7 @@ test("test_Api.parseButtonData", function() {
     'dieSkillsArray': [ [],
                         [ 'Fire', ],
                         [ 'Poison', 'Shadow', ] ],
-    'isTournLegalArray': [ true, true, true, ],
+    'isTournamentLegalArray': [ true, true, true, ],
   });
   equal(retval, true, "Api.parseButtonData() returns true");
   deepEqual(
@@ -135,21 +135,21 @@ test("test_Api.parseButtonData", function() {
         'recipe': 'F(4) F(6) (6) (12) (X)',
         'buttonSet': 'Polycon',
         'dieSkills': [ 'Fire', ],
-        'isTournLegal': true,
+        'isTournamentLegal': true,
       },
       'Avis': {
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
         'buttonSet': 'Soldiers',
         'dieSkills': [ ],
-        'isTournLegal': true,
+        'isTournamentLegal': true,
       },
       'Jellybean': {
         'hasUnimplementedSkill': false,
         'recipe': 'p(20) s(20) (V) (X)',
         'buttonSet': 'BROM',
         'dieSkills': [ 'Poison', 'Shadow', ],
-        'isTournLegal': true,
+        'isTournamentLegal': true,
       }
   });
   deepEqual(Env.message, undefined,

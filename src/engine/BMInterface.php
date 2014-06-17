@@ -1950,7 +1950,7 @@ class BMInterface {
                     $hasUnimplSkillArray[] = $hasUnimplSkill;
                     $buttonSetArray[] = $row['set_name'];
                     $dieSkillsArray[] = $dieSkills;
-                    $isTournLegalArray[] = ((int)$row['tourn_legal'] == 1);
+                    $isTournamentLegalArray[] = ((int)$row['tourn_legal'] == 1);
                 }
             }
             $this->message = 'All button names retrieved successfully.';
@@ -1959,7 +1959,7 @@ class BMInterface {
                          'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
                          'buttonSetArray'             => $buttonSetArray,
                          'dieSkillsArray'             => $dieSkillsArray,
-                         'isTournLegalArray'          => $isTournLegalArray);
+                         'isTournamentLegalArray'     => $isTournamentLegalArray);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_all_button_names: ' .

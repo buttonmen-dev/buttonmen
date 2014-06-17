@@ -62,9 +62,7 @@ class BMButton extends BMCanHaveSkill {
                 if (BMDie::unimplemented_skill_in_recipe($dieRecipe)) {
                     $this->hasUnimplementedSkill = TRUE;
                 }
-                foreach (array_keys($die->skillList) as $skill) {
-                    $this->dieSkills[$skill] = $skill;
-                }
+                $this->dieSkills += $die->skillList;
             }
         }
     }
