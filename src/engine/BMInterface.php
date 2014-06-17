@@ -448,13 +448,14 @@ class BMInterface {
     public function load_game($gameId, $logEntryLimit = NULL) {
         try {
             $game = $this->load_game_parameters($gameId);
-            $this->set_logEntryLimit($game, $logEntryLimit);
 
             // check whether the game exists
             if (!isset($game)) {
                 $this->message = "Game $gameId does not exist.";
                 return FALSE;
             }
+
+            $this->set_logEntryLimit($game, $logEntryLimit);
 
             $this->load_swing_values_from_last_round($game);
             $this->load_swing_values_from_this_round($game);
