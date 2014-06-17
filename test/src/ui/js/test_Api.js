@@ -82,7 +82,12 @@ asyncTest("test_Api.getButtonData", function() {
           "Api.button.list should be an object");
     deepEqual(
       Api.button.list["Avis"],
-      {'hasUnimplementedSkill': false, 'recipe': '(4) (4) (10) (12) (X)',},
+      { 'hasUnimplementedSkill': false,
+        'recipe': '(4) (4) (10) (12) (X)',
+        'buttonSet': 'Soldiers',
+        'dieSkills': [],
+        'isTournamentLegal': true,
+      },
       "Button Avis should have correct contents");
     deepEqual(Env.message, undefined,
               "Api.getButtonData should not set Env.message");
@@ -115,7 +120,12 @@ test("test_Api.parseButtonData", function() {
     'recipeArray': ['(4) (4) (10) (12) (X)',
                     'F(4) F(6) (6) (12) (X)',
                     'p(20) s(20) (V) (X)' ],
-    'hasUnimplementedSkillArray': [ false, true, false ]
+    'hasUnimplementedSkillArray': [ false, true, false ],
+    'buttonSetArray': [ 'Soldiers', 'Polycon', 'BROM' ],
+    'dieSkillsArray': [ [],
+                        [ 'Fire', ],
+                        [ 'Poison', 'Shadow', ] ],
+    'isTournamentLegalArray': [ true, true, true, ],
   });
   equal(retval, true, "Api.parseButtonData() returns true");
   deepEqual(
@@ -123,14 +133,23 @@ test("test_Api.parseButtonData", function() {
     { 'Adam Spam': {
         'hasUnimplementedSkill': true,
         'recipe': 'F(4) F(6) (6) (12) (X)',
+        'buttonSet': 'Polycon',
+        'dieSkills': [ 'Fire', ],
+        'isTournamentLegal': true,
       },
       'Avis': {
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
+        'buttonSet': 'Soldiers',
+        'dieSkills': [ ],
+        'isTournamentLegal': true,
       },
       'Jellybean': {
         'hasUnimplementedSkill': false,
-        'recipe': 'p(20) s(20) (V) (X)'
+        'recipe': 'p(20) s(20) (V) (X)',
+        'buttonSet': 'BROM',
+        'dieSkills': [ 'Poison', 'Shadow', ],
+        'isTournamentLegal': true,
       }
   });
   deepEqual(Env.message, undefined,
