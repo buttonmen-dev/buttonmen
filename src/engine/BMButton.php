@@ -7,6 +7,7 @@
  *
  * @property      string  $name                  Name of button
  * @property      string  $recipe                String representation of the button recipe
+ * @property      string  $artFilename           Filename in the image directory containing button art
  * @property-read array   $dieArray              Array of BMDie
  * @property      BMGame  $ownerObject           BMGame that owns the BMButton
  * @property      BMGame  $playerIdx             BMGame index of the player that owns the BMButton
@@ -17,6 +18,7 @@ class BMButton extends BMCanHaveSkill {
     // properties
     protected $name;
     protected $recipe;
+    protected $artFilename;
     protected $dieArray;
     protected $ownerObject;
     protected $playerIdx;
@@ -132,12 +134,27 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    protected function get_artFilename() {
+        $artFilename = preg_replace('/[^a-z0-9]/', '', strtolower($this->name)) . '.png';
+        $artFilepath = BW_PHP_ROOT . '/ui/images/button/' . $artFilename;
+        if (file_exists($artFilepath)) {
+            return $artFilename;
+        } else {
+            return 'BMdefaultRound.png';
+        }
+    }
+
     // utility methods
     // to allow array elements to be set directly, change the __get to &__get
     // to return the result by reference
     public function __get($property) {
         if (property_exists($this, $property)) {
-            return $this->$property;
+            switch ($property) {
+                case 'artFilename':
+                    return $this->get_artFilename();
+                default:
+                    return $this->$property;
+            }
         }
     }
 

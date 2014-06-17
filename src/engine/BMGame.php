@@ -2192,6 +2192,7 @@ class BMGame {
                   'playerIdArray'              => $this->playerIdArray,
                   'buttonNameArray'            => $this->get_buttonNameArray(),
                   'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
+                  'buttonArtFilenameArray'     => $this->get_buttonArtFilenameArray(),
                   'waitingOnActionArray'       => $this->waitingOnActionArray,
                   'nDieArray'                  => $this->get_nDieArray(),
                   'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
@@ -2261,6 +2262,20 @@ class BMGame {
         }
 
         return $buttonRecipeArray;
+    }
+
+    protected function get_buttonArtFilenameArray() {
+        $buttonArtFilenameArray = array();
+
+        foreach ($this->buttonArray as $button) {
+            $buttonArtFilename = '';
+            if ($button instanceof BMButton) {
+                $buttonArtFilename = $button->artFilename;
+            }
+            $buttonArtFilenameArray[] = $buttonArtFilename;
+        }
+
+        return $buttonArtFilenameArray;
     }
 
     protected function get_nDieArray() {

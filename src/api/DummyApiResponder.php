@@ -678,6 +678,7 @@ class DummyApiResponder {
             "playerIdArray" => array(1, 2),
             "buttonNameArray" => array("Avis", "Avis"),
             "buttonRecipeArray" => array("(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"),
+            "buttonArtFilenameArray" => array("avis.png", "avis.png"),
             "waitingOnActionArray" => array(TRUE, TRUE),
             "nDieArray" => array(5, 5),
             "valueArrayArray" => array(array(NULL,NULL,NULL,NULL,NULL),
@@ -736,6 +737,7 @@ class DummyApiResponder {
         $gameData['playerWithInitiativeIdx'] = 1;
         $gameData['buttonNameArray'] = array("John Kovalic", "John Kovalic");
         $gameData['buttonRecipeArray'] = array("(6) c(6) (10) (12) c(20)", "(6) c(6) (10) (12) c(20)");
+        $gameData['buttonArtFilenameArray'] = array("johnkovalic.png", "johnkovalic.png");
         $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
         $gameData['valueArrayArray'] = array(array(4, 3, 6, 5, 4), array(2, 4, 2, 3, 18));
         $gameData['sidesArrayArray'] = array(array(6, 6, 10, 12, 20), array(6, 6, 10, 12, 20));
@@ -774,6 +776,7 @@ class DummyApiResponder {
         $gameData['buttonNameArray'] = array("King Arthur", "King Arthur");
         $gameData['nDieArray'] = array(6, 6);
         $gameData['buttonRecipeArray'] = array("(8) (8) (10) (20) (X) +(20)", "(8) (8) (10) (20) (X) +(20)");
+        $gameData['buttonArtFilenameArray'] = array("kingarthur.png", "kingarthur.png");
         $gameData['waitingOnActionArray'] = array(TRUE, TRUE);
         $gameData['valueArrayArray'] =
             array(
@@ -841,6 +844,7 @@ class DummyApiResponder {
                 "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
                 "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)"
             );
+        $gameData['buttonArtFilenameArray'] = array("cammyneko.png", "cammyneko.png");
         $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
         $gameData['valueArrayArray'] =
             array(
@@ -906,6 +910,7 @@ class DummyApiResponder {
         $gameData['playerWithInitiativeIdx'] = NULL;
         $gameData['buttonNameArray'] = array("Apples", "Apples");
         $gameData['buttonRecipeArray'] = array("(8) (8) (2/12) (8/16) (20/24)", "(8) (8) (2/12) (8/16) (20/24)");
+        $gameData['buttonArtFilenameArray'] = array("apples.png", "apples.png");
         $gameData['waitingOnActionArray'] = array(TRUE, TRUE);
         $gameData['valueArrayArray'] = array(array(4, 3, NULL, NULL, NULL), array(2, 4, NULL, NULL, NULL));
         $gameData['sidesArrayArray'] = array(array(6, 6, NULL, NULL, NULL), array(6, 6, NULL, NULL, NULL));
@@ -1169,6 +1174,7 @@ class DummyApiResponder {
         $gameData['gameState'] = "SPECIFY_DICE";
         $gameData['buttonNameArray'] = array("Buck Godot", "Von Pinn");
         $gameData['buttonRecipeArray'] = array("(6,6) (10) (12) (20) (W,W)", "(4) p(6,6) (10) (20) (W)");
+        $gameData['buttonArtFilenameArray'] = array("buckgodot.png", "vonpinn.png");
         $gameData['sidesArrayArray'] = array(array(12,10,12,20,NULL),
                                              array(NULL,NULL,NULL,NULL,NULL));
         $gameData['dieRecipeArrayArray'] = array(array("(6,6)","(10)","(12)","(20)","(W,W)"),
@@ -1212,6 +1218,7 @@ class DummyApiResponder {
         $gameData['playerWithInitiativeIdx'] = 1;
         $gameData['buttonNameArray'] = array("Crab", "Crab");
         $gameData['buttonRecipeArray'] = array("(8) (10) (12) f(20) f(20)", "(8) (10) (12) f(20) f(20)");
+        $gameData['buttonArtFilenameArray'] = array("crab.png", "crab.png");
         $gameData['waitingOnActionArray'] = array(TRUE, FALSE);
         $gameData['valueArrayArray'] = array(array(1, 8, 10, 6, 18),
                                              array(4, 7, 5, 1, 12));

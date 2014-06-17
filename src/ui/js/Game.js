@@ -1801,12 +1801,8 @@ Game.buttonImageDisplay = function(player) {
   } else {
     buttonTd.append($('<img>', {
       'src':
-        Env.ui_root + 'images/button/' +
-        Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
-        '.png',
+        Env.ui_root + 'images/button/' + Api.game[player].buttonArtFilename,
       'width': '150px',
-      'onerror':
-        'this.src="' + Env.ui_root + 'images/button/BMdefaultRound.png"',
     }));
   }
   if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
