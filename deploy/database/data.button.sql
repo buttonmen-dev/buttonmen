@@ -60,7 +60,7 @@ INSERT INTO buttonset (name) VALUES
 ('Unexploded Cow'),
 ('ZOECon'),
 
-# ButtonMen Online sets - virtual fan and vanity sets
+# Button Men Online sets - virtual fan and vanity sets
 ('Iron Chef'),
 ('7 deadly sins'),
 ('Chicago Crew'),
@@ -103,7 +103,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # 2000 RARE-PROMO
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-# Gordo from ButtonMen Poster 1999 (Cheapass Games)
+# Gordo from Button Men Poster 1999 (Cheapass Games)
 # None of Gordo's dice can be the same size
 ('Gordo',               '(V) (W) (X) (Y) (Z)',                1, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # Me am ORK! from Orc! (Green Ronin)

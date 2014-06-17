@@ -30,11 +30,11 @@ class BMEmail {
 
     // send an e-mail verification link to a player
     public function send_verification_link($playerId, $username, $playerKey) {
-        $this->subject = 'Please verify your ButtonMen account';
-        $this->bodypars[] = 'Welcome to ButtonMen, ' . $username . '!';
+        $this->subject = 'Please verify your Button Men account';
+        $this->bodypars[] = 'Welcome to Button Men, ' . $username . '!';
         $this->bodypars[] = 'Please confirm that you requested this account by browsing to:';
         $this->bodypars[] = $this->encoded_verification_link($playerId, $playerKey);
-        $this->bodypars[] = 'If you did not request a ButtonMen account, please ignore this e-mail.';
+        $this->bodypars[] = 'If you did not request a Button Men account, please ignore this e-mail.';
         $this->send_message();
     }
 
