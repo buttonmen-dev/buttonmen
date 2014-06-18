@@ -582,17 +582,11 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDieSwing;
         $die4->init('R', array('Shadow', 'Poison'));
         $this->assertEquals('sp(R)', $die4->get_recipe());
-    }
 
-    /*
-     * @covers BMDie::get_recipe_with_maxvals
-     */
-    public function testGet_recipe_with_maxvals() {
-        $die0 = new BMDieSwing;
-        $die0->init('X', array());
-        $this->assertEquals('(X)', $die0->get_recipe_with_maxvals());
-
-        $die0->max = '9';
-        $this->assertEquals('(X=9)', $die0->get_recipe_with_maxvals());
+        $die5 = new BMDieSwing;
+        $die5->init('X', array());
+        $this->assertEquals('(X)', $die5->get_recipe(TRUE));
+        $die5->max = '9';
+        $this->assertEquals('(X=9)', $die5->get_recipe(TRUE));
     }
 }

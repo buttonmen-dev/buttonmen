@@ -492,33 +492,28 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDieTwin;
         $die4->init(array('X', 'X'), array('Shadow', 'Poison'));
         $this->assertEquals('sp(X,X)', $die4->get_recipe());
-    }
 
-    /*
-     * @covers BMDie::get_recipe_with_maxvals
-     */
-    public function testGet_recipe_with_maxvals() {
-        $die0 = new BMDieTwin;
-        $die0->init(array(4, 8), array());
-        $this->assertEquals('(4,8)', $die0->get_recipe_with_maxvals());
+        $die5 = new BMDieTwin;
+        $die5->init(array(4, 8), array());
+        $this->assertEquals('(4,8)', $die5->get_recipe(TRUE));
 
-        $die1 = new BMDieTwin;
-        $die1->init(array(5, 5), array('Poison'));
-        $this->assertEquals('p(5,5)', $die1->get_recipe_with_maxvals());
+        $die6 = new BMDieTwin;
+        $die6->init(array(5, 5), array('Poison'));
+        $this->assertEquals('p(5,5)', $die6->get_recipe(TRUE));
 
-        $die2 = new BMDieTwin;
-        $die2->init(array(5, 'Y'), array('Shadow'));
-        $this->assertEquals('s(5,Y)', $die2->get_recipe_with_maxvals());
+        $die7 = new BMDieTwin;
+        $die7->init(array(5, 'Y'), array('Shadow'));
+        $this->assertEquals('s(5,Y)', $die7->get_recipe(TRUE));
         $swingList = array('Y' => 3);
-        $this->assertTrue($die2->set_swingValue($swingList));
-        $this->assertEquals('s(5,Y=3)', $die2->get_recipe_with_maxvals());
+        $this->assertTrue($die7->set_swingValue($swingList));
+        $this->assertEquals('s(5,Y=3)', $die7->get_recipe(TRUE));
 
-        $die3 = new BMDieTwin;
-        $die3->init(array('X', 'X'), array('Shadow', 'Poison'));
-        $this->assertEquals('sp(X,X)', $die3->get_recipe_with_maxvals());
+        $die8 = new BMDieTwin;
+        $die8->init(array('X', 'X'), array('Shadow', 'Poison'));
+        $this->assertEquals('sp(X,X)', $die8->get_recipe(TRUE));
         $swingList = array('X' => 8);
-        $this->assertTrue($die3->set_swingValue($swingList));
-        $this->assertEquals('sp(X=8,X=8)', $die3->get_recipe_with_maxvals());
+        $this->assertTrue($die8->set_swingValue($swingList));
+        $this->assertEquals('sp(X=8,X=8)', $die8->get_recipe(TRUE));
     }
 
 
