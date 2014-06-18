@@ -105,10 +105,27 @@ Overview.pageAddGameTables = function() {
 Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
   var newgamePar = $('<p>');
-  newgamePar.append($('<a>', {
-    'href': 'create_game.html',
-    'text': 'Create a new game',
-  }));
+  if (Api.active_games.games.awaitingPlayer.length > 0) {
+    newgamePar.append($('<a>', {
+      'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+      'text': 'Go to your next pending game',
+    }));
+
+  } else if (Api.active_games.games.awaitingOpponent.length > 0) {
+    // just return in this case, and don't add a message at all
+    return;
+
+  } else {
+    newgamePar.append($('<a>', {
+      'href': 'create_game.html',
+      'text': 'Create a new game',
+    }));
+    newgamePar.append(' or ');
+    newgamePar.append($('<a>', {
+      'href': 'open_games.html',
+      'text': 'join an open game',
+    }));
+  }
   newgameDiv.append(newgamePar);
   Overview.page.append(newgameDiv);
 };
