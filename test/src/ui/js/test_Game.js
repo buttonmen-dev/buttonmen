@@ -734,6 +734,23 @@ asyncTest("test_Game.formPlayTurnActive", function() {
   });
 });
 
+asyncTest("test_Game.formPlayTurnActive_surrender_dice", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    $('#playerIdx_1_dieIdx_0').click();
+    $('#attack_type_select').val('Surrender');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "error", "text": "Please deselect all dice before surrendering."},
+      "UI rejects surrender action when dice are selected");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Game.formPlayTurnInactive", function() {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {

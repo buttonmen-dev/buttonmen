@@ -1215,15 +1215,31 @@ Game.reactToInitiativeSuccessMsg = function(message, data) {
 Game.formPlayTurnActive = function() {
   Game.readCurrentGameActivity();
 
-  // If surrender is chosen, ask for confirmation, and let the user
-  // try again if they don't confirm
+  // If surrender is chosen, first check to make sure no dice are
+  // selected, then ask for confirmation.  Let the user try again
+  // if they have selected dice or don't confirm the surrender
   if (Game.activity.attackType == 'Surrender') {
+    var diceSelected = false;
+    $.each(Game.activity.dieSelectStatus, function(idx, val) {
+      if (val) {
+        diceSelected = true;
+      }
+    });
+    if (diceSelected) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Please deselect all dice before surrendering.',
+      };
+      return Game.redrawGamePageFailure();
+    }
+
     var surrender = window.confirm(
       'Are you SURE you want to surrender this round?'
     );
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
+
   } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
