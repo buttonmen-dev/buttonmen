@@ -226,7 +226,7 @@ Login.formLogin = function() {
   var username = null;
   var password = null;
   $('input#login_name').each(function(index, element) {
-    username = $(element).val();
+    username = $.trim($(element).val());
   });
   $('input#login_pass').each(function(index, element) {
     password = $(element).val();
