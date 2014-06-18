@@ -312,6 +312,9 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_determine_initiative() {
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {

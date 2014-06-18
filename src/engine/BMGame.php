@@ -590,11 +590,14 @@ class BMGame {
     }
 
     protected function do_next_step_determine_initiative() {
-        $hasInitiativeArray =
+        $response =
             BMGame::does_player_have_initiative_array(
                 $this->activeDieArrayArray,
-                $this->buttonArray
+                $this->buttonArray,
+                true
             );
+        $hasInitiativeArray = $response['hasPlayerInitiative'];
+        $actionLogInfo = $response['actionLogInfo'];
 
         if (array_sum($hasInitiativeArray) > 1) {
             $playersWithInit = array();
@@ -604,12 +607,20 @@ class BMGame {
                 }
             }
             $tempInitiativeIdx = array_rand($playersWithInit);
+            $actionLogInfo['tiedPlayerIdxs'] = $playersWithInit;
         } else {
             $tempInitiativeIdx =
                 array_search(TRUE, $hasInitiativeArray, TRUE);
         }
 
         $this->playerWithInitiativeIdx = $tempInitiativeIdx;
+        $actionLogInfo['initiativeWinnerIdx'] = $this->playerWithInitiativeIdx;
+
+        $this->log_action(
+            'determine_initiative',
+            0,
+            $actionLogInfo
+        );
     }
 
     protected function update_game_state_determine_initiative() {
@@ -1415,17 +1426,28 @@ class BMGame {
 
     public static function does_player_have_initiative_array(
         array $activeDieArrayArray,
-        $buttonArray = array()
+        $buttonArray = array(),
+        $returnActionLogInfo = false
     ) {
         $initiativeArrayArray = array();
+        $actionLogInfo = array(
+            'initiativeDice' => array(),
+            'isSlowButton' => array(),
+        );
         foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
             $initiativeArrayArray[] = array();
+            $actionLogInfo['initiativeDice'][] = array();
             foreach ($tempActiveDieArray as $dieIdx => $tempDie) {
+                $actionLogDieInfo = $tempDie->get_action_log_data();
                 // update initiative arrays if die counts for initiative
                 $tempInitiative = $tempDie->initiative_value();
                 if ($tempInitiative > 0) {
                     $initiativeArrayArray[$playerIdx][] = $tempInitiative;
+                    $actionLogDieInfo['included'] = true;
+                } else {
+                    $actionLogDieInfo['included'] = false;
                 }
+                $actionLogInfo['initiativeDice'][$playerIdx][] = $actionLogDieInfo;
             }
 
             if (!empty($buttonArray)) {
@@ -1433,8 +1455,10 @@ class BMGame {
                 // except if the button is slow
                 if (BMGame::is_button_slow($buttonArray[$playerIdx])) {
                     $initiativeArrayArray[$playerIdx] = array();
+                    $actionLogInfo['isSlowButton'][$playerIdx] = true;
                 } else {
                     $initiativeArrayArray[$playerIdx][] = PHP_INT_MAX - 1;
+                    $actionLogInfo['isSlowButton'][$playerIdx] = false;
                 }
             }
 
@@ -1467,7 +1491,14 @@ class BMGame {
             $dieIdx++;
         }
 
-        return $hasPlayerInitiative;
+        if ($returnActionLogInfo) {
+            return array(
+                'hasPlayerInitiative' => $hasPlayerInitiative,
+                'actionLogInfo' => $actionLogInfo,
+            );
+        } else {
+            return $hasPlayerInitiative;
+        }
     }
 
     protected static function is_button_slow($button) {
