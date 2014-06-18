@@ -89,7 +89,7 @@ asyncTest("test_OpenGames.buildGameTable", function() {
     },
   };
   Api.getOpenGamesData(function() {
-    var table = OpenGames.buildGameTable(buttons);
+    var table = OpenGames.buildGameTable('joinable', buttons);
     ok(table.find('td.gameAction').length > 0,
       "Table rows were generated");
     start();

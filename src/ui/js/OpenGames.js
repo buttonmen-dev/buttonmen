@@ -80,7 +80,19 @@ OpenGames.showPage = function() {
     });
 
     OpenGames.page.append($('<h2>', {'text': 'Open Games', }));
-    OpenGames.page.append(OpenGames.buildGameTable(buttons));
+
+    var joinableGames = OpenGames.buildGameTable('joinable', buttons);
+    if (joinableGames) {
+      OpenGames.page.append($('<h3>', {'text': 'Games you can join', }));
+      OpenGames.page.append(joinableGames);
+    }
+
+    var yourGames = OpenGames.buildGameTable('yours', buttons);
+    if (yourGames) {
+      OpenGames.page.append($('<h3>',
+        {'text': 'Your open games (waiting for other players to join)', }));
+      OpenGames.page.append(yourGames);
+    }
 
     if (anyUnimplementedButtons) {
       var warning = $('<p>', {
@@ -163,7 +175,7 @@ OpenGames.displayJoinResult = function(
 ////////////////////////////////////////////////////////////////////////
 // Helper routines to add HTML entities to existing pages
 
-OpenGames.buildGameTable = function(buttons) {
+OpenGames.buildGameTable = function(tableType, buttons) {
   var table = $('<table>', { 'class': 'gameList', });
 
   var thead = $('<thead>');
@@ -171,21 +183,63 @@ OpenGames.buildGameTable = function(buttons) {
   var headerRow = $('<tr>');
   thead.append(headerRow);
   headerRow.append($('<th>', { 'text': 'Game', }));
-  headerRow.append($('<th>', { 'text': 'Your Button', }));
-  headerRow.append($('<th>', { 'text': 'Challenger\'s Button', }));
-  headerRow.append($('<th>', { 'text': 'Challenger', }));
+  if (tableType == 'joinable') {
+    headerRow.append($('<th>', { 'text': 'Your Button', }));
+    headerRow.append($('<th>', { 'text': 'Challenger\'s Button', }));
+    headerRow.append($('<th>', { 'text': 'Challenger', }));
+  } else {
+    headerRow.append($('<th>', { 'text': 'Your Button', }));
+    headerRow.append($('<th>', { 'text': 'Opponent\'s Button', }));
+  }
   headerRow.append($('<th>', { 'text': 'Rounds', }));
 
   var tbody = $('<tbody>');
   table.append(tbody);
+  var anyRows = false;
   $.each(Api.open_games.games, function(index, game) {
+
+    // The table of joinable games should contain only games in
+    // which the active player is not the challenger.  The table
+    // of your open games should contain only games in which the
+    // active player is the challenger.
+    if (game.challengerName == Login.player) {
+      if (tableType == 'joinable') {
+        return true;
+      }
+    } else {
+      if (tableType == 'yours') {
+        return true;
+      }
+    }
+    anyRows = true;
+
     var gameRow = $('<tr>');
     tbody.append(gameRow);
-    if (game.challengerName == Login.player) {
+
+    if (tableType == 'yours') {
+      // Layout rows for your open games table
       gameRow.append($('<td>', {
         'class': 'gameAction',
+        'text': 'Game ' + game.gameId,
       }));
+      gameRow.append($('<td>', {
+        'text': game.challengerButton,
+      }));
+
+      if (game.victimButton !== null) {
+        gameRow.append($('<td>', {
+          'text': game.victimButton,
+          'class': 'victimButton',
+        }));
+      } else {
+        gameRow.append($('<td>', {
+          'text': 'Any Button',
+          'class': 'victimButton',
+          'style': 'font-style: italic;',
+        }));
+      }
     } else {
+      // Layout rows for joinable games table
       var gameActionTd = $('<td>', { 'class': 'gameAction', });
       gameRow.append(gameActionTd);
       var joinButton = $('<button>', {
@@ -195,48 +249,49 @@ OpenGames.buildGameTable = function(buttons) {
       });
       gameActionTd.append(joinButton);
       joinButton.click(OpenGames.joinOpenGame);
-    }
-    if (game.victimButton !== null) {
-      gameRow.append($('<td>', {
-        'text': game.victimButton,
-        'class': 'victimButton',
-      }));
-    } else if (game.challengerName == Login.player) {
-      gameRow.append($('<td>', {
-        'text': 'Any Button',
-        'class': 'victimButton',
-        'style': 'font-style: italic;',
-      }));
-    } else {
-      var victimButtonTd = $('<td>', { 'class': 'victimButton', });
-      gameRow.append(victimButtonTd);
-      var buttonSelect = $('<select>');
-      victimButtonTd.append(buttonSelect);
 
-      buttonSelect.append($('<option>', {
-        'text': 'Choose button',
-        'value': '',
-      }));
-
-      $.each(buttons, function(buttonName, buttonInfo) {
-        buttonSelect.append($('<option>', {
-          'text': buttonInfo.recipe,
-          'value': buttonName,
-          'class': (buttonInfo.greyed ? 'greyed' : ''),
+      if (game.victimButton !== null) {
+        gameRow.append($('<td>', {
+          'text': game.victimButton,
+          'class': 'victimButton',
         }));
-      });
+      } else {
+        var victimButtonTd = $('<td>', { 'class': 'victimButton', });
+        gameRow.append(victimButtonTd);
+        var buttonSelect = $('<select>');
+        victimButtonTd.append(buttonSelect);
+
+        buttonSelect.append($('<option>', {
+          'text': 'Choose button',
+          'value': '',
+        }));
+
+        $.each(buttons, function(buttonName, buttonInfo) {
+          buttonSelect.append($('<option>', {
+            'text': buttonInfo.recipe,
+            'value': buttonName,
+            'class': (buttonInfo.greyed ? 'greyed' : ''),
+          }));
+        });
+      }
+
+      gameRow.append($('<td>', {
+        'text': game.challengerButton,
+      }));
+      gameRow.append($('<td>', {
+        'text': game.challengerName,
+        'style': 'background-color: ' + game.challengerColor + ';',
+      }));
     }
-    gameRow.append($('<td>', {
-      'text': game.challengerButton,
-    }));
-    gameRow.append($('<td>', {
-      'text': game.challengerName,
-      'style': 'background-color: ' + game.challengerColor + ';',
-    }));
+
     gameRow.append($('<td>', {
       'text': game.targetWins,
     }));
   });
 
-  return table;
+  if (anyRows) {
+    return table;
+  } else {
+    return null;
+  }
 };
