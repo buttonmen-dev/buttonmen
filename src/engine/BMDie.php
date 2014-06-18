@@ -485,7 +485,7 @@ class BMDie extends BMCanHaveSkill {
                                              $args['activePlayerIdx']));
     }
 
-    public function get_recipe($addMaxvals=FALSE) {
+    public function get_recipe($addMaxvals = FALSE) {
         $recipe = '';
         foreach ($this->skillList as $skill) {
             if (BMSkill::do_print_skill_preceding($skill)) {
