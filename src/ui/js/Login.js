@@ -25,7 +25,7 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
-      var welcomeText = 'Welcome to ButtonMen';
+      var welcomeText = 'Welcome to Button Men';
       if (Config.siteType == 'development') {
         $('#login_header').css('background-color', '#cccccc');
         $('head').append(
@@ -166,7 +166,7 @@ Login.addMainNavbar = function() {
     'Create game': 'create_game.html',
     'Open games': 'open_games.html',
     'Preferences': 'prefs.html',
-    'Profile': 'profile.html?player=' + encodeURIComponent(Login.player),
+    'Profile': Env.buildProfileLink(Login.player, true),
     'History': 'history.html',
     'Who\'s online': 'active_players.html',
     'Forum': 'forum.html',
@@ -226,7 +226,7 @@ Login.formLogin = function() {
   var username = null;
   var password = null;
   $('input#login_name').each(function(index, element) {
-    username = $(element).val();
+    username = $.trim($(element).val());
   });
   $('input#login_pass').each(function(index, element) {
     password = $(element).val();

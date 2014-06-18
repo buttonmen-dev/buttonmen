@@ -42,6 +42,7 @@
  * @property      array $swingValueArrayArray    Swing values for all players
  * @property      array $prevSwingValueArrayArray Swing values for previous round for all players
  * @property      array $optRequestArrayArray    Option requests for all players
+ * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
  *
@@ -201,8 +202,6 @@ class BMGame {
         }
     }
 
-
-
     protected function do_next_step_load_dice_into_buttons() {
         // james: this is currently carried out either by manually setting
         // $this->buttonArray, or by BMInterface
@@ -237,25 +236,8 @@ class BMGame {
         }
 
         $this->offer_courtesy_auxiliary_dice();
-
-        // load swing values that are carried across from a previous round
-        if (!isset($this->swingValueArrayArray)) {
-            return;
-        }
-
-        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
-            foreach ($activeDieArray as &$activeDie) {
-                if ($activeDie instanceof BMDieSwing) {
-                    if (array_key_exists(
-                        $activeDie->swingType,
-                        $this->swingValueArrayArray[$playerIdx]
-                    )) {
-                        $activeDie->swingValue =
-                            $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
-                    }
-                }
-            }
-        }
+        $this->load_swing_values_from_previous_round();
+        $this->load_option_values_from_previous_round();
     }
 
     protected function offer_courtesy_auxiliary_dice() {
@@ -305,6 +287,42 @@ class BMGame {
         }
 
         return $auxiliaryDice;
+    }
+
+    protected function load_swing_values_from_previous_round() {
+        if (!isset($this->swingValueArrayArray)) {
+            return;
+        }
+
+        foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+            foreach ($activeDieArray as &$activeDie) {
+                if ($activeDie instanceof BMDieSwing) {
+                    if (array_key_exists(
+                        $activeDie->swingType,
+                        $this->swingValueArrayArray[$playerIdx]
+                    )) {
+                        $activeDie->swingValue =
+                            $this->swingValueArrayArray[$playerIdx][$activeDie->swingType];
+                    }
+                }
+            }
+        }
+    }
+
+    protected function load_option_values_from_previous_round() {
+        if (!isset($this->optValueArrayArray)) {
+            return;
+        }
+
+        foreach ($this->optValueArrayArray as $playerIdx => $optionValueArray) {
+            if (!empty($optionValueArray)) {
+                foreach ($optionValueArray as $dieIdx => $optionValue) {
+                    $die = $this->activeDieArrayArray[$playerIdx][$dieIdx];
+                    assert($die instanceof BMDieOption);
+                    $die->set_optionValue($optionValue);
+                }
+            }
+        }
     }
 
     protected function update_game_state_add_available_dice_to_game() {
@@ -2174,6 +2192,7 @@ class BMGame {
                   'playerIdArray'              => $this->playerIdArray,
                   'buttonNameArray'            => $this->get_buttonNameArray(),
                   'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
+                  'buttonArtFilenameArray'     => $this->get_buttonArtFilenameArray(),
                   'waitingOnActionArray'       => $this->waitingOnActionArray,
                   'nDieArray'                  => $this->get_nDieArray(),
                   'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
@@ -2243,6 +2262,20 @@ class BMGame {
         }
 
         return $buttonRecipeArray;
+    }
+
+    protected function get_buttonArtFilenameArray() {
+        $buttonArtFilenameArray = array();
+
+        foreach ($this->buttonArray as $button) {
+            $buttonArtFilename = '';
+            if ($button instanceof BMButton) {
+                $buttonArtFilename = $button->artFilename;
+            }
+            $buttonArtFilenameArray[] = $buttonArtFilename;
+        }
+
+        return $buttonArtFilenameArray;
     }
 
     protected function get_nDieArray() {
@@ -2600,7 +2633,7 @@ class BMGame {
 
         if (isset($this->buttonArray)) {
             foreach ($this->buttonArray as $playerButton) {
-                if (count($playerButton->dieArray) > 0) {
+                if (!is_null($playerButton) && count($playerButton->dieArray) > 0) {
                     foreach ($playerButton->dieArray as $buttonDie) {
                         if (count($buttonDie->skillList) > 0) {
                             $gameSkillsWithKeysList += $buttonDie->skillList;

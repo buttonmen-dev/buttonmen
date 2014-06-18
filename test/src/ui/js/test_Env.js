@@ -235,3 +235,14 @@ test("test_Env.escapeRegexp", function() {
   equal(escapedPattern, 'example\\.com',
     'Escaped pattern should be as expected');
 });
+
+test("test_Env.buildProfileLink", function() {
+  var link = Env.buildProfileLink('tester');
+  equal(link.attr('href'), 'profile.html?player=tester',
+    'Link should point to profile page.');
+
+  var linktext = Env.buildProfileLink('tester', true);
+  equal(linktext, 'profile.html?player=tester',
+    'Link text should point to profile page.');
+});
+

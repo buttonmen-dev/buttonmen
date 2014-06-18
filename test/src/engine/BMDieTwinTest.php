@@ -492,7 +492,30 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDieTwin;
         $die4->init(array('X', 'X'), array('Shadow', 'Poison'));
         $this->assertEquals('sp(X,X)', $die4->get_recipe());
+
+        $die5 = new BMDieTwin;
+        $die5->init(array(4, 8), array());
+        $this->assertEquals('(4,8)', $die5->get_recipe(TRUE));
+
+        $die6 = new BMDieTwin;
+        $die6->init(array(5, 5), array('Poison'));
+        $this->assertEquals('p(5,5)', $die6->get_recipe(TRUE));
+
+        $die7 = new BMDieTwin;
+        $die7->init(array(5, 'Y'), array('Shadow'));
+        $this->assertEquals('s(5,Y)', $die7->get_recipe(TRUE));
+        $swingList = array('Y' => 3);
+        $this->assertTrue($die7->set_swingValue($swingList));
+        $this->assertEquals('s(5,Y=3)', $die7->get_recipe(TRUE));
+
+        $die8 = new BMDieTwin;
+        $die8->init(array('X', 'X'), array('Shadow', 'Poison'));
+        $this->assertEquals('sp(X,X)', $die8->get_recipe(TRUE));
+        $swingList = array('X' => 8);
+        $this->assertTrue($die8->set_swingValue($swingList));
+        $this->assertEquals('sp(X=8,X=8)', $die8->get_recipe(TRUE));
     }
+
 
     /**
      * @covers BMDieTwin::set_swingValue

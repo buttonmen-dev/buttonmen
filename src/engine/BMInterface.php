@@ -12,7 +12,8 @@
  */
 class BMInterface {
     // constants
-    const MYSQL_TEXT_MAX_LENGTH = 16383;
+    const GAME_CHAT_MAX_LENGTH = 500;
+    const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
 
     // properties
@@ -253,31 +254,17 @@ class BMInterface {
     public function create_game(
         array $playerIdArray,
         array $buttonNameArray,
-        $maxWins = 3
+        $maxWins = 3,
+        $currentPlayerId = NULL
     ) {
-        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins);
+        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins, $currentPlayerId);
         if (!$isValidInfo) {
             return NULL;
         }
 
-        $buttonIdArray = array();
-        foreach (array_keys($playerIdArray) as $position) {
-            // get button ID
-            $buttonName = $buttonNameArray[$position];
-            if (!empty($buttonName)) {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
-                    $this->message = 'Game create failed because a button name was not valid.';
-                    return NULL;
-                }
-                $buttonIdArray[] = $fetchData[0];
-            } else {
-                $buttonIdArray[] = NULL;
-            }
+        $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
+        if (is_null($buttonIdArray)) {
+            return NULL;
         }
 
         try {
@@ -350,7 +337,7 @@ class BMInterface {
         }
     }
 
-    protected function validate_game_info(array $playerIdArray, $maxWins) {
+    protected function validate_game_info(array $playerIdArray, $maxWins, $currentPlayerId) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
@@ -374,6 +361,18 @@ class BMInterface {
             }
         }
 
+        // force first player ID to be the current player ID, if specified
+        if (!is_null($currentPlayerId)) {
+            if ($currentPlayerId !== $playerIdArray[0]) {
+                $this->message = 'Game create failed because you must be the first player.';
+                error_log(
+                    'validate_game_info() failed because currentPlayerId (' . $currentPlayerId .
+                    ') does not match playerIdArray[0] (' . $playerIdArray[0] . ')'
+                );
+                return FALSE;
+            }
+        }
+
         if (FALSE ===
             filter_var(
                 $maxWins,
@@ -387,6 +386,30 @@ class BMInterface {
         }
 
         return TRUE;
+    }
+
+    protected function retrieve_button_ids($playerIdArray, $buttonNameArray) {
+        $buttonIdArray = array();
+        foreach (array_keys($playerIdArray) as $position) {
+            // get button ID
+            $buttonName = $buttonNameArray[$position];
+            if (!empty($buttonName)) {
+                $query = 'SELECT id FROM button '.
+                         'WHERE name = :button_name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':button_name' => $buttonName));
+                $fetchData = $statement->fetch();
+                if (FALSE === $fetchData) {
+                    $this->message = 'Game create failed because a button name was not valid.';
+                    return NULL;
+                }
+                $buttonIdArray[] = $fetchData[0];
+            } else {
+                $buttonIdArray[] = NULL;
+            }
+        }
+
+        return $buttonIdArray;
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {
@@ -425,13 +448,14 @@ class BMInterface {
     public function load_game($gameId, $logEntryLimit = NULL) {
         try {
             $game = $this->load_game_parameters($gameId);
-            $this->set_logEntryLimit($game, $logEntryLimit);
 
             // check whether the game exists
             if (!isset($game)) {
                 $this->message = "Game $gameId does not exist.";
                 return FALSE;
             }
+
+            $this->set_logEntryLimit($game, $logEntryLimit);
 
             $this->load_swing_values_from_last_round($game);
             $this->load_swing_values_from_this_round($game);
@@ -1919,7 +1943,8 @@ class BMInterface {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
 
-            $statement = self::$conn->prepare('SELECT name, recipe, btn_special FROM button_view');
+            $query = 'SELECT name, recipe, btn_special, set_name, tourn_legal FROM button_view';
+            $statement = self::$conn->prepare($query);
             $statement->execute();
 
             // Look for unimplemented skills in each button definition.
@@ -1929,6 +1954,8 @@ class BMInterface {
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
+                    $dieSkills = array_keys($button->dieSkills);
+                    sort($dieSkills);
 
                     $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
                     if ((1 == $row['btn_special']) &&
@@ -1945,12 +1972,18 @@ class BMInterface {
                     $buttonNameArray[] = $row['name'];
                     $recipeArray[] = $row['recipe'];
                     $hasUnimplSkillArray[] = $hasUnimplSkill;
+                    $buttonSetArray[] = $row['set_name'];
+                    $dieSkillsArray[] = $dieSkills;
+                    $isTournamentLegalArray[] = ((int)$row['tourn_legal'] == 1);
                 }
             }
             $this->message = 'All button names retrieved successfully.';
             return array('buttonNameArray'            => $buttonNameArray,
                          'recipeArray'                => $recipeArray,
-                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray);
+                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
+                         'buttonSetArray'             => $buttonSetArray,
+                         'dieSkillsArray'             => $dieSkillsArray,
+                         'isTournamentLegalArray'     => $isTournamentLegalArray);
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_all_button_names: ' .
@@ -2203,8 +2236,9 @@ class BMInterface {
 
     protected function sanitize_chat($message) {
         // if the string is too long, truncate it
-        if (strlen($message) > 1020) {
-            $message = substr($message, 0, 1020);
+        $encoding = mb_detect_encoding($message);
+        if (mb_strlen($message, $encoding) > self::GAME_CHAT_MAX_LENGTH) {
+            $message = substr($message, 0, self::GAME_CHAT_MAX_LENGTH, $encoding);
         }
         return $message;
     }
@@ -3515,15 +3549,15 @@ class BMInterface {
     // Adds a new thread to the specified board
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
         try {
-            if (strlen($title) > self::FORUM_TITLE_MAX_LENGTH) {
+            if (mb_strlen($title, mb_detect_encoding($title)) > self::FORUM_TITLE_MAX_LENGTH) {
                 $this->message = 'Thread titles cannot be longer than ' .
                     self::FORUM_TITLE_MAX_LENGTH . ' characters';
                 return NULL;
             }
 
-            if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+            if (mb_strlen($body, mb_detect_encoding($body)) > self::FORUM_BODY_MAX_LENGTH) {
                 $this->message = 'Posts cannot be longer than ' .
-                    self::MYSQL_TEXT_MAX_LENGTH . ' characters';
+                    self::FORUM_BODY_MAX_LENGTH . ' characters';
                 return NULL;
             }
 
@@ -3569,9 +3603,9 @@ class BMInterface {
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
-            if (strlen($body) > self::MYSQL_TEXT_MAX_LENGTH) {
+            if (mb_strlen($body) > self::FORUM_BODY_MAX_LENGTH) {
                 $this->message = 'Posts cannot be longer than ' .
-                    self::MYSQL_TEXT_MAX_LENGTH . ' characters';
+                    self::FORUM_BODY_MAX_LENGTH . ' characters';
                 return NULL;
             }
 

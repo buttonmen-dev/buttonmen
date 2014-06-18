@@ -33,6 +33,9 @@ Game.COLORS = {
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
 
+// Maximum number of characters permitted in a given chat message
+Game.GAME_CHAT_MAX_LENGTH = 500;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -53,7 +56,6 @@ Game.logEntryLimit = 10;
 Game.showGamePage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
@@ -1213,15 +1215,31 @@ Game.reactToInitiativeSuccessMsg = function(message, data) {
 Game.formPlayTurnActive = function() {
   Game.readCurrentGameActivity();
 
-  // If surrender is chosen, ask for confirmation, and let the user
-  // try again if they don't confirm
+  // If surrender is chosen, first check to make sure no dice are
+  // selected, then ask for confirmation.  Let the user try again
+  // if they have selected dice or don't confirm the surrender
   if (Game.activity.attackType == 'Surrender') {
+    var diceSelected = false;
+    $.each(Game.activity.dieSelectStatus, function(idx, val) {
+      if (val) {
+        diceSelected = true;
+      }
+    });
+    if (diceSelected) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Please deselect all dice before surrendering.',
+      };
+      return Game.redrawGamePageFailure();
+    }
+
     var surrender = window.confirm(
       'Are you SURE you want to surrender this round?'
     );
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
+
   } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
@@ -1414,6 +1432,7 @@ Game.pageAddSkillListFooter = function() {
     gameSkillDiv.append($('<span>', {
       'text': skill,
       'title': skillDesc,
+      'class': 'skill_desc',
     }));
     firstSkill = false;
   });
@@ -1773,8 +1792,9 @@ Game.buttonImageDisplay = function(player) {
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
-    'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
+    'html': $('<b>', { 'text': 'Player: ', }),
   });
+  playerName.append(Env.buildProfileLink(Api.game[player].playerName));
   var playerWLT = $('<div>', {
     'text': Api.game[player].gameScoreStr,
   });
@@ -1798,12 +1818,8 @@ Game.buttonImageDisplay = function(player) {
   } else {
     buttonTd.append($('<img>', {
       'src':
-        Env.ui_root + 'images/button/' +
-        Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
-        '.png',
+        Env.ui_root + 'images/button/' + Api.game[player].buttonArtFilename,
       'width': '150px',
-      'onerror':
-        'this.src="' + Env.ui_root + 'images/button/BMdefaultRound.png"',
     }));
   }
   if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
@@ -2083,12 +2099,18 @@ Game.playerOpponentHeaderRow = function(label, field) {
   if (label) {
     prefix = label + ': ';
   }
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.player[field],
-  }));
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.opponent[field],
-  }));
+  var playerInfo = $('<th>', { 'text': prefix, });
+  var opponentInfo = $('<th>', { 'text': prefix, });
+  if (field == 'playerName') {
+    playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
+    opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
+  } else {
+    playerInfo.append(Api.game.player[field]);
+    opponentInfo.append(Api.game.opponent[field]);
+  }
+
+  headerrow.append(playerInfo);
+  headerrow.append(opponentInfo);
   return headerrow;
 };
 
@@ -2246,7 +2268,7 @@ Game.chatBox = function(hidden) {
     'id': 'game_chat',
     'rows': '3',
     'cols': '50',
-    'maxlength': '500',
+    'maxlength': Game.GAME_CHAT_MAX_LENGTH,
   });
 
   // Add previous chat contents from a rejected turn submission if any

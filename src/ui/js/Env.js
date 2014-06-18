@@ -279,8 +279,9 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     },
     'quote': {
       'openingHtml':
-          '<div class="chatQuote"><div class="chatQuotee">Quote:</div>',
-      'closingHtml': '</div>',
+          '<div class="chatQuote"><div class="chatQuotee">Quote:</div>' +
+            '<span class="chatQuoteBody">',
+      'closingHtml': '</span></div>',
     },
     'game': {
       'isAtomic': true,
@@ -402,4 +403,17 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
 
 Env.escapeRegexp = function(str) {
   return str.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+};
+
+// Utility function to link to a profile page given a player name
+Env.buildProfileLink = function(playerName, textOnly) {
+  var url = 'profile.html?player=' + encodeURIComponent(playerName);
+  if (textOnly) {
+    return url;
+  } else {
+    return $('<a>', {
+      'href': url,
+      'text': playerName,
+    });
+  }
 };
