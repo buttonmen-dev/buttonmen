@@ -1,11 +1,11 @@
 <?php
-/*
+/**
  * BMSkill: Used to modify the operation of BMDie
  *
  * @author: James Ong
  */
 
-/*
+/**
  * This class is the parent class for all die skills
  */
 class BMSkill {

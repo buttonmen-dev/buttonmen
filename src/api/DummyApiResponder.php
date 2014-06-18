@@ -756,6 +756,7 @@ class DummyApiResponder {
                                            array("W" => 0, "L" => 0, "D" => 0)),
             "lastActionTimeArray" => array(0, 0),
             "gameSkillsInfo" => array(),
+            "canStillWinArray" => array(NULL, NULL),
         );
 
         return $gameData;
