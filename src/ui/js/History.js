@@ -562,7 +562,7 @@ History.buildResultsTableHeader = function() {
         dateElement.datepicker({ 'dateFormat': 'yy-mm-dd', });
 
         var calendar = $('<img>', {
-          'src': 'images/calendar.png',
+          'src': Env.ui_root + 'images/calendar.png',
           'class': 'calendar',
           'title': full +  ' ' + columnInfo.text + ' Date',
         });
@@ -642,9 +642,8 @@ History.buildResultsTableBody = function() {
     gameRow.append(idTd);
 
     gameRow.append($('<td>', {
-      'text': game.playerNameA,
       'style': 'background-color: ' + game.colorA + ';',
-    }));
+    }).append(Env.buildProfileLink(game.playerNameA)));
     gameRow.append($('<td>', {
       'text': game.buttonNameA,
     }));
@@ -652,9 +651,8 @@ History.buildResultsTableBody = function() {
       'text': game.buttonNameB,
     }));
     gameRow.append($('<td>', {
-      'text': game.playerNameB,
       'style': 'background-color: ' + game.colorB + ';',
-    }));
+    }).append(Env.buildProfileLink(game.playerNameB)));
     // Reinstate this once g.creation_time exists
     //gameRow.append($('<td>', {
     //  'text': Env.formatTimestamp(game.gameStart, 'date'),

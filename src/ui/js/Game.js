@@ -56,7 +56,6 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 Game.showGamePage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
@@ -1216,15 +1215,31 @@ Game.reactToInitiativeSuccessMsg = function(message, data) {
 Game.formPlayTurnActive = function() {
   Game.readCurrentGameActivity();
 
-  // If surrender is chosen, ask for confirmation, and let the user
-  // try again if they don't confirm
+  // If surrender is chosen, first check to make sure no dice are
+  // selected, then ask for confirmation.  Let the user try again
+  // if they have selected dice or don't confirm the surrender
   if (Game.activity.attackType == 'Surrender') {
+    var diceSelected = false;
+    $.each(Game.activity.dieSelectStatus, function(idx, val) {
+      if (val) {
+        diceSelected = true;
+      }
+    });
+    if (diceSelected) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Please deselect all dice before surrendering.',
+      };
+      return Game.redrawGamePageFailure();
+    }
+
     var surrender = window.confirm(
       'Are you SURE you want to surrender this round?'
     );
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
+
   } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
@@ -1777,8 +1792,9 @@ Game.buttonImageDisplay = function(player) {
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
-    'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
+    'html': $('<b>', { 'text': 'Player: ', }),
   });
+  playerName.append(Env.buildProfileLink(Api.game[player].playerName));
   var playerWLT = $('<div>', {
     'text': Api.game[player].gameScoreStr,
   });
@@ -2083,12 +2099,18 @@ Game.playerOpponentHeaderRow = function(label, field) {
   if (label) {
     prefix = label + ': ';
   }
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.player[field],
-  }));
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.opponent[field],
-  }));
+  var playerInfo = $('<th>', { 'text': prefix, });
+  var opponentInfo = $('<th>', { 'text': prefix, });
+  if (field == 'playerName') {
+    playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
+    opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
+  } else {
+    playerInfo.append(Api.game.player[field]);
+    opponentInfo.append(Api.game.opponent[field]);
+  }
+
+  headerrow.append(playerInfo);
+  headerrow.append(opponentInfo);
   return headerrow;
 };
 

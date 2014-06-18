@@ -25,7 +25,6 @@ var Newgame = {
 Newgame.showNewgamePage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   if (!Newgame.activity.opponentName) {
@@ -620,12 +619,16 @@ Newgame.getButtonLimitTd = function(player, desctext, limitid, choices) {
   });
   choicekeys.sort();
 
-  limitSelect.append($('<option>', {
+  var anyOptionOpts = {
     'value': 'ANY',
     'label': 'ANY',
     'text': 'ANY',
-    'selected': 'selected',
-  }));
+  };
+  if (Newgame.activity.buttonLimits[player][limitid].ANY) {
+    anyOptionOpts.selected = 'selected';
+  }
+  limitSelect.append($('<option>', anyOptionOpts));
+
   var inputid;
   $.each(choicekeys, function(i, choice) {
     inputid = Newgame.getChoiceId(player, limitid, choice);
@@ -634,6 +637,9 @@ Newgame.getButtonLimitTd = function(player, desctext, limitid, choices) {
       'label': choice,
       'text': choice,
     };
+    if (Newgame.activity.buttonLimits[player][limitid][inputid]) {
+      selectopts.selected = 'selected';
+    }
     limitSelect.append($('<option>', selectopts));
   });
   limitSubrow.append(limitSelect);

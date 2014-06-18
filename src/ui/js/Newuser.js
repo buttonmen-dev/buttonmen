@@ -26,7 +26,6 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 Newuser.showNewuserPage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
