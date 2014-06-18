@@ -25,7 +25,6 @@ Overview.GAME_STATE_END_GAME = 60;
 Overview.showOverviewPage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body

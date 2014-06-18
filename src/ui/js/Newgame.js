@@ -25,7 +25,6 @@ var Newgame = {
 Newgame.showNewgamePage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   if (!Newgame.activity.opponentName) {

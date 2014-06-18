@@ -562,7 +562,7 @@ History.buildResultsTableHeader = function() {
         dateElement.datepicker({ 'dateFormat': 'yy-mm-dd', });
 
         var calendar = $('<img>', {
-          'src': 'images/calendar.png',
+          'src': Env.ui_root + 'images/calendar.png',
           'class': 'calendar',
           'title': full +  ' ' + columnInfo.text + ' Date',
         });
