@@ -1444,7 +1444,7 @@ class BMGame {
                 'initiativeDice' => array(),
                 'slowButton' => FALSE,
             );
-            foreach ($tempActiveDieArray as $dieIdx => $tempDie) {
+            foreach ($tempActiveDieArray as $tempDie) {
                 $actionLogDieInfo = $tempDie->get_action_log_data();
                 // update initiative arrays if die counts for initiative
                 $tempInitiative = $tempDie->initiative_value();
