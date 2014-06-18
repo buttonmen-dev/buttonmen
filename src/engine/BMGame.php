@@ -597,24 +597,31 @@ class BMGame {
                 true
             );
         $hasInitiativeArray = $response['hasPlayerInitiative'];
-        $actionLogInfo = $response['actionLogInfo'];
+        $actionLogInfo = array(
+            'roundNumber' => $this->get__roundNumber(),
+            'playerData' => array(),
+        );
+        foreach ($response['actionLogInfo'] as $playerIdx => $playerActionLogData) {
+            $actionLogInfo['playerData'][$this->playerIdArray[$playerIdx]] = $playerActionLogData;
+        }
 
         if (array_sum($hasInitiativeArray) > 1) {
             $playersWithInit = array();
+            $actionLogInfo['tiedPlayerIds'] = array();
             foreach ($hasInitiativeArray as $playerIdx => $tempHasInitiative) {
                 if ($tempHasInitiative) {
                     $playersWithInit[] = $playerIdx;
+                    $actionLogInfo['tiedPlayerIds'][] = $this->playerIdArray[$playerIdx];
                 }
             }
             $tempInitiativeIdx = array_rand($playersWithInit);
-            $actionLogInfo['tiedPlayerIdxs'] = $playersWithInit;
         } else {
             $tempInitiativeIdx =
                 array_search(TRUE, $hasInitiativeArray, TRUE);
         }
 
         $this->playerWithInitiativeIdx = $tempInitiativeIdx;
-        $actionLogInfo['initiativeWinnerIdx'] = $this->playerWithInitiativeIdx;
+        $actionLogInfo['initiativeWinnerId'] = $this->playerIdArray[$this->playerWithInitiativeIdx];
 
         $this->log_action(
             'determine_initiative',
@@ -1430,13 +1437,13 @@ class BMGame {
         $returnActionLogInfo = false
     ) {
         $initiativeArrayArray = array();
-        $actionLogInfo = array(
-            'initiativeDice' => array(),
-            'isSlowButton' => array(),
-        );
+        $actionLogInfo = array();
         foreach ($activeDieArrayArray as $playerIdx => $tempActiveDieArray) {
             $initiativeArrayArray[] = array();
-            $actionLogInfo['initiativeDice'][] = array();
+            $actionLogInfo[] = array(
+                'initiativeDice' => array(),
+                'slowButton' => false,
+            );
             foreach ($tempActiveDieArray as $dieIdx => $tempDie) {
                 $actionLogDieInfo = $tempDie->get_action_log_data();
                 // update initiative arrays if die counts for initiative
@@ -1447,7 +1454,7 @@ class BMGame {
                 } else {
                     $actionLogDieInfo['included'] = false;
                 }
-                $actionLogInfo['initiativeDice'][$playerIdx][] = $actionLogDieInfo;
+                $actionLogInfo[$playerIdx]['initiativeDice'][] = $actionLogDieInfo;
             }
 
             if (!empty($buttonArray)) {
@@ -1455,10 +1462,9 @@ class BMGame {
                 // except if the button is slow
                 if (BMGame::is_button_slow($buttonArray[$playerIdx])) {
                     $initiativeArrayArray[$playerIdx] = array();
-                    $actionLogInfo['isSlowButton'][$playerIdx] = true;
+                    $actionLogInfo[$playerIdx]['slowButton'] = true;
                 } else {
                     $initiativeArrayArray[$playerIdx][] = PHP_INT_MAX - 1;
-                    $actionLogInfo['isSlowButton'][$playerIdx] = false;
                 }
             }
 

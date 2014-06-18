@@ -2637,26 +2637,33 @@ class BMInterface {
 
             $this->set_option_values($optionValueArray, $currentPlayerIdx, $game);
 
+            // Create the action log entry for choosing die values
+            // now, so it will happen before any initiative actions.
+            // If the swing/option selection is unsuccessful,
+            // save_game() won't be called, so this action log entry
+            // will simply be dropped.
+            $optionLogArray = array();
+            foreach ($optionValueArray as $dieIdx => $optionValue) {
+                $dieRecipe = $game->activeDieArrayArray[$currentPlayerIdx][$dieIdx]->recipe;
+                $optionLogArray[$dieRecipe] = $optionValue;
+            }
+            $game->log_action(
+                'choose_die_values',
+                $game->playerIdArray[$currentPlayerIdx],
+                array(
+                    'roundNumber' => $game->roundNumber,
+                    'swingValues' => $swingValueArray,
+                    'optionValues' => $optionLogArray,
+                )
+            );
+
             $game->proceed_to_next_user_action();
 
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
-                $optionLogArray = array();
-                foreach ($optionValueArray as $dieIdx => $optionValue) {
-                    $dieRecipe = $game->activeDieArrayArray[$currentPlayerIdx][$dieIdx]->recipe;
-                    $optionLogArray[$dieRecipe] = $optionValue;
-                }
-                $game->log_action(
-                    'choose_die_values',
-                    $game->playerIdArray[$currentPlayerIdx],
-                    array(
-                        'roundNumber' => $game->roundNumber,
-                        'swingValues' => $swingValueArray,
-                        'optionValues' => $optionLogArray,
-                    )
-                );
+
                 $this->save_game($game);
                 $this->message = 'Successfully set die sizes';
                 return TRUE;
