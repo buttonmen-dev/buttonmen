@@ -223,9 +223,8 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       'text': gameInfo.opponentButtonName,
     }));
     gameRow.append($('<td>', {
-      'text': gameInfo.opponentName,
       'style': 'background-color: ' + opponentColor,
-    }));
+    }).append(Env.buildProfileLink(gameInfo.opponentName)));
 
     var wldColor = '#ffffff';
     if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {

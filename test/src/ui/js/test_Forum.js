@@ -294,12 +294,6 @@ test("test_Forum.buildPostRow", function() {
   equal(newFlag.length, 1, 'Row should indicate the post is new.');
 });
 
-test("test_Forum.buildProfileLink", function() {
-  var link = Forum.buildProfileLink('tester');
-  equal(link.attr('href'), 'profile.html?player=tester',
-    'Link should point to profile page.');
-});
-
 test("test_Forum.buildHelp", function() {
   var help = Forum.buildHelp();
   var helpText = help.text();

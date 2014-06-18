@@ -404,3 +404,16 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
 Env.escapeRegexp = function(str) {
   return str.replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
 };
+
+// Utility function to link to a profile page given a player name
+Env.buildProfileLink = function(playerName, textOnly) {
+  var url = 'profile.html?player=' + encodeURIComponent(playerName);
+  if (textOnly) {
+    return url;
+  } else {
+    return $('<a>', {
+      'href': url,
+      'text': playerName,
+    });
+  }
+};
