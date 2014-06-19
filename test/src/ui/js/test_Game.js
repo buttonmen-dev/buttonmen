@@ -1319,3 +1319,21 @@ test("test_Game.reactToInitiativeSuccessMsg", function() {
     Env.message.text, 'Successfully gained initiative using focus dice',
     'Correct message text when focus turndown gains initiative');
 });
+
+asyncTest("test_Game.dieFocusOutlineHandler", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    var item = $('#playerIdx_0_dieIdx_0');
+
+    var tabPress = jQuery.Event('keyup');
+    tabPress.which = 9;
+
+    ok($('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+      "Focus outline is hidden before tab is invoked on another die");
+    item.trigger(tabPress);
+    ok(!$('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+      "Focus outline is not hidden after tab is invoked on another die");
+    start();
+  });
+});
