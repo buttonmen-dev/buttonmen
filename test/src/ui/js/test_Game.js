@@ -559,7 +559,7 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    deepEqual(item.className, 'die_container die_alive selected',
+    deepEqual(item.className, 'hide_focus die_container die_alive selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     ok(item.innerHTML.match('selected'),
@@ -1318,4 +1318,22 @@ test("test_Game.reactToInitiativeSuccessMsg", function() {
   equal(
     Env.message.text, 'Successfully gained initiative using focus dice',
     'Correct message text when focus turndown gains initiative');
+});
+
+asyncTest("test_Game.dieFocusOutlineHandler", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    var item = $('#playerIdx_0_dieIdx_0');
+
+    var tabPress = jQuery.Event('keyup');
+    tabPress.which = 9;
+
+    ok($('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+      "Focus outline is hidden before tab is invoked on another die");
+    item.trigger(tabPress);
+    ok(!$('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+      "Focus outline is not hidden after tab is invoked on another die");
+    start();
+  });
 });

@@ -1947,9 +1947,10 @@ Game.gamePlayerDice = function(player, player_active) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        containerDivOpts.class = 'die_container die_alive selected';
+        containerDivOpts.class = 'hide_focus die_container die_alive selected';
       } else {
-        containerDivOpts.class = 'die_container die_alive unselected_' + player;
+        containerDivOpts.class =
+          'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
       divOpts.class = 'die_img';
@@ -1971,6 +1972,7 @@ Game.gamePlayerDice = function(player, player_active) {
           Game.form
         );
       }
+      Game.dieFocusOutlineHandler(dieContainerDiv);
     } else {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       divOpts.class = 'die_img die_greyed';
@@ -2299,4 +2301,14 @@ Game.waitingOnPlayerNames = function() {
   }
 
   return (waitingPlayers.join(' and '));
+};
+
+// if tab is released while focused on any die (i.e. if we tab to
+// any die), remove the hide_focus class from all dice
+Game.dieFocusOutlineHandler = function(element) {
+  element.keyup(function(eventData) {
+    if (eventData.which == Env.KEYCODE_TAB) {
+      $('.die_container').removeClass('hide_focus');
+    }
+  });
 };
