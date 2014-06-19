@@ -2272,7 +2272,8 @@ class BMGame {
                   'sideScoreArray'             => $this->get_sideScoreArray(),
                   'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
                   'gameScoreArrayArray'        => $this->gameScoreArrayArray,
-                  'lastActionTimeArray'        => $this->lastActionTimeArray);
+                  'lastActionTimeArray'        => $this->lastActionTimeArray,
+                  'canStillWinArray'           => $this->get_canStillWinArray());
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
@@ -2708,5 +2709,51 @@ class BMGame {
             $gameSkillsInfo[$skillType] = BMSkill::describe($skillType, $gameSkillsList);
         }
         return $gameSkillsInfo;
+    }
+
+    protected function get_canStillWinArray() {
+        $canStillWinArray = array_fill(0, $this->nPlayers, NULL);
+
+        if ($this->has_skill_that_prevents_win_determination() ||
+            ($this->gameState <= BMGameState::SPECIFY_DICE)) {
+            return $canStillWinArray;
+        }
+
+        $sideScoreArray = $this->get_sideScoreArray();
+        $sidesArray = $this->get_sidesArrayArray(0);
+
+        for ($playerIdx = 0; $playerIdx < $this->nPlayers; $playerIdx++) {
+            $opponentIdx = ($playerIdx + 1) % 2;
+            $canStillWinArray[$playerIdx] =
+                ($sideScoreArray[$playerIdx] + array_sum($sidesArray[$opponentIdx])) >= 0;
+        }
+
+        return $canStillWinArray;
+    }
+
+    protected function has_skill_that_prevents_win_determination() {
+        if (empty($this->activeDieArrayArray)) {
+            return FALSE;
+        }
+
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            if (empty($activeDieArray)) {
+                continue;
+            }
+
+            foreach ($activeDieArray as $activeDie) {
+                if (empty($activeDie->skillList)) {
+                    continue;
+                }
+
+                foreach ($activeDie->skillList as $skill) {
+                    if ($skill::prevents_win_determination()) {
+                        return TRUE;
+                    }
+                }
+            }
+        }
+
+        return FALSE;
     }
 }
