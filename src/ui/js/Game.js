@@ -1949,7 +1949,8 @@ Game.gamePlayerDice = function(player, player_active) {
           (Game.activity.dieSelectStatus[dieIndex])) {
         containerDivOpts.class = 'hide_focus die_container die_alive selected';
       } else {
-        containerDivOpts.class = 'hide_focus die_container die_alive unselected_' + player;
+        containerDivOpts.class =
+          'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
       divOpts.class = 'die_img';
