@@ -709,6 +709,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      */
     public function test_do_next_step_determine_initiative() {
         $this->object->gameState = BMGameState::DETERMINE_INITIATIVE;
+        $this->object->gameScoreArrayArray = array(array(0,0,0), array(0,0,0));
         $die1 = BMDie::create(1, array());
         $die1->value = 1;
         $die2 = BMDie::create(2, array());
@@ -5557,17 +5558,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->do_next_step();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
-        $this->assertCount(1, $game->actionLog);
-        $this->assertObjectHasAttribute('params', $game->actionLog[0]);
-        $this->assertArrayHasKey('attackType', $game->actionLog[0]->params);
-        $this->assertArrayHasKey('preAttackDice', $game->actionLog[0]->params);
-        $this->assertArrayHasKey('postAttackDice', $game->actionLog[0]->params);
-        $this->assertArrayHasKey('attacker', $game->actionLog[0]->params['postAttackDice']);
-        $this->assertCount(1, $game->actionLog[0]->params['postAttackDice']['attacker']);
-        $this->assertEquals(10, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['max']);
-        $this->assertEquals('p(10)', $game->actionLog[0]->params['postAttackDice']['attacker'][0]['recipe']);
-        $this->assertLessThanOrEqual(10, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['value']);
-        $this->assertGreaterThanOrEqual(1, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertCount(2, $game->actionLog);
+        $this->assertEquals('determine_initiative', $game->actionLog[0]->actionType);
+        $this->assertEquals('attack', $game->actionLog[1]->actionType);
+        $this->assertObjectHasAttribute('params', $game->actionLog[1]);
+        $this->assertArrayHasKey('attackType', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('preAttackDice', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('postAttackDice', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('attacker', $game->actionLog[1]->params['postAttackDice']);
+        $this->assertCount(1, $game->actionLog[1]->params['postAttackDice']['attacker']);
+        $this->assertEquals(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['max']);
+        $this->assertEquals('p(10)', $game->actionLog[1]->params['postAttackDice']['attacker'][0]['recipe']);
+        $this->assertLessThanOrEqual(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
@@ -5576,17 +5579,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
-        $this->assertCount(1, $game->actionLog);
-        $this->assertObjectHasAttribute('params', $game->actionLog[0]);
-        $this->assertArrayHasKey('attackType', $game->actionLog[0]->params);
-        $this->assertArrayHasKey('preAttackDice', $game->actionLog[0]->params);
-        $this->assertArrayHasKey('postAttackDice', $game->actionLog[0]->params);
-        $this->assertArrayHasKey('attacker', $game->actionLog[0]->params['postAttackDice']);
-        $this->assertCount(1, $game->actionLog[0]->params['postAttackDice']['attacker']);
-        $this->assertEquals(10, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['max']);
-        $this->assertEquals('p(10)', $game->actionLog[0]->params['postAttackDice']['attacker'][0]['recipe']);
-        $this->assertLessThanOrEqual(10, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['value']);
-        $this->assertGreaterThanOrEqual(1, $game->actionLog[0]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertCount(2, $game->actionLog);
+        $this->assertEquals('determine_initiative', $game->actionLog[0]->actionType);
+        $this->assertEquals('attack', $game->actionLog[1]->actionType);
+        $this->assertObjectHasAttribute('params', $game->actionLog[1]);
+        $this->assertArrayHasKey('attackType', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('preAttackDice', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('postAttackDice', $game->actionLog[1]->params);
+        $this->assertArrayHasKey('attacker', $game->actionLog[1]->params['postAttackDice']);
+        $this->assertCount(1, $game->actionLog[1]->params['postAttackDice']['attacker']);
+        $this->assertEquals(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['max']);
+        $this->assertEquals('p(10)', $game->actionLog[1]->params['postAttackDice']['attacker'][0]['recipe']);
+        $this->assertLessThanOrEqual(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
 
         $game->proceed_to_next_user_action();
 
@@ -8102,17 +8107,20 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->proceed_to_next_user_action();
 
-        $this->assertCount(2, $game->actionLog);
-        $this->assertObjectHasAttribute('params', $game->actionLog[1]);
-        $this->assertArrayHasKey('attackType', $game->actionLog[1]->params);
-        $this->assertArrayHasKey('preAttackDice', $game->actionLog[1]->params);
-        $this->assertArrayHasKey('postAttackDice', $game->actionLog[1]->params);
-        $this->assertArrayHasKey('attacker', $game->actionLog[1]->params['postAttackDice']);
-        $this->assertCount(1, $game->actionLog[1]->params['postAttackDice']['attacker']);
-        $this->assertEquals(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['max']);
-        $this->assertEquals('(10)', $game->actionLog[1]->params['postAttackDice']['attacker'][0]['recipe']);
-        $this->assertLessThanOrEqual(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
-        $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertCount(3, $game->actionLog);
+        $this->assertEquals('determine_initiative', $game->actionLog[0]->actionType);
+        $this->assertEquals('attack', $game->actionLog[1]->actionType);
+        $this->assertEquals('attack', $game->actionLog[2]->actionType);
+        $this->assertObjectHasAttribute('params', $game->actionLog[2]);
+        $this->assertArrayHasKey('attackType', $game->actionLog[2]->params);
+        $this->assertArrayHasKey('preAttackDice', $game->actionLog[2]->params);
+        $this->assertArrayHasKey('postAttackDice', $game->actionLog[2]->params);
+        $this->assertArrayHasKey('attacker', $game->actionLog[2]->params['postAttackDice']);
+        $this->assertCount(1, $game->actionLog[2]->params['postAttackDice']['attacker']);
+        $this->assertEquals(10, $game->actionLog[2]->params['postAttackDice']['attacker'][0]['max']);
+        $this->assertEquals('(10)', $game->actionLog[2]->params['postAttackDice']['attacker'][0]['recipe']);
+        $this->assertLessThanOrEqual(10, $game->actionLog[2]->params['postAttackDice']['attacker'][0]['value']);
+        $this->assertGreaterThanOrEqual(1, $game->actionLog[2]->params['postAttackDice']['attacker'][0]['value']);
 
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -8833,3 +8841,4 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
     }
 }
+

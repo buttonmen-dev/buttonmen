@@ -345,6 +345,54 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             "gameaction02 chose not to use auxiliary dice in this game: neither player will get an auxiliary die"
         );
     }
+
+    /**
+     * @covers BMGameAction::friendly_message_determine_initiative()
+     */
+    public function test_friendly_message_determine_initiative() {
+        $testParams = array(
+            'roundNumber' => 1,
+            'playerData' => array(
+                '1' => array(
+                    'initiativeDice' => array(
+                        array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):3', 'included' => true),
+                        array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):1', 'included' => true),
+                    ),
+                    'slowButton' => false,
+                ),
+                '2' => array(
+                    'initiativeDice' => array(
+                        array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):2', 'included' => true),
+                        array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):2', 'included' => true),
+                    ),
+                    'slowButton' => false,
+                ),
+            ),
+            'initiativeWinnerId' => 1,
+        );
+
+        $this->object = new BMGameAction(26, 'determine_initiative', 0, $testParams);
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction01 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2]."
+        );
+
+        $testParams['playerData']['1']['slowButton'] = true;
+        $testParams['initiativeWinnerId'] = 2;
+        $this->object = new BMGameAction(26, 'determine_initiative', 0, $testParams);
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2]. gameaction01's button has the \"slow\" button special, and cannot win initiative normally."
+        );
+
+        $testParams['playerData']['2']['slowButton'] = true;
+        $testParams['tiedPlayerIds'] = array(1, 2);
+        $this->object = new BMGameAction(26, 'determine_initiative', 0, $testParams);
+        $this->assertEquals(
+            $this->object->friendly_message($this->playerIdNames, 0, 0),
+            "gameaction02 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2]. Both buttons have the \"slow\" button special, and cannot win initiative normally. Initiative was determined by a coin flip."
+        );
+    }
 }
 
 ?>
