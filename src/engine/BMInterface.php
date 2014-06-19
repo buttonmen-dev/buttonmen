@@ -797,10 +797,6 @@ class BMInterface {
                 }
             }
         }
-
-        if (!isset($game->optRequestArrayArray)) {
-            $game->optValueArrayArray = NULL;
-        }
     }
 
     public function save_game(BMGame $game) {
