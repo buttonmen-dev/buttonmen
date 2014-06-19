@@ -8,7 +8,7 @@ class BMSkillSlow extends BMSkill {
             return;
         }
 
-        // stinger dice don't contribute to initiative
+        // slow dice don't contribute to initiative
         $args['initiativeValue'] = 0;
     }
 
