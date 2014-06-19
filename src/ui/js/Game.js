@@ -1427,12 +1427,17 @@ Game.pageAddSkillListFooter = function() {
     });
 
     if (!(firstSkill)) {
-      gameSkillDiv.append(', ');
+      gameSkillDiv.append('&nbsp;&nbsp;');
     }
     gameSkillDiv.append($('<span>', {
       'text': skill,
       'title': skillDesc,
       'class': 'skill_desc',
+    }));
+    gameSkillDiv.append($('<span>', {
+      'text': 'i',
+      'title': skillDesc,
+      'class': 'skill_desc_i',
     }));
     firstSkill = false;
   });

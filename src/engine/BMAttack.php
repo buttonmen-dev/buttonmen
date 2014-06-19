@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BMAttack: attack validation and commital code.
+ * BMAttack: attack validation and committal code
  *
  * @author Julian
  */
