@@ -623,11 +623,25 @@ class BMGame {
         $this->playerWithInitiativeIdx = $tempInitiativeIdx;
         $actionLogInfo['initiativeWinnerId'] = $this->playerIdArray[$this->playerWithInitiativeIdx];
 
-        $this->log_action(
-            'determine_initiative',
-            0,
-            $actionLogInfo
-        );
+        // if this is an initiative redetermination following a focus turndown or chance reroll,
+        // we don't need to make another log entry.  Inspect any previous log entries made during
+        // this player action to find out whether that is the case.
+        $initReactSeen = FALSE;
+        if (count($this->actionLog) > 0) {
+            foreach ($this->actionLog as $prevEntry) {
+                if ($prevEntry->actionType == 'turndown_focus' ||
+                    $prevEntry->actionType == 'reroll_chance') {
+                    $initReactSeen = TRUE;
+                }
+            }
+        }
+        if (!$initReactSeen) {
+            $this->log_action(
+                'determine_initiative',
+                0,
+                $actionLogInfo
+            );
+        }
     }
 
     protected function update_game_state_determine_initiative() {
