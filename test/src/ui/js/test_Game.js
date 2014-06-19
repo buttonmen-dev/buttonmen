@@ -559,7 +559,7 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    deepEqual(item.className, 'die_container die_alive selected',
+    deepEqual(item.className, 'hide_focus die_container die_alive selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     ok(item.innerHTML.match('selected'),

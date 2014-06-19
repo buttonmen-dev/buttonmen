@@ -293,6 +293,12 @@ select.center {
     border: 2px solid red;
 }
 
+/* class for making the element focus outline invisible:
+ * default is visible when this class is not present */
+.hide_focus {
+    outline: 0;
+}
+
 span.skill_desc {
     border-bottom: 1px dotted #000000;
     text-decoration: none;

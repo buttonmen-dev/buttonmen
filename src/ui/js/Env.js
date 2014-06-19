@@ -4,6 +4,7 @@ if (!(Env)) {
 }
 
 // Keycodes for use when handling keyboard events
+Env.KEYCODE_TAB = 9;
 Env.KEYCODE_RETURN = 13;
 Env.KEYCODE_SPACEBAR = 32;
 
