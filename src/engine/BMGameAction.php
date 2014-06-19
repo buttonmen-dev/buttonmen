@@ -312,6 +312,58 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_determine_initiative() {
+
+        // Summary first: who won initiative
+        $message = $this->outputPlayerIdNames[$this->params['initiativeWinnerId']] .
+                   ' won initiative for round ' . $this->params['roundNumber'] . '.';
+
+        // Now report all the initial die rolls without commentary
+        $message .= ' Initial die values: ';
+        $dieRollStrs = array();
+        $slowButtonPlayers = array();
+        $slowDice = array();
+        foreach ($this->params['playerData'] as $playerId => $playerData) {
+            $dieVals = array();
+            $slowDice[$playerId] = array();
+            foreach ($playerData['initiativeDice'] as $initDie) {
+                $dieVals[] = $initDie['recipeStatus'];
+                if (!$initDie['included']) {
+                    $slowDice[$playerId][] = $initDie['recipe'];
+                }
+            }
+            $dieRollStrs[] = $this->outputPlayerIdNames[$playerId] . ' rolled [' .
+                             implode(', ', $dieVals) . ']';
+            if ($playerData['slowButton']) {
+                $slowButtonPlayers[] = $playerId;
+            }
+        }
+        $message .= implode(', ', $dieRollStrs) . '.';
+
+        // Now report on slow buttons and dice: assume a 2-player game for now
+        if (count($slowButtonPlayers) == 2) {
+            $message .= ' Both buttons have the "slow" button special, and cannot win initiative normally.';
+        } elseif (count($slowButtonPlayers) == 1) {
+            $message .= ' ' . $this->outputPlayerIdNames[$slowButtonPlayers[0]] .
+                        '\'s button has the "slow" button special, and cannot win initiative normally.';
+        } else {
+            foreach ($slowDice as $playerId => $playerSlowDice) {
+                if (count($playerSlowDice) > 0) {
+                    $message .= ' ' . $this->outputPlayerIdNames[$playerId] .
+                                ' has dice which are not counted for initiative due to die skills: [' .
+                                implode(', ', $playerSlowDice) . '].';
+                }
+            }
+        }
+
+        // Last, if initiative was resolved by coin flip, say that.
+        if (array_key_exists('tiedPlayerIds', $this->params)) {
+            $message .= ' Initiative was determined by a coin flip.';
+        }
+
+        return $message;
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
