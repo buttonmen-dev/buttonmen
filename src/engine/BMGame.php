@@ -2265,6 +2265,7 @@ class BMGame {
         foreach ($this->playerIdArray as $playerIdx => $playerId) {
             $playerData = array(
                 'playerId'         => $playerId,
+                'button'           => $this->get_buttonInfo($playerIdx),
                 'waitingOnAction'  => $this->waitingOnActionArray[$playerIdx],
                 'roundScore'       => $roundScoreArray[$playerIdx],
                 'sideScore'        => $sideScoreArray[$playerIdx],
@@ -2283,9 +2284,6 @@ class BMGame {
 
         $dataArray =
             array(
-                  'buttonNameArray'            => $this->get_buttonNameArray(),
-                  'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
-                  'buttonArtFilenameArray'     => $this->get_buttonArtFilenameArray(),
                   'nDieArray'                  => $this->get_nDieArray(),
                   'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
                   'sidesArrayArray'            => $this->get_sidesArrayArray($requestingPlayerIdx),
@@ -2323,46 +2321,21 @@ class BMGame {
         return $activeDieArrayArray;
     }
 
-    protected function get_buttonNameArray() {
-        $buttonNameArray = array();
-
-        foreach ($this->buttonArray as $button) {
-            $buttonName = '';
+    protected function get_buttonInfo($playerIdx) {
+        $buttonInfo = array(
+            'name' => '',
+            'recipe' => '',
+            'artFilename' => '',
+        );
+        if (count($this->buttonArray) > $playerIdx) {
+            $button = $this->buttonArray[$playerIdx];
             if ($button instanceof BMButton) {
-                $buttonName = $button->name;
+                $buttonInfo['name'] = $button->name;
+                $buttonInfo['recipe'] = $button->recipe;
+                $buttonInfo['artFilename'] = $button->artFilename;
             }
-            $buttonNameArray[] = $buttonName;
         }
-
-        return $buttonNameArray;
-    }
-
-    protected function get_buttonRecipeArray() {
-        $buttonRecipeArray = array();
-
-        foreach ($this->buttonArray as $button) {
-            $buttonRecipe = '';
-            if ($button instanceof BMButton) {
-                $buttonRecipe = $button->recipe;
-            }
-            $buttonRecipeArray[] = $buttonRecipe;
-        }
-
-        return $buttonRecipeArray;
-    }
-
-    protected function get_buttonArtFilenameArray() {
-        $buttonArtFilenameArray = array();
-
-        foreach ($this->buttonArray as $button) {
-            $buttonArtFilename = '';
-            if ($button instanceof BMButton) {
-                $buttonArtFilename = $button->artFilename;
-            }
-            $buttonArtFilenameArray[] = $buttonArtFilename;
-        }
-
-        return $buttonArtFilenameArray;
+        return $buttonInfo;
     }
 
     protected function get_nDieArray() {

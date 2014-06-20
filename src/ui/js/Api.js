@@ -441,11 +441,9 @@ var Api = (function () {
       'gameScoreDict': playerData.gameScoreArray,  // FIXME
       'lastActionTime': playerData.lastActionTime,
       'canStillWin': playerData.canStillWin,
+      'button': playerData.button,
+      'buttonName': playerData.button.name, // FIXME
 
-      'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
-      'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
-      'buttonArtFilename':
-        my.game.gameData.data.buttonArtFilenameArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
       'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
       'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],

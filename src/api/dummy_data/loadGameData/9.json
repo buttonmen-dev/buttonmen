@@ -21,6 +21,11 @@
     {
       "playerId": 1,
       "playerName": "tester1",
+      "button": {
+        "name": "John Kovalic",
+        "recipe": "(6) c(6) (10) (12) c(20)",
+        "artFilename": "johnkovalic.png"
+      },
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -31,6 +36,11 @@
     {
       "playerId": 2,
       "playerName": "tester2",
+      "button": {
+        "name": "John Kovalic",
+        "recipe": "(6) c(6) (10) (12) c(20)",
+        "artFilename": "johnkovalic.png"
+      },
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -42,9 +52,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "buttonNameArray": ["John Kovalic", "John Kovalic"],
-      "buttonRecipeArray": ["(6) c(6) (10) (12) c(20)", "(6) c(6) (10) (12) c(20)"],
-      "buttonArtFilenameArray": ["johnkovalic.png", "johnkovalic.png"],
       "nDieArray": [5, 5],
       "valueArrayArray": [[2, 4, 2, 3, 18], [4, 3, 6, 5, 4]],
       "sidesArrayArray": [[6, 6, 10, 12, 20], [6, 6, 10, 12, 20]],

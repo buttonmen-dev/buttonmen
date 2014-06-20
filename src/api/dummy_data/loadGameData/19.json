@@ -15,6 +15,11 @@
     {
       "playerId": 1,
       "playerName": "tester1",
+      "button": {
+        "name": "Apples",
+        "recipe": "(8) (8) (2\/12) (8\/16) (20\/24)",
+        "artFilename": "apples.png"
+      },
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -25,6 +30,11 @@
     {
       "playerId": 2,
       "playerName": "tester2",
+      "button": {
+        "name": "Apples",
+        "recipe": "(8) (8) (2\/12) (8\/16) (20\/24)",
+        "artFilename": "apples.png"
+      },
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -36,9 +46,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "buttonNameArray": ["Apples", "Apples"],
-      "buttonRecipeArray": ["(8) (8) (2\/12) (8\/16) (20\/24)", "(8) (8) (2\/12) (8\/16) (20\/24)"],
-      "buttonArtFilenameArray": ["apples.png", "apples.png"],
       "nDieArray": [5, 5],
       "valueArrayArray": [[4, 3, null, null, null], [2, 4, null, null, null]],
       "sidesArrayArray": [[6, 6, null, null, null], [6, 6, null, null, null]],

@@ -1326,9 +1326,9 @@ Game.showFullLogHistory = function() {
 Game.pageAddGameHeader = function(action_desc) {
   var gameTitle =
     'Game #' + Api.game.gameId + Game.SPACE_BULLET +
-      Api.game.player.playerName + ' (' + Api.game.player.buttonName +
+      Api.game.player.playerName + ' (' + Api.game.player.button.name +
       ') vs. ' + Api.game.opponent.playerName + ' (' +
-      Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
+      Api.game.opponent.button.name + ') ' + Game.SPACE_BULLET +
       'Round #' + Api.game.roundNumber;
   $('title').html('Button Men Online &mdash; ' + gameTitle);
 
@@ -1799,10 +1799,10 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].gameScoreStr,
   });
   var buttonInfo = $('<div>', {
-    'text': 'Button: ' + Api.game[player].buttonName,
+    'text': 'Button: ' + Api.game[player].button.name,
   });
   var buttonRecipe = $('<div>', {
-    'text': Api.game[player].buttonRecipe,
+    'text': Api.game[player].button.recipe,
   });
 
   if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
@@ -1818,7 +1818,7 @@ Game.buttonImageDisplay = function(player) {
   } else {
     buttonTd.append($('<img>', {
       'src':
-        Env.ui_root + 'images/button/' + Api.game[player].buttonArtFilename,
+        Env.ui_root + 'images/button/' + Api.game[player].button.artFilename,
       'width': '150px',
     }));
   }

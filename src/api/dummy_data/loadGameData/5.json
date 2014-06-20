@@ -47,6 +47,11 @@
     {
       "playerId": 1,
       "playerName": "tester1",
+      "button": {
+        "name": "Avis",
+        "recipe": "(4) (4) (10) (12) (X)",
+        "artFilename": "avis.png"
+      },
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -57,6 +62,11 @@
     {
       "playerId": 2,
       "playerName": "tester2",
+      "button": {
+        "name": "Avis",
+        "recipe": "(4) (4) (10) (12) (X)",
+        "artFilename": "avis.png"
+      },
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -68,9 +78,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "buttonNameArray": ["Avis", "Avis"],
-      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
-      "buttonArtFilenameArray": ["avis.png", "avis.png"],
       "nDieArray": [0, 0],
       "valueArrayArray": [[], []],
       "sidesArrayArray": [[], []],

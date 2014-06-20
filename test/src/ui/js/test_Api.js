@@ -301,6 +301,11 @@ asyncTest("test_Api.parseGamePlayerData", function() {
               "last action time should be parsed from API response");
     deepEqual(Api.game.player.canStillWin, null,
               "'can still win' should be parsed from API response");
+    deepEqual(Api.game.player.button, {
+                'name': 'Avis',
+                'recipe': '(4) (4) (10) (12) (X)',
+                'artFilename': 'avis.png',
+              }, "recipe data should be parsed from API response");
 
     deepEqual(Api.game.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
               "player die recipe array should be parsed correctly");

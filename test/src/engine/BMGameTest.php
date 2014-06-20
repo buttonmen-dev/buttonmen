@@ -2767,7 +2767,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($out1['playerWithInitiativeIdx']);
         $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
         $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
-        $this->assertEquals(array('Bauer', 'Stark'), $out1['data']['buttonNameArray']);
+        $this->assertEquals('Bauer', $out1['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Stark', $out1['playerDataArray'][1]['button']['name']);
         $this->assertEquals(FALSE, $out1['playerDataArray'][0]['waitingOnAction']);
         $this->assertEquals(TRUE, $out1['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
@@ -2841,7 +2842,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($out2['playerWithInitiativeIdx']);
         $this->assertEquals(123, $out2['playerDataArray'][0]['playerId']);
         $this->assertEquals(456, $out2['playerDataArray'][1]['playerId']);
-        $this->assertEquals(array('Bauer', 'Stark'), $out2['data']['buttonNameArray']);
+        $this->assertEquals('Bauer', $out2['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Stark', $out2['playerDataArray'][1]['button']['name']);
         $this->assertEquals(FALSE, $out2['playerDataArray'][0]['waitingOnAction']);
         $this->assertEquals(TRUE, $out2['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out2['data']['nDieArray']);
@@ -2929,7 +2931,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         );
         $this->assertEquals(123, $out3['playerDataArray'][0]['playerId']);
         $this->assertEquals(456, $out3['playerDataArray'][1]['playerId']);
-        $this->assertEquals(array('Bauer', 'Stark'), $out3['data']['buttonNameArray']);
+        $this->assertEquals('Bauer', $out3['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Stark', $out3['playerDataArray'][1]['button']['name']);
         $this->assertEquals(0 === $out3['activePlayerIdx'], $out3['playerDataArray'][0]['waitingOnAction']);
         $this->assertEquals(1 === $out3['activePlayerIdx'], $out3['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out3['data']['nDieArray']);
@@ -3118,7 +3121,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($out1['playerWithInitiativeIdx']);
         $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
         $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
-        $this->assertEquals(array('Bauer', 'Tweedledum+dee'), $out1['data']['buttonNameArray']);
+        $this->assertEquals('Bauer', $out1['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Tweedledum+dee', $out1['playerDataArray'][1]['button']['name']);
         $this->assertEquals(TRUE, $out1['playerDataArray'][0]['waitingOnAction']);
         $this->assertEquals(FALSE, $out1['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
@@ -3213,7 +3217,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($out1['playerWithInitiativeIdx']);
         $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
         $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
-        $this->assertEquals(array('Apples', 'Green Apple'), $out1['data']['buttonNameArray']);
+        $this->assertEquals('Apples', $out1['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Green Apple', $out1['playerDataArray'][1]['button']['name']);
         $this->assertEquals(TRUE, $out1['playerDataArray'][0]['waitingOnAction']);
         $this->assertEquals(FALSE, $out1['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
@@ -3291,7 +3296,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($out2['playerWithInitiativeIdx']);
         $this->assertEquals(123, $out2['playerDataArray'][0]['playerId']);
         $this->assertEquals(456, $out2['playerDataArray'][1]['playerId']);
-        $this->assertEquals(array('Apples', 'Green Apple'), $out2['data']['buttonNameArray']);
+        $this->assertEquals('Apples', $out2['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Green Apple', $out2['playerDataArray'][1]['button']['name']);
         $this->assertEquals(TRUE, $out2['playerDataArray'][0]['waitingOnAction']);
         $this->assertEquals(FALSE, $out2['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out2['data']['nDieArray']);

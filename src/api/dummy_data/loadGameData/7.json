@@ -21,6 +21,11 @@
     {
       "playerId": 1,
       "playerName": "tester1",
+      "button": {
+        "name": "Crab",
+        "recipe": "(8) (10) (12) f(20) f(20)",
+        "artFilename": "crab.png"
+      },
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -31,6 +36,11 @@
     {
       "playerId": 2,
       "playerName": "tester2",
+      "button": {
+        "name": "Crab",
+        "recipe": "(8) (10) (12) f(20) f(20)",
+        "artFilename": "crab.png"
+      },
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -42,9 +52,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "buttonNameArray": ["Crab", "Crab"],
-      "buttonRecipeArray": ["(8) (10) (12) f(20) f(20)", "(8) (10) (12) f(20) f(20)"],
-      "buttonArtFilenameArray": ["crab.png", "crab.png"],
       "nDieArray": [5, 5],
       "valueArrayArray": [[1, 8, 10, 6, 18], [4, 7, 5, 1, 12]],
       "sidesArrayArray": [[8, 10, 12, 20, 20], [8, 10, 12, 20, 20]],
