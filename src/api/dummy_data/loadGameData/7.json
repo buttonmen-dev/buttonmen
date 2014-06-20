@@ -1,0 +1,53 @@
+{
+  "gameData": {
+    "status": "ok",
+    "data": {
+      "roundNumber": 1,
+      "maxWins": 3,
+      "activePlayerIdx": null,
+      "playerWithInitiativeIdx": 1,
+      "playerIdArray": [1, 2],
+      "buttonNameArray": ["Crab", "Crab"],
+      "buttonRecipeArray": ["(8) (10) (12) f(20) f(20)", "(8) (10) (12) f(20) f(20)"],
+      "buttonArtFilenameArray": ["crab.png", "crab.png"],
+      "waitingOnActionArray": [true, false],
+      "nDieArray": [5, 5],
+      "valueArrayArray": [[1, 8, 10, 6, 18], [4, 7, 5, 1, 12]],
+      "sidesArrayArray": [[8, 10, 12, 20, 20], [8, 10, 12, 20, 20]],
+      "dieSkillsArrayArray": [[[], [], [], {"Focus": true}, {"Focus": true}], [[], [], [], {"Focus": true}, {"Focus": true}]],
+      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "dieRecipeArrayArray": [["(8)", "(10)", "(12)", "f(20)", "f(20)"], ["(8)", "(10)", "(12)", "f(20)", "f(20)"]],
+      "dieDescriptionArrayArray": [["8-sided die", "10-sided die", "12-sided die", "Focus 20-sided die", "Focus 20-sided die"], ["8-sided die", "10-sided die", "12-sided die", "Focus 20-sided die", "Focus 20-sided die"]],
+      "nCapturedDieArray": [0, 0],
+      "capturedValueArrayArray": [[], []],
+      "capturedSidesArrayArray": [[], []],
+      "capturedRecipeArrayArray": [[], []],
+      "capturedDiePropsArrayArray": [[], []],
+      "swingRequestArrayArray": [[], []],
+      "optRequestArrayArray": [[], []],
+      "prevSwingValueArrayArray": [[], []],
+      "prevOptValueArrayArray": [[], []],
+      "validAttackTypeArray": [],
+      "roundScoreArray": [null, null],
+      "sideScoreArray": [null, null],
+      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
+      "lastActionTimeArray": [0, 0],
+      "gameSkillsInfo": {
+        "Focus": {
+          "code": "f",
+          "description": "If you do not have the initiative at the start of a round you may reduce the values showing on one or more of your Focus Dice. You may only do this if it results in your gaining the initiative. If your opponent has Focus Dice, they may now do the same, and each player may respond by turning down one or more Focus Dice until no further moves are legal, or until one player allows the other to take the first turn. IMPORTANT:  If you go first, any Focus Dice you have reduced may not be used as part of your first attack. (The second player has no such restriction.)",
+          "interacts": []
+        }
+      },
+      "canStillWinArray": [null, null],
+      "gameId": 7,
+      "gameState": "REACT_TO_INITIATIVE"
+    }
+  },
+  "currentPlayerIdx": 0,
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "playerNameArray": ["tester1", "tester2"],
+  "gameChatEditable": false,
+  "timestamp": 1403221587
+}

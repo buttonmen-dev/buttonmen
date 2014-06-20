@@ -1,0 +1,79 @@
+{
+  "gameData": {
+    "status": "ok",
+    "data": {
+      "roundNumber": 6,
+      "maxWins": 3,
+      "activePlayerIdx": null,
+      "playerWithInitiativeIdx": 1,
+      "playerIdArray": [1, 2],
+      "buttonNameArray": ["Avis", "Avis"],
+      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
+      "buttonArtFilenameArray": ["avis.png", "avis.png"],
+      "waitingOnActionArray": [false, false],
+      "nDieArray": [0, 0],
+      "valueArrayArray": [[], []],
+      "sidesArrayArray": [[], []],
+      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "dieRecipeArrayArray": [[], []],
+      "dieDescriptionArrayArray": [[], []],
+      "nCapturedDieArray": [0, 0],
+      "capturedValueArrayArray": [[], []],
+      "capturedSidesArrayArray": [[], []],
+      "capturedRecipeArrayArray": [[], []],
+      "capturedDiePropsArrayArray": [[], []],
+      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
+      "optRequestArrayArray": [[], []],
+      "prevSwingValueArrayArray": [[], []],
+      "prevOptValueArrayArray": [[], []],
+      "validAttackTypeArray": [],
+      "roundScoreArray": [0, 0],
+      "sideScoreArray": [0, 0],
+      "gameScoreArrayArray": [{"W": 3, "L": 2, "D": 0}, {"W": 2, "L": 3, "D": 0}],
+      "lastActionTimeArray": [0, 0],
+      "gameSkillsInfo": [],
+      "canStillWinArray": [null, null],
+      "gameId": 5,
+      "gameState": "END_GAME"
+    }
+  },
+  "currentPlayerIdx": 0,
+  "gameActionLog": [
+    {
+      "timestamp": 1387500762,
+      "message": "End of round:  tester1 won round 5 (46 vs 30)"
+    },
+    {
+      "timestamp": 1387500762,
+      "message": "tester1 performed Power attack using [(X): 7] against [(4): 2]; Defender (4) was captured; Attacker (X) rerolled 7 => 4"
+    },
+    {
+      "timestamp": 1387500756,
+      "message": "tester2 passed"
+    },
+    {
+      "timestamp": 1387500753,
+      "message": "tester1 performed Power attack using [(X): 14] against [(10): 4]; Defender (10) was captured; Attacker (X) rerolled 14 => 7"
+    },
+    {
+      "timestamp": 1387500749,
+      "message": "tester2 performed Power attack using [(10): 10] against [(4): 4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"
+    }
+  ],
+  "gameChatLog": [
+    {
+      "timestamp": "2013-12-20 00:52:42",
+      "player": "tester1",
+      "message": "Pong."
+    },
+    {
+      "timestamp": "2013-12-20 00:52:29",
+      "player": "tester2",
+      "message": "Ping!"
+    }
+  ],
+  "playerNameArray": ["tester1", "tester2"],
+  "gameChatEditable": false,
+  "timestamp": 1403221276
+}
