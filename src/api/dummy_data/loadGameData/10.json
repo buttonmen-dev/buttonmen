@@ -1,16 +1,44 @@
 {
+  "gameId": 10,
+  "gameState": "SPECIFY_DICE",
+  "currentPlayerIdx": false,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": [],
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 3,
+      "playerName": "tester3",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
   "gameData": {
     "status": "ok",
     "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": null,
-      "playerWithInitiativeIdx": null,
-      "playerIdArray": [2, 3],
       "buttonNameArray": ["Avis", "Avis"],
       "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
       "buttonArtFilenameArray": ["avis.png", "avis.png"],
-      "waitingOnActionArray": [true, true],
       "nDieArray": [5, 5],
       "valueArrayArray": [[null, null, null, null, null], [null, null, null, null, null]],
       "sidesArrayArray": [[4, 4, 10, 12, null], [4, 4, 10, 12, null]],
@@ -26,22 +54,8 @@
       "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": [],
-      "roundScoreArray": [null, null],
-      "sideScoreArray": [null, null],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameId": 10,
-      "gameState": "SPECIFY_DICE"
+      "prevOptValueArrayArray": [[], []]
     }
   },
-  "currentPlayerIdx": false,
-  "playerNameArray": ["tester2", "tester3"],
-  "gameActionLog": [],
-  "gameChatLog": [],
-  "gameChatEditable": false,
   "timestamp": 1403222211
 }

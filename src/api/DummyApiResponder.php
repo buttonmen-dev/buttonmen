@@ -23,8 +23,11 @@ class DummyApiResponder {
         $this->spec = $spec;
         $this->isTest = $isTest;
 
-        if (!($this->isTest)) {
+        if ($this->isTest) {
+            $this->jsonFileRoot = BW_PHP_ROOT . "/api/dummy_data/";
+        } else {
             session_start();
+            $this->jsonFileRoot = "./dummy_data/";
         }
     }
 
@@ -51,7 +54,7 @@ class DummyApiResponder {
      * @return array tuple containing data on success or NULL on failure
      */
     protected function load_json_data_from_file($apiFunction, $fileName) {
-        $filePath = 'dummy_data/' . $apiFunction . '/' . $fileName;
+        $filePath = $this->jsonFileRoot . $apiFunction . '/' . $fileName;
         if (file_exists($filePath)) {
             try {
                 $file_data = file_get_contents($filePath);
@@ -65,7 +68,7 @@ class DummyApiResponder {
         } else {
             error_log(
                 "DummyApiResponder tried to read nonexistent file " . $fileName .
-                "in response to an API query for " . $apiFunction);
+                " in response to an API query for " . $apiFunction);
             return NULL;
         }
     }
@@ -708,7 +711,6 @@ class DummyApiResponder {
         }
 
         if ($data) {
-            error_log(var_export($data, $return = TRUE));
             if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
                 $data['gameActionLog'] =
                     array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);

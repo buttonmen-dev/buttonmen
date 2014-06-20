@@ -377,6 +377,13 @@ var Api = (function () {
   my.parseGameData = function(data) {
 
     // Store some initial high-level game elements
+    my.game.gameId = data.gameId;
+    my.game.gameState = data.gameState;
+    my.game.roundNumber = data.roundNumber;
+    my.game.maxWins = data.maxWins;
+    my.game.validAttackTypeArray = data.validAttackTypeArray;
+    my.game.gameSkillsInfo = data.gameSkillsInfo;
+
     my.game.gameData = data.gameData;
     my.game.timestamp = data.timestamp;
     my.game.actionLog = data.gameActionLog;
@@ -390,7 +397,7 @@ var Api = (function () {
     if (my.game.gameData.status != 'ok') {
       return false;
     }
-    if (activity.gameId != my.game.gameData.data.gameId) {
+    if (activity.gameId != my.game.gameId) {
       return false;
     }
 
@@ -399,14 +406,6 @@ var Api = (function () {
     } else {
       my.game.isParticipant = false;
     }
-
-    // Parse some top-level items from gameData
-    my.game.gameId = my.game.gameData.data.gameId;
-    my.game.roundNumber = my.game.gameData.data.roundNumber;
-    my.game.maxWins = my.game.gameData.data.maxWins;
-    my.game.gameState = my.game.gameData.data.gameState;
-    my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
-    my.game.gameSkillsInfo = my.game.gameData.data.gameSkillsInfo;
 
     if (my.game.isParticipant) {
       my.game.playerIdx = data.currentPlayerIdx;
@@ -417,9 +416,10 @@ var Api = (function () {
     }
 
     my.game.player = my.parseGamePlayerData(
-                       my.game.playerIdx, data.playerNameArray);
+                       data.playerDataArray[my.game.playerIdx], my.game.playerIdx);
     my.game.opponent = my.parseGamePlayerData(
-                         my.game.opponentIdx, data.playerNameArray);
+                         data.playerDataArray[my.game.opponentIdx],
+                         my.game.opponentIdx);
 
     // Parse game WLT text into a string for convenience
     my.game.player.gameScoreStr = my.playerWLTText('player');
@@ -431,22 +431,21 @@ var Api = (function () {
   // Given a player index, parse all data out of the appropriate arrays,
   // and return it.  This function can be used for either the logged-in
   // player or the opponent.
-  my.parseGamePlayerData = function(playerIdx, playerNameArray) {
+  my.parseGamePlayerData = function(playerData, playerIdx) {
     var data = {
-      'playerId': my.game.gameData.data.playerIdArray[playerIdx],
-      'playerName': playerNameArray[playerIdx],
+      'playerId': playerData.playerId,
+      'playerName': playerData.playerName,
+      'waitingOnAction': playerData.waitingOnAction,
+      'roundScore': playerData.roundScore,
+      'sideScore': playerData.sideScore,
+      'gameScoreDict': playerData.gameScoreArray,  // FIXME
+      'lastActionTime': playerData.lastActionTime,
+      'canStillWin': playerData.canStillWin,
+
       'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
       'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
       'buttonArtFilename':
         my.game.gameData.data.buttonArtFilenameArray[playerIdx],
-      'waitingOnAction':
-        my.game.gameData.data.waitingOnActionArray[playerIdx],
-      'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
-      'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
-      'gameScoreDict':
-        my.game.gameData.data.gameScoreArrayArray[playerIdx],
-      'lastActionTime':
-        my.game.gameData.data.lastActionTimeArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
       'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
       'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
@@ -492,14 +491,14 @@ var Api = (function () {
     );
 
     // activePlayerIdx may be either player or may be null
-    if (my.game.gameData.data.activePlayerIdx == playerIdx) {
+    if (my.game.activePlayerIdx == playerIdx) {
       data.isActive = true;
     } else {
       data.isActive = false;
     }
 
     // playerWithInitiativeIdx may be either player or may be null
-    if (my.game.gameData.data.playerWithInitiativeIdx == playerIdx) {
+    if (my.game.playerWithInitiativeIdx == playerIdx) {
       data.hasInitiative = true;
     } else {
       data.hasInitiative = false;

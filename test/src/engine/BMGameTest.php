@@ -2757,15 +2757,19 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out1 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
-        $this->assertEquals(1, $out1['data']['roundNumber']);
-        $this->assertEquals(3, $out1['data']['maxWins']);
-        $this->assertNull($out1['data']['activePlayerIdx']);
-        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
+        $out1['data'] = $out1['gameData']['data'];
+        $this->assertEquals(424242, $out1['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['gameState']);
+        $this->assertEquals(1, $out1['roundNumber']);
+        $this->assertEquals(3, $out1['maxWins']);
+        $this->assertEquals(array(), $out1['gameSkillsInfo']);
+        $this->assertNull($out1['activePlayerIdx']);
+        $this->assertNull($out1['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
         $this->assertEquals(array('Bauer', 'Stark'), $out1['data']['buttonNameArray']);
-        $this->assertEquals(array(FALSE, TRUE), $out1['data']['waitingOnActionArray']);
+        $this->assertEquals(FALSE, $out1['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(TRUE, $out1['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
         $this->assertEquals(
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
@@ -2818,25 +2822,28 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out1['data']['swingRequestArrayArray']
         );
-        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out1['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(array(), $out1['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][1]['gameScoreArray']);
 
 
         $out2 = $game1->getJsonData(456);
-        $this->assertEquals(424242, $out2['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['data']['gameState']);
-        $this->assertEquals(1, $out2['data']['roundNumber']);
-        $this->assertEquals(3, $out2['data']['maxWins']);
-        $this->assertNull($out2['data']['activePlayerIdx']);
-        $this->assertNull($out2['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out2['data']['playerIdArray']);
+        $out2['data'] = $out2['gameData']['data'];
+        $this->assertEquals(424242, $out2['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['gameState']);
+        $this->assertEquals(1, $out2['roundNumber']);
+        $this->assertEquals(3, $out2['maxWins']);
+        $this->assertNull($out2['activePlayerIdx']);
+        $this->assertNull($out2['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out2['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out2['playerDataArray'][1]['playerId']);
         $this->assertEquals(array('Bauer', 'Stark'), $out2['data']['buttonNameArray']);
-        $this->assertEquals(array(FALSE, TRUE), $out2['data']['waitingOnActionArray']);
+        $this->assertEquals(FALSE, $out2['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(TRUE, $out2['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out2['data']['nDieArray']);
         $this->assertEquals(
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
@@ -2889,13 +2896,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out2['data']['swingRequestArrayArray']
         );
-        $this->assertEquals(array(), $out2['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out2['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(array(), $out2['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][1]['gameScoreArray']);
 
         // beginning of game
         // both players have specified the swing value
@@ -2903,24 +2910,28 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out3 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out3['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::START_TURN), $out3['data']['gameState']);
-        $this->assertEquals(1, $out3['data']['roundNumber']);
-        $this->assertEquals(3, $out3['data']['maxWins']);
-        $this->assertTrue(isset($out3['data']['activePlayerIdx']));
+        $out3['data'] = $out3['gameData']['data'];
+        $this->assertEquals(424242, $out3['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::START_TURN), $out3['gameState']);
+        $this->assertTrue(count($out3['validAttackTypeArray']) > 0,
+            "validAttackTypeArray should contain at least one attack type");
+        foreach ($out3['validAttackTypeArray'] as $idx => $attackType) {
+            $this->assertTrue(is_int($idx), "validAttackTypeArray keys should be indices");
+            $this->assertTrue(in_array($attackType, array("Power", "Skill", "Pass")),
+                "validAttackTypeArray values should be in known attack set for these buttons");
+        }
+        $this->assertEquals(1, $out3['roundNumber']);
+        $this->assertEquals(3, $out3['maxWins']);
+        $this->assertTrue(isset($out3['activePlayerIdx']));
         $this->assertEquals(
-            $out3['data']['activePlayerIdx'],
-            $out3['data']['playerWithInitiativeIdx']
+            $out3['activePlayerIdx'],
+            $out3['playerWithInitiativeIdx']
         );
-        $this->assertEquals(array(123, 456), $out3['data']['playerIdArray']);
+        $this->assertEquals(123, $out3['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out3['playerDataArray'][1]['playerId']);
         $this->assertEquals(array('Bauer', 'Stark'), $out3['data']['buttonNameArray']);
-        $this->assertEquals(
-            array(
-                0 === $out3['data']['activePlayerIdx'],
-                1 === $out3['data']['activePlayerIdx']
-            ),
-            $out3['data']['waitingOnActionArray']
-        );
+        $this->assertEquals(0 === $out3['activePlayerIdx'], $out3['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(1 === $out3['activePlayerIdx'], $out3['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out3['data']['nDieArray']);
         $this->assertTrue(isset($out3['data']['valueArrayArray'][0][0]));
         $this->assertTrue(isset($out3['data']['valueArrayArray'][0][1]));
@@ -2978,14 +2989,15 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out3['data']['swingRequestArrayArray']
         );
-        $this->assertEquals(array(27.5, 16), $out3['data']['roundScoreArray']);
-        $this->assertEquals(array(7.7, -7.7), $out3['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out3['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(27.5, $out3['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(16, $out3['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(7.7, $out3['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-7.7, $out3['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out3['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out3['playerDataArray'][1]['gameScoreArray']);
 
         $out4 = $game1->getJsonData(456);
+        $out4['data'] = $out4['gameData']['data'];
         $this->assertEquals(5, $out4['data']['sidesArrayArray'][0][4]);
         $this->assertEquals(7, $out4['data']['sidesArrayArray'][1][4]);
 
@@ -3000,10 +3012,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game2->proceed_to_next_user_action();
 
         $out5 = $game2->getJsonData(123);
+        $out5['data'] = $out5['gameData']['data'];
         $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
 
         $out6 = $game2->getJsonData(456);
+        $out6['data'] = $out6['gameData']['data'];
         $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
 
@@ -3018,10 +3032,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game2->proceed_to_next_user_action();
 
         $out5 = $game2->getJsonData(123);
+        $out5['data'] = $out5['gameData']['data'];
         $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
 
         $out6 = $game2->getJsonData(456);
+        $out6['data'] = $out6['gameData']['data'];
         $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
 
@@ -3036,10 +3052,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game3->proceed_to_next_user_action();
 
         $out5 = $game3->getJsonData(123);
+        $out5['data'] = $out5['gameData']['data'];
         $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
 
         $out6 = $game3->getJsonData(456);
+        $out6['data'] = $out6['gameData']['data'];
         $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
 
@@ -3062,6 +3080,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game4->proceed_to_next_user_action();
 
         $out7 = $game4->getJsonData(123);
+        $out7['data'] = $out7['gameData']['data'];
         $this->assertTrue(isset($out7['data']['swingRequestArrayArray']));
         $this->assertEquals(array(), $out7['data']['swingRequestArrayArray'][0]);
         $this->assertEquals(array('4', '20'), $out7['data']['swingRequestArrayArray'][1]['X']);
@@ -3090,15 +3109,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out1 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
-        $this->assertEquals(1, $out1['data']['roundNumber']);
-        $this->assertEquals(3, $out1['data']['maxWins']);
-        $this->assertNull($out1['data']['activePlayerIdx']);
-        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
+        $out1['data'] = $out1['gameData']['data'];
+        $this->assertEquals(424242, $out1['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['gameState']);
+        $this->assertEquals(1, $out1['roundNumber']);
+        $this->assertEquals(3, $out1['maxWins']);
+        $this->assertNull($out1['activePlayerIdx']);
+        $this->assertNull($out1['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
         $this->assertEquals(array('Bauer', 'Tweedledum+dee'), $out1['data']['buttonNameArray']);
-        $this->assertEquals(array(TRUE, FALSE), $out1['data']['waitingOnActionArray']);
+        $this->assertEquals(TRUE, $out1['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(FALSE, $out1['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
         $this->assertEquals(
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
@@ -3151,13 +3173,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array(array('X' => array(4, 20)), array('T' => array(2, 12))),
             $out1['data']['swingRequestArrayArray']
         );
-        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out1['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(array(), $out1['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][1]['gameScoreArray']);
     }
 
     /**
@@ -3182,15 +3204,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out1 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
-        $this->assertEquals(1, $out1['data']['roundNumber']);
-        $this->assertEquals(3, $out1['data']['maxWins']);
-        $this->assertNull($out1['data']['activePlayerIdx']);
-        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
+        $out1['data'] = $out1['gameData']['data'];
+        $this->assertEquals(424242, $out1['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['gameState']);
+        $this->assertEquals(1, $out1['roundNumber']);
+        $this->assertEquals(3, $out1['maxWins']);
+        $this->assertNull($out1['activePlayerIdx']);
+        $this->assertNull($out1['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
         $this->assertEquals(array('Apples', 'Green Apple'), $out1['data']['buttonNameArray']);
-        $this->assertEquals(array(TRUE, FALSE), $out1['data']['waitingOnActionArray']);
+        $this->assertEquals(TRUE, $out1['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(FALSE, $out1['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
         $this->assertEquals(
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
@@ -3248,24 +3273,27 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                         4 => array(12, 20))),
             $out1['data']['optRequestArrayArray']
         );
-        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out1['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(array(), $out1['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][1]['gameScoreArray']);
 
         $out2 = $game1->getJsonData(456);
-        $this->assertEquals(424242, $out2['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['data']['gameState']);
-        $this->assertEquals(1, $out2['data']['roundNumber']);
-        $this->assertEquals(3, $out2['data']['maxWins']);
-        $this->assertNull($out2['data']['activePlayerIdx']);
-        $this->assertNull($out2['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out2['data']['playerIdArray']);
+        $out2['data'] = $out2['gameData']['data'];
+        $this->assertEquals(424242, $out2['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['gameState']);
+        $this->assertEquals(1, $out2['roundNumber']);
+        $this->assertEquals(3, $out2['maxWins']);
+        $this->assertNull($out2['activePlayerIdx']);
+        $this->assertNull($out2['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out2['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out2['playerDataArray'][1]['playerId']);
         $this->assertEquals(array('Apples', 'Green Apple'), $out2['data']['buttonNameArray']);
-        $this->assertEquals(array(TRUE, FALSE), $out2['data']['waitingOnActionArray']);
+        $this->assertEquals(TRUE, $out2['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(FALSE, $out2['playerDataArray'][1]['waitingOnAction']);
         $this->assertEquals(array(5, 5), $out2['data']['nDieArray']);
         $this->assertEquals(
             array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
@@ -3322,13 +3350,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                         4 => array(12, 20))),
             $out2['data']['optRequestArrayArray']
         );
-        $this->assertEquals(array(), $out2['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out2['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(array(), $out2['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][1]['gameScoreArray']);
     }
 
     /**
@@ -3406,12 +3434,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->swingValueArrayArray = array(array('X' => 19), array());
         $game->proceed_to_next_user_action();
         $out1 = $game->getJsonData(123);
+        $out1['data'] = $out1['gameData']['data'];
         $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
         $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
                                   array(NULL, NULL, NULL, NULL, NULL)),
                             $out1['data']['valueArrayArray']);
         $out2 = $game->getJsonData(456);
+        $out2['data'] = $out2['gameData']['data'];
         $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
         $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
@@ -3816,12 +3846,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->activeDieArrayArray[1][4]->needsSwingValue);
 
         $out3 = $game->getJsonData(123);
+        $out3['data'] = $out3['gameData']['data'];
         $this->assertEquals(19, $out3['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out3['data']['sidesArrayArray'][1][4]);
         $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
                                   array(NULL, NULL, NULL, NULL, NULL)),
                             $out3['data']['valueArrayArray']);
         $out4 = $game->getJsonData(456);
+        $out4['data'] = $out4['gameData']['data'];
         $this->assertEquals(19, $out4['data']['sidesArrayArray'][0][4]);
         $this->assertNull($out4['data']['sidesArrayArray'][1][4]);
         $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
@@ -6620,12 +6652,16 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         $dataArray = $game->getJsonData(234);
+        $dataArray['data'] = $dataArray['gameData']['data'];
         $this->assertEquals(array(array(array(), array('dizzy' => TRUE), array(), array(), array()),
                                   array(array(), array(), array(), array(), array())),
                             $dataArray['data']['diePropertiesArrayArray']);
         $this->assertEquals(array(array(array(), array('Focus' => TRUE), array(), array('Focus' => TRUE), array()),
                                   array(array('Poison' => TRUE), array(), array('Poison' => TRUE), array(), array())),
                             $dataArray['data']['dieSkillsArrayArray']);
+        $skillInfoKeys = array_keys($dataArray['gameSkillsInfo']);
+        sort($skillInfoKeys);
+        $this->assertEquals(array('Focus', 'Poison'), $skillInfoKeys);
 
         // try to use the focus die in an attack when it is dizzy
         $game->attack = array(0, 1, array(1, 4), array(1), 'Skill');
@@ -8263,6 +8299,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $out1 = $game->getJsonData(123);
+        $out1['data'] = $out1['gameData']['data'];
         $this->assertEquals(12, $out1['data']['sidesArrayArray'][0][2]);
         $this->assertEquals(16, $out1['data']['sidesArrayArray'][0][3]);
         $this->assertEquals(20, $out1['data']['sidesArrayArray'][0][4]);
@@ -8276,6 +8313,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                             $out1['data']['dieDescriptionArrayArray'][0][4]);
 
         $out2 = $game->getJsonData(456);
+        $out2['data'] = $out2['gameData']['data'];
         $this->assertNull($out2['data']['sidesArrayArray'][0][2]);
         $this->assertNull($out2['data']['sidesArrayArray'][0][3]);
         $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
@@ -8688,6 +8726,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
         $jsonData = $game->getJsonData(123);
+        $jsonData['data'] = $jsonData['gameData']['data'];
         $this->assertEquals(array(array(1, 1, 1, NULL, 8), array(20, 4)),
                             $jsonData['data']['sidesArrayArray']);
     }
@@ -8713,7 +8752,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->playerWithInitiativeIdx);
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
 
         // manually set value of (20)
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -8724,7 +8765,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(TRUE, FALSE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(FALSE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 
     /**
@@ -8749,27 +8792,39 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // active: (1) (1) vs (1) (1,1), captured: none vs none
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1, 1.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(-0.3, 0.3), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(1.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(-0.3, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(0.3, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
 
         $game->attack = array(0, 1, array(0, 1), array(1), 'Skill');
         $game->proceed_to_next_user_action();
 
         // active: (1) (1) vs (1), captured: (1,1) vs none
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(3, 0.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(1.7, -1.7), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(3, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(0.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(1.7, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-1.7, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
 
         $game->attack = array(1, 0, array(0), array(0), 'Power');
         $game->proceed_to_next_user_action();
 
         // active: (1) vs (1), captured (1,1) vs (1)
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(2.5, 1.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(0.7, -0.7), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(2.5, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(1.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(0.7, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-0.7, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 
     /**
@@ -8802,9 +8857,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1, 4), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(-2, 2), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(4, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(-2, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(2, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 
     /**
@@ -8828,17 +8887,25 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->playerWithInitiativeIdx);
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1.5, -0.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(1.3, -1.3), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(1.5, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(-0.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(1.3, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-1.3, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(NULL, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(NULL, $jsonData['playerDataArray'][1]['canStillWin']);
 
         $game->attack = array(0, 1, array(1), array(1), 'Power');
         $game->proceed_to_next_user_action();
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1.0, 0.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(0.3, -0.3), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $jsonData['data'] = $jsonData['gameData']['data'];
+        $this->assertEquals(1.0, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(0.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(0.3, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-0.3, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 }
 

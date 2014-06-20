@@ -1,16 +1,44 @@
 {
+  "gameId": 4,
+  "gameState": "START_TURN",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": 1,
+  "playerWithInitiativeIdx": 1,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": ["Power", "Skill"],
+  "gameSkillsInfo": [],
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "waitingOnAction": false,
+      "roundScore": 17,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": true,
+      "roundScore": 17,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
   "gameData": {
     "status": "ok",
     "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": 1,
-      "playerWithInitiativeIdx": 1,
-      "playerIdArray": [1, 2],
       "buttonNameArray": ["Avis", "Avis"],
       "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
       "buttonArtFilenameArray": ["avis.png", "avis.png"],
-      "waitingOnActionArray": [false, true],
       "nDieArray": [5, 5],
       "valueArrayArray": [[3, 4, 7, 9, 4], [1, 3, 4, 5, 2]],
       "sidesArrayArray": [[4, 4, 10, 12, 4], [4, 4, 10, 12, 4]],
@@ -26,22 +54,8 @@
       "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": {"Power": "Power", "Skill": "Skill"},
-      "roundScoreArray": [17, 17],
-      "sideScoreArray": [null, null],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameId": 4,
-      "gameState": "START_TURN"
+      "prevOptValueArrayArray": [[], []]
     }
   },
-  "currentPlayerIdx": 0,
-  "gameActionLog": [],
-  "gameChatLog": [],
-  "playerNameArray": ["tester1", "tester2"],
-  "gameChatEditable": false,
   "timestamp": 1403220783
 }

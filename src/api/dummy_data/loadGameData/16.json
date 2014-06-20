@@ -1,16 +1,50 @@
 {
+  "gameId": 16,
+  "gameState": "CHOOSE_RESERVE_DICE",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 2,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": {
+    "Reserve": {
+      "code": "r",
+      "description": "These are extra dice which may be brought into play part way through a game. Each time you lose a round you may choose another of your Reserve Dice; it will then be in play for all future rounds.",
+      "interacts": []
+    }
+  },
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 1, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": false,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 1, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
   "gameData": {
     "status": "ok",
     "data": {
-      "roundNumber": 2,
-      "maxWins": 3,
-      "activePlayerIdx": null,
-      "playerWithInitiativeIdx": null,
-      "playerIdArray": [1, 2],
       "buttonNameArray": ["Cammy Neko", "Cammy Neko"],
       "buttonRecipeArray": ["(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)", "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)"],
       "buttonArtFilenameArray": ["cammyneko.png", "cammyneko.png"],
-      "waitingOnActionArray": [true, false],
       "nDieArray": [8, 8],
       "valueArrayArray": [[null, null, null, null, null, null, null, null], [null, null, null, null, null, null, null, null]],
       "sidesArrayArray": [[4, 6, 12, 20, 12, 20, 20, 16], [4, 6, 12, 20, 12, 20, 20, 16]],
@@ -26,22 +60,8 @@
       "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": [],
-      "roundScoreArray": [null, null],
-      "sideScoreArray": [null, null],
-      "gameScoreArrayArray": [{"W": 0, "L": 1, "D": 0}, {"W": 1, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameState": "CHOOSE_RESERVE_DICE",
-      "gameId": 16
+      "prevOptValueArrayArray": [[], []]
     }
   },
-  "currentPlayerIdx": 0,
-  "gameActionLog": [],
-  "gameChatLog": [],
-  "playerNameArray": ["tester1", "tester2"],
-  "gameChatEditable": false,
   "timestamp": 1403223678
 }

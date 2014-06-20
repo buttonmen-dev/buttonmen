@@ -1,16 +1,44 @@
 {
+  "gameId": 19,
+  "gameState": "SPECIFY_DICE",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": [],
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
   "gameData": {
     "status": "ok",
     "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": null,
-      "playerWithInitiativeIdx": null,
-      "playerIdArray": [1, 2],
       "buttonNameArray": ["Apples", "Apples"],
       "buttonRecipeArray": ["(8) (8) (2\/12) (8\/16) (20\/24)", "(8) (8) (2\/12) (8\/16) (20\/24)"],
       "buttonArtFilenameArray": ["apples.png", "apples.png"],
-      "waitingOnActionArray": [true, true],
       "nDieArray": [5, 5],
       "valueArrayArray": [[4, 3, null, null, null], [2, 4, null, null, null]],
       "sidesArrayArray": [[6, 6, null, null, null], [6, 6, null, null, null]],
@@ -26,22 +54,8 @@
       "swingRequestArrayArray": [[], []],
       "optRequestArrayArray": [{"2": [2, 12], "3": [8, 16], "4": [20, 24]}, {"2": [2, 12], "3": [8, 16], "4": [20, 24]}],
       "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": [],
-      "roundScoreArray": [null, null],
-      "sideScoreArray": [null, null],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameState": "SPECIFY_DICE",
-      "gameId": 19
+      "prevOptValueArrayArray": [[], []]
     }
   },
-  "currentPlayerIdx": 0,
-  "gameActionLog": [],
-  "gameChatLog": [],
-  "playerNameArray": ["tester1", "tester2"],
-  "gameChatEditable": false,
   "timestamp": 1403224435
 }

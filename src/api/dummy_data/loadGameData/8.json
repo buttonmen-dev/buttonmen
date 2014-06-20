@@ -1,16 +1,50 @@
 {
+  "gameId": 8,
+  "gameState": "REACT_TO_INITIATIVE",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": 1,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": {
+    "Chance": {
+      "code": "c",
+      "description": "If you do not have the initiative at the start of a round you may re-roll one of your Chance Dice. If this results in you gaining the initiative, your opponent may re-roll one of their Chance Dice. This can continue with each player re-rolling Chance Dice, even re-rolling the same die, until one person fails to gain the initiative or lets their opponent go first. Re-rolling Chance Dice is not only a way to gain the initiative; it can also be useful in protecting your larger dice, or otherwise improving your starting roll. Unlike Focus Dice, Chance Dice can be immediately re-used in an attack even if you do gain the initiative with them.",
+      "interacts": []
+    }
+  },
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": false,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
   "gameData": {
     "status": "ok",
     "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": null,
-      "playerWithInitiativeIdx": 1,
-      "playerIdArray": [1, 2],
       "buttonNameArray": ["John Kovalic", "John Kovalic"],
       "buttonRecipeArray": ["(6) c(6) (10) (12) c(20)", "(6) c(6) (10) (12) c(20)"],
       "buttonArtFilenameArray": ["johnkovalic.png", "johnkovalic.png"],
-      "waitingOnActionArray": [true, false],
       "nDieArray": [5, 5],
       "valueArrayArray": [[4, 3, 6, 5, 4], [2, 4, 2, 3, 18]],
       "sidesArrayArray": [[6, 6, 10, 12, 20], [6, 6, 10, 12, 20]],
@@ -26,22 +60,8 @@
       "swingRequestArrayArray": [[], []],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": [],
-      "roundScoreArray": [null, null],
-      "sideScoreArray": [null, null],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameState": "REACT_TO_INITIATIVE",
-      "gameId": 8
+      "prevOptValueArrayArray": [[], []]
     }
   },
-  "currentPlayerIdx": 0,
-  "gameActionLog": [],
-  "gameChatLog": [],
-  "playerNameArray": ["tester1", "tester2"],
-  "gameChatEditable": false,
   "timestamp": 1403221857
 }

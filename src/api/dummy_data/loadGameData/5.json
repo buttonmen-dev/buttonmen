@@ -1,44 +1,13 @@
 {
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "roundNumber": 6,
-      "maxWins": 3,
-      "activePlayerIdx": null,
-      "playerWithInitiativeIdx": 1,
-      "playerIdArray": [1, 2],
-      "buttonNameArray": ["Avis", "Avis"],
-      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
-      "buttonArtFilenameArray": ["avis.png", "avis.png"],
-      "waitingOnActionArray": [false, false],
-      "nDieArray": [0, 0],
-      "valueArrayArray": [[], []],
-      "sidesArrayArray": [[], []],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [[], []],
-      "dieDescriptionArrayArray": [[], []],
-      "nCapturedDieArray": [0, 0],
-      "capturedValueArrayArray": [[], []],
-      "capturedSidesArrayArray": [[], []],
-      "capturedRecipeArrayArray": [[], []],
-      "capturedDiePropsArrayArray": [[], []],
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": [],
-      "roundScoreArray": [0, 0],
-      "sideScoreArray": [0, 0],
-      "gameScoreArrayArray": [{"W": 3, "L": 2, "D": 0}, {"W": 2, "L": 3, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameId": 5,
-      "gameState": "END_GAME"
-    }
-  },
+  "gameId": 5,
+  "gameState": "END_GAME",
   "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": 1,
+  "roundNumber": 6,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": [],
   "gameActionLog": [
     {
       "timestamp": 1387500762,
@@ -73,7 +42,52 @@
       "message": "Ping!"
     }
   ],
-  "playerNameArray": ["tester1", "tester2"],
   "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "waitingOnAction": false,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 3, "L": 2, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": false,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 2, "L": 3, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
+  "gameData": {
+    "status": "ok",
+    "data": {
+      "buttonNameArray": ["Avis", "Avis"],
+      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
+      "buttonArtFilenameArray": ["avis.png", "avis.png"],
+      "nDieArray": [0, 0],
+      "valueArrayArray": [[], []],
+      "sidesArrayArray": [[], []],
+      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "dieRecipeArrayArray": [[], []],
+      "dieDescriptionArrayArray": [[], []],
+      "nCapturedDieArray": [0, 0],
+      "capturedValueArrayArray": [[], []],
+      "capturedSidesArrayArray": [[], []],
+      "capturedRecipeArrayArray": [[], []],
+      "capturedDiePropsArrayArray": [[], []],
+      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
+      "optRequestArrayArray": [[], []],
+      "prevSwingValueArrayArray": [[], []],
+      "prevOptValueArrayArray": [[], []]
+    }
+  },
   "timestamp": 1403221276
 }

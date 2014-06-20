@@ -239,8 +239,12 @@ asyncTest("test_Api.parseUserPrefsData", function() {
 asyncTest("test_Api.getGameData", function() {
   Game.game = '1';
   Api.getGameData(Game.game, 10, function() {
-    equal(Api.game.gameId, '1', "parseGameData() set gameId");
-    equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx");
+    equal(Api.game.gameId, '1', "parseGameData() parsed gameId from API data");
+    equal(Api.game.isParticipant, true, "parseGameData() set isParticipant based on API data");
+    equal(Api.game.playerIdx, 0, "parseGameData() set playerIdx based on API data");
+    equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx based on API data");
+    equal(Api.game.activePlayerIdx, null, "parseGameData() parsed activePlayerIdx from API data");
+    equal(Api.game.playerWithInitiativeIdx, null, "parseGameData() parsed playerWithInitiativeIdx from API data");
     delete Game.game;
     start();
   });
@@ -281,6 +285,23 @@ asyncTest("test_Api.getGameData_alllogs", function() {
 asyncTest("test_Api.parseGamePlayerData", function() {
   Game.game = '1';
   Api.getGameData(Game.game, 10, function() {
+    deepEqual(Api.game.player.playerId, 1,
+              "player ID should be parsed from API response");
+    deepEqual(Api.game.player.playerName, 'tester1',
+              "player name should be parsed from API response");
+    deepEqual(Api.game.player.waitingOnAction, true,
+              "'waiting on action' status should be parsed from API response");
+    deepEqual(Api.game.player.roundScore, null,
+              "round score should be parsed from API response");
+    deepEqual(Api.game.player.sideScore, null,
+              "side score should be parsed from API response");
+    deepEqual(Api.game.player.gameScoreDict, {'W': 0, 'L': 0, 'D': 0, },
+              "game score array should be parsed from API response");
+    deepEqual(Api.game.player.lastActionTime, 0,
+              "last action time should be parsed from API response");
+    deepEqual(Api.game.player.canStillWin, null,
+              "'can still win' should be parsed from API response");
+
     deepEqual(Api.game.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
               "player die recipe array should be parsed correctly");
     deepEqual(Api.game.player.capturedValueArray, [],

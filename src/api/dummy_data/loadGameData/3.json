@@ -1,43 +1,13 @@
 {
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": 0,
-      "playerWithInitiativeIdx": 1,
-      "playerIdArray": [1, 2],
-      "buttonNameArray": ["Avis", "Avis"],
-      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
-      "buttonArtFilenameArray": ["avis.png", "avis.png"],
-      "waitingOnActionArray": [true, false],
-      "nDieArray": [2, 3],
-      "valueArrayArray": [[4, 2], [4, 4, 5]],
-      "sidesArrayArray": [[4, 4], [4, 4, 12]],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [["(4)", "(X)"], ["(4)", "(4)", "(12)"]],
-      "dieDescriptionArrayArray": [["4-sided die", "X Swing Die (with 4 sides)"], ["4-sided die", "4-sided die", "12-sided die"]],
-      "nCapturedDieArray": [2, 3],
-      "capturedValueArrayArray": [[3, 1], [11, 7, 1]],
-      "capturedSidesArrayArray": [[10, 4], [12, 10, 4]],
-      "capturedRecipeArrayArray": [["(10)", "(X)"], ["(12)", "(10)", "(4)"]],
-      "capturedDiePropsArrayArray": [[[], []], [[], [], {"WasJustCaptured": true}]],
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": {"Power": "Power", "Skill": "Skill"},
-      "roundScoreArray": [18, 36],
-      "sideScoreArray": [-12, 12],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameId": 3,
-      "gameState": "START_TURN"
-    }
-  },
+  "gameId": 3,
+  "gameState": "START_TURN",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": 0,
+  "playerWithInitiativeIdx": 1,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": ["Power", "Skill"],
+  "gameSkillsInfo": [],
   "gameActionLog": [
     {
       "timestamp": 1387746541,
@@ -117,8 +87,52 @@
       "message": "G'day."
     }
   ],
-  "currentPlayerIdx": 0,
-  "playerNameArray": ["tester1", "tester2"],
   "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "waitingOnAction": true,
+      "roundScore": 18,
+      "sideScore": -12,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": false,
+      "roundScore": 36,
+      "sideScore": 12,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
+  "gameData": {
+    "status": "ok",
+    "data": {
+      "buttonNameArray": ["Avis", "Avis"],
+      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
+      "buttonArtFilenameArray": ["avis.png", "avis.png"],
+      "nDieArray": [2, 3],
+      "valueArrayArray": [[4, 2], [4, 4, 5]],
+      "sidesArrayArray": [[4, 4], [4, 4, 12]],
+      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "dieRecipeArrayArray": [["(4)", "(X)"], ["(4)", "(4)", "(12)"]],
+      "dieDescriptionArrayArray": [["4-sided die", "X Swing Die (with 4 sides)"], ["4-sided die", "4-sided die", "12-sided die"]],
+      "nCapturedDieArray": [2, 3],
+      "capturedValueArrayArray": [[3, 1], [11, 7, 1]],
+      "capturedSidesArrayArray": [[10, 4], [12, 10, 4]],
+      "capturedRecipeArrayArray": [["(10)", "(X)"], ["(12)", "(10)", "(4)"]],
+      "capturedDiePropsArrayArray": [[[], []], [[], [], {"WasJustCaptured": true}]],
+      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
+      "optRequestArrayArray": [[], []],
+      "prevSwingValueArrayArray": [[], []],
+      "prevOptValueArrayArray": [[], []]
+    }
+  },
   "timestamp": 1403219508
 }

@@ -2237,20 +2237,55 @@ class BMGame {
     }
 
     public function getJsonData($requestingPlayerId) {
+        $oldData = $this->getJsonData_old($requestingPlayerId);
+
+        $dataArray = array(
+            'gameId'                     => $this->gameId,
+            'gameData'                   => $oldData,
+            'gameState'                  => BMGameState::as_string($this->gameState),
+            'activePlayerIdx'            => $this->activePlayerIdx,
+            'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
+            'roundNumber'                => $this->get__roundNumber(),
+            'maxWins'                    => $this->maxWins,
+            'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
+            'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
+            'playerDataArray'            => $this->get_playerDataArray(),
+        );
+        return $dataArray;
+    }
+
+    protected function get_playerDataArray() {
+        $playerDataArray = array();
+
+        // helper arrays of data that BMGame naturally produces in array form
+        $roundScoreArray = $this->get__roundScoreArray();
+        $sideScoreArray = $this->get_sideScoreArray();
+        $canStillWinArray = $this->get_canStillWinArray();
+
+        foreach ($this->playerIdArray as $playerIdx => $playerId) {
+            $playerData = array(
+                'playerId'         => $playerId,
+                'waitingOnAction'  => $this->waitingOnActionArray[$playerIdx],
+                'roundScore'       => $roundScoreArray[$playerIdx],
+                'sideScore'        => $sideScoreArray[$playerIdx],
+                'gameScoreArray'   => $this->gameScoreArrayArray[$playerIdx],
+                'lastActionTime'   => $this->lastActionTimeArray[$playerIdx],
+                'canStillWin'      => $canStillWinArray[$playerIdx],
+            );
+
+            $playerDataArray[] = $playerData;
+        }
+        return $playerDataArray;
+    }
+
+    protected function getJsonData_old($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
         $dataArray =
-            array('gameId'                     => $this->gameId,
-                  'gameState'                  => BMGameState::as_string($this->gameState),
-                  'roundNumber'                => $this->get__roundNumber(),
-                  'maxWins'                    => $this->maxWins,
-                  'activePlayerIdx'            => $this->activePlayerIdx,
-                  'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
-                  'playerIdArray'              => $this->playerIdArray,
+            array(
                   'buttonNameArray'            => $this->get_buttonNameArray(),
                   'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
                   'buttonArtFilenameArray'     => $this->get_buttonArtFilenameArray(),
-                  'waitingOnActionArray'       => $this->waitingOnActionArray,
                   'nDieArray'                  => $this->get_nDieArray(),
                   'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
                   'sidesArrayArray'            => $this->get_sidesArrayArray($requestingPlayerIdx),
@@ -2267,13 +2302,7 @@ class BMGame {
                   'optRequestArrayArray'       => $this->get_optRequestArrayArray(),
                   'prevSwingValueArrayArray'   => $this->get_prevSwingValueArrayArray(),
                   'prevOptValueArrayArray'     => $this->get_prevOptValueArrayArray(),
-                  'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
-                  'roundScoreArray'            => $this->get__roundScoreArray(),
-                  'sideScoreArray'             => $this->get_sideScoreArray(),
-                  'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
-                  'gameScoreArrayArray'        => $this->gameScoreArrayArray,
-                  'lastActionTimeArray'        => $this->lastActionTimeArray,
-                  'canStillWinArray'           => $this->get_canStillWinArray());
+            );
 
         return array('status' => 'ok', 'data' => $dataArray);
     }
@@ -2658,11 +2687,12 @@ class BMGame {
         // If it's someone's turn to attack, report the valid attack
         // types as part of the game data
         if ($this->gameState == BMGameState::START_TURN) {
-            $validAttackTypeArray = $this->valid_attack_types();
+            $validAttackTypeArray = array_keys($this->valid_attack_types());
         } else {
             $validAttackTypeArray = array();
         }
 
+        sort($validAttackTypeArray);
         return $validAttackTypeArray;
     }
 

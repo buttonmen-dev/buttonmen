@@ -1,16 +1,50 @@
 {
+  "gameId": 15,
+  "gameState": "CHOOSE_AUXILIARY_DICE",
+  "currentPlayerIdx": false,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": {
+    "Auxiliary": {
+      "code": "+",
+      "description": "These are optional extra dice. Before each game, both players decide whether or not to play with their Auxiliary Dice. Only if both players choose to have them will they be in play.",
+      "interacts": []
+    }
+  },
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 3,
+      "playerName": "tester3",
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
   "gameData": {
     "status": "ok",
     "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": null,
-      "playerWithInitiativeIdx": null,
-      "playerIdArray": [1, 2],
       "buttonNameArray": ["King Arthur", "King Arthur"],
       "buttonRecipeArray": ["(8) (8) (10) (20) (X) +(20)", "(8) (8) (10) (20) (X) +(20)"],
       "buttonArtFilenameArray": ["kingarthur.png", "kingarthur.png"],
-      "waitingOnActionArray": [true, true],
       "nDieArray": [6, 6],
       "valueArrayArray": [[null, null, null, null, null, null], [null, null, null, null, null, null]],
       "sidesArrayArray": [[8, 8, 10, 20, null, 20], [null, null, null, null, null, null]],
@@ -26,22 +60,8 @@
       "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": [],
-      "roundScoreArray": [null, null],
-      "sideScoreArray": [null, null],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameState": "CHOOSE_AUXILIARY_DICE",
-      "gameId": 15
+      "prevOptValueArrayArray": [[], []]
     }
   },
-  "currentPlayerIdx": false,
-  "playerNameArray": ["tester2", "tester3"],
-  "gameActionLog": [],
-  "gameChatLog": [],
-  "gameChatEditable": false,
   "timestamp": 1403223080
 }

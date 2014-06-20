@@ -777,15 +777,10 @@ Game.actionPlayTurnActive = function() {
     'action': 'javascript:void(0);',
   });
 
-  var validAttackTypes = [];
-  $.each(Api.game.validAttackTypeArray, function(typename) {
-    validAttackTypes.push(typename);
-  });
-  validAttackTypes.sort();
   // Surrender is a valid attack type, so add it at the end of the
   // list of options
-  validAttackTypes.push('');
-  validAttackTypes.push('Surrender');
+  Api.game.validAttackTypeArray.push('');
+  Api.game.validAttackTypeArray.push('Surrender');
 
   // configure the attack type select object
   var attacktypeselect = $('<select>', {
@@ -803,8 +798,8 @@ Game.actionPlayTurnActive = function() {
     Game.form
   );
 
-  for (var i = 0; i < validAttackTypes.length; i++) {
-    var attacktype = validAttackTypes[i];
+  for (var i = 0; i < Api.game.validAttackTypeArray.length; i++) {
+    var attacktype = Api.game.validAttackTypeArray[i];
     var typetext;
     if ((attacktype == 'Pass') || (attacktype === '')) {
       typetext = attacktype;

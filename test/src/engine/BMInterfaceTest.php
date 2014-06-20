@@ -2262,6 +2262,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $out1 = $game->getJsonData(self::$userId1WithoutAutopass);
+        $out1['data'] = $out1['gameData']['data'];
         $this->assertEquals(12, $out1['data']['sidesArrayArray'][0][2]);
         $this->assertEquals(16, $out1['data']['sidesArrayArray'][0][3]);
         $this->assertEquals(20, $out1['data']['sidesArrayArray'][0][4]);
@@ -2275,6 +2276,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $out1['data']['dieDescriptionArrayArray'][0][4]);
 
         $out2 = $game->getJsonData(self::$userId2WithoutAutopass);
+        $out2['data'] = $out2['gameData']['data'];
         $this->assertNull($out2['data']['sidesArrayArray'][0][2]);
         $this->assertNull($out2['data']['sidesArrayArray'][0][3]);
         $this->assertNull($out2['data']['sidesArrayArray'][0][4]);

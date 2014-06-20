@@ -1,42 +1,13 @@
 {
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "roundNumber": 1,
-      "maxWins": 3,
-      "activePlayerIdx": 0,
-      "playerWithInitiativeIdx": 1,
-      "playerIdArray": [1, 2],
-      "buttonNameArray": ["Avis", "Avis"],
-      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
-      "buttonArtFilenameArray": ["avis.png", "avis.png"],
-      "waitingOnActionArray": [true, false],
-      "nDieArray": [2, 3],
-      "valueArrayArray": [[4, 2], [4, 4, 5]],
-      "sidesArrayArray": [[4, 4], [4, 4, 12]],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [["(4)", "(X)"], ["(4)", "(4)", "(12)"]],
-      "dieDescriptionArrayArray": [["4-sided die", "X Swing Die (with 4 sides)"], ["4-sided die", "4-sided die", "12-sided die"]],
-      "nCapturedDieArray": [2, 3],
-      "capturedValueArrayArray": [[3, 1], [11, 7, 1]],
-      "capturedSidesArrayArray": [[10, 4], [12, 10, 4]],
-      "capturedRecipeArrayArray": [["(10)", "(X)"], ["(12)", "(10)", "(4)"]],
-      "capturedDiePropsArrayArray": [[[], []], [[], [], {"WasJustCaptured": true}]], "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []],
-      "validAttackTypeArray": {"Power": "Power", "Skill": "Skill"},
-      "roundScoreArray": [18, 36],
-      "sideScoreArray": [-12, 12],
-      "gameScoreArrayArray": [{"W": 0, "L": 0, "D": 0}, {"W": 0, "L": 0, "D": 0}],
-      "lastActionTimeArray": [0, 0],
-      "gameSkillsInfo": [],
-      "canStillWinArray": [null, null],
-      "gameId": 11,
-      "gameState": "START_TURN"
-    }
-  },
+  "gameId": 11,
+  "gameState": "START_TURN",
+  "currentPlayerIdx": false,
+  "activePlayerIdx": 0,
+  "playerWithInitiativeIdx": 1,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": ["Power", "Skill"],
+  "gameSkillsInfo": [],
   "gameActionLog": [
     {"timestamp": 1387746541, "message": "tester2 performed Power attack using [(12): 1] against [(4): 1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"},
     {"timestamp": 1387746536, "message": "tester1 performed Power attack using [(4): 2] against [(X): 1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"},
@@ -56,8 +27,51 @@
     {"timestamp": 1387745792, "player": "tester1", "message": "Howdy."},
     {"timestamp": 1387745692, "player": "tester2", "message": "Ping!"}
   ],
-  "currentPlayerIdx": false,
-  "playerNameArray": ["tester2", "tester3"],
   "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "waitingOnAction": true,
+      "roundScore": 18,
+      "sideScore": -12,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 3,
+      "playerName": "tester3",
+      "waitingOnAction": false,
+      "roundScore": 36,
+      "sideScore": 12,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
+  "gameData": {
+    "status": "ok",
+    "data": {
+      "buttonNameArray": ["Avis", "Avis"],
+      "buttonRecipeArray": ["(4) (4) (10) (12) (X)", "(4) (4) (10) (12) (X)"],
+      "buttonArtFilenameArray": ["avis.png", "avis.png"],
+      "nDieArray": [2, 3],
+      "valueArrayArray": [[4, 2], [4, 4, 5]],
+      "sidesArrayArray": [[4, 4], [4, 4, 12]],
+      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
+      "dieRecipeArrayArray": [["(4)", "(X)"], ["(4)", "(4)", "(12)"]],
+      "dieDescriptionArrayArray": [["4-sided die", "X Swing Die (with 4 sides)"], ["4-sided die", "4-sided die", "12-sided die"]],
+      "nCapturedDieArray": [2, 3],
+      "capturedValueArrayArray": [[3, 1], [11, 7, 1]],
+      "capturedSidesArrayArray": [[10, 4], [12, 10, 4]],
+      "capturedRecipeArrayArray": [["(10)", "(X)"], ["(12)", "(10)", "(4)"]],
+      "capturedDiePropsArrayArray": [[[], []], [[], [], {"WasJustCaptured": true}]], "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
+      "optRequestArrayArray": [[], []],
+      "prevSwingValueArrayArray": [[], []],
+      "prevOptValueArrayArray": [[], []]
+    }
+  },
   "timestamp": 1403222365
 }
