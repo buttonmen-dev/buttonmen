@@ -571,7 +571,12 @@ class BMDie extends BMCanHaveSkill {
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
             'recipeStatus' => $recipe . ':' . $this->value,
+            'forceReportDieSize' => $this->forceReportDieSize(),
         ));
+    }
+
+    public function forceReportDieSize() {
+        return($this->has_skill('Mood') || $this->has_skill('Mad'));
     }
 
     public function cast_as_BMDie() {

@@ -513,7 +513,6 @@ class BMGame {
         }
 
         foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
-//            var_dump($optionRequestArray);
             foreach (array_keys($optionRequestArray) as $dieIdx) {
                 if (isset($this->optValueArrayArray[$playerIdx]) &&
                     (count($this->optValueArrayArray[$playerIdx]) > 0)) {
