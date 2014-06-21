@@ -2084,6 +2084,61 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Check that the reserve swing setting bug is fixed.
+     *
+     * @depends test_create_user
+     *
+     */
+    public function test_reserve_swing_setting() {
+        // Zomulgustar : t(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?
+        // Cammy Neko  : (4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Zomulgustar', 'Cammy Neko'), 4);
+        $gameId = $retval['gameId'];
+        $game = $this->object->load_game($gameId);
+
+        // specify option die
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $game->optValueArrayArray = array(array(1 => 5), array());
+
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+
+        // artificially set player 2 as winning initiative
+        $game->playerWithInitiativeIdx = 1;
+        $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 4;
+        $dieArrayArray[0][1]->value = 5;
+        $dieArrayArray[0][2]->value = 9;
+        $dieArrayArray[0][3]->value = 13;
+        $dieArrayArray[1][0]->value = 1;
+        $dieArrayArray[1][1]->value = 1;
+        $dieArrayArray[1][2]->value = 1;
+        $dieArrayArray[1][3]->value = 2;
+
+        $game->attack = array(1, 0, array(), array(), 'Surrender');
+
+        // we should now be at the point where the bug triggers, at the stage of
+        // loading the previous round's swing values
+        $this->object->save_game($game);
+        $game = $this->object->load_game($game->gameId);
+
+        $this->assertEquals(2, $game->roundNumber);
+        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 1, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+    }
+
+    /**
      * Check that Echo games can be created and played correctly.
      *
      * @depends test_create_user
@@ -2655,6 +2710,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::update_last_action_time
      */
     public function test_update_last_action_time() {
@@ -2678,6 +2735,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @covers BMInterface::update_last_access_time
      */
     public function test_update_last_access_time() {
@@ -2695,6 +2754,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @depends test_create_user
+     *
      * @coversNothing
      */
     public function test_option_reset_bug() {

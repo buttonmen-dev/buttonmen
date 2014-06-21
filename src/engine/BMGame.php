@@ -295,6 +295,10 @@ class BMGame {
         }
 
         foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+            if (empty($this->swingValueArrayArray[$playerIdx])) {
+                continue;
+            }
+
             foreach ($activeDieArray as &$activeDie) {
                 if ($activeDie instanceof BMDieSwing) {
                     if (array_key_exists(
