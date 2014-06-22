@@ -1,6 +1,6 @@
 <?php
 
-class BMFlagWasJustPerformedTripAttackTest extends PHPUnit_Framework_TestCase {
+class BMFlagJustPerformedTripAttackTest extends PHPUnit_Framework_TestCase {
     
     /**
      * @covers BMFlagWasJustPerformedTripAttack::__construct
