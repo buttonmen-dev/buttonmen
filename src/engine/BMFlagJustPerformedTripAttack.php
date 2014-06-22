@@ -35,5 +35,4 @@ class BMFlagJustPerformedTripAttack extends BMFlag {
 
         return $string;
     }
-
 }
