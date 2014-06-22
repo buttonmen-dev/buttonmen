@@ -33,6 +33,7 @@ class BMSkillTrip extends BMSkill {
 
         $attacker = &$args['attackers'][0];
         $attacker->roll(TRUE);
+        $attacker->add_flag('JustPerformedTripAttack', $attacker->value);
 
         $defender = &$args['defenders'][0];
         $defender->roll(TRUE);

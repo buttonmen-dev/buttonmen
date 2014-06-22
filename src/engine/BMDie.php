@@ -600,12 +600,14 @@ class BMDie extends BMCanHaveSkill {
         return array_key_exists($flag, $this->flagList);
     }
 
-    public function add_flag($flag) {
-        if ($this->has_flag($flag)) {
-            return;
+    public function add_flag($flag, $flagValue = NULL) {
+        $flagString = $flag;
+
+        if (isset($flagValue)) {
+            $flagString .= '__' . $flagValue;
         }
 
-        $flagObject = BMFlag::create_from_string($flag);
+        $flagObject = BMFlag::create_from_string($flagString);
         if (isset($flagObject)) {
             $this->flagList[$flag] = $flagObject;
         }

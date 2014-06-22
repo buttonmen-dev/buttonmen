@@ -7,11 +7,21 @@ abstract class BMFlag {
             return;
         }
 
-        $fullString = 'BMFlag'.$string;
+        $flagComponents = explode('__', $string);
 
-        if (class_exists($fullString)) {
-            return new $fullString;
+        $flagName = 'BMFlag'.$flagComponents[0];
+
+        $flagValue = NULL;
+        if (count($flagComponents) > 1) {
+            $flagValue = $flagComponents[1];
         }
+
+        $flag = NULL;
+        if (class_exists($flagName)) {
+            $flag = new $flagName($flagValue);
+        }
+
+        return $flag;
     }
 
     public function __toString() {
