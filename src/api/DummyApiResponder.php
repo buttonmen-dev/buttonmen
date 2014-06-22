@@ -1632,6 +1632,10 @@ class DummyApiResponder {
         return array(NULL, "function not implemented");
     }
 
+    protected function get_interface_response_dismissGame() {
+        return array(TRUE, 'Dismissing game succeeded');
+    }
+
     ////////////////////////////////////////////////////////////
     // Forum-related methods
 
