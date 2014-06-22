@@ -11,6 +11,7 @@ SKIPPATHS = [
   './src/favicon.ico',
   './src/dev_favicon.ico',
   './src/ui/images',
+  './src/ui/js/extern/images',
 
   # git artifacts
   './.git',

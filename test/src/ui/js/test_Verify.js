@@ -22,6 +22,9 @@ module("Verify", {
     $('#verify_page').empty();
 
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.restoreGetParameterByName();
+
+    BMTestUtils.restoreGetParameterByName();
 
     // Fail if any other elements were added or removed
     BMTestUtils.VerifyPost = BMTestUtils.getAllElements();

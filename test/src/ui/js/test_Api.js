@@ -5,6 +5,7 @@ module("Api", {
   'teardown': function() {
 
     // Delete all elements we expect this module to create
+    delete Api.test_data;
     delete Api.button;
     delete Api.player;
     delete Api.active_games;
@@ -12,7 +13,16 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.game_history;
     delete Api.siteConfig;
+    delete Api.forum_overview;
+    delete Api.forum_board;
+    delete Api.forum_thread;
+    delete Api.open_games;
+    delete Api.join_game_result;
+    delete Api.active_players;
+    delete Api.profile_info;
+    delete Env.message;
     BMTestUtils.deleteEnvMessage();
 
     // Page elements (for test use only)
@@ -33,6 +43,37 @@ test("test_Api_is_loaded", function() {
   ok(Api, "The Api namespace exists");
 });
 
+test("test_Api.parseGenericData", function() {
+  expect(2); // number of tests plus 1 for the teardown test
+
+  var apiKey = 'test_data';
+  Api[apiKey] = { };
+  var data = { 'value': 37 };
+  Api.parseGenericData(data, apiKey);
+  equal(Api.test_data.value, 37, 'Data value should be set on the Api object');
+});
+
+test("test_Api.verifyApiData", function() {
+  expect(3); // number of tests plus 1 for the teardown test
+
+  var apiKey = 'test_data';
+
+  Env.message = undefined;
+  var message = undefined;
+  Api.verifyApiData(apiKey, function() {
+    message = Env.message;
+  });
+  equal(message.type, 'error', 'Should error if data is missing');
+
+  Env.message = undefined;
+  message = undefined;
+  Api[apiKey] = { 'load_status': 'ok' };
+  Api.verifyApiData(apiKey, function() {
+    message = Env.message;
+  });
+  equal(message, undefined, 'Should not error if data is present');
+});
+
 asyncTest("test_Api.getButtonData", function() {
   expect(5); // number of tests plus 1 for the teardown test
   Api.getButtonData(function() {
@@ -41,7 +82,12 @@ asyncTest("test_Api.getButtonData", function() {
           "Api.button.list should be an object");
     deepEqual(
       Api.button.list["Avis"],
-      {'hasUnimplementedSkill': false, 'recipe': '(4) (4) (10) (12) (X)',},
+      { 'hasUnimplementedSkill': false,
+        'recipe': '(4) (4) (10) (12) (X)',
+        'buttonSet': 'Soldiers',
+        'dieSkills': [],
+        'isTournamentLegal': true,
+      },
       "Button Avis should have correct contents");
     deepEqual(Env.message, undefined,
               "Api.getButtonData should not set Env.message");
@@ -74,7 +120,12 @@ test("test_Api.parseButtonData", function() {
     'recipeArray': ['(4) (4) (10) (12) (X)',
                     'F(4) F(6) (6) (12) (X)',
                     'p(20) s(20) (V) (X)' ],
-    'hasUnimplementedSkillArray': [ false, true, false ]
+    'hasUnimplementedSkillArray': [ false, true, false ],
+    'buttonSetArray': [ 'Soldiers', 'Polycon', 'BROM' ],
+    'dieSkillsArray': [ [],
+                        [ 'Fire', ],
+                        [ 'Poison', 'Shadow', ] ],
+    'isTournamentLegalArray': [ true, true, true, ],
   });
   equal(retval, true, "Api.parseButtonData() returns true");
   deepEqual(
@@ -82,14 +133,23 @@ test("test_Api.parseButtonData", function() {
     { 'Adam Spam': {
         'hasUnimplementedSkill': true,
         'recipe': 'F(4) F(6) (6) (12) (X)',
+        'buttonSet': 'Polycon',
+        'dieSkills': [ 'Fire', ],
+        'isTournamentLegal': true,
       },
       'Avis': {
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
+        'buttonSet': 'Soldiers',
+        'dieSkills': [ ],
+        'isTournamentLegal': true,
       },
       'Jellybean': {
         'hasUnimplementedSkill': false,
-        'recipe': 'p(20) s(20) (V) (X)'
+        'recipe': 'p(20) s(20) (V) (X)',
+        'buttonSet': 'BROM',
+        'dieSkills': [ 'Poison', 'Shadow', ],
+        'isTournamentLegal': true,
       }
   });
   deepEqual(Env.message, undefined,
@@ -296,6 +356,163 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
     };
   Api.getNextGameId(function() {
     equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
+    start();
+  });
+});
+
+asyncTest("test_Api.getOpenGamesData", function() {
+  Api.getOpenGamesData(
+    function() {
+      equal(Api.open_games.load_status, 'ok',
+        'Successfully retrieved open games');
+      start();
+    });
+});
+
+asyncTest("test_Api.loadForumOverview", function() {
+  Api.loadForumOverview(
+    function() {
+      equal(Api.forum_overview.load_status, 'ok',
+        'Successfully loaded forum overview');
+      start();
+    });
+});
+
+asyncTest("test_Api.loadForumBoard", function() {
+  Api.loadForumBoard(1,
+    function() {
+      equal(Api.forum_board.load_status, 'ok',
+        'Successfully loaded forum board');
+      start();
+    });
+});
+
+asyncTest("test_Api.loadForumThread", function() {
+  Api.loadForumThread(1, 2,
+    function() {
+      equal(Api.forum_thread.load_status, 'ok',
+        'Successfully loaded forum overview');
+      start();
+    });
+});
+
+asyncTest("test_Api.getActivePlayers", function() {
+  Api.getActivePlayers(20,
+    function() {
+      equal(Api.active_players.load_status, 'ok',
+        'Successfully retrieved active players');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseActivePlayers", function() {
+  Api.getActivePlayers(20,
+    function() {
+      ok(Api.active_players.players.length,
+        "Successfully parsed active players info");
+      start();
+    });
+});
+
+asyncTest("test_Api.loadProfileInfo", function() {
+  Api.loadProfileInfo('tester',
+    function() {
+      equal(Api.profile_info.load_status, 'ok',
+        'Successfully retrieved profile info');
+      start();
+    });
+});
+
+asyncTest("test_Api.searchGameHistory", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters,
+    function() {
+      equal(Api.game_history.load_status, 'ok',
+        'Successfully performed search');
+    start();
+  });
+});
+
+asyncTest("test_Api.parseOpenGames", function() {
+  Api.getOpenGamesData(function() {
+    ok(Api.open_games.games.length > 0, "Successfully parsed open games");
+    start();
+  });
+});
+
+asyncTest("test_Api.joinOpenGame", function() {
+  Api.joinOpenGame(21, 'Avis',
+    function() {
+      equal(Api.join_game_result.load_status, 'ok',
+        'Successfully retrieved open games');
+      start();
+    },
+    function() {
+      ok(false, 'Retrieving game data should succeed');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseJoinGameResult", function() {
+  Api.joinOpenGame(21, 'Avis',
+    function() {
+      equal(Api.join_game_result.success, true,
+        "Successfully parsed join game result");
+      start();
+    },
+    function() {
+      ok(false, 'Retrieving game data should succeed');
+      start();
+    });
+});
+
+asyncTest("test_Api.parseNextGameId", function() {
+  Api.loadProfileInfo('tester',
+    function() {
+      equal(Api.profile_info.name_ingame, 'tester',
+        "Successfully parsed profile info");
+      start();
+    });
+});
+
+
+asyncTest("test_Api.parseSearchResults_games", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester',
+            'status': 'COMPLETE',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.game_history.games.length, 1,
+      "Successfully parsed search results games list");
+    start();
+  });
+});
+
+asyncTest("test_Api.parseSearchResults_summary", function() {
+  var searchParameters = {
+            'sortColumn': 'lastMove',
+            'sortDirection': 'DESC',
+            'numberOfResults': '20',
+            'page': '1',
+            'playerNameA': 'tester2',
+  };
+
+  Api.searchGameHistory(searchParameters, function() {
+    equal(Api.game_history.summary.matchesFound, 2,
+      "Successfully parsed search results summary data");
     start();
   });
 });

@@ -4,9 +4,6 @@ var Newuser = {};
 // Valid username match
 Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 
-// Valid email match
-Newuser.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
-
 // Input field limits
 Newuser.USERNAME_MAX_LENGTH = 25;
 Newuser.EMAIL_MAX_LENGTH = 254;
@@ -18,8 +15,8 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 //   this first.  It calls one of a couple of functions,
 //   Newuser.action<SomeAction>()
 // * each Newuser.action<SomeAction>() function must set Newuser.page and
-//   Newuser.form, then call Newuser.layoutPage()
-// * Newuser.layoutPage() sets the contents of <div id="newuser_page">
+//   Newuser.form, then call Newuser.arrangePage()
+// * Newuser.arrangePage() sets the contents of <div id="newuser_page">
 //   on the live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +26,6 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 Newuser.showNewuserPage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
@@ -40,7 +36,7 @@ Newuser.showNewuserPage = function() {
   if (Newuser.justCreatedAccount === true) {
     // Don't re-display the form if they've already created an account
     Newuser.page = $('<div>');
-    Newuser.layoutPage();
+    Newuser.arrangePage();
   } else if (Login.logged_in === true) {
     // Don't allow logged-in users to create new accounts
     Newuser.actionLoggedIn();
@@ -50,7 +46,7 @@ Newuser.showNewuserPage = function() {
 };
 
 // Actually lay out the page
-Newuser.layoutPage = function() {
+Newuser.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -68,7 +64,7 @@ Newuser.layoutPage = function() {
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newuser.js.
 // Each function should start by populating Newuser.page and Newuser.form
-// ane end by invoking Newuser.layoutPage();
+// ane end by invoking Newuser.arrangePage();
 
 Newuser.actionLoggedIn = function() {
 
@@ -80,7 +76,7 @@ Newuser.actionLoggedIn = function() {
   Newuser.addLoggedInPage();
 
   // Lay out the page
-  Newuser.layoutPage();
+  Newuser.arrangePage();
 };
 
 Newuser.actionCreateUser = function() {
@@ -168,7 +164,7 @@ Newuser.actionCreateUser = function() {
   Newuser.form = Newuser.formCreateUser;
 
   // Lay out the page
-  Newuser.layoutPage();
+  Newuser.arrangePage();
 };
 
 
@@ -193,6 +189,13 @@ Newuser.formCreateUser = function() {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (!(email.match(Api.VALID_EMAIL_REGEX))) {
+    Env.message = {
+      'type': 'error',
+      'text': 'A valid email address is required',
     };
     Newuser.showNewuserPage();
 

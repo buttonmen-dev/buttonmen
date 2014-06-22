@@ -89,38 +89,9 @@ class BMDieTwin extends BMDie {
             throw new InvalidArgumentException('isValueRequired must be boolean');
         }
 
-        $skillStr = '';
-        if (count($this->skillList) > 0) {
-            foreach (array_keys($this->skillList) as $skill) {
-                if (('Mood' != $skill) && 'Mad' != $skill) {
-                    $skillStr .= "$skill ";
-                }
-            }
-        }
-
-        $moodStr = '';
-        if ($this->has_skill('Mad')) {
-            $moodStr = ' Mad';
-        } elseif ($this->has_skill('Mood')) {
-            $moodStr = ' Mood';
-        }
-
-        $typeStr = '';
-        if ($this->dice[0] instanceof BMDieSwing &&
-            $this->dice[1] instanceof BMDieSwing) {
-            $typeStr = "Twin {$this->dice[0]->swingType}{$moodStr} Swing Die";
-        } else {
-            $typeStr = 'Twin Die';
-        }
-
-        $sideStr = '';
-        if (isset($this->dice[0]->max)) {
-            if ($this->dice[0]->max == $this->dice[1]->max) {
-                $sideStr = " (both with {$this->dice[0]->max} sides)";
-            } else {
-                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
-            }
-        }
+        $skillStr = $this->skillStr();
+        $typeStr = $this->typeStr();
+        $sideStr = $this->sideStr();
 
         $valueStr = '';
         if ($isValueRequired && isset($this->value)) {
@@ -130,6 +101,59 @@ class BMDieTwin extends BMDie {
         $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
 
         return $result;
+    }
+
+    protected function skillStr() {
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                if (('Mood' != $skill) && 'Mad' != $skill) {
+                    $skillStr .= "$skill ";
+                }
+            }
+        }
+
+        return $skillStr;
+    }
+
+    protected function moodStr() {
+        $moodStr = '';
+        if ($this->has_skill('Mad')) {
+            $moodStr = ' Mad';
+        } elseif ($this->has_skill('Mood')) {
+            $moodStr = ' Mood';
+        }
+
+        return $moodStr;
+    }
+
+    protected function typeStr() {
+        $typeStr = '';
+        if ($this->dice[0] instanceof BMDieSwing &&
+            $this->dice[1] instanceof BMDieSwing) {
+            $typeStr = "Twin {$this->dice[0]->swingType}{$this->moodStr()} Swing Die";
+        } else {
+            $typeStr = 'Twin Die';
+        }
+
+        return $typeStr;
+    }
+
+    protected function sideStr() {
+        $sideStr = '';
+        if (isset($this->dice[0]->max)) {
+            if ($this->dice[0]->max == $this->dice[1]->max) {
+                $sideStr = " (both with {$this->dice[0]->max} side";
+                if ($this->dice[0]->max != 1) {
+                    $sideStr .= 's';
+                }
+                $sideStr .= ')';
+            } else {
+                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
+            }
+        }
+
+        return $sideStr;
     }
 
     public function split() {

@@ -323,6 +323,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testAttack_list
      */
     public function testAttack_values() {
+        $this->object->init(15);
         $this->object->value = 7;
 
         foreach ($this->object->attack_list() as $att) {
@@ -678,6 +679,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDie;
         $die4->init(25, array('Shadow', 'Poison'));
         $this->assertEquals('sp(25)', $die4->get_recipe());
+
+        $die5 = new BMDie;
+        $die5->init(51, array());
+        $this->assertEquals('(51)', $die5->get_recipe(TRUE));
     }
 
     /*

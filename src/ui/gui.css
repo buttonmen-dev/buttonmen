@@ -110,6 +110,10 @@ td.chat {
     text-align: right;
 }
 
+.hiddenChatForm {
+    display: none;
+}
+
 .logtable .new {
     background-color: #ffffcc;
 }
@@ -289,12 +293,104 @@ select.center {
     border: 2px solid red;
 }
 
+/* class for making the element focus outline invisible:
+ * default is visible when this class is not present */
+.hide_focus {
+    outline: 0;
+}
+
+span.skill_desc {
+    border-bottom: 1px dotted #000000;
+    text-decoration: none;
+    cursor: default;
+}
+
+span.skill_desc_i {
+    color: white;
+    background: #000080;
+    border-radius: 50%;
+    padding: 1px;
+    vertical-align: super;
+    font-size: 0.6em;
+    display: inline-block;
+    width: 1em;
+    cursor: default;
+}
+
 .unselected_player {
     border-bottom-right-radius: 1em;
 }
 
 .unselected_opponent {
     border-top-left-radius: 1em;
+}
+
+table.profileTable thead td {
+    font-size: 2em;
+    font-weight: bold;
+    padding-top: 1em;
+    padding-bottom: 1em;
+}
+
+table.prefsTable td.label {
+    text-align: right;
+    width: 50%;
+    vertical-align: top;
+}
+
+table.profileTable td.label {
+    text-align: right;
+    max-width: 400px;
+    vertical-align: top;
+    font-weight: bold;
+    padding-right: 5px;
+}
+
+table.prefsTable td.value {
+    text-align: left;
+    width: 50%;
+    vertical-align: top;
+}
+
+table.profileTable td.value,
+table.profileTable td.missingValue {
+    text-align: left;
+    max-width: 400px;
+    vertical-align: top;
+    padding-left: 5px;
+}
+
+table.profileTable td.missingValue {
+    font-style: italic;
+}
+
+table.profileTable td.partialValue {
+    text-align: left;
+    max-width: 200px;
+    vertical-align: top;
+}
+
+img.profileImage {
+    max-width: 200px;
+    max-height: 200px;
+}
+
+table.activePlayerList td.player,
+table.activePlayerList th.player {
+    text-align: right;
+    padding-right: 10px;
+    width: 50%;
+}
+
+table.activePlayerList td.player a {
+    color: black;
+}
+
+table.activePlayerList td.idleness,
+table.activePlayerList th.idleness {
+    text-align: left;
+    padding-left: 10px;
+    width: 50%;
 }
 
 /* Game lists (Overview, Game History) */
@@ -344,3 +440,293 @@ table.gameList tfoot:before {
     color: white; /* to hide text */
     display: block;
 }
+
+table.gameList input[type=text] {
+    width: 70px;
+}
+
+table.gameList select {
+    max-width: 120px;
+}
+
+#history_page table.gameList th,
+#history_page table.gameList thead td,
+#history_page table.gameList tfoot td {
+    padding: 0.2em 0.4em;
+}
+
+table.gameList span.sortButton,
+table.gameList span.pageLink {
+    cursor: pointer;
+    margin: 0.2em;
+    display: inline-block;
+}
+
+table.gameList img.calendar {
+    vertical-align: middle;
+    margin: 0.2em;
+}
+
+/* END: Game lists */
+
+/* Forum */
+
+div.forum,
+div.forum div,
+div.forum td {
+    text-align: left;
+    word-wrap: break-word;
+}
+
+div.forum .pseudoLink {
+    color: black;
+    cursor: pointer;
+}
+
+div.forum div.breadcrumb {
+    font-size: 1.2em;
+}
+
+div.forum > table {
+    width: 100%;
+    max-width: 960px;
+    border-collapse: separate;
+    border-spacing: 0 0.5em;
+    table-layout: fixed;
+}
+
+div.forum > table td {
+    border: 2px solid #cccccc;
+    vertical-align: top;
+    padding: 0.2em 0.4em;
+}
+
+div.forum td.heading {
+    background-color: #cccccc;
+    vertical-align: middle;
+}
+
+/*
+  This is, sadly, necessary to compensate for the dummy row in this table,
+  which is, sadly, necessary to make it respect the cell widths when using
+  table-layout: fixed, which is, necessary to make word-wrap: break-word work.
+*/
+div.forum .posts {
+    margin-top: -1.4em;
+}
+
+div.forum .mainBreadcrumb {
+    font-size: 1.1em;
+    font-weight: bold;
+}
+
+div.forum .boards .mainBreadcrumb {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+div.forum .subHeader {
+    margin: 0.2em 0 0.2em 1.2em;
+}
+
+div.forum td.notes {
+    background-color: #cccccc;
+    white-space: nowrap;
+    /*
+      If we showed the right border from the left cell and the left border from
+      the right one, it would look like one double-thick monster border.
+      So don't do that.
+    */
+    border-left: 0;
+    width: 160px;
+}
+
+div.forum tr:first-child td.notes {
+    text-align: center;
+    vertical-align: middle;
+}
+
+div.forum td.attribution {
+    background-color: #cccccc;
+    width: 160px;
+}
+
+div.forum table.posts td.attribution {
+    /* This is so we don't get the borders from both cells together */
+    border-right: 0;
+}
+
+div.forum table.threads td.attribution {
+    /* This is so we don't get the borders from both cells together */
+    border-left: 0;
+}
+
+div.forum td.attribution .name {
+    font-weight: bold;
+}
+
+div.forum td.attribution .postAnchor {
+    color: white;
+    text-decoration: none;
+    margin-right: 0.4em;
+}
+
+div.forum .minor {
+    font-size: 0.8em;
+}
+
+div.forum .new {
+    text-align: center;
+    color: black;
+    background-color: white;
+    font-weight: bold;
+    width: 4em;
+    margin: 0.4em auto 0.2em auto;
+    border-radius: 0.5em;
+}
+
+div.forum td.body,
+div.forum td.title {
+    min-width: 600px;
+}
+
+div.forum td.body {
+    padding-top: 0.4em;
+}
+
+div.forum td.body hr {
+    color: #cccccc;
+    border: 1px solid #cccccc;
+    margin: 0.6em 0 0.1em 0;
+}
+
+div.forum td.body .postFooter {
+    font-size: 0.8em;
+    color: #777777;
+}
+
+div.forum .boards td.title {
+    background-color: #dddddd;
+}
+
+div.forum td.title a,
+div.forum td.attribution a {
+    color: black;
+}
+
+div.forum td.deleted {
+    color: #cccccc;
+}
+
+div.forum .threads tr.writePost {
+    display: none;
+}
+
+div.forum tr.writePost td.attribution {
+    background-color: #dddddd;
+    font-size: 0.8em;
+    text-align: left;
+    vertical-align: top;
+}
+
+div.forum tr.writePost td.attribution .help {
+    margin-left: 1em;
+}
+
+div.forum tr.writePost input.title {
+    width: 99%;
+    display: block;
+}
+
+div.forum tr.writePost textarea {
+    width: 99%;
+    height: 10em;
+    display: block;
+}
+
+/* Weirdly, text inputs and textareas default to using different fonts */
+div.forum tr.writePost input[type=text],
+div.forum tr.writePost textarea {
+    font-family: sans-serif;
+    font-size: 1em;
+    margin-bottom: 0.4em;
+}
+
+div.forum tr.writePost td {
+    text-align: right;
+}
+
+div.forum td.markRead {
+    text-align: left;
+    border: 0;
+}
+
+div.forum div.splitLeft {
+    display: inline-block;
+    text-align: left;
+    width: 60%;
+}
+
+div.forum div.splitRight {
+    display: inline-block;
+    text-align: right;
+    width: 40%;
+}
+
+/* END: Forum*/
+
+/* BB Code (OK technically also forum but chat too) */
+
+.chatBold {
+    font-weight: bold;
+}
+
+.chatItalic {
+    font-style: italic;
+}
+
+.chatUnderlined {
+    text-decoration: underline;
+}
+
+.chatStruckthrough {
+    text-decoration: line-through;
+}
+
+.chatCode {
+    font-family: monospace;
+}
+
+.chatQuote {
+    background: rgba(0, 0, 0, .05);
+    border: 1px solid grey;
+    margin: 0.5em 0.2em;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
+    padding-bottom: 0.2em;
+    text-align: left;
+}
+
+/*
+  This matches any br element that immediately follows a .chatQuote, in order
+  to make the newline after a quotation optional.
+*/
+.chatQuote + br {
+    display: none;
+}
+
+.chatQuotee {
+    font-weight: bold;
+    font-size: 0.7em;
+    margin-bottom: 0.4em;
+    text-align: left;
+}
+
+.chatSpoiler,
+.chatSpoiler a,
+.chatSpoiler .chatQuoteBody {
+    color: black;
+    background-color: black;
+}
+
+/* END: BB Code */

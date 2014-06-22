@@ -14,7 +14,7 @@ Overview.GAME_STATE_END_GAME = 60;
 //   It sets Api.active_games and Api.completed_games.  If successful,
 //   it calls
 // * Overview.showPage() assembles the page contents as a variable
-// * Overview.layoutPage() sets the contents of <div id="overview_page">
+// * Overview.arrangePage() sets the contents of <div id="overview_page">
 //   on the live page
 //
 // N.B. There is no form submission on this page, it's just a landing
@@ -25,7 +25,6 @@ Overview.GAME_STATE_END_GAME = 60;
 Overview.showOverviewPage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
@@ -69,10 +68,10 @@ Overview.showPage = function() {
   }
 
   // Actually layout the page
-  Overview.layoutPage();
+  Overview.arrangePage();
 };
 
-Overview.layoutPage = function() {
+Overview.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -87,18 +86,45 @@ Overview.layoutPage = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
+  // This is being temporarily removed, but will be added back soon (once
+  // dismissing completed games from this list is implemented)
+  //Overview.pageAddGameTable('finished', 'Completed games');
   Overview.pageAddGameTable('awaitingPlayer', 'Active games');
   Overview.pageAddGameTable('awaitingOpponent', 'Active games');
-  Overview.pageAddGameTable('finished', 'Completed games');
+  var historyLink = $('<a>', {
+    'text': 'History',
+    'href': 'history.html#!playerNameA=' +
+      encodeURIComponent(Login.player) + '&status=COMPLETE',
+  });
+  Overview.page.append(
+    $('<div>').append('Completed games have been moved to the ')
+      .append(historyLink).append(' page.'));
 };
 
 Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
   var newgamePar = $('<p>');
-  newgamePar.append($('<a>', {
-    'href': 'create_game.html',
-    'text': 'Create a new game',
-  }));
+  if (Api.active_games.games.awaitingPlayer.length > 0) {
+    newgamePar.append($('<a>', {
+      'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+      'text': 'Go to your next pending game',
+    }));
+
+  } else if (Api.active_games.games.awaitingOpponent.length > 0) {
+    // just return in this case, and don't add a message at all
+    return;
+
+  } else {
+    newgamePar.append($('<a>', {
+      'href': 'create_game.html',
+      'text': 'Create a new game',
+    }));
+    newgamePar.append(' or ');
+    newgamePar.append($('<a>', {
+      'href': 'open_games.html',
+      'text': 'join an open game',
+    }));
+  }
   newgameDiv.append(newgamePar);
   Overview.page.append(newgameDiv);
 };
@@ -196,9 +222,8 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       'text': gameInfo.opponentButtonName,
     }));
     gameRow.append($('<td>', {
-      'text': gameInfo.opponentName,
       'style': 'background-color: ' + opponentColor,
-    }));
+    }).append(Env.buildProfileLink(gameInfo.opponentName)));
 
     var wldColor = '#ffffff';
     if (gameInfo.gameScoreDict.W > gameInfo.gameScoreDict.L) {

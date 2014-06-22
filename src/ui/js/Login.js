@@ -25,7 +25,7 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
-      var welcomeText = 'Welcome to ButtonMen';
+      var welcomeText = 'Welcome to Button Men';
       if (Config.siteType == 'development') {
         $('#login_header').css('background-color', '#cccccc');
         $('head').append(
@@ -162,12 +162,17 @@ Login.addMainNavbar = function() {
   var navtable = $('<table>');
   var navrow = $('<tr>');
   var links = {
-    'index.html': 'Overview',
-    'create_game.html': 'Create game',
-    'prefs.html': 'Preferences',
-    'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
+    'Overview': 'index.html',
+    'Create game': 'create_game.html',
+    'Open games': 'open_games.html',
+    'Preferences': 'prefs.html',
+    'Profile': Env.buildProfileLink(Login.player, true),
+    'History': 'history.html',
+    'Who\'s online': 'active_players.html',
+    'Forum': 'forum.html',
+    'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
   };
-  $.each(links, function(url, text) {
+  $.each(links, function(text, url) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
     navrow.append(navtd);
@@ -197,7 +202,7 @@ Login.postToResponder = function(responder_args) {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
       if (responder_args.type == 'logout') {
-        Env.window.location.href = '/ui';
+        Env.window.location.href = Env.ui_root;
       } else {
         Login.showLoginHeader(Login.callback);
       }
@@ -221,7 +226,7 @@ Login.formLogin = function() {
   var username = null;
   var password = null;
   $('input#login_name').each(function(index, element) {
-    username = $(element).val();
+    username = $.trim($(element).val());
   });
   $('input#login_pass').each(function(index, element) {
     password = $(element).val();

@@ -455,5 +455,11 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDieOption;
         $die4->init(array(4,8), array('Shadow', 'Poison'));
         $this->assertEquals('sp(4/8)', $die4->get_recipe());
+
+        $die5 = new BMDieOption;
+        $die5->init(array(4,8), array());
+        $this->assertEquals('(4/8)', $die5->get_recipe(TRUE));
+        $die5->max = '4';
+        $this->assertEquals('(4/8=4)', $die5->get_recipe(TRUE));
     }
 }

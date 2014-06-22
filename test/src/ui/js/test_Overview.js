@@ -88,14 +88,14 @@ asyncTest("test_Overview.showPage", function() {
   });
 });
 
-asyncTest("test_Overview.layoutPage", function() {
+asyncTest("test_Overview.arrangePage", function() {
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.page.append($('<p>', {'text': 'hi world', }));
-    Overview.layoutPage();
+    Overview.arrangePage();
     var item = document.getElementById('overview_page');
     equal(item.nodeName, "DIV",
-          "#overview_page is a div after layoutPage() is called");
+          "#overview_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -109,13 +109,50 @@ asyncTest("test_Overview.pageAddGameTables", function() {
   });
 });
 
+// The default overview data contains games awaiting both the player and the opponent
 asyncTest("test_Overview.pageAddNewgameLink", function() {
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.pageAddNewgameLink();
-    deepEqual(Overview.page.html(),
-      "<div><p><a href=\"create_game.html\">Create a new game</a></p></div>",
-      "Page link contents are correct");
+    var htmlout = Overview.page.html();
+    ok(!htmlout.match("Create a new game"),
+      "Overview page does not contain new game creation message when active games exist");
+    ok(!htmlout.match("join an open game"),
+      "Overview page does not contain message about joining open games when active games exist");
+    ok(htmlout.match("Go to your next pending game"),
+      "Overview page contains a link to the 'next game' function when a game is awaiting action");
+    start();
+  });
+});
+
+asyncTest("test_Overview.pageAddNewgameLink_noactive", function() {
+  Overview.getOverview(function() {
+    Api.active_games.games.awaitingPlayer = [];
+    Overview.page = $('<div>');
+    Overview.pageAddNewgameLink();
+    var htmlout = Overview.page.html();
+    ok(!htmlout.match("Create a new game"),
+      "Overview page does not contain new game creation message when active games exist");
+    ok(!htmlout.match("join an open game"),
+      "Overview page does not contain message about joining open games when active games exist");
+    ok(!htmlout.match("Go to your next pending game"),
+      "Overview page does not contain a link to the 'next game' function when no game is awaiting action");
+    start();
+  });
+});
+
+asyncTest("test_Overview.pageAddNewgameLink_nogames", function() {
+  Overview.getOverview(function() {
+    Api.active_games.games = {
+      'awaitingOpponent': [],
+      'awaitingPlayer': [],
+    };
+    Overview.page = $('<div>');
+    Overview.pageAddNewgameLink();
+    ok(Overview.page.html().match("Create a new game"),
+      "Overview page contains new game creation message");
+    ok(Overview.page.html().match("join an open game"),
+      "Overview page contains message about joining open games");
     start();
   });
 });
