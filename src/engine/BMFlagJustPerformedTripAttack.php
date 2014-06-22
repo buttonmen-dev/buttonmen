@@ -20,7 +20,7 @@ class BMFlagJustPerformedTripAttack extends BMFlag {
     }
 
     public function __construct($dieValue) {
-        $postAttackValue = NULL;
+        $this->postAttackValue = NULL;
         if (isset($dieValue)) {
             $this->postAttackValue = (int)$dieValue;
         }

@@ -3,7 +3,7 @@
 class BMFlagWasJustCapturedTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @covers BMFlagWasJustCaptured::__construct
+     * @covers BMFlag::__construct
      */
     public function testConstruct() {
         $flag = BMFlag::create_from_string('WasJustCaptured');
@@ -11,7 +11,7 @@ class BMFlagWasJustCapturedTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMFlagWasJustCaptured::__construct
+     * @covers BMFlag::__construct
      */
     public function testToString() {
         $flag = BMFlag::create_from_string('WasJustCaptured');
