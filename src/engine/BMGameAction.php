@@ -116,14 +116,28 @@ class BMGameAction {
         $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders);
 
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
-        $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
 
         if ($defenderRerollsEarly) {
-            $message .= $messageAttacker.$messageDefender;
+            // this only triggers for trip attacks, so there can only be one attacker involved
+            $midAttackDice = $preAttackDice;
+
+            if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
+                $midAttackDice['attacker'][0]['value'] =
+                    $postAttackDice['attacker'][0]['valueAfterTripAttack'];
+            }
+
+            $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
+            $message .= $messageDefender;
+
+            // now deal with morphing after trip
+            if (isset($postAttackDice['attacker'][0]['hasJustMorphed'])) {
+                $message .= $this->messageAttacker($midAttackDice, $postAttackDice);
+            }
         } else {
+            $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
             $message .= $messageDefender.$messageAttacker;
         }
-
+        
         return $message;
     }
 

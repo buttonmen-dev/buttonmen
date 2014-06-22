@@ -563,6 +563,10 @@ class BMDie extends BMCanHaveSkill {
     // die state before the attack to the die state after the attack.
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
+        $valueAfterTripAttack = NULL;
+        if ($this->has_flag('JustPerformedTripAttack')) {
+            $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->postAttackValue;
+        }
         return(array(
             'recipe' => $recipe,
             'min' => $this->min,
@@ -571,6 +575,8 @@ class BMDie extends BMCanHaveSkill {
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
             'recipeStatus' => $recipe . ':' . $this->value,
+            'valueAfterTripAttack' => $valueAfterTripAttack,
+            'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
         ));
     }
 
