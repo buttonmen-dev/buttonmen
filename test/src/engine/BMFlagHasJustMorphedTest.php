@@ -3,7 +3,7 @@
 class BMFlagHasJustMorphedTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @covers BMFlag::__construct
+     * @covers BMFlag::create_from_string
      */
     public function testConstruct() {
         $flag = BMFlag::create_from_string('HasJustMorphed');
