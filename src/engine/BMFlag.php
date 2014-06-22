@@ -24,6 +24,10 @@ abstract class BMFlag {
         return $flag;
     }
 
+    public function value() {
+        return NULL;
+    }
+
     public function __toString() {
         $name = get_class($this);
 

@@ -13,7 +13,11 @@
 class BMFlagJustPerformedTripAttack extends BMFlag {
 
     // properties
-    public $postAttackValue;
+    protected $postAttackValue;
+
+    public function value() {
+        return $this->postAttackValue;
+    }
 
     public function __construct($dieValue) {
         $postAttackValue = NULL;

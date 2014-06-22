@@ -564,8 +564,10 @@ class BMDie extends BMCanHaveSkill {
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
         $valueAfterTripAttack = NULL;
+        var_dump($this->flagList);
         if ($this->has_flag('JustPerformedTripAttack')) {
-            $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->postAttackValue;
+            var_dump($this->flagList['JustPerformedTripAttack']);
+            $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
         }
         return(array(
             'recipe' => $recipe,
