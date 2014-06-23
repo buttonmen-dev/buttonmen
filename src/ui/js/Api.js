@@ -410,7 +410,8 @@ var Api = (function () {
     }
 
     my.game.player = my.parseGamePlayerData(
-                       data.playerDataArray[my.game.playerIdx], my.game.playerIdx);
+                       data.playerDataArray[my.game.playerIdx],
+                       my.game.playerIdx);
     my.game.opponent = my.parseGamePlayerData(
                          data.playerDataArray[my.game.opponentIdx],
                          my.game.opponentIdx);
@@ -441,7 +442,7 @@ var Api = (function () {
 
     // store buttonName as a top-level variable for convenience
     // in assembling game tables
-    data['buttonName'] = playerData.button.name;
+    data.buttonName = playerData.button.name;
 
     // activePlayerIdx may be either player or may be null
     if (my.game.activePlayerIdx == playerIdx) {
