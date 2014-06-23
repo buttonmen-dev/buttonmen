@@ -1,0 +1,83 @@
+{
+  "gameId": 17,
+  "gameState": "CHOOSE_RESERVE_DICE",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 2,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": {
+    "Reserve": {
+      "code": "r",
+      "description": "These are extra dice which may be brought into play part way through a game. Each time you lose a round you may choose another of your Reserve Dice; it will then be in play for all future rounds.",
+      "interacts": []
+    }
+  },
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "button": {
+        "name": "Cammy Neko",
+        "recipe": "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
+        "artFilename": "cammyneko.png"
+      },
+      "activeDieArray": [
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 6, "skills": [], "properties": [], "recipe": "(6)", "description": "6-sided die" },
+        { "value": null, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": null, "sides": 20, "skills": [], "properties": [], "recipe": "(10,10)", "description": "Twin Die (both with 10 sides)" },
+        { "value": null, "sides": 12, "skills": ["Reserve"], "properties": [], "recipe": "r(12)", "description": "Reserve 12-sided die" },
+        { "value": null, "sides": 20, "skills": ["Reserve"], "properties": [], "recipe": "r(20)", "description": "Reserve 20-sided die" },
+        { "value": null, "sides": 20, "skills": ["Reserve"], "properties": [], "recipe": "r(20)", "description": "Reserve 20-sided die" },
+        { "value": null, "sides": 16, "skills": ["Reserve"], "properties": [], "recipe": "r(8,8)", "description": "Reserve Twin Die (both with 8 sides)" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": false,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 1, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "button": {
+        "name": "Cammy Neko",
+        "recipe": "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
+        "artFilename": "cammyneko.png"
+      },
+      "activeDieArray": [
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 6, "skills": [], "properties": [], "recipe": "(6)", "description": "6-sided die" },
+        { "value": null, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": null, "sides": 20, "skills": [], "properties": [], "recipe": "(10,10)", "description": "Twin Die (both with 10 sides)" },
+        { "value": null, "sides": 12, "skills": ["Reserve"], "properties": [], "recipe": "r(12)", "description": "Reserve 12-sided die" },
+        { "value": null, "sides": 20, "skills": ["Reserve"], "properties": [], "recipe": "r(20)", "description": "Reserve 20-sided die" },
+        { "value": null, "sides": 20, "skills": ["Reserve"], "properties": [], "recipe": "r(20)", "description": "Reserve 20-sided die" },
+        { "value": null, "sides": 16, "skills": ["Reserve"], "properties": [], "recipe": "r(8,8)", "description": "Reserve Twin Die (both with 8 sides)" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 1, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
+  "timestamp": 1403223970
+}

@@ -645,16 +645,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummydata = $dummyval['data'];
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy button lists should have matching structures");
+            "Real and dummy game data should have matching structures");
+        $this->assertTrue(
+            $this->object_structures_match($dummydata['playerDataArray'][0], $retdata['playerDataArray'][0], True),
+            "Real and dummy game playerData objects should have matching structures");
 
 	// Now hand-modify a few things we know will be different
 	// and check that the data structures are entirely identical otherwise
-        $dummydata['gameData']['data']['gameId'] = $retdata['gameData']['data']['gameId'];
-        $dummydata['gameData']['data']['playerIdArray'] = $retdata['gameData']['data']['playerIdArray'];
-        $dummydata['playerNameArray'] = $retdata['playerNameArray'];
+        $dummydata['gameId'] = $retdata['gameId'];
+        foreach(array_keys($retdata['playerDataArray']) as $playerIdx) {
+            foreach(array('playerName', 'playerId', 'lastActionTime') as $playerKey) {
+                $dummydata['playerDataArray'][$playerIdx][$playerKey] =
+                    $retdata['playerDataArray'][$playerIdx][$playerKey];
+            }
+        }
         $dummydata['timestamp'] = $retdata['timestamp'];
-        $dummydata['gameData']['data']['lastActionTimeArray'] =
-            $retdata['gameData']['data']['lastActionTimeArray'];
 
         $this->assertEquals($dummydata, $retdata);
 
@@ -930,8 +935,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval = $this->object->process_request($dataargs);
             $timestamp = $retval['data']['timestamp'];
 
-            if (($retval['data']['gameData']['data']['gameState'] != "REACT_TO_INITIATIVE") ||
-                ($retval['data']['gameData']['data']['playerWithInitiativeIdx'] != 1)) {
+            if (($retval['data']['gameState'] != "REACT_TO_INITIATIVE") ||
+                ($retval['data']['playerWithInitiativeIdx'] != 1)) {
                 $real_game_id = NULL;
                 $thistry++;
             }

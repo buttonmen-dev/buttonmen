@@ -417,22 +417,27 @@ class BMInterface {
         if ($game) {
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
-            foreach ($game->playerIdArray as $gamePlayerId) {
-                $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
-            }
-
             // load_game will decide if the logEntryLimit should be overridden
             // (e.g. if chat is private or for completed games)
             $logEntryLimit = $game->logEntryLimit;
 
-            $data = array(
-                'currentPlayerIdx' => $currentPlayerIdx,
-                'gameData' => $game->getJsonData($playerId),
-                'playerNameArray' => $playerNameArray,
-                'timestamp' => $this->timestamp,
-                'gameActionLog' => $this->load_game_action_log($game, $logEntryLimit),
-                'gameChatLog' => $this->load_game_chat_log($game, $logEntryLimit),
-            );
+            // this is not part of the data we return directly, but
+            // is currently needed for find_editable_chat_timestamp(),
+            // which would need to duplicate a database query otherwise
+            $playerNameArray = array();
+
+            $data = $game->getJsonData($playerId);
+            $data['currentPlayerIdx'] = $currentPlayerIdx;
+            foreach ($game->playerIdArray as $gamePlayerIdx => $gamePlayerId) {
+                $playerName = $this->get_player_name_from_id($gamePlayerId);
+                $playerNameArray[] = $playerName;
+                $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
+            }
+
+            $data['gameActionLog'] = $this->load_game_action_log($game, $logEntryLimit);
+            $data['gameChatLog'] = $this->load_game_chat_log($game, $logEntryLimit);
+            $data['timestamp'] = $this->timestamp;
+
             $data['gameChatEditable'] = $this->find_editable_chat_timestamp(
                 $game,
                 $currentPlayerIdx,
