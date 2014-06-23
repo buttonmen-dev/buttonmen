@@ -2318,10 +2318,10 @@ class BMGame {
     }
 
     protected function get_activeDieArray($playerIdx, $requestingPlayerIdx) {
-	// this should be refactored to duplicate less effort, but
-	// right now e.g. nulling of die values is done across all
-	// dice at once, so it will take some refactoring to actually
-	// request dice one at a time
+        // this should be refactored to duplicate less effort, but
+        // right now e.g. nulling of die values is done across all
+        // dice at once, so it will take some refactoring to actually
+        // request dice one at a time
         $valueArrayArray = $this->get_valueArrayArray($requestingPlayerIdx);
         $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
         $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
@@ -2344,9 +2344,9 @@ class BMGame {
     }
 
     protected function get_capturedDieArray($playerIdx) {
-        $capturedDieArray = array(); 
+        $capturedDieArray = array();
         if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray[$playerIdx] as $dieIdx => $die) {
+            foreach ($this->capturedDieArrayArray[$playerIdx] as $die) {
                 $capturedDieArray[] = array(
                     'value' => $die->value,
                     'sides' => $die->max,

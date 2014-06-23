@@ -421,9 +421,9 @@ class BMInterface {
             // (e.g. if chat is private or for completed games)
             $logEntryLimit = $game->logEntryLimit;
 
-	    // this is not part of the data we return directly, but
-	    // is currently needed for find_editable_chat_timestamp(),
-	    // which would need to duplicate a database query otherwise
+            // this is not part of the data we return directly, but
+            // is currently needed for find_editable_chat_timestamp(),
+            // which would need to duplicate a database query otherwise
             $playerNameArray = array();
 
             $data = $game->getJsonData($playerId);

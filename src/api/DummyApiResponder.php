@@ -62,13 +62,15 @@ class DummyApiResponder {
             } catch (Exception $e) {
                 error_log(
                     "Received exception in DummyApiResponder while trying to read " . $fileName .
-                    "in response to an API query for " . $apiFunction . ": " . $e);
+                    "in response to an API query for " . $apiFunction . ": " . $e
+                );
                 return NULL;
             }
         } else {
             error_log(
                 "DummyApiResponder tried to read nonexistent file " . $fileName .
-                " in response to an API query for " . $apiFunction);
+                " in response to an API query for " . $apiFunction
+            );
             return NULL;
         }
     }
@@ -705,7 +707,7 @@ class DummyApiResponder {
 
         if ($args['game'] <= 19) {
             $data = $this->load_json_data_from_file(
-                'loadGameData', 
+                'loadGameData',
                 $args['game'] . '.json'
             );
         }
