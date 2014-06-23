@@ -35,6 +35,10 @@
         { "value": null, "sides": 20, "skills": ["Auxiliary"], "properties": [], "recipe": "+(20)", "description": "Auxiliary 20-sided die" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -59,6 +63,10 @@
         { "value": null, "sides": null, "skills": ["Auxiliary"], "properties": [], "recipe": "+(20)", "description": "Auxiliary 20-sided die" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -67,14 +75,5 @@
       "canStillWin": null
     }
   ],
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []]
-    }
-  },
   "timestamp": 1403222924
 }

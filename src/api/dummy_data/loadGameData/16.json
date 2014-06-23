@@ -37,6 +37,10 @@
         { "value": null, "sides": 16, "skills": ["Reserve"], "properties": [], "recipe": "r(8,8)", "description": "Reserve Twin Die (both with 8 sides)" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -63,6 +67,10 @@
         { "value": null, "sides": 16, "skills": ["Reserve"], "properties": [], "recipe": "r(8,8)", "description": "Reserve Twin Die (both with 8 sides)" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -71,14 +79,5 @@
       "canStillWin": null
     }
   ],
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []]
-    }
-  },
   "timestamp": 1403223678
 }

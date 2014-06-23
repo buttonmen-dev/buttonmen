@@ -28,6 +28,10 @@
         { "value": 4, "sides": 4, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die (with 4 sides)" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": false,
       "roundScore": 17,
       "sideScore": null,
@@ -51,6 +55,10 @@
         { "value": 2, "sides": 4, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die (with 4 sides)" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": true,
       "roundScore": 17,
       "sideScore": null,
@@ -59,14 +67,5 @@
       "canStillWin": null
     }
   ],
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []]
-    }
-  },
   "timestamp": 1403220783
 }

@@ -54,6 +54,10 @@
       },
       "activeDieArray": [],
       "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -71,6 +75,10 @@
       },
       "activeDieArray": [],
       "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -79,14 +87,5 @@
       "canStillWin": null
     }
   ],
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []]
-    }
-  },
   "timestamp": 1403221276
 }

@@ -28,6 +28,10 @@
         { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20\/24)", "description": "Option die (with 20 or 24 sides)" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": {"2": [2, 12], "3": [8, 16], "4": [20, 24]},
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -51,6 +55,10 @@
         { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20\/24)", "description": "Option die (with 20 or 24 sides)" }
       ],
       "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": {"2": [2, 12], "3": [8, 16], "4": [20, 24]},
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -59,14 +67,5 @@
       "canStillWin": null
     }
   ],
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "swingRequestArrayArray": [[], []],
-      "optRequestArrayArray": [{"2": [2, 12], "3": [8, 16], "4": [20, 24]}, {"2": [2, 12], "3": [8, 16], "4": [20, 24]}],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []]
-    }
-  },
   "timestamp": 1403224435
 }

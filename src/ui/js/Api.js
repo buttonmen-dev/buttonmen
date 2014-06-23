@@ -384,19 +384,13 @@ var Api = (function () {
     my.game.validAttackTypeArray = data.validAttackTypeArray;
     my.game.gameSkillsInfo = data.gameSkillsInfo;
 
-    my.game.gameData = data.gameData;
     my.game.timestamp = data.timestamp;
     my.game.actionLog = data.gameActionLog;
     my.game.chatLog = data.gameChatLog;
     my.game.chatEditable = data.gameChatEditable;
 
-    // Do some sanity-checking of the gameData object we have
+    // Do some sanity-checking of the data we have
 
-    // This is not the same as rs.status --- it's a second status
-    // value within the gameData object
-    if (my.game.gameData.status != 'ok') {
-      return false;
-    }
     if (activity.gameId != my.game.gameId) {
       return false;
     }
@@ -446,37 +440,18 @@ var Api = (function () {
       'activeDieArray': playerData.activeDieArray,
       'capturedDieArray': playerData.capturedDieArray,
 
-       // N.B. These arrays describe the other player's dice which this
-       // player has captured
-//      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
-//      'capturedValueArray':
-//        my.game.gameData.data.capturedValueArrayArray[playerIdx],
-//      'capturedSidesArray':
-//        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
-//      'capturedRecipeArray':
-//        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
-//      'capturedDiePropertiesArray':
-//        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
-
-      'swingRequestArray': {},
-      'optRequestArray':
-        my.game.gameData.data.optRequestArrayArray[playerIdx],
-
-      'prevSwingValueArray':
-        my.game.gameData.data.prevSwingValueArrayArray[playerIdx],
-      'prevOptValueArray':
-        my.game.gameData.data.prevOptValueArrayArray[playerIdx],
+      'swingRequestArray': {}, // FIXME
+      'optRequestArray': playerData.optRequestArray,
+      'prevSwingValueArray': playerData.prevSwingValueArray,
+      'prevOptValueArray': playerData.prevOptValueArray,
     };
 
-    $.each(
-      my.game.gameData.data.swingRequestArrayArray[playerIdx],
-      function(letter, range) {
-        data.swingRequestArray[letter] = {
-          'min': parseInt(range[0], 10),
-          'max': parseInt(range[1], 10)
-        };
-      }
-    );
+    $.each(playerData.swingRequestArray, function(letter, range) {
+      data.swingRequestArray[letter] = {
+        'min': parseInt(range[0], 10),
+        'max': parseInt(range[1], 10)
+      };
+    });
 
     // activePlayerIdx may be either player or may be null
     if (my.game.activePlayerIdx == playerIdx) {

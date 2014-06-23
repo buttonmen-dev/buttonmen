@@ -45,6 +45,10 @@
         { "value": 3, "sides": 10, "properties": [], "recipe": "(10)" },
         { "value": 1, "sides": 4, "properties": [], "recipe": "(X)" }
       ],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": true,
       "roundScore": 18,
       "sideScore": -12,
@@ -70,6 +74,10 @@
         { "value": 7, "sides": 10, "properties": [], "recipe": "(10)" },
         { "value": 1, "sides": 4, "properties": ["WasJustCaptured"], "recipe": "(4)" }
       ],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
       "waitingOnAction": false,
       "roundScore": 36,
       "sideScore": 12,
@@ -78,14 +86,5 @@
       "canStillWin": null
     }
   ],
-  "gameData": {
-    "status": "ok",
-    "data": {
-      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
-      "optRequestArrayArray": [[], []],
-      "prevSwingValueArrayArray": [[], []],
-      "prevOptValueArrayArray": [[], []]
-    }
-  },
   "timestamp": 1403222365
 }
