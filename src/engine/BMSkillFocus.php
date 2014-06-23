@@ -33,4 +33,23 @@ class BMSkillFocus extends BMSkill {
         return ($hasPlayerInitArray[$playerIdx] &&
                 1 == array_sum($hasPlayerInitArray));
     }
+
+    protected static function get_description() {
+        return 'If you do not have the initiative at the start of ' .
+               'a round you may reduce the values showing on one or more ' .
+               'of your Focus Dice. You may only do this if it results in ' .
+               'your gaining the initiative. If your opponent has Focus ' .
+               'Dice, they may now do the same, and each player may respond ' .
+               'by turning down one or more Focus Dice until no further ' .
+               'moves are legal, or until one player allows the other to ' .
+               'take the first turn. IMPORTANT: If you go first, any Focus ' .
+               'Dice you have reduced may not be used as part of your first ' .
+               'attack. (The second player has no such restriction.)';
+    }
+
+    protected static function get_interaction_descriptions() {
+        return array(
+            'Chance' => 'Dice with both Chance and Focus skills may choose either skill to gain initiative',
+        );
+    }
 }

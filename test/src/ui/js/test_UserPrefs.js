@@ -55,14 +55,14 @@ asyncTest("test_UserPrefs.assemblePage", function() {
   });
 });
 
-asyncTest("test_UserPrefs.layoutPage", function() {
+asyncTest("test_UserPrefs.arrangePage", function() {
   Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
-    UserPrefs.layoutPage();
+    UserPrefs.arrangePage();
     var item = document.getElementById('userprefs_page');
     equal(item.nodeName, "DIV",
-          "#userprefs_page is a div after layoutPage() is called");
+          "#userprefs_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -100,4 +100,21 @@ asyncTest("test_UserPrefs.formSetPrefs", function() {
     $.ajaxSetup({ async: true });
     start();
   });
+});
+
+test("test_UserPrefs.appendToPreferencesTable", function() {
+  var table = $('<table>');
+  var prefs = {
+    'testing' : {
+      'text': 'Testing',
+      'type': 'checkbox',
+      'checked': true,
+    },
+  };
+
+  UserPrefs.appendToPreferencesTable(table, 'Test Preferences',
+    'These are not real. There is no spoon.', prefs);
+  var checkbox = table.find('input#userprefs_testing');
+
+  ok(checkbox.val(), 'User preference control created and populated');
 });

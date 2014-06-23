@@ -12,6 +12,59 @@ class ApiSpec {
     // * mandatory: argument which must be present
     // * permitted: additional argument which may be present
     private $functionArgs = array(
+        // createForumPost returns (from loadForumThread):
+        //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   boardColor: string,
+        //   boardThreadColor: string,
+        //   currentPostId: int (nullable),
+        //   posts[]: {
+        //     postId: int,
+        //     posterName: string,
+        //     posterColor: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     isNew: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        //   timestamp: int,
+        'createForumPost' => array(
+            'mandatory' => array(
+                'threadId' => 'number',
+                'body' => 'string',
+            ),
+            'permitted' => array(),
+        ),
+        // createForumThread returns (from loadForumThread):
+        //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   boardColor: string,
+        //   boardThreadColor: string,
+        //   currentPostId: int (nullable),
+        //   posts[]: {
+        //     postId: int,
+        //     posterName: string,
+        //     posterColor: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     isNew: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        //   timestamp: int,
+        'createForumThread' => array(
+            'mandatory' => array(
+                'boardId' => 'number',
+                'title' => 'string',
+                'body' => 'string',
+            ),
+            'permitted' => array(),
+        ),
         'createUser' => array(
             'mandatory' => array(
                 'username' => 'alnum',
@@ -22,25 +75,83 @@ class ApiSpec {
         ),
         'createGame' => array(
             'mandatory' => array(
-                'playerNameArray' => array(
-                    'has_keys' => FALSE,
+                'playerInfoArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => TRUE,
                     'minlength' => 2,
                     'maxlength' => 2,
-                    'elem_type' => 'alnum',
-                ),
-                'buttonNameArray' => array(
-                    'has_keys' => FALSE,
-                    'minlength' => 2,
-                    'maxlength' => 2,
-                    'elem_type' => 'button',
+                    'key_type' => 'number',
+                    'elem_type' => array('arg_type' => 'array',
+                                         'has_keys' => TRUE,
+                                         'minlength' => 0,
+                                         'maxlength' => 2,
+                                         'key_type' => 'number',
+                                         'elem_type' => 'string'),
                 ),
                 'maxWins' => 'number',
             ),
             'permitted' => array(),
         ),
+        'joinOpenGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(
+                'buttonName' => 'button',
+            ),
+        ),
         'loadActiveGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
+        ),
+        'loadActivePlayers' => array(
+            'mandatory' => array(
+                'numberOfPlayers' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        'searchGameHistory' => array(
+            'mandatory' => array(
+                'sortColumn' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array(
+                        'gameId',
+                        'playerNameA',
+                        'buttonNameA',
+                        'playerNameB',
+                        'buttonNameB',
+                        'gameStart',
+                        'lastMove',
+                        'winningPlayer',
+                        'status',
+                    ),
+                ),
+                'sortDirection' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('ASC', 'DESC'),
+                ),
+                'numberOfResults' => 'number',
+                'page' => 'number'
+            ),
+            'permitted' => array(
+                'gameId' => 'number',
+                'playerNameA' => 'alnum',
+                'buttonNameA' => 'button',
+                'playerNameB' => 'alnum',
+                'buttonNameB' => 'button',
+                'gameStartMin' => 'number',
+                'gameStartMax' => 'number',
+                'lastMoveMin' => 'number',
+                'lastMoveMax' => 'number',
+                'winningPlayer' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('A', 'B', 'Tie'),
+                ),
+                'status' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('ACTIVE', 'COMPLETE'),
+                ),
+            ),
         ),
         'loadButtonNames' => array(
             'mandatory' => array(),
@@ -49,6 +160,72 @@ class ApiSpec {
         'loadCompletedGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
+        ),
+        // loadForumBoard returns:
+        //   boardId: int,
+        //   boardName: string,
+        //   boardColor: string,
+        //   threadColor: string,
+        //   description: string,
+        //   threads[]: {
+        //     threadId: int,
+        //     threadTitle: string,
+        //     numberOfPosts: int,
+        //     originalPosterName: string,
+        //     originalCreationTime: int,
+        //     latestPosterName: string,
+        //     latestLastUpdateTime: int,
+        //     firstNewPostId: int,
+        //   },
+        //   timestamp: int,
+        'loadForumBoard' => array(
+            'mandatory' => array(
+                'boardId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        // loadForumOverview returns:
+        //   boards[]: {
+        //     boardId: int,
+        //     boardName: string,
+        //     boardColor: string,
+        //     threadColor: string,
+        //     description: string,
+        //     numberOfThreads: int,
+        //     firstNewPostId: int,
+        //     firstNewPostThreadId: int,
+        //   },
+        //   timestamp: int,
+        'loadForumOverview' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        // loadForumThread returns:
+        //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   boardColor: string,
+        //   boardThreadColor: string,
+        //   currentPostId: int (nullable),
+        //   posts[]: {
+        //     postId: int,
+        //     posterName: string,
+        //     posterColor: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     isNew: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        //   timestamp: int,
+        'loadForumThread' => array(
+            'mandatory' => array(
+                'threadId' => 'number',
+            ),
+            'permitted' => array(
+                'currentPostId' => 'number',
+            ),
         ),
         'loadGameData' => array(
             'mandatory' => array(
@@ -64,6 +241,10 @@ class ApiSpec {
               'currentGameId' => 'number',
             ),
         ),
+        'loadOpenGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         'loadPlayerInfo' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -76,6 +257,12 @@ class ApiSpec {
             'mandatory' => array(),
             'permitted' => array(),
         ),
+        'loadProfileInfo' => array(
+            'mandatory' => array(
+                'playerName' => 'alnum',
+            ),
+            'permitted' => array(),
+        ),
         'login' => array(
             'mandatory' => array(
                 'username' => 'alnum',
@@ -85,6 +272,68 @@ class ApiSpec {
         ),
         'logout' => array(
             'mandatory' => array(),
+            'permitted' => array(),
+        ),
+        // markForumBoardRead returns (from loadForumOverview):
+        //   boards[]: {
+        //     boardId: int,
+        //     boardName: string,
+        //     boardColor: string,
+        //     threadColor: string,
+        //     description: string,
+        //     numberOfThreads: int,
+        //     firstNewPostId: int,
+        //     firstNewPostThreadId: int,
+        //   },
+        //   timestamp: int,
+        'markForumRead' => array(
+            'mandatory' => array(
+                'timestamp' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        // markForumBoardRead returns (from loadForumOverview):
+        //   boards[]: {
+        //     boardId: int,
+        //     boardName: string,
+        //     boardColor: string,
+        //     threadColor: string,
+        //     description: string,
+        //     numberOfThreads: int,
+        //     firstNewPostId: int,
+        //     firstNewPostThreadId: int,
+        //   },
+        //   timestamp: int,
+        'markForumBoardRead' => array(
+            'mandatory' => array(
+                'boardId' => 'number',
+                'timestamp' => 'number',
+            ),
+            'permitted' => array(),
+        ),
+        // markForumThreadRead returns (from loadForumBoard):
+        //   boardId: int,
+        //   boardName: string,
+        //   boardColor: string,
+        //   threadColor: string,
+        //   description: string,
+        //   threads[]: {
+        //     threadId: int,
+        //     threadTitle: string,
+        //     numberOfPosts: int,
+        //     originalPosterName: string,
+        //     originalCreationTime: int,
+        //     latestPosterName: string,
+        //     latestLastUpdateTime: int,
+        //     firstNewPostId: int,
+        //   },
+        //   timestamp: int,
+        'markForumThreadRead' => array(
+            'mandatory' => array(
+                'threadId' => 'number',
+                'boardId' => 'number',
+                'timestamp' => 'number',
+            ),
             'permitted' => array(),
         ),
         'reactToAuxiliary' => array(
@@ -105,10 +354,12 @@ class ApiSpec {
             ),
             'permitted' => array(
                 'dieIdxArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => FALSE,
                     'elem_type' => 'number',
                 ),
                 'dieValueArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => FALSE,
                     'elem_type' => 'alnum',
                 ),
@@ -125,37 +376,40 @@ class ApiSpec {
         ),
         'savePlayerInfo' => array(
             'mandatory' => array(
+                'name_irl' => 'string',
+                'dob_month' => 'number',
+                'dob_day' => 'number',
+                'comment' => 'string',
                 'autopass' => 'boolean',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'current_password' => 'string',
+                'new_password' => 'string',
+                'new_email' => 'email',
+            ),
         ),
-        'submitSwingValues' => array(
+        'submitDieValues' => array(
             'mandatory' => array(
                 'game' => 'number',
                 'roundNumber' => 'number',
-                'swingValueArray' => array(
-                    'has_keys' => TRUE,
-                    'minlength' => 1,
-                    'key_type' => 'alnum',
-                    'elem_type' => 'number',
-                ),
                 'timestamp' => 'number',
             ),
-            'permitted' => array(),
-        ),
-        'submitOptionValues' => array(
-            'mandatory' => array(
-                'game' => 'number',
-                'roundNumber' => 'number',
+            'permitted' => array(
                 'optionValueArray' => array(
+                    'arg_type' => 'array',
                     'has_keys' => TRUE,
                     'minlength' => 1,
                     'key_type' => 'number',
                     'elem_type' => 'number',
                 ),
-                'timestamp' => 'number',
+                'swingValueArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => TRUE,
+                    'minlength' => 1,
+                    'key_type' => 'alnum',
+                    'elem_type' => 'number',
+                ),
             ),
-            'permitted' => array(),
         ),
         'submitChat' => array(
             'mandatory' => array(
@@ -172,6 +426,7 @@ class ApiSpec {
                 'roundNumber' => 'number',
                 'timestamp' => 'number',
                 'dieSelectStatus' => array(
+                    'arg_type' => 'array',
                     'has_keys' => TRUE,
                     'key_type' => 'alnum',
                     'elem_type' => 'boolean',
@@ -244,7 +499,13 @@ class ApiSpec {
     // landing function for verifying that an argument is of the correct type
     protected function verify_argument_type($arg, $argtype) {
         if (is_array($argtype)) {
-            return $this->verify_argument_array_type($arg, $argtype);
+            switch ($argtype['arg_type']) {
+                case 'exactString':
+                    return $this->verify_argument_exact_string_type($arg, $argtype['values']);
+                case 'array':
+                default:
+                    return $this->verify_argument_array_type($arg, $argtype);
+            }
         } else {
             $checkfunc = 'verify_argument_of_type_' . $argtype;
 
@@ -288,6 +549,11 @@ class ApiSpec {
             return TRUE;
         }
         return FALSE;
+    }
+
+    // verify that the argument is one of the exact strings permitted
+    protected function verify_argument_exact_string_type($arg, $values) {
+        return (is_string($arg) && in_array($arg, $values));
     }
 
     // verify that the argument is an alphanumeric string (allow underscores)

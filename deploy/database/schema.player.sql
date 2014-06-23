@@ -11,6 +11,7 @@ CREATE TABLE player (
     image_path          VARCHAR(100),
     comment             VARCHAR(255),
     last_action_time    TIMESTAMP DEFAULT 0,
+    last_access_time    TIMESTAMP DEFAULT 0,
     creation_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fanatic_button_id   SMALLINT UNSIGNED,
     n_games_won         SMALLINT UNSIGNED DEFAULT 0,

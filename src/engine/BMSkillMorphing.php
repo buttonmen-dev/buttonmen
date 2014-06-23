@@ -49,4 +49,23 @@ class BMSkillMorphing extends BMSkill {
 
         return $newDie;
     }
+
+    protected static function get_description() {
+        return 'When a Morphing Die is used in any attack, it changes ' .
+               'size, becoming the same size as the die that was captured. ' .
+               'It is then re-rolled. Morphing Dice change size every time ' .
+               'they capture another die. If a Morphing die is captured, ' .
+               'its scoring value is based on its size at the time of ' .
+               'capture; likewise, if it is not captured during a round, ' .
+               'its scoring value is based on its size at the end of the ' .
+               'round';
+    }
+
+    protected static function get_interaction_descriptions() {
+        return array();
+    }
+
+    public static function prevents_win_determination() {
+        return TRUE;
+    }
 }

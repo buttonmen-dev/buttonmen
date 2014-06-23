@@ -2,6 +2,8 @@ module("Game", {
   'setup': function() {
     BMTestUtils.GamePre = BMTestUtils.getAllElements();
 
+    BMTestUtils.setupFakeLogin();
+
     // Override Env.getParameterByName to set the game
     BMTestUtils.overrideGetParameterByName();
 
@@ -17,6 +19,10 @@ module("Game", {
 
     // Delete all elements we expect this module to create
 
+    // Revert cookies
+    Env.setCookieNoImages(false);
+    Env.setCookieCompactMode(false);
+
     // JavaScript variables
     delete Api.game;
     delete Game.game;
@@ -31,7 +37,11 @@ module("Game", {
     $('#game_page').remove();
     $('#game_page').empty();
 
+    BMTestUtils.restoreGetParameterByName();
+
     BMTestUtils.deleteEnvMessage();
+    BMTestUtils.cleanupFakeLogin();
+    BMTestUtils.restoreGetParameterByName();
 
     // Fail if any other elements were added or removed
     BMTestUtils.GamePost = BMTestUtils.getAllElements();
@@ -197,6 +207,22 @@ asyncTest("test_Game.showStatePage_turn_active", function() {
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
+    ok(!Game.page.is('.compactMode'),
+      "The created page should be in normal mode")
+    start();
+  });
+});
+
+asyncTest("test_Game.showStatePage_turn_active_compactMode", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Env.setCookieCompactMode(true);
+  Game.getCurrentGame(function() {
+    Game.showStatePage();
+    var htmlout = Game.page.html();
+    ok(htmlout.length > 0,
+       "The created page should have nonzero contents");
+    ok(Game.page.is('.compactMode'),
+      "The created page should be in compact mode")
     start();
   });
 });
@@ -223,17 +249,17 @@ asyncTest("test_Game.showStatePage_turn_nonplayer", function() {
   });
 });
 
-asyncTest("test_Game.layoutPage", function() {
+asyncTest("test_Game.arrangePage", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
 
     $('body').append($('<div>', {'id': 'game_page', }));
     Game.page = $('<div>');
     Game.page.append($('<p>', {'text': 'hi world', }));
-    Game.layoutPage();
+    Game.arrangePage();
     var item = document.getElementById('game_page');
     equal(item.nodeName, "DIV",
-          "#game_page is a div after layoutPage() is called");
+          "#game_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -309,40 +335,63 @@ asyncTest("test_Game.parseAuxiliaryDieOptions", function() {
   });
 });
 
-asyncTest("test_Game.actionChooseSwingActive", function() {
+asyncTest("test_Game.actionSpecifyDiceActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingActive();
-    var item = document.getElementById('swing_table');
+    Game.actionSpecifyDiceActive();
+    var item = document.getElementById('die_specify_table');
     equal(item.nodeName, "TABLE",
-          "#swing_table is a table after actionChooseSwingActive() is called");
-    ok(item.innerHTML.match(/X: \(4-20\)/),
+          "#die_specify_table is a table after actionSpecifyDiceActive() is called");
+    ok(item.innerHTML.match(/X \(4-20\):/),
        "swing table should contain request to set X swing");
 
     var item = document.getElementById('opponent_swing');
     equal(item.nodeName, "TABLE",
-          "#opponent_swing is a table after actionChooseSwingActive() is called");
+          "#opponent_swing is a table after actionSpecifyDiceActive() is called");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseSwingInactive", function() {
+asyncTest("test_Game.actionSpecifyDiceActive_option", function() {
+  BMTestUtils.GameType = 'option_active';
+  Game.getCurrentGame(function() {
+    Game.actionSpecifyDiceActive();
+    var item = document.getElementById('die_specify_table');
+    equal(item.nodeName, "TABLE",
+          "#die_specify_table is a table after actionSpecifyDiceActive() is called");
+    var item = document.getElementById('option_3');
+    ok(item, "#option_3 select is set");
+//    $.each(item.childNodes, function(childid, child) {
+//      if (child.getAttribute('label') == '6') {
+//        deepEqual(child.getAttribute('selected'), 'selected',
+//         'Focus die is initially set to maximum value');
+//      }
+//    });
+
+    var item = document.getElementById('opponent_swing');
+    equal(item.nodeName, "TABLE",
+          "#opponent_swing is a table after actionSpecifyDiceActive() is called");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionSpecifyDiceInactive", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingInactive();
-    var item = document.getElementById('swing_table');
-    equal(item, null, "#swing_table is NULL");
+    Game.actionSpecifyDiceInactive();
+    var item = document.getElementById('die_specify_table');
+    equal(item, null, "#die_specify_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseSwingNonplayer", function() {
+asyncTest("test_Game.actionSpecifyDiceNonplayer", function() {
   BMTestUtils.GameType = 'newgame_nonplayer';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingNonplayer();
-    var item = document.getElementById('swing_table');
-    equal(item, null, "#swing_table is NULL");
+    Game.actionSpecifyDiceNonplayer();
+    var item = document.getElementById('die_specify_table');
+    equal(item, null, "#die_specify_table is NULL");
     equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -475,6 +524,9 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('playerIdx_0_dieIdx_0');
     equal(item.innerHTML.match('selected'), null,
       'No attacking die is initially selected');
+    equal(item.tabIndex, 0,
+      'Attacking die should be accessible via the keyboard');
+
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
     equal(item.innerHTML.match('selected'), null,
@@ -482,6 +534,8 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
+    equal(item.tabIndex, 0,
+      'Chat box should be accessible via the keyboard');
     var item = document.getElementById('game_action_button');
     ok(item.innerHTML.match('Beat People UP!'),
        "Attack submit button says Beat People UP!");
@@ -505,13 +559,13 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    deepEqual(item.className, 'die_border selected',
+    deepEqual(item.className, 'hide_focus die_container die_alive selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
     ok(item.innerHTML.match('selected'),
       'Previous attack type selection is retained');
     var item = document.getElementById('game_chat');
-    equal(item.innerHTML, 'I had previously typed some text',
+    equal($(item).val(), 'I had previously typed some text',
       'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
@@ -526,7 +580,7 @@ asyncTest("test_Game.actionPlayTurnInactive", function() {
     var item = document.getElementById('attack_type_select');
     equal(item, null, "#attack_type_select is not set");
     var item = document.getElementById('game_chat');
-    equal(item.innerHTML, 'I had previously typed some text',
+    equal($(item).val(), 'I had previously typed some text',
       'Previous text is retained by game chat');
     ok(Game.form, "Game.form is set");
     start();
@@ -561,10 +615,10 @@ asyncTest("test_Game.actionShowFinishedGame", function() {
 // just redraws the page), so turn off asynchronous handling in
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
-asyncTest("test_Game.formChooseSwingActive", function() {
+asyncTest("test_Game.formSpecifyDiceActive", function() {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
-    Game.actionChooseSwingActive();
+    Game.actionSpecifyDiceActive();
     $('#swing_X').val('7');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
@@ -680,6 +734,23 @@ asyncTest("test_Game.formPlayTurnActive", function() {
   });
 });
 
+asyncTest("test_Game.formPlayTurnActive_surrender_dice", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    $('#playerIdx_1_dieIdx_0').click();
+    $('#attack_type_select').val('Surrender');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "error", "text": "Please deselect all dice before surrendering."},
+      "UI rejects surrender action when dice are selected");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
 asyncTest("test_Game.formPlayTurnInactive", function() {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
@@ -751,6 +822,19 @@ asyncTest("test_Game.pageAddFooter", function() {
   });
 });
 
+test("test_Game.pageAddUnhideChatButton", function() {
+  Game.page = $('<div>');
+  Game.pageAddUnhideChatButton(true);
+  var unhideButton = Game.page.find('.unhideChat');
+  ok(unhideButton.length, 'Add/Edit Chat button should appear when requested');
+
+  Game.page.empty();
+  Game.pageAddUnhideChatButton(false);
+  var unhideButton = Game.page.find('.unhideChat');
+  ok(!unhideButton.length,
+    'Add/Edit Chat button should not appear when not requested');
+});
+
 asyncTest("test_Game.pageAddGameNavigationFooter", function() {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
@@ -788,15 +872,17 @@ asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
   });
 });
 
-asyncTest("test_Game.pageAddTimestampFooter", function() {
-  BMTestUtils.GameType = 'newgame';
+asyncTest("test_Game.pageAddSkillListFooter", function() {
+  BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
-    Game.pageAddTimestampFooter();
+    Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Timestamp footer should insert line break");
-    ok(htmlout.match('<div>Last action time: '),
-       "Timestamp footer text seems reasonable");
+    ok(htmlout.match('<br>'), "Skill list footer should insert line break");
+    ok(htmlout.match('<div>Die skills in this game: '),
+       "Die skills footer text is present");
+    ok(htmlout.match('Focus'),
+       "Die skills footer text lists the Focus skill");
     start();
   });
 });
@@ -844,7 +930,7 @@ asyncTest("test_Game.dieRecipeTable", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -865,7 +951,7 @@ asyncTest("test_Game.dieRecipeTable_focus", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -892,7 +978,7 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
     ok(item, "Document should contain die recipe table");
@@ -954,7 +1040,10 @@ asyncTest("test_Game.pageAddDieBattleTable", function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "die battle table should insert line break");
+    ok(Game.page.find('div.battle_mat_player').length > 0,
+      "die battle table should insert player battle mat");
+    ok(Game.page.find('div.battle_mat_opponent').length > 0,
+      "die battle table should insert opponent battle mat");
     start();
   });
 });
@@ -980,7 +1069,7 @@ asyncTest("test_Game.gamePlayerDice", function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
     var htmlout = Game.page.html();
-    ok(htmlout.match('die_border unselected'),
+    ok(htmlout.match('die_container die_alive unselected'),
        "dice should include some text with the correct CSS class");
     start();
   });
@@ -998,6 +1087,17 @@ asyncTest("test_Game.gamePlayerDice_disabled", function() {
   });
 });
 
+asyncTest("test_Game.gamePlayerDice_captured", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerDice('player', true));
+    ok(Game.page.find('.die_dead').length > 0,
+       "dice should include one that's been captured");
+    start();
+  });
+});
+
 asyncTest("test_Game.buttonImageDisplay", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
@@ -1006,6 +1106,19 @@ asyncTest("test_Game.buttonImageDisplay", function() {
     var htmlout = Game.page.html();
     ok(htmlout.match('avis.png'),
        "page should include a link to the button image");
+    start();
+  });
+});
+
+asyncTest("test_Game.buttonImageDisplay_noImage", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Env.setCookieNoImages(true);
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.buttonImageDisplay('player'));
+    var htmlout = Game.page.html();
+    ok(!htmlout.match('avis.png'),
+       "page should not include a link to the button image");
     start();
   });
 });
@@ -1040,7 +1153,7 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
     var table = $('<table>');
     table.append(row);
     Game.page.append(table);
-    Game.layoutPage();
+    Game.arrangePage();
 
     var item = document.getElementById('game_page');
     ok(item.innerHTML.match('<th>'),
@@ -1099,22 +1212,22 @@ asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
-    Game.layoutPage();
+    Game.arrangePage();
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_border unselected_player'),
+    ok(html.match('die_container die_alive unselected_player'),
        "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_border selected'), "die is selected after first click");
+    ok(html.match('die_container die_alive selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_border unselected_player'),
+    ok(html.match('die_container die_alive unselected_player'),
        "die is unselected after second click");
 
     start();
@@ -1126,22 +1239,22 @@ asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
-    Game.layoutPage();
+    Game.arrangePage();
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_border unselected_opponent'),
+    ok(html.match('die_container die_alive unselected_opponent'),
        "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_border selected'), "die is selected after first click");
+    ok(html.match('die_container die_alive selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_border unselected_opponent'),
+    ok(html.match('die_container die_alive unselected_opponent'),
        "die is unselected after second click");
 
     start();
@@ -1205,4 +1318,22 @@ test("test_Game.reactToInitiativeSuccessMsg", function() {
   equal(
     Env.message.text, 'Successfully gained initiative using focus dice',
     'Correct message text when focus turndown gains initiative');
+});
+
+asyncTest("test_Game.dieFocusOutlineHandler", function() {
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.actionPlayTurnActive();
+    var item = $('#playerIdx_0_dieIdx_0');
+
+    var tabPress = jQuery.Event('keyup');
+    tabPress.which = 9;
+
+    ok($('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+      "Focus outline is hidden before tab is invoked on another die");
+    item.trigger(tabPress);
+    ok(!$('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+      "Focus outline is not hidden after tab is invoked on another die");
+    start();
+  });
 });

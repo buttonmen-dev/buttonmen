@@ -517,30 +517,44 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieSwing::describe
      */
     public function testDescribe() {
-        $this->object->init('X');
-        $this->assertEquals('X Swing Die', $this->object->describe(TRUE));
-        $this->assertEquals('X Swing Die', $this->object->describe(FALSE));
+        $this->object->init('Y');
+        $this->assertEquals('Y Swing Die', $this->object->describe(TRUE));
+        $this->assertEquals('Y Swing Die', $this->object->describe(FALSE));
 
-        $this->object->set_swingValue(array('X' => 5));
-        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(TRUE));
-        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
+        $this->object->set_swingValue(array('Y' => 1));
+        $this->assertEquals('Y Swing Die (with 1 side)', $this->object->describe(TRUE));
+        $this->assertEquals('Y Swing Die (with 1 side)', $this->object->describe(FALSE));
+
+        $this->object->set_swingValue(array('Y' => 5));
+        $this->assertEquals('Y Swing Die (with 5 sides)', $this->object->describe(TRUE));
+        $this->assertEquals('Y Swing Die (with 5 sides)', $this->object->describe(FALSE));
 
         $this->object->roll();
         $value = $this->object->value;
         $this->assertEquals(
-            "X Swing Die (with 5 sides) showing {$value}",
+            "Y Swing Die (with 5 sides) showing {$value}",
             $this->object->describe(TRUE)
         );
-        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
+        $this->assertEquals('Y Swing Die (with 5 sides)', $this->object->describe(FALSE));
 
         $this->object->add_skill('Poison');
         $this->object->add_skill('Shadow');
         $this->assertEquals(
-            "Poison Shadow X Swing Die (with 5 sides) showing {$value}",
+            "Poison Shadow Y Swing Die (with 5 sides) showing {$value}",
             $this->object->describe(TRUE)
         );
         $this->assertEquals(
-            'Poison Shadow X Swing Die (with 5 sides)',
+            'Poison Shadow Y Swing Die (with 5 sides)',
+            $this->object->describe(FALSE)
+        );
+
+        $this->object->add_skill('Mood');
+        $this->assertEquals(
+            "Poison Shadow Y Mood Swing Die (with 5 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Y Mood Swing Die (with 5 sides)',
             $this->object->describe(FALSE)
         );
     }
@@ -568,6 +582,11 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDieSwing;
         $die4->init('R', array('Shadow', 'Poison'));
         $this->assertEquals('sp(R)', $die4->get_recipe());
-    }
 
+        $die5 = new BMDieSwing;
+        $die5->init('X', array());
+        $this->assertEquals('(X)', $die5->get_recipe(TRUE));
+        $die5->max = '9';
+        $this->assertEquals('(X=9)', $die5->get_recipe(TRUE));
+    }
 }

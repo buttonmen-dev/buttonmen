@@ -5,6 +5,26 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
+  // Valid email match
+  my.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+
+  // Array of the names of the months, indexed from 1-12 (plus a bonus Month 0!)
+  my.MONTH_NAMES = [
+    'Month',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   // private methods and variables should be defined separately
   var activity = {};
 
@@ -50,7 +70,7 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (parser(rs.data)) {
+          if (parser(rs.data, apikey)) {
             my[apikey].load_status = 'ok';
             return callback();
           } else {
@@ -81,8 +101,9 @@ var Api = (function () {
     );
   };
 
-  my.apiFormPost = function(args, messages, submitid, callback, failcallback) {
-    my.disableSubmitButton(submitid);
+  my.apiFormPost = function(
+      args, messages, submitButton, callback, failcallback) {
+    my.disableSubmitButton(submitButton);
     $.post(
       Env.api_location,
       args,
@@ -137,6 +158,31 @@ var Api = (function () {
     );
   };
 
+  my.parseGenericData = function(data, apiKey) {
+    $.each(data, function(key, value) {
+      my[apiKey][key] = value;
+    });
+    return true;
+  };
+
+  // Verifies that the API data loaded correctly and displays the page with
+  // an error message otherwise.
+  my.verifyApiData = function(apiKey, arrangePageCallback) {
+    if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
+      return true;
+    }
+
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error: Could not load ' + apiKey +
+                'data from server',
+      };
+    }
+    arrangePageCallback();
+    return false;
+  };
+
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
 
@@ -154,7 +200,10 @@ var Api = (function () {
     my.button.list = {};
     if ((!($.isArray(data.buttonNameArray))) ||
         (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray)))) {
+        (!($.isArray(data.hasUnimplementedSkillArray))) ||
+        (!($.isArray(data.buttonSetArray))) ||
+        (!($.isArray(data.dieSkillsArray))) ||
+        (!($.isArray(data.isTournamentLegalArray)))) {
       return false;
     }
     var i = 0;
@@ -162,6 +211,9 @@ var Api = (function () {
       my.button.list[data.buttonNameArray[i]] = {
         'recipe': data.recipeArray[i],
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
+        'buttonSet': data.buttonSetArray[i],
+        'dieSkills': data.dieSkillsArray[i],
+        'isTournamentLegal': data.isTournamentLegalArray[i],
       };
       i++;
     }
@@ -297,7 +349,9 @@ var Api = (function () {
   };
 
   my.parseUserPrefsData = function(data) {
-    my.user_prefs.autopass = data.autopass;
+    $.each(data.user_prefs, function(key, value) {
+      my.user_prefs[key] = value;
+    });
     return true;
   };
 
@@ -347,11 +401,12 @@ var Api = (function () {
     }
 
     // Parse some top-level items from gameData
-    my.game.gameId =  my.game.gameData.data.gameId;
+    my.game.gameId = my.game.gameData.data.gameId;
     my.game.roundNumber = my.game.gameData.data.roundNumber;
     my.game.maxWins = my.game.gameData.data.maxWins;
     my.game.gameState = my.game.gameData.data.gameState;
     my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
+    my.game.gameSkillsInfo = my.game.gameData.data.gameSkillsInfo;
 
     if (my.game.isParticipant) {
       my.game.playerIdx = data.currentPlayerIdx;
@@ -382,12 +437,16 @@ var Api = (function () {
       'playerName': playerNameArray[playerIdx],
       'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
       'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
+      'buttonArtFilename':
+        my.game.gameData.data.buttonArtFilenameArray[playerIdx],
       'waitingOnAction':
         my.game.gameData.data.waitingOnActionArray[playerIdx],
       'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
       'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
       'gameScoreDict':
         my.game.gameData.data.gameScoreArrayArray[playerIdx],
+      'lastActionTime':
+        my.game.gameData.data.lastActionTimeArray[playerIdx],
       'nDie': my.game.gameData.data.nDieArray[playerIdx],
       'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
       'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
@@ -409,8 +468,17 @@ var Api = (function () {
         my.game.gameData.data.capturedSidesArrayArray[playerIdx],
       'capturedRecipeArray':
         my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+      'capturedDiePropertiesArray':
+        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
 
       'swingRequestArray': {},
+      'optRequestArray':
+        my.game.gameData.data.optRequestArrayArray[playerIdx],
+
+      'prevSwingValueArray':
+        my.game.gameData.data.prevSwingValueArrayArray[playerIdx],
+      'prevOptValueArray':
+        my.game.gameData.data.prevOptValueArrayArray[playerIdx],
     };
 
     $.each(
@@ -448,9 +516,12 @@ var Api = (function () {
     return text;
   };
 
-  my.disableSubmitButton = function(button_id) {
-    if (button_id) {
-      $('#' + button_id).attr('disabled', 'disabled');
+  my.disableSubmitButton = function(button) {
+    if (button) {
+      if (!(button instanceof jQuery)) {
+        button = $('#' + button);
+      }
+      button.attr('disabled', 'disabled');
     }
   };
 
@@ -483,6 +554,156 @@ var Api = (function () {
       return false;
     }
     my.gameNavigation.nextGameId = data.gameId;
+    return true;
+  };
+
+  my.getOpenGamesData = function(callbackfunc) {
+    my.apiParsePost( { 'type': 'loadOpenGames', },
+      'open_games',
+      my.parseOpenGames,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseOpenGames = function(data) {
+    my.open_games.games = data.games;
+    return true;
+  };
+
+  my.joinOpenGame = function(gameId, buttonName, callback, failCallback) {
+    var parameters = {
+      'type': 'joinOpenGame',
+      'gameId': gameId,
+    };
+    if (buttonName !== undefined && buttonName !== null) {
+      parameters.buttonName = buttonName;
+    }
+
+    my.apiParsePost(
+      parameters,
+      'join_game_result',
+      my.parseJoinGameResult,
+      callback,
+      failCallback
+    );
+  };
+
+  my.parseJoinGameResult = function(data) {
+    my.join_game_result.success = data;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////
+  // Forum-related methods
+
+  my.loadForumOverview = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadForumOverview', },
+      'forum_overview',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumBoard = function(boardId, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadForumBoard',
+        'boardId': boardId,
+      },
+      'forum_board',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumThread = function(threadId, currentPostId, callbackfunc) {
+    if (!currentPostId) {
+      currentPostId = undefined;
+    }
+    my.apiParsePost(
+      {
+        'type': 'loadForumThread',
+        'threadId': threadId,
+        'currentPostId': currentPostId,
+      },
+      'forum_thread',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  // End of Forum-related methods
+  ////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the list of recently-active players
+
+  my.getActivePlayers = function(numberOfPlayers, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadActivePlayers',
+        'numberOfPlayers': numberOfPlayers,
+      },
+      'active_players',
+      my.parseActivePlayers,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseActivePlayers = function(data) {
+    my.active_players.players = data.players;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the profile info for the specified player
+
+  my.loadProfileInfo = function(playerName, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadProfileInfo',
+        'playerName': playerName,
+      },
+      'profile_info',
+      my.parseProfileInfo,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseProfileInfo = function(data) {
+    $.each(data.profile_info, function(key, value) {
+      my.profile_info[key] = value;
+    });
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Search historic games and parse the result
+
+  my.searchGameHistory = function(searchParameters, callbackfunc) {
+    searchParameters.type = 'searchGameHistory';
+
+    my.apiParsePost(
+      searchParameters,
+      'game_history',
+      my.parseSearchResults,
+
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseSearchResults = function(data) {
+    my.game_history.games = data.games;
+    my.game_history.summary = data.summary;
+
     return true;
   };
 

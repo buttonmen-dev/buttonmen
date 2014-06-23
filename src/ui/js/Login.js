@@ -25,10 +25,24 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
+      var welcomeText = 'Welcome to Button Men';
+      if (Config.siteType == 'development') {
+        $('#login_header').css('background-color', '#cccccc');
+        $('head').append(
+          $('<link>', {
+            'type': 'image/x-icon',
+            'rel': 'shortcut icon',
+            'href': '/dev_favicon.ico',
+          }));
+        welcomeText += ' Dev Site';
+      } else if (Config.siteType != 'production') {
+        $('#login_header').css('background-color', '#ff7777');
+        welcomeText += ' CONFIG ERROR';
+      }
       if (Login.player === null) {
-        Login.stateLoggedOut();
+        Login.stateLoggedOut(welcomeText);
       } else {
-        Login.stateLoggedIn();
+        Login.stateLoggedIn(welcomeText);
       }
       return Login.layoutHeader();
     }
@@ -45,8 +59,8 @@ Login.showLoginHeader = function(callbackfunc) {
     $('body').append($('<hr>'));
   }
 
-  // Find the current login header contents, and display them followed
-  // by the specified callback routine
+  // Find the current login header contents and display them followed by
+  // the specified callback routine
   Login.getLoginHeader();
 };
 
@@ -74,25 +88,26 @@ Login.getLoginForm = function() {
 // One function for each possible logged in state
 // The function should setup a header and a form
 
-Login.stateLoggedIn = function() {
+Login.stateLoggedIn = function(welcomeText) {
+  Login.message = $('<p>');
   var loginform = Login.getLoginForm();
   loginform.append(
-    'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
+    welcomeText + ': You are logged in as ' + Login.player + '. '
   );
   loginform.append($('<button>', {
     'id': 'login_action_button',
     'text': 'Logout?',
   }));
 
-  Login.message = loginform;
+  Login.message.append(loginform);
   Login.addMainNavbar();
   Login.form = Login.formLogout;
   Login.logged_in = true;
 };
 
-Login.stateLoggedOut = function() {
+Login.stateLoggedOut = function(welcomeText) {
   Login.message = $('<p>');
-  Login.message.append('Welcome to ButtonMen: ');
+  Login.message.append(welcomeText + ': ');
   if (Login.status_type == Login.STATUS_ACTION_FAILED) {
     Login.message.append(
       $('<font>', {
@@ -144,23 +159,26 @@ Login.stateLoggedOut = function() {
 // Helper functions which add text to the existing message
 
 Login.addMainNavbar = function() {
-  Login.message.append($('<br>'));
-  var navtable = $('<table>', {'style': 'float:left'});
+  var navtable = $('<table>');
   var navrow = $('<tr>');
   var links = {
-    'index.html': 'Overview',
-    'create_game.html': 'Create game',
-    'prefs.html': 'Preferences',
-    'javascript: Api.getNextGameId(Login.goToNextPendingGame);': 'Next game',
+    'Overview': 'index.html',
+    'Create game': 'create_game.html',
+    'Open games': 'open_games.html',
+    'Preferences': 'prefs.html',
+    'Profile': Env.buildProfileLink(Login.player, true),
+    'History': 'history.html',
+    'Who\'s online': 'active_players.html',
+    'Forum': 'forum.html',
+    'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
   };
-  $.each(links, function(url, text) {
+  $.each(links, function(text, url) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
     navrow.append(navtd);
   });
   navtable.append(navrow);
   Login.message.append(navtable);
-  Login.message.append($('<br>'));
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -184,7 +202,7 @@ Login.postToResponder = function(responder_args) {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
       if (responder_args.type == 'logout') {
-        Env.window.location.href = '/ui';
+        Env.window.location.href = Env.ui_root;
       } else {
         Login.showLoginHeader(Login.callback);
       }
@@ -208,7 +226,7 @@ Login.formLogin = function() {
   var username = null;
   var password = null;
   $('input#login_name').each(function(index, element) {
-    username = $(element).val();
+    username = $.trim($(element).val());
   });
   $('input#login_pass').each(function(index, element) {
     password = $(element).val();

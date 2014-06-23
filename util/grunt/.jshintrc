@@ -17,7 +17,9 @@
   "globals": {
     "Api": true,
     "Env": true,
-    "Login": true
+    "Login": true,
+    "moment": true,
+    "Config": true
   },
 
   "es5": true,

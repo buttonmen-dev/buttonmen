@@ -1,6 +1,6 @@
 INSERT INTO buttonset (name) VALUES
 
-# NEW official ButtonMen sets
+# NEW official Button Men sets
 ('Kubla Con'),
 ('ZOECon'),
 
@@ -8,7 +8,7 @@ INSERT INTO buttonset (name) VALUES
 ('Cowboy Bebop'),
 ('50 States'),
 
-# unofficial ButtonMen
+# unofficial Button Men
 ('Japanese Beetle (unofficial)'),
 ('Blademasters'),
 ('Order of the Dolls'),

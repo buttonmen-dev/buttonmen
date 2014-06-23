@@ -33,6 +33,9 @@ Game.COLORS = {
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
 
+// Maximum number of characters permitted in a given chat message
+Game.GAME_CHAT_MAX_LENGTH = 500;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Game.showGamePage() is the landing function.  Always call this first
@@ -42,8 +45,8 @@ Game.logEntryLimit = 10;
 //   the received data from getCurrentGame().  It calls one of several
 //   functions, Game.action<SomeAction>()
 // * each Game.action<SomeAction>() function must set Game.page and
-//   Game.form, then call Game.layoutPage()
-// * Game.layoutPage() sets the contents of <div id="game_page"> on the
+//   Game.form, then call Game.arrangePage()
+// * Game.arrangePage() sets the contents of <div id="game_page"> on the
 //   live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -53,12 +56,15 @@ Game.logEntryLimit = 10;
 Game.showGamePage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
   if ($('#game_page').length === 0) {
     $('body').append($('<div>', {'id': 'game_page', }));
+  }
+
+  if (Game.logEntryLimit && Env.getCookieCompactMode()) {
+    Game.logEntryLimit = 5;
   }
 
   // Find the current game, and invoke that with the "parse game state"
@@ -122,12 +128,12 @@ Game.showStatePage = function() {
     if (Api.game.gameState == Game.GAME_STATE_SPECIFY_DICE) {
       if (Api.game.isParticipant) {
         if (Api.game.player.waitingOnAction) {
-          Game.actionChooseSwingActive();
+          Game.actionSpecifyDiceActive();
         } else {
-          Game.actionChooseSwingInactive();
+          Game.actionSpecifyDiceInactive();
         }
       } else {
-        Game.actionChooseSwingNonplayer();
+        Game.actionSpecifyDiceNonplayer();
       }
     } else if (Api.game.gameState == Game.GAME_STATE_CHOOSE_AUXILIARY_DICE) {
       if (Api.game.isParticipant) {
@@ -171,11 +177,16 @@ Game.showStatePage = function() {
       }
     } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
+    } else if (Api.game.gameState == Game.GAME_STATE_START_GAME) {
+      Game.page =
+        $('<p>', {'text': 'The game hasn\'t started yet.', });
+      Game.form = null;
+      Game.arrangePage();
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
-      Game.layoutPage();
+      Game.arrangePage();
     }
   } else {
 
@@ -183,18 +194,21 @@ Game.showStatePage = function() {
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Game.layoutPage();
+    Game.arrangePage();
   }
 };
 
-Game.layoutPage = function() {
+Game.arrangePage = function() {
   if ($('#game_page').length === 0) {
-    throw('Internal error: #game_page not defined in layoutPage()');
+    throw('Internal error: #game_page not defined in arrangePage()');
   }
 
   $('#game_page').empty();
   $('#game_page').append(Game.page);
 
+  // If a game form is specified, activate the game form on mouse click.
+  // (The form will automatically be invoked when the player presses
+  // the return key as well.)
   if (Game.form) {
     $('#game_action_button').click(Game.form);
   }
@@ -271,24 +285,30 @@ Game.parseAuxiliaryDieOptions = function() {
 // Routines for each type of game action that could be taken
 
 // It is time to choose swing dice, and the current player has dice to choose
-Game.actionChooseSwingActive = function() {
+Game.actionSpecifyDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formSpecifyDiceActive;
+
   Game.page = $('<div>');
-  Game.pageAddGameHeader('Your turn to choose swing dice');
+  Game.pageAddGameHeader('Your turn to choose die sizes');
 
   // Get a table containing the existing die recipes
   var dietable = Game.dieRecipeTable(false);
 
-  // Create a form for submitting swing values
-  var swingform = $('<form>', {
+  // Create a form for submitting die values
+  var diespecifyform = $('<form>', {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
   });
-  var swingtable = $('<table>', { 'id': 'swing_table', });
+  var diespecifytable = $('<table>', { 'id': 'die_specify_table', });
+
+  // Add swing dice to table
   $.each(
     Api.game.player.swingRequestArray,
     function(letter, range) {
       var swingrow = $('<tr>', {});
-      var swingtext = letter + ': (' + range.min + '-' + range.max + ')';
+      var swingtext = letter + ' (' + range.min + '-' + range.max + '):';
       swingrow.append($('<td>', { 'text': swingtext, }));
       var swinginput = $('<td>', {});
       swinginput.append($('<input>', {
@@ -299,11 +319,48 @@ Game.actionChooseSwingActive = function() {
         'maxlength': '2',
       }));
       swingrow.append(swinginput);
-      swingtable.append(swingrow);
+      var swingprevtext = '';
+      if (letter in Api.game.player.prevSwingValueArray) {
+        swingprevtext =
+          '(was: ' + Api.game.player.prevSwingValueArray[letter] + ')';
+      }
+      swingrow.append($('<td>', { 'text': swingprevtext, }));
+      diespecifytable.append(swingrow);
     });
-  swingform.append(swingtable);
-  swingform.append($('<br>'));
-  swingform.append($('<button>', {
+
+  // Add option dice to table
+  $.each(
+    Api.game.player.optRequestArray,
+    function(position, vals) {
+      var optrow = $('<tr>', {});
+      var opttext = Api.game.player.dieRecipeArray[position] + ':';
+      optrow.append($('<td>', { 'text': opttext, }));
+      var optinput = $('<td>', {});
+      var optselect = $('<select>', {
+        'id': 'option_' + position,
+        'name': 'option_' + position,
+      });
+      $.each(vals, function(idx) {
+        optselect.append($('<option>', {
+          'value': vals[idx],
+          'label': vals[idx],
+          'text': vals[idx],
+        }));
+      });
+      optinput.append(optselect);
+      optrow.append(optinput);
+      var optprevtext = '';
+      if (position in Api.game.player.prevOptValueArray) {
+        optprevtext =
+          '(was: ' + Api.game.player.prevOptValueArray[position] + ')';
+      }
+      optrow.append($('<td>', { 'text': optprevtext, }));
+      diespecifytable.append(optrow);
+    });
+
+  diespecifyform.append(diespecifytable);
+  diespecifyform.append($('<br>'));
+  diespecifyform.append($('<button>', {
     'id': 'game_action_button',
     'text': 'Submit',
   }));
@@ -319,10 +376,13 @@ Game.actionChooseSwingActive = function() {
       opponentswing.append(swingrow);
     });
 
+  // Don't bother making a table for opponent's option dice, because
+  // those possible values are shown in the recipe already
+
   // Add the swing die form to the left column of the die table
   var formtd = $('<td>', { 'class': 'chooseswing', });
   formtd.append($('<br>'));
-  formtd.append(swingform);
+  formtd.append(diespecifyform);
   var opponenttd = $('<td>', { 'class': 'chooseswing', });
   opponenttd.append($('<br>'));
   opponenttd.append(opponentswing);
@@ -336,36 +396,32 @@ Game.actionChooseSwingActive = function() {
   Game.page.append(dietable);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseSwingActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
-Game.actionChooseSwingInactive = function() {
+Game.actionSpecifyDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
-  Game.pageAddGameHeader('Opponent\'s turn to choose swing dice');
+  Game.pageAddGameHeader('Opponent\'s turn to choose die sizes');
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {
-    'text':
-      'Your swing dice are set. ' +
-      'Please wait patiently for your opponent to set swing dice.'
-  }));
 
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
-Game.actionChooseSwingNonplayer = function() {
+Game.actionSpecifyDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
 
   Game.pageAddGameHeader(
@@ -378,13 +434,16 @@ Game.actionChooseSwingNonplayer = function() {
   Game.page.append($('<br>'));
 
   Game.pageAddFooter();
-  Game.form = null;
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseAuxiliaryDiceActive;
+
   Game.parseAuxiliaryDieOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -434,14 +493,15 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   Game.page.append(auxform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseAuxiliaryDiceActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to decide whether to use auxiliary dice');
@@ -458,14 +518,15 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -479,14 +540,15 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formChooseReserveDiceActive;
+
   Game.parseValidReserveOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -534,14 +596,15 @@ Game.actionChooseReserveDiceActive = function() {
   Game.page.append(reserveform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formChooseReserveDiceActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to choose reserve dice');
@@ -558,14 +621,15 @@ Game.actionChooseReserveDiceInactive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -579,14 +643,15 @@ Game.actionChooseReserveDiceNonplayer = function() {
   Game.page.append(dietable);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formReactToInitiativeActive;
+
   Game.parseValidInitiativeActions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
@@ -646,14 +711,15 @@ Game.actionReactToInitiativeActive = function() {
   Game.page.append(reactform);
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formReactToInitiativeActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Opponent\'s turn to try to gain initiative using die skills');
@@ -662,21 +728,18 @@ Game.actionReactToInitiativeInactive = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-  Game.page.append($('<br>'));
-
-  Game.page.append($('<p>', {'text':
-    'Please wait patiently for your opponent to use chance/focus dice' }));
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null,
+
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -690,15 +753,19 @@ Game.actionReactToInitiativeNonplayer = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = null,
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnActive;
+
   Game.page = $('<div>');
+  if (Env.getCookieCompactMode()) {
+    Game.page.addClass('compactMode');
+  }
   Game.pageAddGameHeader('Your turn to attack');
   Game.pageAddDieBattleTable(true);
   Game.page.append($('<br>'));
@@ -720,10 +787,22 @@ Game.actionPlayTurnActive = function() {
   validAttackTypes.push('');
   validAttackTypes.push('Surrender');
 
+  // configure the attack type select object
   var attacktypeselect = $('<select>', {
     'id': 'attack_type_select',
     'name': 'attack_type_select',
   });
+
+  // install a keyboard handler so that hitting "return" while on
+  // the attack type select submits the form (don't install any
+  // mouse click or space bar behavior)
+  Env.addClickKeyboardHandlers(
+    attacktypeselect,
+    null,
+    null,
+    Game.form
+  );
+
   for (var i = 0; i < validAttackTypes.length; i++) {
     var attacktype = validAttackTypes[i];
     var typetext;
@@ -756,15 +835,19 @@ Game.actionPlayTurnActive = function() {
 
   Game.pageAddFooter();
 
-  // Function to invoke on button click
-  Game.form = Game.formPlayTurnActive;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnInactive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formPlayTurnInactive;
+
   Game.page = $('<div>');
+  if (Env.getCookieCompactMode()) {
+    Game.page.addClass('compactMode');
+  }
   Game.pageAddGameHeader('Opponent\'s turn to attack');
   Game.pageAddDieBattleTable(false);
   Game.page.append($('<br>'));
@@ -773,10 +856,11 @@ Game.actionPlayTurnInactive = function() {
     Game.activity.chat = Api.game.chatLog[0].message;
   }
   var chatdiv = $('<div>');
-  chatdiv.append(Game.chatBox());
+  chatdiv.append(Game.chatBox(true));
   var chatform = $('<form>', {
     'id': 'game_action_form',
     'action': 'javascript:void(0);',
+    'class': 'hiddenChatForm',
   });
   chatform.append($('<button>', {
     'id': 'game_action_button',
@@ -785,17 +869,21 @@ Game.actionPlayTurnInactive = function() {
   chatdiv.append(chatform);
   Game.page.append(chatdiv);
 
-  Game.pageAddFooter();
-
-  // Function to invoke on button click
-  Game.form = Game.formPlayTurnInactive;
+  Game.pageAddFooter(true);
 
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionPlayTurnNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
+  if (Env.getCookieCompactMode()) {
+    Game.page.addClass('compactMode');
+  }
 
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
@@ -806,13 +894,15 @@ Game.actionPlayTurnNonplayer = function() {
   Game.pageAddDieBattleTable(false);
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 Game.actionShowFinishedGame = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
   Game.page = $('<div>');
   Game.pageAddGameHeader('This game is over');
 
@@ -832,19 +922,18 @@ Game.actionShowFinishedGame = function() {
   Game.logEntryLimit = undefined;
   Game.pageAddFooter();
 
-  Game.form = null;
-
   // Now layout the page
-  Game.layoutPage();
+  Game.arrangePage();
 };
 
 ////////////////////////////////////////////////////////////////////////
 // Form submission functions
 
-// Form submission action for choosing swing dice
-Game.formChooseSwingActive = function() {
+// Form submission action for choosing swing and option dice
+Game.formSpecifyDiceActive = function() {
   var textFieldsFilled = true;
   var swingValueArray = {};
+  var optionValueArray = {};
 
   // Iterate over expected swing values
   $.each(Api.game.player.swingRequestArray, function(letter) {
@@ -856,12 +945,23 @@ Game.formChooseSwingActive = function() {
     }
   });
 
+  // Iterate over expected option values
+  $.each(Api.game.player.optRequestArray, function(position) {
+    var value = $('#option_' + position).val();
+    if ($.isNumeric(value)) {
+      optionValueArray[position] = value;
+    } else {
+      textFieldsFilled = false;
+    }
+  });
+
   if (textFieldsFilled) {
     Api.apiFormPost(
       {
-        type: 'submitSwingValues',
+        type: 'submitDieValues',
         game: Game.game,
         swingValueArray: swingValueArray,
+        optionValueArray: optionValueArray,
         roundNumber: Api.game.roundNumber,
         timestamp: Api.game.timestamp,
       },
@@ -1115,15 +1215,31 @@ Game.reactToInitiativeSuccessMsg = function(message, data) {
 Game.formPlayTurnActive = function() {
   Game.readCurrentGameActivity();
 
-  // If surrender is chosen, ask for confirmation, and let the user
-  // try again if they don't confirm
+  // If surrender is chosen, first check to make sure no dice are
+  // selected, then ask for confirmation.  Let the user try again
+  // if they have selected dice or don't confirm the surrender
   if (Game.activity.attackType == 'Surrender') {
+    var diceSelected = false;
+    $.each(Game.activity.dieSelectStatus, function(idx, val) {
+      if (val) {
+        diceSelected = true;
+      }
+    });
+    if (diceSelected) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Please deselect all dice before surrendering.',
+      };
+      return Game.redrawGamePageFailure();
+    }
+
     var surrender = window.confirm(
       'Are you SURE you want to surrender this round?'
     );
     if (!(surrender)) {
       return Game.redrawGamePageFailure();
     }
+
   } else if (Game.activity.attackType === '') {
     Env.message = {
       'type': 'error',
@@ -1213,15 +1329,18 @@ Game.showFullLogHistory = function() {
 
 // Display header information about the game
 Game.pageAddGameHeader = function(action_desc) {
+  var gameTitle =
+    'Game #' + Api.game.gameId + Game.SPACE_BULLET +
+      Api.game.player.playerName + ' (' + Api.game.player.buttonName +
+      ') vs. ' + Api.game.opponent.playerName + ' (' +
+      Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
+      'Round #' + Api.game.roundNumber;
+  $('title').html('Button Men Online &mdash; ' + gameTitle);
+
   Game.page.append(
     $('<div>', {
       'id': 'game_id',
-      'html':
-	'Game #' + Api.game.gameId + Game.SPACE_BULLET +
-	Api.game.player.playerName + ' (' + Api.game.player.buttonName +
-	') vs. ' + Api.game.opponent.playerName + ' (' +
-	Api.game.opponent.buttonName + ') ' + Game.SPACE_BULLET +
-        'Round #' + Api.game.roundNumber,
+      'html': gameTitle,
     }));
   var bgcolor = '#ffffff';
   if (Api.game.player.waitingOnAction) {
@@ -1244,10 +1363,32 @@ Game.pageAddGameHeader = function(action_desc) {
 };
 
 // Display common page footer data
-Game.pageAddFooter = function() {
+Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
-  Game.pageAddTimestampFooter();
+  Game.pageAddUnhideChatButton(isChatHidden);
+  Game.pageAddSkillListFooter();
   Game.pageAddLogFooter();
+};
+
+Game.pageAddUnhideChatButton = function(isChatHidden) {
+  if (!isChatHidden) {
+    return false;
+  }
+
+  var unhideButton = $('<input>', {
+    'type': 'button',
+    'value': 'Add/Edit Chat',
+  });
+  unhideButton.click(function() {
+    $('.hiddenChatForm').show();
+    $('.unhideChat').hide();
+  });
+
+  var unhideDiv = $('<div>', { 'class': 'unhideChat', });
+  Game.page.append(unhideDiv);
+  unhideDiv.append($('<br>'));
+  unhideDiv.append(unhideButton);
+  unhideDiv.append($('<br>'));
 };
 
 // Display a link to the next game requiring action
@@ -1265,21 +1406,48 @@ Game.pageAddGameNavigationFooter = function() {
   return true;
 };
 
-// Display a footer-style message with the last action timestamp
-Game.pageAddTimestampFooter = function() {
+// Display a footer-style message with the list of skills in this game
+Game.pageAddSkillListFooter = function() {
+  var gameSkillDiv = $('<div>', {
+    'text': 'Die skills in this game: ',
+  });
 
-  // Timestamp has a different meaning if the game is over
-  var timestamptext;
-  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    timestamptext = 'Game completed at';
-  } else {
-    timestamptext = 'Last action time';
+  var firstSkill = true;
+  var firstInteract;
+  var skillDesc;
+  $.each(Api.game.gameSkillsInfo, function(skill, info) {
+    skillDesc = skill + ' (' + info.code + '): ' + info.description;
+
+    firstInteract = true;
+    $.each(info.interacts, function(otherSkill, interactDesc) {
+      if (firstInteract) {
+        skillDesc += '\n\nInteraction with other skills in this game:';
+      }
+      skillDesc += '\n * ' + otherSkill + ': ' + interactDesc;
+    });
+
+    if (!(firstSkill)) {
+      gameSkillDiv.append('&nbsp;&nbsp;');
+    }
+    gameSkillDiv.append($('<span>', {
+      'text': skill,
+      'title': skillDesc,
+      'class': 'skill_desc',
+    }));
+    gameSkillDiv.append($('<span>', {
+      'text': 'i',
+      'title': skillDesc,
+      'class': 'skill_desc_i',
+    }));
+    firstSkill = false;
+  });
+
+  if (firstSkill) {
+    gameSkillDiv.append('none');
   }
 
   Game.page.append($('<br>'));
-  Game.page.append($('<div>', {
-    'text': timestamptext + ': ' + Env.formatTimestamp(Api.game.timestamp),
-  }));
+  Game.page.append(gameSkillDiv);
   return true;
 };
 
@@ -1288,10 +1456,14 @@ Game.pageAddLogFooter = function() {
   if ((Api.game.chatLog.length > 0) || (Api.game.actionLog.length > 0)) {
     var logdiv = $('<div>');
     var logtable = $('<table>');
-    var logrow = $('<tr>');
+    if (Api.game.actionLog.length > 0 && Api.game.chatLog.length > 0 &&
+      !Env.getCookieCompactMode()) {
+      logtable.addClass('twocolumn');
+    }
 
+    var actiontd;
     if (Api.game.actionLog.length > 0) {
-      var actiontd = $('<td>', {'class': 'logtable', });
+      actiontd = $('<td>', {'class': 'logtable', });
       actiontd.append($('<p>', {'text': 'Recent game activity', }));
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Api.game.actionLog, function(logindex, logentry) {
@@ -1309,22 +1481,26 @@ Game.pageAddLogFooter = function() {
             'nowrap': 'nowrap',
             'text': '(' + Env.formatTimestamp(logentry.timestamp) + ')',
           }));
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        var messageClass = 'left logmessage';
+        if (Api.game.isParticipant && Api.game.player.lastActionTime &&
+          logentry.timestamp > Api.game.player.lastActionTime) {
+          messageClass += ' new';
+        }
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         actionrow.append(
           $('<td>', {
-            'class': 'left logmessage',
-            'text': logentry.message,
+            'class': messageClass,
+            'html': Env.prepareRawTextForDisplay(logentry.message),
           }));
         actiontable.append(actionrow);
       });
       actiontd.append(actiontable);
-      logrow.append(actiontd);
     }
 
+    var chattd;
     if (Api.game.chatLog.length > 0) {
-      var chattd = $('<td>', {'class': 'logtable', });
+      chattd = $('<td>', {'class': 'logtable', });
       chattd.append($('<p>', {'text': 'Recent game chat', }));
       var chattable = $('<table>', {'border': 'on', });
       $.each(Api.game.chatLog, function(logindex, logentry) {
@@ -1342,40 +1518,43 @@ Game.pageAddLogFooter = function() {
           'text': logentry.player + ' (' +
             Env.formatTimestamp(logentry.timestamp) + ')',
         }));
-        // We add the log message as 'text' to ensure that jquery knows it's
-        // not already encoded as HTML. This way, jquery will encode it for us,
-        // automatically converting things like < to things like &lt;
+        var messageClass = 'left logmessage';
+        if (Api.game.isParticipant && Api.game.player.lastActionTime &&
+          logentry.timestamp > Api.game.player.lastActionTime) {
+          messageClass += ' new';
+        }
+        // Env.prepareRawTextForDisplay() converts the dangerous raw text
+        // into safe HTML.
         chatrow.append($('<td>', {
-          'class': 'left logmessage',
-          'text': logentry.message,
+          'class': messageClass,
+          'html': Env.prepareRawTextForDisplay(logentry.message),
         }));
         chattable.append(chatrow);
       });
       chattd.append(chattable);
-      logrow.append(chattd);
     }
 
-    // Replace text-y whitespace with HTML whitespace to preserve things
-    // like newlines and indentation in chat.
-    logrow.find('.logmessage').each(function() {
-      // We originally added the log messages to the page as text; by reading
-      // them back as HTML now, we're getting the version of them that's
-      // already been safely HTML-encoded.
-      var messagehtml = $(this).html();
-
-      // HTML-ify initial spaces, to preserve indentation
-      messagehtml = messagehtml.replace(/^ /, '&nbsp;');
-      // Likewise for spaces at the start of each line
-      messagehtml = messagehtml.replace(/\n /, '\n&nbsp;');
-      // Preserve strings of multiple spaces
-      messagehtml = messagehtml.replace(/  /g, '&nbsp;&nbsp;');
-      // HTML-ify line breaks to preserve newlines
-      messagehtml = messagehtml.replace(/\n/g, '<br />');
-
-      $(this).html(messagehtml);
-    });
-
-    logtable.append(logrow);
+    if (Env.getCookieCompactMode()) {
+      if (chattd) {
+        var chatRow = $('<tr>');
+        logtable.append(chatRow);
+        chatRow.append(chattd);
+      }
+      if (actiontd) {
+        var actionRow = $('<tr>');
+        logtable.append(actionRow);
+        actionRow.append(actiontd);
+      }
+    } else {
+      var logRow = $('<tr>');
+      logtable.append(logRow);
+      if (actiontd) {
+        logRow.append(actiontd);
+      }
+      if (chattd) {
+        logRow.append(chattd);
+      }
+    }
 
     if (Game.logEntryLimit !== undefined) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
@@ -1552,7 +1731,7 @@ Game.dieTableEntry = function(
                  ('Chance' in dieSkillsArray[i]) &&
                  (dieSkillsArray[i].Chance)) {
         dieopts.class = 'recipe_greyed';
-        dieopts.title += '. (This chance dice cannot be rerolled again ' +
+        dieopts.title += '. (This chance die cannot be rerolled again ' +
           'during this round, because the player has already rerolled a ' +
           'chance die)';
       }
@@ -1580,7 +1759,6 @@ Game.pageAddDieBattleTable = function(clickable) {
     'style': 'background: none repeat scroll 0 0 ' + Game.color.player,
   });
   diePlayerOverlayDiv.append(Game.gamePlayerStatus('player', false, true));
-  diePlayerOverlayDiv.append($('<br>'));
   diePlayerOverlayDiv.append(Game.gamePlayerDice('player', clickable));
   diePlayerDiv.append(diePlayerOverlayDiv);
   dieBattleTd.append(diePlayerDiv);
@@ -1594,7 +1772,6 @@ Game.pageAddDieBattleTable = function(clickable) {
     'style': 'background: none repeat scroll 0 0 ' + Game.color.opponent,
   });
   dieOpponentOverlayDiv.append(Game.gamePlayerDice('opponent', clickable));
-  dieOpponentOverlayDiv.append($('<br>'));
   dieOpponentOverlayDiv.append(Game.gamePlayerStatus('opponent', true, true));
   dieOpponentDiv.append(dieOpponentOverlayDiv);
   dieBattleTd.append(dieOpponentDiv);
@@ -1611,13 +1788,18 @@ Game.pageAddDieBattleTable = function(clickable) {
 // button image is a png, image name is derived from button name,
 // all lowercase, spaces and punctuation removed
 Game.buttonImageDisplay = function(player) {
+  var tdClass = 'button_' + player;
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    tdClass += ' button_postgame';
+  }
   var buttonTd = $('<td>', {
-    'class': 'button_' + player,
+    'class': tdClass,
     'style': 'background: ' + Game.color[player],
   });
   var playerName = $('<div>', {
-    'html': $('<b>', { 'text': 'Player: ' + Api.game[player].playerName }),
+    'html': $('<b>', { 'text': 'Player: ', }),
   });
+  playerName.append(Env.buildProfileLink(Api.game[player].playerName));
   var playerWLT = $('<div>', {
     'text': Api.game[player].gameScoreStr,
   });
@@ -1628,27 +1810,27 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].buttonRecipe,
   });
 
-  if (player == 'opponent') {
+  if (player == 'opponent' && Api.game.gameState != Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerName);
     buttonTd.append(buttonInfo);
     buttonTd.append(buttonRecipe);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
+  }
+  if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(playerWLT);
   }
-  buttonTd.append($('<img>', {
-    'src':
-      '/ui/images/button/' +
-      Api.game[player].buttonName.toLowerCase().replace(/[^a-z0-9]/g, '') +
-      '.png',
-    'width': '150px',
-    'onerror': 'this.src="/ui/images/button/BMdefaultRound.png"',
-  }));
-  if (player == 'player') {
+  if (Env.getCookieNoImages() || Env.getCookieCompactMode()) {
+    buttonTd.append($('<div>', { 'style': 'height: 150px; width: 150px;', }));
+  } else {
+    buttonTd.append($('<img>', {
+      'src':
+        Env.ui_root + 'images/button/' + Api.game[player].buttonArtFilename,
+      'width': '150px',
+    }));
+  }
+  if (player == 'player' || Api.game.gameState == Game.GAME_STATE_END_GAME) {
     buttonTd.append(buttonRecipe);
     buttonTd.append(buttonInfo);
     buttonTd.append(playerName);
-  } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
-    buttonTd.append(playerWLT);
   }
   return buttonTd;
 };
@@ -1725,9 +1907,15 @@ Game.gamePlayerDice = function(player, player_active) {
   var allDice = $('<div>', {
     'class': 'dice_' + player,
   });
-  var i = 0;
-  while (i < Api.game[player].nDie) {
 
+  var dieDiv;
+  var dieRecipeDiv;
+  var dieContainerDiv;
+  var dieBorderDiv;
+
+  var dieRecipeText;
+
+  for (var i = 0; i < Api.game[player].nDie; i++) {
     // Find out whether this die is clickable: it is if the player
     // is active and this particular die is not dizzy
     var clickable;
@@ -1742,40 +1930,59 @@ Game.gamePlayerDice = function(player, player_active) {
       clickable = false;
     }
 
-    var dieDiv;
-    var dieBorderDiv;
-
     var dieIndex = Game.dieIndexId(player, i);
-    var borderDivOpts = {
+
+    var containerDivOpts = {
       'id': dieIndex,
-    };
-    var divOpts = {
       'title': Api.game[player].dieDescriptionArray[i],
     };
+    var borderDivOpts = {
+      'class': 'die_border',
+    };
+    var divOpts = { };
+
     if (clickable) {
+      // clickable dice should be selectable via keyboard as well
+      containerDivOpts.tabIndex = 0;
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        borderDivOpts.class = 'die_border selected';
+        containerDivOpts.class = 'hide_focus die_container die_alive selected';
       } else {
-        borderDivOpts.class = 'die_border unselected_' + player;
+        containerDivOpts.class =
+          'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
       divOpts.class = 'die_img';
+      dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
       if (player == 'player') {
-        dieBorderDiv.click(Game.dieBorderTogglePlayerHandler);
+        Env.addClickKeyboardHandlers(
+          dieContainerDiv,
+          Game.dieBorderTogglePlayerHandler,
+          Game.dieBorderTogglePlayerHandler,
+          Game.form
+        );
       } else {
-        dieBorderDiv.click(Game.dieBorderToggleOpponentHandler);
+        Env.addClickKeyboardHandlers(
+          dieContainerDiv,
+          Game.dieBorderToggleOpponentHandler,
+          Game.dieBorderToggleOpponentHandler,
+          Game.form
+        );
       }
+      Game.dieFocusOutlineHandler(dieContainerDiv);
     } else {
+      borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       divOpts.class = 'die_img die_greyed';
       if (player_active) {
-        divOpts.title += '. (This die is dizzy because it was turned ' +
-        'down.  It can\'t be used during this attack.)';
+        containerDivOpts.title +=
+          '. (This die is dizzy because it was turned ' +
+          'down.  It can\'t be used during this attack.)';
       }
-      borderDivOpts.class = 'die_border';
+      containerDivOpts.class = 'die_container die_alive';
+      dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
     }
@@ -1783,19 +1990,72 @@ Game.gamePlayerDice = function(player, player_active) {
       'class': 'die_overlay die_number_' + player,
       'text': Api.game[player].valueArray[i],
     }));
-    dieDiv.append($('<br>'));
 
-    var dieRecipeText = Game.dieRecipeText(
+    dieRecipeText = Game.dieRecipeText(
       Api.game[player].dieRecipeArray[i],
       Api.game[player].sidesArray[i]);
-    dieDiv.append($('<span>', {
+    dieRecipeDiv = $('<div>');
+    dieRecipeDiv.append($('<span>', {
       'class': 'die_recipe_' + player,
       'text': dieRecipeText,
     }));
-    dieBorderDiv.append(dieDiv);
 
-    allDice.append(dieBorderDiv);
-    i += 1;
+    dieBorderDiv.append(dieDiv);
+    if (player == 'player') {
+      dieContainerDiv.append(dieRecipeDiv);
+      dieContainerDiv.append(dieBorderDiv);
+    } else {
+      dieContainerDiv.append(dieBorderDiv);
+      dieContainerDiv.append(dieRecipeDiv);
+    }
+    allDice.append(dieContainerDiv);
+  }
+
+  // Loop over all of the captured dice and display any that are flagged as
+  // having been captured just now.
+  for (i = 0; i < Api.game[nonplayer].nCapturedDie; i++) {
+    if (Api.game[nonplayer].capturedDiePropertiesArray[i] === null ||
+      Api.game[nonplayer].capturedDiePropertiesArray[i] === undefined ||
+      !('WasJustCaptured' in
+        Api.game[nonplayer].capturedDiePropertiesArray[i])) {
+      continue;
+    }
+
+    dieContainerDiv = $('<div>', {
+      'class': 'die_container die_dead' ,
+      'title':
+        'This die was just captured in the last attack and is no longer ' +
+        'in play.',
+    });
+    dieBorderDiv = $('<div>', {
+      'class': 'die_border',
+      'style': 'border: 2px solid ' + Game.color[player],
+    });
+    dieDiv = $('<div>', { 'class': 'die_img', });
+
+    dieDiv.append($('<span>', {
+      'class': 'die_overlay die_number_' + player,
+      'html': '&nbsp;' + Api.game[nonplayer].capturedValueArray[i] + '&nbsp;',
+    }));
+
+    dieRecipeText = Game.dieRecipeText(
+      Api.game[nonplayer].capturedRecipeArray[i],
+      Api.game[nonplayer].capturedSidesArray[i]);
+    dieRecipeDiv = $('<div>');
+    dieRecipeDiv.append($('<span>', {
+      'class': 'die_recipe_' + player,
+      'text': dieRecipeText,
+    }));
+
+    dieBorderDiv.append(dieDiv);
+    if (player == 'player') {
+      dieContainerDiv.append(dieRecipeDiv);
+      dieContainerDiv.append(dieBorderDiv);
+    } else {
+      dieContainerDiv.append(dieBorderDiv);
+      dieContainerDiv.append(dieRecipeDiv);
+    }
+    allDice.append(dieContainerDiv);
   }
 
   return allDice;
@@ -1846,37 +2106,49 @@ Game.playerOpponentHeaderRow = function(label, field) {
   if (label) {
     prefix = label + ': ';
   }
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.player[field],
-  }));
-  headerrow.append($('<th>', {
-    'text': prefix + Api.game.opponent[field],
-  }));
+  var playerInfo = $('<th>', { 'text': prefix, });
+  var opponentInfo = $('<th>', { 'text': prefix, });
+  if (field == 'playerName') {
+    playerInfo.append(Env.buildProfileLink(Api.game.player[field]));
+    opponentInfo.append(Env.buildProfileLink(Api.game.opponent[field]));
+  } else {
+    playerInfo.append(Api.game.player[field]);
+    opponentInfo.append(Api.game.opponent[field]);
+  }
+
+  headerrow.append(playerInfo);
+  headerrow.append(opponentInfo);
   return headerrow;
 };
 
 // If the recipe doesn't contain (sides), assume there are swing
-// dice in the recipe, so we need to specify the current number
-// of sides
+// or option dice in the recipe, so we need to specify the current
+// number of sides
 Game.dieRecipeText = function(recipe, sides) {
   var dieRecipeText = recipe;
   if (sides) {
     var lparen = recipe.indexOf('(');
     var rparen = recipe.indexOf(')');
-    var recipeSideStrings = recipe.substring(lparen + 1, rparen).split(',');
-    var sidesum = 0;
-    var swingcount = 0;
-    for (var i = 0; i < recipeSideStrings.length; i++) {
-      var itemSides = parseInt(recipeSideStrings[i], 10);
-      if (itemSides > 0) {
-        sidesum += itemSides;
-      } else {
-        swingcount += 1;
+    var recipeSideString = recipe.substring(lparen + 1, rparen);
+    var recipeSideOptionStrings = recipeSideString.split('/');
+    if (recipeSideOptionStrings.length > 1) {
+      dieRecipeText = dieRecipeText.replace(')', '=' + sides + ')');
+    } else {
+      var recipeSideTwinStrings = recipeSideString.split(',');
+      var sidesum = 0;
+      var swingcount = 0;
+      for (var i = 0; i < recipeSideTwinStrings.length; i++) {
+        var itemSides = parseInt(recipeSideTwinStrings[i], 10);
+        if (itemSides > 0) {
+          sidesum += itemSides;
+        } else {
+          swingcount += 1;
+        }
       }
-    }
-    if (sidesum != sides) {
-      dieRecipeText = dieRecipeText.replace(
-                        ')', '=' + (sides/swingcount) + ')');
+      if (sidesum != sides) {
+        dieRecipeText = dieRecipeText.replace(
+                          ')', '=' + (sides/swingcount) + ')');
+      }
     }
   }
   return dieRecipeText;
@@ -1938,19 +2210,21 @@ Game.dieCanRerollForInitiative = function(recipe) {
 
 Game.dieBorderTogglePlayerHandler = function() {
   $(this).toggleClass('selected unselected_player');
+  var borderDiv = $(this).find('.die_border');
   if ($(this).hasClass('unselected_player')) {
-    $(this).attr('style', 'border: 2px solid ' + Game.color.player);
+    borderDiv.attr('style', 'border: 2px solid ' + Game.color.player);
   } else {
-    $(this).attr('style', '');
+    borderDiv.attr('style', '');
   }
 };
 
 Game.dieBorderToggleOpponentHandler = function() {
   $(this).toggleClass('selected unselected_opponent');
+  var borderDiv = $(this).find('.die_border');
   if ($(this).hasClass('unselected_opponent')) {
-    $(this).attr('style', 'border: 2px solid ' + Game.color.opponent);
+    borderDiv.attr('style', 'border: 2px solid ' + Game.color.opponent);
   } else {
-    $(this).attr('style', '');
+    borderDiv.attr('style', '');
   }
 };
 
@@ -1989,8 +2263,11 @@ Game.dieValueSelectTd = function(
   return selectTd;
 };
 
-Game.chatBox = function() {
+Game.chatBox = function(hidden) {
   var chattable = $('<table>');
+  if (hidden) {
+    chattable.addClass('hiddenChatForm');
+  }
   var chatrow = $('<tr>');
   chatrow.append($('<td>', {'text': 'Chat:', }));
   var chattd = $('<td>');
@@ -1998,12 +2275,12 @@ Game.chatBox = function() {
     'id': 'game_chat',
     'rows': '3',
     'cols': '50',
-    'maxlength': '500',
+    'maxlength': Game.GAME_CHAT_MAX_LENGTH,
   });
 
   // Add previous chat contents from a rejected turn submission if any
   if ('chat' in Game.activity) {
-    chatarea.append(Game.activity.chat);
+    chatarea.val(Game.activity.chat);
   }
   chattd.append(chatarea);
   chatrow.append(chattd);
@@ -2024,4 +2301,14 @@ Game.waitingOnPlayerNames = function() {
   }
 
   return (waitingPlayers.join(' and '));
+};
+
+// if tab is released while focused on any die (i.e. if we tab to
+// any die), remove the hide_focus class from all dice
+Game.dieFocusOutlineHandler = function(element) {
+  element.keyup(function(eventData) {
+    if (eventData.which == Env.KEYCODE_TAB) {
+      $('.die_container').removeClass('hide_focus');
+    }
+  });
 };

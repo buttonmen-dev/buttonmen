@@ -12,12 +12,12 @@ class BMDieTwin extends BMDie {
             throw new InvalidArgumentException('sidesArray must have exactly two elements.');
         }
 
-        $this->add_multiple_skills($skills);
-
         foreach ($sidesArray as $dieIdx => $sides) {
             $this->dice[$dieIdx] =
                 BMDie::create_from_string_components($sides, $skills);
         }
+
+        $this->add_multiple_skills($skills);
 
         if ($this->dice[0] instanceof BMDieSwing &&
             $this->dice[1] instanceof BMDieSwing &&
@@ -64,18 +64,23 @@ class BMDieTwin extends BMDie {
         $this->ownerObject->add_die($newDie);
     }
 
-    public function roll($successfulAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
         if (is_null($this->max)) {
             return;
         }
 
+        $this->run_hooks('pre_roll', array('die' => $this,
+                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+
         $this->value = 0;
         foreach ($this->dice as &$die) {
-            $die->roll();
+            // note that we do not want to trigger the hooks again, so we set the
+            // input parameter of roll() to FALSE
+            $die->roll(FALSE);
             $this->value += $die->value;
         }
 
-        $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
+        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     // Print long description
@@ -84,29 +89,9 @@ class BMDieTwin extends BMDie {
             throw new InvalidArgumentException('isValueRequired must be boolean');
         }
 
-        $skillStr = '';
-        if (count($this->skillList) > 0) {
-            foreach (array_keys($this->skillList) as $skill) {
-                $skillStr .= "$skill ";
-            }
-        }
-
-        $typeStr = '';
-        if ($this->dice[0] instanceof BMDieSwing &&
-            $this->dice[1] instanceof BMDieSwing) {
-            $typeStr = "Twin {$this->dice[0]->swingType} Swing Die";
-        } else {
-            $typeStr = 'Twin Die';
-        }
-
-        $sideStr = '';
-        if (isset($this->dice[0]->max)) {
-            if ($this->dice[0]->max == $this->dice[1]->max) {
-                $sideStr = " (both with {$this->dice[0]->max} sides)";
-            } else {
-                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
-            }
-        }
+        $skillStr = $this->skillStr();
+        $typeStr = $this->typeStr();
+        $sideStr = $this->sideStr();
 
         $valueStr = '';
         if ($isValueRequired && isset($this->value)) {
@@ -116,6 +101,59 @@ class BMDieTwin extends BMDie {
         $result = "{$skillStr}{$typeStr}{$sideStr}{$valueStr}";
 
         return $result;
+    }
+
+    protected function skillStr() {
+        $skillStr = '';
+        if (count($this->skillList) > 0) {
+            foreach (array_keys($this->skillList) as $skill) {
+                if (('Mood' != $skill) && 'Mad' != $skill) {
+                    $skillStr .= "$skill ";
+                }
+            }
+        }
+
+        return $skillStr;
+    }
+
+    protected function moodStr() {
+        $moodStr = '';
+        if ($this->has_skill('Mad')) {
+            $moodStr = ' Mad';
+        } elseif ($this->has_skill('Mood')) {
+            $moodStr = ' Mood';
+        }
+
+        return $moodStr;
+    }
+
+    protected function typeStr() {
+        $typeStr = '';
+        if ($this->dice[0] instanceof BMDieSwing &&
+            $this->dice[1] instanceof BMDieSwing) {
+            $typeStr = "Twin {$this->dice[0]->swingType}{$this->moodStr()} Swing Die";
+        } else {
+            $typeStr = 'Twin Die';
+        }
+
+        return $typeStr;
+    }
+
+    protected function sideStr() {
+        $sideStr = '';
+        if (isset($this->dice[0]->max)) {
+            if ($this->dice[0]->max == $this->dice[1]->max) {
+                $sideStr = " (both with {$this->dice[0]->max} side";
+                if ($this->dice[0]->max != 1) {
+                    $sideStr .= 's';
+                }
+                $sideStr .= ')';
+            } else {
+                $sideStr = " (with {$this->dice[0]->max} and {$this->dice[1]->max} sides)";
+            }
+        }
+
+        return $sideStr;
     }
 
     public function split() {
@@ -152,24 +190,7 @@ class BMDieTwin extends BMDie {
         return $valid || !isset($this->swingType);
     }
 
-    // Return all information about a die which is useful when
-    // constructing an action log entry, in the form of an array.
-    // This function exists so that BMGame can easily compare the
-    // die state before the attack to the die state after the attack.
-//    public function get_action_log_data() {
-//       $recipe = $this->get_recipe();
-//       return(array(
-//           'recipe' => $recipe,
-//           'min' => $this->min,
-//           'max' => $this->max,
-//           'value' => $this->value,
-//           'doesReroll' => $this->doesReroll,
-//           'captured' => $this->captured,
-//           'recipeStatus' => $recipe . ':' . $this->value,
-//       ));
-//    }
-
-    protected function recalc_max_min() {
+    public function recalc_max_min() {
         $this->min = 0;
         $this->max = 0;
 

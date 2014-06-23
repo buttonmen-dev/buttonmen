@@ -323,6 +323,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testAttack_list
      */
     public function testAttack_values() {
+        $this->object->init(15);
         $this->object->value = 7;
 
         foreach ($this->object->attack_list() as $att) {
@@ -678,6 +679,64 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDie;
         $die4->init(25, array('Shadow', 'Poison'));
         $this->assertEquals('sp(25)', $die4->get_recipe());
+
+        $die5 = new BMDie;
+        $die5->init(51, array());
+        $this->assertEquals('(51)', $die5->get_recipe(TRUE));
+    }
+
+    /*
+     * @covers BMDie::has_flag
+     */
+    public function testHas_flag() {
+        $this->assertFalse($this->object->has_flag('flag'));
+    }
+
+    /*
+     * @covers BMDie::add_flag
+     */
+    public function testAdd_flag() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::remove_flag
+     */
+    public function testRemove_flag() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+
+        $this->object->remove_flag('WasJustCaptured');
+        $this->assertFalse($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::remove_all_flags
+     */
+    public function testRemove_all_flags() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->object->remove_all_flags();
+        $this->assertFalse($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::flags_as_string
+     */
+    public function testFlags_as_string() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertEquals('WasJustCaptured', $this->object->flags_as_string());
+    }
+
+    /*
+     * @covers BMDie::load_flags_from_string
+     */
+    public function testLoad_flags_from_string() {
+        $this->object->load_flags_from_string('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
     }
 
     public function test__get() {

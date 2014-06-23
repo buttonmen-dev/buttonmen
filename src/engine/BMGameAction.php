@@ -95,72 +95,141 @@ class BMGameAction {
 
         // First, what type of attack was this?
         if ($attackType == 'Pass') {
-            $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
-        } elseif ($attackType == 'Surrender') {
-            $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
+            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
+        }
+
+        if ($attackType == 'Surrender') {
+            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
+        }
+
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+
+        // Add the pre-attack status of all participating dice
+        $preAttackAttackers = array();
+        $preAttackDefenders = array();
+        foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+        }
+        foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
+            $preAttackDefenders[] = $defenderInfo['recipeStatus'];
+        }
+        $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders);
+
+        $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
+        $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
+
+        if ($defenderRerollsEarly) {
+            $message .= $messageAttacker.$messageDefender;
         } else {
-            $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+            $message .= $messageDefender.$messageAttacker;
+        }
 
-            // Add the pre-attack status of all participating dice
-            $preAttackAttackers = array();
-            $preAttackDefenders = array();
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
-            }
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-            }
-            if (count($preAttackAttackers) > 0) {
-                $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
-            }
-            if (count($preAttackDefenders) > 0) {
-                $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
-            }
+        return $message;
+    }
 
-            // Report what happened to each defending die
-            foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
-                $postInfo = $postAttackDice['defender'][$idx];
-                $postEvents = array();
+    protected function preAttackMessage($preAttackAttackers, $preAttackDefenders) {
+        $message = '';
 
-                if ($defenderRerollsEarly) {
-                    if ($defenderInfo['doesReroll']) {
-                        $postEvents[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
-                    } else {
-                        $postEvents[] = 'does not reroll';
-                    }
-                }
+        if (count($preAttackAttackers) > 0) {
+            $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
+        }
+        
+        if (count($preAttackDefenders) > 0) {
+            $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
+        }
+        
+        return $message;
+    }
 
-                if ($postInfo['captured']) {
-                    $postEvents[] = 'was captured';
+    protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
+        $messageDefender = '';
+        // Report what happened to each defending die
+        foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
+            $postInfo = $postAttackDice['defender'][$idx];
+            $postEventsDefender = array();
+
+            if ($defenderRerollsEarly) {
+                if ($defenderInfo['doesReroll']) {
+                    $postEventsDefender[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
                 } else {
-                    $postEvents[] = 'was not captured';
+                    $postEventsDefender[] = 'does not reroll';
                 }
-                if ($defenderInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                $message .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEvents);
             }
 
-            // Report what happened to each attacking die
-            foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
-                $postInfo = $postAttackDice['attacker'][$idx];
-                $postEvents = array();
-                if ($attackerInfo['doesReroll']) {
-                    $postEvents[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
-                } else {
-                    $postEvents[] = 'does not reroll';
-                }
-                if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-                    $postEvents[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
-                }
-                if (count($postEvents) > 0) {
-                    $message .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEvents);
-                }
+            if ($defenderInfo['recipe'] != $postInfo['recipe']) {
+                $postEventsDefender[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
             }
+            if ($postInfo['captured']) {
+                $postEventsDefender[] = 'was captured';
+            } else {
+                $postEventsDefender[] = 'was not captured';
+            }
+            $messageDefender .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+        }
+
+        return $messageDefender;
+    }
+
+    protected function messageAttacker($preAttackDice, $postAttackDice) {
+        $messageAttacker = '';
+        // Report what happened to each attacking die
+        foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
+            $postInfo = $postAttackDice['attacker'][$idx];
+            $postEventsAttacker = array();
+            if ($attackerInfo['max'] != $postInfo['max']) {
+                $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' .
+                                        $postInfo['max'] . ' sides';
+            }
+            if ($attackerInfo['recipe'] != $postInfo['recipe']) {
+                $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            }
+            if ($attackerInfo['doesReroll']) {
+                $postEventsAttacker[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
+            } else {
+                $postEventsAttacker[] = 'does not reroll';
+            }
+            if (count($postEventsAttacker) > 0) {
+                $messageAttacker .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+            }
+        }
+
+        return $messageAttacker;
+    }
+
+    protected function friendly_message_choose_die_values() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set';
+
+        // If the round is later than the one in which this action
+        // log entry was recorded, or we're no longer in swing selection
+        // state, report the values which were chosen as well
+        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
+            ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
+            $dieMessages = array();
+            if (count($this->params['swingValues']) > 0) {
+                $swingStrs = array();
+                foreach ($this->params['swingValues'] as $swingType => $swingValue) {
+                    $swingStrs[] = $swingType . '=' . $swingValue;
+                }
+                $dieMessages[] = 'swing values: ' . implode(", ", $swingStrs);
+            }
+            if (count($this->params['optionValues']) > 0) {
+                $optionStrs = array();
+                foreach ($this->params['optionValues'] as $dieRecipe => $optionValue) {
+                    $optionStrs[] = str_replace(')', '=' . $optionValue . ')', $dieRecipe);
+                }
+                $dieMessages[] = 'option dice: ' . implode(", ", $optionStrs);
+            }
+            $message .= ' ' . implode(" and ", $dieMessages);
+        } else {
+            $message .= ' die sizes';
         }
         return $message;
     }
 
+    // Since the addition of option dice, new choose_swing log
+    // entries are no longer added to the DB.  However, this code
+    // must be retained to parse old log entries until/unless those
+    // are converted.
     protected function friendly_message_choose_swing() {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set swing values';
 
@@ -174,23 +243,6 @@ class BMGameAction {
                 $swingStrs[] = $swingType . '=' . $swingValue;
             }
             $message .= ': ' . implode(", ", $swingStrs);
-        }
-        return $message;
-    }
-
-    protected function friendly_message_choose_option() {
-        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' set option values';
-
-        // If the round is later than the one in which this action
-        // log entry was recorded, or we're no longer in option selection
-        // state, report the values which were chosen as well
-        if (($this->outputRoundNumber != $this->params['roundNumber']) ||
-            ($this->outputGameState != BMGameState::SPECIFY_DICE)) {
-            $optionStrs = array();
-            foreach ($this->params['optionValues'] as $optionValue) {
-                $optionStrs[] = $optionValue;
-            }
-            $message .= ': ' . implode(", ", $optionStrs);
         }
         return $message;
     }
@@ -257,6 +309,58 @@ class BMGameAction {
         $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
                    ' chose not to use auxiliary dice in this game: ' .
                    'neither player will get an auxiliary die';
+        return $message;
+    }
+
+    protected function friendly_message_determine_initiative() {
+
+        // Summary first: who won initiative
+        $message = $this->outputPlayerIdNames[$this->params['initiativeWinnerId']] .
+                   ' won initiative for round ' . $this->params['roundNumber'] . '.';
+
+        // Now report all the initial die rolls without commentary
+        $message .= ' Initial die values: ';
+        $dieRollStrs = array();
+        $slowButtonPlayers = array();
+        $slowDice = array();
+        foreach ($this->params['playerData'] as $playerId => $playerData) {
+            $dieVals = array();
+            $slowDice[$playerId] = array();
+            foreach ($playerData['initiativeDice'] as $initDie) {
+                $dieVals[] = $initDie['recipeStatus'];
+                if (!$initDie['included']) {
+                    $slowDice[$playerId][] = $initDie['recipe'];
+                }
+            }
+            $dieRollStrs[] = $this->outputPlayerIdNames[$playerId] . ' rolled [' .
+                             implode(', ', $dieVals) . ']';
+            if ($playerData['slowButton']) {
+                $slowButtonPlayers[] = $playerId;
+            }
+        }
+        $message .= implode(', ', $dieRollStrs) . '.';
+
+        // Now report on slow buttons and dice: assume a 2-player game for now
+        if (count($slowButtonPlayers) == 2) {
+            $message .= ' Both buttons have the "slow" button special, and cannot win initiative normally.';
+        } elseif (count($slowButtonPlayers) == 1) {
+            $message .= ' ' . $this->outputPlayerIdNames[$slowButtonPlayers[0]] .
+                        '\'s button has the "slow" button special, and cannot win initiative normally.';
+        } else {
+            foreach ($slowDice as $playerId => $playerSlowDice) {
+                if (count($playerSlowDice) > 0) {
+                    $message .= ' ' . $this->outputPlayerIdNames[$playerId] .
+                                ' has dice which are not counted for initiative due to die skills: [' .
+                                implode(', ', $playerSlowDice) . '].';
+                }
+            }
+        }
+
+        // Last, if initiative was resolved by coin flip, say that.
+        if (array_key_exists('tiedPlayerIds', $this->params)) {
+            $message .= ' Initiative was determined by a coin flip.';
+        }
+
         return $message;
     }
 
