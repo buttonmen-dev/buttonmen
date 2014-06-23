@@ -271,7 +271,7 @@ class BMDie extends BMCanHaveSkill {
     // Fire is currently the only skill that requires this
     //
     // Returned values must be sorted from lowest to highest, and zero
-    // must be ommited unlees you cannot contribute.
+    // must be omitted unless you cannot contribute.
     //
     // The attack code currently assumes that every value between the
     // lowest and highest is possible, and that 1 and -1 are possible
