@@ -20,6 +20,9 @@ for phpfile in $PHPFILES; do
   /bin/cp -f ./src/api/$phpfile $HTTPDIR/$phpfile
 done
 
+if [ -d $HTTPDIR/$JSONDIR ]; then
+  /bin/rm -rf $HTTPDIR/$JSONDIR
+fi
 /bin/mkdir $HTTPDIR/$JSONDIR
 
-/usr/bin/rsync -av --delete ./src/api/$JSONDIR/ $HTTPDIR/$JSONDIR/
+/usr/bin/rsync -av ./src/api/$JSONDIR/ $HTTPDIR/$JSONDIR/
