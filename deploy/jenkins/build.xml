@@ -13,6 +13,9 @@
   <delete dir="${basedir}/build/js-coverage"/>
   <delete dir="${basedir}/build/logs"/>
   <delete dir="${basedir}/build/pdepend"/>
+  <delete>
+    <fileset dir="${basedir}/tools/api-client/python/lib" includes="**/*.pyc"/>
+  </delete>
 
   <mkdir dir="${basedir}/build/api"/>
   <mkdir dir="${basedir}/build/code-browser"/>
