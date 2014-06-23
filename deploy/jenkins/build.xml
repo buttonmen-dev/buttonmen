@@ -134,8 +134,8 @@
  </target>
 
  <target name="jstest-lighttpd-configure">
-  <exec executable="/bin/cp" failonerror="true">
-   <arg line="-f ./src/api/dummy_responder.php ./src/api/DummyApiResponder.php ./src/api/ApiSpec.php /usr/local/share/jenkins-lighttpd/www/"/>
+  <exec executable="/bin/bash" failonerror="true">
+   <arg line="./deploy/jenkins/install_dummy_responder_files.sh" />
   </exec>
  </target>
 
