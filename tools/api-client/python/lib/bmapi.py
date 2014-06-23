@@ -10,6 +10,16 @@ import os
 import urllib
 import urllib2
 
+class BMAPIResponse():
+  def __init__(self, response_dict):
+    for mandatory_arg in ['data', 'message', 'status']:
+      if not mandatory_arg in response_dict:
+        raise ValueError, "Malformed API response is missing key '%s': %s" % (
+          mandatory_arg, response_dict)
+    self.data = response_dict['data']
+    self.message = response_dict['message']
+    self.status = response_dict['status']
+
 class BMClient():
   def _read_rcfile(self, rcfile, site):
     config = ConfigParser.ConfigParser()
@@ -17,7 +27,6 @@ class BMClient():
     self.url = config.get(site, "url")
     self.username = config.get(site, "username")
     self.password = config.get(site, "password")
-    self.cookiefile = config.get(site, "cookiefile")
 
   def _setup_cookies(self):
     # all requests should use the same cookie jar
@@ -45,7 +54,7 @@ class BMClient():
     jsonval = response.read()
     try:
       retval = json.loads(jsonval)
-      return retval
+      return BMAPIResponse(retval)
     except Exception, e:
       print "could not parse return: " + jsonval
       return False
@@ -57,7 +66,7 @@ class BMClient():
       'password': self.password,
     }
     retval = self._make_request(args)
-    if retval['status'] == 'ok':
+    if retval.status == 'ok':
       self.cookiejar.save(ignore_discard=True)
       return True
     return False
@@ -66,12 +75,11 @@ class BMClient():
     args = {
       'type': 'loadPlayerName',
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
 
   def verify_login(self):
     retval = self.load_player_name()
-    if retval['status'] == 'ok':
+    if retval.status == 'ok':
       return True
     return self.login()
 
@@ -79,37 +87,32 @@ class BMClient():
     args = {
       'type': 'loadButtonNames',
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
 
   def load_player_names(self):
     args = {
       'type': 'loadPlayerNames',
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
 
   def load_active_games(self):
     args = {
       'type': 'loadActiveGames',
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
 
   def load_completed_games(self):
     args = {
       'type': 'loadCompletedGames',
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
 
   def load_game_data(self, gameId):
     args = {
       'type': 'loadGameData',
       'game': gameId,
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
 
   def create_game(self, opponent, pbutton, obutton):
     args = {
@@ -118,5 +121,4 @@ class BMClient():
       'buttonNameArray[]': [pbutton, obutton],
       'maxWins': 3,
     }
-    retval = self._make_request(args)
-    return retval
+    return self._make_request(args)
