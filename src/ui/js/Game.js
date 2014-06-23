@@ -2032,8 +2032,8 @@ Game.gamePlayerDice = function(player, player_active) {
 // Show the winner of a completed game
 Game.gameWinner = function() {
 
-  var playerWins = Api.game.player.gameScoreDict.W;
-  var opponentWins = Api.game.opponent.gameScoreDict.W;
+  var playerWins = Api.game.player.gameScoreArray.W;
+  var opponentWins = Api.game.opponent.gameScoreArray.W;
   var winnerName;
   if (playerWins > opponentWins) {
     winnerName = Api.game.player.playerName;

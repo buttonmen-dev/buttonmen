@@ -426,32 +426,22 @@ var Api = (function () {
   // and return it.  This function can be used for either the logged-in
   // player or the opponent.
   my.parseGamePlayerData = function(playerData, playerIdx) {
-    var data = {
-      'playerId': playerData.playerId,
-      'playerName': playerData.playerName,
-      'waitingOnAction': playerData.waitingOnAction,
-      'roundScore': playerData.roundScore,
-      'sideScore': playerData.sideScore,
-      'gameScoreDict': playerData.gameScoreArray,  // FIXME
-      'lastActionTime': playerData.lastActionTime,
-      'canStillWin': playerData.canStillWin,
-      'button': playerData.button,
-      'buttonName': playerData.button.name, // FIXME
-      'activeDieArray': playerData.activeDieArray,
-      'capturedDieArray': playerData.capturedDieArray,
+    var data = playerData;
 
-      'swingRequestArray': {}, // FIXME
-      'optRequestArray': playerData.optRequestArray,
-      'prevSwingValueArray': playerData.prevSwingValueArray,
-      'prevOptValueArray': playerData.prevOptValueArray,
-    };
-
+    // modify the API-provided swing request array to ensure that
+    // it is always a dict, and to tag the range values as "min"/"max"
+    var modSwingRequestArray = {};
     $.each(playerData.swingRequestArray, function(letter, range) {
-      data.swingRequestArray[letter] = {
+      modSwingRequestArray[letter] = {
         'min': parseInt(range[0], 10),
         'max': parseInt(range[1], 10)
       };
     });
+    data.swingRequestArray = modSwingRequestArray;
+
+    // store buttonName as a top-level variable for convenience
+    // in assembling game tables
+    data['buttonName'] = playerData.button.name;
 
     // activePlayerIdx may be either player or may be null
     if (my.game.activePlayerIdx == playerIdx) {
@@ -471,9 +461,9 @@ var Api = (function () {
   };
 
   my.playerWLTText = function(player) {
-    var text = 'W/L/T: ' + Api.game[player].gameScoreDict.W +
-               '/' + Api.game[player].gameScoreDict.L +
-               '/' + Api.game[player].gameScoreDict.D +
+    var text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
+               '/' + Api.game[player].gameScoreArray.L +
+               '/' + Api.game[player].gameScoreArray.D +
                ' (' + Api.game.maxWins + ')';
     return text;
   };

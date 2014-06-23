@@ -295,7 +295,7 @@ asyncTest("test_Api.parseGamePlayerData", function() {
               "round score should be parsed from API response");
     deepEqual(Api.game.player.sideScore, null,
               "side score should be parsed from API response");
-    deepEqual(Api.game.player.gameScoreDict, {'W': 0, 'L': 0, 'D': 0, },
+    deepEqual(Api.game.player.gameScoreArray, {'W': 0, 'L': 0, 'D': 0, },
               "game score array should be parsed from API response");
     deepEqual(Api.game.player.lastActionTime, 0,
               "last action time should be parsed from API response");
