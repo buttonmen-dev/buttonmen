@@ -41,6 +41,10 @@
         { "value": 4, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
         { "value": 2, "sides": 4, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die (with 4 sides)" }
       ],
+      "capturedDieArray": [
+        { "value": 3, "sides": 10, "properties": [], "recipe": "(10)" },
+        { "value": 1, "sides": 4, "properties": [], "recipe": "(X)" }
+      ],
       "waitingOnAction": true,
       "roundScore": 18,
       "sideScore": -12,
@@ -61,6 +65,11 @@
         { "value": 4, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
         { "value": 5, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" }
       ],
+      "capturedDieArray": [
+        { "value": 11, "sides": 12, "properties": [], "recipe": "(12)" },
+        { "value": 7, "sides": 10, "properties": [], "recipe": "(10)" },
+        { "value": 1, "sides": 4, "properties": ["WasJustCaptured"], "recipe": "(4)" }
+      ],
       "waitingOnAction": false,
       "roundScore": 36,
       "sideScore": 12,
@@ -72,11 +81,7 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nCapturedDieArray": [2, 3],
-      "capturedValueArrayArray": [[3, 1], [11, 7, 1]],
-      "capturedSidesArrayArray": [[10, 4], [12, 10, 4]],
-      "capturedRecipeArrayArray": [["(10)", "(X)"], ["(12)", "(10)", "(4)"]],
-      "capturedDiePropsArrayArray": [[[], []], [[], [], {"WasJustCaptured": true}]], "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
+      "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
       "prevOptValueArrayArray": [[], []]

@@ -2268,6 +2268,7 @@ class BMGame {
                 'playerId'         => $playerId,
                 'button'           => $this->get_buttonInfo($playerIdx),
                 'activeDieArray'   => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
+                'capturedDieArray' => $this->get_capturedDieArray($playerIdx),
                 'waitingOnAction'  => $this->waitingOnActionArray[$playerIdx],
                 'roundScore'       => $roundScoreArray[$playerIdx],
                 'sideScore'        => $sideScoreArray[$playerIdx],
@@ -2286,11 +2287,6 @@ class BMGame {
 
         $dataArray =
             array(
-                  'nCapturedDieArray'          => $this->get_nCapturedDieArray(),
-                  'capturedValueArrayArray'    => $this->get_capturedValueArrayArray(),
-                  'capturedSidesArrayArray'    => $this->get_capturedSidesArrayArray(),
-                  'capturedRecipeArrayArray'   => $this->get_capturedRecipeArrayArray(),
-                  'capturedDiePropsArrayArray' => $this->get_capturedDiePropsArrayArray(),
                   'swingRequestArrayArray'     => $this->get_swingRequestArrayArray(),
                   'optRequestArrayArray'       => $this->get_optRequestArrayArray(),
                   'prevSwingValueArrayArray'   => $this->get_prevSwingValueArrayArray(),
@@ -2357,6 +2353,21 @@ class BMGame {
             );
         }
         return $activeDieArray;
+    }
+
+    protected function get_capturedDieArray($playerIdx) {
+        $capturedDieArray = array(); 
+        if (isset($this->capturedDieArrayArray)) {
+            foreach ($this->capturedDieArrayArray[$playerIdx] as $dieIdx => $die) {
+                $capturedDieArray[] = array(
+                    'value' => $die->value,
+                    'sides' => $die->max,
+                    'recipe' => $die->recipe,
+                    'properties' => $this->get_capturedDieProps($die),
+                );
+            }
+        }
+        return $capturedDieArray;
     }
 
     protected function get_valueArrayArray($requestingPlayerIdx) {
@@ -2537,74 +2548,14 @@ class BMGame {
         return $dieDescArrayArray;
     }
 
-    protected function get_nCapturedDieArray() {
-        if (isset($this->capturedDieArrayArray)) {
-            $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
-        } else {
-            $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
-        }
-
-        return $nCapturedDieArray;
-    }
-
-    protected function get_capturedValueArrayArray() {
-        $captValueArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captValueArrayArray[$playerIdx][$dieIdx] = $die->value;
-                }
+    protected function get_capturedDieProps($die) {
+        $capturedDieProps = array();
+        if (!empty($die->flagList)) {
+            foreach (array_keys($die->flagList) as $flag) {
+                $capturedDieProps[] = $flag;
             }
         }
-
-        return $captValueArrayArray;
-    }
-
-    protected function get_capturedSidesArrayArray() {
-        $captSidesArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captSidesArrayArray[$playerIdx][$dieIdx] = $die->max;
-                }
-            }
-        }
-
-        return $captSidesArrayArray;
-    }
-
-    protected function get_capturedRecipeArrayArray() {
-        $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captRecipeArrayArray[$playerIdx][$dieIdx] = $die->recipe;
-                }
-            }
-        }
-
-        return $captRecipeArrayArray;
-    }
-
-    protected function get_capturedDiePropsArrayArray() {
-        $captDiePropsArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    if (!empty($die->flagList)) {
-                        foreach (array_keys($die->flagList) as $flag) {
-                            $captDiePropsArrayArray[$playerIdx][$dieIdx][$flag] = TRUE;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $captDiePropsArrayArray;
+        return $capturedDieProps;
     }
 
     protected function get_swingRequestArrayArray() {

@@ -34,6 +34,7 @@
         { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" },
         { "value": null, "sides": 20, "skills": ["Auxiliary"], "properties": [], "recipe": "+(20)", "description": "Auxiliary 20-sided die" }
       ],
+      "capturedDieArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -57,6 +58,7 @@
         { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" },
         { "value": null, "sides": null, "skills": ["Auxiliary"], "properties": [], "recipe": "+(20)", "description": "Auxiliary 20-sided die" }
       ],
+      "capturedDieArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -68,11 +70,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nCapturedDieArray": [0, 0],
-      "capturedValueArrayArray": [[], []],
-      "capturedSidesArrayArray": [[], []],
-      "capturedRecipeArrayArray": [[], []],
-      "capturedDiePropsArrayArray": [[], []],
       "swingRequestArrayArray": [{"X": [4, 20]}, {"X": [4, 20]}],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],

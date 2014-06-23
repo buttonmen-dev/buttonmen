@@ -2814,10 +2814,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
                   'recipe' => '(X)', 'description' => 'X Swing Die'),
             $out1['playerDataArray'][1]['activeDieArray'][4]);
-        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out1['data']['swingRequestArrayArray']
@@ -2878,10 +2876,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(
             array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
             $out2['playerDataArray'][1]['activeDieArray'][4]);
-        $this->assertEquals(array(0, 0), $out2['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out2['data']['swingRequestArrayArray']
@@ -2985,10 +2981,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('8-sided die', $out3['playerDataArray'][1]['activeDieArray'][2]['description']);
         $this->assertEquals('X Swing Die (with 7 sides)', $out3['playerDataArray'][1]['activeDieArray'][3]['description']);
         $this->assertEquals('X Swing Die (with 7 sides)', $out3['playerDataArray'][1]['activeDieArray'][4]['description']);
-        $this->assertEquals(array(0, 0), $out3['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out3['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out3['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out3['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
             array(array('X' => array(4, 20)), array('X' => array(4, 20))),
             $out3['data']['swingRequestArrayArray']
@@ -3157,10 +3151,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 	    array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
                   'recipe' => '(T,T)', 'description' => 'Twin T Swing Die'),
             $out1['playerDataArray'][1]['activeDieArray'][4]);
-        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
             array(array('X' => array(4, 20)), array('T' => array(2, 12))),
             $out1['data']['swingRequestArrayArray']
@@ -3272,10 +3264,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Option Die (with 1 or 8 sides)', $out1['playerDataArray'][1]['activeDieArray'][2]['description']);
         $this->assertEquals('Option Die (with 6 or 12 sides)', $out1['playerDataArray'][1]['activeDieArray'][3]['description']);
         $this->assertEquals('Option Die (with 12 or 20 sides)', $out1['playerDataArray'][1]['activeDieArray'][4]['description']);
-        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
             array(array(2 => array(2, 12),
                         3 => array(8, 16),
@@ -3349,10 +3339,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
             array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(),
                   'recipe' => '(12/20)', 'description' => 'Option Die (with 20 sides)'),
             $out2['playerDataArray'][1]['activeDieArray'][4]);
-        $this->assertEquals(array(0, 0), $out2['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedRecipeArrayArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
             array(array(2 => array(2, 12),
                         3 => array(8, 16),

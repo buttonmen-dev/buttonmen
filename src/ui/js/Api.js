@@ -444,18 +444,19 @@ var Api = (function () {
       'button': playerData.button,
       'buttonName': playerData.button.name, // FIXME
       'activeDieArray': playerData.activeDieArray,
+      'capturedDieArray': playerData.capturedDieArray,
 
        // N.B. These arrays describe the other player's dice which this
        // player has captured
-      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
-      'capturedValueArray':
-        my.game.gameData.data.capturedValueArrayArray[playerIdx],
-      'capturedSidesArray':
-        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
-      'capturedRecipeArray':
-        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
-      'capturedDiePropertiesArray':
-        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
+//      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
+//      'capturedValueArray':
+//        my.game.gameData.data.capturedValueArrayArray[playerIdx],
+//      'capturedSidesArray':
+//        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
+//      'capturedRecipeArray':
+//        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+//      'capturedDiePropertiesArray':
+//        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
 
       'swingRequestArray': {},
       'optRequestArray':

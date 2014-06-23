@@ -33,6 +33,7 @@
         { "value": 6, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" },
         { "value": 18, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" }
       ],
+      "capturedDieArray": [],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -55,6 +56,7 @@
         { "value": 1, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" },
         { "value": 12, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" }
       ],
+      "capturedDieArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -66,11 +68,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nCapturedDieArray": [0, 0],
-      "capturedValueArrayArray": [[], []],
-      "capturedSidesArrayArray": [[], []],
-      "capturedRecipeArrayArray": [[], []],
-      "capturedDiePropsArrayArray": [[], []],
       "swingRequestArrayArray": [[], []],
       "optRequestArrayArray": [[], []],
       "prevSwingValueArrayArray": [[], []],
