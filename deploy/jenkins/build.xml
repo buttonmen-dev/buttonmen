@@ -152,8 +152,8 @@
  </target>
 
  <target name="python-api-client-test">
-  <exec executable="/usr/bin/python" failonerror="true">
-   <arg line="./test/tools/api-client/python/lib/test_bmapi.py jenkins"/>
+  <exec executable="/usr/bin/env" failonerror="true">
+   <arg line="BMAPI_TEST_TYPE=jenkins /usr/bin/python ./test/tools/api-client/python/lib/test_bmapi.py"/>
   </exec>
  </target>
 

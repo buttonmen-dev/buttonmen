@@ -8,6 +8,10 @@ tooldir = mydir + '/../../../../../tools/api-client/python/lib/'
 sys.path.append(tooldir)
 import bmapi
 
+TEST_URLS = {
+  'vagrant_local': 'http://localhost/api/dummy_responder',
+  'jenkins': 'http://localhost:8082/dummy_responder.php',
+}
 TEST_TYPE = None
 
 # Alternate BMClient which overrides rcfile processing and cookie/login
@@ -21,10 +25,7 @@ class BMDummyClient(bmapi.BMClient):
 
 class TestBMClient(unittest.TestCase):
   def setUp(self):
-    if TEST_TYPE == 'vagrant_local':
-      responder_url = 'http://localhost/api/dummy_responder'
-    elif TEST_TYPE == 'jenkins':
-      responder_url = 'http://localhost:8082/dummy_responder.php'
+    responder_url = TEST_URLS[TEST_TYPE]
     self.obj = BMDummyClient(responder_url)
 
   def test_init(self):
@@ -44,8 +45,10 @@ class TestBMClient(unittest.TestCase):
 #    self.assertEqual(r.data, 'foobar')
 
 if __name__ == '__main__':
-  if len(sys.argv) > 1:
-    TEST_TYPE = sys.argv[1]
-  else:
-    TEST_TYPE = 'vagrant_local'
+  if (not os.getenv('BMAPI_TEST_TYPE') or
+      os.getenv('BMAPI_TEST_TYPE') not in TEST_URLS):
+    raise ValueError, \
+      "Set BMAPI_TEST_TYPE environment variable.  Valid choices: %s" % (
+      (" ".join(sorted(TEST_URLS.keys()))))
+  TEST_TYPE = os.getenv('BMAPI_TEST_TYPE')
   unittest.main()

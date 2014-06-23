@@ -42,7 +42,7 @@ echo "------------------------------------------------------------------------"
 
 # Run Python unit tests
 echo "Running python API client unit tests"
-python /buttonmen/test/tools/api-client/python/lib/test_bmapi.py
+env BMAPI_TEST_TYPE=vagrant_local python /buttonmen/test/tools/api-client/python/lib/test_bmapi.py
 if [ "$?" = "0" ]; then
   echo "Passed"
 else
