@@ -20,6 +20,13 @@
         "recipe": "(4) (4) (10) (12) (X)",
         "artFilename": "avis.png"
       },
+      "activeDieArray": [
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": null, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -35,6 +42,13 @@
         "recipe": "(4) (4) (10) (12) (X)",
         "artFilename": "avis.png"
       },
+      "activeDieArray": [
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": null, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -46,13 +60,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nDieArray": [5, 5],
-      "valueArrayArray": [[null, null, null, null, null], [null, null, null, null, null]],
-      "sidesArrayArray": [[4, 4, 10, 12, null], [4, 4, 10, 12, null]],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [["(4)", "(4)", "(10)", "(12)", "(X)"], ["(4)", "(4)", "(10)", "(12)", "(X)"]],
-      "dieDescriptionArrayArray": [["4-sided die", "4-sided die", "10-sided die", "12-sided die", "X Swing Die"], ["4-sided die", "4-sided die", "10-sided die", "12-sided die", "X Swing Die"]],
       "nCapturedDieArray": [0, 0],
       "capturedValueArrayArray": [[], []],
       "capturedSidesArrayArray": [[], []],

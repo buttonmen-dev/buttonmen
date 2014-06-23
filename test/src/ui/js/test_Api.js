@@ -306,13 +306,13 @@ asyncTest("test_Api.parseGamePlayerData", function() {
                 'recipe': '(4) (4) (10) (12) (X)',
                 'artFilename': 'avis.png',
               }, "recipe data should be parsed from API response");
+    deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
+              "die descriptions should be parsed");
+    deepEqual(Api.game.player.activeDieArray[4].recipe, '(X)',
+              "player die recipe should be parsed correctly");
 
-    deepEqual(Api.game.player.dieRecipeArray, ["(4)","(4)","(10)","(12)","(X)"],
-              "player die recipe array should be parsed correctly");
     deepEqual(Api.game.player.capturedValueArray, [],
               "array of captured dice should be parsed");
-    deepEqual(Api.game.player.dieDescriptionArray[0], '4-sided die',
-              "array of die descriptions should be parsed");
     deepEqual(
       Api.game.player.swingRequestArray['X'],
       {'min': 4, 'max': 20},

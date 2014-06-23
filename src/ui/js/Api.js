@@ -443,18 +443,7 @@ var Api = (function () {
       'canStillWin': playerData.canStillWin,
       'button': playerData.button,
       'buttonName': playerData.button.name, // FIXME
-
-      'nDie': my.game.gameData.data.nDieArray[playerIdx],
-      'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
-      'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
-      'dieRecipeArray':
-        my.game.gameData.data.dieRecipeArrayArray[playerIdx],
-      'dieSkillsArray':
-        my.game.gameData.data.dieSkillsArrayArray[playerIdx],
-      'diePropertiesArray':
-        my.game.gameData.data.diePropertiesArrayArray[playerIdx],
-      'dieDescriptionArray':
-        my.game.gameData.data.dieDescriptionArrayArray[playerIdx],
+      'activeDieArray': playerData.activeDieArray,
 
        // N.B. These arrays describe the other player's dice which this
        // player has captured

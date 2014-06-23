@@ -52,6 +52,7 @@
         "recipe": "(4) (4) (10) (12) (X)",
         "artFilename": "avis.png"
       },
+      "activeDieArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -67,6 +68,7 @@
         "recipe": "(4) (4) (10) (12) (X)",
         "artFilename": "avis.png"
       },
+      "activeDieArray": [],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -78,13 +80,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nDieArray": [0, 0],
-      "valueArrayArray": [[], []],
-      "sidesArrayArray": [[], []],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [[], []],
-      "dieDescriptionArrayArray": [[], []],
       "nCapturedDieArray": [0, 0],
       "capturedValueArrayArray": [[], []],
       "capturedSidesArrayArray": [[], []],

@@ -26,6 +26,13 @@
         "recipe": "(6) c(6) (10) (12) c(20)",
         "artFilename": "johnkovalic.png"
       },
+      "activeDieArray": [
+        { "value": 2, "sides": 6, "skills": [], "properties": [], "recipe": "(6)", "description": "6-sided die" },
+        { "value": 4, "sides": 6, "skills": ["Chance"], "properties": [], "recipe": "c(6)", "description": "Chance 6-sided die" },
+        { "value": 2, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": 3, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 18, "sides": 20, "skills": ["Chance"], "properties": [], "recipe": "c(20)", "description": "Chance 20-sided die" }
+      ],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -41,6 +48,13 @@
         "recipe": "(6) c(6) (10) (12) c(20)",
         "artFilename": "johnkovalic.png"
       },
+      "activeDieArray": [
+        { "value": 2, "sides": 6, "skills": [], "properties": [], "recipe": "(6)", "description": "6-sided die" },
+        { "value": 4, "sides": 6, "skills": ["Chance"], "properties": [], "recipe": "c(6)", "description": "Chance 6-sided die" },
+        { "value": 2, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": 3, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 18, "sides": 20, "skills": ["Chance"], "properties": [], "recipe": "c(20)", "description": "Chance 20-sided die" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -52,13 +66,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nDieArray": [5, 5],
-      "valueArrayArray": [[2, 4, 2, 3, 18], [4, 3, 6, 5, 4]],
-      "sidesArrayArray": [[6, 6, 10, 12, 20], [6, 6, 10, 12, 20]],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [["(6)", "c(6)", "(10)", "(12)", "c(20)"], ["(6)", "c(6)", "(10)", "(12)", "c(20)"]],
-      "dieDescriptionArrayArray": [["6-sided die", "Chance 6-sided die", "10-sided die", "12-sided die", "Chance 20-sided die"], ["6-sided die", "Chance 6-sided die", "10-sided die", "12-sided die", "Chance 20-sided die"]],
       "nCapturedDieArray": [0, 0],
       "capturedValueArrayArray": [[], []],
       "capturedSidesArrayArray": [[], []],

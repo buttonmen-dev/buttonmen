@@ -26,6 +26,14 @@
         "recipe": "(8) (8) (10) (20) (X) +(20)",
         "artFilename": "kingarthur.png"
       },
+      "activeDieArray": [
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": null, "sides": 20, "skills": [], "properties": [], "recipe": "(20)", "description": "20-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" },
+        { "value": null, "sides": 20, "skills": ["Auxiliary"], "properties": [], "recipe": "+(20)", "description": "Auxiliary 20-sided die" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -41,6 +49,14 @@
         "recipe": "(8) (8) (10) (20) (X) +(20)",
         "artFilename": "kingarthur.png"
       },
+      "activeDieArray": [
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20)", "description": "20-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" },
+        { "value": null, "sides": null, "skills": ["Auxiliary"], "properties": [], "recipe": "+(20)", "description": "Auxiliary 20-sided die" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -52,13 +68,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nDieArray": [6, 6],
-      "valueArrayArray": [[null, null, null, null, null, null], [null, null, null, null, null, null]],
-      "sidesArrayArray": [[8, 8, 10, 20, null, 20], [null, null, null, null, null, null]],
-      "dieSkillsArrayArray": [[[], [], [], [], [], {"Auxiliary": true}], [[], [], [], [], [], {"Auxiliary": true}]],
-      "diePropertiesArrayArray": [[[], [], [], [], [], []], [[], [], [], [], [], []]],
-      "dieRecipeArrayArray": [["(8)", "(8)", "(10)", "(20)", "(X)", "+(20)"], ["(8)", "(8)", "(10)", "(20)", "(X)", "+(20)"]],
-      "dieDescriptionArrayArray": [["8-sided die", "8-sided die", "10-sided die", "20-sided die", "X Swing Die", "Auxiliary 20-sided die"], ["8-sided die", "8-sided die", "10-sided die", "20-sided die", "X Swing Die", "Auxiliary 20-sided die"]],
       "nCapturedDieArray": [0, 0],
       "capturedValueArrayArray": [[], []],
       "capturedSidesArrayArray": [[], []],

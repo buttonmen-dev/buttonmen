@@ -26,6 +26,13 @@
         "recipe": "(8) (10) (12) f(20) f(20)",
         "artFilename": "crab.png"
       },
+      "activeDieArray": [
+        { "value": 1, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": 8, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": 10, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 6, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" },
+        { "value": 18, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -41,6 +48,13 @@
         "recipe": "(8) (10) (12) f(20) f(20)",
         "artFilename": "crab.png"
       },
+      "activeDieArray": [
+        { "value": 4, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": 7, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": 5, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 1, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" },
+        { "value": 12, "sides": 20, "skills": ["Focus"], "properties": [], "recipe": "f(20)", "description": "Focus 20-sided die" }
+      ],
       "waitingOnAction": false,
       "roundScore": null,
       "sideScore": null,
@@ -52,13 +66,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nDieArray": [5, 5],
-      "valueArrayArray": [[1, 8, 10, 6, 18], [4, 7, 5, 1, 12]],
-      "sidesArrayArray": [[8, 10, 12, 20, 20], [8, 10, 12, 20, 20]],
-      "dieSkillsArrayArray": [[[], [], [], {"Focus": true}, {"Focus": true}], [[], [], [], {"Focus": true}, {"Focus": true}]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [["(8)", "(10)", "(12)", "f(20)", "f(20)"], ["(8)", "(10)", "(12)", "f(20)", "f(20)"]],
-      "dieDescriptionArrayArray": [["8-sided die", "10-sided die", "12-sided die", "Focus 20-sided die", "Focus 20-sided die"], ["8-sided die", "10-sided die", "12-sided die", "Focus 20-sided die", "Focus 20-sided die"]],
       "nCapturedDieArray": [0, 0],
       "capturedValueArrayArray": [[], []],
       "capturedSidesArrayArray": [[], []],

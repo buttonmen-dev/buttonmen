@@ -20,6 +20,13 @@
         "recipe": "(8) (8) (2\/12) (8\/16) (20\/24)",
         "artFilename": "apples.png"
       },
+      "activeDieArray": [
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(2\/12)", "description": "Option die (with 2 or 12 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(8\/16)", "description": "Option die (with 8 or 16 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20\/24)", "description": "Option die (with 20 or 24 sides)" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -35,6 +42,13 @@
         "recipe": "(8) (8) (2\/12) (8\/16) (20\/24)",
         "artFilename": "apples.png"
       },
+      "activeDieArray": [
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(2\/12)", "description": "Option die (with 2 or 12 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(8\/16)", "description": "Option die (with 8 or 16 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20\/24)", "description": "Option die (with 20 or 24 sides)" }
+      ],
       "waitingOnAction": true,
       "roundScore": null,
       "sideScore": null,
@@ -46,13 +60,6 @@
   "gameData": {
     "status": "ok",
     "data": {
-      "nDieArray": [5, 5],
-      "valueArrayArray": [[4, 3, null, null, null], [2, 4, null, null, null]],
-      "sidesArrayArray": [[6, 6, null, null, null], [6, 6, null, null, null]],
-      "dieSkillsArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "diePropertiesArrayArray": [[[], [], [], [], []], [[], [], [], [], []]],
-      "dieRecipeArrayArray": [["(8)", "(8)", "(2\/12)", "(8\/16)", "(20\/24)"], ["(8)", "(8)", "(2\/12)", "(8\/16)", "(20\/24)"]],
-      "dieDescriptionArrayArray": [["8-sided die", "8-sided die", "Option die (with 2 or 12 sides)", "Option die (with 8 or 16 sides)", "Option die (with 20 or 24 sides)"], ["8-sided die", "8-sided die", "Option die (with 2 or 12 sides)", "Option die (with 8 or 16 sides)", "Option die (with 20 or 24 sides)"]],
       "nCapturedDieArray": [0, 0],
       "capturedValueArrayArray": [[], []],
       "capturedSidesArrayArray": [[], []],

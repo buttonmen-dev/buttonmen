@@ -226,16 +226,14 @@ Game.parseValidInitiativeActions = function() {
     var hasFocus = false;
     var hasChance = false;
 
-    $.each(Api.game.player.dieRecipeArray, function(i) {
-      var tdvals = Game.dieValidTurndownValues(
-        Api.game.player.dieRecipeArray[i],
-        Api.game.player.valueArray[i]);
+    $.each(Api.game.player.activeDieArray, function(i, die) {
+      var tdvals = Game.dieValidTurndownValues(die);
       if (tdvals.length > 0) {
         focus[i] = tdvals;
         hasFocus = true;
       }
 
-      if (Game.dieCanRerollForInitiative(Api.game.player.dieRecipeArray[i])) {
+      if (Game.dieCanRerollForInitiative(die)) {
         chance[i] = true;
         hasChance = true;
       }
@@ -256,8 +254,8 @@ Game.parseValidReserveOptions = function() {
   Api.game.player.reserveOptions = {};
   if (Api.game.gameState == Game.GAME_STATE_CHOOSE_RESERVE_DICE) {
 
-    $.each(Api.game.player.dieSkillsArray, function(i) {
-      if ('Reserve' in Api.game.player.dieSkillsArray[i]) {
+    $.each(Api.game.player.activeDieArray, function(i, die) {
+      if (die.skills.indexOf('Reserve') >= 0) {
         Api.game.player.reserveOptions[i] = true;
       }
     });
@@ -266,17 +264,16 @@ Game.parseValidReserveOptions = function() {
 
 // What auxiliary dice will each player in this game get
 Game.parseAuxiliaryDieOptions = function() {
-  $.each(Api.game.player.dieSkillsArray, function(i) {
-    if ('Auxiliary' in Api.game.player.dieSkillsArray[i]) {
+  $.each(Api.game.player.activeDieArray, function(i, die) {
+    if (die.skills.indexOf('Auxiliary') >= 0) {
       Api.game.player.auxiliaryDieIndex = i;
-      Api.game.player.auxiliaryDieRecipe = Api.game.player.dieRecipeArray[i];
+      Api.game.player.auxiliaryDieRecipe = die.recipe;
     }
   });
-  $.each(Api.game.opponent.dieSkillsArray, function(i) {
-    if ('Auxiliary' in Api.game.opponent.dieSkillsArray[i]) {
+  $.each(Api.game.opponent.activeDieArray, function(i, die) {
+    if (die.skills.indexOf('Auxiliary') >= 0) {
       Api.game.opponent.auxiliaryDieIndex = i;
-      Api.game.opponent.auxiliaryDieRecipe =
-        Api.game.opponent.dieRecipeArray[i];
+      Api.game.opponent.auxiliaryDieRecipe = die.recipe;
     }
   });
 };
@@ -333,7 +330,7 @@ Game.actionSpecifyDiceActive = function() {
     Api.game.player.optRequestArray,
     function(position, vals) {
       var optrow = $('<tr>', {});
-      var opttext = Api.game.player.dieRecipeArray[position] + ':';
+      var opttext = Api.game.player.activeDieArray[position].recipe + ':';
       optrow.append($('<td>', { 'text': opttext, }));
       var optinput = $('<td>', {});
       var optselect = $('<select>', {
@@ -1075,7 +1072,7 @@ Game.formReactToInitiativeActive = function() {
     if ('focus' in Api.game.player.initiativeActions) {
       $.each(Api.game.player.initiativeActions.focus, function(i) {
         var value = $('#init_react_' + i).val();
-        if (value != Api.game.player.valueArray[i]) {
+        if (value != Api.game.player.activeDieArray[i].value) {
           error = 'Chose not to react to initiative, but modified a die value';
           formValid = false;
         }
@@ -1084,7 +1081,7 @@ Game.formReactToInitiativeActive = function() {
     if ('chance' in Api.game.player.initiativeActions) {
       $.each(Api.game.player.initiativeActions.chance, function(i) {
         var value = $('#init_react_' + i).val();
-        if (value != Api.game.player.valueArray[i]) {
+        if (value != Api.game.player.activeDieArray[i].value) {
           error =
             'Chose not to react to initiative, but selected dice to reroll';
           formValid = false;
@@ -1097,7 +1094,7 @@ Game.formReactToInitiativeActive = function() {
     if ('focus' in Api.game.player.initiativeActions) {
       $.each(Api.game.player.initiativeActions.focus, function(i, vals) {
         var value = parseInt($('#init_react_' + i).val(), 10);
-        if (value != Api.game.player.valueArray[i]) {
+        if (value != Api.game.player.activeDieArray[i].value) {
           if (vals.indexOf(value) >= 0) {
             Game.activity.initiativeDieIdxArray.push(i);
             Game.activity.initiativeDieValueArray.push(value);
@@ -1121,7 +1118,7 @@ Game.formReactToInitiativeActive = function() {
     if ('chance' in Api.game.player.initiativeActions) {
       $.each(Api.game.player.initiativeActions.chance, function(i) {
         var value = $('#init_react_' + i).val();
-        if (value != Api.game.player.valueArray[i]) {
+        if (value != Api.game.player.activeDieArray[i].value) {
           if (value == 'reroll') {
             Game.activity.initiativeDieIdxArray.push(i);
             Game.activity.initiativeDieValueArray.push(value);
@@ -1292,10 +1289,10 @@ Game.readCurrentGameActivity = function() {
   // turn on the dice which have been selected
   Game.activity.dieSelectStatus = {};
   var i;
-  for (i = 0 ; i < Api.game.player.nDie; i++) {
+  for (i = 0 ; i < Api.game.player.activeDieArray.length; i++) {
     Game.activity.dieSelectStatus[Game.dieIndexId('player', i)] = false;
   }
-  for (i = 0 ; i < Api.game.opponent.nDie; i++) {
+  for (i = 0 ; i < Api.game.opponent.activeDieArray.length; i++) {
     Game.activity.dieSelectStatus[Game.dieIndexId('opponent', i)] = false;
   }
   $('div.selected').each(function(index, element) {
@@ -1611,22 +1608,12 @@ Game.dieRecipeTable = function(table_action, active) {
     subRTable.append(subHeaderRRow);
   }
 
-  var maxDice = Math.max(Api.game.player.nDie, Api.game.opponent.nDie);
+  var maxDice = Math.max(
+    Api.game.player.activeDieArray.length,
+    Api.game.opponent.activeDieArray.length);
   for (var i = 0; i < maxDice; i++) {
-    var playerEnt = Game.dieTableEntry(
-      i, Api.game.player.nDie,
-      Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray,
-      Api.game.player.dieSkillsArray,
-      Api.game.player.dieDescriptionArray);
-    var opponentEnt = Game.dieTableEntry(
-      i, Api.game.opponent.nDie,
-      Api.game.opponent.dieRecipeArray,
-      Api.game.opponent.sidesArray,
-      Api.game.opponent.diePropertiesArray,
-      Api.game.opponent.dieSkillsArray,
-      Api.game.opponent.dieDescriptionArray);
+    var playerEnt = Game.dieTableEntry(i, Api.game.player.activeDieArray);
+    var opponentEnt = Game.dieTableEntry(i, Api.game.opponent.activeDieArray);
     if (table_action) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
@@ -1644,7 +1631,7 @@ Game.dieRecipeTable = function(table_action, active) {
           }
         }
         if ((active) && (initopts.length > 0)) {
-          var defaultval = Api.game.player.valueArray[i];
+          var defaultval = Api.game.player.activeDieArray[i].value;
           if ('initiativeDieIdxArray' in Game.activity) {
             $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
               if (val == i) {
@@ -1654,12 +1641,16 @@ Game.dieRecipeTable = function(table_action, active) {
           }
           dieLRow.append(
             Game.dieValueSelectTd('init_react_' + i, initopts,
-              Api.game.player.valueArray[i], defaultval));
+              Api.game.player.activeDieArray[i].value, defaultval));
         } else {
-          dieLRow.append($('<td>', { 'text': Api.game.player.valueArray[i] }));
+          dieLRow.append($('<td>', {
+            'text': Api.game.player.activeDieArray[i].value,
+          }));
         }
         dieRRow.append(opponentEnt);
-        dieRRow.append($('<td>', { 'text': Api.game.opponent.valueArray[i] }));
+        dieRRow.append($('<td>', {
+          'text': Api.game.opponent.activeDieArray[i].value,
+        }));
       } else if (table_action == 'choose_reserve') {
         dieLRow.append(playerEnt);
         if (i in Api.game.player.reserveOptions) {
@@ -1702,34 +1693,26 @@ Game.dieRecipeTable = function(table_action, active) {
   return dietable;
 };
 
-Game.dieTableEntry = function(
-  i, nDie, dieRecipeArray, dieSidesArray, diePropertiesArray,
-  dieSkillsArray, dieDescriptionArray
-) {
-  if (i < nDie) {
-    var dieval = Game.dieRecipeText(dieRecipeArray[i], dieSidesArray[i]);
+Game.dieTableEntry = function(i, activeDieArray) {
+  if (i < activeDieArray.length) {
+    var die = activeDieArray[i];
+    var dieval = Game.dieRecipeText(die.recipe, die.sides);
     var dieopts = {
       'text': dieval,
-      'title': dieDescriptionArray[i],
+      'title': die.description,
     };
-    if (diePropertiesArray[i]) {
-      if (('dizzy' in diePropertiesArray[i]) &&
-          (diePropertiesArray[i].dizzy) &&
-          ('Focus' in dieSkillsArray[i]) &&
-          (dieSkillsArray[i].Focus)) {
-        dieopts.class = 'recipe_greyed';
-        dieopts.title += '. (This die is dizzy because it has been turned ' +
-          'down.  If the owner wins initiative, this die can\'t be used in ' +
-          'their first attack.)';
-      } else if (('disabled' in diePropertiesArray[i]) &&
-                 (diePropertiesArray[i].disabled) &&
-                 ('Chance' in dieSkillsArray[i]) &&
-                 (dieSkillsArray[i].Chance)) {
-        dieopts.class = 'recipe_greyed';
-        dieopts.title += '. (This chance die cannot be rerolled again ' +
-          'during this round, because the player has already rerolled a ' +
-          'chance die)';
-      }
+    if ((die.properties.indexOf('dizzy') >= 0) &&
+        (die.skills.indexOf('Focus') >= 0)) {
+      dieopts.class = 'recipe_greyed';
+      dieopts.title += '. (This die is dizzy because it has been turned ' +
+        'down.  If the owner wins initiative, this die can\'t be used in ' +
+        'their first attack.)';
+    } else if ((die.properties.indexOf('disabled') >= 0) &&
+               (die.skills.indexOf('Chance') >= 0)) {
+      dieopts.class = 'recipe_greyed';
+      dieopts.title += '. (This chance die cannot be rerolled again ' +
+        'during this round, because the player has already rerolled a ' +
+        'chance die)';
     }
     return $('<td>', dieopts);
   }
@@ -1910,13 +1893,14 @@ Game.gamePlayerDice = function(player, player_active) {
 
   var dieRecipeText;
 
-  for (var i = 0; i < Api.game[player].nDie; i++) {
+  for (var i = 0; i < Api.game[player].activeDieArray.length; i++) {
+    var die = Api.game[player].activeDieArray[i];
+
     // Find out whether this die is clickable: it is if the player
     // is active and this particular die is not dizzy
     var clickable;
     if (player_active) {
-      if (('dizzy' in Api.game[player].diePropertiesArray[i]) &&
-          Api.game[player].diePropertiesArray[i].dizzy) {
+      if (die.properties.indexOf('dizzy') >= 0) {
         clickable = false;
       } else {
         clickable = true;
@@ -1929,7 +1913,7 @@ Game.gamePlayerDice = function(player, player_active) {
 
     var containerDivOpts = {
       'id': dieIndex,
-      'title': Api.game[player].dieDescriptionArray[i],
+      'title': die.description,
     };
     var borderDivOpts = {
       'class': 'die_border',
@@ -1983,12 +1967,10 @@ Game.gamePlayerDice = function(player, player_active) {
     }
     dieDiv.append($('<span>', {
       'class': 'die_overlay die_number_' + player,
-      'text': Api.game[player].valueArray[i],
+      'text': die.value,
     }));
 
-    dieRecipeText = Game.dieRecipeText(
-      Api.game[player].dieRecipeArray[i],
-      Api.game[player].sidesArray[i]);
+    dieRecipeText = Game.dieRecipeText(die.recipe, die.sides);
     dieRecipeDiv = $('<div>');
     dieRecipeDiv.append($('<span>', {
       'class': 'die_recipe_' + player,
@@ -2149,15 +2131,15 @@ Game.dieRecipeText = function(recipe, sides) {
   return dieRecipeText;
 };
 
-Game.dieValidTurndownValues = function(recipe, value) {
+Game.dieValidTurndownValues = function(die) {
   // Focus dice can be turned down
-  if (recipe.match('f')) {
+  if (die.skills.indexOf('Focus') >= 0) {
     var turndown = [];
     var minval = 1;
-    if (recipe.match(',')) {
+    if (die.recipe.match(',')) {
       minval = 2;
     }
-    for (var i = value - 1; i >= minval; i--) {
+    for (var i = die.value - 1; i >= minval; i--) {
       turndown.push(i);
     }
     return turndown;
@@ -2165,8 +2147,8 @@ Game.dieValidTurndownValues = function(recipe, value) {
   return [];
 };
 
-Game.dieCanRerollForInitiative = function(recipe) {
-  if (recipe.match('c')) {
+Game.dieCanRerollForInitiative = function(die) {
+  if (die.skills.indexOf('Chance') >= 0) {
     return true;
   }
   return false;
