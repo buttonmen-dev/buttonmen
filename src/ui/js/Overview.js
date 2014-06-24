@@ -350,7 +350,7 @@ Overview.formDismissGame = function(e) {
   e.preventDefault();
   var args = { 'type': 'dismissGame', 'gameId': $(this).attr('data-gameId'), };
   var messages = {
-    'ok': { 'type': 'fixed', 'text': 'Dismissed', },
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
     'notok': { 'type': 'server' },
   };
   Api.apiFormPost(args, messages, $(this), Overview.showOverviewPage,

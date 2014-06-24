@@ -184,7 +184,8 @@ asyncTest("test_Overview.formDismissGame", function() {
   var showOverviewPage = Overview.showOverviewPage;
   Overview.showOverviewPage = function() {
     Overview.showOverviewPage = showOverviewPage;
-    equal(Env.message.text, 'Dismissed', 'Dismiss game should succeed');
+    equal(Env.message.text, 'Successfully dismissed game',
+      'Dismiss game should succeed');
     start();
   };
   var link = $('<a>', { 'data-gameId': 5 });

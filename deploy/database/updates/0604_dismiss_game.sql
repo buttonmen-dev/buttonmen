@@ -1,5 +1,5 @@
 ALTER TABLE game_player_map
-    ADD COLUMN was_game_dismissed BOOLEAN DEFAULT 0 NOT NULL AFTER `last_action_time`;
+    ADD COLUMN was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL AFTER `last_action_time`;
 
 -- This needs to be recreated for it to recognize the new column
 DROP VIEW IF EXISTS game_player_view;
