@@ -1,0 +1,16 @@
+##### Example .bmrc file
+# Move this to .bmrc and fill in username/password for any sites
+# you want to use
+
+[dev]
+url=http://dev.buttonweavers.com/api/responder
+username=
+password=
+cookiefile=.bmcookies.dev
+
+[www]
+url=http://www.buttonweavers.com/api/responder
+username=
+password=
+cookiefile=.bmcookies.www
+

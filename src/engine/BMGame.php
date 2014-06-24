@@ -295,6 +295,10 @@ class BMGame {
         }
 
         foreach ($this->activeDieArrayArray as $playerIdx => &$activeDieArray) {
+            if (empty($this->swingValueArrayArray[$playerIdx])) {
+                continue;
+            }
+
             foreach ($activeDieArray as &$activeDie) {
                 if ($activeDie instanceof BMDieSwing) {
                     if (array_key_exists(
@@ -513,7 +517,6 @@ class BMGame {
         }
 
         foreach ($this->optRequestArrayArray as $playerIdx => $optionRequestArray) {
-//            var_dump($optionRequestArray);
             foreach (array_keys($optionRequestArray) as $dieIdx) {
                 if (isset($this->optValueArrayArray[$playerIdx]) &&
                     (count($this->optValueArrayArray[$playerIdx]) > 0)) {
@@ -2253,43 +2256,49 @@ class BMGame {
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
-        $dataArray =
-            array('gameId'                     => $this->gameId,
-                  'gameState'                  => BMGameState::as_string($this->gameState),
-                  'roundNumber'                => $this->get__roundNumber(),
-                  'maxWins'                    => $this->maxWins,
-                  'activePlayerIdx'            => $this->activePlayerIdx,
-                  'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
-                  'playerIdArray'              => $this->playerIdArray,
-                  'buttonNameArray'            => $this->get_buttonNameArray(),
-                  'buttonRecipeArray'          => $this->get_buttonRecipeArray(),
-                  'buttonArtFilenameArray'     => $this->get_buttonArtFilenameArray(),
-                  'waitingOnActionArray'       => $this->waitingOnActionArray,
-                  'nDieArray'                  => $this->get_nDieArray(),
-                  'valueArrayArray'            => $this->get_valueArrayArray($requestingPlayerIdx),
-                  'sidesArrayArray'            => $this->get_sidesArrayArray($requestingPlayerIdx),
-                  'dieSkillsArrayArray'        => $this->get_dieSkillsArrayArray(),
-                  'diePropertiesArrayArray'    => $this->get_diePropsArrayArray(),
-                  'dieRecipeArrayArray'        => $this->get_dieRecipeArrayArray(),
-                  'dieDescriptionArrayArray'   => $this->get_dieDescriptionArrayArray($requestingPlayerIdx),
-                  'nCapturedDieArray'          => $this->get_nCapturedDieArray(),
-                  'capturedValueArrayArray'    => $this->get_capturedValueArrayArray(),
-                  'capturedSidesArrayArray'    => $this->get_capturedSidesArrayArray(),
-                  'capturedRecipeArrayArray'   => $this->get_capturedRecipeArrayArray(),
-                  'capturedDiePropsArrayArray' => $this->get_capturedDiePropsArrayArray(),
-                  'swingRequestArrayArray'     => $this->get_swingRequestArrayArray(),
-                  'optRequestArrayArray'       => $this->get_optRequestArrayArray(),
-                  'prevSwingValueArrayArray'   => $this->get_prevSwingValueArrayArray(),
-                  'prevOptValueArrayArray'     => $this->get_prevOptValueArrayArray(),
-                  'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
-                  'roundScoreArray'            => $this->get__roundScoreArray(),
-                  'sideScoreArray'             => $this->get_sideScoreArray(),
-                  'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
-                  'gameScoreArrayArray'        => $this->gameScoreArrayArray,
-                  'lastActionTimeArray'        => $this->lastActionTimeArray,
-                  'canStillWinArray'           => $this->get_canStillWinArray());
+        $dataArray = array(
+            'gameId'                     => $this->gameId,
+            'gameState'                  => BMGameState::as_string($this->gameState),
+            'activePlayerIdx'            => $this->activePlayerIdx,
+            'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
+            'roundNumber'                => $this->get__roundNumber(),
+            'maxWins'                    => $this->maxWins,
+            'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
+            'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
+            'playerDataArray'            => $this->get_playerDataArray($requestingPlayerIdx),
+        );
+        return $dataArray;
+    }
 
-        return array('status' => 'ok', 'data' => $dataArray);
+    protected function get_playerDataArray($requestingPlayerIdx) {
+        $playerDataArray = array();
+
+        // helper arrays of data that BMGame naturally produces in array form
+        $roundScoreArray = $this->get__roundScoreArray();
+        $sideScoreArray = $this->get_sideScoreArray();
+        $canStillWinArray = $this->get_canStillWinArray();
+
+        foreach ($this->playerIdArray as $playerIdx => $playerId) {
+            $playerData = array(
+                'playerId'            => $playerId,
+                'button'              => $this->get_buttonInfo($playerIdx),
+                'activeDieArray'      => $this->get_activeDieArray($playerIdx, $requestingPlayerIdx),
+                'capturedDieArray'    => $this->get_capturedDieArray($playerIdx),
+                'swingRequestArray'   => $this->get_swingRequestArray($playerIdx),
+                'optRequestArray'     => $this->get_optRequestArray($playerIdx),
+                'prevSwingValueArray' => $this->get_prevSwingValueArray($playerIdx),
+                'prevOptValueArray'   => $this->get_prevOptValueArray($playerIdx),
+                'waitingOnAction'     => $this->waitingOnActionArray[$playerIdx],
+                'roundScore'          => $roundScoreArray[$playerIdx],
+                'sideScore'           => $sideScoreArray[$playerIdx],
+                'gameScoreArray'      => $this->gameScoreArrayArray[$playerIdx],
+                'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],
+                'canStillWin'         => $canStillWinArray[$playerIdx],
+            );
+
+            $playerDataArray[] = $playerData;
+        }
+        return $playerDataArray;
     }
 
     protected function clone_activeDieArrayArray() {
@@ -2308,56 +2317,62 @@ class BMGame {
         return $activeDieArrayArray;
     }
 
-    protected function get_buttonNameArray() {
-        $buttonNameArray = array();
-
-        foreach ($this->buttonArray as $button) {
-            $buttonName = '';
+    protected function get_buttonInfo($playerIdx) {
+        $buttonInfo = array(
+            'name' => '',
+            'recipe' => '',
+            'artFilename' => '',
+        );
+        if (count($this->buttonArray) > $playerIdx) {
+            $button = $this->buttonArray[$playerIdx];
             if ($button instanceof BMButton) {
-                $buttonName = $button->name;
+                $buttonInfo['name'] = $button->name;
+                $buttonInfo['recipe'] = $button->recipe;
+                $buttonInfo['artFilename'] = $button->artFilename;
             }
-            $buttonNameArray[] = $buttonName;
         }
-
-        return $buttonNameArray;
+        return $buttonInfo;
     }
 
-    protected function get_buttonRecipeArray() {
-        $buttonRecipeArray = array();
+    protected function get_activeDieArray($playerIdx, $requestingPlayerIdx) {
+        // this should be refactored to duplicate less effort, but
+        // right now e.g. nulling of die values is done across all
+        // dice at once, so it will take some refactoring to actually
+        // request dice one at a time
+        $valueArrayArray = $this->get_valueArrayArray($requestingPlayerIdx);
+        $sidesArrayArray = $this->get_sidesArrayArray($requestingPlayerIdx);
+        $dieSkillsArrayArray = $this->get_dieSkillsArrayArray();
+        $diePropertiesArrayArray = $this->get_diePropsArrayArray();
+        $dieRecipeArrayArray = $this->get_dieRecipeArrayArray();
+        $dieDescriptionArrayArray = $this->get_dieDescriptionArrayArray($requestingPlayerIdx);
 
-        foreach ($this->buttonArray as $button) {
-            $buttonRecipe = '';
-            if ($button instanceof BMButton) {
-                $buttonRecipe = $button->recipe;
-            }
-            $buttonRecipeArray[] = $buttonRecipe;
+        $activeDieArray = array();
+        for ($dieIdx = 0; $dieIdx <= (count($valueArrayArray[$playerIdx]) - 1); $dieIdx++) {
+            $activeDieArray[] = array(
+                'value'       => $valueArrayArray[$playerIdx][$dieIdx],
+                'sides'       => $sidesArrayArray[$playerIdx][$dieIdx],
+                'skills'      => $dieSkillsArrayArray[$playerIdx][$dieIdx],
+                'properties'  => $diePropertiesArrayArray[$playerIdx][$dieIdx],
+                'recipe'      => $dieRecipeArrayArray[$playerIdx][$dieIdx],
+                'description' => $dieDescriptionArrayArray[$playerIdx][$dieIdx],
+            );
         }
-
-        return $buttonRecipeArray;
+        return $activeDieArray;
     }
 
-    protected function get_buttonArtFilenameArray() {
-        $buttonArtFilenameArray = array();
-
-        foreach ($this->buttonArray as $button) {
-            $buttonArtFilename = '';
-            if ($button instanceof BMButton) {
-                $buttonArtFilename = $button->artFilename;
+    protected function get_capturedDieArray($playerIdx) {
+        $capturedDieArray = array();
+        if (isset($this->capturedDieArrayArray)) {
+            foreach ($this->capturedDieArrayArray[$playerIdx] as $die) {
+                $capturedDieArray[] = array(
+                    'value' => $die->value,
+                    'sides' => $die->max,
+                    'recipe' => $die->recipe,
+                    'properties' => $this->get_capturedDieProps($die),
+                );
             }
-            $buttonArtFilenameArray[] = $buttonArtFilename;
         }
-
-        return $buttonArtFilenameArray;
-    }
-
-    protected function get_nDieArray() {
-        if (isset($this->activeDieArrayArray)) {
-            $nDieArray = array_map('count', $this->activeDieArrayArray);
-        } else {
-            $nDieArray = array_fill(0, $this->nPlayers, 0);
-        }
-
-        return $nDieArray;
+        return $capturedDieArray;
     }
 
     protected function get_valueArrayArray($requestingPlayerIdx) {
@@ -2445,7 +2460,7 @@ class BMGame {
                 foreach ($activeDieArray as $dieIdx => $die) {
                     if (count($die->skillList) > 0) {
                         foreach (array_keys($die->skillList) as $skillType) {
-                            $dieSkillsArrayArray[$playerIdx][$dieIdx][$skillType] = TRUE;
+                            $dieSkillsArrayArray[$playerIdx][$dieIdx][] = $skillType;
                         }
                     }
                 }
@@ -2467,15 +2482,15 @@ class BMGame {
 
                 foreach ($activeDieArray as $dieIdx => $die) {
                     if ($die->disabled) {
-                        $diePropsArrayArray[$playerIdx][$dieIdx]['disabled'] = TRUE;
+                        $diePropsArrayArray[$playerIdx][$dieIdx][] = 'disabled';
                     }
                     if ($die->dizzy) {
-                        $diePropsArrayArray[$playerIdx][$dieIdx]['dizzy'] = TRUE;
+                        $diePropsArrayArray[$playerIdx][$dieIdx][] = 'dizzy';
                     }
 
                     if (!empty($die->flagList)) {
                         foreach (array_keys($die->flagList) as $flag) {
-                            $diePropsArrayArray[$playerIdx][$dieIdx][$flag] = TRUE;
+                            $diePropsArrayArray[$playerIdx][$dieIdx][] = $flag;
                         }
                     }
                 }
@@ -2538,145 +2553,81 @@ class BMGame {
         return $dieDescArrayArray;
     }
 
-    protected function get_nCapturedDieArray() {
-        if (isset($this->capturedDieArrayArray)) {
-            $nCapturedDieArray = array_map('count', $this->capturedDieArrayArray);
-        } else {
-            $nCapturedDieArray = array_fill(0, $this->nPlayers, 0);
+    protected function get_capturedDieProps($die) {
+        $capturedDieProps = array();
+        if (!empty($die->flagList)) {
+            foreach (array_keys($die->flagList) as $flag) {
+                $capturedDieProps[] = $flag;
+            }
         }
-
-        return $nCapturedDieArray;
+        return $capturedDieProps;
     }
 
-    protected function get_capturedValueArrayArray() {
-        $captValueArrayArray = array_fill(0, $this->nPlayers, array());
+    protected function get_swingRequestArray($playerIdx) {
+        $swingRequestArray= array();
 
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captValueArrayArray[$playerIdx][$dieIdx] = $die->value;
+        if (isset($this->activeDieArrayArray) &&
+            isset($this->swingRequestArrayArray[$playerIdx])) {
+            foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
+                if ($swingdice[0] instanceof BMDieTwin) {
+                    $swingdie = $swingdice[0]->dice[0];
+                } else {
+                    $swingdie = $swingdice[0];
                 }
+                if ($swingdie instanceof BMDieSwing) {
+                    $validRange = $swingdie->swing_range($swingtype);
+                } else {
+                    throw new LogicException(
+                        "Tried to put die in swingRequestArray which is not a swing die: " . $swingdie
+                    );
+                }
+                $swingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
             }
         }
 
-        return $captValueArrayArray;
+        return $swingRequestArray;
     }
 
-    protected function get_capturedSidesArrayArray() {
-        $captSidesArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captSidesArrayArray[$playerIdx][$dieIdx] = $die->max;
-                }
-            }
-        }
-
-        return $captSidesArrayArray;
-    }
-
-    protected function get_capturedRecipeArrayArray() {
-        $captRecipeArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    $captRecipeArrayArray[$playerIdx][$dieIdx] = $die->recipe;
-                }
-            }
-        }
-
-        return $captRecipeArrayArray;
-    }
-
-    protected function get_capturedDiePropsArrayArray() {
-        $captDiePropsArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $playerIdx => $capturedDieArray) {
-                foreach ($capturedDieArray as $dieIdx => $die) {
-                    if (!empty($die->flagList)) {
-                        foreach (array_keys($die->flagList) as $flag) {
-                            $captDiePropsArrayArray[$playerIdx][$dieIdx][$flag] = TRUE;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $captDiePropsArrayArray;
-    }
-
-    protected function get_swingRequestArrayArray() {
-        $swingReqArrayArray = array_fill(0, $this->nPlayers, array());
-
-        if (isset($this->activeDieArrayArray)) {
-            foreach (array_keys($this->activeDieArrayArray) as $playerIdx) {
-                $swingRequestArray = array();
-                if (isset($this->swingRequestArrayArray[$playerIdx])) {
-                    foreach ($this->swingRequestArrayArray[$playerIdx] as $swingtype => $swingdice) {
-                        if ($swingdice[0] instanceof BMDieTwin) {
-                            $swingdie = $swingdice[0]->dice[0];
-                        } else {
-                            $swingdie = $swingdice[0];
-                        }
-                        if ($swingdie instanceof BMDieSwing) {
-                            $validRange = $swingdie->swing_range($swingtype);
-                        } else {
-                            throw new LogicException(
-                                "Tried to put die in swingRequestArrayArray which is not a swing die: " . $swingdie
-                            );
-                        }
-                        $swingRequestArray[$swingtype] = array($validRange[0], $validRange[1]);
-                    }
-                }
-                $swingReqArrayArray[$playerIdx] = $swingRequestArray;
-            }
-        }
-
-        return $swingReqArrayArray;
-    }
-
-    protected function get_optRequestArrayArray() {
+    protected function get_optRequestArray($playerIdx) {
         if (is_null($this->optRequestArrayArray)) {
-            $optRequestArrayArray = array_fill(0, $this->nPlayers, array());
+            $optRequestArray = array();
         } else {
-            $optRequestArrayArray = $this->optRequestArrayArray;
+            $optRequestArray = $this->optRequestArrayArray[$playerIdx];
         }
 
-        return $optRequestArrayArray;
+        return $optRequestArray;
     }
 
-    protected function get_prevSwingValueArrayArray() {
+    protected function get_prevSwingValueArray($playerIdx) {
         if (empty($this->prevSwingValueArrayArray)) {
-            $prevSwingValueArrayArray = array_fill(0, $this->nPlayers, array());
+            $prevSwingValueArray = array();
         } else {
-            $prevSwingValueArrayArray = $this->prevSwingValueArrayArray;
+            $prevSwingValueArray = $this->prevSwingValueArrayArray[$playerIdx];
         }
 
-        return $prevSwingValueArrayArray;
+        return $prevSwingValueArray;
     }
 
-    protected function get_prevOptValueArrayArray() {
+    protected function get_prevOptValueArray($playerIdx) {
         if (empty($this->prevOptValueArrayArray)) {
-            $prevOptValueArrayArray = array_fill(0, $this->nPlayers, array());
+            $prevOptValueArray = array();
         } else {
-            $prevOptValueArrayArray = $this->prevOptValueArrayArray;
+            $prevOptValueArray = $this->prevOptValueArrayArray[$playerIdx];
         }
 
-        return $prevOptValueArrayArray;
+        return $prevOptValueArray;
     }
 
     protected function get_validAttackTypeArray() {
         // If it's someone's turn to attack, report the valid attack
         // types as part of the game data
         if ($this->gameState == BMGameState::START_TURN) {
-            $validAttackTypeArray = $this->valid_attack_types();
+            $validAttackTypeArray = array_keys($this->valid_attack_types());
         } else {
             $validAttackTypeArray = array();
         }
 
+        sort($validAttackTypeArray);
         return $validAttackTypeArray;
     }
 
