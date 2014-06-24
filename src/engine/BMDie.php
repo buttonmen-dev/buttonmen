@@ -289,9 +289,8 @@ class BMDie extends BMCanHaveSkill {
             return $vals;
         }
 
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders,
+        $this->run_hooks(__FUNCTION__, array('attackType'           => $type,
+                                             'die'                  => $this,
                                              'possibleAssistValues' => &$vals));
 
         return $vals;
