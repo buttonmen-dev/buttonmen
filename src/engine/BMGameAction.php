@@ -147,11 +147,11 @@ class BMGameAction {
         if (count($preAttackAttackers) > 0) {
             $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
         }
-        
+
         if (count($preAttackDefenders) > 0) {
             $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
         }
-        
+
         return $message;
     }
 
@@ -190,9 +190,13 @@ class BMGameAction {
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
+
             if ($attackerInfo['max'] != $postInfo['max']) {
                 $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' .
                                         $postInfo['max'] . ' sides';
+            } elseif (array_key_exists('forceReportDieSize', $attackerInfo) &&
+                      $attackerInfo['forceReportDieSize']) {
+                $postEventsAttacker[] = 'remained the same size';
             }
             if ($attackerInfo['recipe'] != $postInfo['recipe']) {
                 $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];

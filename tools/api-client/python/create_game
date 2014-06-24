@@ -1,0 +1,156 @@
+#!/usr/bin/python
+##### create_game
+# Example script which creates games, and also prints information
+# about available buttons
+
+import sys
+sys.path.append('lib')
+
+import bmutils
+import optparse
+import random
+import re
+import time
+
+die_recipe_re = re.compile('^([^(]*)\(([^)]+)\)(.*)$')
+
+# implicitly parses sys.argv
+def parse_args():
+  parser = optparse.OptionParser()
+  parser.add_option(
+    "-c", "--config",
+    help="config file containing site parameters",
+    type=str, default=".bmrc"
+  )
+  parser.add_option(
+    "-s", "--site",
+    help="buttonmen site to access",
+    type=str, default="www"
+  )
+  parser.add_option(
+    "-o", "--opponent",
+    help="opponent to fight",
+    type=str
+  )
+  parser.add_option(
+    "-p", "--play-all",
+    action="store_true", default=False,
+    help="create a game against each opponent you aren't currently playing"
+  )
+  parser.add_option(
+    "-l", "--list-buttons",
+    action="store_true", default=False,
+    help="list buttons with all of the specified skills"
+  )
+  parser.add_option(
+    "-k", "--play-skills",
+    action="store_true", default=False,
+    help="create a game against each opponent using buttons with the specified skills"
+  )
+  return parser.parse_args()
+
+def random_array_element(array):
+  index = int(random.random() * len(array))
+  return array[index]
+
+def lookup_other_players(b): 
+  player_info = b.wrap_load_player_names()
+  players = []
+  for player in sorted(player_info.keys()):
+    if player == b.username: continue
+    if player_info[player]['status'] == 'active':
+      players.append(player)
+  return players
+
+def get_buttons_with_skills(buttons, skills):
+  skillbuttons = []
+  reqskills = []
+  for skill in skills:
+    if len(skill) == 1 and skill in bmutils.SkillName:
+      reqskills.append(bmutils.SkillName[skill])
+    else:
+      reqskills.append(skill[:1].upper() + skill[1:].lower())
+  for button in sorted(buttons.keys()):
+    info = buttons[button]
+    if info['unimplemented']: continue
+    hasskills = True
+    for skill in reqskills:
+      if not skill in info['skills']:
+        hasskills = False
+    if hasskills:
+      skillbuttons.append(button)
+  return skillbuttons
+
+def random_implemented_button(buttons):
+  return random_array_element(
+    [button for button in buttons.keys() \
+     if not buttons[button]['unimplemented']])
+
+def create_games(b, buttons, opponents):
+  for opponent in opponents:
+    pbutton = random_array_element(buttons)
+    obutton = random_array_element(buttons)
+    print "%s (%s) vs. %s (%s)" % (b.username, pbutton, opponent, obutton)
+    time.sleep(3)
+    print b.wrap_create_game(pbutton, obutton, opponent)
+
+def create_random_game(opponent, b, players=False, usebuttons=False):
+  if not players:
+    players = lookup_other_players(b)
+  if not opponent in players:
+    raise ValueError, "Opponent %s is not known on site"
+  buttons = b.wrap_load_button_names()
+  while True:
+    if usebuttons:
+      pbutton = random_array_element(usebuttons)
+      obutton = random_array_element(usebuttons)
+    else:
+      pbutton = random_implemented_button(buttons)
+      obutton = random_implemented_button(buttons)
+    print "%s (%s: %s) vs.\n%s (%s: %s)" % (
+      b.username, pbutton, buttons[pbutton]['recipe'],
+      opponent, obutton, buttons[obutton]['recipe'])
+    print "  Create this game (y/n)?",
+    confirm = raw_input()
+    if confirm.lower() in ['y', 'yes']:
+      print b.wrap_create_game(pbutton, obutton, opponent)
+
+def play_all_opponents(opts, b):
+  players = lookup_other_players(b)
+  skip_opponents = {}
+  if opts.play_all:
+    for game in b.wrap_load_active_games():
+      skip_opponents[game['opponentName']] = True
+  if opts.play_skills:
+    buttons = b.wrap_load_button_names()
+    skillbuttons = get_buttons_with_skills(buttons, args)
+    if not skillbuttons:
+      raise ValueError, "No buttons found with requested skills"
+  else:
+    skillbuttons = False
+  for player in players:
+    if not player in skip_opponents:
+      print "Start game against %s?" % (player),
+      confirm = raw_input()
+      if confirm.lower() in ['y', 'yes']:
+        create_random_game(player, b, players=players, usebuttons=skillbuttons)
+
+########################################################################
+[opts, args] = parse_args()
+
+b = bmutils.BMClientParser(opts.config, opts.site)
+if not b.verify_login():
+  print "Could not login"
+  sys.exit(1)
+if opts.opponent:
+  create_random_game(opts.opponent, b)
+
+elif opts.play_all or opts.play_skills:
+  play_all_opponents(opts, b)
+
+elif opts.list_buttons:
+  buttons = b.wrap_load_button_names()
+  skillbuttons = get_buttons_with_skills(buttons, args)
+  print "Buttons found:"
+  for button in skillbuttons:
+    print "  %s: %s" % (button, buttons[button]['recipe'])
