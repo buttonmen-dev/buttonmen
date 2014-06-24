@@ -1180,8 +1180,7 @@ class BMInterface {
 
         $actualMax = NULL;
 
-        if ($activeDie->has_skill('Mood') ||
-            $activeDie->has_skill('Mad') ||
+        if ($activeDie->forceReportDieSize() ||
             ($activeDie instanceof BMDieOption)) {
             $actualMax = $activeDie->max;
         }
@@ -2211,6 +2210,7 @@ class BMInterface {
                     );
                 }
             }
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(
