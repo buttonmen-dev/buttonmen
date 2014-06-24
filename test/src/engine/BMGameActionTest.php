@@ -162,18 +162,18 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             'attackType' => 'Trip',
             'preAttackDice' => array(
                 'attacker' => array(
-                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):1'),
+                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):1', 'hasJustMorphed' => FALSE),
                 ),
                 'defender' => array(
-                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):3'),
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):3', 'hasJustMorphed' => FALSE),
                 ),
             ),
             'postAttackDice' => array(
                 'attacker' => array(
-                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):2', 'valueAfterTripAttack' => 2),
+                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):2', 'valueAfterTripAttack' => 2, 'hasJustMorphed' => FALSE),
                 ),
                 'defender' => array(
-                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(4):1'),
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(4):1', 'hasJustMorphed' => FALSE),
                 ),
             )
         ));
