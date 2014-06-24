@@ -2262,30 +2262,44 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $out1 = $game->getJsonData(self::$userId1WithoutAutopass);
-        $this->assertEquals(12, $out1['data']['sidesArrayArray'][0][2]);
-        $this->assertEquals(16, $out1['data']['sidesArrayArray'][0][3]);
-        $this->assertEquals(20, $out1['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][2]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][3]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out1['data']['valueArrayArray']);
+        $this->assertEquals(12, $out1['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertEquals(16, $out1['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertEquals(20, $out1['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['value']);
         $this->assertEquals('Option Die (with 20 sides)',
-                            $out1['data']['dieDescriptionArrayArray'][0][4]);
+                            $out1['playerDataArray'][0]['activeDieArray'][4]['description']);
 
         $out2 = $game->getJsonData(self::$userId2WithoutAutopass);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][2]);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][3]);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][2]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][3]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out2['data']['valueArrayArray']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][2]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][3]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][4]['value']);
         $this->assertEquals('Option Die (with 20 or 24 sides)',
-                            $out2['data']['dieDescriptionArrayArray'][0][4]);
+                            $out2['playerDataArray'][0]['activeDieArray'][4]['description']);
 
         // specify option dice fully
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);

@@ -377,20 +377,21 @@ var Api = (function () {
   my.parseGameData = function(data) {
 
     // Store some initial high-level game elements
-    my.game.gameData = data.gameData;
+    my.game.gameId = data.gameId;
+    my.game.gameState = data.gameState;
+    my.game.roundNumber = data.roundNumber;
+    my.game.maxWins = data.maxWins;
+    my.game.validAttackTypeArray = data.validAttackTypeArray;
+    my.game.gameSkillsInfo = data.gameSkillsInfo;
+
     my.game.timestamp = data.timestamp;
     my.game.actionLog = data.gameActionLog;
     my.game.chatLog = data.gameChatLog;
     my.game.chatEditable = data.gameChatEditable;
 
-    // Do some sanity-checking of the gameData object we have
+    // Do some sanity-checking of the data we have
 
-    // This is not the same as rs.status --- it's a second status
-    // value within the gameData object
-    if (my.game.gameData.status != 'ok') {
-      return false;
-    }
-    if (activity.gameId != my.game.gameData.data.gameId) {
+    if (activity.gameId != my.game.gameId) {
       return false;
     }
 
@@ -399,14 +400,6 @@ var Api = (function () {
     } else {
       my.game.isParticipant = false;
     }
-
-    // Parse some top-level items from gameData
-    my.game.gameId = my.game.gameData.data.gameId;
-    my.game.roundNumber = my.game.gameData.data.roundNumber;
-    my.game.maxWins = my.game.gameData.data.maxWins;
-    my.game.gameState = my.game.gameData.data.gameState;
-    my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
-    my.game.gameSkillsInfo = my.game.gameData.data.gameSkillsInfo;
 
     if (my.game.isParticipant) {
       my.game.playerIdx = data.currentPlayerIdx;
@@ -417,9 +410,11 @@ var Api = (function () {
     }
 
     my.game.player = my.parseGamePlayerData(
-                       my.game.playerIdx, data.playerNameArray);
+                       data.playerDataArray[my.game.playerIdx],
+                       my.game.playerIdx);
     my.game.opponent = my.parseGamePlayerData(
-                         my.game.opponentIdx, data.playerNameArray);
+                         data.playerDataArray[my.game.opponentIdx],
+                         my.game.opponentIdx);
 
     // Parse game WLT text into a string for convenience
     my.game.player.gameScoreStr = my.playerWLTText('player');
@@ -431,75 +426,33 @@ var Api = (function () {
   // Given a player index, parse all data out of the appropriate arrays,
   // and return it.  This function can be used for either the logged-in
   // player or the opponent.
-  my.parseGamePlayerData = function(playerIdx, playerNameArray) {
-    var data = {
-      'playerId': my.game.gameData.data.playerIdArray[playerIdx],
-      'playerName': playerNameArray[playerIdx],
-      'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
-      'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
-      'buttonArtFilename':
-        my.game.gameData.data.buttonArtFilenameArray[playerIdx],
-      'waitingOnAction':
-        my.game.gameData.data.waitingOnActionArray[playerIdx],
-      'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
-      'sideScore': my.game.gameData.data.sideScoreArray[playerIdx],
-      'gameScoreDict':
-        my.game.gameData.data.gameScoreArrayArray[playerIdx],
-      'lastActionTime':
-        my.game.gameData.data.lastActionTimeArray[playerIdx],
-      'nDie': my.game.gameData.data.nDieArray[playerIdx],
-      'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
-      'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
-      'dieRecipeArray':
-        my.game.gameData.data.dieRecipeArrayArray[playerIdx],
-      'dieSkillsArray':
-        my.game.gameData.data.dieSkillsArrayArray[playerIdx],
-      'diePropertiesArray':
-        my.game.gameData.data.diePropertiesArrayArray[playerIdx],
-      'dieDescriptionArray':
-        my.game.gameData.data.dieDescriptionArrayArray[playerIdx],
+  my.parseGamePlayerData = function(playerData, playerIdx) {
+    var data = playerData;
 
-       // N.B. These arrays describe the other player's dice which this
-       // player has captured
-      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
-      'capturedValueArray':
-        my.game.gameData.data.capturedValueArrayArray[playerIdx],
-      'capturedSidesArray':
-        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
-      'capturedRecipeArray':
-        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
-      'capturedDiePropertiesArray':
-        my.game.gameData.data.capturedDiePropsArrayArray[playerIdx],
+    // modify the API-provided swing request array to ensure that
+    // it is always a dict, and to tag the range values as "min"/"max"
+    var modSwingRequestArray = {};
+    $.each(playerData.swingRequestArray, function(letter, range) {
+      modSwingRequestArray[letter] = {
+        'min': parseInt(range[0], 10),
+        'max': parseInt(range[1], 10)
+      };
+    });
+    data.swingRequestArray = modSwingRequestArray;
 
-      'swingRequestArray': {},
-      'optRequestArray':
-        my.game.gameData.data.optRequestArrayArray[playerIdx],
-
-      'prevSwingValueArray':
-        my.game.gameData.data.prevSwingValueArrayArray[playerIdx],
-      'prevOptValueArray':
-        my.game.gameData.data.prevOptValueArrayArray[playerIdx],
-    };
-
-    $.each(
-      my.game.gameData.data.swingRequestArrayArray[playerIdx],
-      function(letter, range) {
-        data.swingRequestArray[letter] = {
-          'min': parseInt(range[0], 10),
-          'max': parseInt(range[1], 10)
-        };
-      }
-    );
+    // store buttonName as a top-level variable for convenience
+    // in assembling game tables
+    data.buttonName = playerData.button.name;
 
     // activePlayerIdx may be either player or may be null
-    if (my.game.gameData.data.activePlayerIdx == playerIdx) {
+    if (my.game.activePlayerIdx == playerIdx) {
       data.isActive = true;
     } else {
       data.isActive = false;
     }
 
     // playerWithInitiativeIdx may be either player or may be null
-    if (my.game.gameData.data.playerWithInitiativeIdx == playerIdx) {
+    if (my.game.playerWithInitiativeIdx == playerIdx) {
       data.hasInitiative = true;
     } else {
       data.hasInitiative = false;
@@ -509,9 +462,9 @@ var Api = (function () {
   };
 
   my.playerWLTText = function(player) {
-    var text = 'W/L/T: ' + Api.game[player].gameScoreDict.W +
-               '/' + Api.game[player].gameScoreDict.L +
-               '/' + Api.game[player].gameScoreDict.D +
+    var text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
+               '/' + Api.game[player].gameScoreArray.L +
+               '/' + Api.game[player].gameScoreArray.D +
                ' (' + Api.game.maxWins + ')';
     return text;
   };

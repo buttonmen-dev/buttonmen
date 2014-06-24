@@ -997,18 +997,10 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
 asyncTest("test_Game.dieTableEntry", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
-    var htmlobj = Game.dieTableEntry(
-      4,
-      Api.game.player.nDie,
-      Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray,
-      Api.game.player.dieSkillsArray,
-      Api.game.player.dieDescriptionArray
-    );
+    var htmlobj = Game.dieTableEntry(4, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, '<td title="X Swing Die">(X=4)</td>',
+    deepEqual(html, '<td title="X Swing Die (with 4 sides)">(X=4)</td>',
       "Die table entry has expected contents");
     start();
   });
@@ -1017,15 +1009,7 @@ asyncTest("test_Game.dieTableEntry", function() {
 asyncTest("test_Game.dieTableEntry_empty", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
-    var htmlobj = Game.dieTableEntry(
-      6,
-      Api.game.player.nDie,
-      Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray,
-      Api.game.player.dieSkillsArray,
-      Api.game.player.dieDescriptionArray
-    );
+    var htmlobj = Game.dieTableEntry(6, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
     deepEqual(html, "<td></td>",
@@ -1184,21 +1168,39 @@ test("test_Game.dieRecipeText", function() {
 });
 
 test("test_Game.dieValidTurndownValues", function() {
-  deepEqual(Game.dieValidTurndownValues("s(4)", "3"), [],
-            "An arbitrary non-focus die has no valid turndown values");
-  deepEqual(Game.dieValidTurndownValues("f(7)", "5"), [4, 3, 2, 1],
-            "A focus die has valid turndown values");
-  deepEqual(Game.dieValidTurndownValues("f(7)", "1"), [],
-            "A focus die showing 1 has no valid turndown values");
-  deepEqual(Game.dieValidTurndownValues("f(7,7)", "4"), [3, 2],
-            "A twin focus die can only turn down as far as 2");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 's(4)',
+      'skills': ['Shadow', ],
+      'value': 3,
+    }), [], "An arbitrary non-focus die has no valid turndown values");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'f(7)',
+      'skills': ['Focus', ],
+      'value': 5,
+    }), [4, 3, 2, 1], "A focus die has valid turndown values");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'f(7)',
+      'skills': ['Focus', ],
+      'value': 1,
+    }), [], "A focus die showing 1 has no valid turndown values");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'f(7,7)',
+      'skills': ['Focus', ],
+      'value': 4,
+    }), [3, 2], "A twin focus die can only turn down as far as 2");
 });
 
 test("test_Game.dieCanRerollForInitiative", function() {
-  equal(Game.dieCanRerollForInitiative("s(4)"), false,
-        "An arbitrary non-chance die cannot reroll for initiative");
-  equal(Game.dieCanRerollForInitiative("c(5,5)"), true,
-        "An arbitrary chance die can reroll for initiative");
+  equal(Game.dieCanRerollForInitiative({
+      'recipe': 's(4)',
+      'skills': ['Shadow', ],
+      'value': 3,
+    }), false, "An arbitrary non-chance die cannot reroll for initiative");
+  equal(Game.dieCanRerollForInitiative({
+      'recipe': 'c(5,5)',
+      'skills': ['Chance', ],
+      'value': 6,
+    }), true, "An arbitrary chance die can reroll for initiative");
 });
 
 test("test_Game.chatBox", function() {
