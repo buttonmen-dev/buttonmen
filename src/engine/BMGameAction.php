@@ -130,7 +130,8 @@ class BMGameAction {
             $message .= $messageDefender;
 
             // now deal with morphing after trip
-            if ($postAttackDice['attacker'][0]['hasJustMorphed']) {
+            if (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
+                ($postAttackDice['attacker'][0]['hasJustMorphed'])) {
                 $message .= $this->messageAttacker($midAttackDice, $postAttackDice);
             }
         } else {
