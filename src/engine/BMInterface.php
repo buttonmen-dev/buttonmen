@@ -1717,7 +1717,7 @@ class BMInterface {
         if ($getActiveGames) {
             $query .= 'AND s.name = "ACTIVE" ';
         } else {
-            $query .= 'AND s.name = "COMPLETE" ';
+            $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
         }
         $query .= 'ORDER BY g.last_action_time ASC;';
         $statement = self::$conn->prepare($query);
@@ -3210,6 +3210,63 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
+        }
+    }
+
+    public function dismiss_game($playerId, $gameId) {
+        try {
+            $query =
+                'SELECT s.name AS "status", m.was_game_dismissed ' .
+                'FROM game AS g ' .
+                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                    'LEFT JOIN game_player_map AS m ' .
+                    'ON m.game_id = g.id AND m.player_id = :player_id ' .
+                'WHERE g.id = :game_id';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':player_id' => $playerId,
+                ':game_id' => $gameId,
+            ));
+            $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) == 0) {
+                $this->message = "Game $gameId does not exist";
+                return NULL;
+            }
+            if ($fetchResult[0]['status'] != 'COMPLETE') {
+                $this->message = "Game $gameId isn't complete";
+                return NULL;
+            }
+            if ($fetchResult[0]['was_game_dismissed'] === NULL) {
+                $this->message = "You aren't a player of game $gameId";
+                return NULL;
+            }
+            if ((int)$fetchResult[0]['was_game_dismissed'] == 1) {
+                $this->message = "You have already dismissed game $gameId";
+                return NULL;
+            }
+
+            $query =
+                'UPDATE game_player_map ' .
+                'SET was_game_dismissed = 1 ' .
+                'WHERE player_id = :player_id AND game_id = :game_id';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':player_id' => $playerId,
+                ':game_id' => $gameId,
+            ));
+
+            $this->message = 'Dismissing game succeeded';
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::dismiss_game: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while dismissing a game';
             return FALSE;
         }
     }
