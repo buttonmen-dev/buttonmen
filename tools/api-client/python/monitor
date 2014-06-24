@@ -32,7 +32,7 @@ if not b.verify_login():
   sys.exit(1)
 
 while True:
-  games = b.get_game_data('active')
+  games = b.wrap_load_active_games()
   games_active = False
   for game in games:
     if game['isAwaitingAction']:

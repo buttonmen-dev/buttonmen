@@ -27,6 +27,7 @@ class BMClient():
     self.url = config.get(site, "url")
     self.username = config.get(site, "username")
     self.password = config.get(site, "password")
+    self.cookiefile = config.get(site, "cookiefile")
 
   def _setup_cookies(self):
     # all requests should use the same cookie jar
@@ -114,11 +115,13 @@ class BMClient():
     }
     return self._make_request(args)
 
-  def create_game(self, opponent, pbutton, obutton):
+  def create_game(self, pbutton, obutton=None, opponent=None, max_wins=3):
+    player_info = [self.username, pbutton, ]
+    opponent_info = [opponent, obutton, ]
     args = {
       'type': 'createGame',
-      'playerNameArray[]': [self.username, opponent],
-      'buttonNameArray[]': [pbutton, obutton],
-      'maxWins': 3,
+      'playerInfoArray[0][]': player_info,
+      'playerInfoArray[1][]': opponent_info,
+      'maxWins': max_wins,
     }
     return self._make_request(args)

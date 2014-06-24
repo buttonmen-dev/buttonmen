@@ -45,13 +45,13 @@ if not b.verify_login():
   print "Could not login"
   sys.exit(1)
 
-gamedata = b.get_game_state(args[0])
+gamedata = b.wrap_load_game_data(args[0])
 tabledata = []
 for player in [ 'player', 'opponent', ]:
   tabledata.append(
     [ gamedata[player]['playerName'] + ':',
-      gamedata[player]['buttonName'] + ':',
-      gamedata[player]['buttonRecipe'],
+      gamedata[player]['button']['name'] + ':',
+      gamedata[player]['button']['recipe'],
     ]
   )
 print_table(tabledata)
