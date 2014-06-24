@@ -28,6 +28,7 @@ class BMSkillMorphing extends BMSkill {
 
     protected static function create_morphing_clone_target($att, $def) {
         $newDie = clone $def;
+        $newDie->remove_all_flags();
 
         // convert swing and option dice back to normal dice
         if ($newDie instanceof BMDieSwing ||
@@ -46,6 +47,14 @@ class BMSkillMorphing extends BMSkill {
         $newDie->playerIdx = $att->playerIdx;
         $newDie->originalPlayerIdx = $att->originalPlayerIdx;
         $newDie->hasAttacked = TRUE;
+
+        if (!empty($att->flagList)) {
+            foreach ($att->flagList as $flagType => $flag) {
+                $newDie->add_flag($flagType, $flag->value());
+            }
+        }
+
+        $newDie->add_flag('HasJustMorphed');
 
         return $newDie;
     }

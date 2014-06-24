@@ -116,11 +116,25 @@ class BMGameAction {
         $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders);
 
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
-        $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
 
         if ($defenderRerollsEarly) {
-            $message .= $messageAttacker.$messageDefender;
+            // this only triggers for trip attacks, so there can only be one attacker involved
+            $midAttackDice = $preAttackDice;
+
+            if (isset($postAttackDice['attacker'][0]['valueAfterTripAttack'])) {
+                $midAttackDice['attacker'][0]['value'] =
+                    $postAttackDice['attacker'][0]['valueAfterTripAttack'];
+            }
+
+            $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
+            $message .= $messageDefender;
+
+            // now deal with morphing after trip
+            if ($postAttackDice['attacker'][0]['hasJustMorphed']) {
+                $message .= $this->messageAttacker($midAttackDice, $postAttackDice);
+            }
         } else {
+            $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
             $message .= $messageDefender.$messageAttacker;
         }
 
@@ -133,11 +147,11 @@ class BMGameAction {
         if (count($preAttackAttackers) > 0) {
             $message .= ' using [' . implode(",", $preAttackAttackers) . ']';
         }
-        
+
         if (count($preAttackDefenders) > 0) {
             $message .= ' against [' . implode(",", $preAttackDefenders) . ']';
         }
-        
+
         return $message;
     }
 
@@ -176,9 +190,13 @@ class BMGameAction {
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
+
             if ($attackerInfo['max'] != $postInfo['max']) {
                 $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' .
                                         $postInfo['max'] . ' sides';
+            } elseif (array_key_exists('forceReportDieSize', $attackerInfo) &&
+                      $attackerInfo['forceReportDieSize']) {
+                $postEventsAttacker[] = 'remained the same size';
             }
             if ($attackerInfo['recipe'] != $postInfo['recipe']) {
                 $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];

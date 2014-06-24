@@ -13,6 +13,9 @@
   <delete dir="${basedir}/build/js-coverage"/>
   <delete dir="${basedir}/build/logs"/>
   <delete dir="${basedir}/build/pdepend"/>
+  <delete>
+    <fileset dir="${basedir}/tools/api-client/python/lib" includes="**/*.pyc"/>
+  </delete>
 
   <mkdir dir="${basedir}/build/api"/>
   <mkdir dir="${basedir}/build/code-browser"/>
@@ -134,8 +137,8 @@
  </target>
 
  <target name="jstest-lighttpd-configure">
-  <exec executable="/bin/cp" failonerror="true">
-   <arg line="-f ./src/api/dummy_responder.php ./src/api/DummyApiResponder.php ./src/api/ApiSpec.php /usr/local/share/jenkins-lighttpd/www/"/>
+  <exec executable="/bin/bash" failonerror="true">
+   <arg line="./deploy/jenkins/install_dummy_responder_files.sh" />
   </exec>
  </target>
 
@@ -148,6 +151,12 @@
  <target name="jstest-run">
   <exec dir="." executable="/opt/phantomjs/bin/phantomjs" failonerror="true">
    <arg line="--web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost:8081/test/src/ui/phantom-index.html"/>
+  </exec>
+ </target>
+
+ <target name="python-api-client-test">
+  <exec executable="/usr/bin/env" failonerror="true">
+   <arg line="BMAPI_TEST_TYPE=jenkins /usr/bin/python ./test/tools/api-client/python/lib/test_bmapi.py"/>
   </exec>
  </target>
 
@@ -172,6 +181,7 @@
   <antcall target="jstest-lighttpd-configure"/>
   <antcall target="jstest-lighttpd-start"/>
   <antcall target="jstest-run"/>
+  <antcall target="python-api-client-test"/>
   <antcall target="jstest-lighttpd-stop"/>
   <antcall target="jstest-jscover-stop"/>
   <antcall target="jstest-jenkins-report"/>

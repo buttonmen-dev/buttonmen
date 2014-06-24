@@ -645,16 +645,21 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummydata = $dummyval['data'];
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy button lists should have matching structures");
+            "Real and dummy game data should have matching structures");
+        $this->assertTrue(
+            $this->object_structures_match($dummydata['playerDataArray'][0], $retdata['playerDataArray'][0], True),
+            "Real and dummy game playerData objects should have matching structures");
 
 	// Now hand-modify a few things we know will be different
 	// and check that the data structures are entirely identical otherwise
-        $dummydata['gameData']['data']['gameId'] = $retdata['gameData']['data']['gameId'];
-        $dummydata['gameData']['data']['playerIdArray'] = $retdata['gameData']['data']['playerIdArray'];
-        $dummydata['playerNameArray'] = $retdata['playerNameArray'];
+        $dummydata['gameId'] = $retdata['gameId'];
+        foreach(array_keys($retdata['playerDataArray']) as $playerIdx) {
+            foreach(array('playerName', 'playerId', 'lastActionTime') as $playerKey) {
+                $dummydata['playerDataArray'][$playerIdx][$playerKey] =
+                    $retdata['playerDataArray'][$playerIdx][$playerKey];
+            }
+        }
         $dummydata['timestamp'] = $retdata['timestamp'];
-        $dummydata['gameData']['data']['lastActionTimeArray'] =
-            $retdata['gameData']['data']['lastActionTimeArray'];
 
         $this->assertEquals($dummydata, $retdata);
 
@@ -930,8 +935,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval = $this->object->process_request($dataargs);
             $timestamp = $retval['data']['timestamp'];
 
-            if (($retval['data']['gameData']['data']['gameState'] != "REACT_TO_INITIATIVE") ||
-                ($retval['data']['gameData']['data']['playerWithInitiativeIdx'] != 1)) {
+            if (($retval['data']['gameState'] != "REACT_TO_INITIATIVE") ||
+                ($retval['data']['playerWithInitiativeIdx'] != 1)) {
                 $real_game_id = NULL;
                 $thistry++;
             }
@@ -963,6 +968,93 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_invalid_arg_rejected('submitTurn');
 
         $this->markTestIncomplete("No test for submitTurn responder yet");
+    }
+
+    public function test_request_dismissGame() {
+        $this->verify_login_required('dismissGame');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('dismissGame');
+
+        $dummy_game_id = '5';
+
+        // create and complete a game so we have the ID to dismiss
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'haruspex'),
+                                       array('responder004', 'haruspex')),
+            'maxWins' => '1',
+        );
+        $loggedInPlayerIdx = 0;
+
+        $retval = $this->object->process_request($args);
+        $real_game_id = $retval['data']['gameId'];
+
+        $loadGameArgs = array(
+            'type' => 'loadGameData',
+            'game' => "$real_game_id",
+            'logEntryLimit' => '10');
+
+        $submitTurnArgs = array(
+            'type' => 'submitTurn',
+            'game' => $real_game_id,
+            'roundNumber' => 1);
+
+        // Load the game and see if we can interact with it
+        $gameData = $this->object->process_request($loadGameArgs);
+
+        // It should not take 50 turns to finish a one-round haruspex^2 match
+        $maxTries = 50;
+        $thisTry = 0;
+        while ($gameData['data']['gameData']['data']['gameState'] != "END_GAME") {
+            $thisTry++;
+            if ($thisTry > $maxTries) {
+                $this->fail("Failed to complete a haruspex^2 match");
+            }
+            if (!$gameData['data']['gameData']['data']['waitingOnActionArray'][$loggedInPlayerIdx]) {
+                if ($loggedInPlayerIdx == 0) {
+                    $_SESSION = $this->mock_test_user_login('responder004');
+                    $loggedInPlayerIdx = 1;
+                } else {
+                    $_SESSION = $this->mock_test_user_login('responder003');
+                    $loggedInPlayerIdx = 0;
+                }
+            } else {
+                $submitTurnArgs['timestamp'] = $gameData['data']['timestamp'];
+                $submitTurnArgs['attackerIdx'] = $loggedInPlayerIdx;
+                $submitTurnArgs['defenderIdx'] = ($loggedInPlayerIdx + 1) % 2;
+                if (in_array('Power', $gameData['data']['gameData']['data']['validAttackTypeArray'])) {
+                    $submitTurnArgs['attackType'] = 'Power';
+                    $submitTurnArgs['dieSelectStatus'] = array(
+                        'playerIdx_0_dieIdx_0' => 'true',
+                        'playerIdx_1_dieIdx_0' => 'true'
+                    );
+                } else {
+                    $submitTurnArgs['attackType'] = 'Pass';
+                    $submitTurnArgs['dieSelectStatus'] = array(
+                        'playerIdx_0_dieIdx_0' => 'false',
+                        'playerIdx_1_dieIdx_0' => 'false'
+                    );
+                }
+                $turnResults = $this->object->process_request($submitTurnArgs);
+            }
+            $gameData = $this->object->process_request($loadGameArgs);
+        }
+
+        // now try to dismiss the game
+        $args = array(
+            'type' => 'dismissGame',
+            'gameId' => $real_game_id,
+        );
+        $retval = $this->object->process_request($args);
+        $args = array(
+            'type' => 'dismissGame',
+            'gameId' => $dummy_game_id,
+        );
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals($dummyval, $retval, "game dismissal responses should be identical");
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
     }
 
     ////////////////////////////////////////////////////////////
