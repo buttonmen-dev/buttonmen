@@ -1006,12 +1006,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // It should not take 50 turns to finish a one-round haruspex^2 match
         $maxTries = 50;
         $thisTry = 0;
-        while ($gameData['data']['gameData']['data']['gameState'] != "END_GAME") {
+        while ($gameData['data']['gameState'] != "END_GAME") {
             $thisTry++;
             if ($thisTry > $maxTries) {
                 $this->fail("Failed to complete a haruspex^2 match");
             }
-            if (!$gameData['data']['gameData']['data']['waitingOnActionArray'][$loggedInPlayerIdx]) {
+            if (!$gameData['data']['playerDataArray'][$loggedInPlayerIdx]['waitingOnAction']) {
                 if ($loggedInPlayerIdx == 0) {
                     $_SESSION = $this->mock_test_user_login('responder004');
                     $loggedInPlayerIdx = 1;
@@ -1023,7 +1023,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 $submitTurnArgs['timestamp'] = $gameData['data']['timestamp'];
                 $submitTurnArgs['attackerIdx'] = $loggedInPlayerIdx;
                 $submitTurnArgs['defenderIdx'] = ($loggedInPlayerIdx + 1) % 2;
-                if (in_array('Power', $gameData['data']['gameData']['data']['validAttackTypeArray'])) {
+                if (in_array('Power', $gameData['data']['validAttackTypeArray'])) {
                     $submitTurnArgs['attackType'] = 'Power';
                     $submitTurnArgs['dieSelectStatus'] = array(
                         'playerIdx_0_dieIdx_0' => 'true',
