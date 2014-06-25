@@ -17,7 +17,7 @@
   "gameActionLog": [
     {
       "timestamp": 1387746541,
-      "message": "tester2 performed Skill attack using [F(6):5,(6):5] against [(12):9], and needs to turn down Fire dice in order to complete this attack"
+      "message": "tester2 performed Skill attack using [F(6):5,(6):5] against [(12):11], and needs to turn down Fire dice in order to complete this attack"
     }
   ],
   "gameChatLog": [
@@ -63,7 +63,7 @@
         { "value": 3, "sides": 4, "skills": ["Fire"], "properties": [], "recipe": "F(4)", "description": "Fire 4-sided die" },
         { "value": 4, "sides": 6, "skills": ["Fire"], "properties": [], "recipe": "F(6)", "description": "Fire 6-sided die" },
         { "value": 3, "sides": 6, "skills": [], "properties": [], "recipe": "(6)", "description": "6-sided die" },
-        { "value": 9, "sides": 12, "skills": [], "properties": ["IsAttackTarget"], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 11, "sides": 12, "skills": [], "properties": ["IsAttackTarget"], "recipe": "(12)", "description": "12-sided die" },
         { "value": 3, "sides": 4, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die (with 4 sides)" }
       ],
       "capturedDieArray": [],

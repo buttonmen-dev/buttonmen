@@ -569,6 +569,9 @@ asyncTest("test_Game.actionAdjustFireDiceActive", function() {
   BMTestUtils.GameType = 'fire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('Turn down Fire dice by a total of 1'),
+      'Page describes the necessary Fire die turndown');
     var item = document.getElementById('fire_adjust_0');
     ok(item, "#fire_adjust_0 select is set");
     $.each(item.childNodes, function(childid, child) {

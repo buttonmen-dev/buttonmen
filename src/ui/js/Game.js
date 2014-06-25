@@ -926,6 +926,28 @@ Game.actionAdjustFireDiceActive = function() {
   Game.pageAddGameHeader(
     'Your turn to complete a skill attack by adjusting fire dice');
 
+  var attackerSum = 0;
+  $.each(Api.game.player.activeDieArray, function(i, die) {
+    if (die.properties.indexOf('IsAttacker') >= 0) {
+      attackerSum += die.value;
+    }
+  });
+
+  var defenderSum = 0;
+  $.each(Api.game.opponent.activeDieArray, function(i, die) {
+    if (die.properties.indexOf('IsAttackTarget') >= 0) {
+      defenderSum += die.value;
+    }
+  });
+
+  Game.page.append($('<div>', {
+    'text': 'Turn down Fire dice by a total of ' +
+            (defenderSum - attackerSum) +
+            ' to make up the difference between the sum of your attacking' +
+            ' dice (' + attackerSum + ') and the defending die value (' +
+            defenderSum + ').',
+  }));
+
   // Create a form for adjusting fire dice
   var fireform = $('<form>', {
     'id': 'game_action_form',
