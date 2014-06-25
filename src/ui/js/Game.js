@@ -1947,6 +1947,14 @@ Game.dieTableEntry = function(i, activeDieArray) {
       dieopts.title += '. (This chance die cannot be rerolled again ' +
         'during this round, because the player has already rerolled a ' +
         'chance die)';
+    } else if (die.properties.indexOf('IsAttacker') >= 0) {
+      dieopts.class = 'recipe_inuse';
+      dieopts.title += '. (This die is an attacker in the attack which ' +
+        'is currently in progress.)';
+    } else if (die.properties.indexOf('IsAttackTarget') >= 0) {
+      dieopts.class = 'recipe_inuse';
+      dieopts.title += '. (This die is a target of the attack which ' +
+        'is currently in progress.)';
     }
     return $('<td>', dieopts);
   }

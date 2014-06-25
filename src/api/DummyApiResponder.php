@@ -561,7 +561,7 @@ class DummyApiResponder {
         $data['inactivityArray'][] = "4 minutes";
     }
 
-    protected function add_active_game_data_24(&$data) {
+    protected function add_active_game_data_24() {
         // tester1 is not a participant in fake game 24
     }
 
