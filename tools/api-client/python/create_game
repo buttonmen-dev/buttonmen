@@ -114,6 +114,7 @@ def create_random_game(opponent, b, players=False, usebuttons=False):
     confirm = raw_input()
     if confirm.lower() in ['y', 'yes']:
       print b.wrap_create_game(pbutton, obutton, opponent)
+      return True
 
 def play_all_opponents(opts, b):
   players = lookup_other_players(b)
