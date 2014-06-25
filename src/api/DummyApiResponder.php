@@ -853,6 +853,10 @@ class DummyApiResponder {
         return array(TRUE, 'Reserve die chosen successfully');
     }
 
+    protected function get_interface_response_adjustFire() {
+        return array(TRUE, 'Successfully completed attack');
+    }
+
     protected function get_interface_response_submitChat($args) {
         if (array_key_exists('edit', $args)) {
             if ($args['chat']) {

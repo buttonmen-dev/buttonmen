@@ -1388,8 +1388,8 @@ Game.formAdjustFireDiceActive = function() {
       },
       { 'ok':
         {
-          'type': 'text',
-          'message': 'Successfully completed attack by turning down fire dice',
+          'type': 'fixed',
+          'text': 'Successfully completed attack by turning down fire dice',
         },
         'notok': { 'type': 'server', },
       },
@@ -1818,6 +1818,7 @@ Game.dieRecipeTable = function(table_action, active) {
   for (var i = 0; i < maxDice; i++) {
     var playerEnt = Game.dieTableEntry(i, Api.game.player.activeDieArray);
     var opponentEnt = Game.dieTableEntry(i, Api.game.opponent.activeDieArray);
+    var defaultval;
     if (table_action) {
       var dieLRow = $('<tr>');
       var dieRRow = $('<tr>');
@@ -1835,7 +1836,7 @@ Game.dieRecipeTable = function(table_action, active) {
           }
         }
         if ((active) && (initopts.length > 0)) {
-          var defaultval = Api.game.player.activeDieArray[i].value;
+          defaultval = Api.game.player.activeDieArray[i].value;
           if ('initiativeDieIdxArray' in Game.activity) {
             $.each(Game.activity.initiativeDieIdxArray, function(idx, val) {
               if (val == i) {
@@ -1864,7 +1865,7 @@ Game.dieRecipeTable = function(table_action, active) {
           }
         }
         if ((active) && (fireopts.length > 0)) {
-          var defaultval = Api.game.player.activeDieArray[i].value;
+          defaultval = Api.game.player.activeDieArray[i].value;
           if ('fireDieIdxArray' in Game.activity) {
             $.each(Game.activity.fireDieIdxArray, function(idx, val) {
               if (val == i) {
