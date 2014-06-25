@@ -15,6 +15,8 @@ Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
 Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
 Game.GAME_STATE_START_ROUND = 'START_ROUND';
 Game.GAME_STATE_START_TURN = 'START_TURN';
+Game.GAME_STATE_START_TURN = 'START_TURN';
+Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
 Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
 Game.GAME_STATE_END_GAME = 'END_GAME';
@@ -175,6 +177,16 @@ Game.showStatePage = function() {
       } else {
         Game.actionPlayTurnNonplayer();
       }
+    } else if (Api.game.gameState == Game.GAME_STATE_ADJUST_FIRE_DICE) {
+      if (Api.game.isParticipant) {
+        if (Api.game.player.waitingOnAction) {
+          Game.actionAdjustFireDiceActive();
+        } else {
+          Game.actionAdjustFireDiceInactive();
+        }
+      } else {
+        Game.actionAdjustFireDiceNonplayer();
+      }
     } else if (Api.game.gameState == Game.GAME_STATE_END_GAME) {
       Game.actionShowFinishedGame();
     } else if (Api.game.gameState == Game.GAME_STATE_START_GAME) {
@@ -227,7 +239,7 @@ Game.parseValidInitiativeActions = function() {
     var hasChance = false;
 
     $.each(Api.game.player.activeDieArray, function(i, die) {
-      var tdvals = Game.dieValidTurndownValues(die);
+      var tdvals = Game.dieValidTurndownValues(die, Api.game.gameState);
       if (tdvals.length > 0) {
         focus[i] = tdvals;
         hasFocus = true;
@@ -246,6 +258,20 @@ Game.parseValidInitiativeActions = function() {
       Api.game.player.initiativeActions.chance = chance;
     }
     Api.game.player.initiativeActions.decline = true;
+  }
+};
+
+// What fire dice can the player adjust?
+Game.parseValidFireOptions = function() {
+  Api.game.player.fireOptions = {};
+  if (Api.game.gameState == Game.GAME_STATE_ADJUST_FIRE_DICE) {
+    $.each(Api.game.player.activeDieArray, function(i, die) {
+      if ((die.skills.indexOf('Fire') >= 0) &&
+          (die.properties.indexOf('IsAttacker') < 0)) {
+        Api.game.player.fireOptions[i] =
+          Game.dieValidTurndownValues(die, Api.game.gameState);
+      }
+    });
   }
 };
 
@@ -890,6 +916,107 @@ Game.actionPlayTurnNonplayer = function() {
   Game.arrangePage();
 };
 
+Game.actionAdjustFireDiceActive = function() {
+
+  // Function to invoke on button click
+  Game.form = Game.formAdjustFireDiceActive;
+
+  Game.parseValidFireOptions();
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Your turn to complete a skill attack by adjusting fire dice');
+
+  // Create a form for adjusting fire dice
+  var fireform = $('<form>', {
+    'id': 'game_action_form',
+    'action': 'javascript:void(0);',
+  });
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable('adjust_fire_dice', true);
+
+  fireform.append(dietable);
+  fireform.append($('<br>'));
+
+  var fireactionselect = $('<select>', {
+    'id': 'fire_action_select',
+    'name': 'fire_action_select',
+  });
+
+  var fireoptions = {
+    'turndown': 'Turn down fire dice',
+    'cancel':
+      'Don\'t turn down fire dice (cancelling the skill attack in progress)',
+  };
+  $.each(fireoptions, function(actionname, actiontext) {
+    var fireactionopts = {
+      'value': actionname,
+      'label': actiontext,
+      'text': actiontext,
+    };
+    if (actionname == 'turndown') {
+      fireactionopts.selected = 'selected';
+    }
+    fireactionselect.append($('<option>', fireactionopts));
+  });
+  fireform.append(fireactionselect);
+
+  fireform.append(
+    $('<button>', {
+      'id': 'game_action_button',
+      'text': 'Submit',
+    }));
+
+  // Add the form to the page
+  Game.page.append(fireform);
+  Game.pageAddFooter();
+
+  // Now layout the page
+  Game.arrangePage();
+};
+
+Game.actionAdjustFireDiceInactive = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Opponent\'s turn to complete a skill attack by adjusting fire dice');
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
+
+  Game.page.append(dietable);
+
+  Game.pageAddFooter();
+
+  // Now layout the page
+  Game.arrangePage();
+};
+
+Game.actionAdjustFireDiceNonplayer = function() {
+
+  // nothing to do on button click
+  Game.form = null;
+
+  Game.page = $('<div>');
+  Game.pageAddGameHeader(
+    'Waiting for ' + Game.waitingOnPlayerNames() +
+    ' to complete a skill attack by adjusting fire dice' +
+    ' (you are not in this game)');
+
+  // Get a table containing the existing die recipes
+  var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
+
+  Game.page.append(dietable);
+
+  Game.pageAddFooter();
+
+  // Now layout the page
+  Game.arrangePage();
+};
+
 Game.actionShowFinishedGame = function() {
 
   // nothing to do on button click
@@ -1201,6 +1328,82 @@ Game.reactToInitiativeSuccessMsg = function(message, data) {
     'type': 'success',
     'text': message,
   };
+};
+
+// Form submission action for adjusting fire dice
+Game.formAdjustFireDiceActive = function() {
+  var formValid = true;
+  var error = false;
+  Game.activity.fireActionType = $('#fire_action_select').val();
+  Game.activity.fireDieIdxArray = [];
+  Game.activity.fireDieValueArray = [];
+
+  switch (Game.activity.fireActionType) {
+
+  // valid action, nothing special to do, but validate selections just in case
+  case 'cancel':
+    $.each(Api.game.player.fireOptions, function(i) {
+      var value = $('#fire_adjust_' + i).val();
+      if (value != Api.game.player.activeDieArray[i].value) {
+        error = 'Chose not to adjust fire dice, but modified a die value';
+        formValid = false;
+      }
+    });
+    break;
+
+  case 'turndown':
+    $.each(Api.game.player.fireOptions, function(i, vals) {
+      var value = parseInt($('#fire_adjust_' + i).val(), 10);
+      if (value != Api.game.player.activeDieArray[i].value) {
+        if (vals.indexOf(value) >= 0) {
+          Game.activity.fireDieIdxArray.push(i);
+          Game.activity.fireDieValueArray.push(value);
+        } else {
+          error = 'Invalid turndown value specified for fire die';
+          formValid = false;
+        }
+      }
+    });
+    if (Game.activity.fireDieIdxArray.length === 0) {
+      error = 'Specified turndown action but did not turn down any dice';
+      formValid = false;
+    }
+    break;
+
+  default:
+    error = 'Specified action is not valid';
+    formValid = false;
+  }
+
+  if (formValid) {
+    Api.apiFormPost(
+      {
+        type: 'adjustFire',
+        game: Game.game,
+        roundNumber: Api.game.roundNumber,
+        timestamp: Api.game.timestamp,
+        action: Game.activity.fireActionType,
+        dieIdxArray: Game.activity.fireDieIdxArray,
+        dieValueArray: Game.activity.fireDieValueArray,
+      },
+      { 'ok':
+        {
+          'type': 'text',
+          'message': 'Successfully completed attack by turning down fire dice',
+        },
+        'notok': { 'type': 'server', },
+      },
+      'game_action_button',
+      Game.showGamePage,
+      Game.showGamePage
+    );
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': error,
+    };
+    Game.showGamePage();
+  }
 };
 
 // Form submission action for playing a turn
@@ -1594,7 +1797,8 @@ Game.dieRecipeTable = function(table_action, active) {
     var subHeaderRRow = $('<tr>');
 
     // contents of table headers depend on the type of table action
-    if (table_action == 'react_to_initiative') {
+    if ((table_action == 'react_to_initiative') ||
+        (table_action == 'adjust_fire_dice')) {
       subHeaderLRow.append($('<th>', { 'text': 'Recipe' }));
       subHeaderLRow.append($('<th>', { 'text': 'Value' }));
       subHeaderRRow = subHeaderLRow.clone();
@@ -1641,6 +1845,35 @@ Game.dieRecipeTable = function(table_action, active) {
           }
           dieLRow.append(
             Game.dieValueSelectTd('init_react_' + i, initopts,
+              Api.game.player.activeDieArray[i].value, defaultval));
+        } else {
+          dieLRow.append($('<td>', {
+            'text': Api.game.player.activeDieArray[i].value,
+          }));
+        }
+        dieRRow.append(opponentEnt);
+        dieRRow.append($('<td>', {
+          'text': Api.game.opponent.activeDieArray[i].value,
+        }));
+      } else if (table_action == 'adjust_fire_dice') {
+        dieLRow.append(playerEnt);
+        var fireopts = [];
+        if (active) {
+          if (i in Api.game.player.fireOptions) {
+            fireopts = Api.game.player.fireOptions[i].concat();
+          }
+        }
+        if ((active) && (fireopts.length > 0)) {
+          var defaultval = Api.game.player.activeDieArray[i].value;
+          if ('fireDieIdxArray' in Game.activity) {
+            $.each(Game.activity.fireDieIdxArray, function(idx, val) {
+              if (val == i) {
+                defaultval = Game.activity.fireDieValueArray[idx];
+              }
+            });
+          }
+          dieLRow.append(
+            Game.dieValueSelectTd('fire_adjust_' + i, fireopts,
               Api.game.player.activeDieArray[i].value, defaultval));
         } else {
           dieLRow.append($('<td>', {
@@ -2122,9 +2355,13 @@ Game.dieRecipeText = function(recipe, sides) {
   return dieRecipeText;
 };
 
-Game.dieValidTurndownValues = function(die) {
-  // Focus dice can be turned down
-  if (die.skills.indexOf('Focus') >= 0) {
+Game.dieValidTurndownValues = function(die, gameState) {
+  // Focus dice can be turned down during "react to initiative" state
+  // Fire dice can be turned down during "adjust fire dice" state
+  if (((die.skills.indexOf('Focus') >= 0) &&
+       (gameState == Game.GAME_STATE_REACT_TO_INITIATIVE)) ||
+      ((die.skills.indexOf('Fire') >= 0) &&
+       (gameState == Game.GAME_STATE_ADJUST_FIRE_DICE))) {
     var turndown = [];
     var minval = 1;
     if (die.recipe.match(',')) {

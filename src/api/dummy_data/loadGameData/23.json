@@ -1,0 +1,83 @@
+{
+  "gameId": 23,
+  "gameState": "ADJUST_FIRE_DICE",
+  "currentPlayerIdx": 1,
+  "activePlayerIdx": 0,
+  "playerWithInitiativeIdx": 0,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": ["Power", "Skill"],
+  "gameSkillsInfo": {
+    "Fire": {
+      "code": "F",
+      "description": "The Fire skill takes some sort of action which might affect a game.  In order to make a Fire-assisted skill attack, make a normal skill attack using all dice you want to reroll normally (these dice will add to a value less than the value of the target die).  Do NOT select the Fire dice you want to turn down; once you have made the initial attack, you will have the opportunity to turn down Fire dice.",
+      "interacts": []
+    }
+  },
+  "gameActionLog": [
+    {
+      "timestamp": 1387746541,
+      "message": "tester2 performed Skill attack using [F(6):5,(6):5] against [(12):9], and needs to turn down Fire dice in order to complete this attack"
+    }
+  ],
+  "gameChatLog": [
+  ],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester2",
+      "button": {
+        "name": "Adam Spam",
+        "recipe": "F(4) F(6) (6) (12) (X)",
+        "artFilename": "adamspam.png"
+      },
+      "activeDieArray": [
+        { "value": 2, "sides": 4, "skills": ["Fire"], "properties": [], "recipe": "F(4)", "description": "Fire 4-sided die" },
+        { "value": 5, "sides": 6, "skills": ["Fire"], "properties": ["IsAttacker"], "recipe": "F(6)", "description": "Fire 6-sided die" },
+        { "value": 5, "sides": 6, "skills": [], "properties": ["IsAttacker"], "recipe": "(6)", "description": "6-sided die" },
+        { "value": 12, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 3, "sides": 4, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die (with 4 sides)" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": 32,
+      "sideScore": 0,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester1",
+      "button": {
+        "name": "Adam Spam",
+        "recipe": "F(4) F(6) (6) (12) (X)",
+        "artFilename": "adamspam.png"
+      },
+      "activeDieArray": [
+        { "value": 3, "sides": 4, "skills": ["Fire"], "properties": [], "recipe": "F(4)", "description": "Fire 4-sided die" },
+        { "value": 4, "sides": 6, "skills": ["Fire"], "properties": [], "recipe": "F(6)", "description": "Fire 6-sided die" },
+        { "value": 3, "sides": 6, "skills": [], "properties": [], "recipe": "(6)", "description": "6-sided die" },
+        { "value": 9, "sides": 12, "skills": [], "properties": ["IsAttackTarget"], "recipe": "(12)", "description": "12-sided die" },
+        { "value": 3, "sides": 4, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die (with 4 sides)" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": false,
+      "roundScore": 32,
+      "sideScore": 0,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null
+    }
+  ],
+  "timestamp": 1403219508
+}
