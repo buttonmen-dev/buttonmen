@@ -163,6 +163,7 @@ Login.addMainNavbar = function() {
   var navrow = $('<tr>');
   var links = {
     'Overview': 'index.html',
+    'Monitor': Env.ui_root + '?mode=monitor',
     'Create game': 'create_game.html',
     'Open games': 'open_games.html',
     'Preferences': 'prefs.html',
@@ -170,12 +171,16 @@ Login.addMainNavbar = function() {
     'History': 'history.html',
     'Who\'s online': 'active_players.html',
     'Forum': 'forum.html',
-    'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+    'Next game': Env.ui_root + '?mode=nextGame',
   };
   $.each(links, function(text, url) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
     navrow.append(navtd);
+  });
+  navrow.find('a:contains("Next game")').click(function(e) {
+    e.preventDefault();
+    Api.getNextGameId(Login.goToNextPendingGame);
   });
   navtable.append(navrow);
   Login.message.append(navtable);
@@ -252,13 +257,13 @@ Login.goToNextPendingGame = function() {
         'game.html?game=' + Api.gameNavigation.nextGameId;
     } else {
       // If there are no active games, and we're on the Overview page, tell
-      // the user so
-      if (Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/)) {
+      // the user so and refresh the list of games
+      if (typeof Overview !== 'undefined') {
         Env.message = {
           'type': 'none',
           'text': 'There are no games waiting for you to play'
         };
-        Env.showStatusMessage();
+        Overview.getOverview(Overview.showPage);
       } else {
         // If we're not on the Overview page, send them there
         Env.window.location.href = '/ui';

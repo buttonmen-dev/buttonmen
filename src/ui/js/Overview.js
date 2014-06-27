@@ -5,10 +5,15 @@ var Overview = {};
 // setting here rather than importing Game.js
 Overview.GAME_STATE_END_GAME = 60;
 
+// Number of seconds before refreshing the monitor
+Overview.MONITOR_TIMEOUT = 60;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Overview.showOverviewPage() is the landing function.  Always call
-//   this first
+//   this first. This will either call Login.goToNextPendingGame,
+//   Overview.executeMonitor() or Overview.getOverview() and
+//   Overview.showPage() (depending on the "mode" parameter).
 // * Overview.getOverview() asks the API for information about the
 //   player's overview status (currently, the list of active games).
 //   It sets Api.active_games and Api.completed_games.  If successful,
@@ -23,7 +28,6 @@ Overview.GAME_STATE_END_GAME = 60;
 ////////////////////////////////////////////////////////////////////////
 
 Overview.showOverviewPage = function() {
-
   // Setup necessary elements for displaying status messages
   Env.setupEnvStub();
 
@@ -32,8 +36,23 @@ Overview.showOverviewPage = function() {
     $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
-  // Get all needed information, then display overview page
-  Overview.getOverview(Overview.showPage);
+  var mode = Env.getParameterByName("mode");
+  switch (mode) {
+    case "nextGame":
+      // Try to go to the next game
+      Api.getNextGameId(Login.goToNextPendingGame);
+      break;
+    case "monitor":
+      // Get all needed information, then display overview page in monitor mode
+      Overview.monitorIsOn = true;
+      Overview.getOverview(Overview.showPage);
+      break;
+    default:
+      // Get all needed information, then display overview page in normal mode
+      Overview.monitorIsOn = false;
+      Overview.getOverview(Overview.showPage);
+      break;
+  }
 };
 
 Overview.getOverview = function(callback) {
@@ -49,11 +68,23 @@ Overview.getOverview = function(callback) {
 };
 
 Overview.showPage = function() {
-
   Overview.page = $('<div>');
 
   if (Login.logged_in === true) {
     Overview.pageAddNewgameLink();
+
+    if (Overview.monitorIsOn) {
+      Overview.page.append($('<h2>', {
+        'text': '* Monitor Active *',
+        'class': 'monitorMessage',
+      }));
+      Overview.page.append($('<div>').append($('<a>', {
+        'text': 'Disable Monitor',
+        'href': Env.ui_root,
+      })));
+
+      //setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT);
+    }
 
     if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
       Env.message = {
@@ -95,11 +126,15 @@ Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
   var newgamePar = $('<p>');
   if (Api.active_games.games.awaitingPlayer.length > 0) {
-    newgamePar.append($('<a>', {
-      'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+    var newgameLink = $('<a>', {
+      'href': Env.ui_root + '?mode=nextGame',
       'text': 'Go to your next pending game',
-    }));
-
+    });
+    newgamePar.append(newgameLink);
+    newgameLink.click(function(e) {
+      e.preventDefault();
+      Api.getNextGameId(Login.goToNextPendingGame);
+    });
   } else if (Api.active_games.games.awaitingOpponent.length > 0) {
     // just return in this case, and don't add a message at all
     return;

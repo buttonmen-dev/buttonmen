@@ -1390,10 +1390,15 @@ Game.pageAddGameNavigationFooter = function() {
   }
   Game.page.append($('<br>'));
   var linkDiv = $('<div>');
-  linkDiv.append($('<a>', {
+  var link = $('<a>', {
     'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
     'text': 'Go to your next pending game (if any)',
-  }));
+  });
+  linkDiv.append(link);
+  link.click(function(e) {
+    e.preventDefault();
+    Api.getNextGameId(Login.goToNextPendingGame);
+  });
   Game.page.append(linkDiv);
   return true;
 };
