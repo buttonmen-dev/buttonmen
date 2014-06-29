@@ -92,6 +92,12 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        'dismissGame' => array(
+            'mandatory' => array(
+                'gameId' => 'number',
+            ),
+            'permitted' => array(),
+        ),
         'joinOpenGame' => array(
             'mandatory' => array(
                 'gameId' => 'number',

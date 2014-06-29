@@ -2757,145 +2757,132 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out1 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
-        $this->assertEquals(1, $out1['data']['roundNumber']);
-        $this->assertEquals(3, $out1['data']['maxWins']);
-        $this->assertNull($out1['data']['activePlayerIdx']);
-        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
-        $this->assertEquals(array('Bauer', 'Stark'), $out1['data']['buttonNameArray']);
-        $this->assertEquals(array(FALSE, TRUE), $out1['data']['waitingOnActionArray']);
-        $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
+        $this->assertEquals(424242, $out1['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['gameState']);
+        $this->assertEquals(1, $out1['roundNumber']);
+        $this->assertEquals(3, $out1['maxWins']);
+        $this->assertEquals(array(), $out1['gameSkillsInfo']);
+        $this->assertNull($out1['activePlayerIdx']);
+        $this->assertNull($out1['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
+        $this->assertEquals('Bauer', $out1['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Stark', $out1['playerDataArray'][1]['button']['name']);
+        $this->assertEquals(FALSE, $out1['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(TRUE, $out1['playerDataArray'][1]['waitingOnAction']);
+        $this->assertEquals(5, count($out1['playerDataArray'][0]['activeDieArray']));
+        $this->assertEquals(5, count($out1['playerDataArray'][1]['activeDieArray']));
         $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
-            $out1['data']['valueArrayArray']
-        );
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(8)', 'description' => '8-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][0]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(10)', 'description' => '10-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][1]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(12)', 'description' => '12-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][2]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(20)', 'description' => '20-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][3]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 5, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(X)', 'description' => 'X Swing Die (with 5 sides)'),
+            $out1['playerDataArray'][0]['activeDieArray'][4]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(4)', 'description' => '4-sided die'),
+            $out1['playerDataArray'][1]['activeDieArray'][0]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(6)', 'description' => '6-sided die'),
+            $out1['playerDataArray'][1]['activeDieArray'][1]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(8)', 'description' => '8-sided die'),
+            $out1['playerDataArray'][1]['activeDieArray'][2]);
         // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-            array(array(8, 10, 12, 20, 5), array(4, 6, 8, NULL, NULL)),
-            $out1['data']['sidesArrayArray']
-        );
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(X)', 'description' => 'X Swing Die'),
+            $out1['playerDataArray'][1]['activeDieArray'][3]);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out1['data']['dieSkillsArrayArray']
-        );
-        $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out1['data']['diePropertiesArrayArray']
-        );
-        $this->assertEquals(
-            array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
-                  array('(4)', '(6)', '(8)', '(X)', '(X)')),
-            $out1['data']['dieRecipeArrayArray']
-        );
-        $this->assertEquals(
-            array(
-                array(
-                    '8-sided die',
-                    '10-sided die',
-                    '12-sided die',
-                    '20-sided die',
-                    'X Swing Die (with 5 sides)'
-                ),
-                array(
-                    '4-sided die',
-                    '6-sided die',
-                    '8-sided die',
-                    'X Swing Die',
-                    'X Swing Die'
-                )
-            ),
-            $out1['data']['dieDescriptionArrayArray']
-        );
-        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
-        $this->assertEquals(
-            array(array('X' => array(4, 20)), array('X' => array(4, 20))),
-            $out1['data']['swingRequestArrayArray']
-        );
-        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out1['data']['gameScoreArrayArray']
-        );
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(X)', 'description' => 'X Swing Die'),
+            $out1['playerDataArray'][1]['activeDieArray'][4]);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
+        $this->assertEquals(array('X' => array(4, 20)), $out1['playerDataArray'][0]['swingRequestArray']);
+        $this->assertEquals(array('X' => array(4, 20)), $out1['playerDataArray'][1]['swingRequestArray']);
+        $this->assertEquals(array(), $out1['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][1]['gameScoreArray']);
 
 
         $out2 = $game1->getJsonData(456);
-        $this->assertEquals(424242, $out2['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['data']['gameState']);
-        $this->assertEquals(1, $out2['data']['roundNumber']);
-        $this->assertEquals(3, $out2['data']['maxWins']);
-        $this->assertNull($out2['data']['activePlayerIdx']);
-        $this->assertNull($out2['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out2['data']['playerIdArray']);
-        $this->assertEquals(array('Bauer', 'Stark'), $out2['data']['buttonNameArray']);
-        $this->assertEquals(array(FALSE, TRUE), $out2['data']['waitingOnActionArray']);
-        $this->assertEquals(array(5, 5), $out2['data']['nDieArray']);
-        $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
-            $out2['data']['valueArrayArray']
-        );
+        $this->assertEquals(424242, $out2['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['gameState']);
+        $this->assertEquals(1, $out2['roundNumber']);
+        $this->assertEquals(3, $out2['maxWins']);
+        $this->assertNull($out2['activePlayerIdx']);
+        $this->assertNull($out2['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out2['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out2['playerDataArray'][1]['playerId']);
+        $this->assertEquals('Bauer', $out2['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Stark', $out2['playerDataArray'][1]['button']['name']);
+        $this->assertEquals(FALSE, $out2['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(TRUE, $out2['playerDataArray'][1]['waitingOnAction']);
+        $this->assertEquals(5, count($out2['playerDataArray'][0]['activeDieArray']));
+        $this->assertEquals(5, count($out2['playerDataArray'][1]['activeDieArray']));
         // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-            array(array(8, 10, 12, 20, NULL), array(4, 6, 8, NULL, NULL)),
-            $out2['data']['sidesArrayArray']
-        );
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            $out2['playerDataArray'][0]['activeDieArray'][0]);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out2['data']['dieSkillsArrayArray']
-        );
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
+            $out2['playerDataArray'][0]['activeDieArray'][1]);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out2['data']['diePropertiesArrayArray']
-        );
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            $out2['playerDataArray'][0]['activeDieArray'][2]);
         $this->assertEquals(
-            array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
-                  array('(4)', '(6)', '(8)', '(X)', '(X)')),
-            $out2['data']['dieRecipeArrayArray']
-        );
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            $out2['playerDataArray'][0]['activeDieArray'][3]);
         $this->assertEquals(
-            array(
-                array(
-                    '8-sided die',
-                    '10-sided die',
-                    '12-sided die',
-                    '20-sided die',
-                    'X Swing Die'
-                ),
-                array(
-                    '4-sided die',
-                    '6-sided die',
-                    '8-sided die',
-                    'X Swing Die',
-                    'X Swing Die'
-                )
-            ),
-            $out2['data']['dieDescriptionArrayArray']
-        );
-        $this->assertEquals(array(0, 0), $out2['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedRecipeArrayArray']);
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            $out2['playerDataArray'][0]['activeDieArray'][4]);
         $this->assertEquals(
-            array(array('X' => array(4, 20)), array('X' => array(4, 20))),
-            $out2['data']['swingRequestArrayArray']
-        );
-        $this->assertEquals(array(), $out2['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['sideScoreArray']);
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            $out2['playerDataArray'][1]['activeDieArray'][0]);
         $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out2['data']['gameScoreArrayArray']
-        );
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            $out2['playerDataArray'][1]['activeDieArray'][1]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            $out2['playerDataArray'][1]['activeDieArray'][2]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            $out2['playerDataArray'][1]['activeDieArray'][3]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            $out2['playerDataArray'][1]['activeDieArray'][4]);
+        $this->assertEquals(array(), $out2['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out2['playerDataArray'][1]['capturedDieArray']);
+        $this->assertEquals(array('X' => array(4, 20)), $out2['playerDataArray'][0]['swingRequestArray']);
+        $this->assertEquals(array('X' => array(4, 20)), $out2['playerDataArray'][1]['swingRequestArray']);
+        $this->assertEquals(array(), $out2['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][1]['gameScoreArray']);
 
         // beginning of game
         // both players have specified the swing value
@@ -2903,91 +2890,104 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out3 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out3['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::START_TURN), $out3['data']['gameState']);
-        $this->assertEquals(1, $out3['data']['roundNumber']);
-        $this->assertEquals(3, $out3['data']['maxWins']);
-        $this->assertTrue(isset($out3['data']['activePlayerIdx']));
+        $this->assertEquals(424242, $out3['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::START_TURN), $out3['gameState']);
+        $this->assertTrue(count($out3['validAttackTypeArray']) > 0,
+            "validAttackTypeArray should contain at least one attack type");
+        foreach ($out3['validAttackTypeArray'] as $idx => $attackType) {
+            $this->assertTrue(is_int($idx), "validAttackTypeArray keys should be indices");
+            $this->assertTrue(in_array($attackType, array("Power", "Skill", "Pass")),
+                "validAttackTypeArray values should be in known attack set for these buttons");
+        }
+        $this->assertEquals(1, $out3['roundNumber']);
+        $this->assertEquals(3, $out3['maxWins']);
+        $this->assertTrue(isset($out3['activePlayerIdx']));
         $this->assertEquals(
-            $out3['data']['activePlayerIdx'],
-            $out3['data']['playerWithInitiativeIdx']
+            $out3['activePlayerIdx'],
+            $out3['playerWithInitiativeIdx']
         );
-        $this->assertEquals(array(123, 456), $out3['data']['playerIdArray']);
-        $this->assertEquals(array('Bauer', 'Stark'), $out3['data']['buttonNameArray']);
-        $this->assertEquals(
-            array(
-                0 === $out3['data']['activePlayerIdx'],
-                1 === $out3['data']['activePlayerIdx']
-            ),
-            $out3['data']['waitingOnActionArray']
-        );
-        $this->assertEquals(array(5, 5), $out3['data']['nDieArray']);
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][0][0]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][0][1]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][0][2]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][0][3]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][0][4]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][1][0]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][1][1]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][1][2]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][1][3]));
-        $this->assertTrue(isset($out3['data']['valueArrayArray'][1][4]));
-        $this->assertEquals(
-            array(array(8, 10, 12, 20, 5), array(4, 6, 8, 7, 7)),
-            $out3['data']['sidesArrayArray']
-        );
-        $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out3['data']['dieSkillsArrayArray']
-        );
-        $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out3['data']['diePropertiesArrayArray']
-        );
-        $this->assertEquals(
-            array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
-                  array('(4)', '(6)', '(8)', '(X)', '(X)')),
-            $out3['data']['dieRecipeArrayArray']
-        );
-        $this->assertEquals(
-            array(
-                array(
-                    '8-sided die',
-                    '10-sided die',
-                    '12-sided die',
-                    '20-sided die',
-                    'X Swing Die (with 5 sides)'
-                ),
-                array(
-                    '4-sided die',
-                    '6-sided die',
-                    '8-sided die',
-                    'X Swing Die (with 7 sides)',
-                    'X Swing Die (with 7 sides)'
-                )
-            ),
-            $out3['data']['dieDescriptionArrayArray']
-        );
-        $this->assertEquals(array(0, 0), $out3['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out3['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out3['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out3['data']['capturedRecipeArrayArray']);
-        $this->assertEquals(
-            array(array('X' => array(4, 20)), array('X' => array(4, 20))),
-            $out3['data']['swingRequestArrayArray']
-        );
-        $this->assertEquals(array(27.5, 16), $out3['data']['roundScoreArray']);
-        $this->assertEquals(array(7.7, -7.7), $out3['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out3['data']['gameScoreArrayArray']
-        );
+        $this->assertEquals(123, $out3['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out3['playerDataArray'][1]['playerId']);
+        $this->assertEquals('Bauer', $out3['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Stark', $out3['playerDataArray'][1]['button']['name']);
+        $this->assertEquals(0 === $out3['activePlayerIdx'], $out3['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(1 === $out3['activePlayerIdx'], $out3['playerDataArray'][1]['waitingOnAction']);
+        $this->assertEquals(5, count($out3['playerDataArray'][0]['activeDieArray']));
+        $this->assertEquals(5, count($out3['playerDataArray'][1]['activeDieArray']));
+        $this->assertTrue(isset($out3['playerDataArray'][0]['activeDieArray'][0]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][0]['activeDieArray'][1]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][0]['activeDieArray'][2]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][0]['activeDieArray'][3]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][0]['activeDieArray'][4]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][1]['activeDieArray'][0]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][1]['activeDieArray'][1]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][1]['activeDieArray'][2]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][1]['activeDieArray'][3]['value']));
+        $this->assertTrue(isset($out3['playerDataArray'][1]['activeDieArray'][4]['value']));
+        $this->assertEquals(8, $out3['playerDataArray'][0]['activeDieArray'][0]['sides']);
+        $this->assertEquals(10, $out3['playerDataArray'][0]['activeDieArray'][1]['sides']);
+        $this->assertEquals(12, $out3['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertEquals(20, $out3['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertEquals(5, $out3['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertEquals(4, $out3['playerDataArray'][1]['activeDieArray'][0]['sides']);
+        $this->assertEquals(6, $out3['playerDataArray'][1]['activeDieArray'][1]['sides']);
+        $this->assertEquals(8, $out3['playerDataArray'][1]['activeDieArray'][2]['sides']);
+        $this->assertEquals(7, $out3['playerDataArray'][1]['activeDieArray'][3]['sides']);
+        $this->assertEquals(7, $out3['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][0]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][1]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][2]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][3]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][4]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][0]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][1]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][2]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][3]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][4]['skills']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][0]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][1]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][2]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][3]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][0]['activeDieArray'][4]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][0]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][1]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][2]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][3]['properties']);
+        $this->assertEquals(array(), $out3['playerDataArray'][1]['activeDieArray'][4]['properties']);
+        $this->assertEquals('(8)', $out3['playerDataArray'][0]['activeDieArray'][0]['recipe']);
+        $this->assertEquals('(10)', $out3['playerDataArray'][0]['activeDieArray'][1]['recipe']);
+        $this->assertEquals('(12)', $out3['playerDataArray'][0]['activeDieArray'][2]['recipe']);
+        $this->assertEquals('(20)', $out3['playerDataArray'][0]['activeDieArray'][3]['recipe']);
+        $this->assertEquals('(X)', $out3['playerDataArray'][0]['activeDieArray'][4]['recipe']);
+        $this->assertEquals('(4)', $out3['playerDataArray'][1]['activeDieArray'][0]['recipe']);
+        $this->assertEquals('(6)', $out3['playerDataArray'][1]['activeDieArray'][1]['recipe']);
+        $this->assertEquals('(8)', $out3['playerDataArray'][1]['activeDieArray'][2]['recipe']);
+        $this->assertEquals('(X)', $out3['playerDataArray'][1]['activeDieArray'][3]['recipe']);
+        $this->assertEquals('(X)', $out3['playerDataArray'][1]['activeDieArray'][4]['recipe']);
+        $this->assertEquals('8-sided die', $out3['playerDataArray'][0]['activeDieArray'][0]['description']);
+        $this->assertEquals('10-sided die', $out3['playerDataArray'][0]['activeDieArray'][1]['description']);
+        $this->assertEquals('12-sided die', $out3['playerDataArray'][0]['activeDieArray'][2]['description']);
+        $this->assertEquals('20-sided die', $out3['playerDataArray'][0]['activeDieArray'][3]['description']);
+        $this->assertEquals('X Swing Die (with 5 sides)', $out3['playerDataArray'][0]['activeDieArray'][4]['description']);
+        $this->assertEquals('4-sided die', $out3['playerDataArray'][1]['activeDieArray'][0]['description']);
+        $this->assertEquals('6-sided die', $out3['playerDataArray'][1]['activeDieArray'][1]['description']);
+        $this->assertEquals('8-sided die', $out3['playerDataArray'][1]['activeDieArray'][2]['description']);
+        $this->assertEquals('X Swing Die (with 7 sides)', $out3['playerDataArray'][1]['activeDieArray'][3]['description']);
+        $this->assertEquals('X Swing Die (with 7 sides)', $out3['playerDataArray'][1]['activeDieArray'][4]['description']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
+        $this->assertEquals(array('X' => array(4, 20)), $out3['playerDataArray'][0]['swingRequestArray']);
+        $this->assertEquals(array('X' => array(4, 20)), $out3['playerDataArray'][1]['swingRequestArray']);
+        $this->assertEquals(27.5, $out3['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(16, $out3['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(7.7, $out3['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-7.7, $out3['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out3['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out3['playerDataArray'][1]['gameScoreArray']);
 
         $out4 = $game1->getJsonData(456);
-        $this->assertEquals(5, $out4['data']['sidesArrayArray'][0][4]);
-        $this->assertEquals(7, $out4['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out4['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertEquals(7, $out4['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         // after one round has been played and tied
         // one player has specified the swing value, the other not
@@ -3000,12 +3000,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game2->proceed_to_next_user_action();
 
         $out5 = $game2->getJsonData(123);
-        $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out5['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out5['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         $out6 = $game2->getJsonData(456);
-        $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out6['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out6['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         // after one round has been played and won
         // one player has specified the swing value, the other not
@@ -3018,12 +3018,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game2->proceed_to_next_user_action();
 
         $out5 = $game2->getJsonData(123);
-        $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out5['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out5['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         $out6 = $game2->getJsonData(456);
-        $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out6['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out6['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         // after one round has been played and lost
         // one player has specified the swing value, the other not
@@ -3036,12 +3036,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game3->proceed_to_next_user_action();
 
         $out5 = $game3->getJsonData(123);
-        $this->assertEquals(5, $out5['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out5['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out5['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out5['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         $out6 = $game3->getJsonData(456);
-        $this->assertEquals(5, $out6['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out6['data']['sidesArrayArray'][1][4]);
+        $this->assertEquals(5, $out6['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out6['playerDataArray'][1]['activeDieArray'][4]['sides']);
 
         // add test for button without swing dice
         $button1 = new BMButton;
@@ -3062,9 +3062,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game4->proceed_to_next_user_action();
 
         $out7 = $game4->getJsonData(123);
-        $this->assertTrue(isset($out7['data']['swingRequestArrayArray']));
-        $this->assertEquals(array(), $out7['data']['swingRequestArrayArray'][0]);
-        $this->assertEquals(array('4', '20'), $out7['data']['swingRequestArrayArray'][1]['X']);
+        $this->assertTrue(isset($out7['playerDataArray'][0]['swingRequestArray']));
+        $this->assertTrue(isset($out7['playerDataArray'][1]['swingRequestArray']));
+        $this->assertEquals(array(), $out7['playerDataArray'][0]['swingRequestArray']);
+        $this->assertEquals(array('4', '20'), $out7['playerDataArray'][1]['swingRequestArray']['X']);
     }
 
     /**
@@ -3090,74 +3091,69 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out1 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
-        $this->assertEquals(1, $out1['data']['roundNumber']);
-        $this->assertEquals(3, $out1['data']['maxWins']);
-        $this->assertNull($out1['data']['activePlayerIdx']);
-        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
-        $this->assertEquals(array('Bauer', 'Tweedledum+dee'), $out1['data']['buttonNameArray']);
-        $this->assertEquals(array(TRUE, FALSE), $out1['data']['waitingOnActionArray']);
-        $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
+        $this->assertEquals(424242, $out1['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['gameState']);
+        $this->assertEquals(1, $out1['roundNumber']);
+        $this->assertEquals(3, $out1['maxWins']);
+        $this->assertNull($out1['activePlayerIdx']);
+        $this->assertNull($out1['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
+        $this->assertEquals('Bauer', $out1['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Tweedledum+dee', $out1['playerDataArray'][1]['button']['name']);
+        $this->assertEquals(TRUE, $out1['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(FALSE, $out1['playerDataArray'][1]['waitingOnAction']);
+        $this->assertEquals(5, count($out1['playerDataArray'][0]['activeDieArray']));
+        $this->assertEquals(5, count($out1['playerDataArray'][1]['activeDieArray']));
         $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
-            $out1['data']['valueArrayArray']
-        );
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][0]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(10)', 'description' => '10-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][1]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][2]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            $out1['playerDataArray'][0]['activeDieArray'][3]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+            $out1['playerDataArray'][0]['activeDieArray'][4]);
+        $this->assertEquals(
+	    array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(2,2)', 'description' => 'Twin Die (both with 2 sides)'),
+            $out1['playerDataArray'][1]['activeDieArray'][0]);
+        $this->assertEquals(
+	    array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(4,4)', 'description' => 'Twin Die (both with 4 sides)'),
+            $out1['playerDataArray'][1]['activeDieArray'][1]);
+        $this->assertEquals(
+	    array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(6,6)', 'description' => 'Twin Die (both with 6 sides)'),
+            $out1['playerDataArray'][1]['activeDieArray'][2]);
+        $this->assertEquals(
+	    array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(10,10)', 'description' => 'Twin Die (both with 10 sides)'),
+            $out1['playerDataArray'][1]['activeDieArray'][3]);
         // at the beginning of the game, all opponents' swing dice are hidden
         $this->assertEquals(
-            array(array(8, 10, 12, 20, NULL), array(4, 8, 12, 20, NULL)),
-            $out1['data']['sidesArrayArray']
-        );
+	    array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(T,T)', 'description' => 'Twin T Swing Die'),
+            $out1['playerDataArray'][1]['activeDieArray'][4]);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out1['data']['dieSkillsArrayArray']
-        );
+            array('X' => array(4, 20)), $out1['playerDataArray'][0]['swingRequestArray']);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out1['data']['diePropertiesArrayArray']
-        );
-        $this->assertEquals(
-            array(array('(8)', '(10)', '(12)', '(20)', '(X)'),
-                  array('(2,2)', '(4,4)', '(6,6)', '(10,10)', '(T,T)')),
-            $out1['data']['dieRecipeArrayArray']
-        );
-        $this->assertEquals(
-            array(
-                array(
-                    '8-sided die',
-                    '10-sided die',
-                    '12-sided die',
-                    '20-sided die',
-                    'X Swing Die'
-                ),
-                array(
-                    'Twin Die (both with 2 sides)',
-                    'Twin Die (both with 4 sides)',
-                    'Twin Die (both with 6 sides)',
-                    'Twin Die (both with 10 sides)',
-                    'Twin T Swing Die'
-                )
-            ),
-            $out1['data']['dieDescriptionArrayArray']
-        );
-        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
-        $this->assertEquals(
-            array(array('X' => array(4, 20)), array('T' => array(2, 12))),
-            $out1['data']['swingRequestArrayArray']
-        );
-        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out1['data']['gameScoreArrayArray']
-        );
+            array('T' => array(2, 12)), $out1['playerDataArray'][1]['swingRequestArray']);
+        $this->assertEquals(array(), $out1['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][1]['gameScoreArray']);
     }
 
     /**
@@ -3182,153 +3178,171 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game1->proceed_to_next_user_action();
 
         $out1 = $game1->getJsonData(123);
-        $this->assertEquals(424242, $out1['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['data']['gameState']);
-        $this->assertEquals(1, $out1['data']['roundNumber']);
-        $this->assertEquals(3, $out1['data']['maxWins']);
-        $this->assertNull($out1['data']['activePlayerIdx']);
-        $this->assertNull($out1['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out1['data']['playerIdArray']);
-        $this->assertEquals(array('Apples', 'Green Apple'), $out1['data']['buttonNameArray']);
-        $this->assertEquals(array(TRUE, FALSE), $out1['data']['waitingOnActionArray']);
-        $this->assertEquals(array(5, 5), $out1['data']['nDieArray']);
-        $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
-            $out1['data']['valueArrayArray']
-        );
+        $this->assertEquals(424242, $out1['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out1['gameState']);
+        $this->assertEquals(1, $out1['roundNumber']);
+        $this->assertEquals(3, $out1['maxWins']);
+        $this->assertNull($out1['activePlayerIdx']);
+        $this->assertNull($out1['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out1['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out1['playerDataArray'][1]['playerId']);
+        $this->assertEquals('Apples', $out1['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Green Apple', $out1['playerDataArray'][1]['button']['name']);
+        $this->assertEquals(TRUE, $out1['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(FALSE, $out1['playerDataArray'][1]['waitingOnAction']);
+        $this->assertEquals(5, count($out1['playerDataArray'][0]['activeDieArray']));
+        $this->assertEquals(5, count($out1['playerDataArray'][1]['activeDieArray']));
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['value']);
         // at the beginning of the game, all opponents' option dice are hidden
+        $this->assertEquals(8, $out1['playerDataArray'][0]['activeDieArray'][0]['sides']);
+        $this->assertEquals(8, $out1['playerDataArray'][0]['activeDieArray'][1]['sides']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertEquals(8, $out1['playerDataArray'][1]['activeDieArray'][0]['sides']);
+        $this->assertEquals(10, $out1['playerDataArray'][1]['activeDieArray'][1]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][0]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][1]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][2]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][3]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][4]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][0]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][1]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][2]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][3]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][4]['skills']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][0]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][1]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][2]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][3]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['activeDieArray'][4]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][0]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][1]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][2]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][3]['properties']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['activeDieArray'][4]['properties']);
+        $this->assertEquals('(8)', $out1['playerDataArray'][0]['activeDieArray'][0]['recipe']);
+        $this->assertEquals('(8)', $out1['playerDataArray'][0]['activeDieArray'][1]['recipe']);
+        $this->assertEquals('(2/12)', $out1['playerDataArray'][0]['activeDieArray'][2]['recipe']);
+        $this->assertEquals('(8/16)', $out1['playerDataArray'][0]['activeDieArray'][3]['recipe']);
+        $this->assertEquals('(20/24)', $out1['playerDataArray'][0]['activeDieArray'][4]['recipe']);
+        $this->assertEquals('(8)', $out1['playerDataArray'][1]['activeDieArray'][0]['recipe']);
+        $this->assertEquals('(10)', $out1['playerDataArray'][1]['activeDieArray'][1]['recipe']);
+        $this->assertEquals('(1/8)', $out1['playerDataArray'][1]['activeDieArray'][2]['recipe']);
+        $this->assertEquals('(6/12)', $out1['playerDataArray'][1]['activeDieArray'][3]['recipe']);
+        $this->assertEquals('(12/20)', $out1['playerDataArray'][1]['activeDieArray'][4]['recipe']);
+        $this->assertEquals('8-sided die', $out1['playerDataArray'][0]['activeDieArray'][0]['description']);
+        $this->assertEquals('8-sided die', $out1['playerDataArray'][0]['activeDieArray'][1]['description']);
+        $this->assertEquals('Option Die (with 2 or 12 sides)', $out1['playerDataArray'][0]['activeDieArray'][2]['description']);
+        $this->assertEquals('Option Die (with 8 or 16 sides)', $out1['playerDataArray'][0]['activeDieArray'][3]['description']);
+        $this->assertEquals('Option Die (with 20 or 24 sides)', $out1['playerDataArray'][0]['activeDieArray'][4]['description']);
+        $this->assertEquals('8-sided die', $out1['playerDataArray'][1]['activeDieArray'][0]['description']);
+        $this->assertEquals('10-sided die', $out1['playerDataArray'][1]['activeDieArray'][1]['description']);
+        $this->assertEquals('Option Die (with 1 or 8 sides)', $out1['playerDataArray'][1]['activeDieArray'][2]['description']);
+        $this->assertEquals('Option Die (with 6 or 12 sides)', $out1['playerDataArray'][1]['activeDieArray'][3]['description']);
+        $this->assertEquals('Option Die (with 12 or 20 sides)', $out1['playerDataArray'][1]['activeDieArray'][4]['description']);
+        $this->assertEquals(array(), $out1['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out1['playerDataArray'][1]['capturedDieArray']);
         $this->assertEquals(
-            array(array(8, 8, NULL, NULL, NULL), array(8, 10, NULL, NULL, NULL)),
-            $out1['data']['sidesArrayArray']
-        );
+            array(2 => array(2, 12),
+                  3 => array(8, 16),
+                  4 => array(20, 24)), $out1['playerDataArray'][0]['optRequestArray']);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out1['data']['dieSkillsArrayArray']
-        );
-        $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out1['data']['diePropertiesArrayArray']
-        );
-        $this->assertEquals(
-            array(array('(8)', '(8)', '(2/12)', '(8/16)', '(20/24)'),
-                  array('(8)', '(10)', '(1/8)', '(6/12)', '(12/20)')),
-            $out1['data']['dieRecipeArrayArray']
-        );
-        $this->assertEquals(
-            array(
-                array(
-                    '8-sided die',
-                    '8-sided die',
-                    'Option Die (with 2 or 12 sides)',
-                    'Option Die (with 8 or 16 sides)',
-                    'Option Die (with 20 or 24 sides)'
-                ),
-                array(
-                    '8-sided die',
-                    '10-sided die',
-                    'Option Die (with 1 or 8 sides)',
-                    'Option Die (with 6 or 12 sides)',
-                    'Option Die (with 12 or 20 sides)'
-                )
-            ),
-            $out1['data']['dieDescriptionArrayArray']
-        );
-        $this->assertEquals(array(0, 0), $out1['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out1['data']['capturedRecipeArrayArray']);
-        $this->assertEquals(
-            array(array(2 => array(2, 12),
-                        3 => array(8, 16),
-                        4 => array(20, 24)),
-                  array(2 => array(1, 8),
-                        3 => array(6, 12),
-                        4 => array(12, 20))),
-            $out1['data']['optRequestArrayArray']
-        );
-        $this->assertEquals(array(), $out1['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out1['data']['sideScoreArray']);
-        $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out1['data']['gameScoreArrayArray']
-        );
+            array(2 => array(1, 8),
+                  3 => array(6, 12),
+                  4 => array(12, 20)), $out1['playerDataArray'][1]['optRequestArray']);
+        $this->assertEquals(array(), $out1['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out1['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out1['playerDataArray'][1]['gameScoreArray']);
 
         $out2 = $game1->getJsonData(456);
-        $this->assertEquals(424242, $out2['data']['gameId']);
-        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['data']['gameState']);
-        $this->assertEquals(1, $out2['data']['roundNumber']);
-        $this->assertEquals(3, $out2['data']['maxWins']);
-        $this->assertNull($out2['data']['activePlayerIdx']);
-        $this->assertNull($out2['data']['playerWithInitiativeIdx']);
-        $this->assertEquals(array(123, 456), $out2['data']['playerIdArray']);
-        $this->assertEquals(array('Apples', 'Green Apple'), $out2['data']['buttonNameArray']);
-        $this->assertEquals(array(TRUE, FALSE), $out2['data']['waitingOnActionArray']);
-        $this->assertEquals(array(5, 5), $out2['data']['nDieArray']);
+        $this->assertEquals(424242, $out2['gameId']);
+        $this->assertEquals(BMGameState::as_string(BMGameState::SPECIFY_DICE), $out2['gameState']);
+        $this->assertEquals(1, $out2['roundNumber']);
+        $this->assertEquals(3, $out2['maxWins']);
+        $this->assertNull($out2['activePlayerIdx']);
+        $this->assertNull($out2['playerWithInitiativeIdx']);
+        $this->assertEquals(123, $out2['playerDataArray'][0]['playerId']);
+        $this->assertEquals(456, $out2['playerDataArray'][1]['playerId']);
+        $this->assertEquals('Apples', $out2['playerDataArray'][0]['button']['name']);
+        $this->assertEquals('Green Apple', $out2['playerDataArray'][1]['button']['name']);
+        $this->assertEquals(TRUE, $out2['playerDataArray'][0]['waitingOnAction']);
+        $this->assertEquals(FALSE, $out2['playerDataArray'][1]['waitingOnAction']);
+        $this->assertEquals(5, count($out2['playerDataArray'][0]['activeDieArray']));
+        $this->assertEquals(5, count($out2['playerDataArray'][1]['activeDieArray']));
         $this->assertEquals(
-            array(array(NULL, NULL, NULL, NULL, NULL), array(NULL, NULL, NULL, NULL, NULL)),
-            $out2['data']['valueArrayArray']
-        );
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(8)', 'description' => '8-sided die'),
+            $out2['playerDataArray'][0]['activeDieArray'][0]);
         $this->assertEquals(
-            array(array(8, 8, NULL, NULL, NULL), array(8, 10, 8, 6, 20)),
-            $out2['data']['sidesArrayArray']
-        );
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(8)', 'description' => '8-sided die'),
+            $out2['playerDataArray'][0]['activeDieArray'][1]);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out2['data']['dieSkillsArrayArray']
-        );
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(2/12)', 'description' => 'Option Die (with 2 or 12 sides)'),
+            $out2['playerDataArray'][0]['activeDieArray'][2]);
         $this->assertEquals(
-            array(array(array(), array(), array(), array(), array()),
-                  array(array(), array(), array(), array(), array())),
-            $out2['data']['diePropertiesArrayArray']
-        );
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(8/16)', 'description' => 'Option Die (with 8 or 16 sides)'),
+            $out2['playerDataArray'][0]['activeDieArray'][3]);
         $this->assertEquals(
-            array(array('(8)', '(8)', '(2/12)', '(8/16)', '(20/24)'),
-                  array('(8)', '(10)', '(1/8)', '(6/12)', '(12/20)')),
-            $out2['data']['dieRecipeArrayArray']
-        );
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(20/24)', 'description' => 'Option Die (with 20 or 24 sides)'),
+            $out2['playerDataArray'][0]['activeDieArray'][4]);
         $this->assertEquals(
-            array(
-                array(
-                    '8-sided die',
-                    '8-sided die',
-                    'Option Die (with 2 or 12 sides)',
-                    'Option Die (with 8 or 16 sides)',
-                    'Option Die (with 20 or 24 sides)'
-                ),
-                array(
-                    '8-sided die',
-                    '10-sided die',
-                    'Option Die (with 8 sides)',
-                    'Option Die (with 6 sides)',
-                    'Option Die (with 20 sides)'
-                )
-            ),
-            $out2['data']['dieDescriptionArrayArray']
-        );
-        $this->assertEquals(array(0, 0), $out2['data']['nCapturedDieArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedValueArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedSidesArrayArray']);
-        $this->assertEquals(array(array(), array()), $out2['data']['capturedRecipeArrayArray']);
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(8)', 'description' => '8-sided die'),
+            $out2['playerDataArray'][1]['activeDieArray'][0]);
         $this->assertEquals(
-            array(array(2 => array(2, 12),
-                        3 => array(8, 16),
-                        4 => array(20, 24)),
-                  array(2 => array(1, 8),
-                        3 => array(6, 12),
-                        4 => array(12, 20))),
-            $out2['data']['optRequestArrayArray']
-        );
-        $this->assertEquals(array(), $out2['data']['validAttackTypeArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['roundScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $out2['data']['sideScoreArray']);
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(10)', 'description' => '10-sided die'),
+            $out2['playerDataArray'][1]['activeDieArray'][1]);
         $this->assertEquals(
-            array(array('W' => 0, 'L' => 0, 'D' => 0), array('W' => 0, 'L' => 0, 'D' => 0)),
-            $out2['data']['gameScoreArrayArray']
-        );
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(1/8)', 'description' => 'Option Die (with 8 sides)'),
+            $out2['playerDataArray'][1]['activeDieArray'][2]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(6/12)', 'description' => 'Option Die (with 6 sides)'),
+            $out2['playerDataArray'][1]['activeDieArray'][3]);
+        $this->assertEquals(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(),
+                  'recipe' => '(12/20)', 'description' => 'Option Die (with 20 sides)'),
+            $out2['playerDataArray'][1]['activeDieArray'][4]);
+        $this->assertEquals(array(), $out2['playerDataArray'][0]['capturedDieArray']);
+        $this->assertEquals(array(), $out2['playerDataArray'][1]['capturedDieArray']);
+        $this->assertEquals(
+            array(2 => array(2, 12),
+                  3 => array(8, 16),
+                  4 => array(20, 24)), $out2['playerDataArray'][0]['optRequestArray']);
+        $this->assertEquals(
+            array(2 => array(1, 8),
+                  3 => array(6, 12),
+                  4 => array(12, 20)), $out2['playerDataArray'][1]['optRequestArray']);
+        $this->assertEquals(array(), $out2['validAttackTypeArray']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(NULL, $out2['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][0]['gameScoreArray']);
+        $this->assertEquals(array('W' => 0, 'L' => 0, 'D' => 0), $out2['playerDataArray'][1]['gameScoreArray']);
     }
 
     /**
@@ -3406,19 +3420,33 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->swingValueArrayArray = array(array('X' => 19), array());
         $game->proceed_to_next_user_action();
         $out1 = $game->getJsonData(123);
-        $this->assertEquals(19, $out1['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out1['data']['valueArrayArray']);
+        $this->assertEquals(19, $out1['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['value']);
         $out2 = $game->getJsonData(456);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out2['data']['valueArrayArray']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][4]['value']);
         $this->assertEquals('X Swing Die',
-                            $out2['data']['dieDescriptionArrayArray'][0][4]);
+                            $out2['playerDataArray'][0]['activeDieArray'][4]['description']);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
@@ -3816,17 +3844,31 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->activeDieArrayArray[1][4]->needsSwingValue);
 
         $out3 = $game->getJsonData(123);
-        $this->assertEquals(19, $out3['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out3['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out3['data']['valueArrayArray']);
+        $this->assertEquals(19, $out3['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out3['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out3['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out3['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out3['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out3['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out3['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out3['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out3['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out3['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out3['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out3['playerDataArray'][1]['activeDieArray'][4]['value']);
         $out4 = $game->getJsonData(456);
-        $this->assertEquals(19, $out4['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out4['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out4['data']['valueArrayArray']);
+        $this->assertEquals(19, $out4['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out4['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out4['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out4['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out4['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out4['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out4['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out4['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out4['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out4['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out4['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out4['playerDataArray'][1]['activeDieArray'][4]['value']);
 
         // set swing die for player 2
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 7));
@@ -6620,12 +6662,29 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
 
         $dataArray = $game->getJsonData(234);
-        $this->assertEquals(array(array(array(), array('dizzy' => TRUE), array(), array(), array()),
-                                  array(array(), array(), array(), array(), array())),
-                            $dataArray['data']['diePropertiesArrayArray']);
-        $this->assertEquals(array(array(array(), array('Focus' => TRUE), array(), array('Focus' => TRUE), array()),
-                                  array(array('Poison' => TRUE), array(), array('Poison' => TRUE), array(), array())),
-                            $dataArray['data']['dieSkillsArrayArray']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][0]['properties']);
+        $this->assertEquals(array('dizzy'), $dataArray['playerDataArray'][0]['activeDieArray'][1]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][2]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][3]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][4]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][0]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][1]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][2]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][3]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][4]['properties']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][0]['skills']);
+        $this->assertEquals(array('Focus'), $dataArray['playerDataArray'][0]['activeDieArray'][1]['skills']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][2]['skills']);
+        $this->assertEquals(array('Focus'), $dataArray['playerDataArray'][0]['activeDieArray'][3]['skills']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][0]['activeDieArray'][4]['skills']);
+        $this->assertEquals(array('Poison'), $dataArray['playerDataArray'][1]['activeDieArray'][0]['skills']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][1]['skills']);
+        $this->assertEquals(array('Poison'), $dataArray['playerDataArray'][1]['activeDieArray'][2]['skills']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][3]['skills']);
+        $this->assertEquals(array(), $dataArray['playerDataArray'][1]['activeDieArray'][4]['skills']);
+        $skillInfoKeys = array_keys($dataArray['gameSkillsInfo']);
+        sort($skillInfoKeys);
+        $this->assertEquals(array('Focus', 'Poison'), $skillInfoKeys);
 
         // try to use the focus die in an attack when it is dizzy
         $game->attack = array(0, 1, array(1, 4), array(1), 'Skill');
@@ -8263,30 +8322,44 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $out1 = $game->getJsonData(123);
-        $this->assertEquals(12, $out1['data']['sidesArrayArray'][0][2]);
-        $this->assertEquals(16, $out1['data']['sidesArrayArray'][0][3]);
-        $this->assertEquals(20, $out1['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][2]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][3]);
-        $this->assertNull($out1['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out1['data']['valueArrayArray']);
+        $this->assertEquals(12, $out1['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertEquals(16, $out1['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertEquals(20, $out1['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['sides']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out1['playerDataArray'][1]['activeDieArray'][4]['value']);
         $this->assertEquals('Option Die (with 20 sides)',
-                            $out1['data']['dieDescriptionArrayArray'][0][4]);
+                            $out1['playerDataArray'][0]['activeDieArray'][4]['description']);
 
         $out2 = $game->getJsonData(456);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][2]);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][3]);
-        $this->assertNull($out2['data']['sidesArrayArray'][0][4]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][2]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][3]);
-        $this->assertNull($out2['data']['sidesArrayArray'][1][4]);
-        $this->assertEquals(array(array(NULL, NULL, NULL, NULL, NULL),
-                                  array(NULL, NULL, NULL, NULL, NULL)),
-                            $out2['data']['valueArrayArray']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][2]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][3]['sides']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][4]['sides']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][0]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][1]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][2]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][3]['value']);
+        $this->assertNull($out2['playerDataArray'][0]['activeDieArray'][4]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][0]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][1]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][2]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][3]['value']);
+        $this->assertNull($out2['playerDataArray'][1]['activeDieArray'][4]['value']);
         $this->assertEquals('Option Die (with 20 or 24 sides)',
-                            $out2['data']['dieDescriptionArrayArray'][0][4]);
+                            $out2['playerDataArray'][0]['activeDieArray'][4]['description']);
 
         // specify option dice fully
         $this->assertEquals(12, $game->activeDieArrayArray[0][2]->max);
@@ -8688,8 +8761,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
         $jsonData = $game->getJsonData(123);
-        $this->assertEquals(array(array(1, 1, 1, NULL, 8), array(20, 4)),
-                            $jsonData['data']['sidesArrayArray']);
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['activeDieArray'][0]['sides']);
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['activeDieArray'][1]['sides']);
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['activeDieArray'][2]['sides']);
+        $this->assertNULL($jsonData['playerDataArray'][0]['activeDieArray'][3]['sides']);
+        $this->assertEquals(8, $jsonData['playerDataArray'][0]['activeDieArray'][4]['sides']);
+        $this->assertEquals(20, $jsonData['playerDataArray'][1]['activeDieArray'][0]['sides']);
+        $this->assertEquals(4, $jsonData['playerDataArray'][1]['activeDieArray'][1]['sides']);
     }
 
     /**
@@ -8713,7 +8791,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->playerWithInitiativeIdx);
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
 
         // manually set value of (20)
         $activeDieArrayArray = $game->activeDieArrayArray;
@@ -8724,7 +8803,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(TRUE, FALSE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(FALSE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 
     /**
@@ -8749,27 +8829,36 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         // active: (1) (1) vs (1) (1,1), captured: none vs none
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1, 1.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(-0.3, 0.3), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(1.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(-0.3, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(0.3, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
 
         $game->attack = array(0, 1, array(0, 1), array(1), 'Skill');
         $game->proceed_to_next_user_action();
 
         // active: (1) (1) vs (1), captured: (1,1) vs none
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(3, 0.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(1.7, -1.7), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(3, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(0.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(1.7, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-1.7, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
 
         $game->attack = array(1, 0, array(0), array(0), 'Power');
         $game->proceed_to_next_user_action();
 
         // active: (1) vs (1), captured (1,1) vs (1)
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(2.5, 1.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(0.7, -0.7), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(2.5, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(1.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(0.7, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-0.7, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 
     /**
@@ -8802,9 +8891,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1, 4), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(-2, 2), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(1, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(4, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(-2, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(2, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 
     /**
@@ -8828,17 +8920,23 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->playerWithInitiativeIdx);
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1.5, -0.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(1.3, -1.3), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(NULL, NULL), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(1.5, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(-0.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(1.3, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-1.3, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(NULL, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(NULL, $jsonData['playerDataArray'][1]['canStillWin']);
 
         $game->attack = array(0, 1, array(1), array(1), 'Power');
         $game->proceed_to_next_user_action();
 
         $jsonData = $game->getJsonData(0);
-        $this->assertEquals(array(1.0, 0.5), $jsonData['data']['roundScoreArray']);
-        $this->assertEquals(array(0.3, -0.3), $jsonData['data']['sideScoreArray']);
-        $this->assertEquals(array(TRUE, TRUE), $jsonData['data']['canStillWinArray']);
+        $this->assertEquals(1.0, $jsonData['playerDataArray'][0]['roundScore']);
+        $this->assertEquals(0.5, $jsonData['playerDataArray'][1]['roundScore']);
+        $this->assertEquals(0.3, $jsonData['playerDataArray'][0]['sideScore']);
+        $this->assertEquals(-0.3, $jsonData['playerDataArray'][1]['sideScore']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
+        $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
     }
 }
 

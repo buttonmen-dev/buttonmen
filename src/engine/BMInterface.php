@@ -417,22 +417,27 @@ class BMInterface {
         if ($game) {
             $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
 
-            foreach ($game->playerIdArray as $gamePlayerId) {
-                $playerNameArray[] = $this->get_player_name_from_id($gamePlayerId);
-            }
-
             // load_game will decide if the logEntryLimit should be overridden
             // (e.g. if chat is private or for completed games)
             $logEntryLimit = $game->logEntryLimit;
 
-            $data = array(
-                'currentPlayerIdx' => $currentPlayerIdx,
-                'gameData' => $game->getJsonData($playerId),
-                'playerNameArray' => $playerNameArray,
-                'timestamp' => $this->timestamp,
-                'gameActionLog' => $this->load_game_action_log($game, $logEntryLimit),
-                'gameChatLog' => $this->load_game_chat_log($game, $logEntryLimit),
-            );
+            // this is not part of the data we return directly, but
+            // is currently needed for find_editable_chat_timestamp(),
+            // which would need to duplicate a database query otherwise
+            $playerNameArray = array();
+
+            $data = $game->getJsonData($playerId);
+            $data['currentPlayerIdx'] = $currentPlayerIdx;
+            foreach ($game->playerIdArray as $gamePlayerIdx => $gamePlayerId) {
+                $playerName = $this->get_player_name_from_id($gamePlayerId);
+                $playerNameArray[] = $playerName;
+                $data['playerDataArray'][$gamePlayerIdx]['playerName'] = $playerName;
+            }
+
+            $data['gameActionLog'] = $this->load_game_action_log($game, $logEntryLimit);
+            $data['gameChatLog'] = $this->load_game_chat_log($game, $logEntryLimit);
+            $data['timestamp'] = $this->timestamp;
+
             $data['gameChatEditable'] = $this->find_editable_chat_timestamp(
                 $game,
                 $currentPlayerIdx,
@@ -1175,8 +1180,7 @@ class BMInterface {
 
         $actualMax = NULL;
 
-        if ($activeDie->has_skill('Mood') ||
-            $activeDie->has_skill('Mad') ||
+        if ($activeDie->forceReportDieSize() ||
             ($activeDie instanceof BMDieOption)) {
             $actualMax = $activeDie->max;
         }
@@ -1713,7 +1717,7 @@ class BMInterface {
         if ($getActiveGames) {
             $query .= 'AND s.name = "ACTIVE" ';
         } else {
-            $query .= 'AND s.name = "COMPLETE" ';
+            $query .= 'AND s.name = "COMPLETE" AND v2.was_game_dismissed = 0 ';
         }
         $query .= 'ORDER BY g.last_action_time ASC;';
         $statement = self::$conn->prepare($query);
@@ -2206,6 +2210,7 @@ class BMInterface {
                     );
                 }
             }
+
             return $logEntries;
         } catch (Exception $e) {
             error_log(
@@ -3205,6 +3210,63 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
+        }
+    }
+
+    public function dismiss_game($playerId, $gameId) {
+        try {
+            $query =
+                'SELECT s.name AS "status", m.was_game_dismissed ' .
+                'FROM game AS g ' .
+                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                    'LEFT JOIN game_player_map AS m ' .
+                    'ON m.game_id = g.id AND m.player_id = :player_id ' .
+                'WHERE g.id = :game_id';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':player_id' => $playerId,
+                ':game_id' => $gameId,
+            ));
+            $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) == 0) {
+                $this->message = "Game $gameId does not exist";
+                return NULL;
+            }
+            if ($fetchResult[0]['status'] != 'COMPLETE') {
+                $this->message = "Game $gameId isn't complete";
+                return NULL;
+            }
+            if ($fetchResult[0]['was_game_dismissed'] === NULL) {
+                $this->message = "You aren't a player of game $gameId";
+                return NULL;
+            }
+            if ((int)$fetchResult[0]['was_game_dismissed'] == 1) {
+                $this->message = "You have already dismissed game $gameId";
+                return NULL;
+            }
+
+            $query =
+                'UPDATE game_player_map ' .
+                'SET was_game_dismissed = 1 ' .
+                'WHERE player_id = :player_id AND game_id = :game_id';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':player_id' => $playerId,
+                ':game_id' => $gameId,
+            ));
+
+            $this->message = 'Dismissing game succeeded';
+            return TRUE;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::dismiss_game: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while dismissing a game';
             return FALSE;
         }
     }

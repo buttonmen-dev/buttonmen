@@ -562,6 +562,10 @@ class BMDie extends BMCanHaveSkill {
     // die state before the attack to the die state after the attack.
     public function get_action_log_data() {
         $recipe = $this->get_recipe(TRUE);
+        $valueAfterTripAttack = NULL;
+        if ($this->has_flag('JustPerformedTripAttack')) {
+            $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
+        }
         return(array(
             'recipe' => $recipe,
             'min' => $this->min,
@@ -570,7 +574,14 @@ class BMDie extends BMCanHaveSkill {
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
             'recipeStatus' => $recipe . ':' . $this->value,
+            'forceReportDieSize' => $this->forceReportDieSize(),
+            'valueAfterTripAttack' => $valueAfterTripAttack,
+            'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
         ));
+    }
+
+    public function forceReportDieSize() {
+        return($this->has_skill('Mood') || $this->has_skill('Mad'));
     }
 
     public function cast_as_BMDie() {
@@ -599,12 +610,14 @@ class BMDie extends BMCanHaveSkill {
         return array_key_exists($flag, $this->flagList);
     }
 
-    public function add_flag($flag) {
-        if ($this->has_flag($flag)) {
-            return;
+    public function add_flag($flag, $flagValue = NULL) {
+        $flagString = $flag;
+
+        if (isset($flagValue)) {
+            $flagString .= '__' . $flagValue;
         }
 
-        $flagObject = BMFlag::create_from_string($flag);
+        $flagObject = BMFlag::create_from_string($flagString);
         if (isset($flagObject)) {
             $this->flagList[$flag] = $flagObject;
         }

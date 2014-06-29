@@ -17,9 +17,9 @@ Overview.GAME_STATE_END_GAME = 60;
 // * Overview.arrangePage() sets the contents of <div id="overview_page">
 //   on the live page
 //
-// N.B. There is no form submission on this page, it's just a landing
-// page with links to other pages, so it's logically somewhat simpler
-// than e.g. Game.js.
+// N.B. There is no form submission on this page (aside from the [Dismiss]
+// links); it's just a landing page with links to other pages. So it's
+// logically somewhat simpler than e.g. Game.js.
 ////////////////////////////////////////////////////////////////////////
 
 Overview.showOverviewPage = function() {
@@ -86,19 +86,9 @@ Overview.arrangePage = function() {
 
 // Add tables for types of existing games
 Overview.pageAddGameTables = function() {
-  // This is being temporarily removed, but will be added back soon (once
-  // dismissing completed games from this list is implemented)
-  //Overview.pageAddGameTable('finished', 'Completed games');
+  Overview.pageAddGameTable('finished', 'Completed games');
   Overview.pageAddGameTable('awaitingPlayer', 'Active games');
   Overview.pageAddGameTable('awaitingOpponent', 'Active games');
-  var historyLink = $('<a>', {
-    'text': 'History',
-    'href': 'history.html#!playerNameA=' +
-      encodeURIComponent(Login.player) + '&status=COMPLETE',
-  });
-  Overview.page.append(
-    $('<div>').append('Completed games have been moved to the ')
-      .append(historyLink).append(' page.'));
 };
 
 Overview.pageAddNewgameLink = function() {
@@ -154,7 +144,9 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     tableDiv.append($('<h2>', {'text': sectionHeader, }));
     var table = $('<table>', { 'class': 'gameList ' + tableClass, });
     tableDiv.append(table);
-    tableDiv.append($('<hr>'));
+    if (gameType == 'finished') {
+      tableDiv.append($('<hr>'));
+    }
     Overview.page.append(tableDiv);
 
     var tableHead = $('<thead>');
@@ -165,9 +157,9 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
     headerRow.append($('<th>', {'text': 'Opponent', }));
     headerRow.append($('<th>', {'text': 'Score (W/L/T (Max))', }));
     if (gameType == 'finished') {
-      headerRow.append($('<th>', {'text': 'Completed', }));
+      headerRow.append($('<th>', {'text': 'Completed', 'colspan': '2', }));
     } else {
-      headerRow.append($('<th>', {'text': 'Inactivity', }));
+      headerRow.append($('<th>', {'text': 'Inactivity', 'colspan': '2', }));
     }
     tableHead.append(headerRow);
     table.append(tableHead);
@@ -240,6 +232,20 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 
     var inactivityTd = $('<td>', { 'text': gameInfo.inactivity, });
     gameRow.append(inactivityTd);
+
+    if (gameType == 'finished') {
+      var dismissTd = $('<td>');
+      gameRow.append(dismissTd);
+      var dismissLink = $('<a>', {
+        'text': '[Dismiss]',
+        'href': '#',
+        'data-gameId': gameInfo.gameId,
+      });
+      dismissLink.click(Overview.formDismissGame);
+      dismissTd.append(dismissLink);
+    } else {
+      inactivityTd.attr('colspan', '2');
+    }
 
     i += 1;
     tableBody.append(gameRow);
@@ -338,4 +344,15 @@ Overview.pageAddIntroText = function() {
   }));
   infopar.append(', and is used with permission.');
   Overview.page.append(infopar);
+};
+
+Overview.formDismissGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'dismissGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(args, messages, $(this), Overview.showOverviewPage,
+    Overview.showOverviewPage);
 };

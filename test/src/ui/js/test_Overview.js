@@ -176,3 +176,18 @@ test("test_Overview.pageAddIntroText", function() {
     'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games'),
     'Page intro text contains the Button Men copyright');
 });
+
+asyncTest("test_Overview.formDismissGame", function() {
+  expect(2);
+  // Temporarily back up Overview.showOverviewPage and replace it with
+  // a mocked version for testing
+  var showOverviewPage = Overview.showOverviewPage;
+  Overview.showOverviewPage = function() {
+    Overview.showOverviewPage = showOverviewPage;
+    equal(Env.message.text, 'Successfully dismissed game',
+      'Dismiss game should succeed');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Overview.formDismissGame.call(link, $.Event());
+});
