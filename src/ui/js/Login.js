@@ -61,7 +61,7 @@ Login.showLoginHeader = function(callbackfunc) {
 
   // Find the current login header contents and display them followed by
   // the specified callback routine
-  Login.getLoginHeader();
+  Api.getNextNewPostId(Login.getLoginHeader);
 };
 
 Login.layoutHeader = function() {
@@ -182,6 +182,16 @@ Login.addMainNavbar = function() {
     e.preventDefault();
     Api.getNextGameId(Login.goToNextPendingGame);
   });
+  if (typeof Forum === 'undefined' && Api.forumNavigation.nextNewPostId) {
+    var newPostTd = $('<td>');
+    newPostTd.append($('<a>', {
+      'text': ' (New post)',
+      'href':
+        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
+          '&postId=' + Api.forumNavigation.nextNewPostId,
+    }));
+    navrow.find('a:contains("Forum")').parent().after(newPostTd);
+  }
   navtable.append(navrow);
   Login.message.append(navtable);
 };

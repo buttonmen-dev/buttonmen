@@ -247,6 +247,9 @@ class ApiSpec {
               'currentGameId' => 'number',
             ),
         ),
+        // loadNextNewPost returns:
+        //   nextNewPostId (nullable),
+        //   nextNewPostThreadId (nullable),
         'loadNextNewPost' => array(
             'mandatory' => array(),
             'permitted' => array(),
