@@ -22,6 +22,36 @@ class BMSkillFireTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMSkillFire::attack_list
+     */
+    public function testAttack_list()
+    {
+        // check for graceful failure
+        $this->object->attack_list(NULL);
+
+        // Test Power removal
+        $a = array('Power' => 'Power', 'Skill' => 'Skill');
+        $b = array('attackTypeArray' => &$a);
+
+        $this->object->attack_list($b);
+        $this->assertNotEmpty($a);
+        $this->assertNotContains('Power', $a);
+        // Check proper behavior not disrupted when removing Power
+        $this->assertEquals(1, count($a));
+        $this->assertContains('Skill', $a);
+
+        // Check removing Power from the middle of longer lists
+        $a = array('Speed' => 'Speed',
+                   'Trip'  => 'Trip',
+                   'Power' => 'Power',
+                   'Skill' => 'Skill');
+        $this->object->attack_list($b);
+        $this->assertNotEmpty($a);
+        $this->assertNotContains('Power', $a);
+        $this->assertEquals(3, count($a));
+    }
+
+    /**
      * @covers BMSkillFire::assist_values
      */
     public function testAssist_values() {

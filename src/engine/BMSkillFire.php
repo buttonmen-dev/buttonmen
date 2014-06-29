@@ -1,7 +1,20 @@
 <?php
 
 class BMSkillFire extends BMSkill {
-    public static $hooked_methods = array('assist_values');
+    public static $hooked_methods = array('attack_list',
+                                          'assist_values');
+
+    public static function attack_list($args) {
+        if (!is_array($args)) {
+            return;
+        }
+
+        $attackTypeArray = &$args['attackTypeArray'];
+
+        if (array_key_exists('Power', $attackTypeArray)) {
+            unset($attackTypeArray['Power']);
+        }
+    }
 
     public static function assist_values(&$args) {
         if (!is_array($args)) {

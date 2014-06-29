@@ -71,6 +71,7 @@ class BMAttackPower extends BMAttack {
         $att = $attArray[0];
         $def = $defArray[0];
 
+        // attacker skills
         if ($att->has_skill('Shadow')) {
             $this->validationMessage = 'Shadow dice cannot perform power attacks.';
             return FALSE;
@@ -86,11 +87,17 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Fire')) {
+            $this->validationMessage = 'Fire dice cannot perform power attacks.';
+            return FALSE;
+        }
+
         if ($att->has_skill('Queer') && (1 == $att->value % 2)) {
             $this->validationMessage = 'Odd queer dice cannot perform power attacks.';
             return FALSE;
         }
 
+        // defender skills
         if ($def->has_Skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be attacked by power attacks.';
             return FALSE;
