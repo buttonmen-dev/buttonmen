@@ -901,7 +901,7 @@ class BMGame {
     protected function update_game_state_start_turn() {
         if ((isset($this->attack)) &&
             FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
-            $this->gameState = BMGameState::END_TURN;
+            $this->gameState = BMGameState::ADJUST_FIRE_DICE;
             if (isset($this->activeDieArrayArray) &&
                 isset($this->attack['attackerPlayerIdx'])) {
                 foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
@@ -911,6 +911,14 @@ class BMGame {
                 }
             }
         }
+    }
+
+    protected function do_next_step_adjust_fire_dice() {
+
+    }
+
+    protected function update_game_state_adjust_fire_dice() {
+        $this->gameState = BMGameState::END_TURN;
     }
 
     protected function do_next_step_end_turn() {

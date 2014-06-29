@@ -19,6 +19,10 @@ class BMGameState {
 
     // turn
     const START_TURN = 40;
+    const ADJUST_FIRE_DICE = 43;
+
+    // need something here for turbo swing
+
     const END_TURN = 48;
 
     // end round
@@ -39,6 +43,7 @@ class BMGameState {
                      'REACT_TO_INITIATIVE',
                      'START_ROUND',
                      'START_TURN',
+                     'ADJUST_FIRE_DICE',
                      'END_TURN',
                      'END_ROUND',
                      'END_GAME');
