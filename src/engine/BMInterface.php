@@ -449,9 +449,44 @@ class BMInterface {
                 $data['gameChatLog'],
                 $data['gameActionLog']
             );
+
+            $data['pendingGameCount'] = $this->count_pending_games($playerId);
+
             return $data;
         }
         return NULL;
+    }
+
+    protected function count_pending_games($playerId) {
+        try {
+            $parameters = array(':player_id' => $playerId);
+
+            $query =
+                'SELECT COUNT(*) '.
+                'FROM game_player_map AS gpm '.
+                   'LEFT JOIN game AS g ON g.id = gpm.game_id '.
+                'WHERE gpm.player_id = :player_id '.
+                   'AND gpm.is_awaiting_action = 1 ';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute($parameters);
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Pending game count failed.';
+                error_log('Pending game count failed for player ' . $playerId);
+                return NULL;
+            } else {
+                $this->message = 'Pending game count retrieved successfully.';
+                return (int)$result[0];
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::count_pending_games: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Pending game count failed.';
+            return NULL;
+        }
     }
 
     public function load_game($gameId, $logEntryLimit = NULL) {

@@ -420,6 +420,8 @@ var Api = (function () {
     my.game.player.gameScoreStr = my.playerWLTText('player');
     my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
 
+    my.game.pendingGameCount = data.pendingGameCount;
+    
     return true;
   };
 

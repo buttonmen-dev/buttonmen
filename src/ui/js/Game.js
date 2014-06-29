@@ -1388,17 +1388,19 @@ Game.pageAddGameNavigationFooter = function() {
   if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
     return false;
   }
+
+  var countText;
+  if (Api.game.pendingGameCount) {
+    countText = '(at least ' + Api.game.pendingGameCount + ')';
+  } else {
+    countText = '(if any)';
+  }
   Game.page.append($('<br>'));
   var linkDiv = $('<div>');
-  var link = $('<a>', {
+  linkDiv.append($('<a>', {
     'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
-    'text': 'Go to your next pending game (if any)',
-  });
-  linkDiv.append(link);
-  link.click(function(e) {
-    e.preventDefault();
-    Api.getNextGameId(Login.goToNextPendingGame);
-  });
+    'text': 'Go to your next pending game ' + countText,
+  }));
   Game.page.append(linkDiv);
   return true;
 };

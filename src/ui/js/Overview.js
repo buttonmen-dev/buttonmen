@@ -5,8 +5,8 @@ var Overview = {};
 // setting here rather than importing Game.js
 Overview.GAME_STATE_END_GAME = 60;
 
-// Number of milliseconds before refreshing the monitor
-Overview.MONITOR_TIMEOUT = 6000;
+// Number of seconds before refreshing the monitor
+Overview.MONITOR_TIMEOUT = 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -82,7 +82,7 @@ Overview.showPage = function() {
         'href': Env.ui_root,
       })));
 
-      setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT);
+      setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
     }
 
     if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
