@@ -739,6 +739,8 @@ class DummyApiResponder {
                                 'status' => 'active',
                                 'dob' => NULL,
                                 'autopass' => TRUE,
+                                'monitorRedirectsToGame' => FALSE,
+                                'monitorRedirectsToForum' => FALSE,
                                 'comment' => NULL,
                                 'last_action_time' => 0,
                                 'last_access_time' => 0,

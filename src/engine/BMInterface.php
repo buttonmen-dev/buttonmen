@@ -98,6 +98,8 @@ class BMInterface {
             'dob_month' => $dob_month,
             'dob_day' => $dob_day,
             'autopass' => (bool)$infoArray['autopass'],
+            'monitorRedirectsToGame' => (bool)$infoArray['monitorRedirectsToGame'],
+            'monitorRedirectsToForum' => (bool)$infoArray['monitorRedirectsToForum'],
             'comment' => $infoArray['comment'],
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
@@ -113,6 +115,8 @@ class BMInterface {
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
+        $infoArray['monitorRedirectsToGame'] = (int)($infoArray['monitorRedirectsToGame']);
+        $infoArray['monitorRedirectsToForum'] = (int)($infoArray['monitorRedirectsToForum']);
 
         $isValidData = $this->validate_player_dob($addlInfo) &&
                        $this->validate_player_password_and_email($addlInfo, $playerId);

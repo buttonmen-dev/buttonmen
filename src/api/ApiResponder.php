@@ -219,6 +219,8 @@ class ApiResponder {
         $infoArray['name_irl'] = $args['name_irl'];
         $infoArray['comment'] = $args['comment'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
+        $infoArray['monitorRedirectsToGame'] = ('true' == $args['monitorRedirectsToGame']);
+        $infoArray['monitorRedirectsToForum'] = ('true' == $args['monitorRedirectsToForum']);
 
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
