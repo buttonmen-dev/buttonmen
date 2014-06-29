@@ -131,7 +131,7 @@ Overview.completeMonitor = function() {
     return;
   }
   if (Api.forumNavigation !== undefined && Api.forumNavigation.nextNewPostId) {
-    Overview.goToNextNewForumPost();
+    Login.goToNextNewForumPost();
     return;
   }
 

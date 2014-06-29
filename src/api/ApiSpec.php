@@ -247,6 +247,10 @@ class ApiSpec {
               'currentGameId' => 'number',
             ),
         ),
+        'loadNextNewPost' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         'loadOpenGames' => array(
             'mandatory' => array(),
             'permitted' => array(),

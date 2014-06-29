@@ -460,6 +460,10 @@ class ApiResponder {
         );
     }
 
+    protected function get_interface_response_loadNextNewPost($interface, $args) {
+        return $interface->get_next_new_post($_SESSION['user_id']);
+    }
+
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 

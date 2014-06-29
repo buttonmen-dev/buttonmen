@@ -148,7 +148,7 @@ UserPrefs.actionSetPrefs = function() {
     'monitorRedirectsToForum': {
       'text': 'Redirect to new forum posts when in Monitor mode',
       'type': 'checkbox',
-      'checked': Api.user_prefs.monitorRedirectsToGame,
+      'checked': Api.user_prefs.monitorRedirectsToForum,
     },
   };
 

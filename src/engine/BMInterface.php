@@ -3522,6 +3522,47 @@ class BMInterface {
         }
     }
 
+    // Load the ID's of the next new post and its thread
+    public function get_next_new_post($currentPlayerId) {
+        try {
+            $results = array();
+
+            // Get the list of all boards, identifying the first new post on each
+            $query =
+                'SELECT v.id, v.thread_id ' .
+                'FROM forum_player_post_view AS v ' .
+                'WHERE v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
+                'ORDER BY v.creation_time ASC ' .
+                'LIMIT 1;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':current_player_id' => $currentPlayerId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $results['nextNewPostId'] = NULL;
+                $results['nextNewPostThreadId'] = NULL;
+                $this->message = 'No new forum posts';
+                return $results;
+            }
+
+            $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
+            $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
+
+            if ($results) {
+                $this->message = 'New forum post check succeeded';
+            }
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_next_new_post: ' .
+                $e->getMessage()
+            );
+            $this->message = 'New forum post check failed';
+            return NULL;
+        }
+    }
+
     // Indicates that the reader has finished reading all of the posts on every
     // board which they care to read
     public function mark_forum_read($currentPlayerId, $timestamp) {

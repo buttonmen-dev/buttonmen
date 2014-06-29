@@ -510,6 +510,19 @@ var Api = (function () {
     return true;
   };
 
+  ////////////////////////////////////////////////////////////////////////
+  // Load the ID's of the next new post and its thread
+
+  my.getNextNewPostId = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadNextNewPost', },
+      'forumNavigation',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
   my.getOpenGamesData = function(callbackfunc) {
     my.apiParsePost( { 'type': 'loadOpenGames', },
       'open_games',
