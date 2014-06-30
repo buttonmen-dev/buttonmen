@@ -1215,6 +1215,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('loadNextNewPost');
 
+        // Post something new first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'New Thread',
+            'body' => 'New Post',
+        );
+        $this->object->process_request($args);
+
         $args = array('type' => 'loadNextNewPost');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
