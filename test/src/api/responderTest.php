@@ -1216,6 +1216,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_invalid_arg_rejected('loadNextNewPost');
 
         // Post something new first
+        $_SESSION = $this->mock_test_user_login('responder003');
         $args = array(
             'type' => 'createForumThread',
             'boardId' => 1,
@@ -1224,6 +1225,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         );
         $this->object->process_request($args);
 
+        $_SESSION = $this->mock_test_user_login('responder004');
         $args = array('type' => 'loadNextNewPost');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
