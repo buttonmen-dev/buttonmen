@@ -2969,7 +2969,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::mark_forum_read
      * @covers BMInterface::mark_forum_board_read
      * @covers BMInterface::mark_forum_thread_read
-     * @covers get_next_new_post
+     * @covers BMInterface::get_next_new_post
      */
     public function test_mark_forum_posts_read() {
         // First, the first player views the forum. Then the second player makes
