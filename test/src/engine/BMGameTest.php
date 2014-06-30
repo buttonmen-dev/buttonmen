@@ -1518,7 +1518,43 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
      * @covers BMGame::do_next_step_start_turn
      */
     public function test_do_next_step_start_turn() {
+
+    }
+
+    /**
+     * @covers BMGame::update_game_state_start_turn
+     */
+    public function test_update_game_state_start_turn() {
         $this->object->gameState = BMGameState::START_TURN;
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
+
+        $this->object->gameState = BMGameState::START_TURN;
+        $this->object->attack = array(0, 1, array(), array(), 'Pass');
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $this->object->gameState);
+        //james: need to check that the attack has been carried out
+    }
+
+    /**
+     * @covers BMGame::do_next_step_adjust_fire_dice
+     */
+    public function test_do_next_step_adjust_fire_dice() {
+
+    }
+
+    /**
+     * @covers BMGame::update_game_state_start_turn
+     */
+    public function test_update_game_state_adjust_fire_dice() {
+
+    }
+
+    /**
+     * @covers BMGame::do_next_step_commit_attack
+     */
+    public function test_do_next_step_commit_attack() {
+        $this->object->gameState = BMGameState::COMMIT_ATTACK;
 
         $die1ValueStore = array();
         $die2ValueStore = array();
@@ -1568,7 +1604,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4, $this->object->activeDieArrayArray[1][0]->value);
 
         $this->object->attack = array(0, 1, array(0), array(0), "Power");
-        $this->object->gameState = BMGameState::START_TURN;
+        $this->object->gameState = BMGameState::COMMIT_ATTACK;
         $this->object->activePlayerIdx = 0;
         $this->object->do_next_step();
 
@@ -1588,18 +1624,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::update_game_state_start_turn
+     * @covers BMGame::update_game_state_commit_attack
      */
-    public function test_update_game_state_start_turn() {
-        $this->object->gameState = BMGameState::START_TURN;
-        $this->object->update_game_state();
-        $this->assertEquals(BMGameState::START_TURN, $this->object->gameState);
+    public function test_update_game_state_commit_attack() {
 
-        $this->object->gameState = BMGameState::START_TURN;
-        $this->object->attack = array(0, 1, array(), array(), 'Pass');
-        $this->object->update_game_state();
-        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $this->object->gameState);
-        //james: need to check that the attack has been carried out
     }
 
     /**
@@ -5600,6 +5628,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->do_next_step();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
+
+        $game->do_next_step();
         $this->assertCount(2, $game->actionLog);
         $this->assertEquals('determine_initiative', $game->actionLog[0]->actionType);
         $this->assertEquals('attack', $game->actionLog[1]->actionType);
@@ -5614,14 +5650,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertLessThanOrEqual(10, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
         $this->assertGreaterThanOrEqual(1, $game->actionLog[1]->params['postAttackDice']['attacker'][0]['value']);
 
-        $game->update_game_state();
-        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
-
-        $game->do_next_step();
-        $game->update_game_state();
-        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
-
-        $game->do_next_step();
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
 
@@ -6093,7 +6121,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $game->do_next_step();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
-        $this->assertEquals(1, $game->activePlayerIdx);
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
@@ -6103,6 +6130,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
 
         $game->do_next_step();
+        $this->assertEquals(1, $game->activePlayerIdx);
+
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
         $game->do_next_step();
@@ -6114,6 +6143,14 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->do_next_step();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
+        $game->do_next_step();
+
         $this->assertEquals(array('attackerPlayerIdx' => 1,
                                   'defenderPlayerIdx' => NULL,
                                   'attackerAttackDieIdxArray' => array(),
@@ -6121,14 +6158,6 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                                   'attackType' => 'Pass'),
                             $game->attack);
 
-        $game->update_game_state();
-        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
-
-        $game->do_next_step();
-        $game->update_game_state();
-        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
-
-        $game->do_next_step();
         $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
         $game->do_next_step();

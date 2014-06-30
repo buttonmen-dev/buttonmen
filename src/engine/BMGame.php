@@ -744,15 +744,58 @@ class BMGame {
     protected function do_next_step_start_turn() {
         $this->perform_autopass();
 
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        if (!isset($this->attack)) {
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+        }
+    }
+
+    protected function perform_autopass() {
+        if (!isset($this->attack) &&
+            $this->autopassArray[$this->activePlayerIdx] &&
+            $this->turnNumberInRound > 1) {
+            $validAttackTypes = $this->valid_attack_types();
+            if (array_search('Pass', $validAttackTypes) &&
+                (1 == count($validAttackTypes))) {
+                $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
+                                      'defenderPlayerIdx' => NULL,
+                                      'attackerAttackDieIdxArray' => array(),
+                                      'defenderAttackDieIdxArray' => array(),
+                                      'attackType' => 'Pass');
+            }
+        }
+    }
+
+    protected function update_game_state_start_turn() {
+        if (isset($this->attack) &&
+            FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
+            $this->gameState = BMGameState::ADJUST_FIRE_DICE;
+        }
+    }
+
+    protected function do_next_step_adjust_fire_dice() {
+
+    }
+
+    protected function update_game_state_adjust_fire_dice() {
+        $this->gameState = BMGameState::COMMIT_ATTACK;
+    }
+
+    protected function do_next_step_commit_attack() {
         // display dice
         $this->activate_GUI('show_active_dice');
 
         if (!$this->are_attack_params_reasonable()) {
+            $this->gameState = BMGameState::START_TURN;
+            $this->attack = NULL;
             return;
         }
 
         $instance = $this->create_attack_instance();
         if (FALSE === $instance) {
+            $this->gameState = BMGameState::START_TURN;
+            $this->attack = NULL;
             return;
         }
 
@@ -786,22 +829,6 @@ class BMGame {
 
         if (isset($this->activePlayerIdx)) {
             $this->update_active_player();
-        }
-    }
-
-    protected function perform_autopass() {
-        if (!isset($this->attack) &&
-            $this->autopassArray[$this->activePlayerIdx] &&
-            $this->turnNumberInRound > 1) {
-            $validAttackTypes = $this->valid_attack_types();
-            if (array_search('Pass', $validAttackTypes) &&
-                (1 == count($validAttackTypes))) {
-                $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
-                                      'defenderPlayerIdx' => NULL,
-                                      'attackerAttackDieIdxArray' => array(),
-                                      'defenderAttackDieIdxArray' => array(),
-                                      'attackType' => 'Pass');
-            }
         }
     }
 
@@ -898,8 +925,8 @@ class BMGame {
         }
     }
 
-    protected function update_game_state_start_turn() {
-        if ((isset($this->attack)) &&
+    protected function update_game_state_commit_attack() {
+        if (isset($this->attack) &&
             FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
             $this->gameState = BMGameState::ADJUST_FIRE_DICE;
             if (isset($this->activeDieArrayArray) &&
@@ -911,21 +938,7 @@ class BMGame {
                 }
             }
         }
-    }
 
-    protected function do_next_step_adjust_fire_dice() {
-
-    }
-
-    protected function update_game_state_adjust_fire_dice() {
-        $this->gameState = BMGameState::COMMIT_ATTACK;
-    }
-
-    protected function do_next_step_commit_attack() {
-
-    }
-
-    protected function update_game_state_commit_attack() {
         $this->gameState = BMGameState::END_TURN;
     }
 
