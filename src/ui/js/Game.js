@@ -1644,12 +1644,14 @@ Game.dieRecipeTable = function(table_action, active) {
               Api.game.player.activeDieArray[i].value, defaultval));
         } else {
           dieLRow.append($('<td>', {
-            'text': Api.game.player.activeDieArray[i].value,
+            'text': Game.activeDieFieldString(
+              i, 'value', Api.game.player.activeDieArray),
           }));
         }
         dieRRow.append(opponentEnt);
         dieRRow.append($('<td>', {
-          'text': Api.game.opponent.activeDieArray[i].value,
+          'text': Game.activeDieFieldString(
+            i, 'value', Api.game.opponent.activeDieArray),
         }));
       } else if (table_action == 'choose_reserve') {
         dieLRow.append(playerEnt);
@@ -1717,6 +1719,14 @@ Game.dieTableEntry = function(i, activeDieArray) {
     return $('<td>', dieopts);
   }
   return $('<td>', {});
+};
+
+Game.activeDieFieldString = function(i, field, activeDieArray) {
+  if (i < activeDieArray.length) {
+    return activeDieArray[i][field];
+  } else {
+    return '';
+  }
 };
 
 // Display each player's dice in "battle" layout

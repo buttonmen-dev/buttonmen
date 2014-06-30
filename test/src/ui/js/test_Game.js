@@ -1018,6 +1018,18 @@ asyncTest("test_Game.dieTableEntry_empty", function() {
   });
 });
 
+asyncTest("test_Game.activeDieFieldString", function() {
+  BMTestUtils.GameType = 'chance_active';
+  Game.getCurrentGame(function() {
+    var valstr = Game.activeDieFieldString(4, 'value', Api.game.player.activeDieArray);
+    deepEqual(valstr, 4, "Die value string has expected contents for an existing die");
+
+    valstr = Game.activeDieFieldString(6, 'value', Api.game.player.activeDieArray);
+    deepEqual(valstr, '', "Die value string has expected contents for a nonexistent die");
+    start();
+  });
+});
+
 asyncTest("test_Game.pageAddDieBattleTable", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
