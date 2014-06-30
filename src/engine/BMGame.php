@@ -918,6 +918,14 @@ class BMGame {
     }
 
     protected function update_game_state_adjust_fire_dice() {
+        $this->gameState = BMGameState::COMMIT_ATTACK;
+    }
+
+    protected function do_next_step_commit_attack() {
+
+    }
+
+    protected function update_game_state_commit_attack() {
         $this->gameState = BMGameState::END_TURN;
     }
 

@@ -5619,6 +5619,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->do_next_step();
         $game->update_game_state();
+        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
 
         $game->do_next_step();
@@ -6096,6 +6100,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->do_next_step();
         $game->update_game_state();
+        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
         $game->do_next_step();
         $this->assertEquals(BMGameState::END_TURN, $game->gameState);
@@ -6115,6 +6123,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->update_game_state();
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+
+        $game->do_next_step();
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
 
         $game->do_next_step();
         $game->update_game_state();
