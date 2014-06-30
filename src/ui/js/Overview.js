@@ -6,7 +6,7 @@ var Overview = {};
 Overview.GAME_STATE_END_GAME = 60;
 
 // Number of seconds before refreshing the monitor
-Overview.MONITOR_TIMEOUT = 60;
+Overview.MONITOR_TIMEOUT = 6;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -37,22 +37,22 @@ Overview.showOverviewPage = function() {
     $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
-  var mode = Env.getParameterByName("mode");
+  var mode = Env.getParameterByName('mode');
   switch (mode) {
-    case "nextGame":
-      // Try to go to the next game
-      Api.getNextGameId(Login.goToNextPendingGame);
-      break;
-    case "monitor":
-      Overview.monitorIsOn = true;
-      // If we're in monitor mode, run the monitor first
-      Api.getUserPrefsData(Overview.executeMonitor);
-      break;
-    default:
-      Overview.monitorIsOn = false;
-      // Get all needed information, then display overview page
-      Overview.getOverview(Overview.showPage);
-      break;
+  case 'nextGame':
+    // Try to go to the next game
+    Api.getNextGameId(Login.goToNextPendingGame);
+    break;
+  case 'monitor':
+    Overview.monitorIsOn = true;
+    // If we're in monitor mode, run the monitor first
+    Api.getUserPrefsData(Overview.executeMonitor);
+    break;
+  default:
+    Overview.monitorIsOn = false;
+    // Get all needed information, then display overview page
+    Overview.getOverview(Overview.showPage);
+    break;
   }
 };
 
@@ -126,12 +126,14 @@ Overview.executeMonitor = function() {
 };
 
 Overview.completeMonitor = function() {
-  if (Api.gameNavigation !== undefined && Api.gameNavigation.nextGameId) {
+  if (Api.user_prefs.monitorRedirectsToGame &&
+      Api.gameNavigation !== undefined && Api.gameNavigation.nextGameId) {
     Login.goToNextPendingGame();
     return;
   }
-  if (Api.forumNavigation !== undefined && Api.forumNavigation.nextNewPostId) {
-    Login.goToNextNewForumPost();
+  if (Api.user_prefs.monitorRedirectsToForum &&
+      Api.forumNavigation !== undefined && Api.forumNavigation.nextNewPostId) {
+    Overview.goToNextNewForumPost();
     return;
   }
 
@@ -417,3 +419,20 @@ Overview.formDismissGame = function(e) {
   Api.apiFormPost(args, messages, $(this), Overview.showOverviewPage,
     Overview.showOverviewPage);
 };
+
+// Redirect to the next new forum post if there is one
+Overview.goToNextNewForumPost = function() {
+  if (Api.forumNavigation.load_status == 'ok') {
+    if (Api.forumNavigation.nextNewPostId !== null &&
+        $.isNumeric(Api.forumNavigation.nextNewPostId)) {
+      Env.window.location.href =
+        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
+          '&postId=' + Api.forumNavigation.nextNewPostId;
+    }
+  } else {
+    // If there are no new posts (which presumably means the user read them but
+    // left this page open while doing so), just show the forum overview
+    Env.window.location.href = 'forum.html';
+  }
+};
+

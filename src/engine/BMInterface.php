@@ -3585,7 +3585,7 @@ class BMInterface {
             $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
 
             if ($results) {
-                $this->message = 'New forum post check succeeded';
+                $this->message = 'Checked new forum posts successfully';
             }
             return $results;
         } catch (Exception $e) {

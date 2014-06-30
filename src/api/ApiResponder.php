@@ -419,6 +419,10 @@ class ApiResponder {
         );
     }
 
+    protected function get_interface_response_loadNextNewPost($interface, $args) {
+        return $interface->get_next_new_post($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_markForumRead($interface, $args) {
         return $interface->mark_forum_read(
             $_SESSION['user_id'],
@@ -458,10 +462,6 @@ class ApiResponder {
             (int)$args['threadId'],
             $args['body']
         );
-    }
-
-    protected function get_interface_response_loadNextNewPost($interface, $args) {
-        return $interface->get_next_new_post($_SESSION['user_id']);
     }
 
     // End of Forum-related methods

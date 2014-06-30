@@ -62,7 +62,7 @@ test("test_Login.formLogin", function() {
   ok(true, "INCOMPLETE: Test of Login.formLogin not implemented");
 });
 
-asyncTest("test_Login.goToNextPendingGame", function() {
+test("test_Login.goToNextPendingGame", function() {
   Env.window.location.href = "/ui/game.html?game=1";
   Api.gameNavigation = {
     'load_status': 'ok',
@@ -76,11 +76,15 @@ asyncTest("test_Login.goToNextPendingGame", function() {
     ok(Env.window.location.href.match(/game\.html\?game=7/),
       "The page has been redirected to the next game");
   }
-  start();
 });
 
-asyncTest("test_Login.goToNextPendingGame_no_next_game", function() {
+test("test_Login.goToNextPendingGame_no_next_game", function() {
   Env.window.location.href = "/ui/game.html?game=1";
+
+  // We test for the Overview object to determine if we're on the Overview page
+  var overviewBackup = Overview;
+  Overview = undefined;
+
   Api.gameNavigation = {
     'load_status': 'ok',
     'nextGameId': null,
@@ -93,5 +97,6 @@ asyncTest("test_Login.goToNextPendingGame_no_next_game", function() {
     ok(Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/),
       "The page has been redirected to the Overview page");
   }
-  start();
+
+  Overview = overviewBackup;
 });

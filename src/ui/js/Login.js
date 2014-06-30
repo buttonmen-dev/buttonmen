@@ -287,20 +287,3 @@ Login.goToNextPendingGame = function() {
     Env.showStatusMessage();
   }
 };
-
-// Redirect to the next new forum post if there is one
-Login.goToNextNewForumPost = function() {
-  if (Api.forumNavigation.load_status == 'ok') {
-    if (Api.forumNavigation.nextNewPostId !== null &&
-        $.isNumeric(Api.forumNavigation.nextNewPostId)) {
-      Env.window.location.href =
-        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
-          '&postId=' + Api.forumNavigation.nextNewPostId;
-    }
-  } else {
-    // If there are no new posts (which presumably means the user read them but
-    // left this page open while doing so), just show the forum overview
-    Env.window.location.href = 'forum.html';
-  }
-};
-

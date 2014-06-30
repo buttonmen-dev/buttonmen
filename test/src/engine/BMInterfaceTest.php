@@ -2969,6 +2969,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::mark_forum_read
      * @covers BMInterface::mark_forum_board_read
      * @covers BMInterface::mark_forum_thread_read
+     * @covers get_next_new_post
      */
     public function test_mark_forum_posts_read() {
         // First, the first player views the forum. Then the second player makes
@@ -2979,6 +2980,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $thread1 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
             $boardId1, 'Test Title 1', 'Test Body 1');
+        // Separate the posts slightly, so that the first one is measurably first
+        sleep(1);
         $thread2 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
             $boardId1, 'Test Title 2', 'Test Body 2');
         $thread3 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
@@ -3015,6 +3018,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $thread3 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
             $thread3['threadId'], NULL);
         $this->assertFalse($thread3['posts'][0]['isNew']);
+
+        // And verify that the first new post is indeed recognized as the
+        // first new post
+        $nextNewPost = $this->object->get_next_new_post(self::$userId1WithoutAutopass);
+        $this->assertEquals($thread1['threadId'], $nextNewPost['nextNewPostThreadId']);
+        $this->assertEquals($thread1['posts'][0]['postId'], $nextNewPost['nextNewPostId']);
 
         // The first player marks the first thread read. Verify that its first
         // post is no longer new, but that the first posts of the other two

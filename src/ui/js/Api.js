@@ -421,7 +421,7 @@ var Api = (function () {
     my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
 
     my.game.pendingGameCount = data.pendingGameCount;
-    
+
     return true;
   };
 

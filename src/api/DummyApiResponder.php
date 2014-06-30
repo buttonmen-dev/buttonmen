@@ -959,6 +959,13 @@ class DummyApiResponder {
         return array($results, 'Forum thread loading succeeded');
     }
 
+    protected function get_interface_response_loadNextNewPost() {
+        $results = array();
+        $results['nextNewPostId'] = 3;
+        $results['nextNewPostThreadId'] = 2;
+        return array($results, 'Checked new forum posts successfully');
+    }
+
     protected function get_interface_response_markForumRead() {
         $otherResults = $this->get_interface_response_loadForumOverview();
         $results = $otherResults[0];

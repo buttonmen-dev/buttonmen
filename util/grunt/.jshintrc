@@ -18,6 +18,7 @@
     "Api": true,
     "Env": true,
     "Login": true,
+    "Overview": true,
     "moment": true,
     "Config": true
   },
