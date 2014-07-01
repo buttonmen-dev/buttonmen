@@ -1737,12 +1737,25 @@ class BMInterface {
         $gameStateArray = array();
         $statusArray = array();
         $inactivityArray = array();
+        $playerColorArray = array();
+        $opponentColorArray = array();
 
         // Ensure that the inactivity time for all games is relative to the
         // same moment
         $now = strtotime('now');
 
+        // Get all the colors the current player has set in his or her
+        // preferences
+        $playerColors = $this->load_player_colors($playerId);
+
         while ($row = $statement->fetch()) {
+            $gameColors = $this->determine_game_colors(
+                $playerId,
+                $playerColors,
+                $playerId,
+                (int)$row['opponent_id']
+            );
+
             $gameIdArray[]        = (int)$row['game_id'];
             $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
@@ -1757,6 +1770,8 @@ class BMInterface {
             $statusArray[]        = $row['status'];
             $inactivityArray[]    =
                 $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
+            $playerColorArray[]   = $gameColors['playerA'];
+            $opponentColorArray[] = $gameColors['playerB'];
         }
 
         return array('gameIdArray'             => $gameIdArray,
@@ -1771,7 +1786,9 @@ class BMInterface {
                      'isAwaitingActionArray'   => $isToActArray,
                      'gameStateArray'          => $gameStateArray,
                      'statusArray'             => $statusArray,
-                     'inactivityArray'         => $inactivityArray);
+                     'inactivityArray'         => $inactivityArray,
+                     'playerColorArray'        => $playerColorArray,
+                     'opponentColorArray'      => $opponentColorArray);
     }
 
     public function get_all_active_games($playerId) {

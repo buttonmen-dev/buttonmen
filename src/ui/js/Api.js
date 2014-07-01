@@ -286,6 +286,8 @@ var Api = (function () {
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
         'inactivity': data.inactivityArray[i],
+        'playerColor': data.playerColorArray[i],
+        'opponentColor': data.opponentColorArray[i],
       };
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
