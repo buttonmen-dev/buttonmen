@@ -455,6 +455,15 @@ table.gameList select {
     padding: 0.2em 0.4em;
 }
 
+#history_page table.gameList th {
+    white-space: nowrap;
+    cursor: default;
+}
+
+#history_page table.gameList tfoot th {
+    cursor: default;
+}
+
 table.gameList span.sortButton,
 table.gameList span.pageLink {
     cursor: pointer;

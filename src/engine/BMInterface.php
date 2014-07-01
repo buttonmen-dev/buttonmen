@@ -1431,9 +1431,7 @@ class BMInterface {
                     'vB.player_name AS player_name_B, ' .
                     'vB.button_name AS button_name_B, ' .
                     'vB.is_awaiting_action AS waiting_on_B, '.
-                    // Reinstate this once g.start_time exists
-                    //'UNIX_TIMESTAMP(g.start_time) AS game_start, ' .
-                    '0 AS game_start, ' .
+                    'UNIX_TIMESTAMP(g.start_time) AS game_start, ' .
                     'UNIX_TIMESTAMP(g.last_action_time) AS last_move, ' .
                     'vA.n_rounds_won AS rounds_won_A, ' .
                     'vB.n_rounds_won AS rounds_won_B, ' .
@@ -1634,9 +1632,8 @@ class BMInterface {
                     'COUNT(*) AS matches_found, ' .
                     'MIN(game_start) AS earliest_start, ' .
                     'MAX(last_move) AS latest_move, ' .
-                    'SUM(rounds_won_A > rounds_won_B) AS games_winning_A, ' .
-                    'SUM(rounds_won_A < rounds_won_B) AS games_winning_B, ' .
-                    'SUM(rounds_won_A = rounds_won_B) AS games_drawn, ' .
+                    'SUM(rounds_won_A >= target_wins) AS games_won_A, ' .
+                    'SUM(rounds_won_B >= target_wins) AS games_won_B, ' .
                     'SUM(status = "COMPLETE") AS games_completed ' .
                 'FROM (' .
                     'SELECT * FROM (( ' .
@@ -1673,9 +1670,8 @@ class BMInterface {
             } else {
                 $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
             }
-            $summary['gamesWinningA'] = (int)$summaryRows[0]['games_winning_A'];
-            $summary['gamesWinningB'] = (int)$summaryRows[0]['games_winning_B'];
-            $summary['gamesDrawn'] = (int)$summaryRows[0]['games_drawn'];
+            $summary['gamesWonA'] = (int)$summaryRows[0]['games_won_A'];
+            $summary['gamesWonB'] = (int)$summaryRows[0]['games_won_B'];
             $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
         } else {
             $this->message = 'Retrieving summary data for history search failed';

@@ -9,41 +9,50 @@ History.searchParameterInfo = {
     'text': 'Game #',
     'inputType': 'text',
     'dataType': 'number',
+    'toolTip': 'Search or sort by the game number',
   },
   'playerNameA': {
     'text': 'Player A',
     'inputType': 'select',
     'source': { },
     'dataType': 'string',
+    'toolTip': 'Search or sort by one of the players in the game',
   },
   'buttonNameA': {
     'text': 'Button A',
     'inputType': 'select',
     'source': { },
     'dataType': 'string',
+    'toolTip':
+      'Search or sort by the button used by one of the players in the game',
   },
   'buttonNameB': {
     'text': 'Button B',
     'inputType': 'select',
     'source': { },
     'dataType': 'string',
+    'toolTip': 'Search or sort by the button used by Player A\'s opponent',
   },
   'playerNameB': {
     'text': 'Player B',
     'inputType': 'select',
     'source': { },
     'dataType': 'string',
+    'toolTip': 'Search or sort by Player A\'s opponent',
   },
-  // Reinstate this once g.creation_time exists
-  //'gameStart': {
-  //  'text': 'Game Start',
-  //  'inputType': 'dateRange',
-  //  'dataType': 'date',
-  //},
+  'gameStart': {
+    'text': 'Game Start',
+    'inputType': 'dateRange',
+    'dataType': 'date',
+    'toolTip': 'Search or sort by the date the game started',
+  },
   'lastMove': {
     'text': 'Last Move',
     'inputType': 'dateRange',
     'dataType': 'date',
+    'toolTip':
+      'Search or sort by the date the most recent move was made in the game ' +
+      '(for completed games, this is when the game ended)',
   },
   'winningPlayer': {
     'text': 'Round Score',
@@ -54,6 +63,9 @@ History.searchParameterInfo = {
       'Tie': 'Tie',
     },
     'dataType': 'string',
+    'toolTip':
+      'Search or sort by which player is closer to winning the game ' +
+      '(for completed games, this is the player who won)',
   },
   'status': {
     'text': 'Completed?',
@@ -63,6 +75,7 @@ History.searchParameterInfo = {
       'ACTIVE': 'In Progress',
     },
     'dataType': 'string',
+    'toolTip': 'Search or sort by whether the game is completed or in progress',
   },
   'sortColumn': {
     'inputType': 'hidden',
@@ -489,9 +502,13 @@ History.buildResultsTableHeader = function() {
       'data-direction': 'ASC',
       'class': 'sortButton',
       'style': 'color: ' + sortButtonColor + ';',
+      'title': 'Sort by ' + columnInfo.text + ' in ascending order',
     }));
 
-    titleTh.append($('<span>', { 'text': columnInfo.text }));
+    titleTh.append($('<span>', {
+      'text': columnInfo.text,
+      'title': columnInfo.toolTip,
+    }));
 
     if (History.searchParameters !== undefined &&
       History.searchParameters.sortColumn !== undefined &&
@@ -509,6 +526,7 @@ History.buildResultsTableHeader = function() {
       'data-direction': 'DESC',
       'class': 'sortButton',
       'style': 'color: ' + sortButtonColor + ';',
+      'title': 'Sort by ' + columnInfo.text + ' in descending order',
     }));
 
     var filterTd = $('<th>');
@@ -519,6 +537,7 @@ History.buildResultsTableHeader = function() {
       var selectList = $('<select>', {
         'name': columnId,
         'id': 'parameter_' + columnId,
+        'title': columnInfo.toolTip,
       });
       filterTd.append(selectList);
 
@@ -577,6 +596,7 @@ History.buildResultsTableHeader = function() {
         'type': columnInfo.inputType,
         'name': columnId,
         'id': 'parameter_' + columnId,
+        'title': columnInfo.toolTip,
       });
       filterTd.append(inputElement);
       if (History.searchParameters !== undefined) {
@@ -606,29 +626,18 @@ History.buildResultsTableBody = function() {
     var gameRow = $('<tr>');
     body.append(gameRow);
 
-    var $verb = 'View';
     var $nextPlayerColor = '#ffffff';
     if (game.playerNameA == Login.player) {
       if (game.waitingOnA) {
-        $verb = 'Play';
         $nextPlayerColor = game.colorA;
       } else if (game.waitingOnB) {
         $nextPlayerColor = game.colorB;
-      } else if (game.roundsWonA >= game.targetWins) {
-        $verb = 'WON';
-      } else if (game.roundsWonB >= game.targetWins) {
-        $verb = 'LOST';
       }
     } else if (game.playerNameB == Login.player) {
       if (game.waitingOnB) {
-        $verb = 'Play';
         $nextPlayerColor = game.colorB;
       } else if (game.waitingOnA) {
         $nextPlayerColor = game.colorA;
-      } else if (game.roundsWonB >= game.targetWins) {
-        $verb = 'WON';
-      } else if (game.roundsWonA >= game.targetWins) {
-        $verb = 'LOST';
       }
     }
 
@@ -637,7 +646,7 @@ History.buildResultsTableBody = function() {
     });
     idTd.append($('<a>', {
       'href': 'game.html?game=' + game.gameId,
-      'text': $verb + ' Game ' + game.gameId,
+      'text': 'Game ' + game.gameId,
     }));
     gameRow.append(idTd);
 
@@ -653,10 +662,9 @@ History.buildResultsTableBody = function() {
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorB + ';',
     }).append(Env.buildProfileLink(game.playerNameB)));
-    // Reinstate this once g.creation_time exists
-    //gameRow.append($('<td>', {
-    //  'text': Env.formatTimestamp(game.gameStart, 'date'),
-    //}));
+    gameRow.append($('<td>', {
+      'text': Env.formatTimestamp(game.gameStart, 'date'),
+    }));
     gameRow.append($('<td>', {
       'text': Env.formatTimestamp(game.lastMove, 'date'),
     }));
@@ -665,9 +673,9 @@ History.buildResultsTableBody = function() {
       game.roundsDrawn + ' (' + game.targetWins + ')';
 
     var winnerColor;
-    if (game.roundsWonA > game.roundsWonB) {
+    if (game.roundsWonA >= game.targetWins) {
       winnerColor = game.colorA;
-    } else if (game.roundsWonB > game.roundsWonA) {
+    } else if (game.roundsWonB >= game.targetWins) {
       winnerColor = game.colorB;
     } else {
       winnerColor = '#ffffff';
@@ -702,25 +710,55 @@ History.buildResultsTableFooter = function() {
     return foot;
   }
 
+  var summary = Api.game_history.summary;
+  var lastPage =
+    Math.ceil(summary.matchesFound / History.searchParameters.numberOfResults);
+
   var footerHeaderRow = $('<tr>');
   foot.append(footerHeaderRow);
 
-  footerHeaderRow.append($('<th>', { 'text': 'Matches Found' }));
+  var matchesToolTip;
+  if (summary.matchesFound == 1) {
+    matchesToolTip = 'There is 1 matching game';
+  } else {
+    matchesToolTip = 'There are ' + summary.matchesFound + ' matching games';
+  }
+  footerHeaderRow.append($('<th>', {
+    'text': 'Matches Found',
+    'title': matchesToolTip,
+  }));
+
+  var pagesToolTip;
+  if (lastPage == 1) {
+    pagesToolTip = 'There is 1 page of matching games';
+  } else {
+    pagesToolTip = 'There are ' + lastPage + ' pages of matching games';
+  }
   footerHeaderRow.append($('<th>', {
     'text': 'Pages',
     'colspan': '4',
     'style': 'text-align: left;',
+    'title': pagesToolTip,
   }));
-  // Reinstate this once g.creation_time exists
-  //footerHeaderRow.append($('<th>', { 'text': 'Earliest Start' }));
-  footerHeaderRow.append($('<th>', { 'text': 'Latest Move' }));
-  footerHeaderRow.append($('<th>', { 'text': 'Games W/L/T' }));
-  footerHeaderRow.append($('<th>', { 'text': '% Completed' }));
+  footerHeaderRow.append($('<th>', {
+    'text': 'Earliest Start',
+    'title': 'The earliest Game Start date for any matching game',
+  }));
+  footerHeaderRow.append($('<th>', {
+    'text': 'Latest Move',
+    'title': 'The latest Last Move date for any matching game',
+  }));
+  footerHeaderRow.append($('<th>', {
+    'text': 'Games W/L/I',
+    'title': 'Won by Player A / Lost by Player A / Incomplete',
+  }));
+  footerHeaderRow.append($('<th>', {
+    'text': '% Completed',
+    'title': 'What fraction of the matching games have been completed so far',
+  }));
 
   var footerDataRow = $('<tr>');
   foot.append(footerDataRow);
-
-  var summary = Api.game_history.summary;
 
   footerDataRow.append($('<td>', { 'text': summary.matchesFound }));
 
@@ -728,8 +766,6 @@ History.buildResultsTableFooter = function() {
     'colspan': '4',
     'style': 'text-align: left;',
   });
-  var lastPage =
-    Math.ceil(summary.matchesFound / History.searchParameters.numberOfResults);
 
   if (History.searchParameters.page > 1) {
     pagingTd.append($('<span>', {
@@ -783,25 +819,32 @@ History.buildResultsTableFooter = function() {
   });
   footerDataRow.append(pagingTd);
 
-  // Reinstate this once g.creation_time exists
-  //footerDataRow.append($('<td>', { 'text':
-  //    Env.formatTimestamp(summary.earliestStart, 'date')
-  //}));
-  footerDataRow.append($('<td>', { 'text':
-      Env.formatTimestamp(summary.latestMove, 'date')
+  footerDataRow.append($('<td>', {
+    'text': Env.formatTimestamp(summary.earliestStart, 'date'),
+    'title': 'The earliest Game Start date for any matching game',
+  }));
+  footerDataRow.append($('<td>', {
+    'text': Env.formatTimestamp(summary.latestMove, 'date'),
+    'title': 'The latest Last Move date for any matching game',
   }));
 
   var scores =
-      summary.gamesWinningA + '/' + summary.gamesWinningB + '/' +
-      summary.gamesDrawn;
-  footerDataRow.append($('<td>', { 'text': scores }));
+    summary.gamesWonA + '/' + summary.gamesWonB + '/' +
+    (summary.matchesFound - summary.gamesCompleted);
+  footerDataRow.append($('<td>', {
+    'text': scores,
+    'title': 'Won by Player A / Lost by Player A / Incomplete',
+  }));
 
   var percentCompleted = '';
   if (summary.matchesFound > 0) {
     percentCompleted = (summary.gamesCompleted * 100) / summary.matchesFound;
     percentCompleted = Math.round(percentCompleted) + '%';
   }
-  footerDataRow.append($('<td>', { 'text': percentCompleted }));
+  footerDataRow.append($('<td>', {
+    'text': percentCompleted,
+    'title': 'What fraction of the matching games have been completed so far',
+  }));
 
   return foot;
 };
