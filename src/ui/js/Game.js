@@ -15,7 +15,6 @@ Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
 Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
 Game.GAME_STATE_START_ROUND = 'START_ROUND';
 Game.GAME_STATE_START_TURN = 'START_TURN';
-Game.GAME_STATE_START_TURN = 'START_TURN';
 Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
 Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
@@ -924,7 +923,7 @@ Game.actionAdjustFireDiceActive = function() {
   Game.parseValidFireOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
-    'Your turn to complete a skill attack by adjusting fire dice');
+    'Your turn to complete an attack by adjusting fire dice');
 
   var attackerSum = 0;
   $.each(Api.game.player.activeDieArray, function(i, die) {
@@ -968,7 +967,7 @@ Game.actionAdjustFireDiceActive = function() {
   var fireoptions = {
     'turndown': 'Turn down fire dice',
     'cancel':
-      'Don\'t turn down fire dice (cancelling the skill attack in progress)',
+      'Don\'t turn down fire dice (cancelling the attack in progress)',
   };
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
@@ -1004,7 +1003,7 @@ Game.actionAdjustFireDiceInactive = function() {
 
   Game.page = $('<div>');
   Game.pageAddGameHeader(
-    'Opponent\'s turn to complete a skill attack by adjusting fire dice');
+    'Opponent\'s turn to complete an attack by adjusting fire dice');
 
   // Get a table containing the existing die recipes
   var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
@@ -1025,7 +1024,7 @@ Game.actionAdjustFireDiceNonplayer = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
-    ' to complete a skill attack by adjusting fire dice' +
+    ' to complete an attack by adjusting fire dice' +
     ' (you are not in this game)');
 
   // Get a table containing the existing die recipes
