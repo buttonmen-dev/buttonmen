@@ -13,7 +13,10 @@ module("Game", {
     }
 
     // set colors for use in game, since tests don't always traverse showStatePage()
-    Game.color = Game.COLORS.players;
+    Game.color = {
+      'player': '#dd99dd',
+      'opponent': '#ddffdd',
+    };
   },
   'teardown': function() {
 
