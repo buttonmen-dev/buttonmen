@@ -244,6 +244,10 @@ select.center {
     background-color: #cccccc;
 }
 
+.recipe_inuse {
+    background-color: #ffa500;
+}
+
 .die_overlay {
     position:relative;
     font-size: 24px;
