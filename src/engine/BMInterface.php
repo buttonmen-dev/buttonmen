@@ -445,6 +445,19 @@ class BMInterface {
                 $data['gameChatLog'],
                 $data['gameActionLog']
             );
+
+            // Get all the colors the current player has set in his or her
+            // preferences, then figure out which ones to apply to this game
+            $playerColors = $this->load_player_colors($playerId);
+            $gameColors = $this->determine_game_colors(
+                $playerId,
+                $playerColors,
+                $data['playerDataArray'][0]['playerId'],
+                $data['playerDataArray'][1]['playerId']
+            );
+            $data['playerDataArray'][0]['playerColor'] = $gameColors['playerA'];
+            $data['playerDataArray'][1]['playerColor'] = $gameColors['playerB'];
+
             return $data;
         }
         return NULL;
