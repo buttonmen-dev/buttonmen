@@ -775,7 +775,12 @@ class BMGame {
     }
 
     protected function do_next_step_adjust_fire_dice() {
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
 
+        // check for need for firing
+        if (0) {
+
+        }
     }
 
     protected function update_game_state_adjust_fire_dice() {

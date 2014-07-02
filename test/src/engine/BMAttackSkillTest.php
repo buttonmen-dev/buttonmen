@@ -269,10 +269,10 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($sk->find_attack($game));
 
         // Load some dice into the attack.
-        $die1 = BMDie::create(6);
+        $die1 = BMDie::create(10);
         $die1->value = 6;
 
-        $die2 = BMDie::create(6);
+        $die2 = BMDie::create(10);
         $die2->value = 2;
 
         $die3 = BMDie::create(20);

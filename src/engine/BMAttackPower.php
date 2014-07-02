@@ -32,20 +32,23 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        $helpers = $this->collect_helpers($game, $attackers, $defenders);
-
-        $bounds = $this->help_bounds($helpers);
+        $bounds = $this->help_bounds($this->collect_helpers($game, $attackers, $defenders),
+                                     $this->collect_firing_maxima($attackers));
 
         $att = $attackers[0];
         $def = $defenders[0];
 
         foreach ($att->attack_values($this->type) as $aVal) {
+            // james: $isDieLargeEnough is required for the case of fired-up dice
+            $isDieLargeEnough = $att->max >= $def->defense_value($this->type);
             $isValLargeEnough = $aVal + $bounds[1] >= $def->defense_value($this->type);
             $isValidAttacker = $att->is_valid_attacker($this->type, $attackers);
             $isValidTarget = $def->is_valid_target($this->type, $defenders);
 
-            if (!$isValLargeEnough) {
-                $this->validationMessage = 'Attacking die value must be at least as large as target die value.';
+            if (!$isDieLargeEnough) {
+                $this->validationMessage = 'Attacking die size must be at least as large as target die value';
+            } elseif (!$isValLargeEnough) {
+                $this->validationMessage = 'Attacking die value must be at least as large as target die value';
             } elseif (!$isValidAttacker) {
                 $this->validationMessage = 'Invalid attacking die';
             } elseif (!$isValidTarget) {

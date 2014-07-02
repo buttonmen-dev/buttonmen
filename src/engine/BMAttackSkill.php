@@ -123,8 +123,8 @@ class BMAttackSkill extends BMAttack {
     }
 
     protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval) {
-        $helpers = $this->collect_helpers($game, $attackers, $defenders);
-        $bounds = $this->help_bounds($helpers);
+        $bounds = $this->help_bounds($this->collect_helpers($game, $attackers, $defenders),
+                                     $this->collect_firing_maxima($attackers));
         if ($bounds[0] == 0 && $bounds[1] == 0) {
             $this->validationMessage = 'Attacking die values do not sum up to target die value.';
             return FALSE;

@@ -288,7 +288,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Load some dice into the attack.
         $die1 = new BMDie;
-        $die1->init(6);
+        $die1->init(7);
         $die1->value = 6;
 
         $this->object->add_die($die1);
@@ -352,7 +352,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Load some dice into the attack.
         $die1 = new BMDie;
-        $die1->init(6);
+        $die1->init(7);
         $die1->value = 6;
 
         $this->object->add_die($die1);
@@ -394,7 +394,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die5 = new BMDie;
-        $die5->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
+        $die5->init(7, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die5->value = 1;
 
         $game->activeDieArrayArray = array(array($die5), array($die4));
