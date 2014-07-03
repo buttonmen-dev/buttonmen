@@ -732,8 +732,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'comment' => '',
             'autopass' => 'True',
-            'monitorRedirectsToGame' => 'False',
-            'monitorRedirectsToForum' => 'False',
+            'monitor_redirects_to_game' => 'False',
+            'monitor_redirects_to_forum' => 'False',
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);

@@ -117,14 +117,14 @@ Overview.arrangePage = function() {
 };
 
 Overview.executeMonitor = function() {
-  if (Api.user_prefs.monitorRedirectsToGame &&
-    Api.user_prefs.monitorRedirectsToForum) {
+  if (Api.user_prefs.monitor_redirects_to_game &&
+    Api.user_prefs.monitor_redirects_to_forum) {
     Api.getNextGameId(function() {
       Api.getNextNewPostId(Overview.completeMonitor);
     });
-  } else if (Api.user_prefs.monitorRedirectsToGame) {
+  } else if (Api.user_prefs.monitor_redirects_to_game) {
     Api.getNextGameId(Overview.completeMonitor);
-  } else if (Api.user_prefs.monitorRedirectsToForum) {
+  } else if (Api.user_prefs.monitor_redirects_to_forum) {
     Api.getNextNewPostId(Overview.completeMonitor);
   } else {
     Overview.getOverview(Overview.showPage);
@@ -132,12 +132,12 @@ Overview.executeMonitor = function() {
 };
 
 Overview.completeMonitor = function() {
-  if (Api.user_prefs.monitorRedirectsToGame &&
+  if (Api.user_prefs.monitor_redirects_to_game &&
       Api.gameNavigation !== undefined && Api.gameNavigation.nextGameId) {
     Login.goToNextPendingGame();
     return;
   }
-  if (Api.user_prefs.monitorRedirectsToForum &&
+  if (Api.user_prefs.monitor_redirects_to_forum &&
       Api.forumNavigation !== undefined && Api.forumNavigation.nextNewPostId) {
     Overview.goToNextNewForumPost();
     return;

@@ -64,7 +64,7 @@ Login.showLoginHeader = function(callbackfunc) {
 
   // Find the current login header contents and display them followed by
   // the specified callback routine
-  Api.getNextNewPostId(Login.getLoginHeader);
+  Login.getLoginHeader();
 };
 
 Login.layoutHeader = function() {
@@ -103,7 +103,7 @@ Login.stateLoggedIn = function(welcomeText) {
   }));
 
   Login.message.append(loginform);
-  Login.addMainNavbar();
+  Api.getNextNewPostId(Login.addMainNavbar);
   Login.form = Login.formLogout;
   Login.logged_in = true;
 };
@@ -166,7 +166,7 @@ Login.addMainNavbar = function() {
   var navrow = $('<tr>');
   var links = {
     'Overview': 'index.html',
-    'Monitor': Env.ui_root + '?mode=monitor',
+    'Monitor': Env.ui_root + 'index.html?mode=monitor',
     'Create game': 'create_game.html',
     'Open games': 'open_games.html',
     'Preferences': 'prefs.html',
@@ -174,7 +174,7 @@ Login.addMainNavbar = function() {
     'History': 'history.html',
     'Who\'s online': 'active_players.html',
     'Forum': 'forum.html',
-    'Next game': Env.ui_root + '?mode=nextGame',
+    'Next game': Env.ui_root + 'index.html?mode=nextGame',
   };
   $.each(links, function(text, url) {
     var navtd = $('<td>');

@@ -98,8 +98,8 @@ class BMInterface {
             'dob_month' => $dob_month,
             'dob_day' => $dob_day,
             'autopass' => (bool)$infoArray['autopass'],
-            'monitorRedirectsToGame' => (bool)$infoArray['monitorRedirectsToGame'],
-            'monitorRedirectsToForum' => (bool)$infoArray['monitorRedirectsToForum'],
+            'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
+            'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
             'comment' => $infoArray['comment'],
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
@@ -115,8 +115,8 @@ class BMInterface {
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
-        $infoArray['monitorRedirectsToGame'] = (int)($infoArray['monitorRedirectsToGame']);
-        $infoArray['monitorRedirectsToForum'] = (int)($infoArray['monitorRedirectsToForum']);
+        $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
+        $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
 
         $isValidData = $this->validate_player_dob($addlInfo) &&
                        $this->validate_player_password_and_email($addlInfo, $playerId);
@@ -476,7 +476,6 @@ class BMInterface {
                 error_log('Pending game count failed for player ' . $playerId);
                 return NULL;
             } else {
-                $this->message = 'Pending game count retrieved successfully.';
                 return (int)$result[0];
             }
         } catch (Exception $e) {

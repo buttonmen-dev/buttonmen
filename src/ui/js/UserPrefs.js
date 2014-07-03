@@ -140,15 +140,15 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
     },
-    'monitorRedirectsToGame': {
+    'monitor_redirects_to_game': {
       'text': 'Redirect to waiting games when in Monitor mode',
       'type': 'checkbox',
-      'checked': Api.user_prefs.monitorRedirectsToGame,
+      'checked': Api.user_prefs.monitor_redirects_to_game,
     },
-    'monitorRedirectsToForum': {
+    'monitor_redirects_to_forum': {
       'text': 'Redirect to new forum posts when in Monitor mode',
       'type': 'checkbox',
-      'checked': Api.user_prefs.monitorRedirectsToForum,
+      'checked': Api.user_prefs.monitor_redirects_to_forum,
     },
   };
 
@@ -244,10 +244,10 @@ UserPrefs.formSetPrefs = function() {
   var dob_day = $('#userprefs_dob_day').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
-  var monitorRedirectsToGame =
-    $('#userprefs_monitorRedirectsToGame').prop('checked');
-  var monitorRedirectsToForum =
-    $('#userprefs_monitorRedirectsToForum').prop('checked');
+  var monitor_redirects_to_game =
+    $('#userprefs_monitor_redirects_to_game').prop('checked');
+  var monitor_redirects_to_forum =
+    $('#userprefs_monitor_redirects_to_forum').prop('checked');
   var current_password = $('#userprefs_current_password').val();
   var new_password = $('#userprefs_new_password').val();
   var confirm_new_password = $('#userprefs_confirm_new_password').val();
@@ -309,8 +309,8 @@ UserPrefs.formSetPrefs = function() {
       'dob_day': dob_day,
       'comment': comment,
       'autopass': autopass,
-      'monitorRedirectsToGame': monitorRedirectsToGame,
-      'monitorRedirectsToForum': monitorRedirectsToForum,
+      'monitor_redirects_to_game': monitor_redirects_to_game,
+      'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'current_password': current_password,
       'new_password': new_password,
       'new_email': new_email,

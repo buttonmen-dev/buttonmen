@@ -1,3 +1,3 @@
 ALTER TABLE player
-    ADD COLUMN `monitorRedirectsToGame` BOOLEAN DEFAULT 0 NOT NULL AFTER autopass,
-    ADD COLUMN `monitorRedirectsToForum` BOOLEAN DEFAULT 0 NOT NULL AFTER monitorRedirectsToGame;
+    ADD COLUMN `monitor_redirects_to_game` BOOLEAN DEFAULT 0 NOT NULL AFTER autopass,
+    ADD COLUMN `monitor_redirects_to_forum` BOOLEAN DEFAULT 0 NOT NULL AFTER monitor_redirects_to_game;

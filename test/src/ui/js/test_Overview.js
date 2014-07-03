@@ -227,8 +227,8 @@ asyncTest("test_Overview.executeMonitor", function() {
   expect(2);
 
   Api.user_prefs = {
-    'monitorRedirectsToGame': false,
-    'monitorRedirectsToForum': false,
+    'monitor_redirects_to_game': false,
+    'monitor_redirects_to_forum': false,
   };
 
   // Replacing functions with mocks, for testing purposes
@@ -248,8 +248,8 @@ asyncTest("test_Overview.executeMonitor_withRedirects", function() {
   expect(3);
 
   Api.user_prefs = {
-    'monitorRedirectsToGame': true,
-    'monitorRedirectsToForum': true,
+    'monitor_redirects_to_game': true,
+    'monitor_redirects_to_forum': true,
   };
 
   // Replacing functions with mocks, for testing purposes
@@ -271,8 +271,8 @@ asyncTest("test_Overview.completeMonitor", function() {
   expect(2);
 
   Api.user_prefs = {
-    'monitorRedirectsToGame': true,
-    'monitorRedirectsToForum': true,
+    'monitor_redirects_to_game': true,
+    'monitor_redirects_to_forum': true,
   };
 
   Api.gameNavigation = { 'nextGameId': null };
@@ -299,8 +299,8 @@ asyncTest("test_Overview.completeMonitor_withPendingGame", function() {
   expect(2);
 
   Api.user_prefs = {
-    'monitorRedirectsToGame': true,
-    'monitorRedirectsToForum': true,
+    'monitor_redirects_to_game': true,
+    'monitor_redirects_to_forum': true,
   };
 
   Api.gameNavigation = { 'nextGameId': 7 };
@@ -327,8 +327,8 @@ asyncTest("test_Overview.completeMonitor_withNewPost", function() {
   expect(2);
 
   Api.user_prefs = {
-    'monitorRedirectsToGame': true,
-    'monitorRedirectsToForum': true,
+    'monitor_redirects_to_game': true,
+    'monitor_redirects_to_forum': true,
   };
 
   Api.gameNavigation = { 'nextGameId': null };
