@@ -119,8 +119,6 @@ class BMInterface {
     }
 
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
-        error_log(print_r($infoArray, true));
-
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
 

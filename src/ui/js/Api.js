@@ -333,6 +333,8 @@ var Api = (function () {
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
         'inactivity': data.inactivityArray[i],
+        'playerColor': data.playerColorArray[i],
+        'opponentColor': data.opponentColorArray[i],
       };
       my.completed_games.games.push(gameInfo);
       i += 1;

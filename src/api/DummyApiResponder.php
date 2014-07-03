@@ -564,6 +564,8 @@ class DummyApiResponder {
             'gameStateArray' => array(),
             'statusArray' => array(),
             'inactivityArray' => array(),
+            'playerColorArray' => array(),
+            'opponentColorArray' => array(),
         );
 
         // game 5

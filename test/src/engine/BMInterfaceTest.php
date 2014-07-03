@@ -96,7 +96,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $data = $this->object->get_player_info(1);
+        $data = $this->object->get_player_info(self::$userId3WithAutopass);
         $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
@@ -109,6 +109,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('dob_day', $resultArray);
         $this->assertArrayHasKey('autopass', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('player_color', $resultArray);
+        $this->assertArrayHasKey('opponent_color', $resultArray);
+        $this->assertArrayHasKey('neutral_color_a', $resultArray);
+        $this->assertArrayHasKey('neutral_color_b', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
         $this->assertArrayHasKey('creation_time', $resultArray);
         $this->assertArrayHasKey('fanatic_button_id', $resultArray);
@@ -116,7 +120,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('n_games_lost', $resultArray);
 
         $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(1, $resultArray['id']);
+        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
 
         $this->assertTrue(is_bool($resultArray['autopass']));
 
@@ -133,7 +137,15 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::set_player_info
      */
     public function test_set_player_info() {
-        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
+        $infoArray = array(
+            'name_irl' => '',
+            'comment' => '',
+            'autopass' => 1,
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
+        );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
 
         $this->object->set_player_info(self::$userId1WithoutAutopass,
