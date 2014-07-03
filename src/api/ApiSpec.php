@@ -387,6 +387,10 @@ class ApiSpec {
                 'dob_day' => 'number',
                 'comment' => 'string',
                 'autopass' => 'boolean',
+                'player_color' => 'color',
+                'opponent_color' => 'color',
+                'neutral_color_a' => 'color',
+                'neutral_color_b' => 'color',
             ),
             'permitted' => array(
                 'current_password' => 'string',
@@ -617,6 +621,15 @@ class ApiSpec {
     // verify that the argument is a string
     protected function verify_argument_of_type_string($arg) {
         if (is_string($arg)) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    // verify that the argument is a string
+    protected function verify_argument_of_type_color($arg) {
+        if (is_string($arg) &&
+            preg_match('/^#[0-9a-f]{6}$/i', $arg)) {
             return TRUE;
         }
         return FALSE;

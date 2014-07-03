@@ -731,6 +731,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'comment' => '',
             'autopass' => 'True',
+            'player_color' => '#aabbcc',
+            'opponent_color' => '#ddeeff',
+            'neutral_color_a' => '#001122',
+            'neutral_color_b' => '#334455',
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);

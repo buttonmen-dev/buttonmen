@@ -15,6 +15,10 @@ class BMInterface {
     const GAME_CHAT_MAX_LENGTH = 500;
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
+    const DEFAULT_PLAYER_COLOR = '#dd99dd';
+    const DEFAULT_OPPONENT_COLOR = '#ddffdd';
+    const DEFAULT_NEUTRAL_COLOR_A = '#cccccc';
+    const DEFAULT_NEUTRAL_COLOR_B = '#dddddd';
 
     // properties
     private $message;               // message intended for GUI
@@ -99,6 +103,10 @@ class BMInterface {
             'dob_day' => $dob_day,
             'autopass' => (bool)$infoArray['autopass'],
             'comment' => $infoArray['comment'],
+            'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
+            'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
+            'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
+            'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
@@ -111,6 +119,8 @@ class BMInterface {
     }
 
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
+        error_log(print_r($infoArray, true));
+
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
 
@@ -3841,17 +3851,14 @@ class BMInterface {
     }
 
     // Retrieves the colors that the user has saved in their preferences
-// AdmiralJota: the next two lines have been commented out to satisfy PMD
-//    protected function load_player_colors($currentPlayerId) {
-//        $playerInfoArray = $this->get_player_info($currentPlayerId);
-    protected function load_player_colors() {
-        // Ultimately, these values should come from the database, but that
-        // hasn't been implemented yet, so we'll just hard code them for now
+    protected function load_player_colors($currentPlayerId) {
+        $playerInfoArray = $this->get_player_info($currentPlayerId);
+
         $colors = array(
-            'player' => '#dd99dd',
-            'opponent' => '#ddffdd',
-            'neutralA' => '#cccccc',
-            'neutralB' => '#dddddd',
+            'player' => $playerInfoArray['user_prefs']['player_color'],
+            'opponent' => $playerInfoArray['user_prefs']['opponent_color'],
+            'neutralA' => $playerInfoArray['user_prefs']['neutral_color_a'],
+            'neutralB' => $playerInfoArray['user_prefs']['neutral_color_b'],
             // Itself an associative array of player ID's => color strings
             'battleBuddies' => array(),
         );

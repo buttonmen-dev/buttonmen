@@ -20,6 +20,7 @@ module("UserPrefs", {
     // Page elements
     $('#userprefs_page').remove();
     $('#userprefs_page').empty();
+    $('.sp-container').remove();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
