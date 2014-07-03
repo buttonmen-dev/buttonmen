@@ -99,7 +99,7 @@ class TestBMClient(unittest.TestCase):
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
       'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
-      'opponentNameArray', 'statusArray'
+      'opponentNameArray', 'playerColorArray', 'statusArray'
     ]
     self.assertEqual(sorted(r.data.keys()), known_keys)
     for key in sorted(r.data.keys()):
