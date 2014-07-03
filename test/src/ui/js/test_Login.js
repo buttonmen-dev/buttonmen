@@ -81,10 +81,6 @@ test("test_Login.goToNextPendingGame", function() {
 test("test_Login.goToNextPendingGame_no_next_game", function() {
   Env.window.location.href = "/ui/game.html?game=1";
 
-  // We test for the Overview object to determine if we're on the Overview page
-  var overviewBackup = Overview;
-  Overview = undefined;
-
   Api.gameNavigation = {
     'load_status': 'ok',
     'nextGameId': null,
@@ -97,6 +93,4 @@ test("test_Login.goToNextPendingGame_no_next_game", function() {
     ok(Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/),
       "The page has been redirected to the Overview page");
   }
-
-  Overview = overviewBackup;
 });

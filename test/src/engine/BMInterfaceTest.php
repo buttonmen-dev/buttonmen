@@ -102,7 +102,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $data = $this->object->get_player_info(1);
+        $data = $this->object->get_player_info(self::$userId3WithAutopass);
         $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
@@ -124,7 +124,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('n_games_lost', $resultArray);
 
         $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(1, $resultArray['id']);
+        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
 
         $this->assertTrue(is_bool($resultArray['autopass']));
         $this->assertTrue(is_bool($resultArray['monitorRedirectsToGame']));
@@ -2981,6 +2981,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $thread1 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
             $boardId1, 'Test Title 1', 'Test Body 1');
         // Separate the posts slightly, so that the first one is measurably first
+        // (This is just because the DB timestamp granularity is only one second.)
         sleep(1);
         $thread2 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
             $boardId1, 'Test Title 2', 'Test Body 2');

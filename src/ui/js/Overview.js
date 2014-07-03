@@ -6,7 +6,7 @@ var Overview = {};
 Overview.GAME_STATE_END_GAME = 60;
 
 // Number of seconds before refreshing the monitor
-Overview.MONITOR_TIMEOUT = 6;
+Overview.MONITOR_TIMEOUT = 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -31,6 +31,11 @@ Overview.MONITOR_TIMEOUT = 6;
 Overview.showOverviewPage = function() {
   // Setup necessary elements for displaying status messages
   Env.setupEnvStub();
+
+  // Set up the callback for refreshing the page if there's no next game
+  Login.nextGameRefreshCallback = function() {
+    Overview.getOverview(Overview.showPage);
+  };
 
   // Make sure the div element that we will need exists in the page body
   if ($('#overview_page').length === 0) {
@@ -82,6 +87,7 @@ Overview.showPage = function() {
         'href': Env.ui_root,
       })));
 
+      // Times 1000 because setTimeout expects milliseconds
       setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
     }
 
@@ -155,7 +161,7 @@ Overview.pageAddNewgameLink = function() {
   var newgamePar = $('<p>');
   if (Api.active_games.games.awaitingPlayer.length > 0) {
     var newgameLink = $('<a>', {
-      'href': Env.ui_root + '?mode=nextGame',
+      'href': Env.ui_root + 'index.html?mode=nextGame',
       'text': 'Go to your next pending game',
     });
     newgamePar.append(newgameLink);

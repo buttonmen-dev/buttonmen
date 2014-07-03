@@ -10,6 +10,9 @@ Login.STATUS_NO_ACTIVITY      = 1;
 Login.STATUS_ACTION_SUCCEEDED = 2;
 Login.STATUS_ACTION_FAILED    = 3;
 
+// This is used to refresh the Overview page if there's no next game
+Login.nextGameRefreshCallback = false;
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -268,12 +271,12 @@ Login.goToNextPendingGame = function() {
     } else {
       // If there are no active games, and we're on the Overview page, tell
       // the user so and refresh the list of games
-      if (typeof Overview !== 'undefined') {
+      if (Login.nextGameRefreshCallback) {
         Env.message = {
           'type': 'none',
           'text': 'There are no games waiting for you to play'
         };
-        Overview.getOverview(Overview.showPage);
+        Login.nextGameRefreshCallback();
       } else {
         // If we're not on the Overview page, send them there
         Env.window.location.href = '/ui';

@@ -842,8 +842,21 @@ asyncTest("test_Game.pageAddGameNavigationFooter", function() {
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
     ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    ok(htmlout.match('Go to your next pending game'),
-       "Next game link exists");
+    ok(htmlout.match('Go to your next pending game \\(if any\\)'),
+       "Next game link exists and reflects no known pending games");
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddGameNavigationFooter_pendingGames", function() {
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddGameNavigationFooter();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
+    ok(htmlout.match('Go to your next pending game \\(at least 3\\)'),
+       "Next game link exists and reflects pending games");
     start();
   });
 });

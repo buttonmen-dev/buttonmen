@@ -26,6 +26,7 @@ module("Overview", {
     delete Overview.page;
     delete Overview.monitorIsOn;
     delete Env.window.location.href;
+    Login.nextGameRefreshCallback = false;
 
     // Page elements
     $('#overview_page').remove();
