@@ -1744,6 +1744,10 @@ class BMInterface {
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':player_id' => $playerId));
 
+        return self::read_game_list_from_db_results($playerId, $statement);
+    }
+
+    protected function read_game_list_from_db_results($playerId, $results) {
         // Initialize the arrays
         $gameIdArray = array();
         $opponentIdArray = array();
@@ -1769,7 +1773,7 @@ class BMInterface {
         // preferences
         $playerColors = $this->load_player_colors($playerId);
 
-        while ($row = $statement->fetch()) {
+        while ($row = $results->fetch()) {
             $gameColors = $this->determine_game_colors(
                 $playerId,
                 $playerColors,
