@@ -12,6 +12,26 @@ class ApiSpec {
     // * mandatory: argument which must be present
     // * permitted: additional argument which may be present
     private $functionArgs = array(
+        'adjustFire' => array(
+            'mandatory' => array(
+                'game' => 'number',
+                'roundNumber' => 'number',
+                'timestamp' => 'number',
+                'action' => 'alnum',
+            ),
+            'permitted' => array(
+                'dieIdxArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'elem_type' => 'number',
+                ),
+                'dieValueArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'elem_type' => 'alnum',
+                ),
+            ),
+        ),
         // createForumPost returns (from loadForumThread):
         //   threadId: int,
         //   threadTitle: string,
