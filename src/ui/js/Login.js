@@ -163,7 +163,7 @@ Login.stateLoggedOut = function(welcomeText) {
 
 Login.addMainNavbar = function() {
   var navtable = $('<table>');
-  var navrow = $('<tr>');
+  var navrow = $('<tr>', { 'class': 'headerNav' });
   var links = {
     'Overview': 'index.html',
     'Monitor': Env.ui_root + 'index.html?mode=monitor',
@@ -185,7 +185,17 @@ Login.addMainNavbar = function() {
     e.preventDefault();
     Api.getNextGameId(Login.goToNextPendingGame);
   });
-  if (typeof Forum === 'undefined' && Api.forumNavigation.nextNewPostId) {
+  navtable.append(navrow);
+  Login.message.append(navtable);
+
+  Login.addNewPostLink();
+};
+
+Login.addNewPostLink = function() {
+  var navRow = $('.headerNav');
+  navRow.find('a:contains("(New post)")').parent().remove();
+
+  if (Api.forumNavigation.nextNewPostId) {
     var newPostTd = $('<td>');
     newPostTd.append($('<a>', {
       'text': ' (New post)',
@@ -193,10 +203,8 @@ Login.addMainNavbar = function() {
         'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
           '&postId=' + Api.forumNavigation.nextNewPostId,
     }));
-    navrow.find('a:contains("Forum")').parent().after(newPostTd);
+    navRow.find('a:contains("Forum")').parent().after(newPostTd);
   }
-  navtable.append(navrow);
-  Login.message.append(navtable);
 };
 
 ////////////////////////////////////////////////////////////////////////
