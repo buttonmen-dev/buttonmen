@@ -98,8 +98,23 @@ Profile.buildProfileTable = function() {
     });
   }
 
-  var record = Api.profile_info.n_games_won + ' W / ' +
-    Api.profile_info.n_games_lost + ' L';
+  var record = Api.profile_info.n_games_won + '/' +
+    Api.profile_info.n_games_lost + ' (W/L)';
+
+  var gamesLinksHolder = $('<span>');
+  gamesLinksHolder.append($('<a>', {
+    'text': 'Active',
+    'href':
+      Env.ui_root + 'history.html#!playerNameA=' +
+      Api.profile_info.name_ingame + '&status=ACTIVE',
+  }));
+  gamesLinksHolder.append(' ');
+  gamesLinksHolder.append($('<a>', {
+    'text': 'Completed',
+    'href':
+      Env.ui_root + 'history.html#!playerNameA=' +
+      Api.profile_info.name_ingame + '&status=COMPLETE',
+  }));
 
   var solipsismAlternatives = [
     'solipsism overflow',
@@ -150,6 +165,8 @@ Profile.buildProfileTable = function() {
     true));
   tbody.append(Profile.buildProfileTableRow('Last visit',
     Env.formatTimestamp(Api.profile_info.last_access_time, 'date'), 'never',
+    true));
+  tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',

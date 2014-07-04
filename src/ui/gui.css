@@ -352,6 +352,10 @@ table.prefsTable td.value {
     vertical-align: top;
 }
 
+table.prefsTable textarea {
+    width: 300px;
+}
+
 table.profileTable td.value,
 table.profileTable td.missingValue {
     text-align: left;

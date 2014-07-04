@@ -378,6 +378,7 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
         'name': entryKey,
         'id': 'userprefs_' + entryKey,
         'maxlength': entryInfo.length,
+        'rows': 6,
       }).val(entryInfo.value));
       break;
     case 'image':
