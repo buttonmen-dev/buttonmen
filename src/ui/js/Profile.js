@@ -1,6 +1,11 @@
 // namespace for this "module"
 var Profile = {};
 
+// This is hardcoded here because it needs to be a public URL that we can pass
+// to gravatar
+Profile.DEFAULT_IMAGE_URL =
+  'http://www.buttonweavers.com/ui/images/no-image.png';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Profile.showProfilePage() is the landing function. Always call
@@ -177,7 +182,12 @@ Profile.buildProfileTable = function() {
     Api.profile_info.comment, 'none', false));
 
   if (!Env.getCookieNoImages()) {
-    var url = Env.ui_root + 'images/no-image.png';
+    var url =
+      'http://www.gravatar.com/avatar/' + Api.profile_info.email_hash +
+      '?d=' + encodeURIComponent(Profile.DEFAULT_IMAGE_URL);
+    if (Api.profile_info.image_size) {
+      url += '&s=' + Api.profile_info.image_size;
+    }
     var image = $('<img>', {
       'src': url,
       'class': 'profileImage',

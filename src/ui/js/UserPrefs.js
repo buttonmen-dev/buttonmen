@@ -3,6 +3,8 @@ var UserPrefs = {};
 
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
+UserPrefs.MIN_IMAGE_SIZE = 80;
+UserPrefs.MAX_IMAGE_SIZE = 200;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 
 
@@ -133,19 +135,18 @@ UserPrefs.actionSetPrefs = function() {
         'It\'s complicated': 'It\'s complicated',
       },
     },
+    'image_size': {
+      'text': 'Gravatar image size (if you use one)',
+      'type': 'text',
+      'value': Api.user_prefs.image_size,
+      'after': ' pixels',
+    },
     'comment': {
       'text': 'Comment',
       'type': 'textarea',
       'value': Api.user_prefs.comment,
       'length': UserPrefs.COMMENT_MAX_LENGTH,
     },
-    // We can put this back when we have an acceptable implementation of
-    // profile images
-//    'image': {
-//      'text': '',
-//      'type': 'image',
-//      'value': '',
-//    },
   };
 
   var gameplayBlurb = 'These preferences affect the actions you take during ' +
@@ -250,6 +251,7 @@ UserPrefs.formSetPrefs = function() {
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
   var gender = $('#userprefs_gender').val();
+  var image_size = $('#userprefs_image_size').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var current_password = $('#userprefs_current_password').val();
@@ -266,6 +268,21 @@ UserPrefs.formSetPrefs = function() {
     (dob_month === 0 && dob_day !== 0)) {
     validationErrors += 'Birthday is incomplete. ';
   }
+
+  if (image_size !== '') {
+    if (isNaN(image_size)) {
+      validationErrors += 'Gravatar size must be a number of pixels. ';
+    } else {
+      image_size = parseInt(image_size, 10);
+      if (image_size < UserPrefs.MIN_IMAGE_SIZE ||
+          image_size > UserPrefs.MAX_IMAGE_SIZE) {
+        validationErrors +=
+          'Gravatar size must be between ' + UserPrefs.MIN_IMAGE_SIZE +
+          ' and ' + UserPrefs.MAX_IMAGE_SIZE + ' pixels. ';
+      }
+    }
+  }
+
   if (new_password != confirm_new_password) {
     validationErrors += 'New passwords do not match. ';
   }
@@ -305,6 +322,10 @@ UserPrefs.formSetPrefs = function() {
     new_email = undefined;
   }
 
+  if (!image_size) {
+    image_size = undefined;
+  }
+
   Api.apiFormPost(
     {
       'type': 'savePlayerInfo',
@@ -313,6 +334,7 @@ UserPrefs.formSetPrefs = function() {
       'dob_month': dob_month,
       'dob_day': dob_day,
       'gender': gender,
+      'image_size': image_size,
       'comment': comment,
       'autopass': autopass,
       'current_password': current_password,
@@ -438,6 +460,10 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
       }));
     }
     entryRow.append(entryInput);
+
+    if (entryInfo.after) {
+      entryInput.append(entryInfo.after);
+    }
     prefsTable.append(entryRow);
   });
 

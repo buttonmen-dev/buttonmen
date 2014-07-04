@@ -394,6 +394,11 @@ class ApiSpec {
                 'autopass' => 'boolean',
             ),
             'permitted' => array(
+                'image_size' => array(
+                    'arg_type' => 'number',
+                    'maxvalue' => 200,
+                    'minvalue' => 80,
+                ),
                 'current_password' => 'string',
                 'new_password' => 'string',
                 'new_email' => 'email',
@@ -514,8 +519,14 @@ class ApiSpec {
                 case 'exactString':
                     return $this->verify_argument_exact_string_type($arg, $argtype['values']);
                 case 'array':
-                default:
                     return $this->verify_argument_array_type($arg, $argtype);
+                default:
+                    $checkfunc = 'verify_argument_of_type_' . $argtype['arg_type'];
+
+                    if (method_exists($this, $checkfunc)) {
+                        return $this->$checkfunc($arg, $argtype);
+                    }
+                    return FALSE;
             }
         } else {
             $checkfunc = 'verify_argument_of_type_' . $argtype;
@@ -568,7 +579,7 @@ class ApiSpec {
     }
 
     // verify that the argument is an alphanumeric string (allow underscores)
-    protected function verify_argument_of_type_alnum($arg) {
+    protected function verify_argument_of_type_alnum($arg, $argtyp = array()) {
         if (is_string($arg) &&
             preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
             return TRUE;
@@ -577,7 +588,7 @@ class ApiSpec {
     }
 
     // verify that the argument is a string containing a boolean
-    protected function verify_argument_of_type_boolean($arg) {
+    protected function verify_argument_of_type_boolean($arg, $argtyp = array()) {
         if (is_string($arg) &&
             in_array(strtolower($arg), array("true", "false"))) {
             return TRUE;
@@ -593,7 +604,7 @@ class ApiSpec {
     // * alphanumeric characters
     // * space
     // * these special characters: . ' ( ) ! & + _ -
-    protected function verify_argument_of_type_button($arg) {
+    protected function verify_argument_of_type_button($arg, $argtyp = array()) {
         if (is_string($arg) &&
             preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]+$/', $arg)) {
             return TRUE;
@@ -602,7 +613,7 @@ class ApiSpec {
     }
 
     // verify that the argument is a string containing a valid e-mail address
-    protected function verify_argument_of_type_email($arg) {
+    protected function verify_argument_of_type_email($arg, $argtyp = array()) {
         if (is_string($arg) &&
             preg_match('/^[A-Za-z0-9\._+-]+@[A-Za-z0-9\.-]+$/', $arg)) {
             return TRUE;
@@ -611,16 +622,23 @@ class ApiSpec {
     }
 
     // verify that the argument is a nonnegative integer
-    protected function verify_argument_of_type_number($arg) {
+    protected function verify_argument_of_type_number($arg, $argtyp = array()) {
         if ((is_int($arg) && $arg >= 0) ||
             (is_string($arg) && ctype_digit($arg))) {
+            $arg = (int)$arg;
+            if (isset($argtype['maxvalue']) && $arg > $argtype['maxvalue']) {
+                return FALSE;
+            }
+            if (isset($argtype['minvalue']) && $arg > $argtype['minvalue']) {
+                return FALSE;
+            }
             return TRUE;
         }
         return FALSE;
     }
 
     // verify that the argument is a string
-    protected function verify_argument_of_type_string($arg) {
+    protected function verify_argument_of_type_string($arg, $argtyp = array()) {
         if (is_string($arg)) {
             return TRUE;
         }

@@ -223,6 +223,11 @@ class ApiResponder {
         $infoArray['comment'] = $args['comment'];
         $infoArray['gender'] = $args['gender'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
+        if (isset($args['image_size'])) {
+            $infoArray['image_size'] = $args['image_size'];
+        } else {
+            $infoArray['image_size'] = NULL;
+        }
 
         $addlInfo = array();
         if (isset($args['current_password'])) {

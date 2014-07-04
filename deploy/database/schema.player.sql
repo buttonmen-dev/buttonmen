@@ -12,6 +12,7 @@ CREATE TABLE player (
     gender              VARCHAR(20),
     autopass            BOOLEAN DEFAULT 0,
     image_path          VARCHAR(100),
+    image_size          SMALLINT,
     comment             VARCHAR(255),
     last_action_time    TIMESTAMP DEFAULT 0,
     last_access_time    TIMESTAMP DEFAULT 0,
