@@ -7,7 +7,6 @@ UserPrefs.MIN_IMAGE_SIZE = 80;
 UserPrefs.MAX_IMAGE_SIZE = 200;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 
-
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * UserPrefs.showUserPrefsPage() is the landing function.  Always call

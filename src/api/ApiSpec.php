@@ -579,7 +579,7 @@ class ApiSpec {
     }
 
     // verify that the argument is an alphanumeric string (allow underscores)
-    protected function verify_argument_of_type_alnum($arg, $argtyp = array()) {
+    protected function verify_argument_of_type_alnum($arg) {
         if (is_string($arg) &&
             preg_match('/^[a-zA-Z0-9_]+$/', $arg)) {
             return TRUE;
@@ -588,7 +588,7 @@ class ApiSpec {
     }
 
     // verify that the argument is a string containing a boolean
-    protected function verify_argument_of_type_boolean($arg, $argtyp = array()) {
+    protected function verify_argument_of_type_boolean($arg) {
         if (is_string($arg) &&
             in_array(strtolower($arg), array("true", "false"))) {
             return TRUE;
@@ -604,7 +604,7 @@ class ApiSpec {
     // * alphanumeric characters
     // * space
     // * these special characters: . ' ( ) ! & + _ -
-    protected function verify_argument_of_type_button($arg, $argtyp = array()) {
+    protected function verify_argument_of_type_button($arg) {
         if (is_string($arg) &&
             preg_match('/^[ a-zA-Z0-9\.\'()!&+_-]+$/', $arg)) {
             return TRUE;
@@ -613,7 +613,7 @@ class ApiSpec {
     }
 
     // verify that the argument is a string containing a valid e-mail address
-    protected function verify_argument_of_type_email($arg, $argtyp = array()) {
+    protected function verify_argument_of_type_email($arg) {
         if (is_string($arg) &&
             preg_match('/^[A-Za-z0-9\._+-]+@[A-Za-z0-9\.-]+$/', $arg)) {
             return TRUE;
@@ -622,14 +622,14 @@ class ApiSpec {
     }
 
     // verify that the argument is a nonnegative integer
-    protected function verify_argument_of_type_number($arg, $argtyp = array()) {
+    protected function verify_argument_of_type_number($arg, $argtype = array()) {
         if ((is_int($arg) && $arg >= 0) ||
             (is_string($arg) && ctype_digit($arg))) {
             $arg = (int)$arg;
             if (isset($argtype['maxvalue']) && $arg > $argtype['maxvalue']) {
                 return FALSE;
             }
-            if (isset($argtype['minvalue']) && $arg > $argtype['minvalue']) {
+            if (isset($argtype['minvalue']) && $arg < $argtype['minvalue']) {
                 return FALSE;
             }
             return TRUE;
@@ -638,7 +638,7 @@ class ApiSpec {
     }
 
     // verify that the argument is a string
-    protected function verify_argument_of_type_string($arg, $argtyp = array()) {
+    protected function verify_argument_of_type_string($arg) {
         if (is_string($arg)) {
             return TRUE;
         }
