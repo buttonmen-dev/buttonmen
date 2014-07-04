@@ -1,0 +1,6 @@
+ALTER TABLE player
+    DROP COLUMN dob,
+    ADD COLUMN is_email_public BOOLEAN DEFAULT 0 NOT NULL AFTER email,
+    ADD COLUMN dob_month INT DEFAULT 0 NOT NULL AFTER status,
+    ADD COLUMN dob_day INT DEFAULT 0 NOT NULL AFTER dob_month,
+    ADD COLUMN gender VARCHAR(20) DEFAULT '' NOT NULL AFTER dob_day;

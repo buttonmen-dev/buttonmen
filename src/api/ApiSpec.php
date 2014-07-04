@@ -383,8 +383,13 @@ class ApiSpec {
         'savePlayerInfo' => array(
             'mandatory' => array(
                 'name_irl' => 'string',
+                'is_email_public' => 'boolean',
                 'dob_month' => 'number',
                 'dob_day' => 'number',
+                'gender' => array(
+                    'arg_type' => 'exactString',
+                    'values' => array('', 'Male', 'Female', 'It\'s complicated'),
+                ),
                 'comment' => 'string',
                 'autopass' => 'boolean',
             ),

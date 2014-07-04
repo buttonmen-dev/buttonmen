@@ -72,8 +72,16 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $email = $username . '@example.com';
         $createResult = $this->newuserObject->create_user($username, 't', $email);
 
-        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
+        $infoArray = array(
+            'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
+            'comment' => '',
+            'autopass' => 1
+        );
+        $addlInfo = array();
 
         $this->object->set_player_info($createResult['playerId'],
                                        $infoArray,
@@ -96,7 +104,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $data = $this->object->get_player_info(1);
+        $data = $this->object->get_player_info(self::$userId3WithAutopass);
         $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
@@ -105,8 +113,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('password_hashed', $resultArray);
         $this->assertArrayHasKey('name_irl', $resultArray);
         $this->assertArrayHasKey('email', $resultArray);
+        $this->assertArrayHasKey('is_email_public', $resultArray);
         $this->assertArrayHasKey('dob_month', $resultArray);
         $this->assertArrayHasKey('dob_day', $resultArray);
+        $this->assertArrayHasKey('gender', $resultArray);
         $this->assertArrayHasKey('autopass', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
@@ -116,7 +126,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('n_games_lost', $resultArray);
 
         $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(1, $resultArray['id']);
+        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
 
         $this->assertTrue(is_bool($resultArray['autopass']));
 
@@ -133,8 +143,16 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::set_player_info
      */
     public function test_set_player_info() {
-        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
+        $infoArray = array(
+            'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
+            'comment' => '',
+            'autopass' => 1
+        );
+        $addlInfo = array();
 
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,

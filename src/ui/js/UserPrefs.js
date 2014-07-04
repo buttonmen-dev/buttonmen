@@ -109,12 +109,28 @@ UserPrefs.actionSetPrefs = function() {
       'value': Api.user_prefs.name_irl,
       'length': UserPrefs.NAME_IRL_MAX_LENGTH,
     },
+    'is_email_public': {
+      'text': 'Make email address public',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.is_email_public,
+    },
     'dob': {
       'text': 'Birthday',
       'type': 'date',
       'value': {
         'month': Api.user_prefs.dob_month,
         'day': Api.user_prefs.dob_day,
+      },
+    },
+    'gender': {
+      'text': 'Gender',
+      'type': 'select',
+      'value': Api.user_prefs.gender,
+      'source': {
+        '': '',
+        'Male': 'Male',
+        'Female': 'Female',
+        'It\'s complicated': 'It\'s complicated',
       },
     },
     'comment': {
@@ -230,8 +246,10 @@ UserPrefs.formSetPrefs = function() {
   Env.showStatusMessage();
 
   var name_irl = $('#userprefs_name_irl').val();
+  var is_email_public = $('#userprefs_is_email_public').prop('checked');
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
+  var gender = $('#userprefs_gender').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var current_password = $('#userprefs_current_password').val();
@@ -291,8 +309,10 @@ UserPrefs.formSetPrefs = function() {
     {
       'type': 'savePlayerInfo',
       'name_irl': name_irl,
+      'is_email_public': is_email_public,
       'dob_month': dob_month,
       'dob_day': dob_day,
+      'gender': gender,
       'comment': comment,
       'autopass': autopass,
       'current_password': current_password,
@@ -392,6 +412,20 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
           'class': 'profileImage',
         }));
       }
+      break;
+    case 'select':
+      var select = $('<select>', {
+        'name': entryKey,
+        'id': 'userprefs_' + entryKey,
+      });
+      entryInput.append(select);
+      $.each(entryInfo.source, function(key, value) {
+        select.append($('<option>', {
+          'text': key,
+          'value': value,
+        }));
+      });
+      select.val(entryInfo.value);
       break;
     default:
       entryInput.append($('<input>', {

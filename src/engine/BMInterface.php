@@ -70,14 +70,6 @@ class BMInterface {
 
         $infoArray = $result[0];
 
-        $dob_month = 0;
-        $dob_day = 0;
-        if ($infoArray['dob'] != NULL) {
-            $dob = new DateTime($infoArray['dob']);
-            $dob_month = (int)$dob->format("m");
-            $dob_day = (int)$dob->format("d");
-        }
-
         $last_action_time = (int)$infoArray['last_action_timestamp'];
         if ($last_action_time == 0) {
             $last_action_time = NULL;
@@ -94,9 +86,11 @@ class BMInterface {
             'name_ingame' => $infoArray['name_ingame'],
             'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
             'email' => $infoArray['email'],
+            'is_email_public' => (bool)$infoArray['is_email_public'],
             'status' => $infoArray['status'],
-            'dob_month' => $dob_month,
-            'dob_day' => $dob_day,
+            'dob_month' => (int)$infoArray['dob_month'],
+            'dob_day' => (int)$infoArray['dob_day'],
+            'gender' => $infoArray['gender'],
             'autopass' => (bool)$infoArray['autopass'],
             'comment' => $infoArray['comment'],
             'last_action_time' => $last_action_time,
@@ -114,19 +108,10 @@ class BMInterface {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
 
-        $isValidData = $this->validate_player_dob($addlInfo) &&
+        $isValidData = $this->validate_player_dob($infoArray) &&
                        $this->validate_player_password_and_email($addlInfo, $playerId);
         if (!$isValidData) {
             return NULL;
-        }
-
-        // Read special values into $infoArray
-        if ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] == 0) {
-            $infoArray['dob'] = NULL;
-        } else {
-            // We set the year to 0004 because it was a leap year, to permit Feb. 29
-            $dateString = '0004-' . $addlInfo['dob_month'] . '-' . $addlInfo['dob_day'];
-            $infoArray['dob'] = date($dateString);
         }
 
         if (isset($addlInfo['new_password'])) {
@@ -154,15 +139,15 @@ class BMInterface {
         return array('playerId' => $playerId);
     }
 
-    protected function validate_player_dob(array $addlInfo) {
-        if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
-            ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
+    protected function validate_player_dob(array $infoArray) {
+        if (($infoArray['dob_month'] != 0 && $infoArray['dob_day'] == 0) ||
+            ($infoArray['dob_month'] == 0 && $infoArray['dob_day'] != 0)) {
             $this->message = 'DOB is incomplete.';
             return FALSE;
         }
 
-        if ($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] != 0 &&
-            !checkdate($addlInfo['dob_month'], $addlInfo['dob_day'], 4)) {
+        if ($infoArray['dob_month'] != 0 && $infoArray['dob_day'] != 0 &&
+            !checkdate($infoArray['dob_month'], $infoArray['dob_day'], 4)) {
             $this->message = 'DOB is not a valid date.';
             return FALSE;
         }
@@ -236,10 +221,10 @@ class BMInterface {
             'id' => $playerInfo['id'],
             'name_ingame' => $playerInfo['name_ingame'],
             'name_irl' => $playerInfo['name_irl'],
-            // We'll only expose this if they've set it to be public
-            'email' => NULL,
-            'dob_month' => $playerInfo['dob_month'],
-            'dob_day' => $playerInfo['dob_day'],
+            'email' => ($playerInfo['is_email_public'] == 1 ? $playerInfo['email'] : NULL),
+            'dob_month' => (int)$playerInfo['dob_month'],
+            'dob_day' => (int)$playerInfo['dob_day'],
+            'gender' => $playerInfo['gender'],
             'comment' => $playerInfo['comment'],
             'last_access_time' => $playerInfo['last_access_time'],
             'creation_time' => $playerInfo['creation_time'],

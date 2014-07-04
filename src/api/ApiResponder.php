@@ -217,12 +217,14 @@ class ApiResponder {
     protected function get_interface_response_savePlayerInfo($interface, $args) {
         $infoArray = array();
         $infoArray['name_irl'] = $args['name_irl'];
+        $infoArray['is_email_public'] = ('true' == $args['is_email_public']);
+        $infoArray['dob_month'] = (int)$args['dob_month'];
+        $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
+        $infoArray['gender'] = $args['gender'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
 
         $addlInfo = array();
-        $addlInfo['dob_month'] = (int)$args['dob_month'];
-        $addlInfo['dob_day'] = (int)$args['dob_day'];
         if (isset($args['current_password'])) {
             $addlInfo['current_password'] = $args['current_password'];
         }
