@@ -192,16 +192,19 @@ Login.addMainNavbar = function() {
 };
 
 Login.addNewPostLink = function() {
-  var navRow = $('.headerNav');
+  var navRow = Login.message.find('.headerNav');
   navRow.find('a:contains("(New post)")').parent().remove();
 
   if (Api.forumNavigation.nextNewPostId) {
     var newPostTd = $('<td>');
     newPostTd.append($('<a>', {
-      'text': ' (New post)',
+      'text': '(New post)',
       'href':
         'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
           '&postId=' + Api.forumNavigation.nextNewPostId,
+      'class': 'pseudoLink',
+      'data-threadId': Api.forumNavigation.nextNewPostThreadId,
+      'data-postId': Api.forumNavigation.nextNewPostId,
     }));
     navRow.find('a:contains("Forum")').parent().after(newPostTd);
   }

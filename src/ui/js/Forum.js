@@ -345,7 +345,9 @@ Forum.arrangePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  Forum.page.find('.pseudoLink').each(function() {
+  var pseudoLinks =
+    Forum.page.find('.pseudoLink').add(Login.message.find('.pseudoLink'));
+  pseudoLinks.each(function() {
     $(this).click(Forum.formLinkToSubPage);
     var state = Forum.readStateFromElement(this);
     $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
