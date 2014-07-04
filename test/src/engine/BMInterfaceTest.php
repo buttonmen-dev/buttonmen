@@ -96,7 +96,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $data = $this->object->get_player_info(1);
+        $data = $this->object->get_player_info(self::$userId3WithAutopass);
         $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
@@ -116,7 +116,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('n_games_lost', $resultArray);
 
         $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(1, $resultArray['id']);
+        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
 
         $this->assertTrue(is_bool($resultArray['autopass']));
 
