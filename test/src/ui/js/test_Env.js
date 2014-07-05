@@ -236,6 +236,25 @@ test("test_Env.escapeRegexp", function() {
     'Escaped pattern should be as expected');
 });
 
+test("test_Env.sanitizeUrl", function() {
+  var rawUrl = 'example.com';
+  var cleanedUrl = Env.sanitizeUrl(rawUrl);
+  equal(cleanedUrl, 'http://example.com', 'URL should have correct protocol');
+
+  var rawUrl = 'javascript:alert(\'Evil\');';
+  var cleanedUrl = Env.sanitizeUrl(rawUrl);
+  equal(cleanedUrl, 'http://javascript:alert(Evil);',
+    'Malicious URL should be made invalid');
+
+  var rawUrl = 'http://example.com/$';
+  var cleanedUrl = Env.sanitizeUrl(rawUrl);
+  equal(cleanedUrl, 'http://example.com/', 'Inappropriate characters should be removed');
+
+  var rawUrl = 'https://example.com';
+  var cleanedUrl = Env.sanitizeUrl(rawUrl);
+  equal(cleanedUrl, rawUrl, 'Valid URL should be unaffected');
+});
+
 test("test_Env.buildProfileLink", function() {
   var link = Env.buildProfileLink('tester');
   equal(link.attr('href'), 'profile.html?player=tester',

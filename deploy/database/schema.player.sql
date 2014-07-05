@@ -14,6 +14,7 @@ CREATE TABLE player (
     image_path          VARCHAR(100),
     image_size          SMALLINT,
     comment             VARCHAR(255),
+    homepage            VARCHAR(100),
     favorite_button_id      SMALLINT UNSIGNED,
     favorite_buttonset_id   SMALLINT UNSIGNED,
     last_action_time    TIMESTAMP DEFAULT 0,

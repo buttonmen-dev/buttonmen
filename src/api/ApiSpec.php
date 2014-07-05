@@ -391,6 +391,10 @@ class ApiSpec {
                     'values' => array('', 'Male', 'Female', 'It\'s complicated'),
                 ),
                 'comment' => 'string',
+                'homepage' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => 100,
+                ),
                 'autopass' => 'boolean',
             ),
             'permitted' => array(
@@ -640,8 +644,15 @@ class ApiSpec {
     }
 
     // verify that the argument is a string
-    protected function verify_argument_of_type_string($arg) {
+    protected function verify_argument_of_type_string($arg, $argtype = array()) {
         if (is_string($arg)) {
+            $length = mb_strlen($arg, mb_detect_encoding($arg));
+            if (isset($argtype['maxlength']) && $length > $argtype['maxlength']) {
+                return FALSE;
+            }
+            if (isset($argtype['minlength']) && $length < $argtype['minlength']) {
+                return FALSE;
+            }
             return TRUE;
         }
         return FALSE;

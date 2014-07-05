@@ -5,6 +5,7 @@ UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.MIN_IMAGE_SIZE = 80;
 UserPrefs.MAX_IMAGE_SIZE = 200;
+UserPrefs.HOMEPAGE_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 
 ////////////////////////////////////////////////////////////////////////
@@ -162,6 +163,12 @@ UserPrefs.actionSetPrefs = function() {
       'value': Api.user_prefs.image_size,
       'after': ' pixels',
     },
+    'homepage': {
+      'text': 'Homepage',
+      'type': 'text',
+      'value': Api.user_prefs.homepage,
+      'length': UserPrefs.HOMEPAGE_MAX_LENGTH,
+    },
     'comment': {
       'text': 'Comment',
       'type': 'textarea',
@@ -275,6 +282,7 @@ UserPrefs.formSetPrefs = function() {
   var favorite_button = $('#userprefs_favorite_button').val();
   var favorite_buttonset = $('#userprefs_favorite_buttonset').val();
   var image_size = $('#userprefs_image_size').val();
+  var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var current_password = $('#userprefs_current_password').val();
@@ -368,6 +376,7 @@ UserPrefs.formSetPrefs = function() {
       'favorite_button': favorite_button,
       'favorite_buttonset': favorite_buttonset,
       'image_size': image_size,
+      'homepage': homepage,
       'comment': comment,
       'autopass': autopass,
       'current_password': current_password,

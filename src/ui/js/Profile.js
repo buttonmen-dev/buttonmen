@@ -141,6 +141,16 @@ Profile.buildProfileTable = function() {
     commentHolder.append(cookedComment);
   }
 
+  var homepageLink = null;
+  if (Api.profile_info.homepage) {
+    var homepageUrl = Env.sanitizeUrl(Api.profile_info.homepage);
+    homepageLink = $('<a>', {
+      'text': homepageUrl,
+      'href': homepageUrl,
+      'target': '_blank',
+    });
+  }
+
   var solipsismAlternatives = [
     'solipsism overflow',
     'autoludic prohibition',
@@ -196,12 +206,14 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
   tbody.append(Profile.buildProfileTableRow('Favorite button',
-    Api.profile_info.favorite_button, 'undecided', true));
+    Api.profile_info.favorite_button, 'undecided', false));
   tbody.append(Profile.buildProfileTableRow('Favorite button set',
-    Api.profile_info.favorite_buttonset, 'unselected', true));
+    Api.profile_info.favorite_buttonset, 'unselected', false));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
-    challengeLinkHolder, solipsismNotification, true));
+    challengeLinkHolder, solipsismNotification, false));
+  tbody.append(Profile.buildProfileTableRow('Homepage',
+    homepageLink, 'homeless', false));
   tbody.append(Profile.buildProfileTableRow('Comment',
     commentHolder, 'none', false));
 

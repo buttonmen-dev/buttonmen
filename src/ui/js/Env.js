@@ -418,3 +418,21 @@ Env.buildProfileLink = function(playerName, textOnly) {
     });
   }
 };
+
+// Takes a URL that was entered by a user and makes it safe to insert into an
+// anchor tag
+// Based on advice from http://stackoverflow.com/questions/205923
+Env.sanitizeUrl = function(rawUrl) {
+  // First, clean out inappropriate characters
+  var cleanedUrl = rawUrl.replace(/[^-A-Za-z0-9+&@#/%?=~_|!:,.;\(\)]/g, '');
+  // Then ensure that it begins with http:// or https://
+  if (cleanedUrl.toLowerCase().indexOf('http://') !== 0 &&
+      cleanedUrl.toLowerCase().indexOf('https://') !== 0) {
+    cleanedUrl = 'http://' + cleanedUrl;
+  }
+  // This should create a relatively safe URL. It does not verify that it's a
+  // *valid* URL, but if it is invalid, this should at least render it impotent.
+  // This also doesn't verify that the URL points to a safe page, but that is
+  // outside of the scope of this function.
+  return cleanedUrl;
+};

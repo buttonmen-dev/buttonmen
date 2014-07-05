@@ -228,6 +228,7 @@ class ApiResponder {
         } else {
             $infoArray['image_size'] = NULL;
         }
+        $infoArray['homepage'] = $args['homepage'];
 
         $addlInfo = array();
         if (isset($args['favorite_button'])) {

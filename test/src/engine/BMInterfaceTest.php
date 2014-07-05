@@ -79,6 +79,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'dob_day' => 0,
             'gender' => '',
             'comment' => '',
+            'homepage' => '',
             'autopass' => 1
         );
         $addlInfo = array();
@@ -120,6 +121,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('image_size', $resultArray);
         $this->assertArrayHasKey('autopass', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('homepage', $resultArray);
         $this->assertArrayHasKey('favorite_button', $resultArray);
         $this->assertArrayHasKey('favorite_buttonset', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
@@ -153,6 +155,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'dob_day' => 0,
             'gender' => '',
             'comment' => '',
+            'homepage' => '',
             'autopass' => 1
         );
         $addlInfo = array();
