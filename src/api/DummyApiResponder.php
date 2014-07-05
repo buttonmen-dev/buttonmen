@@ -570,6 +570,8 @@ class DummyApiResponder {
         $data['gameStateArray'][] = "ADJUST_FIRE_DICE";
         $data['statusArray'][] = "ACTIVE";
         $data['inactivityArray'][] = "4 minutes";
+        $data['playerColorArray'][] = "#dd99dd";
+        $data['opponentColorArray'][] = "#ddffdd";
     }
 
     protected function add_active_game_data_23(&$data) {
@@ -586,6 +588,8 @@ class DummyApiResponder {
         $data['gameStateArray'][] = "ADJUST_FIRE_DICE";
         $data['statusArray'][] = "ACTIVE";
         $data['inactivityArray'][] = "4 minutes";
+        $data['playerColorArray'][] = "#dd99dd";
+        $data['opponentColorArray'][] = "#ddffdd";
     }
 
     protected function add_active_game_data_24() {
