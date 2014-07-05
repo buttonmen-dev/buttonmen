@@ -383,6 +383,16 @@ class ApiResponder {
         return $retval;
     }
 
+    protected function get_interface_response_dismissGame($interface, $args) {
+        $retval = $interface->dismiss_game($_SESSION['user_id'], $args['gameId']);
+        if (isset($retval)) {
+            // Just update the player's last action time. Don't update the
+            // game's, since the game is already over.
+            $interface->update_last_action_time($_SESSION['user_id']);
+        }
+        return $retval;
+    }
+
     ////////////////////////////////////////////////////////////
     // Forum-related methods
 

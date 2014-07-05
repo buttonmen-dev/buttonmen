@@ -295,6 +295,27 @@ asyncTest("test_Game.parseValidReserveOptions_reserve_active", function() {
   });
 });
 
+asyncTest("test_Game.parseValidFireOptions", function() {
+  BMTestUtils.GameType = 'newgame';
+  Game.getCurrentGame(function() {
+    Game.parseValidFireOptions();
+    deepEqual(Api.game.player.fireOptions, {},
+              "No valid fire die options during choose swing phase");
+    start();
+  });
+});
+
+asyncTest("test_Game.parseValidFireOptions_fire_active", function() {
+  BMTestUtils.GameType = 'fire_active';
+  Game.getCurrentGame(function() {
+    Game.parseValidFireOptions();
+    deepEqual(Api.game.player.fireOptions,
+              {'0': [1, ], },
+              "One valid fire die option during adjust fire phase");
+    start();
+  });
+});
+
 asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
@@ -544,6 +565,54 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
   });
 });
 
+asyncTest("test_Game.actionAdjustFireDiceActive", function() {
+  BMTestUtils.GameType = 'fire_active';
+  Game.getCurrentGame(function() {
+    Game.actionAdjustFireDiceActive();
+    var htmlout = Game.page.html();
+    ok(htmlout.match('Turn down Fire dice by a total of 1'),
+      'Page describes the necessary Fire die turndown');
+    var item = document.getElementById('fire_adjust_0');
+    ok(item, "#fire_adjust_0 select is set");
+    $.each(item.childNodes, function(childid, child) {
+      if (child.getAttribute('label') == '2') {
+        deepEqual(child.getAttribute('selected'), 'selected',
+         'Fire die is initially set to current (maximum) value');
+      }
+    });
+    item = document.getElementById('fire_adjust_1');
+    ok(!item, "#fire_adjust_1 select is not set");
+    ok(Game.form, "Game.form is set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionAdjustFireDiceInactive", function() {
+  BMTestUtils.GameType = 'fire_inactive';
+  Game.getCurrentGame(function() {
+    Game.actionAdjustFireDiceInactive();
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "page contains die recipe table");
+    item = document.getElementById('fire_adjust_0');
+    equal(item, null, "#fire_adjust_0 select is not set");
+    equal(Game.form, null, "Game.form is not set");
+    start();
+  });
+});
+
+asyncTest("test_Game.actionAdjustFireDiceNonplayer", function() {
+  BMTestUtils.GameType = 'fire_nonplayer';
+  Game.getCurrentGame(function() {
+    Game.actionAdjustFireDiceNonplayer();
+    var item = document.getElementById('die_recipe_table');
+    ok(item, "page contains die recipe table");
+    item = document.getElementById('fire_adjust_0');
+    equal(item, null, "#fire_adjust_0 select is not set");
+    equal(Game.form, null, "Game.form is not set");
+    start();
+  });
+});
+
 asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.activity.chat = 'I had previously typed some text';
@@ -714,6 +783,24 @@ asyncTest("test_Game.formReactToInitiativeActive_decline_invalid", function() {
       {"type": "error",
        "text": "Chose not to react to initiative, but modified a die value"},
       "Game action failed when expected arguments were set");
+    $.ajaxSetup({ async: true });
+    start();
+  });
+});
+
+asyncTest("test_Game.formAdjustFireDiceActive", function() {
+  BMTestUtils.GameType = 'fire_active';
+  Game.getCurrentGame(function() {
+    Game.actionAdjustFireDiceActive();
+    $('#fire_action_select').val('turndown');
+    $('#fire_adjust_0').val('1');
+    $.ajaxSetup({ async: false });
+    $('#game_action_button').trigger('click');
+    deepEqual(
+      Env.message,
+      {"type": "success",
+       "text": "Successfully completed attack by turning down fire dice"},
+      "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
   });
@@ -997,18 +1084,10 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
 asyncTest("test_Game.dieTableEntry", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
-    var htmlobj = Game.dieTableEntry(
-      4,
-      Api.game.player.nDie,
-      Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray,
-      Api.game.player.dieSkillsArray,
-      Api.game.player.dieDescriptionArray
-    );
+    var htmlobj = Game.dieTableEntry(4, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, '<td title="X Swing Die">(X=4)</td>',
+    deepEqual(html, '<td title="X Swing Die (with 4 sides)">(X=4)</td>',
       "Die table entry has expected contents");
     start();
   });
@@ -1017,19 +1096,23 @@ asyncTest("test_Game.dieTableEntry", function() {
 asyncTest("test_Game.dieTableEntry_empty", function() {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
-    var htmlobj = Game.dieTableEntry(
-      6,
-      Api.game.player.nDie,
-      Api.game.player.dieRecipeArray,
-      Api.game.player.sidesArray,
-      Api.game.player.diePropertiesArray,
-      Api.game.player.dieSkillsArray,
-      Api.game.player.dieDescriptionArray
-    );
+    var htmlobj = Game.dieTableEntry(6, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
     deepEqual(html, "<td></td>",
       "Empty die table entry has expected contents");
+    start();
+  });
+});
+
+asyncTest("test_Game.activeDieFieldString", function() {
+  BMTestUtils.GameType = 'chance_active';
+  Game.getCurrentGame(function() {
+    var valstr = Game.activeDieFieldString(4, 'value', Api.game.player.activeDieArray);
+    deepEqual(valstr, 4, "Die value string has expected contents for an existing die");
+
+    valstr = Game.activeDieFieldString(6, 'value', Api.game.player.activeDieArray);
+    deepEqual(valstr, '', "Die value string has expected contents for a nonexistent die");
     start();
   });
 });
@@ -1184,21 +1267,49 @@ test("test_Game.dieRecipeText", function() {
 });
 
 test("test_Game.dieValidTurndownValues", function() {
-  deepEqual(Game.dieValidTurndownValues("s(4)", "3"), [],
-            "An arbitrary non-focus die has no valid turndown values");
-  deepEqual(Game.dieValidTurndownValues("f(7)", "5"), [4, 3, 2, 1],
-            "A focus die has valid turndown values");
-  deepEqual(Game.dieValidTurndownValues("f(7)", "1"), [],
-            "A focus die showing 1 has no valid turndown values");
-  deepEqual(Game.dieValidTurndownValues("f(7,7)", "4"), [3, 2],
-            "A twin focus die can only turn down as far as 2");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 's(4)',
+      'skills': ['Shadow', ],
+      'value': 3,
+    }, 'REACT_TO_INITIATIVE'), [], "An arbitrary non-focus die has no valid turndown values");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'f(7)',
+      'skills': ['Focus', ],
+      'value': 5,
+    }, 'REACT_TO_INITIATIVE'), [4, 3, 2, 1], "A focus die has valid turndown values");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'f(7)',
+      'skills': ['Focus', ],
+      'value': 1,
+    }, 'REACT_TO_INITIATIVE'), [], "A focus die showing 1 has no valid turndown values");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'f(7,7)',
+      'skills': ['Focus', ],
+      'value': 4,
+    }, 'REACT_TO_INITIATIVE'), [3, 2], "A twin focus die can only turn down as far as 2");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'F(7)',
+      'skills': ['Fire', ],
+      'value': 3,
+    }, 'REACT_TO_INITIATIVE'), [], "A fire die has no valid turndown values during 'react to initiative' state");
+  deepEqual(Game.dieValidTurndownValues({
+      'recipe': 'F(7)',
+      'skills': ['Fire', ],
+      'value': 3,
+    }, 'ADJUST_FIRE_DICE'), [2, 1], "A fire die has valid turndown values during 'adjust fire dice' state");
 });
 
 test("test_Game.dieCanRerollForInitiative", function() {
-  equal(Game.dieCanRerollForInitiative("s(4)"), false,
-        "An arbitrary non-chance die cannot reroll for initiative");
-  equal(Game.dieCanRerollForInitiative("c(5,5)"), true,
-        "An arbitrary chance die can reroll for initiative");
+  equal(Game.dieCanRerollForInitiative({
+      'recipe': 's(4)',
+      'skills': ['Shadow', ],
+      'value': 3,
+    }), false, "An arbitrary non-chance die cannot reroll for initiative");
+  equal(Game.dieCanRerollForInitiative({
+      'recipe': 'c(5,5)',
+      'skills': ['Chance', ],
+      'value': 6,
+    }), true, "An arbitrary chance die can reroll for initiative");
 });
 
 test("test_Game.chatBox", function() {
