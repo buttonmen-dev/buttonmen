@@ -230,6 +230,12 @@ class ApiResponder {
         }
 
         $addlInfo = array();
+        if (isset($args['favorite_button'])) {
+            $addlInfo['favorite_button'] = $args['favorite_button'];
+        }
+        if (isset($args['favorite_buttonset'])) {
+            $addlInfo['favorite_buttonset'] = $args['favorite_buttonset'];
+        }
         if (isset($args['current_password'])) {
             $addlInfo['current_password'] = $args['current_password'];
         }

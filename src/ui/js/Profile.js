@@ -94,13 +94,26 @@ Profile.buildProfileTable = function() {
       Api.profile_info.dob_day;
   }
 
-  var challengeLink = null;
+  var challengeLinkHolder = null;
   if (Login.player != Api.profile_info.name_ingame) {
-    challengeLink = $('<a>', {
-      'href': 'create_game.html?opponent=' +
+    challengeLinkHolder = $('<span>');
+    challengeLinkHolder.append($('<a>', {
+      'href':
+        'create_game.html?opponent=' +
         encodeURIComponent(Api.profile_info.name_ingame),
       'text': 'Create game!',
-    });
+    }));
+    if (Api.profile_info.favorite_button) {
+      challengeLinkHolder.append(' ');
+      challengeLinkHolder.append($('<a>', {
+        'href':
+          'create_game.html?opponent=' +
+          encodeURIComponent(Api.profile_info.name_ingame) +
+          '&opponentButton=' +
+          encodeURIComponent(Api.profile_info.favorite_button),
+        'text': 'With ' + Api.profile_info.favorite_button + '!',
+      }));
+    }
   }
 
   var record = Api.profile_info.n_games_won + '/' +
@@ -175,9 +188,13 @@ Profile.buildProfileTable = function() {
     true));
   tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
+  tbody.append(Profile.buildProfileTableRow('Favorite button',
+    Api.profile_info.favorite_button, 'undecided', true));
+  tbody.append(Profile.buildProfileTableRow('Favorite button set',
+    Api.profile_info.favorite_buttonset, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
-    challengeLink, solipsismNotification, true));
+    challengeLinkHolder, solipsismNotification, true));
   tbody.append(Profile.buildProfileTableRow('Comment',
     Api.profile_info.comment, 'none', false));
 

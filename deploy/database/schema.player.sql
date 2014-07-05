@@ -14,13 +14,17 @@ CREATE TABLE player (
     image_path          VARCHAR(100),
     image_size          SMALLINT,
     comment             VARCHAR(255),
+    favorite_button_id      SMALLINT UNSIGNED,
+    favorite_buttonset_id   SMALLINT UNSIGNED,
     last_action_time    TIMESTAMP DEFAULT 0,
     last_access_time    TIMESTAMP DEFAULT 0,
     creation_time       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fanatic_button_id   SMALLINT UNSIGNED,
     n_games_won         SMALLINT UNSIGNED DEFAULT 0,
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
-    INDEX (name_ingame)
+    INDEX (name_ingame),
+    FOREIGN KEY (favorite_button_id) REFERENCES button(id),
+    FOREIGN KEY (favorite_buttonset_id) REFERENCES buttonset(id)
 );
 
 DROP TABLE IF EXISTS player_auth;

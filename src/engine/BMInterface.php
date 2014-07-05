@@ -49,12 +49,15 @@ class BMInterface {
 
     public function get_player_info($playerId) {
         try {
-            $query = 'SELECT *, ' .
-                     'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
-                     'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
-                     'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
-                     'FROM player p ' .
-                     'WHERE id = :id';
+            $query =
+                'SELECT p.*, b.name AS favorite_button, bs.name AS favorite_buttonset, ' .
+                    'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
+                    'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
+                    'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
+                'FROM player p ' .
+                    'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
+                    'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
+                'WHERE p.id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetchAll();
@@ -63,8 +66,13 @@ class BMInterface {
                 return NULL;
             }
         } catch (Exception $e) {
-            $errorData = $statement->errorInfo();
-            $this->message = 'Player info get failed: ' . $errorData[2];
+            if (isset($statement)) {
+                $errorData = $statement->errorInfo();
+                $this->message = 'Player info get failed: ' . $errorData[2];
+            } else {
+                $this->message = 'Player info get failed: ' . $e->getMessage();
+            }
+            error_log($this->message);
             return NULL;
         }
 
@@ -99,6 +107,8 @@ class BMInterface {
             'image_size' => $image_size,
             'autopass' => (bool)$infoArray['autopass'],
             'comment' => $infoArray['comment'],
+            'favorite_button' => $infoArray['favorite_button'],
+            'favorite_buttonset' => $infoArray['favorite_buttonset'],
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
@@ -118,6 +128,21 @@ class BMInterface {
                        $this->validate_player_password_and_email($addlInfo, $playerId);
         if (!$isValidData) {
             return NULL;
+        }
+
+        if (isset($addlInfo['favorite_button'])) {
+            $infoArray['favorite_button_id'] =
+                $this->get_button_id_from_name($addlInfo['favorite_button']);
+            if (!is_int($infoArray['favorite_button_id'])) {
+                return FALSE;
+            }
+        }
+        if (isset($addlInfo['favorite_buttonset'])) {
+            $infoArray['favorite_buttonset_id'] =
+                $this->get_buttonset_id_from_name($addlInfo['favorite_buttonset']);
+            if (!is_int($infoArray['favorite_buttonset_id'])) {
+                return FALSE;
+            }
         }
 
         if (isset($addlInfo['new_password'])) {
@@ -234,6 +259,8 @@ class BMInterface {
             'gender' => $playerInfo['gender'],
             'image_size' => $playerInfo['image_size'],
             'comment' => $playerInfo['comment'],
+            'favorite_button' => $playerInfo['favorite_button'],
+            'favorite_buttonset' => $playerInfo['favorite_buttonset'],
             'last_access_time' => $playerInfo['last_access_time'],
             'creation_time' => $playerInfo['creation_time'],
             'fanatic_button_id' => $playerInfo['fanatic_button_id'],
@@ -2108,6 +2135,28 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Button ID get failed.';
+        }
+    }
+
+    protected function get_buttonset_id_from_name($name) {
+        try {
+            $query = 'SELECT id FROM buttonset '.
+                     'WHERE name = :input';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':input' => $name));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Buttonset name does not exist.';
+                return('');
+            } else {
+                return((int)$result[0]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_buttonset_id_from_name: " .
+                $e->getMessage()
+            );
+            $this->message = 'Buttonset ID get failed.';
         }
     }
 

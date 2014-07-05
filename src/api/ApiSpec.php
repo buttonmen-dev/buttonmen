@@ -394,6 +394,8 @@ class ApiSpec {
                 'autopass' => 'boolean',
             ),
             'permitted' => array(
+                'favorite_button' => 'button',
+                'favorite_button_set' => 'string',
                 'image_size' => array(
                     'arg_type' => 'number',
                     'maxvalue' => 200,
