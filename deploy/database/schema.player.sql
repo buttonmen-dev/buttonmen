@@ -8,6 +8,8 @@ CREATE TABLE player (
     status              ENUM('active', 'unverified', 'disabled'),
     dob                 DATE,
     autopass            BOOLEAN DEFAULT 0,
+    monitor_redirects_to_game   BOOLEAN DEFAULT 0 NOT NULL,
+    monitor_redirects_to_forum  BOOLEAN DEFAULT 0 NOT NULL,
     image_path          VARCHAR(100),
     comment             VARCHAR(255),
     last_action_time    TIMESTAMP DEFAULT 0,

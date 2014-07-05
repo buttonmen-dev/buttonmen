@@ -784,6 +784,8 @@ class DummyApiResponder {
                                 'status' => 'active',
                                 'dob' => NULL,
                                 'autopass' => TRUE,
+                                'monitor_redirects_to_game' => FALSE,
+                                'monitor_redirects_to_forum' => FALSE,
                                 'comment' => NULL,
                                 'last_action_time' => 0,
                                 'last_access_time' => 0,
@@ -1004,6 +1006,13 @@ class DummyApiResponder {
         $results['timestamp'] = 1401118756;
 
         return array($results, 'Forum thread loading succeeded');
+    }
+
+    protected function get_interface_response_loadNextNewPost() {
+        $results = array();
+        $results['nextNewPostId'] = 3;
+        $results['nextNewPostThreadId'] = 2;
+        return array($results, 'Checked new forum posts successfully');
     }
 
     protected function get_interface_response_markForumRead() {

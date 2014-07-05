@@ -132,13 +132,23 @@ UserPrefs.actionSetPrefs = function() {
 //    },
   };
 
-  var gameplayBlurb = 'These preferences affect the actions you take during ' +
-    'the game.';
-  var gameplayPrefs = {
+  var autoBlurb = 'These preferences configure things that the site can do ' +
+    'automatically for you.';
+  var autoPrefs = {
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
+    },
+    'monitor_redirects_to_game': {
+      'text': 'Redirect to waiting games when in Monitor mode',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.monitor_redirects_to_game,
+    },
+    'monitor_redirects_to_forum': {
+      'text': 'Redirect to new forum posts when in Monitor mode',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.monitor_redirects_to_forum,
     },
   };
 
@@ -199,8 +209,8 @@ UserPrefs.actionSetPrefs = function() {
 
   UserPrefs.appendToPreferencesTable(prefsTable, 'Profile Settings',
     profileBlurb, profileSettings);
-  UserPrefs.appendToPreferencesTable(prefsTable, 'Gameplay Preferences',
-    gameplayBlurb, gameplayPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
+    autoBlurb, autoPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
     accountBlurb, accountSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
@@ -234,6 +244,10 @@ UserPrefs.formSetPrefs = function() {
   var dob_day = $('#userprefs_dob_day').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
+  var monitor_redirects_to_game =
+    $('#userprefs_monitor_redirects_to_game').prop('checked');
+  var monitor_redirects_to_forum =
+    $('#userprefs_monitor_redirects_to_forum').prop('checked');
   var current_password = $('#userprefs_current_password').val();
   var new_password = $('#userprefs_new_password').val();
   var confirm_new_password = $('#userprefs_confirm_new_password').val();
@@ -295,6 +309,8 @@ UserPrefs.formSetPrefs = function() {
       'dob_day': dob_day,
       'comment': comment,
       'autopass': autopass,
+      'monitor_redirects_to_game': monitor_redirects_to_game,
+      'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'current_password': current_password,
       'new_password': new_password,
       'new_email': new_email,

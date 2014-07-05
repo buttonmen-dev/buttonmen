@@ -1612,11 +1612,18 @@ Game.pageAddGameNavigationFooter = function() {
   if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
     return false;
   }
+
+  var countText;
+  if (Api.game.pendingGameCount) {
+    countText = '(at least ' + Api.game.pendingGameCount + ')';
+  } else {
+    countText = '(if any)';
+  }
   Game.page.append($('<br>'));
   var linkDiv = $('<div>');
   linkDiv.append($('<a>', {
     'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
-    'text': 'Go to your next pending game (if any)',
+    'text': 'Go to your next pending game ' + countText,
   }));
   Game.page.append(linkDiv);
   return true;

@@ -23,6 +23,11 @@ div#login_header table {
     margin: 0;
 }
 
+h2.monitorMessage {
+    color: #800000;
+    margin-bottom: 0;
+}
+
 div.status_player {
     width: 100%;
 }

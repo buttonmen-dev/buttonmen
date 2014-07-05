@@ -98,6 +98,8 @@ class BMInterface {
             'dob_month' => $dob_month,
             'dob_day' => $dob_day,
             'autopass' => (bool)$infoArray['autopass'],
+            'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
+            'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
             'comment' => $infoArray['comment'],
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
@@ -113,6 +115,8 @@ class BMInterface {
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
+        $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
+        $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
 
         $isValidData = $this->validate_player_dob($addlInfo) &&
                        $this->validate_player_password_and_email($addlInfo, $playerId);
@@ -445,9 +449,43 @@ class BMInterface {
                 $data['gameChatLog'],
                 $data['gameActionLog']
             );
+
+            $data['pendingGameCount'] = $this->count_pending_games($playerId);
+
             return $data;
         }
         return NULL;
+    }
+
+    protected function count_pending_games($playerId) {
+        try {
+            $parameters = array(':player_id' => $playerId);
+
+            $query =
+                'SELECT COUNT(*) '.
+                'FROM game_player_map AS gpm '.
+                   'LEFT JOIN game AS g ON g.id = gpm.game_id '.
+                'WHERE gpm.player_id = :player_id '.
+                   'AND gpm.is_awaiting_action = 1 ';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute($parameters);
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Pending game count failed.';
+                error_log('Pending game count failed for player ' . $playerId);
+                return NULL;
+            } else {
+                return (int)$result[0];
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::count_pending_games: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Pending game count failed.';
+            return NULL;
+        }
     }
 
     public function load_game($gameId, $logEntryLimit = NULL) {
@@ -3514,6 +3552,47 @@ class BMInterface {
                 'Caught exception in BMInterface::load_forum_thread: ' .
                 $e->getMessage()
             );
+            return NULL;
+        }
+    }
+
+    // Load the ID's of the next new post and its thread
+    public function get_next_new_post($currentPlayerId) {
+        try {
+            $results = array();
+
+            // Get the list of all boards, identifying the first new post on each
+            $query =
+                'SELECT v.id, v.thread_id ' .
+                'FROM forum_player_post_view AS v ' .
+                'WHERE v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
+                'ORDER BY v.creation_time ASC ' .
+                'LIMIT 1;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':current_player_id' => $currentPlayerId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $results['nextNewPostId'] = NULL;
+                $results['nextNewPostThreadId'] = NULL;
+                $this->message = 'No new forum posts';
+                return $results;
+            }
+
+            $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
+            $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
+
+            if ($results) {
+                $this->message = 'Checked new forum posts successfully';
+            }
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_next_new_post: ' .
+                $e->getMessage()
+            );
+            $this->message = 'New forum post check failed';
             return NULL;
         }
     }

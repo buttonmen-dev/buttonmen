@@ -267,6 +267,13 @@ class ApiSpec {
               'currentGameId' => 'number',
             ),
         ),
+        // loadNextNewPost returns:
+        //   nextNewPostId (nullable),
+        //   nextNewPostThreadId (nullable),
+        'loadNextNewPost' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         'loadOpenGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -407,6 +414,8 @@ class ApiSpec {
                 'dob_day' => 'number',
                 'comment' => 'string',
                 'autopass' => 'boolean',
+                'monitor_redirects_to_game' => 'boolean',
+                'monitor_redirects_to_forum' => 'boolean',
             ),
             'permitted' => array(
                 'current_password' => 'string',
