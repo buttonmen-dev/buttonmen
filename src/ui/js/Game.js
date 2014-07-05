@@ -1575,6 +1575,20 @@ Game.pageAddGameHeader = function(action_desc) {
   descdiv.append(descspan);
   Game.page.append(descdiv);
   Game.page.append($('<br>'));
+
+  if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
+      Api.game.isParticipant && Api.game.player.waitingOnAction &&
+      Api.game.player.canStillWin === false) {
+    var cantWinDiv = $('<div>', {
+      'class': 'cantWin',
+      'text':
+        'It is impossible for you to win this round. It might be a good ' +
+        'time to surrender.',
+    });
+    Game.page.append(cantWinDiv);
+    Game.page.append($('<br>'));
+  }
+
   return true;
 };
 
