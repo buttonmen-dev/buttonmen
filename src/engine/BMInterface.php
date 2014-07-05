@@ -136,6 +136,8 @@ class BMInterface {
             if (!is_int($infoArray['favorite_button_id'])) {
                 return FALSE;
             }
+        } else {
+            $infoArray['favorite_button_id'] = NULL;
         }
         if (isset($addlInfo['favorite_buttonset'])) {
             $infoArray['favorite_buttonset_id'] =
@@ -143,6 +145,8 @@ class BMInterface {
             if (!is_int($infoArray['favorite_buttonset_id'])) {
                 return FALSE;
             }
+        } else {
+            $infoArray['favorite_buttonset_id'] = NULL;
         }
 
         if (isset($addlInfo['new_password'])) {

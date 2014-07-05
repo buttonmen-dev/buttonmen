@@ -16,6 +16,7 @@ module("UserPrefs", {
     delete Api.button;
     delete Api.player;
     delete Api.user_prefs;
+    delete Api.button;
 
     // Page elements
     $('#userprefs_page').remove();
@@ -46,12 +47,14 @@ asyncTest("test_UserPrefs.showUserPrefsPage", function() {
 });
 
 asyncTest("test_UserPrefs.assemblePage", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.assemblePage();
-    var htmlout = UserPrefs.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.assemblePage();
+      var htmlout = UserPrefs.page.html();
+      ok(htmlout.length > 0,
+         "The created page should have nonzero contents");
+      start();
+    });
   });
 });
 
@@ -73,12 +76,14 @@ test("test_UserPrefs.actionFailed", function() {
 });
 
 asyncTest("test_UserPrefs.actionSetPrefs", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.actionSetPrefs();
-    var autopass_checked = $('#userprefs_autopass').prop('checked');
-    ok(autopass_checked,
-       "The autopass button should be checked in the prefs table");
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.actionSetPrefs();
+      var autopass_checked = $('#userprefs_autopass').prop('checked');
+      ok(autopass_checked,
+         "The autopass button should be checked in the prefs table");
+      start();
+    });
   });
 });
 
@@ -89,16 +94,18 @@ asyncTest("test_UserPrefs.actionSetPrefs", function() {
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
 asyncTest("test_UserPrefs.formSetPrefs", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.actionSetPrefs();
-    $.ajaxSetup({ async: false });
-    $('#userprefs_action_button').trigger('click');
-    deepEqual(
-      Env.message,
-      {"type": "success", "text": "User details set successfully."},
-      "User preferences save succeeded");
-    $.ajaxSetup({ async: true });
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.actionSetPrefs();
+      $.ajaxSetup({ async: false });
+      $('#userprefs_action_button').trigger('click');
+      deepEqual(
+        Env.message,
+        {"type": "success", "text": "User details set successfully."},
+        "User preferences save succeeded");
+      $.ajaxSetup({ async: true });
+      start();
+    });
   });
 });
 
