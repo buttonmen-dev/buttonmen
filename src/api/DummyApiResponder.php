@@ -158,9 +158,8 @@ class DummyApiResponder {
         $summary['matchesFound'] = count($games);
         $summary['earliestStart'] = 1399605464;
         $summary['latestMove'] = 1399691809;
-        $summary['gamesWinningA'] = count($games);
-        $summary['gamesWinningB'] = 0;
-        $summary['gamesDrawn'] = 0;
+        $summary['gamesWonA'] = count($games);
+        $summary['gamesWonB'] = 0;
         $summary['gamesCompleted'] = 1;
 
         $data = array(
