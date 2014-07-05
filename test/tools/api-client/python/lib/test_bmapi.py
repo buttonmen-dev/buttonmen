@@ -126,8 +126,9 @@ class TestBMClient(unittest.TestCase):
     known_keys = [
       'activePlayerIdx', 'currentPlayerIdx', 'gameActionLog',
       'gameChatEditable', 'gameChatLog', 'gameId', 'gameSkillsInfo',
-      'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
-      'roundNumber', 'timestamp', 'validAttackTypeArray'
+      'gameState', 'maxWins', 'pendingGameCount', 'playerDataArray',
+      'playerWithInitiativeIdx', 'roundNumber', 'timestamp',
+      'validAttackTypeArray'
     ]
     r = self.obj.load_game_data(1)
     self.assertEqual(r.status, 'ok')

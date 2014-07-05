@@ -138,13 +138,23 @@ UserPrefs.actionSetPrefs = function() {
 //    },
   };
 
-  var gameplayBlurb = 'These preferences affect the actions you take during ' +
-    'the game.';
-  var gameplayPrefs = {
+  var autoBlurb = 'These preferences configure things that the site can do ' +
+    'automatically for you.';
+  var autoPrefs = {
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
+    },
+    'monitor_redirects_to_game': {
+      'text': 'Redirect to waiting games when in Monitor mode',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.monitor_redirects_to_game,
+    },
+    'monitor_redirects_to_forum': {
+      'text': 'Redirect to new forum posts when in Monitor mode',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.monitor_redirects_to_forum,
     },
   };
 
@@ -229,8 +239,8 @@ UserPrefs.actionSetPrefs = function() {
 
   UserPrefs.appendToPreferencesTable(prefsTable, 'Profile Settings',
     profileBlurb, profileSettings);
-  UserPrefs.appendToPreferencesTable(prefsTable, 'Gameplay Preferences',
-    gameplayBlurb, gameplayPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
+    autoBlurb, autoPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Color Preferences',
     colorBlurb, colorPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
@@ -266,6 +276,10 @@ UserPrefs.formSetPrefs = function() {
   var dob_day = $('#userprefs_dob_day').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
+  var monitor_redirects_to_game =
+    $('#userprefs_monitor_redirects_to_game').prop('checked');
+  var monitor_redirects_to_forum =
+    $('#userprefs_monitor_redirects_to_forum').prop('checked');
   var player_color = $('#userprefs_player_color').spectrum('get');
   var opponent_color = $('#userprefs_opponent_color').spectrum('get');
   var neutral_color_a = $('#userprefs_neutral_color_a').spectrum('get');
@@ -331,6 +345,8 @@ UserPrefs.formSetPrefs = function() {
       'dob_day': dob_day,
       'comment': comment,
       'autopass': autopass,
+      'monitor_redirects_to_game': monitor_redirects_to_game,
+      'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'player_color': player_color.toHexString(),
       'opponent_color': opponent_color.toHexString(),
       'neutral_color_a': neutral_color_a.toHexString(),
@@ -418,6 +434,7 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
         'name': entryKey,
         'id': 'userprefs_' + entryKey,
         'maxlength': entryInfo.length,
+        'rows': 6,
       }).val(entryInfo.value));
       break;
     case 'image':

@@ -424,6 +424,8 @@ var Api = (function () {
     my.game.player.gameScoreStr = my.playerWLTText('player');
     my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
 
+    my.game.pendingGameCount = data.pendingGameCount;
+
     return true;
   };
 
@@ -512,6 +514,19 @@ var Api = (function () {
     }
     my.gameNavigation.nextGameId = data.gameId;
     return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load the ID's of the next new post and its thread
+
+  my.getNextNewPostId = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadNextNewPost', },
+      'forumNavigation',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
   };
 
   my.getOpenGamesData = function(callbackfunc) {
