@@ -147,8 +147,13 @@ UserPrefs.actionSetPrefs = function() {
       'value': Api.user_prefs.gender,
       'length': UserPrefs.GENDER_MAX_LENGTH,
     },
+    'uses_gravatar': {
+      'text': 'Use gravatar for profile image',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.uses_gravatar,
+    },
     'image_size': {
-      'text': 'Gravatar image size (if you use one)',
+      'text': 'Gravatar image size',
       'type': 'text',
       'value': Api.user_prefs.image_size,
       'after': ' pixels',
@@ -271,7 +276,7 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
     browserBlurb, browserPrefs);
 
-  // Gender dynamic inputs
+  // Gender and gravatar inputs are dynamic
   var genderText = prefsTable.find('#userprefs_gender_text');
   var genderSelect = prefsTable.find('#userprefs_gender_select');
   if (Api.user_prefs.gender === '' || Api.user_prefs.gender == 'Male' ||
@@ -288,6 +293,21 @@ UserPrefs.actionSetPrefs = function() {
       genderText.closest('tr').show();
     } else {
       genderText.closest('tr').hide();
+      genderText.val('');
+    }
+  });
+
+  var gravatarCheck = prefsTable.find('#userprefs_uses_gravatar');
+  var imageSizeText = prefsTable.find('#userprefs_image_size');
+  if (!Api.user_prefs.uses_gravatar) {
+    imageSizeText.closest('tr').hide();
+    imageSizeText.val('');
+  }
+  gravatarCheck.change(function() {
+    if (gravatarCheck.is(':checked')) {
+      imageSizeText.closest('tr').show();
+    } else {
+      imageSizeText.closest('tr').hide();
       genderText.val('');
     }
   });
@@ -323,6 +343,7 @@ UserPrefs.formSetPrefs = function() {
   if (!gender) {
     gender = $('#userprefs_gender_select').val();
   }
+  var uses_gravatar = $('#userprefs_uses_gravatar').prop('checked');
   var image_size = $('#userprefs_image_size').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
@@ -415,6 +436,7 @@ UserPrefs.formSetPrefs = function() {
       'dob_day': dob_day,
       'gender': gender,
       'image_size': image_size,
+      'uses_gravatar': uses_gravatar,
       'comment': comment,
       'autopass': autopass,
       'monitor_redirects_to_game': monitor_redirects_to_game,

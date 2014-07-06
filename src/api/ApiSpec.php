@@ -432,6 +432,7 @@ class ApiSpec {
                     'maxvalue' => 200,
                     'minvalue' => 80,
                 ),
+                'uses_gravatar' => 'boolean',
                 'current_password' => 'string',
                 'new_password' => 'string',
                 'new_email' => 'email',
