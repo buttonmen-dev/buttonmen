@@ -11,6 +11,8 @@ CREATE TABLE player (
     dob_day             INT DEFAULT 0 NOT NULL,
     gender              VARCHAR(20),
     autopass            BOOLEAN DEFAULT 0,
+    monitor_redirects_to_game   BOOLEAN DEFAULT 0 NOT NULL,
+    monitor_redirects_to_forum  BOOLEAN DEFAULT 0 NOT NULL,
     image_path          VARCHAR(100),
     comment             VARCHAR(255),
     last_action_time    TIMESTAMP DEFAULT 0,

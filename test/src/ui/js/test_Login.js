@@ -7,7 +7,9 @@ module("Login", {
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
     delete Api.gameNavigation;
+    delete Api.forumNavigation;
     delete Env.window.location.href;
+    delete Login.message;
 
     // Fail if any other elements were added or removed
     BMTestUtils.LoginPost = BMTestUtils.getAllElements();
@@ -50,6 +52,41 @@ test("test_Login.addMainNavbar", function() {
   ok(true, "INCOMPLETE: Test of Login.addMainNavbar not implemented");
 });
 
+test("test_Login.addNewPostLink", function() {
+  Login.message = $('<table>');
+  var navRow  = $('<tr>', { 'class': 'headerNav' });
+  Login.message.append(navRow);
+  var navTd = $('<td>');
+  navRow.append(navTd);
+  navTd.append($('<a>', { 'href': '#', 'text': 'Forum', }));
+
+  Api.forumNavigation = {
+    'nextNewPostId': 7,
+    'nextNewPostThreadId': 3,
+  };
+
+  Login.addNewPostLink();
+  ok(navRow.find('a:contains("(New post)")').length,
+    'Link should be created to new post when there is a new post');
+});
+
+test("test_Login.addNewPostLink_noNewPost", function() {
+  Login.message = $('<table>');
+  var navRow  = $('<tr>', { 'class': 'headerNav' });
+  var navTd = $('<td>');
+  navRow.append(navTd);
+  navTd.append($('<a>', { 'href': '#', 'text': 'Forum', }));
+
+  Api.forumNavigation = {
+    'nextNewPostId': null,
+    'nextNewPostThreadId': null,
+  };
+
+  Login.addNewPostLink();
+  ok(!navRow.find('a:contains("(New post)")').length,
+    'Link should not be created to new post when there is no new post');
+});
+
 test("test_Login.postToResponder", function() {
   ok(true, "INCOMPLETE: Test of Login.postToResponder not implemented");
 });
@@ -62,7 +99,7 @@ test("test_Login.formLogin", function() {
   ok(true, "INCOMPLETE: Test of Login.formLogin not implemented");
 });
 
-asyncTest("test_Login.goToNextPendingGame", function() {
+test("test_Login.goToNextPendingGame", function() {
   Env.window.location.href = "/ui/game.html?game=1";
   Api.gameNavigation = {
     'load_status': 'ok',
@@ -76,11 +113,11 @@ asyncTest("test_Login.goToNextPendingGame", function() {
     ok(Env.window.location.href.match(/game\.html\?game=7/),
       "The page has been redirected to the next game");
   }
-  start();
 });
 
-asyncTest("test_Login.goToNextPendingGame_no_next_game", function() {
+test("test_Login.goToNextPendingGame_no_next_game", function() {
   Env.window.location.href = "/ui/game.html?game=1";
+
   Api.gameNavigation = {
     'load_status': 'ok',
     'nextGameId': null,
@@ -93,5 +130,4 @@ asyncTest("test_Login.goToNextPendingGame_no_next_game", function() {
     ok(Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/),
       "The page has been redirected to the Overview page");
   }
-  start();
 });

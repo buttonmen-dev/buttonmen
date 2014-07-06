@@ -27,6 +27,7 @@ module("Forum", {
     delete Env.history.state;
     delete Forum.page;
     delete Forum.scrollTarget;
+    delete Login.message;
 
     // Page elements
     $('#forum_page').remove();
@@ -113,6 +114,7 @@ asyncTest("test_Forum.showPage_thread", function() {
 });
 
 asyncTest("test_Forum.showOverview", function() {
+  Login.message = $('<div>');
   Api.loadForumOverview(function() {
     Forum.showOverview();
     ok(Forum.page.find('table.boards').length > 0,
@@ -122,6 +124,7 @@ asyncTest("test_Forum.showOverview", function() {
 });
 
 asyncTest("test_Forum.showBoard", function() {
+  Login.message = $('<div>');
   Api.loadForumBoard(1, function() {
     Forum.showBoard();
     ok(Forum.page.find('table.threads').length > 0,
@@ -131,6 +134,7 @@ asyncTest("test_Forum.showBoard", function() {
 });
 
 asyncTest("test_Forum.showThread", function() {
+  Login.message = $('<div>');
   Api.loadForumThread(1, 2, function() {
     Forum.showThread();
     ok(Forum.page.find('table.posts').length > 0,
@@ -140,6 +144,7 @@ asyncTest("test_Forum.showThread", function() {
 });
 
 test("test_Forum.arrangePage", function() {
+  Login.message = $('<div>');
   Forum.page = $('<div>');
   Forum.page.append($('<p>', { 'text': 'hi world', }));
   Forum.page.append($('<a>', { 'class': 'pseudoLink', }));
@@ -362,6 +367,7 @@ asyncTest("test_Forum.parseFormPost", function() {
 });
 
 test("test_Forum.showError", function() {
+  Login.message = $('<div>');
   Env.setupEnvStub();
   Env.message = {
     'type': 'error',
