@@ -847,6 +847,7 @@ class DummyApiResponder {
             'name_ingame' => $args['playerName'],
             'name_irl' => 'Test User',
             'email' => NULL,
+            'email_hash' => '55502f40dc8b7c769880b10874abc9d0',
             'is_email_public' => FALSE,
             'dob_month' => 2,
             'dob_day' => 29,
