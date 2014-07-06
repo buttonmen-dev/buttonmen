@@ -9,7 +9,7 @@ CREATE TABLE player (
     status              ENUM('active', 'unverified', 'disabled'),
     dob_month           INT DEFAULT 0 NOT NULL,
     dob_day             INT DEFAULT 0 NOT NULL,
-    gender              VARCHAR(100),
+    gender              VARCHAR(100) DEFAULT '' NOT NULL,
     autopass            BOOLEAN DEFAULT 0,
     monitor_redirects_to_game   BOOLEAN DEFAULT 0 NOT NULL,
     monitor_redirects_to_forum  BOOLEAN DEFAULT 0 NOT NULL,
