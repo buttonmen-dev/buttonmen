@@ -125,6 +125,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('player_color', $resultArray);
+        $this->assertArrayHasKey('opponent_color', $resultArray);
+        $this->assertArrayHasKey('neutral_color_a', $resultArray);
+        $this->assertArrayHasKey('neutral_color_b', $resultArray);
         $this->assertArrayHasKey('homepage', $resultArray);
         $this->assertArrayHasKey('favorite_button', $resultArray);
         $this->assertArrayHasKey('favorite_buttonset', $resultArray);
@@ -163,6 +167,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'comment' => '',
             'homepage' => '',
             'autopass' => 1,
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
             'monitor_redirects_to_game' => 1,
             'monitor_redirects_to_forum' => 1
         );
