@@ -1531,6 +1531,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->object->gameState = BMGameState::START_TURN;
         $this->object->attack = array(0, 1, array(), array(), 'Pass');
+        $this->object->activePlayerIdx = 0;
+        $this->object->waitingOnActionArray = array(FALSE, FALSE);
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $this->object->gameState);
         //james: need to check that the attack has been carried out
@@ -8990,6 +8992,38 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-0.3, $jsonData['playerDataArray'][1]['sideScore']);
         $this->assertEquals(TRUE, $jsonData['playerDataArray'][0]['canStillWin']);
         $this->assertEquals(TRUE, $jsonData['playerDataArray'][1]['canStillWin']);
+    }
+
+    /**
+     * @coversNothing
+     */
+    public function test_stop_for_fire() {
+        // beginning of game
+        $button1 = new BMButton;
+        $button1->load('(1) (1) (20) F(20)');
+
+        $button2 = new BMButton;
+        $button2->load('(20)');
+
+        $game = new BMGame(424242, array(123, 456));
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
+        $this->assertTrue($game->activeDieArrayArray[0][3]->has_skill('Fire'));
+
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[0][2]->value = 1;
+        $activeDieArrayArray[0][3]->value = 20;
+        $activeDieArrayArray[1][0]->value = 19;
+        $game->attack = array(0, 1, array(2), array(0), 'Power');
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
     }
 }
 

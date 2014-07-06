@@ -768,73 +768,22 @@ class BMGame {
     }
 
     protected function update_game_state_start_turn() {
-        if (isset($this->attack) &&
-            FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
-            $this->gameState = BMGameState::ADJUST_FIRE_DICE;
+        if (FALSE !== array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
+            return;
         }
-    }
-
-    protected function do_next_step_adjust_fire_dice() {
-        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
-
-        // check for need for firing
-        if (0) {
-
-        }
-    }
-
-    protected function update_game_state_adjust_fire_dice() {
-        $this->gameState = BMGameState::COMMIT_ATTACK;
-    }
-
-    protected function do_next_step_commit_attack() {
-        // display dice
-        $this->activate_GUI('show_active_dice');
 
         if (!$this->are_attack_params_reasonable()) {
-            $this->gameState = BMGameState::START_TURN;
             $this->attack = NULL;
             return;
         }
 
         $instance = $this->create_attack_instance();
         if (FALSE === $instance) {
-            $this->gameState = BMGameState::START_TURN;
             $this->attack = NULL;
             return;
         }
 
-        $attack = $instance['attack'];
-        $attAttackDieArray = $instance['attAttackDieArray'];
-        $defAttackDieArray = $instance['defAttackDieArray'];
-
-        $this->remove_all_flags();
-
-        $preAttackDice = $this->get_action_log_data(
-            $attAttackDieArray,
-            $defAttackDieArray
-        );
-
-        $this->turnNumberInRound++;
-        $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
-
-        $postAttackDice = $this->get_action_log_data(
-            $attAttackDieArray,
-            $defAttackDieArray
-        );
-        $this->log_action(
-            'attack',
-            $this->playerIdArray[$this->attackerPlayerIdx],
-            array(
-                'attackType' => $attack->type,
-                'preAttackDice' => $preAttackDice,
-                'postAttackDice' => $postAttackDice,
-            )
-        );
-
-        if (isset($this->activePlayerIdx)) {
-            $this->update_active_player();
-        }
+        $this->gameState = BMGameState::ADJUST_FIRE_DICE;
     }
 
     protected function are_attack_params_reasonable() {
@@ -906,6 +855,86 @@ class BMGame {
         return array('attack' => $attack,
                      'attAttackDieArray' => $attAttackDieArray,
                      'defAttackDieArray' => $defAttackDieArray);
+    }
+
+    protected function do_next_step_adjust_fire_dice() {
+        if ($this->needs_firing()) {
+            $this->waitingOnActionArray[$this->attack['attackerPlayerIdx']] = TRUE;
+        }
+    }
+
+    protected function needs_firing() {
+        $attackType = $this->attack['attackType'];
+
+        if (($attackType != 'Power') &&
+            ($attackType != 'Skill')) {
+            return FALSE;
+        }
+
+        $attackerValueSum = 0;
+        $defenderValueSum = 0;
+
+        $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerDieIdx) {
+            $attackerValueSum +=
+                $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx]->value;
+        }
+
+        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderDieIdx) {
+            $defenderValueSum +=
+                $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx]->value;
+        }
+
+        // check for need for firing:
+        // sum of attacker values is less than defender value
+        return $attackerValueSum < $defenderValueSum;
+    }
+
+    protected function update_game_state_adjust_fire_dice() {
+        if (FALSE !== array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
+            return;
+        }
+
+        $this->gameState = BMGameState::COMMIT_ATTACK;
+    }
+
+    protected function do_next_step_commit_attack() {
+        // display dice
+        $this->activate_GUI('show_active_dice');
+
+        $instance = $this->create_attack_instance();
+        $attack = $instance['attack'];
+        $attAttackDieArray = $instance['attAttackDieArray'];
+        $defAttackDieArray = $instance['defAttackDieArray'];
+
+        $this->remove_all_flags();
+
+        $preAttackDice = $this->get_action_log_data(
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+
+        $this->turnNumberInRound++;
+        $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
+
+        $postAttackDice = $this->get_action_log_data(
+            $attAttackDieArray,
+            $defAttackDieArray
+        );
+        $this->log_action(
+            'attack',
+            $this->playerIdArray[$this->attackerPlayerIdx],
+            array(
+                'attackType' => $attack->type,
+                'preAttackDice' => $preAttackDice,
+                'postAttackDice' => $postAttackDice,
+            )
+        );
+
+        if (isset($this->activePlayerIdx)) {
+            $this->update_active_player();
+        }
     }
 
     protected function remove_all_flags() {
