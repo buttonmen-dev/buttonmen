@@ -13,6 +13,7 @@ module("Api", {
     delete Api.user_prefs;
     delete Api.game;
     delete Api.gameNavigation;
+    delete Api.forumNavigation;
     delete Api.game_history;
     delete Api.siteConfig;
     delete Api.forum_overview;
@@ -192,14 +193,14 @@ asyncTest("test_Api.getActiveGamesData", function() {
   Api.getActiveGamesData(function() {
     equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    equal(Api.active_games.nGames, 13, 'Got expected number of active games');
+    equal(Api.active_games.nGames, 15, 'Got expected number of active games');
     start();
   });
 });
 
 asyncTest("test_Api.parseActiveGamesData", function() {
   Api.getActiveGamesData(function() {
-    equal(Api.active_games.games.awaitingPlayer.length, 8,
+    equal(Api.active_games.games.awaitingPlayer.length, 9,
           "expected number of games parsed as waiting for the active player");
     start();
   });
@@ -383,6 +384,17 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
     equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
     start();
   });
+});
+
+asyncTest("test_Api.getNextNewPostId", function() {
+  Api.getNextNewPostId(
+    function() {
+      equal(Api.forumNavigation.load_status, 'ok',
+        'Successfully retrieved next game ID');
+      equal(Api.forumNavigation.nextNewPostId, 3,
+        'Retrieved correct next game ID');
+      start();
+    });
 });
 
 asyncTest("test_Api.getOpenGamesData", function() {

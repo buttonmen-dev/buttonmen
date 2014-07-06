@@ -12,6 +12,26 @@ class ApiSpec {
     // * mandatory: argument which must be present
     // * permitted: additional argument which may be present
     private $functionArgs = array(
+        'adjustFire' => array(
+            'mandatory' => array(
+                'game' => 'number',
+                'roundNumber' => 'number',
+                'timestamp' => 'number',
+                'action' => 'alnum',
+            ),
+            'permitted' => array(
+                'dieIdxArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'elem_type' => 'number',
+                ),
+                'dieValueArray' => array(
+                    'arg_type' => 'array',
+                    'has_keys' => FALSE,
+                    'elem_type' => 'alnum',
+                ),
+            ),
+        ),
         // createForumPost returns (from loadForumThread):
         //   threadId: int,
         //   threadTitle: string,
@@ -247,6 +267,13 @@ class ApiSpec {
               'currentGameId' => 'number',
             ),
         ),
+        // loadNextNewPost returns:
+        //   nextNewPostId (nullable),
+        //   nextNewPostThreadId (nullable),
+        'loadNextNewPost' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         'loadOpenGames' => array(
             'mandatory' => array(),
             'permitted' => array(),
@@ -387,11 +414,13 @@ class ApiSpec {
                 'dob_month' => 'number',
                 'dob_day' => 'number',
                 'gender' => array(
-                    'arg_type' => 'exactString',
-                    'values' => array('', 'Male', 'Female', 'It\'s complicated'),
+                    'arg_type' => 'string',
+                    'maxlength' => 100,
                 ),
                 'comment' => 'string',
                 'autopass' => 'boolean',
+                'monitor_redirects_to_game' => 'boolean',
+                'monitor_redirects_to_forum' => 'boolean',
             ),
             'permitted' => array(
                 'image_size' => array(
@@ -638,8 +667,15 @@ class ApiSpec {
     }
 
     // verify that the argument is a string
-    protected function verify_argument_of_type_string($arg) {
+    protected function verify_argument_of_type_string($arg, $argtype = array()) {
         if (is_string($arg)) {
+            $length = mb_strlen($arg, mb_detect_encoding($arg));
+            if (isset($argtype['maxlength']) && $length > $argtype['maxlength']) {
+                return FALSE;
+            }
+            if (isset($argtype['minlength']) && $length < $argtype['minlength']) {
+                return FALSE;
+            }
             return TRUE;
         }
         return FALSE;

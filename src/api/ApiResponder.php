@@ -223,6 +223,8 @@ class ApiResponder {
         $infoArray['comment'] = $args['comment'];
         $infoArray['gender'] = $args['gender'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
+        $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
+        $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
         if (isset($args['image_size'])) {
             $infoArray['image_size'] = $args['image_size'];
         } else {
@@ -422,6 +424,10 @@ class ApiResponder {
             (int)$args['threadId'],
             $currentPostId
         );
+    }
+
+    protected function get_interface_response_loadNextNewPost($interface) {
+        return $interface->get_next_new_post($_SESSION['user_id']);
     }
 
     protected function get_interface_response_markForumRead($interface, $args) {
