@@ -100,7 +100,7 @@ class DummyApiResponder {
         // the number of "existing" games represented in loadGameData
         // and loadActiveGames
 
-        $gameId = 20;
+        $gameId = 26;
         return array(array('gameId' => $gameId), "Game $gameId created successfully.");
     }
 
@@ -158,9 +158,8 @@ class DummyApiResponder {
         $summary['matchesFound'] = count($games);
         $summary['earliestStart'] = 1399605464;
         $summary['latestMove'] = 1399691809;
-        $summary['gamesWinningA'] = count($games);
-        $summary['gamesWinningB'] = 0;
-        $summary['gamesDrawn'] = 0;
+        $summary['gamesWonA'] = count($games);
+        $summary['gamesWonB'] = 0;
         $summary['gamesCompleted'] = 1;
 
         $data = array(
@@ -281,7 +280,7 @@ class DummyApiResponder {
             'inactivityArray' => array(),
         );
 
-        for ($gameIdx = 1; $gameIdx <= 19; $gameIdx++) {
+        for ($gameIdx = 1; $gameIdx <= 24; $gameIdx++) {
             $funcname = 'add_active_game_data_'.$gameIdx;
             $this->$funcname($data);
         }
@@ -521,6 +520,50 @@ class DummyApiResponder {
         $data['inactivityArray'][] = "10 minutes";
     }
 
+    protected function add_active_game_data_20() {
+        // fake game 20 is an open game
+    }
+
+    protected function add_active_game_data_21() {
+        // fake game 21 is an open game
+    }
+
+    protected function add_active_game_data_22(&$data) {
+        $data['gameIdArray'][] = 22;
+        $data['opponentIdArray'][] = 2;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Adam Spam";
+        $data['opponentButtonNameArray'][] = "Adam Spam";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
+        $data['gameStateArray'][] = "ADJUST_FIRE_DICE";
+        $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "4 minutes";
+    }
+
+    protected function add_active_game_data_23(&$data) {
+        $data['gameIdArray'][] = 23;
+        $data['opponentIdArray'][] = 2;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Adam Spam";
+        $data['opponentButtonNameArray'][] = "Adam Spam";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 0;
+        $data['gameStateArray'][] = "ADJUST_FIRE_DICE";
+        $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "4 minutes";
+    }
+
+    protected function add_active_game_data_24() {
+        // tester1 is not a participant in fake game 24
+    }
+
     protected function get_interface_response_loadCompletedGames() {
         $data = array(
             'gameIdArray' => array(),
@@ -702,10 +745,11 @@ class DummyApiResponder {
         //  17: game in which opponent can decide whether to add reserve die
         //  18: game in "choose reserve" state in which active player is not a participant
         //  19: game in which active player can choose option die values
+        //  20: game in which active player can turn down fire dice
 
         $data = NULL;
 
-        if ($args['game'] <= 19) {
+        if ($args['game'] <= 24) {
             $data = $this->load_json_data_from_file(
                 'loadGameData',
                 $args['game'] . '.json'
@@ -743,6 +787,8 @@ class DummyApiResponder {
                                 'gender' => '',
                                 'image_size' => NULL,
                                 'autopass' => TRUE,
+                                'monitor_redirects_to_game' => FALSE,
+                                'monitor_redirects_to_forum' => FALSE,
                                 'comment' => NULL,
                                 'homepage' => NULL,
                                 'favorite_button' => NULL,
@@ -819,6 +865,10 @@ class DummyApiResponder {
 
     protected function get_interface_response_reactToReserve() {
         return array(TRUE, 'Reserve die chosen successfully');
+    }
+
+    protected function get_interface_response_adjustFire() {
+        return array(TRUE, 'Successfully completed attack');
     }
 
     protected function get_interface_response_submitChat($args) {
@@ -968,6 +1018,13 @@ class DummyApiResponder {
         $results['timestamp'] = 1401118756;
 
         return array($results, 'Forum thread loading succeeded');
+    }
+
+    protected function get_interface_response_loadNextNewPost() {
+        $results = array();
+        $results['nextNewPostId'] = 3;
+        $results['nextNewPostThreadId'] = 2;
+        return array($results, 'Checked new forum posts successfully');
     }
 
     protected function get_interface_response_markForumRead() {

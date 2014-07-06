@@ -216,10 +216,10 @@ test("test_History.buildHiddenFields", function() {
 asyncTest("test_History.buildResultsTableHeader", function() {
   History.getFilters(function() {
     var thead = History.buildResultsTableHeader();
-    var htmlout = thead.html();
 
-    ok(htmlout.match('<th>'), "Header cells are created");
-    ok(htmlout.match('<span>Game #</span>'), "Game # header exists");
+    ok(thead.find('th').length > 0, "Header cells are created");
+    ok(thead.find('th:contains("Game #")').length == 1,
+      "Game # header exists");
     start();
   });
 });
@@ -257,9 +257,13 @@ asyncTest("test_History.buildResultsTableFooter", function() {
 
   History.getHistory(function() {
     var tfoot = History.buildResultsTableFooter();
-    var htmlout = tfoot.html();
-    ok(htmlout.match('<td>\\d\\d?\\d?%</td>'),
-      'Table footer contains game information.');
+
+    var scoreFound = false;
+    tfoot.find('td').each(function() {
+      if ($(this).text().match('\\d\\d?\\d?%')) {
+        scoreFound = true;
+      }
+    });
     start();
   });
 });

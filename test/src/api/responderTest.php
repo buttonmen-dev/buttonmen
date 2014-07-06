@@ -650,8 +650,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $this->object_structures_match($dummydata['playerDataArray'][0], $retdata['playerDataArray'][0], True),
             "Real and dummy game playerData objects should have matching structures");
 
-	// Now hand-modify a few things we know will be different
-	// and check that the data structures are entirely identical otherwise
+        // Now hand-modify a few things we know will be different
+        // and check that the data structures are entirely identical otherwise
         $dummydata['gameId'] = $retdata['gameId'];
         foreach(array_keys($retdata['playerDataArray']) as $playerIdx) {
             foreach(array('playerName', 'playerId', 'lastActionTime') as $playerKey) {
@@ -660,6 +660,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             }
         }
         $dummydata['timestamp'] = $retdata['timestamp'];
+        $dummydata['pendingGameCount'] = $retdata['pendingGameCount'];
 
         $this->assertEquals($dummydata, $retdata);
 
@@ -734,6 +735,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'comment' => '',
             'homepage' => '',
             'autopass' => 'True',
+            'monitor_redirects_to_game' => 'False',
+            'monitor_redirects_to_forum' => 'False',
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -1207,6 +1210,35 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata),
             "Real and dummy forum thread loading return values should have matching structures");
+    }
+
+    public function test_request_loadNextNewPost() {
+        $this->verify_login_required('loadNextNewPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNextNewPost');
+
+        // Post something new first
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'New Thread',
+            'body' => 'New Post',
+        );
+        $this->object->process_request($args);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $args = array('type' => 'loadNextNewPost');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'New forum post check should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy new forum post check return values should have matching structures");
     }
 
     public function test_request_markForumBoardRead() {

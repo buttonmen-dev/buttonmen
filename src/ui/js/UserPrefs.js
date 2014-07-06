@@ -5,6 +5,7 @@ UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.MIN_IMAGE_SIZE = 80;
 UserPrefs.MAX_IMAGE_SIZE = 200;
+UserPrefs.GENDER_MAX_LENGTH = 100;
 UserPrefs.HOMEPAGE_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 
@@ -134,7 +135,7 @@ UserPrefs.actionSetPrefs = function() {
         'day': Api.user_prefs.dob_day,
       },
     },
-    'gender': {
+    'gender_select': {
       'text': 'Gender',
       'type': 'select',
       'value': Api.user_prefs.gender,
@@ -144,6 +145,12 @@ UserPrefs.actionSetPrefs = function() {
         'Female': 'Female',
         'It\'s complicated': 'It\'s complicated',
       },
+    },
+    'gender_text': {
+      'text': 'Feel free to elaborate',
+      'type': 'text',
+      'value': Api.user_prefs.gender,
+      'length': UserPrefs.GENDER_MAX_LENGTH,
     },
     'favorite_button': {
       'text': 'Favorite button',
@@ -177,13 +184,23 @@ UserPrefs.actionSetPrefs = function() {
     },
   };
 
-  var gameplayBlurb = 'These preferences affect the actions you take during ' +
-    'the game.';
-  var gameplayPrefs = {
+  var autoBlurb = 'These preferences configure things that the site can do ' +
+    'automatically for you.';
+  var autoPrefs = {
     'autopass': {
       'text': 'Automatically pass when you have no valid attack',
       'type': 'checkbox',
       'checked': Api.user_prefs.autopass,
+    },
+    'monitor_redirects_to_game': {
+      'text': 'Redirect to waiting games when in Monitor mode',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.monitor_redirects_to_game,
+    },
+    'monitor_redirects_to_forum': {
+      'text': 'Redirect to new forum posts when in Monitor mode',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.monitor_redirects_to_forum,
     },
   };
 
@@ -244,12 +261,33 @@ UserPrefs.actionSetPrefs = function() {
 
   UserPrefs.appendToPreferencesTable(prefsTable, 'Profile Settings',
     profileBlurb, profileSettings);
-  UserPrefs.appendToPreferencesTable(prefsTable, 'Gameplay Preferences',
-    gameplayBlurb, gameplayPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
+    autoBlurb, autoPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
     accountBlurb, accountSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
     browserBlurb, browserPrefs);
+
+  // Gender dynamic inputs
+  var genderText = prefsTable.find('#userprefs_gender_text');
+  var genderSelect = prefsTable.find('#userprefs_gender_select');
+  if (Api.user_prefs.gender === '' || Api.user_prefs.gender == 'Male' ||
+      Api.user_prefs.gender == 'Female') {
+    genderText.closest('tr').hide();
+    genderText.val('');
+  } else if (Api.user_prefs.gender == 'It\'s complicated') {
+    genderText.val('');
+  } else {
+    genderSelect.val('It\'s complicated');
+  }
+  genderSelect.change(function() {
+    if (genderSelect.val() == 'It\'s complicated') {
+      genderText.closest('tr').show();
+    } else {
+      genderText.closest('tr').hide();
+      genderText.val('');
+    }
+  });
 
   // Form submission button
   prefsform.append($('<button>', {
@@ -278,13 +316,20 @@ UserPrefs.formSetPrefs = function() {
   var is_email_public = $('#userprefs_is_email_public').prop('checked');
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
-  var gender = $('#userprefs_gender').val();
+  var gender = $('#userprefs_gender_text').val();
+  if (!gender) {
+    gender = $('#userprefs_gender_select').val();
+  }
   var favorite_button = $('#userprefs_favorite_button').val();
   var favorite_buttonset = $('#userprefs_favorite_buttonset').val();
   var image_size = $('#userprefs_image_size').val();
   var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
+  var monitor_redirects_to_game =
+    $('#userprefs_monitor_redirects_to_game').prop('checked');
+  var monitor_redirects_to_forum =
+    $('#userprefs_monitor_redirects_to_forum').prop('checked');
   var current_password = $('#userprefs_current_password').val();
   var new_password = $('#userprefs_new_password').val();
   var confirm_new_password = $('#userprefs_confirm_new_password').val();
@@ -379,6 +424,8 @@ UserPrefs.formSetPrefs = function() {
       'homepage': homepage,
       'comment': comment,
       'autopass': autopass,
+      'monitor_redirects_to_game': monitor_redirects_to_game,
+      'monitor_redirects_to_forum': monitor_redirects_to_forum,
       'current_password': current_password,
       'new_password': new_password,
       'new_email': new_email,
@@ -513,4 +560,3 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
   prefsTable.append(spacerRow);
   spacerRow.append($('<td>', { 'colspan': '2', }).append('&nbsp;'));
 };
-
