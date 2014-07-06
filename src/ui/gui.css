@@ -353,6 +353,10 @@ table.prefsTable td.label {
     vertical-align: top;
 }
 
+table.prefsTable td.label_color {
+    vertical-align: middle;
+}
+
 table.profileTable td.label {
     text-align: right;
     max-width: 400px;
@@ -405,6 +409,12 @@ table.activePlayerList th.idleness {
     text-align: left;
     padding-left: 10px;
     width: 50%;
+}
+
+.pseudoLink {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /* Game lists (Overview, Game History) */

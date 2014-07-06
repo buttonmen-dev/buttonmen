@@ -239,11 +239,10 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 
   var i = 0;
   while (i < gamesource.length) {
-    // These will eventually come from settings via the API
-    var playerColor = '#dd99dd';
-    var opponentColor = '#ddffdd';
-
     var gameInfo = gamesource[i];
+    var playerColor = gameInfo.playerColor;
+    var opponentColor = gameInfo.opponentColor;
+
     var gameRow = $('<tr>');
     var gameLinkTd;
     if (gameType == 'awaitingPlayer') {
