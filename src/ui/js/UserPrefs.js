@@ -4,6 +4,12 @@ var UserPrefs = {};
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
+UserPrefs.DEFAULT_COLORS = {
+  'player_color': '#dd99dd',
+  'opponent_color': '#ddffdd',
+  'neutral_color_a': '#cccccc',
+  'neutral_color_b': '#dddddd',
+};
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -152,6 +158,30 @@ UserPrefs.actionSetPrefs = function() {
     },
   };
 
+  var colorBlurb = 'These the colors used to represent each player in a game.';
+  var colorPrefs = {
+    'player_color': {
+      'text': 'Your color',
+      'type': 'color',
+      'value': Api.user_prefs.player_color,
+    },
+    'opponent_color': {
+      'text': 'Your opponent\'s color',
+      'type': 'color',
+      'value': Api.user_prefs.opponent_color,
+    },
+    'neutral_color_a': {
+      'text': 'Neutral player color',
+      'type': 'color',
+      'value': Api.user_prefs.neutral_color_a,
+    },
+    'neutral_color_b': {
+      'text': 'Neutral player opponent\'s color',
+      'type': 'color',
+      'value': Api.user_prefs.neutral_color_b,
+    },
+  };
+
   var accountBlurb = 'Current password is required to change email address ' +
     'or password.';
   var accountSettings = {
@@ -211,6 +241,8 @@ UserPrefs.actionSetPrefs = function() {
     profileBlurb, profileSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Automation Preferences',
     autoBlurb, autoPrefs);
+  UserPrefs.appendToPreferencesTable(prefsTable, 'Color Preferences',
+    colorBlurb, colorPrefs);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Account Settings',
     accountBlurb, accountSettings);
   UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
@@ -248,6 +280,10 @@ UserPrefs.formSetPrefs = function() {
     $('#userprefs_monitor_redirects_to_game').prop('checked');
   var monitor_redirects_to_forum =
     $('#userprefs_monitor_redirects_to_forum').prop('checked');
+  var player_color = $('#userprefs_player_color').spectrum('get');
+  var opponent_color = $('#userprefs_opponent_color').spectrum('get');
+  var neutral_color_a = $('#userprefs_neutral_color_a').spectrum('get');
+  var neutral_color_b = $('#userprefs_neutral_color_b').spectrum('get');
   var current_password = $('#userprefs_current_password').val();
   var new_password = $('#userprefs_new_password').val();
   var confirm_new_password = $('#userprefs_confirm_new_password').val();
@@ -311,6 +347,10 @@ UserPrefs.formSetPrefs = function() {
       'autopass': autopass,
       'monitor_redirects_to_game': monitor_redirects_to_game,
       'monitor_redirects_to_forum': monitor_redirects_to_forum,
+      'player_color': player_color.toHexString(),
+      'opponent_color': opponent_color.toHexString(),
+      'neutral_color_a': neutral_color_a.toHexString(),
+      'neutral_color_b': neutral_color_b.toHexString(),
       'current_password': current_password,
       'new_password': new_password,
       'new_email': new_email,
@@ -354,7 +394,7 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
     }
     entryRow.append($('<td>', {
       'text': labelText,
-      'class': 'label'
+      'class': 'label label_' + entryInfo.type,
     }));
     var entryInput = $('<td>', { 'class': 'value', });
     switch(entryInfo.type) {
@@ -408,6 +448,31 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
           'class': 'profileImage',
         }));
       }
+      break;
+    case 'color':
+      var colorPicker = $('<input>', {
+        'type': 'text',
+        'name': entryKey,
+        'id': 'userprefs_' + entryKey,
+      });
+      entryInput.append(colorPicker);
+      colorPicker.spectrum({
+        'color': entryInfo.value,
+        'showInput': true,
+        'showInitial': true,
+        'preferredFormat': 'hex',
+        'localStorageKey': 'spectrum.bmColorPrefs',
+      });
+
+      entryInput.append(' ');
+      var defaultColorLink = $('<span>', {
+        'text': 'Default ',
+        'class': 'pseudoLink',
+      });
+      entryInput.append(defaultColorLink);
+      defaultColorLink.click(function() {
+        colorPicker.spectrum('set', UserPrefs.DEFAULT_COLORS[entryKey]);
+      });
       break;
     default:
       entryInput.append($('<input>', {

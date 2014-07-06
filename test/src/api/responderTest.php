@@ -732,6 +732,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'comment' => '',
             'autopass' => 'True',
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
             'monitor_redirects_to_game' => 'False',
             'monitor_redirects_to_forum' => 'False',
         );

@@ -221,10 +221,15 @@ class ApiResponder {
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
+        $infoArray['player_color'] = $args['player_color'];
+        $infoArray['opponent_color'] = $args['opponent_color'];
+        $infoArray['neutral_color_a'] = $args['neutral_color_a'];
+        $infoArray['neutral_color_b'] = $args['neutral_color_b'];
 
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
         $addlInfo['dob_day'] = (int)$args['dob_day'];
+
         if (isset($args['current_password'])) {
             $addlInfo['current_password'] = $args['current_password'];
         }

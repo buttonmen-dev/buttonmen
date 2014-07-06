@@ -9,6 +9,7 @@
     <meta charset="utf-8" />
     <title>Button Men Online &mdash; Preferences</title>
     <link rel="stylesheet" href="gui.css" />
+    <link rel="stylesheet" href="js/extern/spectrum.css" />
     <meta http-equiv="Cache-control" content="no-cache" />
 
 </head>
@@ -17,7 +18,11 @@
     <script>
 $(document).ready(function() {
   $.getScript('js/Loader.js', function() {
-    Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/UserPrefs.js' ], function() {
+    Loader.loadScripts([
+        'js/extern/jquery-ui.min.js',
+        'js/extern/spectrum.js',
+        'js/UserPrefs.js'
+    ], function() {
         Login.showLoginHeader(UserPrefs.showUserPrefsPage);
     });
   });
