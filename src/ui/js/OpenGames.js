@@ -62,7 +62,7 @@ OpenGames.showPage = function() {
     };
   } else {
     var buttons = { };
-    var anyUnimplementedButtons = true;
+    var anyUnimplementedButtons = false;
 
     $.each(Api.button.list, function(button, buttoninfo) {
       if (buttoninfo.hasUnimplementedSkill) {

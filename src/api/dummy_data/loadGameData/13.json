@@ -75,5 +75,6 @@
       "canStillWin": null
     }
   ],
-  "timestamp": 1403222759
+  "timestamp": 1403222759,
+  "pendingGameCount": 0
 }
