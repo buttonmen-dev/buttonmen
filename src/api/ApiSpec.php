@@ -421,6 +421,10 @@ class ApiSpec {
                 'autopass' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
+                'player_color' => 'color',
+                'opponent_color' => 'color',
+                'neutral_color_a' => 'color',
+                'neutral_color_b' => 'color',
             ),
             'permitted' => array(
                 'favorite_button' => 'button',
@@ -678,6 +682,15 @@ class ApiSpec {
             if (isset($argtype['minlength']) && $length < $argtype['minlength']) {
                 return FALSE;
             }
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    // verify that the argument is a string
+    protected function verify_argument_of_type_color($arg) {
+        if (is_string($arg) &&
+            preg_match('/^#[0-9a-f]{6}$/i', $arg)) {
             return TRUE;
         }
         return FALSE;

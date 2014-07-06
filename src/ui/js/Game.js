@@ -23,14 +23,6 @@ Game.GAME_STATE_END_GAME = 'END_GAME';
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
-// Colors used by the game display
-Game.COLORS = {
-  'players': {
-    'player': '#dd99dd',
-    'opponent': '#ddffdd',
-  },
-};
-
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
 
@@ -121,8 +113,11 @@ Game.showStatePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  // Set colors for use in game - for now, all games use the same colors
-  Game.color = Game.COLORS.players;
+  // Set colors for use in game
+  Game.color = {
+    'player': Api.game.player.playerColor,
+    'opponent': Api.game.opponent.playerColor,
+  };
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
