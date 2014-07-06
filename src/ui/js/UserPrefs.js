@@ -3,6 +3,7 @@ var UserPrefs = {};
 
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
+UserPrefs.GENDER_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 
 
@@ -122,7 +123,7 @@ UserPrefs.actionSetPrefs = function() {
         'day': Api.user_prefs.dob_day,
       },
     },
-    'gender': {
+    'gender_select': {
       'text': 'Gender',
       'type': 'select',
       'value': Api.user_prefs.gender,
@@ -132,6 +133,12 @@ UserPrefs.actionSetPrefs = function() {
         'Female': 'Female',
         'It\'s complicated': 'It\'s complicated',
       },
+    },
+    'gender_text': {
+      'text': 'Feel free to elaborate',
+      'type': 'text',
+      'value': Api.user_prefs.gender,
+      'length': UserPrefs.GENDER_MAX_LENGTH,
     },
     'comment': {
       'text': 'Comment',
@@ -232,6 +239,27 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
     browserBlurb, browserPrefs);
 
+  // Gender dynamic inputs
+  var genderText = prefsTable.find('#userprefs_gender_text');
+  var genderSelect = prefsTable.find('#userprefs_gender_select');
+  if (Api.user_prefs.gender === '' || Api.user_prefs.gender == 'Male' ||
+      Api.user_prefs.gender == 'Female') {
+    genderText.closest('tr').hide();
+    genderText.val('');
+  } else if (Api.user_prefs.gender == 'It\'s complicated') {
+    genderText.val('');
+  } else {
+    genderSelect.val('It\'s complicated');
+  }
+  genderSelect.change(function() {
+    if (genderSelect.val() == 'It\'s complicated') {
+      genderText.closest('tr').show();
+    } else {
+      genderText.closest('tr').hide();
+      genderText.val('');
+    }
+  });
+
   // Form submission button
   prefsform.append($('<button>', {
     'id': 'userprefs_action_button',
@@ -259,7 +287,10 @@ UserPrefs.formSetPrefs = function() {
   var is_email_public = $('#userprefs_is_email_public').prop('checked');
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
-  var gender = $('#userprefs_gender').val();
+  var gender = $('#userprefs_gender_text').val();
+  if (!gender) {
+    gender = $('#userprefs_gender_select').val();
+  }
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var monitor_redirects_to_game =
