@@ -728,8 +728,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $args = array(
             'type' => 'savePlayerInfo',
             'name_irl' => 'Test User',
+            'is_email_public' => 'False',
             'dob_month' => '2',
             'dob_day' => '29',
+            'gender' => '',
             'comment' => '',
             'autopass' => 'True',
             'player_color' => '#dd99dd',

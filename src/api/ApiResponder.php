@@ -217,7 +217,11 @@ class ApiResponder {
     protected function get_interface_response_savePlayerInfo($interface, $args) {
         $infoArray = array();
         $infoArray['name_irl'] = $args['name_irl'];
+        $infoArray['is_email_public'] = ('true' == $args['is_email_public']);
+        $infoArray['dob_month'] = (int)$args['dob_month'];
+        $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
+        $infoArray['gender'] = $args['gender'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);

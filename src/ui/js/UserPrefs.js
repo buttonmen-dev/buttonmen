@@ -3,6 +3,7 @@ var UserPrefs = {};
 
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
+UserPrefs.GENDER_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 UserPrefs.DEFAULT_COLORS = {
   'player_color': '#dd99dd',
@@ -10,6 +11,7 @@ UserPrefs.DEFAULT_COLORS = {
   'neutral_color_a': '#cccccc',
   'neutral_color_b': '#dddddd',
 };
+UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -107,6 +109,16 @@ UserPrefs.actionSetPrefs = function() {
     'action': 'javascript:void(0);'
   });
 
+  // We can't use a variable as a key when we're defining an object like this,
+  // so we need to do that entry separately.
+  var genderDefaults = {
+    '': '',
+    'Male': 'Male',
+    'Female': 'Female',
+  };
+  genderDefaults[UserPrefs.ALTERNATE_GENDER_OPTION] =
+    UserPrefs.ALTERNATE_GENDER_OPTION;
+
   var profileBlurb = 'These settings affect what appears on your profile page.';
   var profileSettings = {
     'name_irl': {
@@ -115,6 +127,11 @@ UserPrefs.actionSetPrefs = function() {
       'value': Api.user_prefs.name_irl,
       'length': UserPrefs.NAME_IRL_MAX_LENGTH,
     },
+    'is_email_public': {
+      'text': 'Make email address public',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.is_email_public,
+    },
     'dob': {
       'text': 'Birthday',
       'type': 'date',
@@ -122,6 +139,18 @@ UserPrefs.actionSetPrefs = function() {
         'month': Api.user_prefs.dob_month,
         'day': Api.user_prefs.dob_day,
       },
+    },
+    'gender_select': {
+      'text': 'Gender',
+      'type': 'select',
+      'value': Api.user_prefs.gender,
+      'source': genderDefaults,
+    },
+    'gender_text': {
+      'text': 'Feel free to elaborate',
+      'type': 'text',
+      'value': Api.user_prefs.gender,
+      'length': UserPrefs.GENDER_MAX_LENGTH,
     },
     'comment': {
       'text': 'Comment',
@@ -248,6 +277,27 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.appendToPreferencesTable(prefsTable, 'Browser Preferences',
     browserBlurb, browserPrefs);
 
+  // Gender dynamic inputs
+  var genderText = prefsTable.find('#userprefs_gender_text');
+  var genderSelect = prefsTable.find('#userprefs_gender_select');
+  if (Api.user_prefs.gender === '' || Api.user_prefs.gender == 'Male' ||
+      Api.user_prefs.gender == 'Female') {
+    genderText.closest('tr').hide();
+    genderText.val('');
+  } else if (Api.user_prefs.gender == UserPrefs.ALTERNATE_GENDER_OPTION) {
+    genderText.val('');
+  } else {
+    genderSelect.val(UserPrefs.ALTERNATE_GENDER_OPTION);
+  }
+  genderSelect.change(function() {
+    if (genderSelect.val() == UserPrefs.ALTERNATE_GENDER_OPTION) {
+      genderText.closest('tr').show();
+    } else {
+      genderText.closest('tr').hide();
+      genderText.val('');
+    }
+  });
+
   // Form submission button
   prefsform.append($('<button>', {
     'id': 'userprefs_action_button',
@@ -272,8 +322,13 @@ UserPrefs.formSetPrefs = function() {
   Env.showStatusMessage();
 
   var name_irl = $('#userprefs_name_irl').val();
+  var is_email_public = $('#userprefs_is_email_public').prop('checked');
   var dob_month = $('#userprefs_dob_month').val();
   var dob_day = $('#userprefs_dob_day').val();
+  var gender = $('#userprefs_gender_text').val();
+  if (!gender) {
+    gender = $('#userprefs_gender_select').val();
+  }
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var monitor_redirects_to_game =
@@ -341,8 +396,10 @@ UserPrefs.formSetPrefs = function() {
     {
       'type': 'savePlayerInfo',
       'name_irl': name_irl,
+      'is_email_public': is_email_public,
       'dob_month': dob_month,
       'dob_day': dob_day,
+      'gender': gender,
       'comment': comment,
       'autopass': autopass,
       'monitor_redirects_to_game': monitor_redirects_to_game,
@@ -448,6 +505,20 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
           'class': 'profileImage',
         }));
       }
+      break;
+    case 'select':
+      var select = $('<select>', {
+        'name': entryKey,
+        'id': 'userprefs_' + entryKey,
+      });
+      entryInput.append(select);
+      $.each(entryInfo.source, function(key, value) {
+        select.append($('<option>', {
+          'text': key,
+          'value': value,
+        }));
+      });
+      select.val(entryInfo.value);
       break;
     case 'color':
       var colorPicker = $('<input>', {

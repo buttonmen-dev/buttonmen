@@ -74,10 +74,14 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $infoArray = array(
             'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
             'comment' => '',
-            'autopass' => 1,
             'monitor_redirects_to_game' => 0,
             'monitor_redirects_to_forum' => 0,
+            'autopass' => 1
         );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
 
@@ -111,8 +115,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('password_hashed', $resultArray);
         $this->assertArrayHasKey('name_irl', $resultArray);
         $this->assertArrayHasKey('email', $resultArray);
+        $this->assertArrayHasKey('is_email_public', $resultArray);
         $this->assertArrayHasKey('dob_month', $resultArray);
         $this->assertArrayHasKey('dob_day', $resultArray);
+        $this->assertArrayHasKey('gender', $resultArray);
         $this->assertArrayHasKey('autopass', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
@@ -149,6 +155,10 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     public function test_set_player_info() {
         $infoArray = array(
             'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
             'comment' => '',
             'autopass' => 1,
             'player_color' => '#dd99dd',
@@ -3083,4 +3093,3 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     ////////////////////////////////////////////////////////////
 
 }
-
