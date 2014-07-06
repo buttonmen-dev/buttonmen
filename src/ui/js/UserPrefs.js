@@ -11,6 +11,7 @@ UserPrefs.DEFAULT_COLORS = {
   'neutral_color_a': '#cccccc',
   'neutral_color_b': '#dddddd',
 };
+UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -108,6 +109,16 @@ UserPrefs.actionSetPrefs = function() {
     'action': 'javascript:void(0);'
   });
 
+  // We can't use a variable as a key when we're defining an object like this,
+  // so we need to do that entry separately.
+  var genderDefaults = {
+    '': '',
+    'Male': 'Male',
+    'Female': 'Female',
+  };
+  genderDefaults[UserPrefs.ALTERNATE_GENDER_OPTION] =
+    UserPrefs.ALTERNATE_GENDER_OPTION;
+
   var profileBlurb = 'These settings affect what appears on your profile page.';
   var profileSettings = {
     'name_irl': {
@@ -133,12 +144,7 @@ UserPrefs.actionSetPrefs = function() {
       'text': 'Gender',
       'type': 'select',
       'value': Api.user_prefs.gender,
-      'source': {
-        '': '',
-        'Male': 'Male',
-        'Female': 'Female',
-        'It\'s complicated': 'It\'s complicated',
-      },
+      'source': genderDefaults,
     },
     'gender_text': {
       'text': 'Feel free to elaborate',
@@ -278,13 +284,13 @@ UserPrefs.actionSetPrefs = function() {
       Api.user_prefs.gender == 'Female') {
     genderText.closest('tr').hide();
     genderText.val('');
-  } else if (Api.user_prefs.gender == 'It\'s complicated') {
+  } else if (Api.user_prefs.gender == UserPrefs.ALTERNATE_GENDER_OPTION) {
     genderText.val('');
   } else {
-    genderSelect.val('It\'s complicated');
+    genderSelect.val(UserPrefs.ALTERNATE_GENDER_OPTION);
   }
   genderSelect.change(function() {
-    if (genderSelect.val() == 'It\'s complicated') {
+    if (genderSelect.val() == UserPrefs.ALTERNATE_GENDER_OPTION) {
       genderText.closest('tr').show();
     } else {
       genderText.closest('tr').hide();
