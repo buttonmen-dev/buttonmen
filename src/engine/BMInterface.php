@@ -15,6 +15,10 @@ class BMInterface {
     const GAME_CHAT_MAX_LENGTH = 500;
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
+    const DEFAULT_PLAYER_COLOR = '#dd99dd';
+    const DEFAULT_OPPONENT_COLOR = '#ddffdd';
+    const DEFAULT_NEUTRAL_COLOR_A = '#cccccc';
+    const DEFAULT_NEUTRAL_COLOR_B = '#dddddd';
 
     // properties
     private $message;               // message intended for GUI
@@ -95,6 +99,10 @@ class BMInterface {
             'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
             'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
             'comment' => $infoArray['comment'],
+            'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
+            'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
+            'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
+            'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
@@ -434,6 +442,18 @@ class BMInterface {
                 $data['gameChatLog'],
                 $data['gameActionLog']
             );
+
+            // Get all the colors the current player has set in his or her
+            // preferences, then figure out which ones to apply to this game
+            $playerColors = $this->load_player_colors($playerId);
+            $gameColors = $this->determine_game_colors(
+                $playerId,
+                $playerColors,
+                $data['playerDataArray'][0]['playerId'],
+                $data['playerDataArray'][1]['playerId']
+            );
+            $data['playerDataArray'][0]['playerColor'] = $gameColors['playerA'];
+            $data['playerDataArray'][1]['playerColor'] = $gameColors['playerB'];
 
             $data['pendingGameCount'] = $this->count_pending_games($playerId);
 
@@ -1742,6 +1762,10 @@ class BMInterface {
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':player_id' => $playerId));
 
+        return self::read_game_list_from_db_results($playerId, $statement);
+    }
+
+    protected function read_game_list_from_db_results($playerId, $results) {
         // Initialize the arrays
         $gameIdArray = array();
         $opponentIdArray = array();
@@ -1756,12 +1780,25 @@ class BMInterface {
         $gameStateArray = array();
         $statusArray = array();
         $inactivityArray = array();
+        $playerColorArray = array();
+        $opponentColorArray = array();
 
         // Ensure that the inactivity time for all games is relative to the
         // same moment
         $now = strtotime('now');
 
-        while ($row = $statement->fetch()) {
+        // Get all the colors the current player has set in his or her
+        // preferences
+        $playerColors = $this->load_player_colors($playerId);
+
+        while ($row = $results->fetch()) {
+            $gameColors = $this->determine_game_colors(
+                $playerId,
+                $playerColors,
+                $playerId,
+                (int)$row['opponent_id']
+            );
+
             $gameIdArray[]        = (int)$row['game_id'];
             $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
@@ -1776,6 +1813,8 @@ class BMInterface {
             $statusArray[]        = $row['status'];
             $inactivityArray[]    =
                 $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
+            $playerColorArray[]   = $gameColors['playerA'];
+            $opponentColorArray[] = $gameColors['playerB'];
         }
 
         return array('gameIdArray'             => $gameIdArray,
@@ -1790,7 +1829,9 @@ class BMInterface {
                      'isAwaitingActionArray'   => $isToActArray,
                      'gameStateArray'          => $gameStateArray,
                      'statusArray'             => $statusArray,
-                     'inactivityArray'         => $inactivityArray);
+                     'inactivityArray'         => $inactivityArray,
+                     'playerColorArray'        => $playerColorArray,
+                     'opponentColorArray'      => $opponentColorArray);
     }
 
     public function get_all_active_games($playerId) {
@@ -3871,17 +3912,14 @@ class BMInterface {
     }
 
     // Retrieves the colors that the user has saved in their preferences
-// AdmiralJota: the next two lines have been commented out to satisfy PMD
-//    protected function load_player_colors($currentPlayerId) {
-//        $playerInfoArray = $this->get_player_info($currentPlayerId);
-    protected function load_player_colors() {
-        // Ultimately, these values should come from the database, but that
-        // hasn't been implemented yet, so we'll just hard code them for now
+    protected function load_player_colors($currentPlayerId) {
+        $playerInfoArray = $this->get_player_info($currentPlayerId);
+
         $colors = array(
-            'player' => '#dd99dd',
-            'opponent' => '#ddffdd',
-            'neutralA' => '#cccccc',
-            'neutralB' => '#dddddd',
+            'player' => $playerInfoArray['user_prefs']['player_color'],
+            'opponent' => $playerInfoArray['user_prefs']['opponent_color'],
+            'neutralA' => $playerInfoArray['user_prefs']['neutral_color_a'],
+            'neutralB' => $playerInfoArray['user_prefs']['neutral_color_b'],
             // Itself an associative array of player ID's => color strings
             'battleBuddies' => array(),
         );
