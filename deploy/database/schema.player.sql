@@ -17,6 +17,8 @@ CREATE TABLE player (
     image_size          SMALLINT,
     uses_gravatar       BOOLEAN DEFAULT 0 NOT NULL,
     comment             VARCHAR(255),
+    favorite_button_id      SMALLINT UNSIGNED,
+    favorite_buttonset_id   SMALLINT UNSIGNED,
     player_color        VARCHAR(7),
     opponent_color      VARCHAR(7),
     neutral_color_a     VARCHAR(7),
@@ -27,7 +29,9 @@ CREATE TABLE player (
     fanatic_button_id   SMALLINT UNSIGNED,
     n_games_won         SMALLINT UNSIGNED DEFAULT 0,
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
-    INDEX (name_ingame)
+    INDEX (name_ingame),
+    FOREIGN KEY (favorite_button_id) REFERENCES button(id),
+    FOREIGN KEY (favorite_buttonset_id) REFERENCES buttonset(id)
 );
 
 DROP TABLE IF EXISTS player_auth;

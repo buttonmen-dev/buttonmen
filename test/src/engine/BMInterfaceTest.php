@@ -129,6 +129,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('opponent_color', $resultArray);
         $this->assertArrayHasKey('neutral_color_a', $resultArray);
         $this->assertArrayHasKey('neutral_color_b', $resultArray);
+        $this->assertArrayHasKey('favorite_button', $resultArray);
+        $this->assertArrayHasKey('favorite_buttonset', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
         $this->assertArrayHasKey('creation_time', $resultArray);
         $this->assertArrayHasKey('fanatic_button_id', $resultArray);

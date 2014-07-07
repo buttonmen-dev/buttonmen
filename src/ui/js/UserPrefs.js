@@ -42,7 +42,9 @@ UserPrefs.showUserPrefsPage = function() {
 
   // Only allow logged-in users to view and change preferences
   if (Login.logged_in) {
-    Api.getUserPrefsData(UserPrefs.assemblePage);
+    Api.getButtonData(function() {
+      Api.getUserPrefsData(UserPrefs.assemblePage);
+    });
   } else {
     Env.message = {
       'type': 'error',
@@ -99,6 +101,14 @@ UserPrefs.actionFailed = function() {
 };
 
 UserPrefs.actionSetPrefs = function() {
+  // Include the option to leave them blank
+  var buttons = { '': '' };
+  var buttonSets = { '': '' };
+
+  $.each(Api.button.list, function(button, buttonInfo) {
+    buttonSets[buttonInfo.buttonSet] = buttonInfo.buttonSet;
+    buttons[button] = button;
+  });
 
   // Create empty page and undefined form objects to be filled later
   UserPrefs.page = $('<div>');
@@ -163,6 +173,18 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'text',
       'value': Api.user_prefs.image_size,
       'after': ' pixels',
+    },
+    'favorite_button': {
+      'text': 'Favorite button',
+      'type': 'select',
+      'value': Api.user_prefs.favorite_button,
+      'source': buttons,
+    },
+    'favorite_buttonset': {
+      'text': 'Favorite button set',
+      'type': 'select',
+      'value': Api.user_prefs.favorite_buttonset,
+      'source': buttonSets,
     },
     'comment': {
       'text': 'Comment',
@@ -350,6 +372,8 @@ UserPrefs.formSetPrefs = function() {
     gender = $('#userprefs_gender_select').val();
   }
   var uses_gravatar = $('#userprefs_uses_gravatar').prop('checked');
+  var favorite_button = $('#userprefs_favorite_button').val();
+  var favorite_buttonset = $('#userprefs_favorite_buttonset').val();
   var image_size = $('#userprefs_image_size').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
@@ -429,6 +453,14 @@ UserPrefs.formSetPrefs = function() {
     new_email = undefined;
   }
 
+  if (!favorite_button) {
+    favorite_button = undefined;
+  }
+
+  if (!favorite_buttonset) {
+    favorite_buttonset = undefined;
+  }
+
   if (!image_size) {
     image_size = undefined;
   }
@@ -441,6 +473,8 @@ UserPrefs.formSetPrefs = function() {
       'dob_month': dob_month,
       'dob_day': dob_day,
       'gender': gender,
+      'favorite_button': favorite_button,
+      'favorite_buttonset': favorite_buttonset,
       'image_size': image_size,
       'uses_gravatar': uses_gravatar,
       'comment': comment,
@@ -610,4 +644,3 @@ UserPrefs.appendToPreferencesTable = function(prefsTable, sectionTitle,
   prefsTable.append(spacerRow);
   spacerRow.append($('<td>', { 'colspan': '2', }).append('&nbsp;'));
 };
-

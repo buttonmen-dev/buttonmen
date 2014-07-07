@@ -427,6 +427,8 @@ class ApiSpec {
                 'neutral_color_b' => 'color',
             ),
             'permitted' => array(
+                'favorite_button' => 'button',
+                'favorite_buttonset' => 'string',
                 'image_size' => array(
                     'arg_type' => 'number',
                     'maxvalue' => 200,

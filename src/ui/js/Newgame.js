@@ -30,6 +30,12 @@ Newgame.showNewgamePage = function() {
   if (!Newgame.activity.opponentName) {
     Newgame.activity.opponentName = Env.getParameterByName('opponent');
   }
+  if (!Newgame.activity.playerButton) {
+    Newgame.activity.playerButton = Env.getParameterByName('playerButton');
+  }
+  if (!Newgame.activity.opponentButton) {
+    Newgame.activity.opponentButton = Env.getParameterByName('opponentButton');
+  }
 
   // Make sure the div element that we will need exists in the page body
   if ($('#newgame_page').length === 0) {
