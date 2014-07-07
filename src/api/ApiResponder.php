@@ -234,6 +234,7 @@ class ApiResponder {
         } else {
             $infoArray['image_size'] = NULL;
         }
+        $infoArray['uses_gravatar'] = ('true' == $args['uses_gravatar']);
 
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
