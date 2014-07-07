@@ -191,7 +191,7 @@ Profile.buildProfileTable = function() {
     Api.profile_info.favorite_buttonset, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
-    challengeLinkHolder, solipsismNotification, true));
+    challengeLinkHolder, solipsismNotification, false));
   tbody.append(Profile.buildProfileTableRow('Comment',
     Api.profile_info.comment, 'none', false));
 
@@ -212,7 +212,7 @@ Profile.buildProfileTable = function() {
 
     var partialTds = table.find('td.partialValue');
 
-    var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '7', });
+    var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '9', });
     partialTds.first().parent().append(imageTd);
     imageTd.append(image);
   }
