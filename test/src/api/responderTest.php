@@ -735,6 +735,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'comment' => '',
             'homepage' => '',
             'autopass' => 'True',
+            'uses_gravatar' => 'False',
             'player_color' => '#dd99dd',
             'opponent_color' => '#ddffdd',
             'neutral_color_a' => '#cccccc',

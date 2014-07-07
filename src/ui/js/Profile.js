@@ -1,11 +1,6 @@
 // namespace for this "module"
 var Profile = {};
 
-// This is hardcoded here because it needs to be a public URL that we can pass
-// to gravatar
-Profile.DEFAULT_IMAGE_URL =
-  'http://www.buttonweavers.com/ui/images/no-image.png';
-
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Profile.showProfilePage() is the landing function. Always call
@@ -208,9 +203,9 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
   tbody.append(Profile.buildProfileTableRow('Favorite button',
-    Api.profile_info.favorite_button, 'undecided', false));
+    Api.profile_info.favorite_button, 'undecided', true));
   tbody.append(Profile.buildProfileTableRow('Favorite button set',
-    Api.profile_info.favorite_buttonset, 'unselected', false));
+    Api.profile_info.favorite_buttonset, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
     challengeLinkHolder, solipsismNotification, false));
@@ -220,11 +215,14 @@ Profile.buildProfileTable = function() {
     commentHolder, 'none', false));
 
   if (!Env.getCookieNoImages()) {
-    var url =
-      'http://www.gravatar.com/avatar/' + Api.profile_info.email_hash +
-      '?d=' + encodeURIComponent(Profile.DEFAULT_IMAGE_URL);
-    if (Api.profile_info.image_size) {
-      url += '&s=' + Api.profile_info.image_size;
+    var url;
+    if (Api.profile_info.uses_gravatar) {
+      url = 'http://www.gravatar.com/avatar/' + Api.profile_info.email_hash;
+      if (Api.profile_info.image_size) {
+        url += '?s=' + Api.profile_info.image_size;
+      }
+    } else {
+      url = Env.ui_root + 'images/no-image.png';
     }
     var image = $('<img>', {
       'src': url,
@@ -233,7 +231,7 @@ Profile.buildProfileTable = function() {
 
     var partialTds = table.find('td.partialValue');
 
-    var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '7', });
+    var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '9', });
     partialTds.first().parent().append(imageTd);
     imageTd.append(image);
   }

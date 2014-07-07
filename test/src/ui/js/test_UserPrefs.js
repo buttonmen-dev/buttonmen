@@ -16,7 +16,6 @@ module("UserPrefs", {
     delete Api.button;
     delete Api.player;
     delete Api.user_prefs;
-    delete Api.button;
 
     // Page elements
     $('#userprefs_page').remove();

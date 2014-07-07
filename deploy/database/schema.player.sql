@@ -15,6 +15,7 @@ CREATE TABLE player (
     monitor_redirects_to_forum  BOOLEAN DEFAULT 0 NOT NULL,
     image_path          VARCHAR(100),
     image_size          SMALLINT,
+    uses_gravatar       BOOLEAN DEFAULT 0 NOT NULL,
     comment             VARCHAR(255),
     homepage            VARCHAR(100),
     favorite_button_id      SMALLINT UNSIGNED,

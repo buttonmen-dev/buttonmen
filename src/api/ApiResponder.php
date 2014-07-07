@@ -234,6 +234,7 @@ class ApiResponder {
         } else {
             $infoArray['image_size'] = NULL;
         }
+        $infoArray['uses_gravatar'] = ('true' == $args['uses_gravatar']);
         $infoArray['homepage'] = $args['homepage'];
 
         $addlInfo = array();
