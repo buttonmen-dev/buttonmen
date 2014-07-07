@@ -84,6 +84,11 @@ class BMInterface {
             $last_access_time = NULL;
         }
 
+        $image_size = NULL;
+        if ($infoArray['image_size'] != NULL) {
+            $image_size = (int)$infoArray['image_size'];
+        }
+
         // set the values we want to actually return
         $playerInfoArray = array(
             'id' => (int)$infoArray['id'],
@@ -95,7 +100,9 @@ class BMInterface {
             'dob_month' => (int)$infoArray['dob_month'],
             'dob_day' => (int)$infoArray['dob_day'],
             'gender' => $infoArray['gender'],
+            'image_size' => $image_size,
             'autopass' => (bool)$infoArray['autopass'],
+            'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
             'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
             'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
             'comment' => $infoArray['comment'],
@@ -234,9 +241,12 @@ class BMInterface {
             'name_ingame' => $playerInfo['name_ingame'],
             'name_irl' => $playerInfo['name_irl'],
             'email' => ($playerInfo['is_email_public'] == 1 ? $playerInfo['email'] : NULL),
+            'email_hash' => md5(strtolower(trim($playerInfo['email']))),
             'dob_month' => (int)$playerInfo['dob_month'],
             'dob_day' => (int)$playerInfo['dob_day'],
             'gender' => $playerInfo['gender'],
+            'image_size' => $playerInfo['image_size'],
+            'uses_gravatar' => $playerInfo['uses_gravatar'],
             'comment' => $playerInfo['comment'],
             'last_access_time' => $playerInfo['last_access_time'],
             'creation_time' => $playerInfo['creation_time'],

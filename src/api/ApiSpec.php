@@ -427,6 +427,12 @@ class ApiSpec {
                 'neutral_color_b' => 'color',
             ),
             'permitted' => array(
+                'image_size' => array(
+                    'arg_type' => 'number',
+                    'maxvalue' => 200,
+                    'minvalue' => 80,
+                ),
+                'uses_gravatar' => 'boolean',
                 'current_password' => 'string',
                 'new_password' => 'string',
                 'new_email' => 'email',
@@ -650,9 +656,16 @@ class ApiSpec {
     }
 
     // verify that the argument is a nonnegative integer
-    protected function verify_argument_of_type_number($arg) {
+    protected function verify_argument_of_type_number($arg, $argtype = array()) {
         if ((is_int($arg) && $arg >= 0) ||
             (is_string($arg) && ctype_digit($arg))) {
+            $arg = (int)$arg;
+            if (isset($argtype['maxvalue']) && $arg > $argtype['maxvalue']) {
+                return FALSE;
+            }
+            if (isset($argtype['minvalue']) && $arg < $argtype['minvalue']) {
+                return FALSE;
+            }
             return TRUE;
         }
         return FALSE;

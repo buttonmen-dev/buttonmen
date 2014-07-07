@@ -179,7 +179,15 @@ Profile.buildProfileTable = function() {
     Api.profile_info.comment, 'none', false));
 
   if (!Env.getCookieNoImages()) {
-    var url = Env.ui_root + 'images/no-image.png';
+    var url;
+    if (Api.profile_info.uses_gravatar) {
+      url = 'http://www.gravatar.com/avatar/' + Api.profile_info.email_hash;
+      if (Api.profile_info.image_size) {
+        url += '?s=' + Api.profile_info.image_size;
+      }
+    } else {
+      url = Env.ui_root + 'images/no-image.png';
+    }
     var image = $('<img>', {
       'src': url,
       'class': 'profileImage',

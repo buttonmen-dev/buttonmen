@@ -393,11 +393,6 @@ table.profileTable td.partialValue {
     vertical-align: top;
 }
 
-img.profileImage {
-    max-width: 200px;
-    max-height: 200px;
-}
-
 table.activePlayerList td.player,
 table.activePlayerList th.player {
     text-align: right;

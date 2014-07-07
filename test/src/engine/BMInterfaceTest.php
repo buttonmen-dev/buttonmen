@@ -119,7 +119,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('dob_month', $resultArray);
         $this->assertArrayHasKey('dob_day', $resultArray);
         $this->assertArrayHasKey('gender', $resultArray);
-        $this->assertArrayHasKey('autopass', $resultArray);
+        $this->assertArrayHasKey('image_size', $resultArray);
+        $this->assertArrayHasKey('image_size', $resultArray);
+        $this->assertArrayHasKey('uses_gravatar', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);

@@ -229,6 +229,12 @@ class ApiResponder {
         $infoArray['opponent_color'] = $args['opponent_color'];
         $infoArray['neutral_color_a'] = $args['neutral_color_a'];
         $infoArray['neutral_color_b'] = $args['neutral_color_b'];
+        if (isset($args['image_size'])) {
+            $infoArray['image_size'] = $args['image_size'];
+        } else {
+            $infoArray['image_size'] = NULL;
+        }
+        $infoArray['uses_gravatar'] = ('true' == $args['uses_gravatar']);
 
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
