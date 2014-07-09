@@ -9,7 +9,7 @@ class BMAttackPower extends BMAttack {
         return $this->search_onevone($game, $this->validDice, $targets);
     }
 
-    public function validate_attack($game, array $attackers, array $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
 
         if (1 != count($attackers)) {
@@ -32,8 +32,12 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        $bounds = $this->help_bounds($this->collect_helpers($game, $attackers, $defenders),
-                                     $this->collect_firing_maxima($attackers));
+        if (is_null($helpValue)) {
+            $bounds = $this->help_bounds($this->collect_helpers($game, $attackers, $defenders),
+                                         $this->collect_firing_maxima($attackers));
+        } else {
+            $bounds = array($helpValue, $helpValue);
+        }
 
         $att = $attackers[0];
         $def = $defenders[0];

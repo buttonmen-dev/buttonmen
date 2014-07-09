@@ -166,6 +166,11 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($die3, $die5, $die6, $die7, $die8), array());
 
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
+
+        // test case where the amount of help is explicitly specified
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1), 1));
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1), 5));
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1), 6));
     }
 
     /**
