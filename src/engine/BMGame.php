@@ -35,6 +35,7 @@
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
+ * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
  * @property-read string $message                Message to be passed to the GUI
@@ -84,6 +85,7 @@ class BMGame {
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
     private $autopassArray;         // boolean array whether each player has enabled autopass
+    private $firingAmount;          // amount of firing that has been submitted
     private $actionLog;             // game actions taken by this BMGame instance
     private $chat;                  // chat message submitted by the active player with an attack
     private $message;               // message to be passed to the GUI
@@ -742,6 +744,7 @@ class BMGame {
     }
 
     protected function do_next_step_start_turn() {
+        $this->firingAmount = 0;
         $this->perform_autopass();
 
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
@@ -896,6 +899,57 @@ class BMGame {
             return;
         }
 
+        $this->gameState = BMGameState::COMMIT_ATTACK;
+    }
+
+    // $fireValueArray is an associative array, with the keys being the
+    // die indices of the attacker die array that are being specified
+    public function turn_down_fire_dice(array $fireValueArray) {
+        if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            return;
+        }
+
+        $instance = $this->create_attack_instance();
+        if (FALSE === $instance) {
+            return;
+        }
+
+        $attackerIdx = $this->attack['attackerPlayerIdx'];
+
+        $firingAmount = 0;
+        foreach ($fireValueArray as $fireIdx => $newValue) {
+            $die = $this->activeDieArrayArray[$attackerIdx][$fireIdx];
+            if (!$die->has_skill('Fire')) {
+                return;
+            }
+
+            if ($newValue > $die->value) {
+                return;
+            }
+
+            if ($newValue < 1) {
+                return;
+            }
+
+            $firingAmount += $die->value - $newValue;
+        }
+
+        if (!$instance['attack']->validate_attack(
+                $this,
+                $instance['attAttackDieArray'],
+                $instance['defAttackDieArray'],
+                $firingAmount
+            )) {
+            return;
+        }
+
+        $activeDieArrayArray = $this->activeDieArrayArray;
+
+        foreach ($fireValueArray as $fireIdx => $newValue) {
+            $activeDieArrayArray[$attackerIdx][$fireIdx]->value = $newValue;
+        }
+
+        $this->firingAmount = $firingAmount;
         $this->gameState = BMGameState::COMMIT_ATTACK;
     }
 
@@ -2282,6 +2336,12 @@ class BMGame {
             }
         }
         $this->autopassArray = $value;
+    }
+
+    protected function set__firingAmount() {
+        throw new LogicException(
+            'firingAmount is set exclusively via BMGame->turn_down_fire_dice().'
+        );
     }
 
     protected function set__forceRoundResult($value) {

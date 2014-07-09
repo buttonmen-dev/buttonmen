@@ -9025,5 +9025,51 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
     }
+
+    /**
+     * @covers BMGame::turn_down_fire_dice;
+     */
+    public function test_turn_down_fire_dice() {
+        // beginning of game
+        $button1 = new BMButton;
+        $button1->load('(1) (1) (20) F(20)');
+
+        $button2 = new BMButton;
+        $button2->load('(20)');
+
+        $game = new BMGame(424242, array(123, 456));
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
+        $this->assertTrue($game->activeDieArrayArray[0][3]->has_skill('Fire'));
+
+        $activeDieArrayArray = $game->activeDieArrayArray;
+
+        $activeDieArrayArray[0][2]->value = 2;
+        $activeDieArrayArray[0][3]->value = 16;
+        $activeDieArrayArray[1][0]->value = 14;
+
+        // test that nothing happens until we're in BMGameState::ADJUST_FIRE_DICE
+        $game->turn_down_fire_dice(array(3 => 6));
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(16, $game->activeDieArrayArray[0][3]->value);
+
+        // test that a valid turndown is possible
+        $game->attack = array(0, 1, array(0, 1, 2), array(0), 'Skill');
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+        $this->assertEquals(0, $game->firingAmount);
+
+        $game->turn_down_fire_dice(array(3 => 6));
+        $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
+        $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
+        $this->assertEquals(10, $game->firingAmount);
+    }
 }
 
