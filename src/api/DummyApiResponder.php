@@ -807,6 +807,10 @@ class DummyApiResponder {
         return array(NULL, "Game does not exist.");
     }
 
+    protected function get_interface_response_countPendingGames() {
+        return array(array('count' => 0), 'Pending game count succeeded.');
+    }
+
     protected function get_interface_response_loadPlayerName() {
         return array(array('userName' => 'tester1'), NULL);
     }

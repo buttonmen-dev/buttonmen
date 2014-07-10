@@ -496,14 +496,12 @@ class BMInterface {
             $data['playerDataArray'][0]['playerColor'] = $gameColors['playerA'];
             $data['playerDataArray'][1]['playerColor'] = $gameColors['playerB'];
 
-            $data['pendingGameCount'] = $this->count_pending_games($playerId);
-
             return $data;
         }
         return NULL;
     }
 
-    protected function count_pending_games($playerId) {
+    public function count_pending_games($playerId) {
         try {
             $parameters = array(':player_id' => $playerId);
 
@@ -522,7 +520,10 @@ class BMInterface {
                 error_log('Pending game count failed for player ' . $playerId);
                 return NULL;
             } else {
-                return (int)$result[0];
+                $data = array();
+                $data['count'] = (int)$result[0];
+                $this->message = 'Pending game count succeeded.';
+                return $data;
             }
         } catch (Exception $e) {
             error_log(
