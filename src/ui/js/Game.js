@@ -1607,6 +1607,11 @@ Game.pageAddUnhideChatButton = function(isChatHidden) {
   unhideButton.click(function() {
     $('.hiddenChatForm').show();
     $('.unhideChat').hide();
+    $('#game_chat').focus();
+    // Also, a hack to move the cursor to the end
+    var chat = $('#game_chat').val();
+    $('#game_chat').val('');
+    $('#game_chat').val(chat);
   });
 
   var unhideDiv = $('<div>', { 'class': 'unhideChat', });
