@@ -1569,6 +1569,18 @@ Game.pageAddGameHeader = function(action_desc) {
   var descdiv = $('<div>', { 'class': 'action_desc_div', });
   descdiv.append(descspan);
   Game.page.append(descdiv);
+
+  // If there's new chat the player hasn't seen yet, notify them
+  if (Api.game.isParticipant && Api.game.player.lastActionTime &&
+      Api.game.chatLog.length &&
+      Api.game.chatLog[0].timestamp > Api.game.player.lastActionTime) {
+    descdiv.append(Game.SPACE_BULLET);
+    descdiv.append($('<span>', {
+      'class': 'action_desc_span new',
+      'text': 'New chat message',
+    }));
+  }
+
   Game.page.append($('<br>'));
 
   if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
