@@ -101,6 +101,8 @@ class BMGame {
 
     public $lastActionTimeArray;
 
+    public $debug;
+
     // methods
     public function do_next_step() {
         if (!isset($this->gameState)) {
@@ -744,7 +746,7 @@ class BMGame {
     }
 
     protected function do_next_step_start_turn() {
-        $this->firingAmount = 0;
+        $this->firingAmount = NULL;
         $this->perform_autopass();
 
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
@@ -815,6 +817,10 @@ class BMGame {
     }
 
     protected function create_attack_instance() {
+        if ($this->debug) {
+          var_dump('create1');
+        }
+
         $attack = BMAttack::get_instance($this->attack['attackType']);
 
         $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
@@ -845,7 +851,8 @@ class BMGame {
         $valid = $attack->validate_attack(
             $this,
             $attAttackDieArray,
-            $defAttackDieArray
+            $defAttackDieArray,
+            $this->firingAmount
         );
 
         if (!$valid) {
@@ -950,7 +957,7 @@ class BMGame {
         }
 
         $this->firingAmount = $firingAmount;
-        $this->gameState = BMGameState::COMMIT_ATTACK;
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
     }
 
     protected function do_next_step_commit_attack() {
@@ -1016,7 +1023,6 @@ class BMGame {
     protected function update_game_state_commit_attack() {
         if (isset($this->attack) &&
             FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
-            $this->gameState = BMGameState::ADJUST_FIRE_DICE;
             if (isset($this->activeDieArrayArray) &&
                 isset($this->attack['attackerPlayerIdx'])) {
                 foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {

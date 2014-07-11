@@ -374,18 +374,6 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttack::collect_contributions
-     * @todo   Implement testCollect_contributions().
-     */
-    public function testCollect_contributions()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
      * @covers BMAttack::has_dizzy_attackers
      */
     public function testHas_dizzy_attackers()

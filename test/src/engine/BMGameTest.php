@@ -9035,7 +9035,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $button1->load('(1) (1) (20) F(20)');
 
         $button2 = new BMButton;
-        $button2->load('(20)');
+        $button2->load('(20) (30)');
 
         $game = new BMGame(424242, array(123, 456));
         $game->buttonArray = array($button1, $button2);
@@ -9052,6 +9052,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $activeDieArrayArray[0][2]->value = 2;
         $activeDieArrayArray[0][3]->value = 16;
         $activeDieArrayArray[1][0]->value = 14;
+        $activeDieArrayArray[1][1]->value = 30;
 
         // test that nothing happens until we're in BMGameState::ADJUST_FIRE_DICE
         $game->turn_down_fire_dice(array(3 => 6));
@@ -9061,15 +9062,24 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // test that a valid turndown is possible
         $game->attack = array(0, 1, array(0, 1, 2), array(0), 'Skill');
         $game->waitingOnActionArray = array(FALSE, FALSE);
-        $game->proceed_to_next_user_action();
+        $game->update_game_state();
 
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
         $this->assertEquals(0, $game->firingAmount);
 
         $game->turn_down_fire_dice(array(3 => 6));
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+        $game->update_game_state();
         $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);
         $this->assertEquals(6, $game->activeDieArrayArray[0][3]->value);
         $this->assertEquals(10, $game->firingAmount);
+
+        $game->do_next_step();
+
+        $game->proceed_to_next_user_action();
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
     }
 }
 
