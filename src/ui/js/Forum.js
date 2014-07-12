@@ -22,8 +22,8 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 //   the current board, thread and/or post, which it sets in Env.history.state.
 //   It also binds Forum.showPage() to the page event that triggers on the
 //   forward/backward button. Then it calls Forum.showPage() directly.
-// * Forum.showPage() reads Env.history.state to find out what it should be
-//   displaying. Then it calls the API to set either Api.forum_overview,
+// * Forum.showPage() reads the state it was passed to find out what it should
+//   be displaying. Then it calls the API to set either Api.forum_overview,
 //   Api.forum_board or Api.forum_thread as appropriate, then passes control
 //   to Forum.showOverview(), Forum.showBoard() or Forum.showThread().
 // * Forum.showOverview() builds a version of Forum.page that includes a list
@@ -71,10 +71,10 @@ Forum.showForumPage = function() {
   };
   Env.history.replaceState(state, 'Button Men Online &mdash; Forum',
     Env.window.location.hash);
-  Forum.showPage();
+  Forum.showPage(state);
 };
 
-Forum.showPage = function() {
+Forum.showPage = function(state) {
   if (!Login.logged_in) {
     Env.message = {
       'type': 'error',
@@ -84,8 +84,15 @@ Forum.showPage = function() {
     return;
   }
 
+  // If this was called from a popState event, the parameter might be an event
+  // object containing a state rather than the state itself
+  if (state.state !== undefined) {
+    state = state.state;
+  }
+  if (state.originalEvent !== undefined) {
+    state = state.originalEvent.state;
+  }
   // Display the appropriate version of the page depending on the current state
-  var state = Env.history.state;
   if (state.threadId) {
     Api.loadForumThread(state.threadId, state.postId, Forum.showThread);
   } else if (state.boardId) {
@@ -373,7 +380,7 @@ Forum.formLinkToSubPage = function(e) {
   Env.history.pushState(state, 'Button Men Online &mdash; Forum',
     Forum.buildUrlHash(state));
   Env.message = null;
-  Forum.showPage();
+  Forum.showPage(state);
 };
 
 Forum.toggleNewThreadForm = function() {
