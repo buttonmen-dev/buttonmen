@@ -399,6 +399,12 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     outputHtml += replacements[tagName].closingHtml;
   }
 
+  // While we're here, we want to make sure there's an event set up to
+  // reveal the contents of spoiler tags when requested.
+  // (We turn the event off first so we're not binding it multiple times.)
+  $(document).off('click', '.chatSpoiler, .chatExSpoiler')
+    .on('click', '.chatSpoiler, .chatExSpoiler', Env.toggleSpoiler);
+
   return outputHtml;
 };
 
@@ -417,4 +423,10 @@ Env.buildProfileLink = function(playerName, textOnly) {
       'text': playerName,
     });
   }
+};
+
+// Reveal (or un-reveal) the contents of spoiler tags
+Env.toggleSpoiler = function() {
+  $(this).toggleClass('chatSpoiler');
+  $(this).toggleClass('chatExSpoiler');
 };

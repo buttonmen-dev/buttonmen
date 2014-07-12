@@ -760,6 +760,15 @@ div.forum div.splitRight {
 .chatSpoiler .chatQuoteBody {
     color: black;
     background-color: black;
+    cursor: default;
+}
+
+.chatExSpoiler,
+.chatExSpoiler a,
+.chatExSpoiler .chatQuoteBody {
+    color: black;
+    background-color: #eeeeee;
+    cursor: default;
 }
 
 /* END: BB Code */

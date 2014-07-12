@@ -246,3 +246,15 @@ test("test_Env.buildProfileLink", function() {
     'Link text should point to profile page.');
 });
 
+test("test_Env.toggleSpoiler", function() {
+  var spoiler = $('<span>', { 'class': 'chatSpoiler' });
+
+  Env.toggleSpoiler.call(spoiler);
+  ok(!spoiler.hasClass('chatSpoiler'), 'Spoiler should be revealed');
+  ok(spoiler.hasClass('chatExSpoiler'), 'Spoiler should be styled as revealed');
+
+  Env.toggleSpoiler.call(spoiler);
+  ok(spoiler.hasClass('chatSpoiler'), 'Spoiler should be concealed');
+  ok(!spoiler.hasClass('chatExSpoiler'),
+    'Spoiler should not be styled as revealed');
+});
