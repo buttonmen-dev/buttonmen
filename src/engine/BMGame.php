@@ -101,8 +101,6 @@ class BMGame {
 
     public $lastActionTimeArray;
 
-    public $debug;
-
     // methods
     public function do_next_step() {
         if (!isset($this->gameState)) {
@@ -909,33 +907,87 @@ class BMGame {
         $this->gameState = BMGameState::COMMIT_ATTACK;
     }
 
+    // turn_down_fire_dice expects one of the following two input arrays:
+    //
+    //   1.  array('action' => 'cancel',
+    //             'playerIdx' => $playerIdx,
+    //             'dieIdxArray' => $dieIdxArray,
+    //             'dieValueArray' => $dieValueArray)
+    //       where $dieIdxArray and $dieValueArray are the raw inputs to
+    //       BMInterface->adjust_fire()
+    //
+    //   2.  array('action' => 'turndown',
+    //             'playerIdx' => $playerIdx,
+    //             'fireValueArray' => array($dieIdx1 => $dieValue1,
+    //                                       $dieIdx2 => $dieValue2))
+    //       where the details of SOME or ALL fire dice are in $fireValueArray
+    //
+    // It returns a boolean telling whether the reaction has been successful.
+    // If it fails, $game->message will say why it has failed.
+
+    public function react_to_firing(array $args) {
+        if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            $this->message = 'Wrong game state to react to firing.';
+            return FALSE;
+        }
+
+        if (!array_key_exists('action', $args) ||
+            !array_key_exists('playerIdx', $args)) {
+            $this->message = 'Missing action or player index.';
+            return FALSE;
+        }
+
+        $playerIdx = $args['playerIdx'];
+        $waitingOnActionArray = &$this->waitingOnActionArray;
+        $waitingOnActionArray[$playerIdx] = FALSE;
+
+        if (!in_array($args['action'], array('turndown', 'cancel'))) {
+            throw new InvalidArgumentException(
+                'Reaction must be turndown or cancel.'
+            );
+        }
+
+        $reactFuncName = 'react_to_firing_'.$args['action'];
+        $reactResponse = $this->$reactFuncName($args);
+
+//        $successfullyFired = $reactResponse;
+//
+//        if ($successfullyFired) {
+//            $this->do_next_step();
+//        }
+//
+//        return array('successfullyFired' => $successfullyFired);
+
+        return $reactResponse;
+    }
+
     // $fireValueArray is an associative array, with the keys being the
     // die indices of the attacker die array that are being specified
-    public function turn_down_fire_dice(array $fireValueArray) {
+    protected function react_to_firing_turndown(array $args) {
         if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
-            return;
+            return FALSE;
         }
 
         $instance = $this->create_attack_instance();
         if (FALSE === $instance) {
-            return;
+            return FALSE;
         }
 
         $attackerIdx = $this->attack['attackerPlayerIdx'];
 
         $firingAmount = 0;
-        foreach ($fireValueArray as $fireIdx => $newValue) {
+        foreach ($args['fireValueArray'] as $fireIdx => $newValue) {
             $die = $this->activeDieArrayArray[$attackerIdx][$fireIdx];
             if (!$die->has_skill('Fire')) {
-                return;
+                return FALSE;
             }
 
             if ($newValue > $die->value) {
-                return;
+                return FALSE;
             }
 
             if ($newValue < 1) {
-                return;
+                return FALSE;
             }
 
             $firingAmount += $die->value - $newValue;
@@ -947,17 +999,28 @@ class BMGame {
                 $instance['defAttackDieArray'],
                 $firingAmount
             )) {
-            return;
+            return FALSE;
         }
 
         $activeDieArrayArray = $this->activeDieArrayArray;
 
-        foreach ($fireValueArray as $fireIdx => $newValue) {
+        foreach ($args['fireValueArray'] as $fireIdx => $newValue) {
             $activeDieArrayArray[$attackerIdx][$fireIdx]->value = $newValue;
         }
 
         $this->firingAmount = $firingAmount;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        return TRUE;
+    }
+
+    protected function react_to_firing_cancel(array $args) {
+        $this->attack = NULL;
+        $this->gameState = BMGameState::START_TURN;
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+
+        return TRUE;
     }
 
     protected function do_next_step_commit_attack() {
@@ -1212,7 +1275,7 @@ class BMGame {
     //             'playerIdx' => $playerIdx,
     //             'focusValueArray' => array($dieIdx1 => $dieValue1,
     //                                        $dieIdx2 => $dieValue2))
-    //       where the details of ALL focus dice are in $focusValueArray
+    //       where the details of SOME or ALL focus dice are in $focusValueArray
     //
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.

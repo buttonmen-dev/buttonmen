@@ -9027,9 +9027,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::turn_down_fire_dice;
+     * @covers BMGame::react_to_firing_turndown;
      */
-    public function test_turn_down_fire_dice() {
+    public function test_react_to_firing_turndown() {
         // beginning of game
         $button1 = new BMButton;
         $button1->load('(1) (1) (20) F(20)');
@@ -9055,7 +9055,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $activeDieArrayArray[1][1]->value = 30;
 
         // test that nothing happens until we're in BMGameState::ADJUST_FIRE_DICE
-        $game->turn_down_fire_dice(array(3 => 6));
+        $game->react_to_firing(
+            array(
+                'action' => 'turndown',
+                'playerIdx' => 0,
+                'fireValueArray' => array(3 => 6)
+            )
+        );
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->value);
 
@@ -9067,7 +9073,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
         $this->assertNull($game->firingAmount);
 
-        $game->turn_down_fire_dice(array(3 => 6));
+        $game->react_to_firing(
+            array(
+                'action' => 'turndown',
+                'playerIdx' => 0,
+                'fireValueArray' => array(3 => 6)
+            )
+        );
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
         $game->update_game_state();
         $this->assertEquals(BMGameState::COMMIT_ATTACK, $game->gameState);

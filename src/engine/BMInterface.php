@@ -24,7 +24,6 @@ class BMInterface {
     private $isTest;         // indicates if the interface is for testing
 
 
-
     // constructor
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
@@ -3210,6 +3209,95 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
+        }
+    }
+
+    // adjust_fire expects the following inputs:
+    //
+    //   $action:
+    //       One of {'turndown', 'cancel'}.
+    //
+    //   $dieIdxArray:
+    //       (i)  If this is a 'turndown' action, then this is the nonempty array
+    //             of die indices corresponding to the die values in
+    //             dieValueArray. This can be either the indices of ALL fire
+    //             dice OR just a subset.
+    //       (ii) If this is a 'cancel' action, then this will be ignored.
+    //
+    //   $dieValueArray:
+    //       This is only used for the 'turndown' action. It is a nonempty array
+    //       containing the values of the fire dice that have been chosen by
+    //       the user. The die indices of the dice being specified are given in
+    //       $dieIdxArray.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function adjust_fire(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $submitTimestamp,
+        $action,
+        $dieIdxArray = NULL,
+        $dieValueArray = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::ADJUST_FIRE_DICE,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'turndown':
+                    if (count($dieIdxArray) != count($dieValueArray)) {
+                        $this->message = 'Mismatch in number of indices and values';
+                        return FALSE;
+                    }
+
+//                    $argArray[]
+//                    $argArray['focusValueArray'] = array();
+//                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+//                        $argArray['focusValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
+//                    }
+                    break;
+                case 'cancel':
+//                    $argArray['dieIdxArray'] = $dieIdxArray;
+//                    $argArray['dieValueArray'] = $dieValueArray;
+                    break;
+                default:
+                    $this->message = 'Invalid action to adjust fire dice.';
+                    return FALSE;
+            }
+
+            $isSuccessful = $game->react_to_firing($argArray);
+            if ($isSuccessful) {
+                $this->save_game($game);
+                $this->message = 'Successfully turned down fire dice.';
+            } else {
+                $this->message = $game->message;
+            }
+
+            return $isSuccessful;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::adjust_fire: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while adjusting fire dice';
             return FALSE;
         }
     }
