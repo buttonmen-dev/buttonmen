@@ -9027,7 +9027,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGame::react_to_firing_turndown;
+     * @covers BMGame::react_to_firing
+     * @covers BMGame::react_to_firing_turndown
      */
     public function test_react_to_firing_turndown() {
         // beginning of game
@@ -9098,6 +9099,70 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
+    }
+
+    /**
+     * @covers BMGame::react_to_firing
+     * @covers BMGame::react_to_firing_cancel
+     */
+    public function test_react_to_firing_cancel() {
+        // beginning of game
+        $button1 = new BMButton;
+        $button1->load('(1) (1) (20) F(20)');
+
+        $button2 = new BMButton;
+        $button2->load('(20) (30)');
+
+        $game = new BMGame(424242, array(123, 456));
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(0, $game->playerWithInitiativeIdx);
+        $this->assertTrue($game->activeDieArrayArray[0][3]->has_skill('Fire'));
+
+        $activeDieArrayArray = $game->activeDieArrayArray;
+
+        $activeDieArrayArray[0][2]->value = 2;
+        $activeDieArrayArray[0][3]->value = 16;
+        $activeDieArrayArray[1][0]->value = 14;
+        $activeDieArrayArray[1][1]->value = 30;
+
+        // test that nothing happens until we're in BMGameState::ADJUST_FIRE_DICE
+        $game->react_to_firing(
+            array(
+                'action' => 'cancel',
+                'playerIdx' => 0,
+                'dieIdxArray' => array(3),
+                'dieValueArray' => array(6)
+            )
+        );
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(16, $game->activeDieArrayArray[0][3]->value);
+
+        // test that a valid turndown is possible
+        $game->attack = array(0, 1, array(0, 1, 2), array(0), 'Skill');
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->update_game_state();
+
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+        $this->assertNull($game->firingAmount);
+
+        $game->react_to_firing(
+            array(
+                'action' => 'cancel',
+                'playerIdx' => 0,
+                'dieIdxArray' => array(3),
+                'dieValueArray' => array(6)
+            )
+        );
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertNull($game->attack);
     }
 }
 

@@ -3268,15 +3268,14 @@ class BMInterface {
                         return FALSE;
                     }
 
-//                    $argArray[]
-//                    $argArray['focusValueArray'] = array();
-//                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
-//                        $argArray['focusValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
-//                    }
+                    $argArray['fireValueArray'] = array();
+                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+                        $argArray['fireValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
+                    }
                     break;
                 case 'cancel':
-//                    $argArray['dieIdxArray'] = $dieIdxArray;
-//                    $argArray['dieValueArray'] = $dieValueArray;
+                    $argArray['dieIdxArray'] = $dieIdxArray;
+                    $argArray['dieValueArray'] = $dieValueArray;
                     break;
                 default:
                     $this->message = 'Invalid action to adjust fire dice.';
