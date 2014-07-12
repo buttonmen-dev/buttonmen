@@ -53,6 +53,19 @@ Overview.showOverviewPage = function() {
     // If we're in monitor mode, run the monitor first
     Api.getUserPrefsData(Overview.executeMonitor);
     break;
+  case 'preference':
+    Api.getUserPrefsData(function() {
+      if (Api.user_prefs.automatically_monitor) {
+        Overview.monitorIsOn = true;
+        // If we're in monitor mode, run the monitor first
+        Overview.executeMonitor();
+      } else {
+        Overview.monitorIsOn = false;
+        // Get all needed information, then display overview page
+        Overview.getOverview(Overview.showPage);
+      }
+    });
+    break;
   default:
     Overview.monitorIsOn = false;
     // Get all needed information, then display overview page

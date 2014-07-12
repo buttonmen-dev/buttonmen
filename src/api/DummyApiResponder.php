@@ -826,6 +826,7 @@ class DummyApiResponder {
                                 'uses_gravatar' => FALSE,
                                 'monitor_redirects_to_game' => FALSE,
                                 'monitor_redirects_to_forum' => FALSE,
+                                'automatically_monitor' => FALSE,
                                 'comment' => NULL,
                                 'favorite_button' => NULL,
                                 'favorite_buttonset' => NULL,

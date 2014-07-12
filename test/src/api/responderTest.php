@@ -741,6 +741,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'neutral_color_b' => '#dddddd',
             'monitor_redirects_to_game' => 'False',
             'monitor_redirects_to_forum' => 'False',
+            'automatically_monitor' => 'False',
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
