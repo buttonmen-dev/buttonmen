@@ -28,6 +28,7 @@ module("Game", {
 
     // JavaScript variables
     delete Api.game;
+    delete Api.pending_games;
     delete Game.game;
     delete Game.page;
     delete Game.form;
@@ -942,6 +943,7 @@ asyncTest("test_Game.pageAddGameNavigationFooter_pendingGames", function() {
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
+    Api.pending_games.count = 3;
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
     ok(htmlout.match('<br>'), "Game navigation footer should insert line break");

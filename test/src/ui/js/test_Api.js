@@ -23,6 +23,7 @@ module("Api", {
     delete Api.join_game_result;
     delete Api.active_players;
     delete Api.profile_info;
+    delete Api.pending_games;
     delete Env.message;
     BMTestUtils.deleteEnvMessage();
 
@@ -550,6 +551,16 @@ asyncTest("test_Api.parseSearchResults_summary", function() {
   Api.searchGameHistory(searchParameters, function() {
     equal(Api.game_history.summary.matchesFound, 2,
       "Successfully parsed search results summary data");
+    start();
+  });
+});
+
+asyncTest("test_Api.getPendingGameCount", function() {
+  Api.getPendingGameCount(function() {
+    equal(Api.pending_games.load_status, 'ok',
+      "Successfully retrieved count of pending games");
+    ok(typeof Api.pending_games.count === 'number',
+      "Successfully retrieved valid count of pending games");
     start();
   });
 });

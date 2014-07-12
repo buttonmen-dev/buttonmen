@@ -202,6 +202,10 @@ class ApiResponder {
         return $interface->load_api_game_data($_SESSION['user_id'], $args['game'], $logEntryLimit);
     }
 
+    protected function get_interface_response_countPendingGames($interface) {
+        return $interface->count_pending_games($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_loadPlayerName() {
         if (auth_session_exists()) {
             return array('userName' => $_SESSION['user_name']);

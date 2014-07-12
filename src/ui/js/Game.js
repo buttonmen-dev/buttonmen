@@ -103,7 +103,9 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
+  Api.getPendingGameCount(function() {
+    Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
+  });
 };
 
 // Assemble and display the game portion of the page
@@ -1623,8 +1625,8 @@ Game.pageAddGameNavigationFooter = function() {
   }
 
   var countText;
-  if (Api.game.pendingGameCount) {
-    countText = '(at least ' + Api.game.pendingGameCount + ')';
+  if (Api.pending_games.count) {
+    countText = '(at least ' + Api.pending_games.count + ')';
   } else {
     countText = '(if any)';
   }

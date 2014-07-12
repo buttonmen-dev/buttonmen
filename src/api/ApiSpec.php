@@ -32,6 +32,12 @@ class ApiSpec {
                 ),
             ),
         ),
+        // countPendingGames returns:
+        //   count: int,
+        'countPendingGames' => array(
+            'mandatory' => array(),
+            'permitted' => array(),
+        ),
         // createForumPost returns (from loadForumThread):
         //   threadId: int,
         //   threadTitle: string,
