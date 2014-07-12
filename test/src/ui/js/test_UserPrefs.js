@@ -47,16 +47,19 @@ asyncTest("test_UserPrefs.showUserPrefsPage", function() {
   start();
 });
 
-asyncTest("test_UserPrefs.assemblePage", function() {
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_UserPrefs.assemblePage", function() {
+  $.ajaxSetup({ async: false });
   Api.getButtonData(function() {
     Api.getUserPrefsData(function() {
       UserPrefs.assemblePage();
       var htmlout = UserPrefs.page.html();
       ok(htmlout.length > 0,
          "The created page should have nonzero contents");
-      start();
     });
   });
+  $.ajaxSetup({ async: true });
 });
 
 asyncTest("test_UserPrefs.arrangePage", function() {
