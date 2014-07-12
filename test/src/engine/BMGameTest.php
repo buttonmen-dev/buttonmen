@@ -9065,7 +9065,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->update_game_state();
 
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
-        $this->assertEquals(0, $game->firingAmount);
+        $this->assertNull($game->firingAmount);
 
         $game->turn_down_fire_dice(array(3 => 6));
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
@@ -9075,6 +9075,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $game->firingAmount);
 
         $game->do_next_step();
+
+        $game->update_game_state();
+        $this->assertEquals(BMGameState::END_TURN, $game->gameState);
+
+        $game->do_next_step();
+        $this->assertNull($game->firingAmount);
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);

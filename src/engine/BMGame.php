@@ -1037,6 +1037,7 @@ class BMGame {
     }
 
     protected function do_next_step_end_turn() {
+        $this->firingAmount = NULL;
     }
 
     protected function update_game_state_end_turn() {
