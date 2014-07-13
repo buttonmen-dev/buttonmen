@@ -629,7 +629,7 @@ class BMDie extends BMCanHaveSkill {
 
         $flagObject = BMFlag::create_from_string($flagString);
         if (isset($flagObject)) {
-            $this->flagList[$flag] = $flagObject;
+            $this->flagList[$flagObject->type()] = $flagObject;
         }
     }
 

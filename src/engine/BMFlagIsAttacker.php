@@ -26,8 +26,7 @@ class BMFlagIsAttacker extends BMFlag {
     }
 
     public function __toString() {
-        $name = get_class($this);
-        $string = str_replace('BMFlag', '', $name);
+        $string = $this->type();
         if (!empty($this->attackType)) {
             $string .= '__' . $this->attackType;
         }

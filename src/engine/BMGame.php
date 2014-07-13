@@ -884,7 +884,7 @@ class BMGame {
                 if ($die->has_flag('IsAttacker')) {
                     $attackerAttackDieIdxArray[] = $dieIdx;
                     $attackerPlayerIdx = $playerIdx;
-                    $attackType = $die['flagList']['IsAttacker']->value();
+                    $attackType = $die->flagList['IsAttacker']->value();
                 } elseif ($die->has_flag('IsAttackTarget')) {
                     $defenderAttackDieIdxArray[] = $dieIdx;
                     $defenderPlayerIdx = $playerIdx;
@@ -893,11 +893,11 @@ class BMGame {
         }
 
         $this->attack = array(
-            $attackerPlayerIdx,
-            $defenderPlayerIdx,
-            $attackerAttackDieIdxArray,
-            $defenderAttackDieIdxArray,
-            $attackType
+            'attackerPlayerIdx' => $attackerPlayerIdx,
+            'defenderPlayerIdx' => $defenderPlayerIdx,
+            'attackerAttackDieIdxArray' => $attackerAttackDieIdxArray,
+            'defenderAttackDieIdxArray' => $defenderAttackDieIdxArray,
+            'attackType' => $attackType
         );
     }
 
