@@ -9073,6 +9073,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
         $this->assertNull($game->firingAmount);
+        $this->assertTrue($game->activeDieArrayArray[0][0]->has_flag('IsAttacker'));
+        $this->assertTrue($game->activeDieArrayArray[0][1]->has_flag('IsAttacker'));
+        $this->assertTrue($game->activeDieArrayArray[0][2]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('IsAttacker'));
+        $this->assertTrue($game->activeDieArrayArray[1][0]->has_flag('IsAttackTarget'));
+        $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('IsAttackTarget'));
 
         $game->react_to_firing(
             array(
@@ -9094,6 +9100,11 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $game->do_next_step();
         $this->assertNull($game->firingAmount);
+        $this->assertFalse($game->activeDieArrayArray[0][0]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][1]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][2]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[1][0]->has_flag('IsAttackTarget'));
 
         $game->proceed_to_next_user_action();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);

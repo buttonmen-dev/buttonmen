@@ -101,6 +101,8 @@ class BMGame {
 
     public $lastActionTimeArray;
 
+    private $debug;
+
     // methods
     public function do_next_step() {
         if (!isset($this->gameState)) {
@@ -786,6 +788,9 @@ class BMGame {
             return;
         }
 
+        $this->add_flag_to_attackers();
+        $this->add_flag_to_attack_targets();
+
         $this->gameState = BMGameState::ADJUST_FIRE_DICE;
     }
 
@@ -815,10 +820,6 @@ class BMGame {
     }
 
     protected function create_attack_instance() {
-        if ($this->debug) {
-          var_dump('create1');
-        }
-
         $attack = BMAttack::get_instance($this->attack['attackType']);
 
         $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
@@ -863,6 +864,30 @@ class BMGame {
         return array('attack' => $attack,
                      'attAttackDieArray' => $attAttackDieArray,
                      'defAttackDieArray' => $defAttackDieArray);
+    }
+
+    protected function add_flag_to_attackers() {
+        if (empty($this->attack['attackerAttackDieIdxArray'])) {
+            return;
+        }
+
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+            $attackDie = &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                    [$attackerAttackDieIdx];
+            $attackDie->add_flag('IsAttacker');
+        }
+    }
+
+    protected function add_flag_to_attack_targets() {
+        if (empty($this->attack['defenderAttackDieIdxArray'])) {
+            return;
+        }
+
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+            $defenderDie = &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                      [$defenderAttackDieIdx];
+            $defenderDie->add_flag('IsAttackTarget');
+        }
     }
 
     protected function do_next_step_adjust_fire_dice() {
