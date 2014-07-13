@@ -820,6 +820,10 @@ class BMGame {
     }
 
     protected function create_attack_instance() {
+        if (!isset($this->attack)) {
+            $this->regenerate_attack();
+        }
+
         $attack = BMAttack::get_instance($this->attack['attackType']);
 
         $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
@@ -866,6 +870,37 @@ class BMGame {
                      'defAttackDieArray' => $defAttackDieArray);
     }
 
+    protected function regenerate_attack() {
+        // james: this is currently to regenerate an attack during firing
+
+        $attackerPlayerIdx = NULL;
+        $defenderPlayerIdx = NULL;
+        $attackerAttackDieIdxArray = array();
+        $defenderAttackDieIdxArray = array();
+        $attackType = NULL;
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => $die) {
+                if ($die->has_flag('IsAttacker')) {
+                    $attackerAttackDieIdxArray[] = $dieIdx;
+                    $attackerPlayerIdx = $playerIdx;
+                    $attackType = $die['flagList']['IsAttacker']->value();
+                } elseif ($die->has_flag('IsAttackTarget')) {
+                    $defenderAttackDieIdxArray[] = $dieIdx;
+                    $defenderPlayerIdx = $playerIdx;
+                }
+            }
+        }
+
+        $this->attack = array(
+            $attackerPlayerIdx,
+            $defenderPlayerIdx,
+            $attackerAttackDieIdxArray,
+            $defenderAttackDieIdxArray,
+            $attackType
+        );
+    }
+
     protected function add_flag_to_attackers() {
         if (empty($this->attack['attackerAttackDieIdxArray'])) {
             return;
@@ -874,7 +909,7 @@ class BMGame {
         foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
             $attackDie = &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
                                                     [$attackerAttackDieIdx];
-            $attackDie->add_flag('IsAttacker');
+            $attackDie->add_flag('IsAttacker', $this->attack['attackType']);
         }
     }
 
@@ -2708,7 +2743,9 @@ class BMGame {
 
                     if (!empty($die->flagList)) {
                         foreach (array_keys($die->flagList) as $flag) {
-                            $diePropsArrayArray[$playerIdx][$dieIdx][] = $flag;
+                            $flagComponentArray = explode('__', $flag);
+                            $flagType = $flagComponentArray[0];
+                            $diePropsArrayArray[$playerIdx][$dieIdx][] = $flagType;
                         }
                     }
                 }
