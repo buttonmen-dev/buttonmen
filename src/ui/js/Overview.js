@@ -42,7 +42,10 @@ Overview.showOverviewPage = function() {
     $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
-  var mode = Env.getParameterByName('mode');
+  var mode = 'default';
+  if (Login.logged_in) {
+    mode = Env.getParameterByName('mode');
+  }
   switch (mode) {
   case 'nextGame':
     // Try to go to the next game
