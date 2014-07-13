@@ -1102,6 +1102,14 @@ class DummyApiResponder {
         return array($results, 'Forum post created successfully');
     }
 
+    protected function get_interface_response_editForumPost() {
+        $otherResults = $this->get_interface_response_loadForumThread(
+            array('currentPostId' => 2)
+        );
+        $results = $otherResults[0];
+        return array($results, 'Forum post edited successfully');
+    }
+
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 

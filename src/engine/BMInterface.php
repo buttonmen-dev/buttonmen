@@ -3872,6 +3872,64 @@ class BMInterface {
         }
     }
 
+    // Changes the body of the specified post
+    public function edit_forum_post($currentPlayerId, $postId, $body) {
+        try {
+//            if (mb_strlen($body) > self::FORUM_BODY_MAX_LENGTH) {
+//                $this->message = 'Posts cannot be longer than ' .
+//                    self::FORUM_BODY_MAX_LENGTH . ' characters';
+//                return NULL;
+//            }
+
+            $query =
+                'SELECT p.poster_player_id, p.deleted, p.thread_id ' .
+                'FROM forum_post p ' .
+                'WHERE p.id = :post_id;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':post_id' => $postId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $this->message = 'Post not found';
+                return NULL;
+            }
+            if ((int)$fetchResult[0]['poster_player_id'] != $currentPlayerId) {
+                $this->message = 'Post does not belong to you';
+                return NULL;
+            }
+            if ((int)$fetchResult[0]['deleted'] == 1) {
+                $this->message = 'Post was already deleted';
+                return NULL;
+            }
+            $threadId = (int)$fetchResult[0]['thread_id'];
+
+            $query =
+                'UPDATE forum_post ' .
+                'SET body = :body, last_update_time = NOW() ' .
+                'WHERE id = :post_id;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':post_id' => $postId,
+                ':body' => $body,
+            ));
+
+            $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
+
+            if ($results) {
+                $this->message = 'Forum post edited successfully';
+            }
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::edit_forum_post: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 

@@ -124,6 +124,32 @@ class ApiSpec {
             ),
             'permitted' => array(),
         ),
+        // editForumPost returns (from loadForumThread):
+        //   threadId: int,
+        //   threadTitle: string,
+        //   boardId: int,
+        //   boardName: string,
+        //   boardColor: string,
+        //   boardThreadColor: string,
+        //   currentPostId: int (nullable),
+        //   posts[]: {
+        //     postId: int,
+        //     posterName: string,
+        //     posterColor: string,
+        //     creationTime: int,
+        //     lastUpdateTime: int,
+        //     isNew: bool,
+        //     body: string,
+        //     deleted: bool,
+        //   },
+        //   timestamp: int,
+        'editForumPost' => array(
+            'mandatory' => array(
+                'postId' => 'number',
+                'body' => 'string',
+            ),
+            'permitted' => array(),
+        ),
         'joinOpenGame' => array(
             'mandatory' => array(
                 'gameId' => 'number',

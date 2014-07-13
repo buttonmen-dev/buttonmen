@@ -2936,6 +2936,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::load_forum_thread
      * @covers BMInterface::create_forum_thread
      * @covers BMInterface::create_forum_post
+     * @covers BMInterface::edit_forum_post
      */
     public function test_create_load_forum_posts() {
         $overview = $this->object->load_forum_overview(self::$userId1WithoutAutopass);
@@ -2985,6 +2986,18 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'First post should have the correct body.');
         $this->assertEquals($body2, $thread['posts'][1]['body'],
             'Followup post should have the correct body.');
+
+        $firstPostId = $thread['posts'][0]['postId'];
+        $body3 = uniqid();
+        $this->object->edit_forum_post(self::$userId1WithoutAutopass,
+            $firstPostId, $body3);
+
+        $thread = $this->object->load_forum_thread(self::$userId1WithoutAutopass,
+            $threadId, 2);
+        $this->assertNotEquals($body1, $thread['posts'][0]['body'],
+            'First post should not have the old body.');
+        $this->assertEquals($body3, $thread['posts'][0]['body'],
+            'First post should have the new body.');
     }
 
     /**
