@@ -453,6 +453,66 @@ Forum.quotePost = function() {
   Forum.scrollTo(replyBox.closest('tr'));
 };
 
+Forum.editPost = function() {
+  var postRow = $(this).closest('tr');
+  var oldText = postRow.find('td.body').attr('data-rawPost');
+  var postId = $(this).attr('data-postId');
+
+  var bodyTd = postRow.find('td.body');
+  var editTd = $('<td>', { 'class': 'editBody' });
+
+  editTd.append($('<textarea>', {
+    'text': oldText,
+    'maxlength': Forum.FORUM_BODY_MAX_LENGTH,
+  }));
+
+  var cancelButton = $('<input>', {
+    'type': 'button',
+    'value': 'Cancel',
+  });
+  editTd.append(cancelButton);
+  cancelButton.click(Forum.cancelEditPost);
+
+  var saveButton = $('<input>', {
+    'type': 'button',
+    'value': 'Save edits',
+    'data-postId': postId,
+  });
+  editTd.append(saveButton);
+  saveButton.click(Forum.formSaveEditPost);
+
+  bodyTd.hide();
+  postRow.append(editTd);
+};
+
+Forum.cancelEditPost = function() {
+  var postRow = $(this).closest('tr');
+  postRow.find('td.editBody').remove();
+  postRow.find('td.body').show();
+};
+
+Forum.formSaveEditPost = function() {
+  var body = $(this).parent().find('textarea').val().trim();
+  var postId = $(this).attr('data-postId');
+
+  if (!body) {
+    Env.message = {
+      'type': 'error',
+      'text': 'The post body is required',
+    };
+    Env.showStatusMessage();
+    return;
+  }
+
+  var args = {
+    'type': 'editForumPost',
+    'postId': postId,
+    'body': body,
+  };
+
+  Forum.parseFormPost(args, 'forum_thread', $(this), Forum.showThread);
+};
+
 ////////////////////////////////////////////////////////////////////////
 // These functions build HTML to help render the page
 
@@ -613,8 +673,19 @@ Forum.buildPostRow = function(post) {
     'class': 'splitLeft',
     'text': postDates,
   }));
+  var buttonHolder = $('<div>', { 'class': 'splitRight', });
+  if (post.posterName == Login.player && !post.deleted) {
+    var editButton = $('<input>', {
+      'type': 'button',
+      'value': 'Edit',
+      'data-postId': post.postId,
+    });
+    buttonHolder.append(editButton);
+    editButton.click(Forum.editPost);
+  }
   var quoteButton = $('<input>', { 'type': 'button', 'value': 'Quote' });
-  postFooter.append($('<div>', { 'class': 'splitRight', }).append(quoteButton));
+  buttonHolder.append(quoteButton);
+  postFooter.append(buttonHolder);
   quoteButton.click(Forum.quotePost);
 
   bodyTd.attr('data-rawPost', post.body);
