@@ -127,7 +127,7 @@ test("test_Login.goToNextPendingGame_no_next_game", function() {
   notEqual(Env.window.location.href, null, "The page has been redirected");
   if (Env.window.location.href !== null && Env.window.location.href !== undefined)
   {
-    ok(Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/),
+    ok(Env.window.location.href.match(/\/ui\/index\.html\?mode=preference$/),
       "The page has been redirected to the Overview page");
   }
 });

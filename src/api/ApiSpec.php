@@ -427,6 +427,7 @@ class ApiSpec {
                 'autopass' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
+                'automatically_monitor' => 'boolean',
                 'player_color' => 'color',
                 'opponent_color' => 'color',
                 'neutral_color_a' => 'color',
