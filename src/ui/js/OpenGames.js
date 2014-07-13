@@ -279,9 +279,8 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         'text': game.challengerButton,
       }));
       gameRow.append($('<td>', {
-        'text': game.challengerName,
         'style': 'background-color: ' + game.challengerColor + ';',
-      }));
+      }).append(Env.buildProfileLink(game.challengerName)));
     }
 
     gameRow.append($('<td>', {
