@@ -2743,9 +2743,7 @@ class BMGame {
 
                     if (!empty($die->flagList)) {
                         foreach (array_keys($die->flagList) as $flag) {
-                            $flagComponentArray = explode('__', $flag);
-                            $flagType = $flagComponentArray[0];
-                            $diePropsArrayArray[$playerIdx][$dieIdx][] = $flagType;
+                            $diePropsArrayArray[$playerIdx][$dieIdx][] = $flag;
                         }
                     }
                 }
