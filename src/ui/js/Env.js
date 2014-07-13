@@ -433,7 +433,7 @@ Env.callAsyncInParallel = function(functions, finalCallback) {
 
   // First, initialize all the function statuses before we start executing
   // anything
-  $.each(functions, function(index, value) {
+  $.each(functions, function(index) {
     // We're identifying these by index rather than name or function pointer
     // or object since javascript object properties can only be keyed by
     // strings, and we might be calling the same function (with the same string
@@ -462,7 +462,7 @@ Env.callAsyncInParallel = function(functions, finalCallback) {
 
       var allCompleted = true;
       $.each(completedFunctions, function(index, value) {
-        allCompleted &= value;
+        allCompleted = allCompleted && value;
       });
 
       // We're apparently done!

@@ -273,7 +273,7 @@ asyncTest("test_Env.callAsyncInParallel", function() {
   });
 });
 
-asyncTest("test_Env.callAsyncInParallel", function() {
+asyncTest("test_Env.callAsyncInParallel_withArgs", function() {
   expect(3); // number of tests plus 1 for the teardown test
 
   var result1 = 0;
@@ -293,7 +293,8 @@ asyncTest("test_Env.callAsyncInParallel", function() {
     }, 100);
   };
 
-  Env.callAsyncInParallel([
+  Env.callAsyncInParallel(
+    [
       { 'func': func1, 'args': [ 11 ] },
       { 'func': func2, 'args': [ 22 ] },
     ], function() {

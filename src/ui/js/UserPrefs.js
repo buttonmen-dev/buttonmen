@@ -42,9 +42,11 @@ UserPrefs.showUserPrefsPage = function() {
 
   // Only allow logged-in users to view and change preferences
   if (Login.logged_in) {
-    Api.getButtonData(function() {
-      Api.getUserPrefsData(UserPrefs.assemblePage);
-    });
+    Env.callAsyncInParallel(
+      [
+        Api.getButtonData,
+        Api.getUserPrefsData,
+      ], UserPrefs.assemblePage);
   } else {
     Env.message = {
       'type': 'error',

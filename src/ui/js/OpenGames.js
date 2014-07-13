@@ -32,9 +32,10 @@ OpenGames.showOpenGamesPage = function() {
 
 OpenGames.getOpenGames = function(callback) {
   if (Login.logged_in) {
-    Api.getOpenGamesData(function() {
-      Api.getButtonData(callback);
-    });
+    Env.callAsyncInParallel([
+      Api.getOpenGamesData,
+      Api.getButtonData,
+    ], callback);
   } else {
     return callback();
   }
