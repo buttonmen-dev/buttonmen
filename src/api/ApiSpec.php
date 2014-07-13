@@ -7,6 +7,11 @@
  *
  */
 class ApiSpec {
+    // constants
+    const GAME_CHAT_MAX_LENGTH = 500;
+    const FORUM_BODY_MAX_LENGTH = 16000;
+    const FORUM_TITLE_MAX_LENGTH = 100;
+    const GENDER_MAX_LENGTH = 100;
 
     // expected arguments for every API function:
     // * mandatory: argument which must be present
@@ -60,7 +65,10 @@ class ApiSpec {
         'createForumPost' => array(
             'mandatory' => array(
                 'threadId' => 'number',
-                'body' => 'string',
+                'body' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::FORUM_BODY_MAX_LENGTH,
+                ),
             ),
             'permitted' => array(),
         ),
@@ -86,8 +94,14 @@ class ApiSpec {
         'createForumThread' => array(
             'mandatory' => array(
                 'boardId' => 'number',
-                'title' => 'string',
-                'body' => 'string',
+                'title' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::FORUM_TITLE_MAX_LENGTH,
+                ),
+                'body' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::FORUM_BODY_MAX_LENGTH,
+                ),
             ),
             'permitted' => array(),
         ),
@@ -146,7 +160,10 @@ class ApiSpec {
         'editForumPost' => array(
             'mandatory' => array(
                 'postId' => 'number',
-                'body' => 'string',
+                'body' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::FORUM_BODY_MAX_LENGTH,
+                ),
             ),
             'permitted' => array(),
         ),
@@ -447,7 +464,7 @@ class ApiSpec {
                 'dob_day' => 'number',
                 'gender' => array(
                     'arg_type' => 'string',
-                    'maxlength' => 100,
+                    'maxlength' => self::GENDER_MAX_LENGTH,
                 ),
                 'comment' => 'string',
                 'autopass' => 'boolean',
@@ -498,7 +515,10 @@ class ApiSpec {
         'submitChat' => array(
             'mandatory' => array(
                 'game' => 'number',
-                'chat' => 'string',
+                'chat' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::GAME_CHAT_MAX_LENGTH,
+                ),
             ),
             'permitted' => array(
                 'edit' => 'number',
@@ -520,7 +540,10 @@ class ApiSpec {
                 'defenderIdx' => 'number',
             ),
             'permitted' => array(
-                'chat' => 'string',
+                'chat' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::GAME_CHAT_MAX_LENGTH,
+                ),
             ),
         ),
         'verifyUser' => array(

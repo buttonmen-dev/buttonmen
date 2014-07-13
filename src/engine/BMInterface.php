@@ -12,9 +12,6 @@
  */
 class BMInterface {
     // constants
-    const GAME_CHAT_MAX_LENGTH = 500;
-    const FORUM_BODY_MAX_LENGTH = 16000;
-    const FORUM_TITLE_MAX_LENGTH = 100;
     const DEFAULT_PLAYER_COLOR = '#dd99dd';
     const DEFAULT_OPPONENT_COLOR = '#ddffdd';
     const DEFAULT_NEUTRAL_COLOR_A = '#cccccc';
@@ -2359,15 +2356,6 @@ class BMInterface {
         }
     }
 
-    protected function sanitize_chat($message) {
-        // if the string is too long, truncate it
-        $encoding = mb_detect_encoding($message);
-        if (mb_strlen($message, $encoding) > self::GAME_CHAT_MAX_LENGTH) {
-            $message = substr($message, 0, self::GAME_CHAT_MAX_LENGTH, $encoding);
-        }
-        return $message;
-    }
-
     protected function log_game_chat(BMGame $game) {
         $this->db_insert_chat(
             $game->chat['playerIdx'],
@@ -2378,9 +2366,6 @@ class BMInterface {
 
     // Insert a new chat message into the database
     protected function db_insert_chat($playerId, $gameId, $chat) {
-
-        // We're going to display this in user browsers, so first clean up all HTML tags
-        $mysqlchat = $this->sanitize_chat($chat);
 
         $query = 'INSERT INTO game_chat_log ' .
                  '(game_id, chatting_player, message) ' .
@@ -2396,7 +2381,6 @@ class BMInterface {
 
     // Modify an existing chat message in the database
     protected function db_update_chat($playerId, $gameId, $editTimestamp, $chat) {
-        $mysqlchat = $this->sanitize_chat($chat);
         $query = 'UPDATE game_chat_log ' .
                  'SET message = :message, chat_time = now() ' .
                  'WHERE game_id = :game_id ' .
@@ -3779,18 +3763,6 @@ class BMInterface {
     // Adds a new thread to the specified board
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
         try {
-            if (mb_strlen($title, mb_detect_encoding($title)) > self::FORUM_TITLE_MAX_LENGTH) {
-                $this->message = 'Thread titles cannot be longer than ' .
-                    self::FORUM_TITLE_MAX_LENGTH . ' characters';
-                return NULL;
-            }
-
-            if (mb_strlen($body, mb_detect_encoding($body)) > self::FORUM_BODY_MAX_LENGTH) {
-                $this->message = 'Posts cannot be longer than ' .
-                    self::FORUM_BODY_MAX_LENGTH . ' characters';
-                return NULL;
-            }
-
             $query =
                 'INSERT INTO forum_thread (board_id, title, deleted) ' .
                 'VALUES (:board_id, :title, 0);';
@@ -3833,12 +3805,6 @@ class BMInterface {
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
-            if (mb_strlen($body) > self::FORUM_BODY_MAX_LENGTH) {
-                $this->message = 'Posts cannot be longer than ' .
-                    self::FORUM_BODY_MAX_LENGTH . ' characters';
-                return NULL;
-            }
-
             $query =
                 'INSERT INTO forum_post ' .
                     '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
@@ -3875,12 +3841,6 @@ class BMInterface {
     // Changes the body of the specified post
     public function edit_forum_post($currentPlayerId, $postId, $body) {
         try {
-//            if (mb_strlen($body) > self::FORUM_BODY_MAX_LENGTH) {
-//                $this->message = 'Posts cannot be longer than ' .
-//                    self::FORUM_BODY_MAX_LENGTH . ' characters';
-//                return NULL;
-//            }
-
             $query =
                 'SELECT p.poster_player_id, p.deleted, p.thread_id ' .
                 'FROM forum_post p ' .
