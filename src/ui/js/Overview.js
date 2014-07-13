@@ -82,6 +82,12 @@ Overview.showPage = function() {
         'text': '* Monitor Active *',
         'class': 'monitorMessage',
       }));
+      // Convert milliseconds (javascript-style) to seconds (unix-style)
+      var currentTimestamp = new Date().getTime() / 1000;
+      Overview.page.append($('<div>', {
+        'text': 'Last refresh: ' + Env.formatTimestamp(currentTimestamp),
+        'class': 'monitorTimestamp',
+      }));
       Overview.page.append($('<div>').append($('<a>', {
         'text': 'Disable Monitor',
         'href': Env.ui_root,
