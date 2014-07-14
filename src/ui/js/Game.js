@@ -1364,25 +1364,29 @@ Game.formAdjustFireDiceActive = function() {
 
   // valid action, nothing special to do, but validate selections just in case
   case 'cancel':
-    $.each(Api.game.player.fireOptions, function(i) {
-      var value = $('#fire_adjust_' + i).val();
-      if (value != Api.game.player.activeDieArray[i].value) {
-        error = 'Chose not to adjust fire dice, but modified a die value';
-        formValid = false;
+    $.each(Api.game.player.fireOptions, function(i, vals) {
+      if (vals.length > 0) {
+        var value = $('#fire_adjust_' + i).val();
+        if (value != Api.game.player.activeDieArray[i].value) {
+          error = 'Chose not to adjust fire dice, but modified a die value';
+          formValid = false;
+        }
       }
     });
     break;
 
   case 'turndown':
     $.each(Api.game.player.fireOptions, function(i, vals) {
-      var value = parseInt($('#fire_adjust_' + i).val(), 10);
-      if (value != Api.game.player.activeDieArray[i].value) {
-        if (vals.indexOf(value) >= 0) {
-          Game.activity.fireDieIdxArray.push(i);
-          Game.activity.fireDieValueArray.push(value);
-        } else {
-          error = 'Invalid turndown value specified for fire die';
-          formValid = false;
+      if (vals.length > 0) {
+        var value = parseInt($('#fire_adjust_' + i).val(), 10);
+        if (value != Api.game.player.activeDieArray[i].value) {
+          if (vals.indexOf(value) >= 0) {
+            Game.activity.fireDieIdxArray.push(i);
+            Game.activity.fireDieValueArray.push(value);
+          } else {
+            error = 'Invalid turndown value specified for fire die';
+            formValid = false;
+          }
         }
       }
     });
@@ -1902,12 +1906,20 @@ Game.dieRecipeTable = function(table_action, active) {
               Api.game.player.activeDieArray[i].value, defaultval));
         } else {
           dieLRow.append($('<td>', {
-            'text': Api.game.player.activeDieArray[i].value,
+            'text': Game.activeDieFieldString(
+                      i,
+                      'value',
+                      Api.game.player.activeDieArray
+                    ),
           }));
         }
         dieRRow.append(opponentEnt);
         dieRRow.append($('<td>', {
-          'text': Api.game.opponent.activeDieArray[i].value,
+          'text': Game.activeDieFieldString(
+                    i,
+                    'value',
+                    Api.game.opponent.activeDieArray
+                  ),
         }));
       } else if (table_action == 'choose_reserve') {
         dieLRow.append(playerEnt);
