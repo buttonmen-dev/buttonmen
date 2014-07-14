@@ -33,8 +33,10 @@ class BMAttackPower extends BMAttack {
         }
 
         if (is_null($helpValue)) {
-            $bounds = $this->help_bounds($this->collect_helpers($game, $attackers, $defenders),
-                                         $this->collect_firing_maxima($attackers));
+            $bounds = $this->help_bounds(
+                $this->collect_helpers($game, $attackers, $defenders),
+                $this->collect_firing_maxima($attackers)
+            );
         } else {
             $bounds = array($helpValue, $helpValue);
         }

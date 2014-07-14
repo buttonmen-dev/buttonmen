@@ -21,8 +21,8 @@ class BMSkillFire extends BMSkill {
             return;
         }
 
-        if (!array_key_exists('attackType',           $args) ||
-            !array_key_exists('assistingDie',         $args) ||
+        if (!array_key_exists('attackType', $args) ||
+            !array_key_exists('assistingDie', $args) ||
             !array_key_exists('possibleAssistValues', $args)) {
             return;
         }

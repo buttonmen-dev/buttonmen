@@ -1054,11 +1054,11 @@ class BMGame {
         }
 
         if (!$instance['attack']->validate_attack(
-                $this,
-                $instance['attAttackDieArray'],
-                $instance['defAttackDieArray'],
-                $firingAmount
-            )) {
+            $this,
+            $instance['attAttackDieArray'],
+            $instance['defAttackDieArray'],
+            $firingAmount
+        )) {
             return FALSE;
         }
 
@@ -1074,7 +1074,7 @@ class BMGame {
         return TRUE;
     }
 
-    protected function react_to_firing_cancel(array $args) {
+    protected function react_to_firing_cancel() {
         $this->attack = NULL;
         $this->gameState = BMGameState::START_TURN;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);

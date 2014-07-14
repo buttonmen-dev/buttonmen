@@ -282,7 +282,7 @@ class BMDie extends BMCanHaveSkill {
     //
     // It does not assume that the values are positive, even though
     // they must be at the moment.
-    public function assist_values($type, array $attackers, array $defenders) {
+    public function assist_values($type, array $attackers) {
 
         $vals = array(0);
 
