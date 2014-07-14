@@ -60,7 +60,10 @@ asyncTest("test_UserPrefs.assemblePage", function() {
   });
 });
 
-asyncTest("test_UserPrefs.arrangePage", function() {
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_UserPrefs.arrangePage", function() {
+  $.ajaxSetup({ async: false });
   Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
@@ -68,8 +71,8 @@ asyncTest("test_UserPrefs.arrangePage", function() {
     var item = document.getElementById('userprefs_page');
     equal(item.nodeName, "DIV",
           "#userprefs_page is a div after arrangePage() is called");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
 test("test_UserPrefs.actionFailed", function() {

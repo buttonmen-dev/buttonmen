@@ -113,6 +113,7 @@ class BMInterface {
             'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
             'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
             'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
+            'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
             'comment' => $infoArray['comment'],
             'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
             'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
@@ -136,6 +137,7 @@ class BMInterface {
         $infoArray['autopass'] = (int)($infoArray['autopass']);
         $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
+        $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
 
         $isValidData = $this->validate_player_dob($infoArray) &&
                        $this->validate_player_password_and_email($addlInfo, $playerId);

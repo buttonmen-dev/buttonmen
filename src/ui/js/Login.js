@@ -290,7 +290,7 @@ Login.goToNextPendingGame = function() {
         Login.nextGameRefreshCallback();
       } else {
         // If we're not on the Overview page, send them there
-        Env.window.location.href = '/ui';
+        Env.window.location.href = '/ui/index.html?mode=preference';
       }
     }
   } else {

@@ -81,6 +81,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'comment' => '',
             'monitor_redirects_to_game' => 0,
             'monitor_redirects_to_forum' => 0,
+            'automatically_monitor' => 0,
             'autopass' => 1
         );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
@@ -124,6 +125,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('uses_gravatar', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
         $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
+        $this->assertArrayHasKey('automatically_monitor', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
         $this->assertArrayHasKey('player_color', $resultArray);
         $this->assertArrayHasKey('opponent_color', $resultArray);
@@ -143,6 +145,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_bool($resultArray['autopass']));
         $this->assertTrue(is_bool($resultArray['monitor_redirects_to_game']));
         $this->assertTrue(is_bool($resultArray['monitor_redirects_to_forum']));
+        $this->assertTrue(is_bool($resultArray['automatically_monitor']));
 
         $this->assertTrue(is_int($resultArray['fanatic_button_id']));
         $this->assertEquals(0, $resultArray['fanatic_button_id']);
@@ -170,7 +173,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'neutral_color_a' => '#cccccc',
             'neutral_color_b' => '#dddddd',
             'monitor_redirects_to_game' => 1,
-            'monitor_redirects_to_forum' => 1
+            'monitor_redirects_to_forum' => 1,
+            'automatically_monitor' => 1,
         );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
 
@@ -182,10 +186,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_forum']);
+        $this->assertEquals(TRUE, $playerInfoArray['automatically_monitor']);
 
         $infoArray['autopass'] = 0;
         $infoArray['monitor_redirects_to_game'] = 0;
         $infoArray['monitor_redirects_to_forum'] = 0;
+        $infoArray['automatically_monitor'] = 0;
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
                                        $addlInfo);
@@ -194,6 +200,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_forum']);
+        $this->assertEquals(FALSE, $playerInfoArray['automatically_monitor']);
     }
 
     /**
