@@ -37,6 +37,8 @@
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
+ * @property      string $description;           Description provided when the game was created
+ * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -86,6 +88,8 @@ class BMGame {
     private $autopassArray;         // boolean array whether each player has enabled autopass
     private $actionLog;             // game actions taken by this BMGame instance
     private $chat;                  // chat message submitted by the active player with an attack
+    private $description;           // description provided when the game was created
+    private $previousGameId;        // the game whose chat is being continued with this game
     private $message;               // message to be passed to the GUI
 
     private $forceRoundResult;      // boolean array whether each player has won the round
@@ -2263,6 +2267,8 @@ class BMGame {
             'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
             'roundNumber'                => $this->get__roundNumber(),
             'maxWins'                    => $this->maxWins,
+            'description'                => $this->description,
+            'previousGameId'             => $this->previousGameId,
             'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
             'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
             'playerDataArray'            => $this->get_playerDataArray($requestingPlayerIdx),
