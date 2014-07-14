@@ -125,7 +125,7 @@ td.chat {
     display: none;
 }
 
-.logtable .new {
+.logtable .new, .action_desc_div .new {
     background-color: #ffffcc;
 }
 

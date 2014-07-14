@@ -69,28 +69,34 @@ asyncTest("test_Game.showGamePage", function() {
   start();
 });
 
-asyncTest("test_Game.redrawGamePageSuccess", function() {
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_Game.redrawGamePageSuccess", function() {
   BMTestUtils.GameType = 'newgame';
   Game.activity.chat = "Some chat text";
+  $.ajaxSetup({ async: false });
   Game.redrawGamePageSuccess();
+  $.ajaxSetup({ async: true });
   var item = document.getElementById('game_page');
   equal(item.nodeName, "DIV",
         "#game_page is a div after redrawGamePageSuccess() is called");
   deepEqual(Game.activity, {},
         "Game.activity is cleared by redrawGamePageSuccess()");
-  start();
 });
 
-asyncTest("test_Game.redrawGamePageFailure", function() {
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_Game.redrawGamePageFailure", function() {
   BMTestUtils.GameType = 'newgame';
   Game.activity.chat = "Some chat text";
+  $.ajaxSetup({ async: false });
   Game.redrawGamePageFailure();
+  $.ajaxSetup({ async: true });
   var item = document.getElementById('game_page');
   equal(item.nodeName, "DIV",
         "#game_page is a div after redrawGamePageFailure() is called");
   equal(Game.activity.chat, "Some chat text",
         "Game.activity.chat is retained by redrawGamePageSuccess()");
-  start();
 });
 
 // N.B. Almost all of these tests should use asyncTest, set a test
@@ -109,14 +115,18 @@ asyncTest("test_Game.redrawGamePageFailure", function() {
 //   });
 // });
 
-asyncTest("test_Game.getCurrentGame", function() {
+// But despite what the comment just inches above says...
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_Game.getCurrentGame", function() {
   BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
+  $.ajaxSetup({ async: false });
+   Game.getCurrentGame(function() {
     equal(Game.game, '1', "Set expected game number");
     equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
     equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
 asyncTest("test_Game.showStatePage", function() {
