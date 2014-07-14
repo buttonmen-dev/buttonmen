@@ -129,15 +129,16 @@ test("test_Game.getCurrentGame", function() {
   $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage", function() {
+test("test_Game.showStatePage", function() {
   BMTestUtils.GameType = 'newgame';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
 asyncTest("test_Game.showStatePage_chooseaux_active", function() {
