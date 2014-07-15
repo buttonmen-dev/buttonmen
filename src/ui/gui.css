@@ -666,6 +666,10 @@ div.forum tr.writePost td.attribution .help {
     margin-left: 1em;
 }
 
+div.forum tr.writePost td.attribution .subHelp {
+    margin-left: 2em;
+}
+
 div.forum tr.writePost input.title {
     width: 99%;
     display: block;
