@@ -28,6 +28,10 @@ h2.monitorMessage {
     margin-bottom: 0;
 }
 
+div.monitorTimestamp {
+    font-size: 0.9em;
+}
+
 div.status_player {
     width: 100%;
 }
