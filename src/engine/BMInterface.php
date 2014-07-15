@@ -2375,7 +2375,7 @@ class BMInterface {
         $statement->execute(
             array(':game_id'         => $gameId,
                   ':chatting_player' => $playerId,
-                  ':message'         => $mysqlchat)
+                  ':message'         => $chat)
         );
     }
 
@@ -2389,7 +2389,7 @@ class BMInterface {
                  'ORDER BY id DESC ' .
                  'LIMIT 1';
         $statement = self::$conn->prepare($query);
-        $statement->execute(array(':message' => $mysqlchat,
+        $statement->execute(array(':message' => $chat,
                                   ':game_id' => $gameId,
                                   ':player_id' => $playerId,
                                   ':timestamp' => $editTimestamp));
