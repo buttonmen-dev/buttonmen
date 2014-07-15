@@ -20,6 +20,8 @@ module("UserPrefs", {
     // Page elements
     $('#userprefs_page').remove();
     $('#userprefs_page').empty();
+    // Controls added to the page by the color picker library we use
+    $('.sp-container').remove();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
@@ -45,17 +47,25 @@ asyncTest("test_UserPrefs.showUserPrefsPage", function() {
   start();
 });
 
-asyncTest("test_UserPrefs.assemblePage", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.assemblePage();
-    var htmlout = UserPrefs.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    start();
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_UserPrefs.assemblePage", function() {
+  $.ajaxSetup({ async: false });
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.assemblePage();
+      var htmlout = UserPrefs.page.html();
+      ok(htmlout.length > 0,
+         "The created page should have nonzero contents");
+    });
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_UserPrefs.arrangePage", function() {
+// We're testing this synchronously, in the hope that this way qunit won't give
+// up on it before it finishes loading everything from the API
+test("test_UserPrefs.arrangePage", function() {
+  $.ajaxSetup({ async: false });
   Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
@@ -63,8 +73,8 @@ asyncTest("test_UserPrefs.arrangePage", function() {
     var item = document.getElementById('userprefs_page');
     equal(item.nodeName, "DIV",
           "#userprefs_page is a div after arrangePage() is called");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
 test("test_UserPrefs.actionFailed", function() {
@@ -73,12 +83,14 @@ test("test_UserPrefs.actionFailed", function() {
 });
 
 asyncTest("test_UserPrefs.actionSetPrefs", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.actionSetPrefs();
-    var autopass_checked = $('#userprefs_autopass').prop('checked');
-    ok(autopass_checked,
-       "The autopass button should be checked in the prefs table");
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.actionSetPrefs();
+      var autopass_checked = $('#userprefs_autopass').prop('checked');
+      ok(autopass_checked,
+         "The autopass button should be checked in the prefs table");
+      start();
+    });
   });
 });
 
@@ -89,16 +101,18 @@ asyncTest("test_UserPrefs.actionSetPrefs", function() {
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
 asyncTest("test_UserPrefs.formSetPrefs", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.actionSetPrefs();
-    $.ajaxSetup({ async: false });
-    $('#userprefs_action_button').trigger('click');
-    deepEqual(
-      Env.message,
-      {"type": "success", "text": "User details set successfully."},
-      "User preferences save succeeded");
-    $.ajaxSetup({ async: true });
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.actionSetPrefs();
+      $.ajaxSetup({ async: false });
+      $('#userprefs_action_button').trigger('click');
+      deepEqual(
+        Env.message,
+        {"type": "success", "text": "User details set successfully."},
+        "User preferences save succeeded");
+      $.ajaxSetup({ async: true });
+      start();
+    });
   });
 });
 

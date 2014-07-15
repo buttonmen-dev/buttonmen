@@ -15,6 +15,10 @@ class BMInterface {
     const GAME_CHAT_MAX_LENGTH = 500;
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
+    const DEFAULT_PLAYER_COLOR = '#dd99dd';
+    const DEFAULT_OPPONENT_COLOR = '#ddffdd';
+    const DEFAULT_NEUTRAL_COLOR_A = '#cccccc';
+    const DEFAULT_NEUTRAL_COLOR_B = '#dddddd';
 
     // properties
     private $message;               // message intended for GUI
@@ -48,12 +52,15 @@ class BMInterface {
 
     public function get_player_info($playerId) {
         try {
-            $query = 'SELECT *, ' .
-                     'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
-                     'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
-                     'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
-                     'FROM player p ' .
-                     'WHERE id = :id';
+            $query =
+                'SELECT p.*, b.name AS favorite_button, bs.name AS favorite_buttonset, ' .
+                    'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
+                    'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
+                    'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
+                'FROM player p ' .
+                    'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
+                    'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
+                'WHERE p.id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetchAll();
@@ -62,20 +69,17 @@ class BMInterface {
                 return NULL;
             }
         } catch (Exception $e) {
-            $errorData = $statement->errorInfo();
-            $this->message = 'Player info get failed: ' . $errorData[2];
+            if (isset($statement)) {
+                $errorData = $statement->errorInfo();
+                $this->message = 'Player info get failed: ' . $errorData[2];
+            } else {
+                $this->message = 'Player info get failed: ' . $e->getMessage();
+            }
+            error_log($this->message);
             return NULL;
         }
 
         $infoArray = $result[0];
-
-        $dob_month = 0;
-        $dob_day = 0;
-        if ($infoArray['dob'] != NULL) {
-            $dob = new DateTime($infoArray['dob']);
-            $dob_month = (int)$dob->format("m");
-            $dob_day = (int)$dob->format("d");
-        }
 
         $last_action_time = (int)$infoArray['last_action_timestamp'];
         if ($last_action_time == 0) {
@@ -87,17 +91,35 @@ class BMInterface {
             $last_access_time = NULL;
         }
 
+        $image_size = NULL;
+        if ($infoArray['image_size'] != NULL) {
+            $image_size = (int)$infoArray['image_size'];
+        }
+
         // set the values we want to actually return
         $playerInfoArray = array(
             'id' => (int)$infoArray['id'],
             'name_ingame' => $infoArray['name_ingame'],
             'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
             'email' => $infoArray['email'],
+            'is_email_public' => (bool)$infoArray['is_email_public'],
             'status' => $infoArray['status'],
-            'dob_month' => $dob_month,
-            'dob_day' => $dob_day,
+            'dob_month' => (int)$infoArray['dob_month'],
+            'dob_day' => (int)$infoArray['dob_day'],
+            'gender' => $infoArray['gender'],
+            'image_size' => $image_size,
             'autopass' => (bool)$infoArray['autopass'],
+            'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
+            'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
+            'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
+            'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
             'comment' => $infoArray['comment'],
+            'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
+            'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
+            'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
+            'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
+            'favorite_button' => $infoArray['favorite_button'],
+            'favorite_buttonset' => $infoArray['favorite_buttonset'],
             'last_action_time' => $last_action_time,
             'last_access_time' => $last_access_time,
             'creation_time' => (int)$infoArray['creation_timestamp'],
@@ -112,20 +134,33 @@ class BMInterface {
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
         // mysql treats bools as one-bit integers
         $infoArray['autopass'] = (int)($infoArray['autopass']);
+        $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
+        $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
+        $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
 
-        $isValidData = $this->validate_player_dob($addlInfo) &&
+        $isValidData = $this->validate_player_dob($infoArray) &&
                        $this->validate_player_password_and_email($addlInfo, $playerId);
         if (!$isValidData) {
             return NULL;
         }
 
-        // Read special values into $infoArray
-        if ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] == 0) {
-            $infoArray['dob'] = NULL;
+        if (isset($addlInfo['favorite_button'])) {
+            $infoArray['favorite_button_id'] =
+                $this->get_button_id_from_name($addlInfo['favorite_button']);
+            if (!is_int($infoArray['favorite_button_id'])) {
+                return FALSE;
+            }
         } else {
-            // We set the year to 0004 because it was a leap year, to permit Feb. 29
-            $dateString = '0004-' . $addlInfo['dob_month'] . '-' . $addlInfo['dob_day'];
-            $infoArray['dob'] = date($dateString);
+            $infoArray['favorite_button_id'] = NULL;
+        }
+        if (isset($addlInfo['favorite_buttonset'])) {
+            $infoArray['favorite_buttonset_id'] =
+                $this->get_buttonset_id_from_name($addlInfo['favorite_buttonset']);
+            if (!is_int($infoArray['favorite_buttonset_id'])) {
+                return FALSE;
+            }
+        } else {
+            $infoArray['favorite_buttonset_id'] = NULL;
         }
 
         if (isset($addlInfo['new_password'])) {
@@ -153,15 +188,15 @@ class BMInterface {
         return array('playerId' => $playerId);
     }
 
-    protected function validate_player_dob(array $addlInfo) {
-        if (($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] == 0) ||
-            ($addlInfo['dob_month'] == 0 && $addlInfo['dob_day'] != 0)) {
+    protected function validate_player_dob(array $infoArray) {
+        if (($infoArray['dob_month'] != 0 && $infoArray['dob_day'] == 0) ||
+            ($infoArray['dob_month'] == 0 && $infoArray['dob_day'] != 0)) {
             $this->message = 'DOB is incomplete.';
             return FALSE;
         }
 
-        if ($addlInfo['dob_month'] != 0 && $addlInfo['dob_day'] != 0 &&
-            !checkdate($addlInfo['dob_month'], $addlInfo['dob_day'], 4)) {
+        if ($infoArray['dob_month'] != 0 && $infoArray['dob_day'] != 0 &&
+            !checkdate($infoArray['dob_month'], $infoArray['dob_day'], 4)) {
             $this->message = 'DOB is not a valid date.';
             return FALSE;
         }
@@ -235,11 +270,16 @@ class BMInterface {
             'id' => $playerInfo['id'],
             'name_ingame' => $playerInfo['name_ingame'],
             'name_irl' => $playerInfo['name_irl'],
-            // We'll only expose this if they've set it to be public
-            'email' => NULL,
-            'dob_month' => $playerInfo['dob_month'],
-            'dob_day' => $playerInfo['dob_day'],
+            'email' => ($playerInfo['is_email_public'] == 1 ? $playerInfo['email'] : NULL),
+            'email_hash' => md5(strtolower(trim($playerInfo['email']))),
+            'dob_month' => (int)$playerInfo['dob_month'],
+            'dob_day' => (int)$playerInfo['dob_day'],
+            'gender' => $playerInfo['gender'],
+            'image_size' => $playerInfo['image_size'],
+            'uses_gravatar' => $playerInfo['uses_gravatar'],
             'comment' => $playerInfo['comment'],
+            'favorite_button' => $playerInfo['favorite_button'],
+            'favorite_buttonset' => $playerInfo['favorite_buttonset'],
             'last_access_time' => $playerInfo['last_access_time'],
             'creation_time' => $playerInfo['creation_time'],
             'fanatic_button_id' => $playerInfo['fanatic_button_id'],
@@ -444,9 +484,56 @@ class BMInterface {
                 $data['gameChatLog'],
                 $data['gameActionLog']
             );
+
+            // Get all the colors the current player has set in his or her
+            // preferences, then figure out which ones to apply to this game
+            $playerColors = $this->load_player_colors($playerId);
+            $gameColors = $this->determine_game_colors(
+                $playerId,
+                $playerColors,
+                $data['playerDataArray'][0]['playerId'],
+                $data['playerDataArray'][1]['playerId']
+            );
+            $data['playerDataArray'][0]['playerColor'] = $gameColors['playerA'];
+            $data['playerDataArray'][1]['playerColor'] = $gameColors['playerB'];
+
             return $data;
         }
         return NULL;
+    }
+
+    public function count_pending_games($playerId) {
+        try {
+            $parameters = array(':player_id' => $playerId);
+
+            $query =
+                'SELECT COUNT(*) '.
+                'FROM game_player_map AS gpm '.
+                   'LEFT JOIN game AS g ON g.id = gpm.game_id '.
+                'WHERE gpm.player_id = :player_id '.
+                   'AND gpm.is_awaiting_action = 1 ';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute($parameters);
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Pending game count failed.';
+                error_log('Pending game count failed for player ' . $playerId);
+                return NULL;
+            } else {
+                $data = array();
+                $data['count'] = (int)$result[0];
+                $this->message = 'Pending game count succeeded.';
+                return $data;
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::count_pending_games: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Pending game count failed.';
+            return NULL;
+        }
     }
 
     public function load_game($gameId, $logEntryLimit = NULL) {
@@ -1430,9 +1517,7 @@ class BMInterface {
                     'vB.player_name AS player_name_B, ' .
                     'vB.button_name AS button_name_B, ' .
                     'vB.is_awaiting_action AS waiting_on_B, '.
-                    // Reinstate this once g.start_time exists
-                    //'UNIX_TIMESTAMP(g.start_time) AS game_start, ' .
-                    '0 AS game_start, ' .
+                    'UNIX_TIMESTAMP(g.start_time) AS game_start, ' .
                     'UNIX_TIMESTAMP(g.last_action_time) AS last_move, ' .
                     'vA.n_rounds_won AS rounds_won_A, ' .
                     'vB.n_rounds_won AS rounds_won_B, ' .
@@ -1633,9 +1718,8 @@ class BMInterface {
                     'COUNT(*) AS matches_found, ' .
                     'MIN(game_start) AS earliest_start, ' .
                     'MAX(last_move) AS latest_move, ' .
-                    'SUM(rounds_won_A > rounds_won_B) AS games_winning_A, ' .
-                    'SUM(rounds_won_A < rounds_won_B) AS games_winning_B, ' .
-                    'SUM(rounds_won_A = rounds_won_B) AS games_drawn, ' .
+                    'SUM(rounds_won_A >= target_wins) AS games_won_A, ' .
+                    'SUM(rounds_won_B >= target_wins) AS games_won_B, ' .
                     'SUM(status = "COMPLETE") AS games_completed ' .
                 'FROM (' .
                     'SELECT * FROM (( ' .
@@ -1672,9 +1756,8 @@ class BMInterface {
             } else {
                 $summary['latestMove'] = (int)$summaryRows[0]['latest_move'];
             }
-            $summary['gamesWinningA'] = (int)$summaryRows[0]['games_winning_A'];
-            $summary['gamesWinningB'] = (int)$summaryRows[0]['games_winning_B'];
-            $summary['gamesDrawn'] = (int)$summaryRows[0]['games_drawn'];
+            $summary['gamesWonA'] = (int)$summaryRows[0]['games_won_A'];
+            $summary['gamesWonB'] = (int)$summaryRows[0]['games_won_B'];
             $summary['gamesCompleted'] = (int)$summaryRows[0]['games_completed'];
         } else {
             $this->message = 'Retrieving summary data for history search failed';
@@ -1722,6 +1805,10 @@ class BMInterface {
         $statement = self::$conn->prepare($query);
         $statement->execute(array(':player_id' => $playerId));
 
+        return self::read_game_list_from_db_results($playerId, $statement);
+    }
+
+    protected function read_game_list_from_db_results($playerId, $results) {
         // Initialize the arrays
         $gameIdArray = array();
         $opponentIdArray = array();
@@ -1736,12 +1823,25 @@ class BMInterface {
         $gameStateArray = array();
         $statusArray = array();
         $inactivityArray = array();
+        $playerColorArray = array();
+        $opponentColorArray = array();
 
         // Ensure that the inactivity time for all games is relative to the
         // same moment
         $now = strtotime('now');
 
-        while ($row = $statement->fetch()) {
+        // Get all the colors the current player has set in his or her
+        // preferences
+        $playerColors = $this->load_player_colors($playerId);
+
+        while ($row = $results->fetch()) {
+            $gameColors = $this->determine_game_colors(
+                $playerId,
+                $playerColors,
+                $playerId,
+                (int)$row['opponent_id']
+            );
+
             $gameIdArray[]        = (int)$row['game_id'];
             $opponentIdArray[]    = (int)$row['opponent_id'];
             $opponentNameArray[]  = $row['opponent_name'];
@@ -1756,6 +1856,8 @@ class BMInterface {
             $statusArray[]        = $row['status'];
             $inactivityArray[]    =
                 $this->get_friendly_time_span((int)$row['last_action_timestamp'], $now);
+            $playerColorArray[]   = $gameColors['playerA'];
+            $opponentColorArray[] = $gameColors['playerB'];
         }
 
         return array('gameIdArray'             => $gameIdArray,
@@ -1770,7 +1872,9 @@ class BMInterface {
                      'isAwaitingActionArray'   => $isToActArray,
                      'gameStateArray'          => $gameStateArray,
                      'statusArray'             => $statusArray,
-                     'inactivityArray'         => $inactivityArray);
+                     'inactivityArray'         => $inactivityArray,
+                     'playerColorArray'        => $playerColorArray,
+                     'opponentColorArray'      => $opponentColorArray);
     }
 
     public function get_all_active_games($playerId) {
@@ -2114,6 +2218,28 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Button ID get failed.';
+        }
+    }
+
+    protected function get_buttonset_id_from_name($name) {
+        try {
+            $query = 'SELECT id FROM buttonset '.
+                     'WHERE name = :input';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':input' => $name));
+            $result = $statement->fetch();
+            if (!$result) {
+                $this->message = 'Buttonset name does not exist.';
+                return('');
+            } else {
+                return((int)$result[0]);
+            }
+        } catch (Exception $e) {
+            error_log(
+                "Caught exception in BMInterface::get_buttonset_id_from_name: " .
+                $e->getMessage()
+            );
+            $this->message = 'Buttonset ID get failed.';
         }
     }
 
@@ -3605,6 +3731,47 @@ class BMInterface {
         }
     }
 
+    // Load the ID's of the next new post and its thread
+    public function get_next_new_post($currentPlayerId) {
+        try {
+            $results = array();
+
+            // Get the list of all boards, identifying the first new post on each
+            $query =
+                'SELECT v.id, v.thread_id ' .
+                'FROM forum_player_post_view AS v ' .
+                'WHERE v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
+                'ORDER BY v.creation_time ASC ' .
+                'LIMIT 1;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':current_player_id' => $currentPlayerId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $results['nextNewPostId'] = NULL;
+                $results['nextNewPostThreadId'] = NULL;
+                $this->message = 'No new forum posts';
+                return $results;
+            }
+
+            $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
+            $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
+
+            if ($results) {
+                $this->message = 'Checked new forum posts successfully';
+            }
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_next_new_post: ' .
+                $e->getMessage()
+            );
+            $this->message = 'New forum post check failed';
+            return NULL;
+        }
+    }
+
     // Indicates that the reader has finished reading all of the posts on every
     // board which they care to read
     public function mark_forum_read($currentPlayerId, $timestamp) {
@@ -3898,17 +4065,14 @@ class BMInterface {
     }
 
     // Retrieves the colors that the user has saved in their preferences
-// AdmiralJota: the next two lines have been commented out to satisfy PMD
-//    protected function load_player_colors($currentPlayerId) {
-//        $playerInfoArray = $this->get_player_info($currentPlayerId);
-    protected function load_player_colors() {
-        // Ultimately, these values should come from the database, but that
-        // hasn't been implemented yet, so we'll just hard code them for now
+    protected function load_player_colors($currentPlayerId) {
+        $playerInfoArray = $this->get_player_info($currentPlayerId);
+
         $colors = array(
-            'player' => '#dd99dd',
-            'opponent' => '#ddffdd',
-            'neutralA' => '#cccccc',
-            'neutralB' => '#dddddd',
+            'player' => $playerInfoArray['user_prefs']['player_color'],
+            'opponent' => $playerInfoArray['user_prefs']['opponent_color'],
+            'neutralA' => $playerInfoArray['user_prefs']['neutral_color_a'],
+            'neutralB' => $playerInfoArray['user_prefs']['neutral_color_b'],
             // Itself an associative array of player ID's => color strings
             'battleBuddies' => array(),
         );

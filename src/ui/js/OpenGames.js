@@ -62,7 +62,7 @@ OpenGames.showPage = function() {
     };
   } else {
     var buttons = { };
-    var anyUnimplementedButtons = true;
+    var anyUnimplementedButtons = false;
 
     $.each(Api.button.list, function(button, buttoninfo) {
       if (buttoninfo.hasUnimplementedSkill) {
@@ -279,9 +279,8 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         'text': game.challengerButton,
       }));
       gameRow.append($('<td>', {
-        'text': game.challengerName,
         'style': 'background-color: ' + game.challengerColor + ';',
-      }));
+      }).append(Env.buildProfileLink(game.challengerName)));
     }
 
     gameRow.append($('<td>', {

@@ -202,6 +202,10 @@ class ApiResponder {
         return $interface->load_api_game_data($_SESSION['user_id'], $args['game'], $logEntryLimit);
     }
 
+    protected function get_interface_response_countPendingGames($interface) {
+        return $interface->count_pending_games($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_loadPlayerName() {
         if (auth_session_exists()) {
             return array('userName' => $_SESSION['user_name']);
@@ -217,12 +221,36 @@ class ApiResponder {
     protected function get_interface_response_savePlayerInfo($interface, $args) {
         $infoArray = array();
         $infoArray['name_irl'] = $args['name_irl'];
+        $infoArray['is_email_public'] = ('true' == $args['is_email_public']);
+        $infoArray['dob_month'] = (int)$args['dob_month'];
+        $infoArray['dob_day'] = (int)$args['dob_day'];
         $infoArray['comment'] = $args['comment'];
+        $infoArray['gender'] = $args['gender'];
         $infoArray['autopass'] = ('true' == $args['autopass']);
+        $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
+        $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
+        $infoArray['automatically_monitor'] = ('true' == $args['automatically_monitor']);
+        $infoArray['player_color'] = $args['player_color'];
+        $infoArray['opponent_color'] = $args['opponent_color'];
+        $infoArray['neutral_color_a'] = $args['neutral_color_a'];
+        $infoArray['neutral_color_b'] = $args['neutral_color_b'];
+        if (isset($args['image_size'])) {
+            $infoArray['image_size'] = $args['image_size'];
+        } else {
+            $infoArray['image_size'] = NULL;
+        }
+        $infoArray['uses_gravatar'] = ('true' == $args['uses_gravatar']);
 
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
         $addlInfo['dob_day'] = (int)$args['dob_day'];
+
+        if (isset($args['favorite_button'])) {
+            $addlInfo['favorite_button'] = $args['favorite_button'];
+        }
+        if (isset($args['favorite_buttonset'])) {
+            $addlInfo['favorite_buttonset'] = $args['favorite_buttonset'];
+        }
         if (isset($args['current_password'])) {
             $addlInfo['current_password'] = $args['current_password'];
         }
@@ -439,6 +467,10 @@ class ApiResponder {
             (int)$args['threadId'],
             $currentPostId
         );
+    }
+
+    protected function get_interface_response_loadNextNewPost($interface) {
+        return $interface->get_next_new_post($_SESSION['user_id']);
     }
 
     protected function get_interface_response_markForumRead($interface, $args) {

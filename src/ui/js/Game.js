@@ -15,7 +15,6 @@ Game.GAME_STATE_DETERMINE_INITIATIVE = 'DETERMINE_INITIATIVE';
 Game.GAME_STATE_REACT_TO_INITIATIVE = 'REACT_TO_INITIATIVE';
 Game.GAME_STATE_START_ROUND = 'START_ROUND';
 Game.GAME_STATE_START_TURN = 'START_TURN';
-Game.GAME_STATE_START_TURN = 'START_TURN';
 Game.GAME_STATE_ADJUST_FIRE_DICE = 'ADJUST_FIRE_DICE';
 Game.GAME_STATE_END_TURN = 'END_TURN';
 Game.GAME_STATE_END_ROUND = 'END_ROUND';
@@ -23,14 +22,6 @@ Game.GAME_STATE_END_GAME = 'END_GAME';
 
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
-
-// Colors used by the game display
-Game.COLORS = {
-  'players': {
-    'player': '#dd99dd',
-    'opponent': '#ddffdd',
-  },
-};
 
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
@@ -112,7 +103,9 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
+  Api.getPendingGameCount(function() {
+    Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
+  });
 };
 
 // Assemble and display the game portion of the page
@@ -122,8 +115,11 @@ Game.showStatePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  // Set colors for use in game - for now, all games use the same colors
-  Game.color = Game.COLORS.players;
+  // Set colors for use in game
+  Game.color = {
+    'player': Api.game.player.playerColor,
+    'opponent': Api.game.opponent.playerColor,
+  };
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
@@ -924,7 +920,7 @@ Game.actionAdjustFireDiceActive = function() {
   Game.parseValidFireOptions();
   Game.page = $('<div>');
   Game.pageAddGameHeader(
-    'Your turn to complete a skill attack by adjusting fire dice');
+    'Your turn to complete an attack by adjusting fire dice');
 
   var attackerSum = 0;
   $.each(Api.game.player.activeDieArray, function(i, die) {
@@ -968,7 +964,7 @@ Game.actionAdjustFireDiceActive = function() {
   var fireoptions = {
     'turndown': 'Turn down fire dice',
     'cancel':
-      'Don\'t turn down fire dice (cancelling the skill attack in progress)',
+      'Don\'t turn down fire dice (cancelling the attack in progress)',
   };
   $.each(fireoptions, function(actionname, actiontext) {
     var fireactionopts = {
@@ -1004,7 +1000,7 @@ Game.actionAdjustFireDiceInactive = function() {
 
   Game.page = $('<div>');
   Game.pageAddGameHeader(
-    'Opponent\'s turn to complete a skill attack by adjusting fire dice');
+    'Opponent\'s turn to complete an attack by adjusting fire dice');
 
   // Get a table containing the existing die recipes
   var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
@@ -1025,7 +1021,7 @@ Game.actionAdjustFireDiceNonplayer = function() {
   Game.page = $('<div>');
   Game.pageAddGameHeader(
     'Waiting for ' + Game.waitingOnPlayerNames() +
-    ' to complete a skill attack by adjusting fire dice' +
+    ' to complete an attack by adjusting fire dice' +
     ' (you are not in this game)');
 
   // Get a table containing the existing die recipes
@@ -1579,7 +1575,33 @@ Game.pageAddGameHeader = function(action_desc) {
   var descdiv = $('<div>', { 'class': 'action_desc_div', });
   descdiv.append(descspan);
   Game.page.append(descdiv);
+
+  // If there's new chat the player hasn't seen yet, notify them
+  if (Api.game.isParticipant && Api.game.player.lastActionTime &&
+      Api.game.chatLog.length &&
+      Api.game.chatLog[0].timestamp > Api.game.player.lastActionTime) {
+    descdiv.append(Game.SPACE_BULLET);
+    descdiv.append($('<span>', {
+      'class': 'action_desc_span new',
+      'text': 'New chat message',
+    }));
+  }
+
   Game.page.append($('<br>'));
+
+  if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
+      Api.game.isParticipant && Api.game.player.waitingOnAction &&
+      Api.game.player.canStillWin === false) {
+    var cantWinDiv = $('<div>', {
+      'class': 'cantWin',
+      'text':
+        'It is impossible for you to win this round. It might be a good ' +
+        'time to surrender.',
+    });
+    Game.page.append(cantWinDiv);
+    Game.page.append($('<br>'));
+  }
+
   return true;
 };
 
@@ -1603,6 +1625,11 @@ Game.pageAddUnhideChatButton = function(isChatHidden) {
   unhideButton.click(function() {
     $('.hiddenChatForm').show();
     $('.unhideChat').hide();
+    $('#game_chat').focus();
+    // Also, a hack to move the cursor to the end
+    var chat = $('#game_chat').val();
+    $('#game_chat').val('');
+    $('#game_chat').val(chat);
   });
 
   var unhideDiv = $('<div>', { 'class': 'unhideChat', });
@@ -1617,11 +1644,21 @@ Game.pageAddGameNavigationFooter = function() {
   if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
     return false;
   }
+
+  var countText;
+  if (Api.pending_games.count) {
+    countText = '(at least ' + Api.pending_games.count + ')';
+  } else {
+    countText = '(if any)';
+  }
   Game.page.append($('<br>'));
   var linkDiv = $('<div>');
   linkDiv.append($('<a>', {
-    'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
-    'text': 'Go to your next pending game (if any)',
+    'href': Env.ui_root + 'index.html?mode=nextGame',
+    'text': 'Go to your next pending game ' + countText,
+  }).click(function(e) {
+    e.preventDefault();
+    Api.getNextGameId(Login.goToNextPendingGame);
   }));
   Game.page.append(linkDiv);
   return true;

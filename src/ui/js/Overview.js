@@ -5,17 +5,23 @@ var Overview = {};
 // setting here rather than importing Game.js
 Overview.GAME_STATE_END_GAME = 60;
 
+// Number of seconds before refreshing the monitor
+Overview.MONITOR_TIMEOUT = 60;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Overview.showOverviewPage() is the landing function.  Always call
-//   this first
+//   this first. This will either call Login.goToNextPendingGame,
+//   Overview.executeMonitor() or Overview.getOverview() and
+//   Overview.showPage() (depending on the "mode" parameter).
 // * Overview.getOverview() asks the API for information about the
-//   player's overview status (currently, the list of active games).
-//   It sets Api.active_games and Api.completed_games.  If successful,
-//   it calls
-// * Overview.showPage() assembles the page contents as a variable
+//   player's overview status (currently, the lists of active and completed
+//   games, and potentially the user's preferences).
+//   It sets Api.active_games, Api.completed_games and potentially
+//   Api.user_prefs.  If successful, it calls Overview.showPage().
+// * Overview.showPage() assembles the page contents as a variable.
 // * Overview.arrangePage() sets the contents of <div id="overview_page">
-//   on the live page
+//   on the live page.
 //
 // N.B. There is no form submission on this page (aside from the [Dismiss]
 // links); it's just a landing page with links to other pages. So it's
@@ -23,23 +29,56 @@ Overview.GAME_STATE_END_GAME = 60;
 ////////////////////////////////////////////////////////////////////////
 
 Overview.showOverviewPage = function() {
-
   // Setup necessary elements for displaying status messages
   Env.setupEnvStub();
+
+  // Set up the callback for refreshing the page if there's no next game
+  Login.nextGameRefreshCallback = function() {
+    Overview.getOverview(Overview.showPage);
+  };
 
   // Make sure the div element that we will need exists in the page body
   if ($('#overview_page').length === 0) {
     $('body').append($('<div>', {'id': 'overview_page', }));
   }
 
-  // Get all needed information, then display overview page
-  Overview.getOverview(Overview.showPage);
+  var mode = 'default';
+  if (Login.logged_in) {
+    mode = Env.getParameterByName('mode');
+  }
+  switch (mode) {
+  case 'nextGame':
+    // Try to go to the next game
+    Api.getNextGameId(Login.goToNextPendingGame);
+    break;
+  case 'monitor':
+    Overview.monitorIsOn = true;
+    // If we're in monitor mode, run the monitor first
+    Api.getUserPrefsData(Overview.executeMonitor);
+    break;
+  case 'preference':
+    Api.getUserPrefsData(function() {
+      if (Api.user_prefs.automatically_monitor) {
+        Overview.monitorIsOn = true;
+        // If we're in monitor mode, run the monitor first
+        Overview.executeMonitor();
+      } else {
+        Overview.monitorIsOn = false;
+        // Get all needed information, then display overview page
+        Overview.getOverview(Overview.showPage);
+      }
+    });
+    break;
+  default:
+    Overview.monitorIsOn = false;
+    // Get all needed information, then display overview page
+    Overview.getOverview(Overview.showPage);
+    break;
+  }
 };
 
 Overview.getOverview = function(callback) {
-
   if (Login.logged_in) {
-
     Api.getActiveGamesData(function() {
       Api.getCompletedGamesData(callback);
     });
@@ -49,11 +88,30 @@ Overview.getOverview = function(callback) {
 };
 
 Overview.showPage = function() {
-
   Overview.page = $('<div>');
 
   if (Login.logged_in === true) {
     Overview.pageAddNewgameLink();
+
+    if (Overview.monitorIsOn) {
+      Overview.page.append($('<h2>', {
+        'text': '* Monitor Active *',
+        'class': 'monitorMessage',
+      }));
+      // Convert milliseconds (javascript-style) to seconds (unix-style)
+      var currentTimestamp = new Date().getTime() / 1000;
+      Overview.page.append($('<div>', {
+        'text': 'Last refresh: ' + Env.formatTimestamp(currentTimestamp),
+        'class': 'monitorTimestamp',
+      }));
+      Overview.page.append($('<div>').append($('<a>', {
+        'text': 'Disable Monitor',
+        'href': Env.ui_root,
+      })));
+
+      // Times 1000 because setTimeout expects milliseconds
+      setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
+    }
 
     if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
       Env.message = {
@@ -72,13 +130,42 @@ Overview.showPage = function() {
 };
 
 Overview.arrangePage = function() {
-
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
 
   $('#overview_page').empty();
   $('#overview_page').append(Overview.page);
+};
+
+Overview.executeMonitor = function() {
+  if (Api.user_prefs.monitor_redirects_to_game &&
+    Api.user_prefs.monitor_redirects_to_forum) {
+    Api.getNextGameId(function() {
+      Api.getNextNewPostId(Overview.completeMonitor);
+    });
+  } else if (Api.user_prefs.monitor_redirects_to_game) {
+    Api.getNextGameId(Overview.completeMonitor);
+  } else if (Api.user_prefs.monitor_redirects_to_forum) {
+    Api.getNextNewPostId(Overview.completeMonitor);
+  } else {
+    Overview.getOverview(Overview.showPage);
+  }
+};
+
+Overview.completeMonitor = function() {
+  if (Api.user_prefs.monitor_redirects_to_game &&
+      Api.gameNavigation !== undefined && Api.gameNavigation.nextGameId) {
+    Login.goToNextPendingGame();
+    return;
+  }
+  if (Api.user_prefs.monitor_redirects_to_forum &&
+      Api.forumNavigation !== undefined && Api.forumNavigation.nextNewPostId) {
+    Overview.goToNextNewForumPost();
+    return;
+  }
+
+  Overview.getOverview(Overview.showPage);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -95,11 +182,15 @@ Overview.pageAddNewgameLink = function() {
   var newgameDiv = $('<div>');
   var newgamePar = $('<p>');
   if (Api.active_games.games.awaitingPlayer.length > 0) {
-    newgamePar.append($('<a>', {
-      'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+    var newgameLink = $('<a>', {
+      'href': Env.ui_root + 'index.html?mode=nextGame',
       'text': 'Go to your next pending game',
-    }));
-
+    });
+    newgamePar.append(newgameLink);
+    newgameLink.click(function(e) {
+      e.preventDefault();
+      Api.getNextGameId(Login.goToNextPendingGame);
+    });
   } else if (Api.active_games.games.awaitingOpponent.length > 0) {
     // just return in this case, and don't add a message at all
     return;
@@ -170,11 +261,10 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
 
   var i = 0;
   while (i < gamesource.length) {
-    // These will eventually come from settings via the API
-    var playerColor = '#dd99dd';
-    var opponentColor = '#ddffdd';
-
     var gameInfo = gamesource[i];
+    var playerColor = gameInfo.playerColor;
+    var opponentColor = gameInfo.opponentColor;
+
     var gameRow = $('<tr>');
     var gameLinkTd;
     if (gameType == 'awaitingPlayer') {
@@ -356,3 +446,20 @@ Overview.formDismissGame = function(e) {
   Api.apiFormPost(args, messages, $(this), Overview.showOverviewPage,
     Overview.showOverviewPage);
 };
+
+// Redirect to the next new forum post if there is one
+Overview.goToNextNewForumPost = function() {
+  if (Api.forumNavigation.load_status == 'ok') {
+    if (Api.forumNavigation.nextNewPostId !== null &&
+        $.isNumeric(Api.forumNavigation.nextNewPostId)) {
+      Env.window.location.href =
+        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
+          '&postId=' + Api.forumNavigation.nextNewPostId;
+    }
+  } else {
+    // If there are no new posts (which presumably means the user read them but
+    // left this page open while doing so), just show the forum overview
+    Env.window.location.href = 'forum.html';
+  }
+};
+

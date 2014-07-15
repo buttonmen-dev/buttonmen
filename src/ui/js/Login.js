@@ -10,6 +10,9 @@ Login.STATUS_NO_ACTIVITY      = 1;
 Login.STATUS_ACTION_SUCCEEDED = 2;
 Login.STATUS_ACTION_FAILED    = 3;
 
+// This is used to refresh the Overview page if there's no next game
+Login.nextGameRefreshCallback = false;
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -100,7 +103,7 @@ Login.stateLoggedIn = function(welcomeText) {
   }));
 
   Login.message.append(loginform);
-  Login.addMainNavbar();
+  Api.getNextNewPostId(Login.addMainNavbar);
   Login.form = Login.formLogout;
   Login.logged_in = true;
 };
@@ -160,9 +163,10 @@ Login.stateLoggedOut = function(welcomeText) {
 
 Login.addMainNavbar = function() {
   var navtable = $('<table>');
-  var navrow = $('<tr>');
+  var navrow = $('<tr>', { 'class': 'headerNav' });
   var links = {
     'Overview': 'index.html',
+    'Monitor': Env.ui_root + 'index.html?mode=monitor',
     'Create game': 'create_game.html',
     'Open games': 'open_games.html',
     'Preferences': 'prefs.html',
@@ -170,15 +174,40 @@ Login.addMainNavbar = function() {
     'History': 'history.html',
     'Who\'s online': 'active_players.html',
     'Forum': 'forum.html',
-    'Next game': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
+    'Next game': Env.ui_root + 'index.html?mode=nextGame',
   };
   $.each(links, function(text, url) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
     navrow.append(navtd);
   });
+  navrow.find('a:contains("Next game")').click(function(e) {
+    e.preventDefault();
+    Api.getNextGameId(Login.goToNextPendingGame);
+  });
   navtable.append(navrow);
   Login.message.append(navtable);
+
+  Login.addNewPostLink();
+};
+
+Login.addNewPostLink = function() {
+  var navRow = Login.message.find('.headerNav');
+  navRow.find('a:contains("(New post)")').parent().remove();
+
+  if (Api.forumNavigation.nextNewPostId) {
+    var newPostTd = $('<td>');
+    newPostTd.append($('<a>', {
+      'text': '(New post)',
+      'href':
+        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
+          '&postId=' + Api.forumNavigation.nextNewPostId,
+      'class': 'pseudoLink',
+      'data-threadId': Api.forumNavigation.nextNewPostThreadId,
+      'data-postId': Api.forumNavigation.nextNewPostId,
+    }));
+    navRow.find('a:contains("Forum")').parent().after(newPostTd);
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -241,7 +270,7 @@ Login.formLogin = function() {
 };
 
 ////////////////////////////////////////////////////////////////////////
-// Navigation events and helpsers
+// Navigation events and helpers
 
 // Redirect to the player's next pending game if there is one
 Login.goToNextPendingGame = function() {
@@ -252,16 +281,16 @@ Login.goToNextPendingGame = function() {
         'game.html?game=' + Api.gameNavigation.nextGameId;
     } else {
       // If there are no active games, and we're on the Overview page, tell
-      // the user so
-      if (Env.window.location.href.match(/\/ui(\/(index\.html)?)?$/)) {
+      // the user so and refresh the list of games
+      if (Login.nextGameRefreshCallback) {
         Env.message = {
           'type': 'none',
           'text': 'There are no games waiting for you to play'
         };
-        Env.showStatusMessage();
+        Login.nextGameRefreshCallback();
       } else {
         // If we're not on the Overview page, send them there
-        Env.window.location.href = '/ui';
+        Env.window.location.href = '/ui/index.html?mode=preference';
       }
     }
   } else {
@@ -272,4 +301,3 @@ Login.goToNextPendingGame = function() {
     Env.showStatusMessage();
   }
 };
-

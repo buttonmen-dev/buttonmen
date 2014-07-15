@@ -72,7 +72,18 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $email = $username . '@example.com';
         $createResult = $this->newuserObject->create_user($username, 't', $email);
 
-        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
+        $infoArray = array(
+            'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
+            'comment' => '',
+            'monitor_redirects_to_game' => 0,
+            'monitor_redirects_to_forum' => 0,
+            'automatically_monitor' => 0,
+            'autopass' => 1
+        );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
 
         $this->object->set_player_info($createResult['playerId'],
@@ -96,7 +107,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::get_player_info
      */
     public function test_get_player_info() {
-        $data = $this->object->get_player_info(1);
+        $data = $this->object->get_player_info(self::$userId3WithAutopass);
         $resultArray = $data['user_prefs'];
         $this->assertTrue(is_array($resultArray));
 
@@ -105,10 +116,23 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayNotHasKey('password_hashed', $resultArray);
         $this->assertArrayHasKey('name_irl', $resultArray);
         $this->assertArrayHasKey('email', $resultArray);
+        $this->assertArrayHasKey('is_email_public', $resultArray);
         $this->assertArrayHasKey('dob_month', $resultArray);
         $this->assertArrayHasKey('dob_day', $resultArray);
-        $this->assertArrayHasKey('autopass', $resultArray);
+        $this->assertArrayHasKey('gender', $resultArray);
+        $this->assertArrayHasKey('image_size', $resultArray);
+        $this->assertArrayHasKey('image_size', $resultArray);
+        $this->assertArrayHasKey('uses_gravatar', $resultArray);
+        $this->assertArrayHasKey('monitor_redirects_to_game', $resultArray);
+        $this->assertArrayHasKey('monitor_redirects_to_forum', $resultArray);
+        $this->assertArrayHasKey('automatically_monitor', $resultArray);
         $this->assertArrayHasKey('comment', $resultArray);
+        $this->assertArrayHasKey('player_color', $resultArray);
+        $this->assertArrayHasKey('opponent_color', $resultArray);
+        $this->assertArrayHasKey('neutral_color_a', $resultArray);
+        $this->assertArrayHasKey('neutral_color_b', $resultArray);
+        $this->assertArrayHasKey('favorite_button', $resultArray);
+        $this->assertArrayHasKey('favorite_buttonset', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
         $this->assertArrayHasKey('creation_time', $resultArray);
         $this->assertArrayHasKey('fanatic_button_id', $resultArray);
@@ -116,9 +140,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('n_games_lost', $resultArray);
 
         $this->assertTrue(is_int($resultArray['id']));
-        $this->assertEquals(1, $resultArray['id']);
+        $this->assertEquals(self::$userId3WithAutopass, $resultArray['id']);
 
         $this->assertTrue(is_bool($resultArray['autopass']));
+        $this->assertTrue(is_bool($resultArray['monitor_redirects_to_game']));
+        $this->assertTrue(is_bool($resultArray['monitor_redirects_to_forum']));
+        $this->assertTrue(is_bool($resultArray['automatically_monitor']));
 
         $this->assertTrue(is_int($resultArray['fanatic_button_id']));
         $this->assertEquals(0, $resultArray['fanatic_button_id']);
@@ -133,7 +160,22 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::set_player_info
      */
     public function test_set_player_info() {
-        $infoArray = array('name_irl' => '', 'comment' => '', 'autopass' => 1);
+        $infoArray = array(
+            'name_irl' => '',
+            'is_email_public' => FALSE,
+            'dob_month' => 0,
+            'dob_day' => 0,
+            'gender' => '',
+            'comment' => '',
+            'autopass' => 1,
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
+            'monitor_redirects_to_game' => 1,
+            'monitor_redirects_to_forum' => 1,
+            'automatically_monitor' => 1,
+        );
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
 
         $this->object->set_player_info(self::$userId1WithoutAutopass,
@@ -142,14 +184,23 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(TRUE, $playerInfoArray['autopass']);
+        $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
+        $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_forum']);
+        $this->assertEquals(TRUE, $playerInfoArray['automatically_monitor']);
 
         $infoArray['autopass'] = 0;
+        $infoArray['monitor_redirects_to_game'] = 0;
+        $infoArray['monitor_redirects_to_forum'] = 0;
+        $infoArray['automatically_monitor'] = 0;
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
                                        $addlInfo);
         $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
         $playerInfoArray = $data['user_prefs'];
         $this->assertEquals(FALSE, $playerInfoArray['autopass']);
+        $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
+        $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_forum']);
+        $this->assertEquals(FALSE, $playerInfoArray['automatically_monitor']);
     }
 
     /**
@@ -3058,6 +3109,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::mark_forum_read
      * @covers BMInterface::mark_forum_board_read
      * @covers BMInterface::mark_forum_thread_read
+     * @covers BMInterface::get_next_new_post
      */
     public function test_mark_forum_posts_read() {
         // First, the first player views the forum. Then the second player makes
@@ -3068,6 +3120,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $thread1 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
             $boardId1, 'Test Title 1', 'Test Body 1');
+        // Separate the posts slightly, so that the first one is measurably first
+        // (This is just because the DB timestamp granularity is only one second.)
+        sleep(1);
         $thread2 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
             $boardId1, 'Test Title 2', 'Test Body 2');
         $thread3 = $this->object->create_forum_thread(self::$userId2WithoutAutopass,
@@ -3104,6 +3159,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $thread3 = $this->object->load_forum_thread(self::$userId2WithoutAutopass,
             $thread3['threadId'], NULL);
         $this->assertFalse($thread3['posts'][0]['isNew']);
+
+        // And verify that the first new post is indeed recognized as the
+        // first new post
+        $nextNewPost = $this->object->get_next_new_post(self::$userId1WithoutAutopass);
+        $this->assertEquals($thread1['threadId'], $nextNewPost['nextNewPostThreadId']);
+        $this->assertEquals($thread1['posts'][0]['postId'], $nextNewPost['nextNewPostId']);
 
         // The first player marks the first thread read. Verify that its first
         // post is no longer new, but that the first posts of the other two
@@ -3154,4 +3215,3 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     ////////////////////////////////////////////////////////////
 
 }
-

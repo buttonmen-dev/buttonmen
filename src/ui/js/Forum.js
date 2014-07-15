@@ -134,6 +134,7 @@ Forum.showOverview = function() {
       'type': 'markForumRead',
       'timestamp': Api.forum_overview.timestamp,
     }, 'forum_overview', $(this), Forum.showOverview);
+    Api.getNextNewPostId(Login.addNewPostLink);
   });
 
   // Actually lay out the page
@@ -238,6 +239,7 @@ Forum.showBoard = function() {
       'boardId': Api.forum_board.boardId,
       'timestamp': Api.forum_board.timestamp,
     }, 'forum_overview', $(this), Forum.showOverview);
+    Api.getNextNewPostId(Login.addNewPostLink);
   });
 
   // Actually lay out the page
@@ -331,6 +333,7 @@ Forum.showThread = function() {
       'boardId': Api.forum_thread.boardId,
       'timestamp': Api.forum_thread.timestamp,
     }, 'forum_board', $(this), Forum.showBoard);
+    Api.getNextNewPostId(Login.addNewPostLink);
   });
 
   // Actually lay out the page
@@ -342,7 +345,9 @@ Forum.arrangePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  Forum.page.find('.pseudoLink').each(function() {
+  var pseudoLinks =
+    Forum.page.find('.pseudoLink').add(Login.message.find('.pseudoLink'));
+  pseudoLinks.each(function() {
     $(this).click(Forum.formLinkToSubPage);
     var state = Forum.readStateFromElement(this);
     $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
@@ -434,13 +439,14 @@ Forum.formReplyToThread = function() {
 Forum.quotePost = function() {
   var postRow = $(this).closest('tr');
   var quotedText = postRow.find('td.body').attr('data-rawPost');
+  var quotee = postRow.find('td.attribution div.name a:nth-child(2)').text();
   var replyBox = $('tr.writePost td.body textarea');
 
   var replyText = replyBox.val();
   if (replyText && replyText.slice(-1) != '\n') {
     replyText += '\n';
   }
-  replyText += '[quote]' + quotedText + '[/quote]' + '\n';
+  replyText += '[quote=' + quotee + ']' + quotedText + '[/quote]' + '\n';
 
   replyBox.val(replyText);
   replyBox.prop('scrollTop', replyBox.prop('scrollHeight'));
@@ -649,7 +655,26 @@ Forum.buildHelp = function() {
   helpDiv.append($('<div>', {
     'class': 'help',
     'html':
-      '[quote]text[/quote]: <span class="chatQuote">&nbsp;text&nbsp;</span>',
+      '[quote]text[/quote]: ',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'subHelp',
+    'html':
+      '<span class="chatQuote">' +
+      '<span class="chatQuotee">Quote:</span>' +
+      '&nbsp;text&nbsp;</span>',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'help',
+    'html':
+      '[quote=Jota]text[/quote]: ',
+  }));
+  helpDiv.append($('<div>', {
+    'class': 'subHelp',
+    'html':
+      '<span class="chatQuote">' +
+      '<span class="chatQuotee">Jota said:</span>' +
+      '&nbsp;text&nbsp;</span>',
   }));
   helpDiv.append($('<div>', {
     'class': 'help',

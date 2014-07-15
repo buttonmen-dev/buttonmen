@@ -89,17 +89,52 @@ Profile.buildProfileTable = function() {
       Api.profile_info.dob_day;
   }
 
-  var challengeLink = null;
+  var challengeLinkHolder = null;
   if (Login.player != Api.profile_info.name_ingame) {
-    challengeLink = $('<a>', {
-      'href': 'create_game.html?opponent=' +
+    challengeLinkHolder = $('<span>');
+    challengeLinkHolder.append($('<a>', {
+      'href':
+        'create_game.html?opponent=' +
         encodeURIComponent(Api.profile_info.name_ingame),
       'text': 'Create game!',
-    });
+    }));
+    if (Api.profile_info.favorite_button) {
+      challengeLinkHolder.append(' ');
+      challengeLinkHolder.append($('<a>', {
+        'href':
+          'create_game.html?opponent=' +
+          encodeURIComponent(Api.profile_info.name_ingame) +
+          '&opponentButton=' +
+          encodeURIComponent(Api.profile_info.favorite_button),
+        'text': 'With ' + Api.profile_info.favorite_button + '!',
+      }));
+    }
   }
 
-  var record = Api.profile_info.n_games_won + ' W / ' +
-    Api.profile_info.n_games_lost + ' L';
+  var record = Api.profile_info.n_games_won + '/' +
+    Api.profile_info.n_games_lost + ' (W/L)';
+
+  var gamesLinksHolder = $('<span>');
+  gamesLinksHolder.append($('<a>', {
+    'text': 'Active',
+    'href':
+      Env.ui_root + 'history.html#!playerNameA=' +
+      Api.profile_info.name_ingame + '&status=ACTIVE',
+  }));
+  gamesLinksHolder.append(' ');
+  gamesLinksHolder.append($('<a>', {
+    'text': 'Completed',
+    'href':
+      Env.ui_root + 'history.html#!playerNameA=' +
+      Api.profile_info.name_ingame + '&status=COMPLETE',
+  }));
+
+  var commentHolder = null;
+  if (Api.profile_info.comment) {
+    commentHolder = $('<span>');
+    var cookedComment = Env.prepareRawTextForDisplay(Api.profile_info.comment);
+    commentHolder.append(cookedComment);
+  }
 
   var solipsismAlternatives = [
     'solipsism overflow',
@@ -143,6 +178,10 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Record', record, 'none', true));
   tbody.append(Profile.buildProfileTableRow('Birthday', birthday, 'unknown',
     true));
+  if (Api.profile_info.gender) {
+    tbody.append(Profile.buildProfileTableRow('Gender',
+      Api.profile_info.gender, 'irrelevant', true));
+  }
   tbody.append(Profile.buildProfileTableRow('Email address',
     Api.profile_info.email, 'private', true));
   tbody.append(Profile.buildProfileTableRow('Member since',
@@ -151,14 +190,28 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Last visit',
     Env.formatTimestamp(Api.profile_info.last_access_time, 'date'), 'never',
     true));
+  tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
+    true));
+  tbody.append(Profile.buildProfileTableRow('Favorite button',
+    Api.profile_info.favorite_button, 'undecided', true));
+  tbody.append(Profile.buildProfileTableRow('Favorite button set',
+    Api.profile_info.favorite_buttonset, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
-    challengeLink, solipsismNotification, true));
+    challengeLinkHolder, solipsismNotification, false));
   tbody.append(Profile.buildProfileTableRow('Comment',
-    Api.profile_info.comment, 'none', false));
+    commentHolder, 'none', false));
 
   if (!Env.getCookieNoImages()) {
-    var url = Env.ui_root + 'images/no-image.png';
+    var url;
+    if (Api.profile_info.uses_gravatar) {
+      url = 'http://www.gravatar.com/avatar/' + Api.profile_info.email_hash;
+      if (Api.profile_info.image_size) {
+        url += '?s=' + Api.profile_info.image_size;
+      }
+    } else {
+      url = Env.ui_root + 'images/no-image.png';
+    }
     var image = $('<img>', {
       'src': url,
       'class': 'profileImage',
@@ -166,7 +219,7 @@ Profile.buildProfileTable = function() {
 
     var partialTds = table.find('td.partialValue');
 
-    var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '7', });
+    var imageTd = $('<td>', { 'class': 'partialValue', 'rowspan': '9', });
     partialTds.first().parent().append(imageTd);
     imageTd.append(image);
   }
