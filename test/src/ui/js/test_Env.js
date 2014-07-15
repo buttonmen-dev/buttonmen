@@ -250,11 +250,9 @@ test("test_Env.toggleSpoiler", function() {
   var spoiler = $('<span>', { 'class': 'chatSpoiler' });
 
   Env.toggleSpoiler.call(spoiler);
-  ok(!spoiler.hasClass('chatSpoiler'), 'Spoiler should be revealed');
-  ok(spoiler.hasClass('chatExSpoiler'), 'Spoiler should be styled as revealed');
+  ok(spoiler.hasClass('chatExposedSpoiler'), 'Spoiler should be styled as revealed');
 
   Env.toggleSpoiler.call(spoiler);
-  ok(spoiler.hasClass('chatSpoiler'), 'Spoiler should be concealed');
-  ok(!spoiler.hasClass('chatExSpoiler'),
+  ok(!spoiler.hasClass('chatExposedSpoiler'),
     'Spoiler should not be styled as revealed');
 });

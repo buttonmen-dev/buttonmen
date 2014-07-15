@@ -427,6 +427,5 @@ Env.buildProfileLink = function(playerName, textOnly) {
 
 // Reveal (or un-reveal) the contents of spoiler tags
 Env.toggleSpoiler = function() {
-  $(this).toggleClass('chatSpoiler');
-  $(this).toggleClass('chatExSpoiler');
+  $(this).toggleClass('chatExposedSpoiler');
 };
