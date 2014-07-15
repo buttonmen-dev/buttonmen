@@ -28,6 +28,10 @@ h2.monitorMessage {
     margin-bottom: 0;
 }
 
+div.monitorTimestamp {
+    font-size: 0.9em;
+}
+
 div.status_player {
     width: 100%;
 }
@@ -125,7 +129,7 @@ td.chat {
     display: none;
 }
 
-.logtable .new {
+.logtable .new, .action_desc_div .new {
     background-color: #ffffcc;
 }
 
@@ -664,6 +668,10 @@ div.forum tr.writePost td.attribution {
 
 div.forum tr.writePost td.attribution .help {
     margin-left: 1em;
+}
+
+div.forum tr.writePost td.attribution .subHelp {
+    margin-left: 2em;
 }
 
 div.forum tr.writePost input.title {
