@@ -302,6 +302,8 @@ class BMInterface {
             return NULL;
         }
 
+        $this->resolve_random_button_selection($buttonNameArray);
+
         $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
         if (is_null($buttonIdArray)) {
             return NULL;
@@ -426,6 +428,27 @@ class BMInterface {
         }
 
         return TRUE;
+    }
+
+    protected function resolve_random_button_selection(&$buttonNameArray) {
+        $allButtonData = array();
+        $allButtonNames = array();
+        $nButtons = 0;
+
+        foreach ($buttonNameArray as &$buttonName) {
+            if ('__random' != $buttonName) {
+                continue;
+            }
+
+            if (empty($allButtonNames)) {
+                $allButtonData = $this->get_all_button_names();
+                $allButtonNames = $allButtonData['buttonNameArray'];
+                $nButtons = count($allButtonNames);
+            }
+
+            $buttonIdx = rand(0, $nButtons - 1);
+            $buttonName = $allButtonNames[$buttonIdx];
+        }
     }
 
     protected function retrieve_button_ids($playerIdArray, $buttonNameArray) {
