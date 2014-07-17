@@ -679,7 +679,8 @@ div.forum tr.writePost input.title {
     display: block;
 }
 
-div.forum tr.writePost textarea {
+div.forum tr.writePost textarea,
+div.forum tr td.editBody textarea {
     width: 99%;
     height: 10em;
     display: block;
@@ -687,13 +688,15 @@ div.forum tr.writePost textarea {
 
 /* Weirdly, text inputs and textareas default to using different fonts */
 div.forum tr.writePost input[type=text],
-div.forum tr.writePost textarea {
+div.forum tr.writePost textarea,
+div.forum tr td.editBody textarea {
     font-family: sans-serif;
     font-size: 1em;
     margin-bottom: 0.4em;
 }
 
-div.forum tr.writePost td {
+div.forum tr.writePost td,
+div.forum tr td.editBody {
     text-align: right;
 }
 

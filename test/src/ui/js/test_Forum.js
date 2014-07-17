@@ -225,7 +225,7 @@ asyncTest("test_Forum.formReplyToThread", function() {
 test("test_Forum.quotePost", function() {
   var postText = 'woe to thee';
 
-  var postTr = $('<tr>', { 'class': 'writePost' });
+  var postTr = $('<tr>');
   var postBody = $('<td>', { 'class': 'body', 'data-rawPost': postText, });
   postTr.append(postBody);
   var button = $('<input>', { 'type': 'button' });
@@ -241,6 +241,65 @@ test("test_Forum.quotePost", function() {
   var replyText = replyBox.val();
   ok(replyText.match(postText),
     'Reply textarea should contain quoted post text');
+});
+
+test("test_Forum.editPost", function() {
+  var postText = 'woo to thee';
+
+  var postTr = $('<tr>');
+  var postBody = $('<td>', { 'class': 'body', 'data-rawPost': postText, });
+  postTr.append(postBody);
+  var button = $('<input>', { 'type': 'button' });
+  postBody.append(button);
+
+  // .call() calls a function, setting the passed-in parameter as 'this'
+  Forum.editPost.call(button);
+  equal(postBody.css('display'), 'none', 'Post body cell should be hidden');
+  var editTd = postTr.find('td.editBody');
+  ok(editTd.length, 'Edit cell should be displayed');
+  var editText = editTd.find('textarea').val();
+  equal(editText, postText, 'Edit textarea should contain post text');
+});
+
+test("test_Forum.cancelEditPost", function() {
+  var postTr = $('<tr>');
+  var postBody = $('<td>', {
+    'class': 'body',
+    'style': 'display: none;',
+  });
+  postTr.append(postBody);
+  var editTd = $('<td>', {
+    'class': 'body editBody',
+  });
+  postTr.append(editTd);
+  var button = $('<input>', { 'type': 'button' });
+  editTd.append(button);
+
+  // .call() calls a function, setting the passed-in parameter as 'this'
+  Forum.cancelEditPost.call(button);
+  equal(postBody.css('display'), 'table-cell',
+    'Post body cell should be revealed');
+  var editTd = postTr.find('td.editBody');
+  ok(!editTd.length, 'Edit cell should be removed');
+});
+
+asyncTest("test_Forum.formSaveEditPost", function() {
+  expect(3); // tests plus teardown test
+
+  var formHolder = $('<div>');
+  formHolder.append($('<textarea>', { 'text': 'Test body' } ));
+  var button = $('<input>', { 'type': 'button', 'data-postId': '2' });
+  formHolder.append(button);
+
+  Forum.showThread = function() {
+    equal(Api.forum_thread.load_status, 'ok',
+       'The thread should be loaded after the post was edited');
+    equal(Api.forum_thread.currentPostId, '2',
+       'The current post should be the post was edited');
+    start();
+  };
+  // .call() calls a function, setting the passed-in parameter as 'this'
+  Forum.formSaveEditPost.call(button);
 });
 
 test("test_Forum.buildBoardRow", function() {
@@ -376,3 +435,4 @@ test("test_Forum.showError", function() {
   Forum.showError();
   equal($('#env_message').text(), 'Test error.', 'Error displayed');
 });
+

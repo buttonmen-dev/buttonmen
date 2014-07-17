@@ -1161,6 +1161,44 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy forum post creation return values should have matching structures");
     }
 
+    public function test_request_editForumPost() {
+        $this->verify_login_required('editForumPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('editForumPost');
+        $this->verify_mandatory_args_required(
+            'editForumPost',
+            array(
+                'postId' => 1,
+                'body' => 'Hey, wow, I do too!',
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Cat or dog?',
+            'body' => 'Dog!',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'editForumPost',
+            'postId' => (int)$thread['data']['posts'][0]['postId'],
+            'body' => 'Cat!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum post editing should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum post editing return values should have matching structures");
+    }
+
     public function test_request_loadForumOverview() {
         $this->verify_login_required('loadForumOverview');
 
