@@ -766,11 +766,20 @@ div.forum div.splitRight {
     text-align: left;
 }
 
-.chatSpoiler,
-.chatSpoiler a,
-.chatSpoiler .chatQuoteBody {
+.chatSpoiler:not(.chatExposedSpoiler),
+.chatSpoiler:not(.chatExposedSpoiler) a,
+.chatSpoiler:not(.chatExposedSpoiler) .chatQuoteBody {
     color: black;
     background-color: black;
+    cursor: default;
+}
+
+.chatExposedSpoiler,
+.chatExposedSpoiler a,
+.chatExposedSpoiler .chatQuoteBody {
+    color: black;
+    background-color: #eeeeee;
+    cursor: default;
 }
 
 /* END: BB Code */
