@@ -134,6 +134,7 @@ class BMSkill {
                      'Speed',
                      'Trip',
                      // standard attack types
+                     'Default',
                      'Power',
                      'Skill',
                      'Pass',
