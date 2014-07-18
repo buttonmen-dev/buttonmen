@@ -164,11 +164,11 @@ abstract class BMAttack {
             return FALSE;
         }
 
-        // Collect the necessary help
-        // not implemented yet
-//        if (!$this->collect_contributions($game, $attackers, $defenders)) {
-//            // return FALSE;
-//        }
+        if ('Default' == $game->attack['attackType']) {
+            $attack = $game->attack;
+            $attack['attackType'] = $this->resolvedType;
+            $game->attack = $attack;
+        }
 
         if ('Surrender' == $game->attack['attackType']) {
             $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
