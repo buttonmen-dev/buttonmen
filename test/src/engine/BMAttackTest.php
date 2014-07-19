@@ -59,26 +59,33 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1->init(4);
 
         $attackArray = BMAttack::possible_attack_types(array($die1));
-        $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(2, count($attackArray));
-        $this->assertTrue(in_array('Power', $attackArray));
-        $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertEquals(array('Power' => 'Power',
+                                  'Skill' => 'Skill'),
+                            $attackArray);
 
         $die2 = new BMDie;
         $die2->init(5);
         $die2->add_skill('Shadow');
         $attackArray = BMAttack::possible_attack_types(array($die2));
-        $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(2, count($attackArray));
-        $this->assertTrue(in_array('Shadow', $attackArray));
-        $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertEquals(array('Skill' => 'Skill',
+                                  'Shadow' => 'Shadow'),
+                            $attackArray);
 
-        $attackArray = BMAttack::possible_attack_types(array($die1, $die2));
-        $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(3, count($attackArray));
-        $this->assertTrue(in_array('Power', $attackArray));
-        $this->assertTrue(in_array('Shadow', $attackArray));
-        $this->assertTrue(in_array('Skill', $attackArray));
+        $attackArray = BMAttack::possible_attack_types(array($die2, $die1));
+        $this->assertEquals(array('Power' => 'Power',
+                                  'Skill' => 'Skill',
+                                  'Shadow' => 'Shadow'),
+                            $attackArray);
+
+        $die3 = new BMDie;
+        $die3->init(6);
+        $die3->add_skill('Berserk');
+        $attackArray = BMAttack::possible_attack_types(array($die3, $die2, $die1));
+        $this->assertEquals(array('Power' => 'Power',
+                                  'Skill' => 'Skill',
+                                  'Berserk' => 'Berserk',
+                                  'Shadow' => 'Shadow'),
+                            $attackArray);
     }
 
     /**

@@ -62,10 +62,34 @@ abstract class BMAttack {
             }
         }
 
+        uksort($allAttackTypesArray, 'BMAttack::display_cmp');
+
         // james: deliberately ignore Default and Surrender attacks here,
         //        so that they do not appear in the list of attack types
 
         return $allAttackTypesArray;
+    }
+
+    protected static function display_cmp($str1, $str2) {
+        if ($str1 == $str2) {
+            return 0;
+        }
+
+        // force Power attacks to be displayed first
+        if ('Power' == $str1) {
+            return -1;
+        } elseif ('Power' == $str2) {
+            return 1;
+        }
+
+        // force Skill attacks to be displayed first, except for Power
+        if ('Skill' == $str1) {
+            return -1;
+        } elseif ('Skill' == $str2) {
+            return 1;
+        }
+
+        return strcasecmp($str1, $str2);
     }
 
     public function add_die(BMDie $die) {
