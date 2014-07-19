@@ -807,6 +807,10 @@ class DummyApiResponder {
         return array(NULL, "Game does not exist.");
     }
 
+    protected function get_interface_response_countPendingGames() {
+        return array(array('count' => 0), 'Pending game count succeeded.');
+    }
+
     protected function get_interface_response_loadPlayerName() {
         return array(array('userName' => 'tester1'), NULL);
     }
@@ -826,6 +830,7 @@ class DummyApiResponder {
                                 'uses_gravatar' => FALSE,
                                 'monitor_redirects_to_game' => FALSE,
                                 'monitor_redirects_to_forum' => FALSE,
+                                'automatically_monitor' => FALSE,
                                 'comment' => NULL,
                                 'favorite_button' => NULL,
                                 'favorite_buttonset' => NULL,
@@ -1096,6 +1101,14 @@ class DummyApiResponder {
         );
         $results = $otherResults[0];
         return array($results, 'Forum post created successfully');
+    }
+
+    protected function get_interface_response_editForumPost() {
+        $otherResults = $this->get_interface_response_loadForumThread(
+            array('currentPostId' => 2)
+        );
+        $results = $otherResults[0];
+        return array($results, 'Forum post edited successfully');
     }
 
     // End of Forum-related methods
