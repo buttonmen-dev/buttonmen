@@ -490,6 +490,14 @@ class ApiResponder {
         );
     }
 
+    protected function get_interface_response_editForumPost($interface, $args) {
+        return $interface->edit_forum_post(
+            $_SESSION['user_id'],
+            (int)$args['postId'],
+            $args['body']
+        );
+    }
+
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 

@@ -246,6 +246,15 @@ test("test_Env.buildProfileLink", function() {
     'Link text should point to profile page.');
 });
 
+test("test_Env.toggleSpoiler", function() {
+  var spoiler = $('<span>', { 'class': 'chatSpoiler' });
+
+  Env.toggleSpoiler.call(spoiler);
+  ok(spoiler.hasClass('chatExposedSpoiler'), 'Spoiler should be styled as revealed');
+
+  Env.toggleSpoiler.call(spoiler);
+  ok(!spoiler.hasClass('chatExposedSpoiler'),
+    'Spoiler should not be styled as revealed');
 asyncTest("test_Env.callAsyncInParallel", function() {
   expect(3); // number of tests plus 1 for the teardown test
 
@@ -302,4 +311,5 @@ asyncTest("test_Env.callAsyncInParallel_withArgs", function() {
       equal(result2, 22, 'func2 should have completed its async task');
       start();
     });
+  });
 });
