@@ -56,10 +56,10 @@ test("test_Forum.showForumPage", function() {
   expect(3); // tests plus teardown test
   $('div#forum_page').remove();
   Env.window.location.hash = '#!threadId=6';
-  Forum.showPage = function() {
+  Forum.showPage = function(state) {
     equal($('div#forum_page').length, 1,
       '#forum_page should exist after showForumPage() is called');
-    equal(Env.history.state.threadId, 6,
+    equal(state.threadId, 6,
       'History state should be set to match location hash');
   };
   Forum.showForumPage();
@@ -68,7 +68,6 @@ test("test_Forum.showForumPage", function() {
 asyncTest("test_Forum.showPage", function() {
   expect(2); // tests plus teardown test
 
-  Env.history.state = { };
   Forum.arrangePage = Forum.showBoard = Forum.showThread =
     function() {
       ok(false, 'Forum.showPage() should call Forum.showOverview()');
@@ -78,13 +77,12 @@ asyncTest("test_Forum.showPage", function() {
     ok(true, 'Forum.showPage() should call the Forum.showOverview()');
     start();
   };
-  Forum.showPage();
+  Forum.showPage({ });
 });
 
 asyncTest("test_Forum.showPage_board", function() {
   expect(2); // tests plus teardown test
 
-  Env.history.state = { 'boardId': 3 };
   Forum.arrangePage = Forum.showOverview = Forum.showThread =
     function() {
       ok(false, 'Forum.showPage() should call Forum.showBoard()');
@@ -94,13 +92,12 @@ asyncTest("test_Forum.showPage_board", function() {
     ok(true, 'Forum.showPage() should call the Forum.showBoard()');
     start();
   };
-  Forum.showPage();
+  Forum.showPage({ 'boardId': 3 });
 });
 
 asyncTest("test_Forum.showPage_thread", function() {
   expect(2); // tests plus teardown test
 
-  Env.history.state = { 'threadId': 6 };
   Forum.arrangePage = Forum.showOverview = Forum.showBoard =
     function() {
       ok(false, 'Forum.showPage() should call Forum.showThread()');
@@ -110,7 +107,7 @@ asyncTest("test_Forum.showPage_thread", function() {
     ok(true, 'Forum.showPage() should call the Forum.showThread()');
     start();
   };
-  Forum.showPage();
+  Forum.showPage({ 'threadId': 6 });
 });
 
 asyncTest("test_Forum.showOverview", function() {
