@@ -13,6 +13,7 @@ CREATE TABLE player (
     autopass            BOOLEAN DEFAULT 0,
     monitor_redirects_to_game   BOOLEAN DEFAULT 0 NOT NULL,
     monitor_redirects_to_forum  BOOLEAN DEFAULT 0 NOT NULL,
+    automatically_monitor       BOOLEAN DEFAULT 0 NOT NULL,
     image_path          VARCHAR(100),
     image_size          SMALLINT,
     uses_gravatar       BOOLEAN DEFAULT 0 NOT NULL,

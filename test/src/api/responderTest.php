@@ -660,7 +660,6 @@ class responderTest extends PHPUnit_Framework_TestCase {
             }
         }
         $dummydata['timestamp'] = $retdata['timestamp'];
-        $dummydata['pendingGameCount'] = $retdata['pendingGameCount'];
 
         $this->assertEquals($dummydata, $retdata);
 
@@ -692,6 +691,28 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retval = $this->object->process_request(
             array('type' => 'loadGameData', 'game' => $open_game_id, 'logEntryLimit' => 10));
         $this->assertEquals('ok', $retval['status'], "loadGameData on an open game should succeed");
+    }
+
+    public function test_request_countPendingGames() {
+        $this->verify_login_required('countPendingGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('countPendingGames');
+
+        $args = array('type' => 'countPendingGames');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'],
+            'Loading next pending game ID should succeed');
+        $this->assertEquals('ok', $dummyval['status'],
+            'Dummy load of next pending game ID should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata, $dummydata, TRUE),
+            "Real and dummy pending game data should have matching structures");
     }
 
     public function test_request_loadPlayerName() {
@@ -742,6 +763,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'neutral_color_b' => '#dddddd',
             'monitor_redirects_to_game' => 'False',
             'monitor_redirects_to_forum' => 'False',
+            'automatically_monitor' => 'False',
         );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -1138,6 +1160,44 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata),
             "Real and dummy forum post creation return values should have matching structures");
+    }
+
+    public function test_request_editForumPost() {
+        $this->verify_login_required('editForumPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('editForumPost');
+        $this->verify_mandatory_args_required(
+            'editForumPost',
+            array(
+                'postId' => 1,
+                'body' => 'Hey, wow, I do too!',
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Cat or dog?',
+            'body' => 'Dog!',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'editForumPost',
+            'postId' => (int)$thread['data']['posts'][0]['postId'],
+            'body' => 'Cat!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum post editing should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum post editing return values should have matching structures");
     }
 
     public function test_request_loadForumOverview() {

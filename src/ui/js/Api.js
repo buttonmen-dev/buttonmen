@@ -679,5 +679,15 @@ var Api = (function () {
     return true;
   };
 
+  my.getPendingGameCount = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'countPendingGames', },
+      'pending_games',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
   return my;
 }());
