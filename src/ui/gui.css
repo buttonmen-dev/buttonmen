@@ -23,6 +23,11 @@ div#login_header table {
     margin: 0;
 }
 
+h2.monitorMessage {
+    color: #800000;
+    margin-bottom: 0;
+}
+
 div.status_player {
     width: 100%;
 }
@@ -62,6 +67,12 @@ div.battle_mat_opponent_overlay {
 .compactMode div.battle_mat_opponent,
 .compactMode div.battle_mat_opponent_overlay {
   border-radius: 0px 0px 30px 30px;
+}
+
+div.cantWin {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
 table {
@@ -342,6 +353,10 @@ table.prefsTable td.label {
     vertical-align: top;
 }
 
+table.prefsTable td.label_color {
+    vertical-align: middle;
+}
+
 table.profileTable td.label {
     text-align: right;
     max-width: 400px;
@@ -354,6 +369,10 @@ table.prefsTable td.value {
     text-align: left;
     width: 50%;
     vertical-align: top;
+}
+
+table.prefsTable textarea {
+    width: 300px;
 }
 
 table.profileTable td.value,
@@ -374,11 +393,6 @@ table.profileTable td.partialValue {
     vertical-align: top;
 }
 
-img.profileImage {
-    max-width: 200px;
-    max-height: 200px;
-}
-
 table.activePlayerList td.player,
 table.activePlayerList th.player {
     text-align: right;
@@ -395,6 +409,12 @@ table.activePlayerList th.idleness {
     text-align: left;
     padding-left: 10px;
     width: 50%;
+}
+
+.pseudoLink {
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 /* Game lists (Overview, Game History) */
@@ -457,6 +477,15 @@ table.gameList select {
 #history_page table.gameList thead td,
 #history_page table.gameList tfoot td {
     padding: 0.2em 0.4em;
+}
+
+#history_page table.gameList th {
+    white-space: nowrap;
+    cursor: default;
+}
+
+#history_page table.gameList tfoot th {
+    cursor: default;
 }
 
 table.gameList span.sortButton,

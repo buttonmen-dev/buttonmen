@@ -286,6 +286,8 @@ var Api = (function () {
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
         'inactivity': data.inactivityArray[i],
+        'playerColor': data.playerColorArray[i],
+        'opponentColor': data.opponentColorArray[i],
       };
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
@@ -331,6 +333,8 @@ var Api = (function () {
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
         'inactivity': data.inactivityArray[i],
+        'playerColor': data.playerColorArray[i],
+        'opponentColor': data.opponentColorArray[i],
       };
       my.completed_games.games.push(gameInfo);
       i += 1;
@@ -420,6 +424,8 @@ var Api = (function () {
     my.game.player.gameScoreStr = my.playerWLTText('player');
     my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
 
+    my.game.pendingGameCount = data.pendingGameCount;
+
     return true;
   };
 
@@ -508,6 +514,19 @@ var Api = (function () {
     }
     my.gameNavigation.nextGameId = data.gameId;
     return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load the ID's of the next new post and its thread
+
+  my.getNextNewPostId = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadNextNewPost', },
+      'forumNavigation',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
   };
 
   my.getOpenGamesData = function(callbackfunc) {

@@ -14,4 +14,5 @@ INSERT INTO forum_board
 VALUES
     ('1', 'Miscellaneous Chatting', '#d0e0f0', '#e7f0f7', 'Any topic that doesn\'t fit anywhere else.', '20'),
     ('2', 'Gameplay', '#f0f0c0', '#f7f7e0', 'Button Men itself: sharing strategies, comparing buttons and skills, etc.', '40'),
-    ('3', 'Features and Bugs', '#f0d0d0', '#f7e7e7', 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.', '60');
+    ('3', 'Features and Bugs', '#f0d0d0', '#f7e7e7', 'Feedback on new features that have been added, features you\'d like to see or bugs you\'ve discovered.', '60'),
+    ('4', 'Tournaments', '#d7f0d7', '#ebf7eb', 'Button men tournaments, both official and unofficial.', '80');

@@ -23,14 +23,6 @@ Game.GAME_STATE_END_GAME = 'END_GAME';
 // Convenience HTML used in the mat layout to break text
 Game.SPACE_BULLET = ' &nbsp;&bull;&nbsp; ';
 
-// Colors used by the game display
-Game.COLORS = {
-  'players': {
-    'player': '#dd99dd',
-    'opponent': '#ddffdd',
-  },
-};
-
 // Default number of action and chat log entries to display
 Game.logEntryLimit = 10;
 
@@ -121,8 +113,11 @@ Game.showStatePage = function() {
   // page, display it now
   Env.showStatusMessage();
 
-  // Set colors for use in game - for now, all games use the same colors
-  Game.color = Game.COLORS.players;
+  // Set colors for use in game
+  Game.color = {
+    'player': Api.game.player.playerColor,
+    'opponent': Api.game.opponent.playerColor,
+  };
 
   // Figure out what to do next based on the game state
   if (Api.game.load_status == 'ok') {
@@ -1575,6 +1570,20 @@ Game.pageAddGameHeader = function(action_desc) {
   descdiv.append(descspan);
   Game.page.append(descdiv);
   Game.page.append($('<br>'));
+
+  if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
+      Api.game.isParticipant && Api.game.player.waitingOnAction &&
+      Api.game.player.canStillWin === false) {
+    var cantWinDiv = $('<div>', {
+      'class': 'cantWin',
+      'text':
+        'It is impossible for you to win this round. It might be a good ' +
+        'time to surrender.',
+    });
+    Game.page.append(cantWinDiv);
+    Game.page.append($('<br>'));
+  }
+
   return true;
 };
 
@@ -1612,11 +1621,18 @@ Game.pageAddGameNavigationFooter = function() {
   if (!Api.game.isParticipant || Api.game.player.waitingOnAction) {
     return false;
   }
+
+  var countText;
+  if (Api.game.pendingGameCount) {
+    countText = '(at least ' + Api.game.pendingGameCount + ')';
+  } else {
+    countText = '(if any)';
+  }
   Game.page.append($('<br>'));
   var linkDiv = $('<div>');
   linkDiv.append($('<a>', {
     'href': 'javascript: Api.getNextGameId(Login.goToNextPendingGame);',
-    'text': 'Go to your next pending game (if any)',
+    'text': 'Go to your next pending game ' + countText,
   }));
   Game.page.append(linkDiv);
   return true;

@@ -44,7 +44,8 @@
       "sideScore": null,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
-      "canStillWin": null
+      "canStillWin": null,
+      "playerColor": "#dd99dd"
     },
     {
       "playerId": 3,
@@ -72,8 +73,10 @@
       "sideScore": null,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
-      "canStillWin": null
+      "canStillWin": null,
+      "playerColor": "#ddffdd"
     }
   ],
-  "timestamp": 1403223080
+  "timestamp": 1403223080,
+  "pendingGameCount": 0
 }

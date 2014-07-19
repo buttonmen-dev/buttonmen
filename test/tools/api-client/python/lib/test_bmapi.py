@@ -81,8 +81,8 @@ class TestBMClient(unittest.TestCase):
       'gameIdArray', 'gameStateArray', 'inactivityArray',
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
-      'opponentButtonNameArray', 'opponentIdArray', 'opponentNameArray',
-      'statusArray'
+      'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
+      'opponentNameArray', 'playerColorArray', 'statusArray'
     ]
     self.assertEqual(sorted(r.data.keys()), known_keys)
     for key in sorted(r.data.keys()):
@@ -98,8 +98,8 @@ class TestBMClient(unittest.TestCase):
       'gameIdArray', 'gameStateArray', 'inactivityArray',
       'isAwaitingActionArray', 'myButtonNameArray', 'nDrawsArray',
       'nLossesArray', 'nTargetWinsArray', 'nWinsArray',
-      'opponentButtonNameArray', 'opponentIdArray', 'opponentNameArray',
-      'statusArray'
+      'opponentButtonNameArray', 'opponentColorArray', 'opponentIdArray',
+      'opponentNameArray', 'playerColorArray', 'statusArray'
     ]
     self.assertEqual(sorted(r.data.keys()), known_keys)
     for key in sorted(r.data.keys()):
@@ -126,8 +126,9 @@ class TestBMClient(unittest.TestCase):
     known_keys = [
       'activePlayerIdx', 'currentPlayerIdx', 'gameActionLog',
       'gameChatEditable', 'gameChatLog', 'gameId', 'gameSkillsInfo',
-      'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
-      'roundNumber', 'timestamp', 'validAttackTypeArray'
+      'gameState', 'maxWins', 'pendingGameCount', 'playerDataArray',
+      'playerWithInitiativeIdx', 'roundNumber', 'timestamp',
+      'validAttackTypeArray'
     ]
     r = self.obj.load_game_data(1)
     self.assertEqual(r.status, 'ok')
@@ -138,8 +139,9 @@ class TestBMClient(unittest.TestCase):
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
       'gameScoreArray', 'lastActionTime', 'optRequestArray',
-      'playerId', 'playerName', 'prevOptValueArray', 'prevSwingValueArray',
-      'roundScore', 'sideScore', 'swingRequestArray', 'waitingOnAction'
+      'playerColor', 'playerId', 'playerName', 'prevOptValueArray',
+      'prevSwingValueArray', 'roundScore', 'sideScore', 'swingRequestArray',
+      'waitingOnAction'
     ]
     player_data = r.data['playerDataArray'][0]
     self.assertEqual(sorted(player_data.keys()), player_data_keys)
