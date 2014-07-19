@@ -141,8 +141,9 @@ test("test_Game.showStatePage", function() {
   $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_chooseaux_active", function() {
+test("test_Game.showStatePage_chooseaux_active", function() {
   BMTestUtils.GameType = 'chooseaux_active';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -150,12 +151,13 @@ asyncTest("test_Game.showStatePage_chooseaux_active", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_reserve_active", function() {
+test("test_Game.showStatePage_reserve_active", function() {
   BMTestUtils.GameType = 'reserve_active';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -163,12 +165,13 @@ asyncTest("test_Game.showStatePage_reserve_active", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_reserve_inactive", function() {
+test("test_Game.showStatePage_reserve_inactive", function() {
   BMTestUtils.GameType = 'reserve_inactive';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -176,12 +179,13 @@ asyncTest("test_Game.showStatePage_reserve_inactive", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_reserve_nonplayer", function() {
+test("test_Game.showStatePage_reserve_nonplayer", function() {
   BMTestUtils.GameType = 'reserve_nonplayer';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -189,19 +193,20 @@ asyncTest("test_Game.showStatePage_reserve_nonplayer", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_swingset", function() {
+test("test_Game.showStatePage_swingset", function() {
   BMTestUtils.GameType = 'swingset';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
 test("test_Game.showStatePage_newgame_nonplayer", function() {
