@@ -164,11 +164,7 @@ abstract class BMAttack {
             return FALSE;
         }
 
-        if ('Default' == $game->attack['attackType']) {
-            $attack = $game->attack;
-            $attack['attackType'] = $this->resolvedType;
-            $game->attack = $attack;
-        }
+        $this->resolve_default_attack($game);
 
         if ('Surrender' == $game->attack['attackType']) {
             $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
@@ -232,6 +228,13 @@ abstract class BMAttack {
         return TRUE;
     }
 
+    protected function resolve_default_attack(&$game) {
+        if ('Default' == $game->attack['attackType']) {
+            $attack = $game->attack;
+            $attack['attackType'] = $this->resolvedType;
+            $game->attack = $attack;
+        }
+    }
 
     protected function process_captured_dice($game, array $defenders) {
         // james: currently only defenders, but could conceivably also include attackers
