@@ -36,6 +36,9 @@ Newgame.showNewgamePage = function() {
   if (!Newgame.activity.opponentButton) {
     Newgame.activity.opponentButton = Env.getParameterByName('opponentButton');
   }
+  if (!Newgame.activity.previousGameId) {
+    Newgame.activity.previousGameId = Env.getParameterByName('previousGameId');
+  }
 
   // Make sure the div element that we will need exists in the page body
   if ($('#newgame_page').length === 0) {
@@ -168,6 +171,35 @@ Newgame.actionCreateGame = function() {
       {'1': '1 round', '2': '2 rounds', '3': '3 rounds',
        '4': '4 rounds', '5': '5 rounds', },
       null, Newgame.activity.nRounds));
+
+  // Previous game
+  if (!('previousGameId' in Newgame.activity)) {
+    Newgame.activity.previousGameId = null;
+  } else if (Newgame.activity.previousGameId) {
+    var prevGameRow = $('<tr>');
+    miscOptionsTable.append(prevGameRow);
+    prevGameRow.append($('<th>', {'text': 'Copy chat from:' }));
+    var prevGameLink = $('<a>', {
+      'text': 'Game ' + Newgame.activity.previousGameId,
+      'href': 'game.html?game=' + Newgame.activity.previousGameId,
+    });
+    prevGameRow.append($('<td>').append(prevGameLink));
+  }
+
+  // Game description text
+  if (!('description' in Newgame.activity)) {
+    Newgame.activity.description = '';
+  }
+  var descRow = $('<tr>');
+  miscOptionsTable.append(descRow);
+  descRow.append($('<th>', {'text': 'Description (optional):' }));
+  var descInput = $('<textarea>', {
+    'id': 'description',
+    'name': 'description',
+    'rows': '3',
+    'class': 'gameDescInput',
+  });
+  descRow.append($('<td>').append(descInput));
 
   // add generic options table to the form
   createform.append(miscOptionsTable);
@@ -323,6 +355,8 @@ Newgame.formCreateGame = function() {
 
     Newgame.activity.nRounds = $('#n_rounds').val();
 
+    Newgame.activity.description = $('#description').val();
+
     // N.B. Newgame.activity is always retained between loads: on
     // failure so the player can correct selections, on success in
     // case the player wants to create another similar game.
@@ -333,6 +367,8 @@ Newgame.formCreateGame = function() {
         type: 'createGame',
         playerInfoArray: playerInfoArray,
         maxWins: Newgame.activity.nRounds,
+        description: Newgame.activity.description,
+        previousGameId: Newgame.activity.previousGameId,
       },
       { 'ok':
         {

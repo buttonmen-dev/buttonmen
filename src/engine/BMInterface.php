@@ -449,9 +449,10 @@ class BMInterface {
         if ($previousGameId != NULL) {
             try {
                 $query =
-                    'SELECT pm.player_id ' .
+                    'SELECT pm.player_id, s.name AS status ' .
                     'FROM game g ' .
                         'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
+                        'INNER JOIN game_status s ON s.id = g.status_id ' .
                     'WHERE g.id = :previous_game_id;';
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':previous_game_id' => $previousGameId));

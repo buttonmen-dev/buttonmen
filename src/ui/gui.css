@@ -408,13 +408,31 @@ table.activePlayerList td.idleness,
 table.activePlayerList th.idleness {
     text-align: left;
     padding-left: 10px;
-    width: 50%;
 }
 
 .pseudoLink {
     color: blue;
     text-decoration: underline;
     cursor: pointer;
+}
+
+#newgame_create_table th,
+#newgame_create_table td {
+    vertical-align: top;
+    padding: 0.2em 0.6em;
+    width: 50%;
+}
+
+#newgame_create_table th {
+    text-align: right;
+}
+
+#newgame_create_table td {
+    text-align: left;
+}
+
+.gameDescInput {
+    width: 250px;
 }
 
 /* Game lists (Overview, Game History) */
@@ -542,7 +560,7 @@ div.forum td.heading {
 /*
   This is, sadly, necessary to compensate for the dummy row in this table,
   which is, sadly, necessary to make it respect the cell widths when using
-  table-layout: fixed, which is, necessary to make word-wrap: break-word work.
+  table-layout: fixed, which is necessary to make word-wrap: break-word work.
 */
 div.forum .posts {
     margin-top: -1.4em;
