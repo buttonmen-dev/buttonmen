@@ -1025,11 +1025,13 @@ class BMGame {
     // die indices of the attacker die array that are being specified
     protected function react_to_firing_turndown(array $args) {
         if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            $this->message = 'Wrong game state to react to firing.';
             return FALSE;
         }
 
         $instance = $this->create_attack_instance();
         if (FALSE === $instance) {
+            $this->message = 'Invalid attack.';
             return FALSE;
         }
 
@@ -1039,14 +1041,17 @@ class BMGame {
         foreach ($args['fireValueArray'] as $fireIdx => $newValue) {
             $die = $this->activeDieArrayArray[$attackerIdx][$fireIdx];
             if (!$die->has_skill('Fire')) {
+                $this->message = 'Cannot turn down non-fire die.';
                 return FALSE;
             }
 
             if ($newValue > $die->value) {
+                $this->message = 'Cannot turn die value up.';
                 return FALSE;
             }
 
-            if ($newValue < 1) {
+            if ($newValue < $die->min) {
+                $this->message = 'Cannot turn die value down past minimum.';
                 return FALSE;
             }
 
@@ -1059,6 +1064,7 @@ class BMGame {
             $instance['defAttackDieArray'],
             $firingAmount
         )) {
+            $this->message = $instance['attack']->validationMessage;
             return FALSE;
         }
 
