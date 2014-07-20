@@ -435,6 +435,15 @@ table.activePlayerList th.idleness {
     width: 250px;
 }
 
+.gameDescDisplay {
+    font-style: italic;
+    size: 0.8em;
+}
+
+.prevGameMessage {
+    font-style: italic;
+}
+
 /* Game lists (Overview, Game History) */
 table.gameList a {
     color: black;

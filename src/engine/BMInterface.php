@@ -1997,7 +1997,8 @@ class BMInterface {
                     'v_challenger.player_name AS challenger_name, ' .
                     'v_challenger.button_name AS challenger_button, ' .
                     'v_victim.button_name AS victim_button, ' .
-                    'g.n_target_wins AS target_wins ' .
+                    'g.n_target_wins AS target_wins, ' .
+                    'g.description AS description ' .
                 'FROM game AS g ' .
                     'INNER JOIN game_status AS s ON s.id = g.status_id ' .
                     // For the time being, I'm assuming there are only two
@@ -2031,6 +2032,7 @@ class BMInterface {
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $row['victim_button'],
                     'targetWins' => (int)$row['target_wins'],
+                    'description' => $row['description'],
                 );
             }
 

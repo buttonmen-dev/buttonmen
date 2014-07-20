@@ -1562,22 +1562,29 @@ Game.pageAddGameHeader = function(action_desc) {
     bgcolor = Game.color.opponent;
   }
 
-  var descspan = $('<span>', {
+  if (Api.game.description) {
+    Game.page.append($('<div>', {
+      'text': Api.game.description,
+      'class': 'gameDescDisplay',
+    }));
+  }
+
+  var actionSpan = $('<span>', {
     'id': 'action_desc_span',
     'class': 'action_desc_span',
     'style': 'background: none repeat scroll 0 0 ' + bgcolor,
     'text': action_desc,
   });
-  var descdiv = $('<div>', { 'class': 'action_desc_div', });
-  descdiv.append(descspan);
-  Game.page.append(descdiv);
+  var actionDiv = $('<div>', { 'class': 'action_desc_div', });
+  actionDiv.append(actionSpan);
+  Game.page.append(actionDiv);
 
   // If there's new chat the player hasn't seen yet, notify them
   if (Api.game.isParticipant && Api.game.player.lastActionTime &&
       Api.game.chatLog.length &&
       Api.game.chatLog[0].timestamp > Api.game.player.lastActionTime) {
-    descdiv.append(Game.SPACE_BULLET);
-    descdiv.append($('<span>', {
+    actionDiv.append(Game.SPACE_BULLET);
+    actionDiv.append($('<span>', {
       'class': 'action_desc_span new',
       'text': 'New chat message',
     }));
@@ -1826,6 +1833,23 @@ Game.pageAddLogFooter = function() {
 
       historyrow.append(historytd);
       logtable.append(historyrow);
+    }
+
+    if (Api.game.previousGameId) {
+      var prevGameRow = $('<tr>');
+      var prevGameTd = $('<td>', { 'class': 'prevGameMessage', });
+      if ((Api.game.actionLog.length > 0) && (Api.game.chatLog.length > 0)) {
+        prevGameTd.attr('colspan', 2);
+      }
+
+      prevGameTd.append('Continued from ');
+      prevGameTd.append($('<a>', {
+        'href': 'game.html?game=' + Api.game.previousGameId,
+        'text': 'Game ' + Api.game.previousGameId,
+      }));
+
+      prevGameRow.append(prevGameTd);
+      logtable.append(prevGameRow);
     }
 
     logdiv.append(logtable);

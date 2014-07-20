@@ -121,7 +121,7 @@ test("test_Game.redrawGamePageFailure", function() {
 test("test_Game.getCurrentGame", function() {
   BMTestUtils.GameType = 'newgame';
   $.ajaxSetup({ async: false });
-   Game.getCurrentGame(function() {
+  Game.getCurrentGame(function() {
     equal(Game.game, '1', "Set expected game number");
     equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
     equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');

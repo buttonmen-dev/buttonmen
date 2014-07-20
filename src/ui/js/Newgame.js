@@ -3,6 +3,9 @@ var Newgame = {
   'activity': {},
 };
 
+// Maximum number of characters permitted in the game description
+Newgame.GAME_DESCRIPTION_MAX_LENGTH = 255;
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Newgame.showNewgamePage() is the landing function.  Always call
@@ -198,6 +201,8 @@ Newgame.actionCreateGame = function() {
     'name': 'description',
     'rows': '3',
     'class': 'gameDescInput',
+    'maxlength': Newgame.GAME_DESCRIPTION_MAX_LENGTH,
+    'text': Newgame.activity.description,
   });
   descRow.append($('<td>').append(descInput));
 
@@ -315,6 +320,8 @@ Newgame.formCreateGame = function() {
   Newgame.activity.opponentName = $('#opponent_name').val();
   Newgame.activity.playerButton = $('#player_button').val();
   Newgame.activity.opponentButton = $('#opponent_button').val();
+  Newgame.activity.nRounds = $('#n_rounds').val();
+  Newgame.activity.description = $('#description').val();
 
   var validSelect = true;
   var errorMessage;
@@ -353,9 +360,16 @@ Newgame.formCreateGame = function() {
       Newgame.activity.opponentButton,
     ];
 
-    Newgame.activity.nRounds = $('#n_rounds').val();
-
-    Newgame.activity.description = $('#description').val();
+    var args =
+      {
+        type: 'createGame',
+        playerInfoArray: playerInfoArray,
+        maxWins: Newgame.activity.nRounds,
+        description: Newgame.activity.description,
+      };
+    if (Newgame.activity.previousGameId) {
+      args.previousGameId = Newgame.activity.previousGameId;
+    }
 
     // N.B. Newgame.activity is always retained between loads: on
     // failure so the player can correct selections, on success in
@@ -363,13 +377,7 @@ Newgame.formCreateGame = function() {
     // Therefore, it's fine to pass the form post the same function
     // (showNewgamePage) for both success and failure conditions.
     Api.apiFormPost(
-      {
-        type: 'createGame',
-        playerInfoArray: playerInfoArray,
-        maxWins: Newgame.activity.nRounds,
-        description: Newgame.activity.description,
-        previousGameId: Newgame.activity.previousGameId,
-      },
+      args,
       { 'ok':
         {
           'type': 'function',
