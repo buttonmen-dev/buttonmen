@@ -88,7 +88,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      * Make sure users responder001-004 exist, and get
      * fake session data for responder003.
      */
-    protected function mock_test_user_login() {
+    protected function mock_test_user_login($username = 'responder003') {
 
         // make sure responder001 and responder002 exist
         $args = array('type' => 'createUser',
@@ -129,7 +129,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now set dummy "logged in" variable and return $_SESSION variable style data for responder003
         global $dummyUserLoggedIn;
         $dummyUserLoggedIn = TRUE;
-        return array('user_name' => 'responder003', 'user_id' => $this->user_ids['responder003']);
+        return array('user_name' => $username, 'user_id' => $this->user_ids[$username]);
     }
 
     protected function verify_login_required($type) {
@@ -255,8 +255,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_mandatory_args_required(
             'createGame',
             array(
-                'playerNameArray' => array('responder003', 'responder004'),
-                'buttonNameArray' => array('Avis', 'Avis'),
+                'playerInfoArray' => array(array('responder003', 'Avis'),
+                                           array('responder004', 'Avis')),
                 'maxWins' => '3',
             )
         );
@@ -264,25 +264,44 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Make sure a button name with a backtick is rejected
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Av`is'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Av`is')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
         $this->assertEquals(
             array(
                 'data' => NULL,
-                'message' => 'Argument (buttonNameArray) to function createGame is invalid',
+                'message' => 'Game create failed because a button name was not valid.',
                 'status' => 'failed',
             ),
             $retval,
-            "Button name containing a backtick should be rejected"
+            "Button name containing a backtick should be invalid"
         );
+
+        // Make sure that the first player in a game is the current logged in player
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder001', 'Avis'),
+                                       array('responder004', 'Avis')),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args);
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Game create failed because you must be the first player.',
+                'status' => 'failed',
+            ),
+            $retval,
+            "You cannot create games between other players."
+        );
+
 
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -294,6 +313,127 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata),
             "Real and dummy game creation return values should have matching structures");
+    }
+
+    public function test_request_searchGameHistory() {
+        $this->verify_login_required('searchGameHistory');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('searchGameHistory');
+
+        // make sure there's at least one game
+        $args = array(
+            'type' => 'createGame',
+            'playerNameArray' => array('responder003', 'responder004'),
+            'buttonNameArray' => array('Hammer', 'Stark'),
+            'maxWins' => '3',
+        );
+        $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'searchGameHistory',
+            'sortColumn' => 'lastMove',
+            'sortDirection' => 'DESC',
+            'numberOfResults' => '20',
+            'page' => '1',
+            'buttonNameA' => 'Avis');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], 'Loading games should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy game lists should have matching structures");
+    }
+
+    public function test_request_joinOpenGame() {
+        $this->verify_login_required('joinOpenGame');
+
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_invalid_arg_rejected('joinOpenGame');
+        $this->verify_mandatory_args_required(
+            'joinOpenGame',
+            array('gameId' => 21)
+        );
+
+        // Make sure a button name with a backtick is rejected
+        $args = array(
+            'type' => 'joinOpenGame',
+            'gameId' => 21,
+            'buttonName' => 'Av`is',
+        );
+        $retval = $this->object->process_request($args);
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Argument (buttonName) to function joinOpenGame is invalid',
+                'status' => 'failed',
+            ),
+            $retval,
+            "Button name containing a backtick should be rejected"
+        );
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $createGameArgs = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(
+                array('responder004', 'Avis'),
+                array('', 'Avis')
+            ),
+            'maxWins' => '3',
+        );
+        $createGameResult = $this->object->process_request($createGameArgs);
+        $gameId = $createGameResult['data']['gameId'];
+
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $args = array(
+            'type' => 'joinOpenGame',
+            'gameId' => $gameId,
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], $retval['message']);
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+
+        $this->assertEquals($retdata, $dummydata,
+            "Real and dummy game joining return values should both be true");
+    }
+
+    public function test_request_loadOpenGames() {
+        $this->verify_login_required('loadOpenGames');
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_invalid_arg_rejected('loadOpenGames');
+
+        $createGameArgs = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(
+                array('responder004', 'Avis'),
+                array('', 'Avis')
+            ),
+            'maxWins' => '3',
+        );
+        $createGameResult = $this->object->process_request($createGameArgs);
+        $gameId = $createGameResult['data']['gameId'];
+
+        $args = array(
+            'type' => 'loadOpenGames',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], $retval['message']);
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy game lists should have matching structures");
     }
 
     public function test_request_loadActiveGames() {
@@ -388,6 +528,31 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy pending game data should have matching structures");
     }
 
+    public function test_request_loadActivePlayers() {
+        $this->verify_login_required('loadActivePlayers');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadActivePlayers');
+
+        $this->verify_mandatory_args_required(
+            'loadActivePlayers',
+            array('numberOfPlayers' => 20)
+        );
+
+        $args = array('type' => 'loadActivePlayers', 'numberOfPlayers' => 20);
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy player names should have matching structures");
+    }
+
     public function test_request_loadButtonNames() {
         $this->verify_login_required('loadButtonNames');
 
@@ -460,8 +625,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -480,15 +645,74 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummydata = $dummyval['data'];
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy button lists should have matching structures");
+            "Real and dummy game data should have matching structures");
+        $this->assertTrue(
+            $this->object_structures_match($dummydata['playerDataArray'][0], $retdata['playerDataArray'][0], True),
+            "Real and dummy game playerData objects should have matching structures");
 
-	// Now hand-modify a few things we know will be different
-	// and check that the data structures are entirely identical otherwise
-        $dummydata['gameData']['data']['gameId'] = $retdata['gameData']['data']['gameId'];
-        $dummydata['gameData']['data']['playerIdArray'] = $retdata['gameData']['data']['playerIdArray'];
-        $dummydata['playerNameArray'] = $retdata['playerNameArray'];
+        // Now hand-modify a few things we know will be different
+        // and check that the data structures are entirely identical otherwise
+        $dummydata['gameId'] = $retdata['gameId'];
+        foreach(array_keys($retdata['playerDataArray']) as $playerIdx) {
+            foreach(array('playerName', 'playerId', 'lastActionTime') as $playerKey) {
+                $dummydata['playerDataArray'][$playerIdx][$playerKey] =
+                    $retdata['playerDataArray'][$playerIdx][$playerKey];
+            }
+        }
         $dummydata['timestamp'] = $retdata['timestamp'];
+
         $this->assertEquals($dummydata, $retdata);
+
+        // Since game IDs are sequential, $real_game_id + 1 should not be an existing game
+        $nonexistent_game_id = $real_game_id + 1;
+        $retval = $this->object->process_request(
+            array('type' => 'loadGameData', 'game' => $nonexistent_game_id, 'logEntryLimit' => 10));
+        $this->assertEquals(
+            array(
+                'data' => NULL,
+                'message' => 'Game ' . $nonexistent_game_id . ' does not exist.',
+                'status' => 'failed',
+            ),
+            $retval,
+            'loadGameData should reject a nonexistent game ID with a friendly message'
+        );
+
+        // create an open game so we have the ID to load
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('', '')),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args);
+        $open_game_id = $retval['data']['gameId'];
+        $this->assertTrue(is_int($open_game_id), "open game creation was successful");
+
+        $retval = $this->object->process_request(
+            array('type' => 'loadGameData', 'game' => $open_game_id, 'logEntryLimit' => 10));
+        $this->assertEquals('ok', $retval['status'], "loadGameData on an open game should succeed");
+    }
+
+    public function test_request_countPendingGames() {
+        $this->verify_login_required('countPendingGames');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('countPendingGames');
+
+        $args = array('type' => 'countPendingGames');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'],
+            'Loading next pending game ID should succeed');
+        $this->assertEquals('ok', $dummyval['status'],
+            'Dummy load of next pending game ID should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata, $dummydata, TRUE),
+            "Real and dummy pending game data should have matching structures");
     }
 
     public function test_request_loadPlayerName() {
@@ -522,7 +746,24 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('savePlayerInfo');
 
-        $args = array('type' => 'savePlayerInfo', 'autopass' => 'True', );
+        $args = array(
+            'type' => 'savePlayerInfo',
+            'name_irl' => 'Test User',
+            'is_email_public' => 'False',
+            'dob_month' => '2',
+            'dob_day' => '29',
+            'gender' => '',
+            'comment' => '',
+            'autopass' => 'True',
+            'uses_gravatar' => 'False',
+            'player_color' => '#dd99dd',
+            'opponent_color' => '#ddffdd',
+            'neutral_color_a' => '#cccccc',
+            'neutral_color_b' => '#dddddd',
+            'monitor_redirects_to_game' => 'False',
+            'monitor_redirects_to_forum' => 'False',
+            'automatically_monitor' => 'False',
+        );
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
 
@@ -534,6 +775,30 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(
             $this->object_structures_match($dummydata, $retdata),
             "Real and dummy player data update return values should have matching structures");
+    }
+
+    public function test_request_loadProfileInfo() {
+        $this->verify_login_required('loadProfileInfo');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadProfileInfo');
+        $this->verify_mandatory_args_required(
+            'loadProfileInfo',
+            array('playerName' => 'foobar',)
+        );
+
+        $args = array('type' => 'loadProfileInfo', 'playerName' => 'responder003');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata, True),
+            "Real and dummy player data should have matching structures");
     }
 
     public function test_request_loadPlayerNames() {
@@ -556,17 +821,26 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy player names should have matching structures");
     }
 
-    public function test_request_submitSwingValues() {
-        $this->verify_login_required('submitSwingValues');
+    public function test_request_submitChat() {
+        $this->verify_login_required('submitChat');
 
         $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('submitSwingValues');
+        $this->verify_invalid_arg_rejected('submitChat');
+
+        $this->markTestIncomplete("No test for submitChat yet");
+    }
+
+    public function test_request_submitDieValues() {
+        $this->verify_login_required('submitDieValues');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('submitDieValues');
 
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Avis', 'Avis'),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -583,7 +857,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // now submit the swing values
         $args = array(
-            'type' => 'submitSwingValues',
+            'type' => 'submitDieValues',
             'roundNumber' => '1',
             'timestamp' => $timestamp,
             'swingValueArray' => array('X' => '7'));
@@ -593,6 +867,43 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $dummyval = $this->dummy->process_request($args);
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
         $this->assertEquals($dummyval, $retval, "swing value submission responses should be identical");
+
+        ///// Now test setting option values
+        // create a game so we have the ID to load
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'Apples'),
+                                       array('responder004', 'Apples')),
+            'maxWins' => '3',
+        );
+        $retval = $this->object->process_request($args);
+        $real_game_id = $retval['data']['gameId'];
+        $dummy_game_id = '19';
+
+        // now ask for the game data so we have the timestamp to return
+        $args = array(
+            'type' => 'loadGameData',
+            'game' => "$real_game_id");
+        $retval = $this->object->process_request($args);
+        $timestamp = $retval['data']['timestamp'];
+
+        // now submit the option values
+        $args = array(
+            'type' => 'submitDieValues',
+            'roundNumber' => '1',
+            'timestamp' => $timestamp,
+            'optionValueArray' => array(2 => 12, 3 => 8, 4 => 20));
+        $args['game'] = $real_game_id;
+
+        $retval = $this->object->process_request($args);
+
+        $args['game'] = $dummy_game_id;
+
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals($dummyval, $retval, "option value submission responses should be identical");
+
     }
 
     public function test_request_reactToAuxiliary() {
@@ -636,8 +947,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 	// state, and the other player has initiative
         $args = array(
             'type' => 'createGame',
-            'playerNameArray' => array('responder003', 'responder004'),
-            'buttonNameArray' => array('Crab', 'Crab'),
+            'playerInfoArray' => array(array('responder003', 'Crab'),
+                                       array('responder004', 'Crab')),
             'maxWins' => '3',
         );
 
@@ -656,8 +967,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval = $this->object->process_request($dataargs);
             $timestamp = $retval['data']['timestamp'];
 
-            if (($retval['data']['gameData']['data']['gameState'] != "REACT_TO_INITIATIVE") ||
-                ($retval['data']['gameData']['data']['playerWithInitiativeIdx'] != 1)) {
+            if (($retval['data']['gameState'] != "REACT_TO_INITIATIVE") ||
+                ($retval['data']['playerWithInitiativeIdx'] != 1)) {
                 $real_game_id = NULL;
                 $thistry++;
             }
@@ -690,6 +1001,404 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $this->markTestIncomplete("No test for submitTurn responder yet");
     }
+
+    public function test_request_dismissGame() {
+        $this->verify_login_required('dismissGame');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('dismissGame');
+
+        $dummy_game_id = '5';
+
+        // create and complete a game so we have the ID to dismiss
+        $args = array(
+            'type' => 'createGame',
+            'playerInfoArray' => array(array('responder003', 'haruspex'),
+                                       array('responder004', 'haruspex')),
+            'maxWins' => '1',
+        );
+        $loggedInPlayerIdx = 0;
+
+        $retval = $this->object->process_request($args);
+        $real_game_id = $retval['data']['gameId'];
+
+        $loadGameArgs = array(
+            'type' => 'loadGameData',
+            'game' => "$real_game_id",
+            'logEntryLimit' => '10');
+
+        $submitTurnArgs = array(
+            'type' => 'submitTurn',
+            'game' => $real_game_id,
+            'roundNumber' => 1);
+
+        // Load the game and see if we can interact with it
+        $gameData = $this->object->process_request($loadGameArgs);
+
+        // It should not take 50 turns to finish a one-round haruspex^2 match
+        $maxTries = 50;
+        $thisTry = 0;
+        while ($gameData['data']['gameState'] != "END_GAME") {
+            $thisTry++;
+            if ($thisTry > $maxTries) {
+                $this->fail("Failed to complete a haruspex^2 match");
+            }
+            if (!$gameData['data']['playerDataArray'][$loggedInPlayerIdx]['waitingOnAction']) {
+                if ($loggedInPlayerIdx == 0) {
+                    $_SESSION = $this->mock_test_user_login('responder004');
+                    $loggedInPlayerIdx = 1;
+                } else {
+                    $_SESSION = $this->mock_test_user_login('responder003');
+                    $loggedInPlayerIdx = 0;
+                }
+            } else {
+                $submitTurnArgs['timestamp'] = $gameData['data']['timestamp'];
+                $submitTurnArgs['attackerIdx'] = $loggedInPlayerIdx;
+                $submitTurnArgs['defenderIdx'] = ($loggedInPlayerIdx + 1) % 2;
+                if (in_array('Power', $gameData['data']['validAttackTypeArray'])) {
+                    $submitTurnArgs['attackType'] = 'Power';
+                    $submitTurnArgs['dieSelectStatus'] = array(
+                        'playerIdx_0_dieIdx_0' => 'true',
+                        'playerIdx_1_dieIdx_0' => 'true'
+                    );
+                } else {
+                    $submitTurnArgs['attackType'] = 'Pass';
+                    $submitTurnArgs['dieSelectStatus'] = array(
+                        'playerIdx_0_dieIdx_0' => 'false',
+                        'playerIdx_1_dieIdx_0' => 'false'
+                    );
+                }
+                $turnResults = $this->object->process_request($submitTurnArgs);
+            }
+            $gameData = $this->object->process_request($loadGameArgs);
+        }
+
+        // now try to dismiss the game
+        $args = array(
+            'type' => 'dismissGame',
+            'gameId' => $real_game_id,
+        );
+        $retval = $this->object->process_request($args);
+        $args = array(
+            'type' => 'dismissGame',
+            'gameId' => $dummy_game_id,
+        );
+        $dummyval = $this->dummy->process_request($args);
+
+        $this->assertEquals($dummyval, $retval, "game dismissal responses should be identical");
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+    }
+
+    ////////////////////////////////////////////////////////////
+    // Forum-related methods
+
+    public function test_request_createForumThread() {
+        $this->verify_login_required('createForumThread');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('createForumThread');
+        $this->verify_mandatory_args_required(
+            'createForumThread',
+            array(
+                'boardId' => 1,
+                'title' => 'Who likes ice cream?',
+                'body' => 'I can\'t be the only one!',
+            )
+        );
+
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Who likes ice cream?',
+            'body' => 'I can\'t be the only one!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum thread creation should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum thread creation return values should have matching structures");
+    }
+
+    public function test_request_createForumPost() {
+        $this->verify_login_required('createForumPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('createForumPost');
+        $this->verify_mandatory_args_required(
+            'createForumPost',
+            array(
+                'threadId' => 1,
+                'body' => 'Hey, wow, I do too!',
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'createForumPost',
+            'threadId' => $thread['data']['threadId'],
+            'body' => 'Hey, wow, I do too!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum post creation should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum post creation return values should have matching structures");
+    }
+
+    public function test_request_editForumPost() {
+        $this->verify_login_required('editForumPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('editForumPost');
+        $this->verify_mandatory_args_required(
+            'editForumPost',
+            array(
+                'postId' => 1,
+                'body' => 'Hey, wow, I do too!',
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Cat or dog?',
+            'body' => 'Dog!',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'editForumPost',
+            'postId' => (int)$thread['data']['posts'][0]['postId'],
+            'body' => 'Cat!',
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum post editing should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum post editing return values should have matching structures");
+    }
+
+    public function test_request_loadForumOverview() {
+        $this->verify_login_required('loadForumOverview');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadForumOverview');
+
+        $args = array('type' => 'loadForumOverview');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum overview loading should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum overview loading return values should have matching structures");
+    }
+
+    public function test_request_loadForumBoard() {
+        $this->verify_login_required('loadForumBoard');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadForumBoard');
+        $this->verify_mandatory_args_required(
+            'loadForumBoard',
+            array('boardId' => 1)
+        );
+
+        $args = array(
+            'type' => 'loadForumBoard',
+            'boardId' => 1,
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum board loading should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum board loading return values should have matching structures");
+    }
+
+    public function test_request_loadForumThread() {
+        $this->verify_login_required('loadForumThread');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadForumThread');
+        $this->verify_mandatory_args_required(
+            'loadForumThread',
+            array('threadId' => 2)
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'loadForumThread',
+            'threadId' => $thread['data']['threadId'],
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum thread loading should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum thread loading return values should have matching structures");
+    }
+
+    public function test_request_loadNextNewPost() {
+        $this->verify_login_required('loadNextNewPost');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadNextNewPost');
+
+        // Post something new first
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'New Thread',
+            'body' => 'New Post',
+        );
+        $this->object->process_request($args);
+
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $args = array('type' => 'loadNextNewPost');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'New forum post check should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy new forum post check return values should have matching structures");
+    }
+
+    public function test_request_markForumBoardRead() {
+        $this->verify_login_required('markForumBoardRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumBoardRead');
+        $this->verify_mandatory_args_required(
+            'markForumBoardRead',
+            array('boardId' => 1, 'timestamp' => strtotime('now'))
+        );
+
+        $args = array(
+            'type' => 'markForumBoardRead',
+            'boardId' => 1,
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Forum board marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum board marking as read return values should have matching structures");
+    }
+
+    public function test_request_markForumRead() {
+        $this->verify_login_required('markForumRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumRead');
+        $this->verify_mandatory_args_required(
+            'markForumRead',
+            array('timestamp' => strtotime('now'))
+        );
+
+        $args = array(
+            'type' => 'markForumRead',
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], 'Entire forum marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy entire forum marking as read return values should have matching structures");
+    }
+
+    public function test_request_markForumThreadRead() {
+        $this->verify_login_required('markForumThreadRead');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('markForumThreadRead');
+        $this->verify_mandatory_args_required(
+            'markForumThreadRead',
+            array(
+                'threadId' => 1,
+                'boardId' => 1,
+                'timestamp' => strtotime('now'),
+            )
+        );
+
+        // Create the thread first
+        $args = array(
+            'type' => 'createForumThread',
+            'boardId' => 1,
+            'title' => 'Hello Wisconsin',
+            'body' => 'When are you coming home?',
+        );
+        $thread = $this->object->process_request($args);
+
+        $args = array(
+            'type' => 'markForumThreadRead',
+            'threadId' => $thread['data']['threadId'],
+            'boardId' => 1,
+            'timestamp' => strtotime('now'),
+        );
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'],
+            'Forum thread marking as read should succeed');
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($dummydata, $retdata),
+            "Real and dummy forum thread marking as read return values should have matching structures");
+    }
+
+    // End of Forum-related methods
+    ////////////////////////////////////////////////////////////
 
     public function test_request_login() {
         $this->verify_invalid_arg_rejected('login');

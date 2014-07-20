@@ -1,7 +1,7 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>QUnit tests for ButtonMen JavaScript UI: for use with PhantomJS CLI</title>
+    <title>QUnit tests for Button Men JavaScript UI: for use with PhantomJS CLI</title>
     <link rel="stylesheet" href="js/extern/qunit-1.12.0.css">
   </head>
 
@@ -12,29 +12,51 @@
     <!-- variable setting: tell Env this is a phantomjs unit test -->
     <script>var Env = { 'unit_test': 'phantom' };</script>
 
-    <!-- the code: include jQuery and each ButtonMen source file -->
+    <!-- the code: include jQuery and each Button Men source file -->
     <script src="../../../src/ui/js/extern/jquery-1.9.0.min.js"></script>
-    <script src="../../../src/ui/js/Env.js"></script>
+    <script src="../../../src/ui/js/extern/jquery.cookie.js"></script>
+    <!-- needed for datepicker -->
+    <script src="../../../src/ui/js/extern/jquery-ui.min.js"></script>
+    <!-- needed for Env.formatTimestamp() and Env.parseDateTime() -->
+    <script src="../../../src/ui/js/extern/moment.js"></script>
+    <!-- for the color picker -->
+    <script src="../../../src/ui/js/extern/spectrum.js"></script>
+
+    <script src="../../../src/ui/js/ActivePlayers.js"></script>
     <script src="../../../src/ui/js/Api.js"></script>
+    <script src="../../../src/ui/js/Config.js"></script>
+    <script src="../../../src/ui/js/Env.js"></script>
+    <script src="../../../src/ui/js/Forum.js"></script>
     <script src="../../../src/ui/js/Game.js"></script>
+    <script src="../../../src/ui/js/History.js"></script>
+    <script src="../../../src/ui/js/Loader.js"></script>
     <script src="../../../src/ui/js/Login.js"></script>
     <script src="../../../src/ui/js/Newgame.js"></script>
     <script src="../../../src/ui/js/Newuser.js"></script>
+    <script src="../../../src/ui/js/OpenGames.js"></script>
     <script src="../../../src/ui/js/Overview.js"></script>
+    <script src="../../../src/ui/js/Profile.js"></script>
     <script src="../../../src/ui/js/UserPrefs.js"></script>
     <script src="../../../src/ui/js/Verify.js"></script>
 
     <!-- the tests: include QUnit, our test utilities, and each
-         ButtonMen test file -->
+         Button Men test file -->
     <script src="js/extern/qunit-1.12.0.js"></script>
     <script src="js/BMTestUtils.js"></script>
-    <script src="js/test_Env.js"></script>
+    <script src="js/test_ActivePlayers.js"></script>
     <script src="js/test_Api.js"></script>
+    <script src="js/test_Env.js"></script>
+    <script src="js/test_Config.js"></script>
+    <script src="js/test_Forum.js"></script>
     <script src="js/test_Game.js"></script>
+    <script src="js/test_History.js"></script>
+    <script src="js/test_Loader.js"></script>
     <script src="js/test_Login.js"></script>
     <script src="js/test_Newgame.js"></script>
     <script src="js/test_Newuser.js"></script>
+    <script src="js/test_OpenGames.js"></script>
     <script src="js/test_Overview.js"></script>
+    <script src="js/test_Profile.js"></script>
     <script src="js/test_UserPrefs.js"></script>
     <script src="js/test_Verify.js"></script>
   </body>

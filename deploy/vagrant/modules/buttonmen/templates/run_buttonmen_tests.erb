@@ -1,5 +1,5 @@
 #!/bin/sh
-##### Run all ButtonMen CLI audit and test scripts
+##### Run all Button Men CLI audit and test scripts
 
 failed_tests=''
 
@@ -36,6 +36,18 @@ if [ "$?" = "0" ]; then
 else
   echo "FAILED: make sure this passes before committing code"
   failed_tests="${failed_tests} buttonmen_phpunit.php"
+fi
+echo
+echo "------------------------------------------------------------------------" 
+
+# Run Python unit tests
+echo "Running python API client unit tests"
+env BMAPI_TEST_TYPE=vagrant_local python /buttonmen/test/tools/api-client/python/lib/test_bmapi.py
+if [ "$?" = "0" ]; then
+  echo "Passed"
+else
+  echo "FAILED: make sure this passes before committing code"
+  failed_tests="${failed_tests} test_api.py"
 fi
 echo
 echo "------------------------------------------------------------------------" 

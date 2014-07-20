@@ -1,0 +1,73 @@
+{
+  "gameId": 19,
+  "gameState": "SPECIFY_DICE",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": [],
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "button": {
+        "name": "Apples",
+        "recipe": "(8) (8) (2\/12) (8\/16) (20\/24)",
+        "artFilename": "apples.png"
+      },
+      "activeDieArray": [
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(2\/12)", "description": "Option die (with 2 or 12 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(8\/16)", "description": "Option die (with 8 or 16 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20\/24)", "description": "Option die (with 20 or 24 sides)" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": {"2": [2, 12], "3": [8, 16], "4": [20, 24]},
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null,
+      "playerColor": "#dd99dd"
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "button": {
+        "name": "Apples",
+        "recipe": "(8) (8) (2\/12) (8\/16) (20\/24)",
+        "artFilename": "apples.png"
+      },
+      "activeDieArray": [
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": 8, "skills": [], "properties": [], "recipe": "(8)", "description": "8-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(2\/12)", "description": "Option die (with 2 or 12 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(8\/16)", "description": "Option die (with 8 or 16 sides)" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(20\/24)", "description": "Option die (with 20 or 24 sides)" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": [],
+      "optRequestArray": {"2": [2, 12], "3": [8, 16], "4": [20, 24]},
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null,
+      "playerColor": "#ddffdd"
+    }
+  ],
+  "timestamp": 1403224435
+}

@@ -13,6 +13,9 @@
   <delete dir="${basedir}/build/js-coverage"/>
   <delete dir="${basedir}/build/logs"/>
   <delete dir="${basedir}/build/pdepend"/>
+  <delete>
+    <fileset dir="${basedir}/tools/api-client/python/lib" includes="**/*.pyc"/>
+  </delete>
 
   <mkdir dir="${basedir}/build/api"/>
   <mkdir dir="${basedir}/build/code-browser"/>
@@ -21,13 +24,19 @@
   <mkdir dir="${basedir}/build/pdepend"/>
  </target>
 
- <target name="php-audit" description="Audit layout of .php files in the tree to match ButtonMen standard">
+ <target name="newline-audit" description="Audit line termination of all files in the tree to match Button Men standard">
+  <exec executable="python" failonerror="true">
+   <arg line="./deploy/jenkins/audit_newlines.py" />
+  </exec>
+ </target>
+
+ <target name="php-audit" description="Audit layout of .php files in the tree to match Button Men standard">
   <exec executable="php" failonerror="true">
    <arg line="./deploy/pagodabox/audit_php_files.php ." />
   </exec>
  </target>
 
- <target name="js-audit" description="Audit test coverage of .js files in the tree to match ButtonMen standard">
+ <target name="js-audit" description="Audit test coverage of .js files in the tree to match Button Men standard">
   <exec executable="python" failonerror="true">
    <arg line="./deploy/jenkins/audit_js_unit_test_coverage.py" />
   </exec>
@@ -73,7 +82,7 @@
   <exec executable="phpmd">
    <arg line="${source}
               xml
-              codesize,design,naming,unusedcode
+              ./deploy/jenkins/pmd/buttonmen.xml
               --reportfile ${basedir}/build/logs/pmd.xml" />
   </exec>
  </target>
@@ -128,8 +137,8 @@
  </target>
 
  <target name="jstest-lighttpd-configure">
-  <exec executable="/bin/cp" failonerror="true">
-   <arg line="-f ./src/api/dummy_responder.php ./src/api/DummyApiResponder.php ./src/api/ApiSpec.php /usr/local/share/jenkins-lighttpd/www/"/>
+  <exec executable="/bin/bash" failonerror="true">
+   <arg line="./deploy/jenkins/install_dummy_responder_files.sh" />
   </exec>
  </target>
 
@@ -142,6 +151,12 @@
  <target name="jstest-run">
   <exec dir="." executable="/opt/phantomjs/bin/phantomjs" failonerror="true">
    <arg line="--web-security=false /usr/local/etc/run-jscover-qunit.js http://localhost:8081/test/src/ui/phantom-index.html"/>
+  </exec>
+ </target>
+
+ <target name="python-api-client-test">
+  <exec executable="/usr/bin/env" failonerror="true">
+   <arg line="BMAPI_TEST_TYPE=jenkins /usr/bin/python ./test/tools/api-client/python/lib/test_bmapi.py"/>
   </exec>
  </target>
 
@@ -166,10 +181,11 @@
   <antcall target="jstest-lighttpd-configure"/>
   <antcall target="jstest-lighttpd-start"/>
   <antcall target="jstest-run"/>
+  <antcall target="python-api-client-test"/>
   <antcall target="jstest-lighttpd-stop"/>
   <antcall target="jstest-jscover-stop"/>
   <antcall target="jstest-jenkins-report"/>
  </target>
 
- <target name="build" depends="clean,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
+ <target name="build" depends="clean,newline-audit,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit,jstest"/>
 </project>

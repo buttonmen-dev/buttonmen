@@ -271,6 +271,19 @@ class BMButtonTest extends PHPUnit_Framework_TestCase {
      */
     public function test__get() {
         $this->assertEquals(NULL, $this->object->fubar);
+
+        $name = 'Invisible Man';
+        $recipe = 'n(4) d(6) d(10) ng(10) d(20)';
+        $this->object->load($recipe, $name);
+        $this->assertEquals('invisibleman.png', $this->object->artFilename,
+            'correct filename is returned when button art exists');
+
+        // for a button which has no art, return the default filename
+        $name = 'No Such Button';
+        $recipe = 'n(4) d(6) d(10) ng(10) d(20)';
+        $this->object->load($recipe, $name);
+        $this->assertEquals('BMdefaultRound.png', $this->object->artFilename,
+            'default filename is returned when no button art exists');
     }
 
     /**

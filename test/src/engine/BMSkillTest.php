@@ -28,25 +28,25 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
 
         // check that the comparator works in the correct direction
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'BMSkillNull'));
 
         $this->assertEquals(1,
             BMSkill::skill_order_comparator('BMSkillNull',
-                                            'BMSkillDoppleganger'));
+                                            'BMSkillDoppelganger'));
 
         // check that unknown skills are applied last
         $this->assertEquals(1,
             BMSkill::skill_order_comparator('Test',
-                                            'BMSkillDoppleganger'));
+                                            'BMSkillDoppelganger'));
 
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'Test'));
 
         // check specific orderings of skills
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppleganger',
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'BMSkillValue'));
 
         // stealth must come after all others that set attack types,
@@ -70,5 +70,21 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillTrip',
                                             'BMSkillStealth'));
+    }
+
+    public function test_describe() {
+        $desc = BMSkill::describe('Stinger');
+        $this->assertEquals($desc['code'], 'g',
+            'describe() sets the correct one-letter code for a skill type');
+        $this->assertTrue(array_key_exists('Shadow', $desc['interacts']),
+            'When no interaction list is specified, the description of a known interaction is returned');
+
+        $desc = BMSkill::describe('Stinger', array('Berserk', 'Shadow', 'Stinger', 'Value'));
+        $this->assertTrue(array_key_exists('Shadow', $desc['interacts']),
+            'When an interaction list containing a known interaction is specified, the description of that interaction is returned');
+
+        $desc = BMSkill::describe('Stinger', array('Berserk', 'Stinger', 'Value'));
+        $this->assertFalse(array_key_exists('Shadow', $desc['interacts']),
+            'When an interaction list without a given known interaction is specified, the description of that interaction is not returned');
     }
 }

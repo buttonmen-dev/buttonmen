@@ -4,39 +4,57 @@
  * BMDie: the fundamental unit of game mechanics
  *
  * @author: Julian Lighton
+ *
+ * @property-read int    $min                   Minimum die value
+ * @property-read int    $max                   Maximum die value
+ * @property      int    $value                 Current die value
+ * @property-read string $recipe                Die recipe
+ * @property      BMGame/BMButton $ownerObject  Game or button that owns the die
+ * @property      int    $playerIdx             Index of player that currently owns the die
+ * @property      int    $originalPlayerIdx     Index of player that originally owned the die
+ * @property      bool   $doesReroll            Can the die reroll?
+ * @property      bool   $captured              Has the die has been captured?
+ * @property      bool   $hasAttacked           Has the die attacked this turn?
+ * @property      bool   $selected              Does the player want to add this auxiliary die?
+ * @property      string $inactive              Why may this die not attack?
+ * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
+ * @property-read array  $flagList              Array designed to contain various BMFlags
  */
 
 class BMDie extends BMCanHaveSkill {
     // properties
 
 // Basic facts about the die
-    public $min;
-    public $max;
-    public $value;
+    protected $min;
+    protected $max;
+    protected $value;
     protected $recipe;
 
 // references back to the owner
-    public $ownerObject;
-    public $playerIdx;
-    public $originalPlayerIdx;
+    protected $ownerObject;
+    protected $playerIdx;
+    protected $originalPlayerIdx;
 
     protected $doesReroll = TRUE;
-    public $captured = FALSE;
+    protected $captured = FALSE;
 
-    public $hasAttacked = FALSE;
+    protected $hasAttacked = FALSE;
 
     // $selected is set when a player wants to add an auxiliary die
-    public $selected = FALSE;
+    protected $selected = FALSE;
 
-// This is set when the button may not attack (sleep or focus, for instance)
+// This is set when the die may not attack (sleep or focus, for instance)
 // It is set to a string, so the cause may be described. It is cleared at
 // the end of each of your turns.
-    public $inactive = "";
+    protected $inactive = "";
 
-// Set when the button isn't in the game for whatever reason, but
-//  could suddenly join (Warrior Dice). Prevents from being attacked,
-//  but not attacking
-    public $unavailable = FALSE;
+// Set when the die isn't in the game for whatever reason, but
+// could suddenly join (Warrior Dice). Prevents from being attacked,
+// but not attacking
+    protected $unavailable = FALSE;
+
+    // $flagList is designed to contain various BMFlags
+    protected $flagList = array();
 
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
@@ -81,14 +99,14 @@ class BMDie extends BMCanHaveSkill {
 
         try {
             // Option dice divide on a /, can contain any die type
-            if (count($opt_array = explode('/', $recipe)) > 1) {
-//                $die = BMDieOption::create($opt_array, $skills);
-                    throw new Exception("Option skill not implemented");
-            } elseif (count($twin_array = explode(',', $recipe)) > 1) {
+            if (count($optionArray = explode('/', $recipe)) > 1) {
+                $die = BMDieOption::create($optionArray, $skills);
+            } elseif (count($twinArray = explode(',', $recipe)) > 1) {
                 // Twin dice divide on a comma, can contain any type but option
-                $die = BMDieTwin::create($twin_array, $skills);
+                $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
-                $die = BMDieWildcard::create($recipe, $skills);
+//                $die = BMDieWildcard::create($recipe, $skills);
+                throw new Exception("Wildcard skill not implemented");
             } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
                 // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);
@@ -148,17 +166,20 @@ class BMDie extends BMCanHaveSkill {
 // Roll the die into a game. Clone self, roll, return the clone.
     public function make_play_die() {
         $newDie = clone $this;
-        $newDie->roll(FALSE);
+        $newDie->roll();
         return $newDie;
     }
 
 
-    public function roll($successfulAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
+        $this->run_hooks('pre_roll', array('die' => $this,
+                                           'isTriggeredByAttack' => $isTriggeredByAttack));
+
         if ($this->doesReroll || !isset($this->value)) {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        $this->run_hooks(__FUNCTION__, array('isSuccessfulAttack' => $successfulAttack));
+        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     public function attack_list() {
@@ -381,8 +402,8 @@ class BMDie extends BMCanHaveSkill {
         if (isset($result)) {
             if (array_key_exists('BMSkillMorphing', $result)) {
                 return $result['BMSkillMorphing'];
-            } elseif (array_key_exists('BMSkillDoppleganger', $result)) {
-                return $result['BMSkillDoppleganger'];
+            } elseif (array_key_exists('BMSkillDoppelganger', $result)) {
+                return $result['BMSkillDoppelganger'];
             }
         }
     }
@@ -464,40 +485,76 @@ class BMDie extends BMCanHaveSkill {
                                              $args['activePlayerIdx']));
     }
 
-    public function get_recipe() {
+    public function get_recipe($addMaxvals = FALSE) {
         $recipe = '';
         foreach ($this->skillList as $skill) {
-            $recipe .= BMSkill::abbreviate_skill_name($skill);
+            if ($skill::do_print_skill_preceding()) {
+                $recipe .= BMSkill::abbreviate_skill_name($skill);
+            }
         }
         $recipe .= '(';
 
         // Option dice divide on a /, can contain any die type
         if ($this instanceof BMDieOption) {
-
+            $recipe .= $this->get_sidecount_maxval_str(
+                "{$this->optionValueArray[0]}/{$this->optionValueArray[1]}",
+                $this,
+                $addMaxvals
+            );
         } elseif ($this instanceof BMDieTwin) {
             // Twin dice divide on a comma, can contain any type but option
             if ($this->dice[0] instanceof BMDieSwing) {
-                $recipe .= $this->dice[0]->swingType;
+                $recipe .= $this->get_sidecount_maxval_str(
+                    $this->dice[0]->swingType,
+                    $this->dice[0],
+                    $addMaxvals
+                );
             } else {
                 $recipe .= $this->dice[0]->max;
             }
             $recipe .= ',';
             if ($this->dice[1] instanceof BMDieSwing) {
-                $recipe .= $this->dice[1]->swingType;
+                $recipe .= $this->get_sidecount_maxval_str(
+                    $this->dice[1]->swingType,
+                    $this->dice[1],
+                    $addMaxvals
+                );
             } else {
                 $recipe .= $this->dice[1]->max;
             }
         } elseif ($this instanceof BMDieWildcard) {
             $recipe .= 'C';
         } elseif ($this instanceof BMDieSwing) {
-            $recipe .= $this->swingType;
+            $recipe .= $this->get_sidecount_maxval_str(
+                $this->swingType,
+                $this,
+                $addMaxvals
+            );
         } else {
             $recipe .= $this->max;
         }
 
         $recipe .= ')';
 
+        foreach ($this->skillList as $skill) {
+            if (!$skill::do_print_skill_preceding()) {
+                $recipe .= BMSkill::abbreviate_skill_name($skill);
+            }
+        }
+
         return $recipe;
+    }
+
+    /** helper function to print a die sidecount with or without its swing/option value
+     *
+     * @return string Representation of the side count of the die
+     */
+    protected function get_sidecount_maxval_str($sidecountStr, $dieObj, $addMaxval) {
+        if ($addMaxval && $dieObj->max) {
+            return ($sidecountStr . '=' . $dieObj->max);
+        } else {
+            return ($sidecountStr);
+        }
     }
 
     // Return all information about a die which is useful when
@@ -505,7 +562,11 @@ class BMDie extends BMCanHaveSkill {
     // This function exists so that BMGame can easily compare the
     // die state before the attack to the die state after the attack.
     public function get_action_log_data() {
-        $recipe = $this->get_recipe();
+        $recipe = $this->get_recipe(TRUE);
+        $valueAfterTripAttack = NULL;
+        if ($this->has_flag('JustPerformedTripAttack')) {
+            $valueAfterTripAttack = $this->flagList['JustPerformedTripAttack']->value();
+        }
         return(array(
             'recipe' => $recipe,
             'min' => $this->min,
@@ -514,7 +575,14 @@ class BMDie extends BMCanHaveSkill {
             'doesReroll' => $this->doesReroll,
             'captured' => $this->captured,
             'recipeStatus' => $recipe . ':' . $this->value,
+            'forceReportDieSize' => $this->forceReportDieSize(),
+            'valueAfterTripAttack' => $valueAfterTripAttack,
+            'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
         ));
+    }
+
+    public function forceReportDieSize() {
+        return($this->has_skill('Mood') || $this->has_skill('Mad'));
     }
 
     public function cast_as_BMDie() {
@@ -539,8 +607,57 @@ class BMDie extends BMCanHaveSkill {
         return $doesSkipSwingRequest;
     }
 
-    // utility methods
+    public function has_flag($flag) {
+        return array_key_exists($flag, $this->flagList);
+    }
 
+    public function add_flag($flag, $flagValue = NULL) {
+        $flagString = $flag;
+
+        if (isset($flagValue)) {
+            $flagString .= '__' . $flagValue;
+        }
+
+        $flagObject = BMFlag::create_from_string($flagString);
+        if (isset($flagObject)) {
+            $this->flagList[$flag] = $flagObject;
+        }
+    }
+
+    public function remove_flag($flag) {
+        if ($this->has_flag($flag)) {
+            unset($this->flagList[$flag]);
+        }
+    }
+
+    public function remove_all_flags() {
+        $this->flagList = array();
+    }
+
+    public function flags_as_string() {
+        if (empty($this->flagList)) {
+            return '';
+        }
+
+        return implode(';', $this->flagList);
+    }
+
+    public function load_flags_from_string($string) {
+        if (empty($string)) {
+            return;
+        }
+
+        $flagArray = explode(';', $string);
+        foreach ($flagArray as $flag) {
+            $this->add_flag($flag);
+        }
+    }
+
+    public static function standard_die_sizes() {
+        return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
+    }
+
+    // utility methods
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -553,10 +670,190 @@ class BMDie extends BMCanHaveSkill {
     }
 
     public function __set($property, $value) {
-//        switch ($property) {
-//            default:
-                $this->$property = $value;
-//        }
+        $funcName = 'set__'.$property;
+        if (method_exists($this, $funcName)) {
+            $this->$funcName($value);
+        } else {
+            $this->$property = $value;
+        }
+    }
+
+    protected function set__min() {
+        throw new LogicException(
+            'min is set at creation time.'
+        );
+    }
+
+    protected function set__max($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>$this->min))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid max die value.'
+            );
+        }
+        $this->max = $value;
+    }
+
+    protected function set__value($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>$this->min,
+                                          "max_range"=>$this->max))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid die value.'
+            );
+        }
+        $this->value = $value;
+    }
+
+    protected function set__recipe() {
+        throw new LogicException(
+            'Die recipe is derived automatically.'
+        );
+    }
+
+    protected function set__ownerObject($value) {
+        if (!(is_null($value) ||
+              ($value instanceof BMButton) ||
+              ($value instanceof BMGame) ||
+              ($value instanceof TestDummyGame))) {
+            throw new LogicException(
+                'ownerObject must be NULL, a BMButton, a BMGame, or a TestDummyGame.'
+            );
+        }
+        $this->ownerObject = $value;
+    }
+
+    protected function set__playerIdx($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>0,
+                                          "max_range"=>1))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid player index.'
+            );
+        }
+        $this->playerIdx = $value;
+    }
+
+    protected function set__originalPlayerIdx($value) {
+        if (!is_null($value) &&
+            (FALSE ===
+             filter_var(
+                 $value,
+                 FILTER_VALIDATE_INT,
+                 array("options" => array("min_range"=>0,
+                                          "max_range"=>1))
+             )
+            )
+           ) {
+            throw new InvalidArgumentException(
+                'Invalid original player index.'
+            );
+        }
+        $this->originalPlayerIdx = $value;
+    }
+
+    protected function set__doesReroll($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'doesReroll is a boolean.'
+            );
+        }
+        $this->doesReroll = $value;
+    }
+
+    protected function set__captured($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'captured is a boolean.'
+            );
+        }
+        $this->captured = $value;
+    }
+
+    protected function set__hasAttacked($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'hasAttacked is a boolean.'
+            );
+        }
+        $this->hasAttacked = $value;
+    }
+
+    protected function set__selected($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'selected is a boolean.'
+            );
+        }
+        $this->selected = $value;
+    }
+
+    protected function set__inactive($value) {
+        if (!is_string($value)) {
+            throw new InvalidArgumentException(
+                'inactive is a string.'
+            );
+        }
+        $this->inactive = $value;
+    }
+
+    protected function set__unavailable($value) {
+        if (!is_bool($value)) {
+            throw new InvalidArgumentException(
+                'unavailable is a boolean.'
+            );
+        }
+        $this->unavailable = $value;
+    }
+
+    protected function set__flagList($value) {
+        if (!is_array($value)) {
+            throw new InvalidArgumentException(
+                'flagList is an array.'
+            );
+        }
+        foreach ($value as $item) {
+            if (!($item instanceof BMFlag)) {
+                throw new InvalidArgumentException(
+                    'flagList can only contain BMFlag objects.'
+                );
+            }
+        }
+        $this->flagList = $value;
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
+    }
+
+    public function __unset($property) {
+        if (isset($this->$property)) {
+            unset($this->$property);
+            return TRUE;
+        } else {
+            return FALSE;
+        }
     }
 
     public function __toString() {

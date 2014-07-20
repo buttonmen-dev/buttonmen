@@ -10,6 +10,9 @@ Login.STATUS_NO_ACTIVITY      = 1;
 Login.STATUS_ACTION_SUCCEEDED = 2;
 Login.STATUS_ACTION_FAILED    = 3;
 
+// This is used to refresh the Overview page if there's no next game
+Login.nextGameRefreshCallback = false;
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -25,10 +28,24 @@ Login.getLoginHeader = function() {
         player_name = rs.data.userName;
       }
       Login.player = player_name;
+      var welcomeText = 'Welcome to Button Men';
+      if (Config.siteType == 'development') {
+        $('#login_header').css('background-color', '#cccccc');
+        $('head').append(
+          $('<link>', {
+            'type': 'image/x-icon',
+            'rel': 'shortcut icon',
+            'href': '/dev_favicon.ico',
+          }));
+        welcomeText += ' Dev Site';
+      } else if (Config.siteType != 'production') {
+        $('#login_header').css('background-color', '#ff7777');
+        welcomeText += ' CONFIG ERROR';
+      }
       if (Login.player === null) {
-        Login.stateLoggedOut();
+        Login.stateLoggedOut(welcomeText);
       } else {
-        Login.stateLoggedIn();
+        Login.stateLoggedIn(welcomeText);
       }
       return Login.layoutHeader();
     }
@@ -45,8 +62,8 @@ Login.showLoginHeader = function(callbackfunc) {
     $('body').append($('<hr>'));
   }
 
-  // Find the current login header contents, and display them followed
-  // by the specified callback routine
+  // Find the current login header contents and display them followed by
+  // the specified callback routine
   Login.getLoginHeader();
 };
 
@@ -74,25 +91,26 @@ Login.getLoginForm = function() {
 // One function for each possible logged in state
 // The function should setup a header and a form
 
-Login.stateLoggedIn = function() {
+Login.stateLoggedIn = function(welcomeText) {
+  Login.message = $('<p>');
   var loginform = Login.getLoginForm();
   loginform.append(
-    'Welcome to ButtonMen: You are logged in as ' + Login.player + '. '
+    welcomeText + ': You are logged in as ' + Login.player + '. '
   );
   loginform.append($('<button>', {
     'id': 'login_action_button',
     'text': 'Logout?',
   }));
 
-  Login.message = loginform;
-  Login.addMainNavbar();
+  Login.message.append(loginform);
+  Api.getNextNewPostId(Login.addMainNavbar);
   Login.form = Login.formLogout;
   Login.logged_in = true;
 };
 
-Login.stateLoggedOut = function() {
+Login.stateLoggedOut = function(welcomeText) {
   Login.message = $('<p>');
-  Login.message.append('Welcome to ButtonMen: ');
+  Login.message.append(welcomeText + ': ');
   if (Login.status_type == Login.STATUS_ACTION_FAILED) {
     Login.message.append(
       $('<font>', {
@@ -144,22 +162,52 @@ Login.stateLoggedOut = function() {
 // Helper functions which add text to the existing message
 
 Login.addMainNavbar = function() {
-  Login.message.append($('<br>'));
-  var navtable = $('<table>', {'style': 'float:left'});
-  var navrow = $('<tr>');
+  var navtable = $('<table>');
+  var navrow = $('<tr>', { 'class': 'headerNav' });
   var links = {
-    'index.html': 'Overview',
-    'create_game.html': 'Create game',
-    'prefs.html': 'Preferences',
+    'Overview': 'index.html',
+    'Monitor': Env.ui_root + 'index.html?mode=monitor',
+    'Create game': 'create_game.html',
+    'Open games': 'open_games.html',
+    'Preferences': 'prefs.html',
+    'Profile': Env.buildProfileLink(Login.player, true),
+    'History': 'history.html',
+    'Who\'s online': 'active_players.html',
+    'Forum': 'forum.html',
+    'Next game': Env.ui_root + 'index.html?mode=nextGame',
   };
-  $.each(links, function(url, text) {
+  $.each(links, function(text, url) {
     var navtd = $('<td>');
     navtd.append($('<a>', { 'href': url, 'text': text }));
     navrow.append(navtd);
   });
+  navrow.find('a:contains("Next game")').click(function(e) {
+    e.preventDefault();
+    Api.getNextGameId(Login.goToNextPendingGame);
+  });
   navtable.append(navrow);
   Login.message.append(navtable);
-  Login.message.append($('<br>'));
+
+  Login.addNewPostLink();
+};
+
+Login.addNewPostLink = function() {
+  var navRow = Login.message.find('.headerNav');
+  navRow.find('a:contains("(New post)")').parent().remove();
+
+  if (Api.forumNavigation.nextNewPostId) {
+    var newPostTd = $('<td>');
+    newPostTd.append($('<a>', {
+      'text': '(New post)',
+      'href':
+        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
+          '&postId=' + Api.forumNavigation.nextNewPostId,
+      'class': 'pseudoLink',
+      'data-threadId': Api.forumNavigation.nextNewPostThreadId,
+      'data-postId': Api.forumNavigation.nextNewPostId,
+    }));
+    navRow.find('a:contains("Forum")').parent().after(newPostTd);
+  }
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -183,7 +231,7 @@ Login.postToResponder = function(responder_args) {
         Login.status_type = Login.STATUS_ACTION_FAILED;
       }
       if (responder_args.type == 'logout') {
-        Env.window.location.href = '/ui';
+        Env.window.location.href = Env.ui_root;
       } else {
         Login.showLoginHeader(Login.callback);
       }
@@ -207,7 +255,7 @@ Login.formLogin = function() {
   var username = null;
   var password = null;
   $('input#login_name').each(function(index, element) {
-    username = $(element).val();
+    username = $.trim($(element).val());
   });
   $('input#login_pass').each(function(index, element) {
     password = $(element).val();
@@ -219,4 +267,37 @@ Login.formLogin = function() {
     'password': password,
   };
   Login.postToResponder(loginargs);
+};
+
+////////////////////////////////////////////////////////////////////////
+// Navigation events and helpers
+
+// Redirect to the player's next pending game if there is one
+Login.goToNextPendingGame = function() {
+  if (Api.gameNavigation.load_status == 'ok') {
+    if (Api.gameNavigation.nextGameId !== null &&
+        $.isNumeric(Api.gameNavigation.nextGameId)) {
+      Env.window.location.href =
+        'game.html?game=' + Api.gameNavigation.nextGameId;
+    } else {
+      // If there are no active games, and we're on the Overview page, tell
+      // the user so and refresh the list of games
+      if (Login.nextGameRefreshCallback) {
+        Env.message = {
+          'type': 'none',
+          'text': 'There are no games waiting for you to play'
+        };
+        Login.nextGameRefreshCallback();
+      } else {
+        // If we're not on the Overview page, send them there
+        Env.window.location.href = '/ui/index.html?mode=preference';
+      }
+    }
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'Your next game could not be found'
+    };
+    Env.showStatusMessage();
+  }
 };

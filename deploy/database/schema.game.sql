@@ -3,6 +3,7 @@
 DROP TABLE IF EXISTS game;
 CREATE TABLE game (
     id                 MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    start_time         TIMESTAMP DEFAULT 0,
     last_action_time   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status_id          TINYINT UNSIGNED NOT NULL,
     game_state         TINYINT UNSIGNED DEFAULT 10,
@@ -29,7 +30,7 @@ CREATE TABLE game_status (
 DROP TABLE IF EXISTS game_player_map;
 CREATE TABLE game_player_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
-    player_id          SMALLINT UNSIGNED NOT NULL,
+    player_id          SMALLINT UNSIGNED,
     button_id          SMALLINT UNSIGNED,
     alt_recipe         VARCHAR(100),
     position           TINYINT UNSIGNED NOT NULL,
@@ -39,7 +40,9 @@ CREATE TABLE game_player_map (
     n_rounds_lost      TINYINT UNSIGNED DEFAULT 0,
     n_rounds_drawn     TINYINT UNSIGNED DEFAULT 0,
     handicap           TINYINT UNSIGNED DEFAULT 0,
-    is_player_hidden   BOOLEAN DEFAULT FALSE
+    is_player_hidden   BOOLEAN DEFAULT FALSE,
+    last_action_time   TIMESTAMP DEFAULT 0,
+    was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 DROP TABLE IF EXISTS game_swing_map;
@@ -47,7 +50,17 @@ CREATE TABLE game_swing_map (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     player_id          SMALLINT UNSIGNED NOT NULL,
     swing_type         CHAR NOT NULL,
-    swing_value        TINYINT UNSIGNED
+    swing_value        TINYINT UNSIGNED,
+    is_expired         BOOLEAN DEFAULT FALSE
+);
+
+DROP TABLE IF EXISTS game_option_map;
+CREATE TABLE game_option_map (
+    game_id            MEDIUMINT UNSIGNED NOT NULL,
+    player_id          SMALLINT UNSIGNED NOT NULL,
+    die_idx            INT UNSIGNED NOT NULL,
+    option_value       TINYINT UNSIGNED,
+    is_expired         BOOLEAN DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS game_action_log;
@@ -67,20 +80,24 @@ CREATE TABLE game_chat_log (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     chat_time          TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     chatting_player    SMALLINT UNSIGNED NOT NULL,
-    message            VARCHAR(1024)
+    -- A chat message is limited to 500 Unicode characters (see
+    -- GAME_CHAT_MAX_LENGTH in BMInterface and Game.js). Since a Unicode
+    -- character can be up to four bytes, this requires a varchar(2000).
+    message            VARCHAR(2000)
 );
 
 DROP TABLE IF EXISTS die;
 CREATE TABLE die (
     id                 INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    owner_id           TINYINT UNSIGNED NOT NULL,
-    original_owner_id  TINYINT UNSIGNED NOT NULL,
+    owner_id           SMALLINT UNSIGNED NOT NULL,
+    original_owner_id  SMALLINT UNSIGNED NOT NULL,
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     status_id          TINYINT UNSIGNED NOT NULL,
     recipe             VARCHAR(20) NOT NULL,
-    swing_value        TINYINT UNSIGNED,
+    actual_max         TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
-    value              SMALLINT
+    value              SMALLINT,
+    flags              VARCHAR(253)
 );
 
 DROP TABLE IF EXISTS die_status;
