@@ -1030,14 +1030,6 @@ class BMGame {
         $reactFuncName = 'react_to_firing_'.$args['action'];
         $reactResponse = $this->$reactFuncName($args);
 
-//        $successfullyFired = $reactResponse;
-//
-//        if ($successfullyFired) {
-//            $this->do_next_step();
-//        }
-//
-//        return array('successfullyFired' => $successfullyFired);
-
         return $reactResponse;
     }
 
@@ -1089,13 +1081,32 @@ class BMGame {
         }
 
         $activeDieArrayArray = $this->activeDieArrayArray;
+        $fireRecipes = array();
+        $oldValues = array();
+        $newValues = array();
 
         foreach ($args['fireValueArray'] as $fireIdx => $newValue) {
-            $activeDieArrayArray[$attackerIdx][$fireIdx]->value = $newValue;
+            $fireDie = $activeDieArrayArray[$attackerIdx][$fireIdx];
+
+            $fireRecipes[] = $fireDie->recipe;
+            $oldValues[] = $fireDie->value;
+            $newValues[] = $newValue;
+
+            $fireDie->value = $newValue;
         }
 
         $this->firingAmount = $firingAmount;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        $this->log_action(
+            'fire_turndown',
+            $this->playerIdArray[$this->attackerPlayerIdx],
+            array(
+                'fireRecipes' => $fireRecipes,
+                'oldValues' => $oldValues,
+                'newValues' => $newValues,
+            )
+        );
 
         return TRUE;
     }

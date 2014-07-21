@@ -102,6 +102,36 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_fire_turndown() {
+        $actingPlayerName = $this->outputPlayerIdNames[$this->actingPlayerId];
+        $fireRecipes = $this->params['fireRecipes'];
+        $oldValues = $this->params['oldValues'];
+        $newValues = $this->params['newValues'];
+
+        $message = $actingPlayerName . ' completed the attack by turning down fire dice: ';
+
+        $isFirstReducedFireDie = TRUE;
+        foreach ($fireRecipes as $dieIdx => $recipe) {
+            $oldValue = $oldValues[$dieIdx];
+            $newValue = $newValues[$dieIdx];
+            if ($oldValue == $newValue) {
+                continue;
+            }
+
+            if ($isFirstReducedFireDie) {
+                $isFirstReducedFireDie = FALSE;
+            } else {
+                $message .= ', ';
+            }
+
+            $message .= $recipe . ' from ' . $oldValue . ' to ' . $newValue;
+        }
+
+        $message .= '.';
+
+        return $message;
+    }
+
     protected function friendly_message_attack() {
         $attackType = $this->params['attackType'];
         $preAttackDice = $this->params['preAttackDice'];
