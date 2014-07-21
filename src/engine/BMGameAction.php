@@ -96,8 +96,8 @@ class BMGameAction {
         foreach ($attackDice['defender'] as $defenderInfo) {
             $defenders[] = $defenderInfo['recipeStatus'];
         }
-        $message .= $this->preAttackMessage($attackers, $defenders) . '. ';
-        $message .= $actingPlayerName . ' must turn down fire dice to complete this attack.';
+        $message .= $this->preAttackMessage($attackers, $defenders) . '; ';
+        $message .= $actingPlayerName . ' must turn down fire dice to complete this attack';
 
         return $message;
     }
@@ -127,14 +127,12 @@ class BMGameAction {
             $message .= $recipe . ' from ' . $oldValue . ' to ' . $newValue;
         }
 
-        $message .= '.';
-
         return $message;
     }
 
     protected function friendly_message_fire_cancel() {
         return $this->outputPlayerIdNames[$this->actingPlayerId] .
-               ' chose to abandon this attack and start over.';
+               ' chose to abandon this attack and start over';
     }
 
     protected function friendly_message_attack() {
