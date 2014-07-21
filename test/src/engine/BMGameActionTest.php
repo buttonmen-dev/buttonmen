@@ -97,7 +97,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             ),
         ));
         $this->assertEquals(
-            "gameaction01 chose to perform a Power attack using [(4):3] against [(10):6]. gameaction01 must turn down fire dice to complete this attack",
+            "gameaction01 chose to perform a Power attack using [(4):3] against [(10):6]; gameaction01 must turn down fire dice to complete this attack",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }
