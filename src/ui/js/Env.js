@@ -282,6 +282,9 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'openingHtml':
           '<div class="chatQuote"><div class="chatQuotee">Quote:</div>' +
             '<span class="chatQuoteBody">',
+      'alternateOpeningHtml':
+          '<div class="chatQuote"><div class="chatQuotee">### said:</div>' +
+            '<span class="chatQuoteBody">',
       'closingHtml': '</span></div>',
     },
     'game': {
@@ -289,6 +292,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'isLink': true,
       'openingHtml': '<a class="chatGameLink" href="game.html?game=###">Game ',
       'closingHtml': '</a>',
+      'escapeParameter': true,
     },
     'player': {
       'isAtomic': true,
@@ -296,6 +300,7 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
       'openingHtml':
           '<a class="chatPlayerLink" href="profile.html?player=###">',
       'closingHtml': '</a>',
+      'escapeParameter': true,
     },
     '[': {
       'isAtomic': true,
@@ -367,10 +372,19 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
         tagName = tagStack.pop();
         outputHtml += replacements[tagName].closingHtml;
       } else {
-        var htmlOpeningTag = replacements[tagName].openingHtml;
+        var htmlOpeningTag;
+        if (tagParameter && replacements[tagName].alternateOpeningHtml) {
+          htmlOpeningTag = replacements[tagName].alternateOpeningHtml;
+        } else {
+          htmlOpeningTag = replacements[tagName].openingHtml;
+        }
         // Insert things like the game ID into a game.html link
-        htmlOpeningTag =
-          htmlOpeningTag.replace('###', encodeURIComponent(tagParameter));
+        if (replacements[tagName].escapeParameter) {
+          htmlOpeningTag =
+            htmlOpeningTag.replace('###', encodeURIComponent(tagParameter));
+        } else {
+          htmlOpeningTag = htmlOpeningTag.replace('###', tagParameter);
+        }
         outputHtml += htmlOpeningTag;
         if (!replacements[tagName].isAtomic) {
           // If there's a closing tag coming along later, push this tag
@@ -399,6 +413,12 @@ Env.applyBbCodeToHtml = function(htmlToParse) {
     outputHtml += replacements[tagName].closingHtml;
   }
 
+  // While we're here, we want to make sure there's an event set up to
+  // reveal the contents of spoiler tags when requested.
+  // (We turn the event off first so we're not binding it multiple times.)
+  $(document).off('click', '.chatSpoiler')
+    .on('click', '.chatSpoiler', Env.toggleSpoiler);
+
   return outputHtml;
 };
 
@@ -417,4 +437,9 @@ Env.buildProfileLink = function(playerName, textOnly) {
       'text': playerName,
     });
   }
+};
+
+// Reveal (or un-reveal) the contents of spoiler tags
+Env.toggleSpoiler = function() {
+  $(this).toggleClass('chatExposedSpoiler');
 };

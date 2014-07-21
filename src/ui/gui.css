@@ -28,6 +28,10 @@ h2.monitorMessage {
     margin-bottom: 0;
 }
 
+div.monitorTimestamp {
+    font-size: 0.9em;
+}
+
 div.status_player {
     width: 100%;
 }
@@ -693,12 +697,17 @@ div.forum tr.writePost td.attribution .help {
     margin-left: 1em;
 }
 
+div.forum tr.writePost td.attribution .subHelp {
+    margin-left: 2em;
+}
+
 div.forum tr.writePost input.title {
     width: 99%;
     display: block;
 }
 
-div.forum tr.writePost textarea {
+div.forum tr.writePost textarea,
+div.forum tr td.editBody textarea {
     width: 99%;
     height: 10em;
     display: block;
@@ -706,13 +715,15 @@ div.forum tr.writePost textarea {
 
 /* Weirdly, text inputs and textareas default to using different fonts */
 div.forum tr.writePost input[type=text],
-div.forum tr.writePost textarea {
+div.forum tr.writePost textarea,
+div.forum tr td.editBody textarea {
     font-family: sans-serif;
     font-size: 1em;
     margin-bottom: 0.4em;
 }
 
-div.forum tr.writePost td {
+div.forum tr.writePost td,
+div.forum tr td.editBody {
     text-align: right;
 }
 
@@ -782,11 +793,20 @@ div.forum div.splitRight {
     text-align: left;
 }
 
-.chatSpoiler,
-.chatSpoiler a,
-.chatSpoiler .chatQuoteBody {
+.chatSpoiler:not(.chatExposedSpoiler),
+.chatSpoiler:not(.chatExposedSpoiler) a,
+.chatSpoiler:not(.chatExposedSpoiler) .chatQuoteBody {
     color: black;
     background-color: black;
+    cursor: default;
+}
+
+.chatExposedSpoiler,
+.chatExposedSpoiler a,
+.chatExposedSpoiler .chatQuoteBody {
+    color: black;
+    background-color: #eeeeee;
+    cursor: default;
 }
 
 /* END: BB Code */
