@@ -118,6 +118,17 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_fire_cancel()
+     */
+    public function test_friendly_message_fire_cancel() {
+        $this->object = new BMGameAction(40, 'fire_cancel', 1, array('action' => 'cancel'));
+        $this->assertEquals(
+            "gameaction01 chose to abandon this attack and start over.",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_power() {

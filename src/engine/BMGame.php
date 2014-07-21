@@ -1117,6 +1117,14 @@ class BMGame {
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
         $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
 
+        $this->log_action(
+            'fire_cancel',
+            $this->playerIdArray[$this->attackerPlayerIdx],
+            array(
+                'action' => 'cancel',
+            )
+        );
+
         return TRUE;
     }
 

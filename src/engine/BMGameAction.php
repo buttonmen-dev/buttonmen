@@ -132,6 +132,11 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_fire_cancel() {
+        return $this->outputPlayerIdNames[$this->actingPlayerId] .
+               ' chose to abandon this attack and start over.';
+    }
+
     protected function friendly_message_attack() {
         $attackType = $this->params['attackType'];
         $preAttackDice = $this->params['preAttackDice'];
