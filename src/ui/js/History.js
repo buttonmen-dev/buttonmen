@@ -162,8 +162,11 @@ History.showHistoryPage = function() {
 };
 
 History.getFilters = function(callback) {
-  Api.getPlayerData(function() {
-    Api.getButtonData(function() {
+  Env.callAsyncInParallel(
+    [
+      Api.getPlayerData,
+      Api.getButtonData,
+    ], function() {
       var playerValues = { };
       $.each(Api.player.list, function(name, playerInfo) {
         if (playerInfo.status == 'active') {
@@ -182,7 +185,6 @@ History.getFilters = function(callback) {
 
       callback();
     });
-  });
 };
 
 History.getHistory = function(callback) {

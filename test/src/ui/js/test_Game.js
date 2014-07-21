@@ -129,19 +129,21 @@ test("test_Game.getCurrentGame", function() {
   $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage", function() {
+test("test_Game.showStatePage", function() {
   BMTestUtils.GameType = 'newgame';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_chooseaux_active", function() {
+test("test_Game.showStatePage_chooseaux_active", function() {
   BMTestUtils.GameType = 'chooseaux_active';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -149,12 +151,13 @@ asyncTest("test_Game.showStatePage_chooseaux_active", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_reserve_active", function() {
+test("test_Game.showStatePage_reserve_active", function() {
   BMTestUtils.GameType = 'reserve_active';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -162,12 +165,13 @@ asyncTest("test_Game.showStatePage_reserve_active", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_reserve_inactive", function() {
+test("test_Game.showStatePage_reserve_inactive", function() {
   BMTestUtils.GameType = 'reserve_inactive';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -175,12 +179,13 @@ asyncTest("test_Game.showStatePage_reserve_inactive", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_reserve_nonplayer", function() {
+test("test_Game.showStatePage_reserve_nonplayer", function() {
   BMTestUtils.GameType = 'reserve_nonplayer';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -188,34 +193,37 @@ asyncTest("test_Game.showStatePage_reserve_nonplayer", function() {
        "The created page should have nonzero contents");
     equal(htmlout.match('figure out what action to take next'), null,
           "The game action should be defined");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_swingset", function() {
+test("test_Game.showStatePage_swingset", function() {
   BMTestUtils.GameType = 'swingset';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_newgame_nonplayer", function() {
+test("test_Game.showStatePage_newgame_nonplayer", function() {
   BMTestUtils.GameType = 'newgame_nonplayer';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_turn_active", function() {
+test("test_Game.showStatePage_turn_active", function() {
   BMTestUtils.GameType = 'turn_active';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -223,13 +231,14 @@ asyncTest("test_Game.showStatePage_turn_active", function() {
        "The created page should have nonzero contents");
     ok(!Game.page.is('.compactMode'),
       "The created page should be in normal mode")
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_turn_active_compactMode", function() {
+test("test_Game.showStatePage_turn_active_compactMode", function() {
   BMTestUtils.GameType = 'turn_active';
   Env.setCookieCompactMode(true);
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -237,30 +246,32 @@ asyncTest("test_Game.showStatePage_turn_active_compactMode", function() {
        "The created page should have nonzero contents");
     ok(Game.page.is('.compactMode'),
       "The created page should be in compact mode")
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_turn_inactive", function() {
+test("test_Game.showStatePage_turn_inactive", function() {
   BMTestUtils.GameType = 'turn_inactive';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.showStatePage_turn_nonplayer", function() {
+test("test_Game.showStatePage_turn_nonplayer", function() {
   BMTestUtils.GameType = 'turn_nonplayer';
+  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
     ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
   });
+  $.ajaxSetup({ async: true });
 });
 
 asyncTest("test_Game.arrangePage", function() {
