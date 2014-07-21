@@ -1719,6 +1719,7 @@ Game.pageAddNewGameLinkFooter = function() {
     return;
   }
 
+  var linkDiv;
   if (Api.game.isParticipant) {
     Game.page.append($('<br>'));
 
@@ -1728,7 +1729,7 @@ Game.pageAddNewGameLinkFooter = function() {
         ' to a rematch, preserving chat:',
     }));
 
-    var linkDiv = $('<div>');
+    linkDiv = $('<div>');
     Game.page.append(linkDiv);
 
     linkDiv.append(Game.buildNewGameLink(
@@ -1736,7 +1737,7 @@ Game.pageAddNewGameLinkFooter = function() {
       Api.game.opponent.playerName,
       Api.game.player.button.name,
       Api.game.opponent.button.name,
-      true
+      Api.game.gameId
     ));
 
     if (Api.game.player.button.name != Api.game.opponent.button.name) {
@@ -1745,7 +1746,7 @@ Game.pageAddNewGameLinkFooter = function() {
         Api.game.opponent.playerName,
         Api.game.opponent.button.name,
         Api.game.player.button.name,
-      true
+      Api.game.gameId
       ));
     }
 
@@ -1754,7 +1755,7 @@ Game.pageAddNewGameLinkFooter = function() {
       Api.game.opponent.playerName,
       null,
       null,
-      true
+      Api.game.gameId
     ));
   }
 
@@ -1773,7 +1774,7 @@ Game.pageAddNewGameLinkFooter = function() {
       null,
       Api.game.player.button.name,
       Api.game.player.button.name,
-      false
+      null
     ));
   } else {
     linkDiv.append(Game.buildNewGameLink(
@@ -1781,7 +1782,7 @@ Game.pageAddNewGameLinkFooter = function() {
       null,
       Api.game.player.button.name,
       Api.game.opponent.button.name,
-      false
+      null
     ));
 
     linkDiv.append(Game.buildNewGameLink(
@@ -1789,15 +1790,16 @@ Game.pageAddNewGameLinkFooter = function() {
       null,
       Api.game.opponent.button.name,
       Api.game.player.button.name,
-      false
+      null
     ));
   }
 
   Game.page.append($('<br>'));
-}
+};
 
 // Contstructs a span containing a link to the Create Game page
-Game.buildNewGameLink = function(text, opponent, button, opponentButton, copy) {
+Game.buildNewGameLink = function(text, opponent, button, opponentButton,
+    previousGameId) {
   var holder = $('<span>');
   holder.append('[');
   var url = 'create_game.html?';
@@ -1810,8 +1812,8 @@ Game.buildNewGameLink = function(text, opponent, button, opponentButton, copy) {
   if (opponentButton) {
     url += 'opponentButton=' + encodeURIComponent(opponentButton) + '&';
   }
-  if (copy) {
-    url += 'previousGameId=' + Api.game.gameId + '&';
+  if (previousGameId) {
+    url += 'previousGameId=' + previousGameId + '&';
   }
   // Trim off the extra & at the end
   url = url.replace(/&$/, '');
@@ -1821,7 +1823,7 @@ Game.buildNewGameLink = function(text, opponent, button, opponentButton, copy) {
   }));
   holder.append('] ');
   return holder;
-}
+};
 
 // Display recent game data from the action log at the foot of the page
 Game.pageAddLogFooter = function() {
