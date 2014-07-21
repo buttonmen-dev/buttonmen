@@ -942,21 +942,41 @@ class BMGame {
         $attackerValueSum = 0;
         $defenderValueSum = 0;
 
+        $attackerDieArray = array();
         $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
         foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerDieIdx) {
-            $attackerValueSum +=
-                $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx]->value;
+            $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
+            $attackerValueSum += $attackerDie->value;
+            $attackerDieArray[] = $attackerDie;
         }
 
+        $defenderDieArray = array();
         $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
         foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderDieIdx) {
-            $defenderValueSum +=
-                $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx]->value;
+            $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
+            $defenderValueSum += $defenderDie->value;
+            $defenderDieArray[] = $defenderDie;
         }
 
         // check for need for firing:
         // sum of attacker values is less than defender value
-        return $attackerValueSum < $defenderValueSum;
+        $needsFiring = $attackerValueSum < $defenderValueSum;
+
+        if ($needsFiring) {
+            $this->log_action(
+                'needs_firing',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'attackType' => $this->attack['attackType'],
+                    'attackDice' => $this->get_action_log_data(
+                        $attackerDieArray,
+                        $defenderDieArray
+                    ),
+                )
+            );
+        }
+
+        return $needsFiring;
     }
 
     protected function update_game_state_adjust_fire_dice() {

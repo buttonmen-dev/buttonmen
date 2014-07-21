@@ -82,6 +82,27 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_needs_firing()
+     */
+    public function test_friendly_message_needs_firing() {
+        $this->object = new BMGameAction(40, 'needs_firing', 1, array(
+            'attackType' => 'Power',
+            'attackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 6, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):6'),
+                ),
+            ),
+        ));
+        $this->assertEquals(
+            "gameaction01 chose to perform a Power attack using [(4):3] against [(10):6]. gameaction01 must turn down fire dice to complete this attack.",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_power() {
