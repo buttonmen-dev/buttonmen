@@ -378,8 +378,8 @@ Newgame.formCreateGame = function() {
     // (showNewgamePage) for both success and failure conditions.
     Api.apiFormPost(
       args,
-      { 'ok':
-        {
+      {
+        'ok': {
           'type': 'function',
           'msgfunc': Newgame.setCreateGameSuccessMessage,
         },

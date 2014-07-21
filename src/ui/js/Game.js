@@ -1613,6 +1613,7 @@ Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
   Game.pageAddSkillListFooter();
+  Game.pageAddNewGameLinkFooter();
   Game.pageAddLogFooter();
 };
 
@@ -1711,6 +1712,116 @@ Game.pageAddSkillListFooter = function() {
   Game.page.append(gameSkillDiv);
   return true;
 };
+
+// Display links to create new games similar to this one
+Game.pageAddNewGameLinkFooter = function() {
+  if (Api.game.gameState != Game.GAME_STATE_END_GAME) {
+    return;
+  }
+
+  if (Api.game.isParticipant) {
+    Game.page.append($('<br>'));
+
+    Game.page.append($('<div>', {
+      'text':
+        'Challenge ' + Api.game.opponent.playerName +
+        ' to a rematch, preserving chat:',
+    }));
+
+    var linkDiv = $('<div>');
+    Game.page.append(linkDiv);
+
+    linkDiv.append(Game.buildNewGameLink(
+      'same buttons',
+      Api.game.opponent.playerName,
+      Api.game.player.button.name,
+      Api.game.opponent.button.name,
+      true
+    ));
+
+    if (Api.game.player.button.name != Api.game.opponent.button.name) {
+      linkDiv.append(Game.buildNewGameLink(
+        'reverse',
+        Api.game.opponent.playerName,
+        Api.game.opponent.button.name,
+        Api.game.player.button.name,
+      true
+      ));
+    }
+
+    linkDiv.append(Game.buildNewGameLink(
+      'new buttons',
+      Api.game.opponent.playerName,
+      null,
+      null,
+      true
+    ));
+  }
+
+  Game.page.append($('<br>'));
+
+  Game.page.append($('<div>', {
+    'text': 'Create an open game with these buttons: ',
+  }));
+
+  linkDiv = $('<div>');
+  Game.page.append(linkDiv);
+
+  if (Api.game.player.button.name == Api.game.opponent.button.name) {
+    linkDiv.append(Game.buildNewGameLink(
+      'you both play ' + Api.game.player.button.name,
+      null,
+      Api.game.player.button.name,
+      Api.game.player.button.name,
+      false
+    ));
+  } else {
+    linkDiv.append(Game.buildNewGameLink(
+      'you play ' + Api.game.player.button.name,
+      null,
+      Api.game.player.button.name,
+      Api.game.opponent.button.name,
+      false
+    ));
+
+    linkDiv.append(Game.buildNewGameLink(
+      'you play ' + Api.game.opponent.button.name,
+      null,
+      Api.game.opponent.button.name,
+      Api.game.player.button.name,
+      false
+    ));
+  }
+
+  Game.page.append($('<br>'));
+}
+
+// Contstructs a span containing a link to the Create Game page
+Game.buildNewGameLink = function(text, opponent, button, opponentButton, copy) {
+  var holder = $('<span>');
+  holder.append('[');
+  var url = 'create_game.html?';
+  if (opponent) {
+    url += 'opponent=' + encodeURIComponent(opponent) + '&';
+  }
+  if (button) {
+    url += 'playerButton=' + encodeURIComponent(button) + '&';
+  }
+  if (opponentButton) {
+    url += 'opponentButton=' + encodeURIComponent(opponentButton) + '&';
+  }
+  if (copy) {
+    url += 'previousGameId=' + Api.game.gameId + '&';
+  }
+  // Trim off the extra & at the end
+  url = url.replace(/&$/, '');
+  holder.append($('<a>', {
+    'text': text,
+    'href': url,
+  }));
+  holder.append('] ');
+  return holder;
+}
 
 // Display recent game data from the action log at the foot of the page
 Game.pageAddLogFooter = function() {
