@@ -533,7 +533,7 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId, $logEntryLimit = NULL) {
+    protected function load_game($gameId, $logEntryLimit = NULL) {
         try {
             $game = $this->load_game_parameters($gameId);
 
@@ -887,7 +887,7 @@ class BMInterface {
         }
     }
 
-    public function save_game(BMGame $game) {
+    protected function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
 
@@ -1281,7 +1281,7 @@ class BMInterface {
 
     // Parse the search filters, converting them to standardized forms (such
     // as converting names to ID's), and validating them against the database
-    public function assemble_search_filters($searchParameters) {
+    protected function assemble_search_filters($searchParameters) {
         try {
             $searchFilters = array();
 
@@ -1389,7 +1389,7 @@ class BMInterface {
 
     // Parse out the additional options that affect how search results
     // are to be presented
-    public function assemble_search_options($searchParameters) {
+    protected function assemble_search_options($searchParameters) {
         try {
             $searchOptions = array();
 
@@ -2094,7 +2094,7 @@ class BMInterface {
         }
     }
 
-    public function get_button_recipe_from_name($name) {
+    protected function get_button_recipe_from_name($name) {
         try {
             $query = 'SELECT recipe FROM button_view '.
                      'WHERE name = :name';
@@ -2161,7 +2161,7 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_from_id($playerId) {
+    protected function get_player_name_from_id($playerId) {
         try {
             if (is_null($playerId)) {
                 return('');
@@ -2187,7 +2187,7 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_mapping($game) {
+    protected function get_player_name_mapping($game) {
         $idNameMapping = array();
         foreach ($game->playerIdArray as $playerId) {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
@@ -2278,7 +2278,7 @@ class BMInterface {
 
     // Enter recent game actions into the action log
     // Note: it might be possible for this to be a protected function
-    public function log_game_actions(BMGame $game) {
+    protected function log_game_actions(BMGame $game) {
         $query = 'INSERT INTO game_action_log ' .
                  '(game_id, game_state, action_type, acting_player, message) ' .
                  'VALUES ' .
@@ -2296,7 +2296,7 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
                      'game_state,action_type,acting_player,message ' .
@@ -2345,7 +2345,7 @@ class BMInterface {
     }
 
     // Create a status message based on recent game actions
-    private function load_message_from_game_actions(BMGame $game) {
+    protected function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
         $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
@@ -2410,7 +2410,7 @@ class BMInterface {
                                   ':timestamp' => $editTimestamp));
     }
 
-    public function load_game_chat_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
                      'chatting_player,message ' .
@@ -2828,7 +2828,7 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values(
+    protected function submit_swing_values(
         $playerId,
         $gameId,
         $roundNumber,
@@ -2908,7 +2908,7 @@ class BMInterface {
         }
     }
 
-    public function submit_option_values(
+    protected function submit_option_values(
         $playerId,
         $gameId,
         $roundNumber,
