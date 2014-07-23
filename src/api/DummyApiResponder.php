@@ -677,11 +677,11 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // a button with an unimplemented skill
-        $data['buttonNameArray'][] = "Adam Spam";
-        $data['recipeArray'][] = "F(4) F(6) (6) (12) (X)";
+        $data['buttonNameArray'][] = "Zeppo";
+        $data['recipeArray'][] = "(4) (12) (20) (X)!";
         $data['hasUnimplementedSkillArray'][] = TRUE;
-        $data['buttonSetArray'][] = "Polycon";
-        $data['dieSkillsArray'][] = array("Fire");
+        $data['buttonSetArray'][] = "1999 Rare / Promo";
+        $data['dieSkillsArray'][] = array("Turbo");
         $data['isTournamentLegalArray'][] = TRUE;
 
         // a button with four dice and some implemented skills
@@ -910,7 +910,7 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_adjustFire() {
-        return array(TRUE, 'Successfully completed attack');
+        return array(TRUE, 'Successfully completed attack by turning down fire dice');
     }
 
     protected function get_interface_response_submitChat($args) {

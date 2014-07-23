@@ -138,6 +138,11 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $target->value = 4;
         $this->assertTrue($sk->validate_attack($game, array($die1, $die5), $def));
         $this->assertTrue($sk->validate_attack($game, array($die1), $def));
+
+        // test case where the amount of help is explicitly specified
+        $this->assertFalse($sk->validate_attack($game, array($die1), $def, 3));
+        $this->assertTrue($sk->validate_attack($game, array($die1), $def, 1));
+
         $target->value = 2;
         $this->assertTrue($sk->validate_attack($game, array($die1), $def));
 
@@ -269,10 +274,10 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($sk->find_attack($game));
 
         // Load some dice into the attack.
-        $die1 = BMDie::create(6);
+        $die1 = BMDie::create(10);
         $die1->value = 6;
 
-        $die2 = BMDie::create(6);
+        $die2 = BMDie::create(10);
         $die2->value = 2;
 
         $die3 = BMDie::create(20);
