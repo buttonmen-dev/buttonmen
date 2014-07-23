@@ -50,4 +50,6 @@ class TestDummyGame {
     public function active_player() {
         return 1;
     }
+
+    public $firingAmount = NULL;
 }

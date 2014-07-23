@@ -19,6 +19,11 @@ class BMGameState {
 
     // turn
     const START_TURN = 40;
+    const ADJUST_FIRE_DICE = 42;
+    const COMMIT_ATTACK = 44;
+
+    // const CHOOSE_TURBO_SWING = 46;
+
     const END_TURN = 48;
 
     // end round
@@ -39,6 +44,8 @@ class BMGameState {
                      'REACT_TO_INITIATIVE',
                      'START_ROUND',
                      'START_TURN',
+                     'ADJUST_FIRE_DICE',
+                     'COMMIT_ATTACK',
                      'END_TURN',
                      'END_ROUND',
                      'END_GAME');

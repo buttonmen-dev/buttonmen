@@ -35,6 +35,7 @@
  * @property-read BMGameState $gameState         Current game state as a BMGameState enum
  * @property      array $waitingOnActionArray    Boolean array whether each player needs to perform an action
  * @property      array $autopassArray           Boolean array whether each player has enabled autopass
+ * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
  * @property-read string $message                Message to be passed to the GUI
@@ -84,6 +85,7 @@ class BMGame {
     private $gameState;             // current game state as a BMGameState enum
     private $waitingOnActionArray;  // boolean array whether each player needs to perform an action
     private $autopassArray;         // boolean array whether each player has enabled autopass
+    private $firingAmount;          // amount of firing that has been submitted
     private $actionLog;             // game actions taken by this BMGame instance
     private $chat;                  // chat message submitted by the active player with an attack
     private $message;               // message to be passed to the GUI
@@ -98,6 +100,8 @@ class BMGame {
     public $prevOptValueArrayArray;
 
     public $lastActionTimeArray;
+
+    private $debug;
 
     // methods
     public function do_next_step() {
@@ -742,20 +746,395 @@ class BMGame {
     }
 
     protected function do_next_step_start_turn() {
+        $this->firingAmount = NULL;
         $this->perform_autopass();
 
-        // display dice
-        $this->activate_GUI('show_active_dice');
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        if (!isset($this->attack)) {
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+        }
+    }
+
+    protected function perform_autopass() {
+        if (!isset($this->attack) &&
+            $this->autopassArray[$this->activePlayerIdx] &&
+            $this->turnNumberInRound > 1) {
+            $validAttackTypes = $this->valid_attack_types();
+            if (array_search('Pass', $validAttackTypes) &&
+                (1 == count($validAttackTypes))) {
+                $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
+                                      'defenderPlayerIdx' => NULL,
+                                      'attackerAttackDieIdxArray' => array(),
+                                      'defenderAttackDieIdxArray' => array(),
+                                      'attackType' => 'Pass');
+            }
+        }
+    }
+
+    protected function update_game_state_start_turn() {
+        if (FALSE !== array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
+            return;
+        }
 
         if (!$this->are_attack_params_reasonable()) {
+            $this->attack = NULL;
             return;
         }
 
         $instance = $this->create_attack_instance();
         if (FALSE === $instance) {
+            $this->attack = NULL;
             return;
         }
 
+        $this->add_flag_to_attackers();
+        $this->add_flag_to_attack_targets();
+
+        $this->gameState = BMGameState::ADJUST_FIRE_DICE;
+    }
+
+    protected function are_attack_params_reasonable() {
+        // if attack has not been set, ask player to select attack
+        if (!isset($this->attack)) {
+            $this->activate_GUI('wait_for_attack');
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+            return FALSE;
+        }
+
+        // validate attacker player idx
+        if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
+            $this->message = 'Attacker must be current active player.';
+            $this->attack = NULL;
+            return FALSE;
+        }
+
+        // validate defender player idx
+        if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
+            $this->message = 'Attacker must be different to defender.';
+            $this->attack = NULL;
+            return FALSE;
+        }
+
+        return TRUE;
+    }
+
+    protected function create_attack_instance() {
+        if (!isset($this->attack)) {
+            $this->regenerate_attack();
+        }
+
+        $attack = BMAttack::get_instance($this->attack['attackType']);
+
+        $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+        $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        $attAttackDieArray = array();
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+            $attackDie =
+                &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                           [$attackerAttackDieIdx];
+            if ($attackDie->dizzy) {
+                $this->message = 'Attempting to attack with a dizzy die.';
+                $this->attack = NULL;
+                return FALSE;
+            }
+            $attAttackDieArray[] = $attackDie;
+        }
+        $defAttackDieArray = array();
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+            $defAttackDieArray[] =
+                &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                           [$defenderAttackDieIdx];
+        }
+
+        foreach ($attAttackDieArray as $attackDie) {
+            $attack->add_die($attackDie);
+        }
+
+        $valid = $attack->validate_attack(
+            $this,
+            $attAttackDieArray,
+            $defAttackDieArray,
+            $this->firingAmount
+        );
+
+        if (!$valid) {
+            $this->activate_GUI('Invalid attack');
+            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+            $this->attack = NULL;
+            return FALSE;
+        }
+
+        return array('attack' => $attack,
+                     'attAttackDieArray' => $attAttackDieArray,
+                     'defAttackDieArray' => $defAttackDieArray);
+    }
+
+    protected function regenerate_attack() {
+        // james: this is currently to regenerate an attack during firing
+
+        $attackerPlayerIdx = NULL;
+        $defenderPlayerIdx = NULL;
+        $attackerAttackDieIdxArray = array();
+        $defenderAttackDieIdxArray = array();
+        $attackType = NULL;
+
+        foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => $die) {
+                if ($die->has_flag('IsAttacker')) {
+                    $attackerAttackDieIdxArray[] = $dieIdx;
+                    $attackerPlayerIdx = $playerIdx;
+                    $attackType = $die->flagList['IsAttacker']->value();
+                } elseif ($die->has_flag('IsAttackTarget')) {
+                    $defenderAttackDieIdxArray[] = $dieIdx;
+                    $defenderPlayerIdx = $playerIdx;
+                }
+            }
+        }
+
+        $this->attack = array(
+            'attackerPlayerIdx' => $attackerPlayerIdx,
+            'defenderPlayerIdx' => $defenderPlayerIdx,
+            'attackerAttackDieIdxArray' => $attackerAttackDieIdxArray,
+            'defenderAttackDieIdxArray' => $defenderAttackDieIdxArray,
+            'attackType' => $attackType
+        );
+    }
+
+    protected function add_flag_to_attackers() {
+        if (empty($this->attack['attackerAttackDieIdxArray'])) {
+            return;
+        }
+
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
+            $attackDie = &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
+                                                    [$attackerAttackDieIdx];
+            $attackDie->add_flag('IsAttacker', $this->attack['attackType']);
+        }
+    }
+
+    protected function add_flag_to_attack_targets() {
+        if (empty($this->attack['defenderAttackDieIdxArray'])) {
+            return;
+        }
+
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
+            $defenderDie = &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
+                                                      [$defenderAttackDieIdx];
+            $defenderDie->add_flag('IsAttackTarget');
+        }
+    }
+
+    protected function do_next_step_adjust_fire_dice() {
+        if ($this->needs_firing()) {
+            $this->waitingOnActionArray[$this->attack['attackerPlayerIdx']] = TRUE;
+        }
+    }
+
+    protected function needs_firing() {
+        $attackType = $this->attack['attackType'];
+
+        if (($attackType != 'Power') &&
+            ($attackType != 'Skill')) {
+            return FALSE;
+        }
+
+        $attackerValueSum = 0;
+        $defenderValueSum = 0;
+
+        $attackerDieArray = array();
+        $attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
+        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerDieIdx) {
+            $attackerDie = $this->activeDieArrayArray[$attackerPlayerIdx][$attackerDieIdx];
+            $attackerValueSum += $attackerDie->value;
+            $attackerDieArray[] = $attackerDie;
+        }
+
+        $defenderDieArray = array();
+        $defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
+        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderDieIdx) {
+            $defenderDie = $this->activeDieArrayArray[$defenderPlayerIdx][$defenderDieIdx];
+            $defenderValueSum += $defenderDie->value;
+            $defenderDieArray[] = $defenderDie;
+        }
+
+        // check for need for firing:
+        // sum of attacker values is less than defender value
+        $needsFiring = $attackerValueSum < $defenderValueSum;
+
+        if ($needsFiring) {
+            $this->log_action(
+                'needs_firing',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'attackType' => $this->attack['attackType'],
+                    'attackDice' => $this->get_action_log_data(
+                        $attackerDieArray,
+                        $defenderDieArray
+                    ),
+                )
+            );
+        }
+
+        return $needsFiring;
+    }
+
+    protected function update_game_state_adjust_fire_dice() {
+        if (FALSE !== array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
+            return;
+        }
+
+        $this->gameState = BMGameState::COMMIT_ATTACK;
+    }
+
+    // turn_down_fire_dice expects one of the following two input arrays:
+    //
+    //   1.  array('action' => 'cancel',
+    //             'playerIdx' => $playerIdx,
+    //             'dieIdxArray' => $dieIdxArray,
+    //             'dieValueArray' => $dieValueArray)
+    //       where $dieIdxArray and $dieValueArray are the raw inputs to
+    //       BMInterface->adjust_fire()
+    //
+    //   2.  array('action' => 'turndown',
+    //             'playerIdx' => $playerIdx,
+    //             'fireValueArray' => array($dieIdx1 => $dieValue1,
+    //                                       $dieIdx2 => $dieValue2))
+    //       where the details of SOME or ALL fire dice are in $fireValueArray
+    //
+    // It returns a boolean telling whether the reaction has been successful.
+    // If it fails, $game->message will say why it has failed.
+
+    public function react_to_firing(array $args) {
+        if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            $this->message = 'Wrong game state to react to firing.';
+            return FALSE;
+        }
+
+        if (!array_key_exists('action', $args) ||
+            !array_key_exists('playerIdx', $args)) {
+            $this->message = 'Missing action or player index.';
+            return FALSE;
+        }
+
+        $playerIdx = $args['playerIdx'];
+        $waitingOnActionArray = &$this->waitingOnActionArray;
+        $waitingOnActionArray[$playerIdx] = FALSE;
+
+        if (!in_array($args['action'], array('turndown', 'cancel'))) {
+            throw new InvalidArgumentException(
+                'Reaction must be turndown or cancel.'
+            );
+        }
+
+        $reactFuncName = 'react_to_firing_'.$args['action'];
+        $reactResponse = $this->$reactFuncName($args);
+
+        return $reactResponse;
+    }
+
+    // $fireValueArray is an associative array, with the keys being the
+    // die indices of the attacker die array that are being specified
+    protected function react_to_firing_turndown(array $args) {
+        if (BMGameState::ADJUST_FIRE_DICE != $this->gameState) {
+            $this->message = 'Wrong game state to react to firing.';
+            return FALSE;
+        }
+
+        $instance = $this->create_attack_instance();
+        if (FALSE === $instance) {
+            $this->message = 'Invalid attack.';
+            return FALSE;
+        }
+
+        $attackerIdx = $this->attack['attackerPlayerIdx'];
+
+        $firingAmount = 0;
+        foreach ($args['fireValueArray'] as $fireIdx => $newValue) {
+            $die = $this->activeDieArrayArray[$attackerIdx][$fireIdx];
+            if (!$die->has_skill('Fire')) {
+                $this->message = 'Cannot turn down non-fire die.';
+                return FALSE;
+            }
+
+            if ($newValue > $die->value) {
+                $this->message = 'Cannot turn die value up.';
+                return FALSE;
+            }
+
+            if ($newValue < $die->min) {
+                $this->message = 'Cannot turn die value down past minimum.';
+                return FALSE;
+            }
+
+            $firingAmount += $die->value - $newValue;
+        }
+
+        if (!$instance['attack']->validate_attack(
+            $this,
+            $instance['attAttackDieArray'],
+            $instance['defAttackDieArray'],
+            $firingAmount
+        )) {
+            $this->message = $instance['attack']->validationMessage;
+            return FALSE;
+        }
+
+        $activeDieArrayArray = $this->activeDieArrayArray;
+        $fireRecipes = array();
+        $oldValues = array();
+        $newValues = array();
+
+        foreach ($args['fireValueArray'] as $fireIdx => $newValue) {
+            $fireDie = $activeDieArrayArray[$attackerIdx][$fireIdx];
+
+            $fireRecipes[] = $fireDie->recipe;
+            $oldValues[] = $fireDie->value;
+            $newValues[] = $newValue;
+
+            $fireDie->value = $newValue;
+        }
+
+        $this->firingAmount = $firingAmount;
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+
+        $this->log_action(
+            'fire_turndown',
+            $this->playerIdArray[$this->attackerPlayerIdx],
+            array(
+                'fireRecipes' => $fireRecipes,
+                'oldValues' => $oldValues,
+                'newValues' => $newValues,
+            )
+        );
+
+        $this->message = 'Successfully turned down fire dice.';
+        return TRUE;
+    }
+
+    protected function react_to_firing_cancel() {
+        $this->attack = NULL;
+        $this->gameState = BMGameState::START_TURN;
+        $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
+        $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+
+        $this->log_action(
+            'fire_cancel',
+            $this->playerIdArray[$this->activePlayerIdx],
+            array(
+                'action' => 'cancel',
+            )
+        );
+
+        $this->message = 'Cancelled fire attack.';
+        return TRUE;
+    }
+
+    protected function do_next_step_commit_attack() {
+        // display dice
+        $this->activate_GUI('show_active_dice');
+
+        $instance = $this->create_attack_instance();
         $attack = $instance['attack'];
         $attAttackDieArray = $instance['attAttackDieArray'];
         $defAttackDieArray = $instance['defAttackDieArray'];
@@ -789,93 +1168,6 @@ class BMGame {
         }
     }
 
-    protected function perform_autopass() {
-        if (!isset($this->attack) &&
-            $this->autopassArray[$this->activePlayerIdx] &&
-            $this->turnNumberInRound > 1) {
-            $validAttackTypes = $this->valid_attack_types();
-            if (array_search('Pass', $validAttackTypes) &&
-                (1 == count($validAttackTypes))) {
-                $this->attack = array('attackerPlayerIdx' => $this->activePlayerIdx,
-                                      'defenderPlayerIdx' => NULL,
-                                      'attackerAttackDieIdxArray' => array(),
-                                      'defenderAttackDieIdxArray' => array(),
-                                      'attackType' => 'Pass');
-            }
-        }
-    }
-
-    protected function are_attack_params_reasonable() {
-        // if attack has not been set, ask player to select attack
-        if (!isset($this->attack)) {
-            $this->activate_GUI('wait_for_attack');
-            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-            return FALSE;
-        }
-
-        // validate attacker player idx
-        if ($this->activePlayerIdx !== $this->attack['attackerPlayerIdx']) {
-            $this->message = 'Attacker must be current active player.';
-            $this->attack = NULL;
-            return FALSE;
-        }
-
-        // validate defender player idx
-        if ($this->attack['attackerPlayerIdx'] === $this->attack['defenderPlayerIdx']) {
-            $this->message = 'Attacker must be different to defender.';
-            $this->attack = NULL;
-            return FALSE;
-        }
-
-        return TRUE;
-    }
-
-    protected function create_attack_instance() {
-        $attack = BMAttack::get_instance($this->attack['attackType']);
-
-        $this->attackerPlayerIdx = $this->attack['attackerPlayerIdx'];
-        $this->defenderPlayerIdx = $this->attack['defenderPlayerIdx'];
-        $attAttackDieArray = array();
-        foreach ($this->attack['attackerAttackDieIdxArray'] as $attackerAttackDieIdx) {
-            $attackDie =
-                &$this->activeDieArrayArray[$this->attack['attackerPlayerIdx']]
-                                           [$attackerAttackDieIdx];
-            if ($attackDie->dizzy) {
-                $this->message = 'Attempting to attack with a dizzy die.';
-                $this->attack = NULL;
-                return FALSE;
-            }
-            $attAttackDieArray[] = $attackDie;
-        }
-        $defAttackDieArray = array();
-        foreach ($this->attack['defenderAttackDieIdxArray'] as $defenderAttackDieIdx) {
-            $defAttackDieArray[] =
-                &$this->activeDieArrayArray[$this->attack['defenderPlayerIdx']]
-                                           [$defenderAttackDieIdx];
-        }
-
-        foreach ($attAttackDieArray as $attackDie) {
-            $attack->add_die($attackDie);
-        }
-
-        $valid = $attack->validate_attack(
-            $this,
-            $attAttackDieArray,
-            $defAttackDieArray
-        );
-
-        if (!$valid) {
-            $this->activate_GUI('Invalid attack');
-            $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
-            $this->attack = NULL;
-            return FALSE;
-        }
-
-        return array('attack' => $attack,
-                     'attAttackDieArray' => $attAttackDieArray,
-                     'defAttackDieArray' => $defAttackDieArray);
-    }
-
     protected function remove_all_flags() {
         foreach ($this->activeDieArrayArray as $activeDieArray) {
             if (empty($activeDieArray)) {
@@ -898,10 +1190,9 @@ class BMGame {
         }
     }
 
-    protected function update_game_state_start_turn() {
-        if ((isset($this->attack)) &&
+    protected function update_game_state_commit_attack() {
+        if (isset($this->attack) &&
             FALSE === array_search(TRUE, $this->waitingOnActionArray, TRUE)) {
-            $this->gameState = BMGameState::END_TURN;
             if (isset($this->activeDieArrayArray) &&
                 isset($this->attack['attackerPlayerIdx'])) {
                 foreach ($this->activeDieArrayArray[$this->attack['attackerPlayerIdx']] as &$activeDie) {
@@ -911,9 +1202,12 @@ class BMGame {
                 }
             }
         }
+
+        $this->gameState = BMGameState::END_TURN;
     }
 
     protected function do_next_step_end_turn() {
+        $this->firingAmount = NULL;
     }
 
     protected function update_game_state_end_turn() {
@@ -1088,7 +1382,7 @@ class BMGame {
     //             'playerIdx' => $playerIdx,
     //             'focusValueArray' => array($dieIdx1 => $dieValue1,
     //                                        $dieIdx2 => $dieValue2))
-    //       where the details of ALL focus dice are in $focusValueArray
+    //       where the details of SOME or ALL focus dice are in $focusValueArray
     //
     // It returns a boolean telling whether the reaction has been successful.
     // If it fails, $game->message will say why it has failed.
@@ -2221,6 +2515,12 @@ class BMGame {
             }
         }
         $this->autopassArray = $value;
+    }
+
+    protected function set__firingAmount() {
+        throw new LogicException(
+            'firingAmount is set exclusively via BMGame->turn_down_fire_dice().'
+        );
     }
 
     protected function set__forceRoundResult($value) {

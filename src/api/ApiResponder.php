@@ -370,6 +370,30 @@ class ApiResponder {
         return $retval;
     }
 
+    protected function get_interface_response_adjustFire($interface, $args) {
+        if (!(array_key_exists('dieIdxArray', $args))) {
+            $args['dieIdxArray'] = NULL;
+        }
+        if (!(array_key_exists('dieValueArray', $args))) {
+            $args['dieValueArray'] = NULL;
+        }
+        $retval = $interface->adjust_fire(
+            $_SESSION['user_id'],
+            $args['game'],
+            $args['roundNumber'],
+            $args['timestamp'],
+            $args['action'],
+            $args['dieIdxArray'],
+            $args['dieValueArray']
+        );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
+    }
+
     protected function get_interface_response_submitChat($interface, $args) {
         if (!(array_key_exists('edit', $args))) {
             $args['edit'] = FALSE;
@@ -486,6 +510,14 @@ class ApiResponder {
         return $interface->create_forum_post(
             $_SESSION['user_id'],
             (int)$args['threadId'],
+            $args['body']
+        );
+    }
+
+    protected function get_interface_response_editForumPost($interface, $args) {
+        return $interface->edit_forum_post(
+            $_SESSION['user_id'],
+            (int)$args['postId'],
             $args['body']
         );
     }

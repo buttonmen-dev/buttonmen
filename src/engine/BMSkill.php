@@ -102,6 +102,7 @@ class BMSkill {
                      'Berserk'      => 'B',
                      'Chance'       => 'c',
                      'Doppelganger' => 'D',
+                     'Fire'         => 'F',
                      'Focus'        => 'f',
                      'Konstant'     => 'k',
                      'Mad'          => '&',

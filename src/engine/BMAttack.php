@@ -115,10 +115,11 @@ abstract class BMAttack {
     // assist_values; we don't need to know which die contributes what
     // here.
 
-    public function help_bounds(array $helpers) {
+    public function help_bounds(array $helpers, array $firingTargetMaxima) {
         $helpMin = $helpMax = 0;
 
-        if (count($helpers) == 0) {
+        if ((0 == count($helpers)) ||
+            (0 == count($firingTargetMaxima))) {
             return array($helpMin, $helpMax);
         }
 
@@ -153,13 +154,11 @@ abstract class BMAttack {
             }
         }
 
+        $firingMax = array_sum($firingTargetMaxima);
+        $helpMax = min($helpMax, $firingMax);
+
         return array($helpMin, $helpMax);
     }
-
-    // return how much help is needed and who can contribute
-    //
-    // implemented in subclassed where they actually know what help they need
-//    abstract public function calculate_contributions($game, array $attackers, array $defenders);
 
     // uses the dice in validDice to find a single valid attack within the game
     abstract public function find_attack($game);
@@ -184,7 +183,7 @@ abstract class BMAttack {
     // Some of this should perhaps be in the game, rather than here.
     public function commit_attack(&$game, array &$attackers, array &$defenders) {
         // Paranoia
-        if (!$this->validate_attack($game, $attackers, $defenders)) {
+        if (!$this->validate_attack($game, $attackers, $defenders, $game->firingAmount)) {
             return FALSE;
         }
 
@@ -368,6 +367,21 @@ abstract class BMAttack {
             }
         }
         return $helpers;
+    }
+
+    // returns a list of maximum values that each die can be fired
+    protected function collect_firing_maxima(array $attackers) {
+        $firingMaxima = array();
+
+        if (empty($attackers)) {
+            return $firingMaxima;
+        }
+
+        foreach ($attackers as $attacker) {
+            $firingMaxima[] = $attacker->firingMax;
+        }
+
+        return $firingMaxima;
     }
 
     public function __get($property) {
