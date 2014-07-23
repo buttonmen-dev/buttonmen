@@ -1108,6 +1108,7 @@ class BMGame {
             )
         );
 
+        $this->message = 'Successfully turned down fire dice.';
         return TRUE;
     }
 
@@ -1125,6 +1126,7 @@ class BMGame {
             )
         );
 
+        $this->message = 'Cancelled fire attack.';
         return TRUE;
     }
 

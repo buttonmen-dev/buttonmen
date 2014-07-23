@@ -1408,11 +1408,8 @@ Game.formAdjustFireDiceActive = function() {
         dieIdxArray: Game.activity.fireDieIdxArray,
         dieValueArray: Game.activity.fireDieValueArray,
       },
-      { 'ok':
-        {
-          'type': 'fixed',
-          'text': 'Successfully completed attack by turning down fire dice',
-        },
+      {
+        'ok': { 'type': 'server', },
         'notok': { 'type': 'server', },
       },
       'game_action_button',

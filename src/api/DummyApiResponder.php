@@ -910,7 +910,7 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_adjustFire() {
-        return array(TRUE, 'Successfully completed attack');
+        return array(TRUE, 'Successfully completed attack by turning down fire dice');
     }
 
     protected function get_interface_response_submitChat($args) {

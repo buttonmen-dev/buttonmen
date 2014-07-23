@@ -3411,10 +3411,8 @@ class BMInterface {
             $isSuccessful = $game->react_to_firing($argArray);
             if ($isSuccessful) {
                 $this->save_game($game);
-                $this->message = 'Successfully turned down fire dice.';
-            } else {
-                $this->message = $game->message;
             }
+            $this->message = $game->message;
 
             return $isSuccessful;
         } catch (Exception $e) {
