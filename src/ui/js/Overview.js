@@ -54,9 +54,7 @@ Overview.showOverviewPage = function() {
   case 'monitor':
     Overview.monitorIsOn = true;
     // If we're in monitor mode, run the monitor first
-    Api.getUserPrefsData(function() {
-      Overview.executeMonitor();
-    });
+    Overview.executeMonitor();
     break;
   case 'preference':
     Api.getUserPrefsData(function() {
