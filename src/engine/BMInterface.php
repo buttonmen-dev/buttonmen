@@ -292,9 +292,18 @@ class BMInterface {
         array $playerIdArray,
         array $buttonNameArray,
         $maxWins = 3,
+        $description = '',
+        $previousGameId = NULL,
         $currentPlayerId = NULL
     ) {
-        $isValidInfo = $this->validate_game_info($playerIdArray, $maxWins, $currentPlayerId);
+        $isValidInfo =
+            $this->validate_game_info(
+                $playerIdArray,
+                $maxWins,
+                $currentPlayerId,
+                $description,
+                $previousGameId
+            );
         if (!$isValidInfo) {
             return NULL;
         }
@@ -312,21 +321,27 @@ class BMInterface {
                      '     n_target_wins, '.
                      '     n_recent_passes, '.
                      '     creator_id, '.
-                     '     start_time) '.
+                     '     start_time, '.
+                     '     description, '.
+                     '     previous_game_id) '.
                      'VALUES '.
                      '    ((SELECT id FROM game_status WHERE name = :status), '.
                      '     :n_players, '.
                      '     :n_target_wins, '.
                      '     :n_recent_passes, '.
                      '     :creator_id, '.
-                     '     FROM_UNIXTIME(:start_time))';
+                     '     FROM_UNIXTIME(:start_time), '.
+                     '     :description, '.
+                     '     :previous_game_id)';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':status'        => 'OPEN',
                                       ':n_players'     => count($playerIdArray),
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
                                       ':creator_id'    => $playerIdArray[0],
-                                      ':start_time' => time()));
+                                      ':start_time' => time(),
+                                      ':description' => $description,
+                                      ':previous_game_id' => $previousGameId));
 
             $statement = self::$conn->prepare('SELECT LAST_INSERT_ID()');
             $statement->execute();
@@ -374,7 +389,12 @@ class BMInterface {
         }
     }
 
-    protected function validate_game_info(array $playerIdArray, $maxWins, $currentPlayerId) {
+    protected function validate_game_info(
+            array $playerIdArray,
+            $maxWins,
+            $currentPlayerId,
+            $description,
+            $previousGameId) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
@@ -420,6 +440,58 @@ class BMInterface {
             )) {
             $this->message = 'Game create failed because the maximum number of wins was invalid.';
             return FALSE;
+        }
+
+        // Check that players match those from previous game, if specified
+        if ($previousGameId != NULL) {
+            try {
+                $query =
+                    'SELECT pm.player_id, s.name AS status ' .
+                    'FROM game g ' .
+                        'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
+                        'INNER JOIN game_status s ON s.id = g.status_id ' .
+                    'WHERE g.id = :previous_game_id;';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':previous_game_id' => $previousGameId));
+
+                $previousPlayerIds = array();
+                while ($row = $statement->fetch()) {
+                    if ($row['status'] != 'COMPLETE') {
+                        $this->message =
+                            'Game create failed because the previous game has not been completed yet.';
+                        return FALSE;
+                    }
+                    $previousPlayerIds[] = (int)$row['player_id'];
+                }
+
+                if (count($previousPlayerIds) == 0) {
+                    $this->message =
+                        'Game create failed because the previous game was not found.';
+                    return FALSE;
+                }
+
+                foreach ($playerIdArray as $newPlayerId) {
+                    if (!in_array($newPlayerId, $previousPlayerIds)) {
+                        $this->message =
+                            'Game create failed because the previous game does not contain the same players.';
+                        return FALSE;
+                    }
+                }
+                foreach ($previousPlayerIds as $oldPlayerId) {
+                    if (!in_array($oldPlayerId, $playerIdArray)) {
+                        $this->message =
+                            'Game create failed because the previous game does not contain the same players.';
+                        return FALSE;
+                    }
+                }
+            } catch (Exception $e) {
+                error_log(
+                    'Caught exception in BMInterface::validate_game_info: ' .
+                    $e->getMessage()
+                );
+                $this->message = 'Game create failed because of an error.';
+                return NULL;
+            }
         }
 
         return TRUE;
@@ -602,6 +674,12 @@ class BMInterface {
                 $game->maxWins   = $row['n_target_wins'];
                 $game->turnNumberInRound = $row['turn_number_in_round'];
                 $game->nRecentPasses = $row['n_recent_passes'];
+                $game->description = $row['description'];
+                if ($row['previous_game_id'] == NULL) {
+                    $game->previousGameId = NULL;
+                } else {
+                    $game->previousGameId = (int)$row['previous_game_id'];
+                }
                 $this->timestamp = (int)$row['last_action_timestamp'];
 
                 // initialise all temporary arrays
@@ -1916,7 +1994,8 @@ class BMInterface {
                     'v_challenger.player_name AS challenger_name, ' .
                     'v_challenger.button_name AS challenger_button, ' .
                     'v_victim.button_name AS victim_button, ' .
-                    'g.n_target_wins AS target_wins ' .
+                    'g.n_target_wins AS target_wins, ' .
+                    'g.description AS description ' .
                 'FROM game AS g ' .
                     'INNER JOIN game_status AS s ON s.id = g.status_id ' .
                     // For the time being, I'm assuming there are only two
@@ -1950,6 +2029,7 @@ class BMInterface {
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $row['victim_button'],
                     'targetWins' => (int)$row['target_wins'],
+                    'description' => $row['description'],
                 );
             }
 
@@ -2413,16 +2493,26 @@ class BMInterface {
 
     public function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
-            $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
-                     'chatting_player,message ' .
-                     'FROM game_chat_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC';
+            $sqlParameters = array(':game_id' => $game->gameId);
+            $query =
+                'SELECT ' .
+                    'UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
+                    'chatting_player, ' .
+                    'message ' .
+                'FROM game_chat_log ' .
+                'WHERE game_id = :game_id ';
+            if ($game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
+                $query .= 'OR game_id = :previous_game_id ';
+                $sqlParameters[':previous_game_id'] = $game->previousGameId;
+            }
+            $query .= 'ORDER BY id DESC ' ;
             if (!is_null($logEntryLimit)) {
-                $query = $query . ' LIMIT ' . $logEntryLimit;
+                $query .= 'LIMIT :log_entry_limit';
+                $sqlParameters[':log_entry_limit'] = $logEntryLimit;
             }
 
             $statement = self::$conn->prepare($query);
-            $statement->execute(array(':game_id' => $game->gameId));
+            $statement->execute($sqlParameters);
             $chatEntries = array();
             while ($row = $statement->fetch()) {
                 $chatEntries[] = array(
