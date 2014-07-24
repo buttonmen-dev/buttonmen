@@ -212,6 +212,11 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'checkbox',
       'checked': Api.user_prefs.monitor_redirects_to_forum,
     },
+    'automatically_monitor': {
+      'text': 'Automatically Monitor after "Next game" runs out',
+      'type': 'checkbox',
+      'checked': Api.user_prefs.automatically_monitor,
+    },
   };
 
   var colorBlurb = 'These the colors used to represent each player in a game.';
@@ -381,6 +386,8 @@ UserPrefs.formSetPrefs = function() {
     $('#userprefs_monitor_redirects_to_game').prop('checked');
   var monitor_redirects_to_forum =
     $('#userprefs_monitor_redirects_to_forum').prop('checked');
+  var automatically_monitor =
+    $('#userprefs_automatically_monitor').prop('checked');
   var player_color = $('#userprefs_player_color').spectrum('get');
   var opponent_color = $('#userprefs_opponent_color').spectrum('get');
   var neutral_color_a = $('#userprefs_neutral_color_a').spectrum('get');
@@ -481,6 +488,7 @@ UserPrefs.formSetPrefs = function() {
       'autopass': autopass,
       'monitor_redirects_to_game': monitor_redirects_to_game,
       'monitor_redirects_to_forum': monitor_redirects_to_forum,
+      'automatically_monitor': automatically_monitor,
       'player_color': player_color.toHexString(),
       'opponent_color': opponent_color.toHexString(),
       'neutral_color_a': neutral_color_a.toHexString(),

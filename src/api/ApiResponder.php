@@ -202,6 +202,10 @@ class ApiResponder {
         return $interface->load_api_game_data($_SESSION['user_id'], $args['game'], $logEntryLimit);
     }
 
+    protected function get_interface_response_countPendingGames($interface) {
+        return $interface->count_pending_games($_SESSION['user_id']);
+    }
+
     protected function get_interface_response_loadPlayerName() {
         if (auth_session_exists()) {
             return array('userName' => $_SESSION['user_name']);
@@ -225,6 +229,7 @@ class ApiResponder {
         $infoArray['autopass'] = ('true' == $args['autopass']);
         $infoArray['monitor_redirects_to_game'] = ('true' == $args['monitor_redirects_to_game']);
         $infoArray['monitor_redirects_to_forum'] = ('true' == $args['monitor_redirects_to_forum']);
+        $infoArray['automatically_monitor'] = ('true' == $args['automatically_monitor']);
         $infoArray['player_color'] = $args['player_color'];
         $infoArray['opponent_color'] = $args['opponent_color'];
         $infoArray['neutral_color_a'] = $args['neutral_color_a'];
@@ -481,6 +486,14 @@ class ApiResponder {
         return $interface->create_forum_post(
             $_SESSION['user_id'],
             (int)$args['threadId'],
+            $args['body']
+        );
+    }
+
+    protected function get_interface_response_editForumPost($interface, $args) {
+        return $interface->edit_forum_post(
+            $_SESSION['user_id'],
+            (int)$args['postId'],
             $args['body']
         );
     }

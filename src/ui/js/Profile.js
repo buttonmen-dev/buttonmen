@@ -129,6 +129,13 @@ Profile.buildProfileTable = function() {
       Api.profile_info.name_ingame + '&status=COMPLETE',
   }));
 
+  var commentHolder = null;
+  if (Api.profile_info.comment) {
+    commentHolder = $('<span>');
+    var cookedComment = Env.prepareRawTextForDisplay(Api.profile_info.comment);
+    commentHolder.append(cookedComment);
+  }
+
   var solipsismAlternatives = [
     'solipsism overflow',
     'autoludic prohibition',
@@ -193,7 +200,7 @@ Profile.buildProfileTable = function() {
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
     challengeLinkHolder, solipsismNotification, false));
   tbody.append(Profile.buildProfileTableRow('Comment',
-    Api.profile_info.comment, 'none', false));
+    commentHolder, 'none', false));
 
   if (!Env.getCookieNoImages()) {
     var url;
