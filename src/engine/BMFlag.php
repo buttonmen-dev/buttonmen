@@ -24,13 +24,17 @@ abstract class BMFlag {
         return $flag;
     }
 
+    public function type() {
+        $type = get_class($this);
+
+        return str_replace('BMFlag', '', $type);
+    }
+
     public function value() {
         return NULL;
     }
 
     public function __toString() {
-        $name = get_class($this);
-
-        return str_replace('BMFlag', '', $name);
+        return $this->type();
     }
 }
