@@ -103,9 +103,11 @@ Game.getCurrentGame = function(callbackfunc) {
     return callbackfunc();
   }
 
-  Api.getPendingGameCount(function() {
-    Api.getGameData(Game.game, Game.logEntryLimit, callbackfunc);
-  });
+  Env.callAsyncInParallel(
+    [
+      Api.getPendingGameCount,
+      { 'func': Api.getGameData, 'args': [ Game.game, Game.logEntryLimit ] },
+    ], callbackfunc);
 };
 
 // Assemble and display the game portion of the page

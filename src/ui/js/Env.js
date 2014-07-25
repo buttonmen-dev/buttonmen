@@ -443,3 +443,59 @@ Env.buildProfileLink = function(playerName, textOnly) {
 Env.toggleSpoiler = function() {
   $(this).toggleClass('chatExposedSpoiler');
 };
+
+// Calls several asynchronous methods in parallel, calling the final callback
+// when they've all completed. All functions must take a callback as their
+// final argument.
+// The functions parameter is expected to be an array, and each element in
+// that array should either be a function pointer or an object. If an object,
+// it should have a "func" property containing the function pointer and an
+// "args" property containing an array of arguments to be passed to the
+// function (not counting the callback argument, which will be handled by
+// callAsyncInParallel).
+Env.callAsyncInParallel = function(functions, finalCallback) {
+  var completedFunctions = [ ];
+
+  // First, initialize all the function statuses before we start executing
+  // anything
+  $.each(functions, function(index) {
+    // We're identifying these by index rather than name or function pointer
+    // or object since javascript object properties can only be keyed by
+    // strings, and we might be calling the same function (with the same string
+    // name) with different sets of arguments.
+    completedFunctions[index] = false;
+  });
+
+  $.each(functions, function(executionIndex, value) {
+    var functionDetails;
+    if (typeof(value) == 'function') {
+      functionDetails = {
+        'func': value,
+        'args': [ ],
+      };
+    } else {
+      functionDetails = value;
+    }
+
+    // Add *our* callback as the last parameter. We need it defined inline like
+    // this so that it can close over the current state and know which function
+    // was being executed.
+    functionDetails.args.push(function() {
+      // Flag that the function that this current callback was made by is
+      // complete
+      completedFunctions[executionIndex] = true;
+
+      var allCompleted = true;
+      $.each(completedFunctions, function(index, value) {
+        allCompleted = allCompleted && value;
+      });
+
+      // We're apparently done!
+      if (allCompleted) {
+        finalCallback();
+      }
+    });
+
+    functionDetails.func.apply(this, functionDetails.args);
+  });
+};

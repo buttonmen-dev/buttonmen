@@ -25,6 +25,7 @@ SkillName = {
   'g': 'Stinger',
   't': 'Trip',
   'v': 'Value',
+  'F': 'Fire',
 }
 
 class BMClientParser(bmapi.BMClient):
