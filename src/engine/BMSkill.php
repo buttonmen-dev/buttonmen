@@ -102,9 +102,11 @@ class BMSkill {
                      'Berserk'      => 'B',
                      'Chance'       => 'c',
                      'Doppelganger' => 'D',
+                     'Fire'         => 'F',
                      'Focus'        => 'f',
                      'Konstant'     => 'k',
                      'Mad'          => '&',
+                     'Maximum'      => 'M',
                      'Mood'         => '?',
                      'Morphing'     => 'm',
                      'Null'         => 'n',
@@ -205,7 +207,8 @@ class BMSkill {
                      'BMSkillPoison',
                      'BMSkillNull',
                      'BMSkillKonstant',
-                     'BMSkillMorphing');
+                     'BMSkillMorphing',
+                     'BMSkillMaximum');
         // fires last
     }
 

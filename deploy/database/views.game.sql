@@ -2,10 +2,25 @@
 
 DROP VIEW IF EXISTS game_player_view;
 CREATE VIEW game_player_view
-AS SELECT m.*,
-          p.name_ingame AS player_name, p.autopass,
-          b.name AS button_name,
-          g.n_target_wins
+AS SELECT
+    m.game_id,
+    m.player_id,
+    m.button_id,
+    m.alt_recipe,
+    m.position,
+    m.did_win_initiative,
+    m.is_awaiting_action,
+    m.n_rounds_won,
+    m.n_rounds_lost,
+    m.n_rounds_drawn,
+    m.handicap,
+    m.is_player_hidden,
+    m.last_action_time,
+    m.was_game_dismissed,
+    p.name_ingame AS player_name,
+    p.autopass,
+    b.name AS button_name,
+    g.n_target_wins
 FROM game_player_map AS m
 LEFT JOIN player AS p
 ON m.player_id = p.id
@@ -16,7 +31,12 @@ ON m.game_id = g.id;
 
 DROP VIEW IF EXISTS open_game_possible_button_view;
 CREATE VIEW open_game_possible_button_view
-AS SELECT g.id, pb.button_id, ps.set_id, b.name AS button_name, s.name AS set_name
+AS SELECT
+    g.id,
+    pb.button_id,
+    ps.set_id,
+    b.name AS button_name,
+    s.name AS set_name
 FROM game AS g
 LEFT JOIN open_game_possible_buttons AS pb
 ON g.id = pb.game_id

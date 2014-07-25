@@ -12,9 +12,6 @@
  */
 class BMInterface {
     // constants
-    const GAME_CHAT_MAX_LENGTH = 500;
-    const FORUM_BODY_MAX_LENGTH = 16000;
-    const FORUM_TITLE_MAX_LENGTH = 100;
     const DEFAULT_PLAYER_COLOR = '#dd99dd';
     const DEFAULT_OPPONENT_COLOR = '#ddffdd';
     const DEFAULT_NEUTRAL_COLOR_A = '#cccccc';
@@ -26,7 +23,6 @@ class BMInterface {
     private static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing
-
 
 
     // constructor
@@ -560,7 +556,7 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId, $logEntryLimit = NULL) {
+    protected function load_game($gameId, $logEntryLimit = NULL) {
         try {
             $game = $this->load_game_parameters($gameId);
 
@@ -914,7 +910,7 @@ class BMInterface {
         }
     }
 
-    public function save_game(BMGame $game) {
+    protected function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
 
@@ -1308,7 +1304,7 @@ class BMInterface {
 
     // Parse the search filters, converting them to standardized forms (such
     // as converting names to ID's), and validating them against the database
-    public function assemble_search_filters($searchParameters) {
+    protected function assemble_search_filters($searchParameters) {
         try {
             $searchFilters = array();
 
@@ -1416,7 +1412,7 @@ class BMInterface {
 
     // Parse out the additional options that affect how search results
     // are to be presented
-    public function assemble_search_options($searchParameters) {
+    protected function assemble_search_options($searchParameters) {
         try {
             $searchOptions = array();
 
@@ -2121,7 +2117,7 @@ class BMInterface {
         }
     }
 
-    public function get_button_recipe_from_name($name) {
+    protected function get_button_recipe_from_name($name) {
         try {
             $query = 'SELECT recipe FROM button_view '.
                      'WHERE name = :name';
@@ -2188,7 +2184,7 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_from_id($playerId) {
+    protected function get_player_name_from_id($playerId) {
         try {
             if (is_null($playerId)) {
                 return('');
@@ -2214,7 +2210,7 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_mapping($game) {
+    protected function get_player_name_mapping($game) {
         $idNameMapping = array();
         foreach ($game->playerIdArray as $playerId) {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
@@ -2305,7 +2301,7 @@ class BMInterface {
 
     // Enter recent game actions into the action log
     // Note: it might be possible for this to be a protected function
-    public function log_game_actions(BMGame $game) {
+    protected function log_game_actions(BMGame $game) {
         $query = 'INSERT INTO game_action_log ' .
                  '(game_id, game_state, action_type, acting_player, message) ' .
                  'VALUES ' .
@@ -2323,7 +2319,7 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
                      'game_state,action_type,acting_player,message ' .
@@ -2372,7 +2368,7 @@ class BMInterface {
     }
 
     // Create a status message based on recent game actions
-    private function load_message_from_game_actions(BMGame $game) {
+    protected function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
         $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
@@ -2382,15 +2378,6 @@ class BMInterface {
                 $game->gameState
             ) . '. ';
         }
-    }
-
-    protected function sanitize_chat($message) {
-        // if the string is too long, truncate it
-        $encoding = mb_detect_encoding($message);
-        if (mb_strlen($message, $encoding) > self::GAME_CHAT_MAX_LENGTH) {
-            $message = substr($message, 0, self::GAME_CHAT_MAX_LENGTH, $encoding);
-        }
-        return $message;
     }
 
     protected function log_game_chat(BMGame $game) {
@@ -2404,9 +2391,6 @@ class BMInterface {
     // Insert a new chat message into the database
     protected function db_insert_chat($playerId, $gameId, $chat) {
 
-        // We're going to display this in user browsers, so first clean up all HTML tags
-        $mysqlchat = $this->sanitize_chat($chat);
-
         $query = 'INSERT INTO game_chat_log ' .
                  '(game_id, chatting_player, message) ' .
                  'VALUES ' .
@@ -2415,13 +2399,12 @@ class BMInterface {
         $statement->execute(
             array(':game_id'         => $gameId,
                   ':chatting_player' => $playerId,
-                  ':message'         => $mysqlchat)
+                  ':message'         => $chat)
         );
     }
 
     // Modify an existing chat message in the database
     protected function db_update_chat($playerId, $gameId, $editTimestamp, $chat) {
-        $mysqlchat = $this->sanitize_chat($chat);
         $query = 'UPDATE game_chat_log ' .
                  'SET message = :message, chat_time = now() ' .
                  'WHERE game_id = :game_id ' .
@@ -2430,7 +2413,7 @@ class BMInterface {
                  'ORDER BY id DESC ' .
                  'LIMIT 1';
         $statement = self::$conn->prepare($query);
-        $statement->execute(array(':message' => $mysqlchat,
+        $statement->execute(array(':message' => $chat,
                                   ':game_id' => $gameId,
                                   ':player_id' => $playerId,
                                   ':timestamp' => $editTimestamp));
@@ -2450,7 +2433,7 @@ class BMInterface {
                                   ':timestamp' => $editTimestamp));
     }
 
-    public function load_game_chat_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
                      'chatting_player,message ' .
@@ -2868,7 +2851,7 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values(
+    protected function submit_swing_values(
         $playerId,
         $gameId,
         $roundNumber,
@@ -2948,7 +2931,7 @@ class BMInterface {
         }
     }
 
-    public function submit_option_values(
+    protected function submit_option_values(
         $playerId,
         $gameId,
         $roundNumber,
@@ -3359,6 +3342,92 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
+        }
+    }
+
+    // adjust_fire expects the following inputs:
+    //
+    //   $action:
+    //       One of {'turndown', 'cancel'}.
+    //
+    //   $dieIdxArray:
+    //       (i)  If this is a 'turndown' action, then this is the nonempty array
+    //             of die indices corresponding to the die values in
+    //             dieValueArray. This can be either the indices of ALL fire
+    //             dice OR just a subset.
+    //       (ii) If this is a 'cancel' action, then this will be ignored.
+    //
+    //   $dieValueArray:
+    //       This is only used for the 'turndown' action. It is a nonempty array
+    //       containing the values of the fire dice that have been chosen by
+    //       the user. The die indices of the dice being specified are given in
+    //       $dieIdxArray.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function adjust_fire(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $submitTimestamp,
+        $action,
+        $dieIdxArray = NULL,
+        $dieValueArray = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::ADJUST_FIRE_DICE,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'turndown':
+                    if (count($dieIdxArray) != count($dieValueArray)) {
+                        $this->message = 'Mismatch in number of indices and values';
+                        return FALSE;
+                    }
+
+                    $argArray['fireValueArray'] = array();
+                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+                        $argArray['fireValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
+                    }
+                    break;
+                case 'cancel':
+                    $argArray['dieIdxArray'] = $dieIdxArray;
+                    $argArray['dieValueArray'] = $dieValueArray;
+                    break;
+                default:
+                    $this->message = 'Invalid action to adjust fire dice.';
+                    return FALSE;
+            }
+
+            $isSuccessful = $game->react_to_firing($argArray);
+            if ($isSuccessful) {
+                $this->save_game($game);
+            }
+            $this->message = $game->message;
+
+            return $isSuccessful;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::adjust_fire: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while adjusting fire dice';
             return FALSE;
         }
     }
@@ -3804,18 +3873,6 @@ class BMInterface {
     // Adds a new thread to the specified board
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
         try {
-            if (mb_strlen($title, mb_detect_encoding($title)) > self::FORUM_TITLE_MAX_LENGTH) {
-                $this->message = 'Thread titles cannot be longer than ' .
-                    self::FORUM_TITLE_MAX_LENGTH . ' characters';
-                return NULL;
-            }
-
-            if (mb_strlen($body, mb_detect_encoding($body)) > self::FORUM_BODY_MAX_LENGTH) {
-                $this->message = 'Posts cannot be longer than ' .
-                    self::FORUM_BODY_MAX_LENGTH . ' characters';
-                return NULL;
-            }
-
             $query =
                 'INSERT INTO forum_thread (board_id, title, deleted) ' .
                 'VALUES (:board_id, :title, 0);';
@@ -3858,12 +3915,6 @@ class BMInterface {
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
         try {
-            if (mb_strlen($body) > self::FORUM_BODY_MAX_LENGTH) {
-                $this->message = 'Posts cannot be longer than ' .
-                    self::FORUM_BODY_MAX_LENGTH . ' characters';
-                return NULL;
-            }
-
             $query =
                 'INSERT INTO forum_post ' .
                     '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
@@ -3891,6 +3942,58 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::create_forum_post: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    // Changes the body of the specified post
+    public function edit_forum_post($currentPlayerId, $postId, $body) {
+        try {
+            $query =
+                'SELECT p.poster_player_id, p.deleted, p.thread_id ' .
+                'FROM forum_post p ' .
+                'WHERE p.id = :post_id;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':post_id' => $postId));
+
+            $fetchResult = $statement->fetchAll();
+            if (count($fetchResult) != 1) {
+                $this->message = 'Post not found';
+                return NULL;
+            }
+            if ((int)$fetchResult[0]['poster_player_id'] != $currentPlayerId) {
+                $this->message = 'Post does not belong to you';
+                return NULL;
+            }
+            if ((int)$fetchResult[0]['deleted'] == 1) {
+                $this->message = 'Post was already deleted';
+                return NULL;
+            }
+            $threadId = (int)$fetchResult[0]['thread_id'];
+
+            $query =
+                'UPDATE forum_post ' .
+                'SET body = :body, last_update_time = NOW() ' .
+                'WHERE id = :post_id;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(
+                ':post_id' => $postId,
+                ':body' => $body,
+            ));
+
+            $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
+
+            if ($results) {
+                $this->message = 'Forum post edited successfully';
+            }
+            return $results;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::edit_forum_post: ' .
                 $e->getMessage()
             );
             return NULL;
