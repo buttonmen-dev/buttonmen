@@ -344,7 +344,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                              array('__random', '__random'), 4);
         $gameId = $retval['gameId'];
 
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertFalse(empty($game->buttonArray[0]->name));
         $this->assertNotEquals('__random', $game->buttonArray[0]->name);
         $this->assertFalse(empty($game->buttonArray[1]->name));
