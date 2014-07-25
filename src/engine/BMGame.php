@@ -1157,7 +1157,7 @@ class BMGame {
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
             array(
-                'attackType' => $attack->type,
+                'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
             )

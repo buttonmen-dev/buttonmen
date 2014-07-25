@@ -384,6 +384,10 @@ abstract class BMAttack {
         return $firingMaxima;
     }
 
+    public function type_for_log() {
+        return $this->type;
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -401,5 +405,9 @@ abstract class BMAttack {
 //            default:
 //                $this->$property = $value;
 //        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
     }
 }

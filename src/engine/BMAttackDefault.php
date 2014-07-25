@@ -44,6 +44,10 @@ class BMAttackDefault extends BMAttack {
         }
     }
 
+    public function type_for_log() {
+        return $this->resolvedType;
+    }
+
     protected function are_skills_compatible(array $attArray, array $defArray) {
         return TRUE;
     }

@@ -9261,6 +9261,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(0, 1), // defenderAttackDieIdxArray
                               'Default'); // attackType
         $game->proceed_to_next_user_action();
+
+        // james: note that end normally shifts the pointer, so use
+        // call_user_func and array_values to avoid changing the original array
+        $lastLogEntry = call_user_func('end', array_values($game->actionLog));
+        $this->assertEquals('attack', $lastLogEntry->actionType);
+        $this->assertEquals('Speed', $lastLogEntry->params['attackType']);
+
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
@@ -9277,6 +9284,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Default'); // attackType
         $game->proceed_to_next_user_action();
+
+        // james: note that end normally shifts the pointer, so use
+        // call_user_func and array_values to avoid changing the original array
+        $lastLogEntry = call_user_func('end', array_values($game->actionLog));
+        $this->assertEquals('attack', $lastLogEntry->actionType);
+        $this->assertEquals('Power', $lastLogEntry->params['attackType']);
+
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(4, $game->activeDieArrayArray[0]);
@@ -9292,6 +9306,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'Default'); // attackType
         $game->proceed_to_next_user_action();
+
+        // james: note that end normally shifts the pointer, so use
+        // call_user_func and array_values to avoid changing the original array
+        $lastLogEntry = call_user_func('end', array_values($game->actionLog));
+        $this->assertEquals('attack', $lastLogEntry->actionType);
+        $this->assertEquals('Skill', $lastLogEntry->params['attackType']);
+
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(4, $game->activeDieArrayArray[0]);
