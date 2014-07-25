@@ -12,6 +12,7 @@ SkillName = {
   'f': 'Focus',
   'k': 'Konstant',
   '&': 'Mad',
+  'M': 'Maximum',
   '?': 'Mood',
   'm': 'Morphing',
   'n': 'Null',
