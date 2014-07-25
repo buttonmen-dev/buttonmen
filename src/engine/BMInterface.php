@@ -4157,4 +4157,4 @@ class BMInterface {
                 $this->$property = $value;
         }
     }
-}     
+}
