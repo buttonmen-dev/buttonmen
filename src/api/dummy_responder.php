@@ -7,6 +7,9 @@
  * @author chaos
  */
 
+/**
+ * Requires both the actual spec and the dummy responder feeding the mock data
+ */
 require_once 'DummyApiResponder.php';
 require_once 'ApiSpec.php';
 

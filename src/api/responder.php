@@ -5,6 +5,9 @@
  * @author chaos
  */
 
+/**
+ * Requires both the actual spec and the responder feeding the real data
+ */
 require_once 'ApiResponder.php';
 require_once 'ApiSpec.php';
 
