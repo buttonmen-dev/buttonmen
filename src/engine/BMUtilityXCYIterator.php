@@ -1,13 +1,19 @@
 <?php
+/**
+ * BMUtilityXCYIterator: utility class used for defining a combination iterator
+ *
+ * @author Julian
+ */
 
-// Iterator to return all possible lists of Y elements from list X.
-//
-// Once you take stinger and constant into account, this is probably
-// way too slow for the full search for a skill attack, but we need it
-// anyway for choose 1 and choose 2, and it's easier to understand
-// than the optimized search I have in mind.
-//
-// a generator would be nicer here, but that's not available
+/** Iterator to return all possible lists of Y elements from list X.
+ *
+ *  Once you take stinger and constant into account, this is probably
+ *  way too slow for the full search for a skill attack, but we need it
+ *  anyway for choose 1 and choose 2, and it's easier to understand
+ *  than the optimized search I have in mind.
+ *
+ * a generator would be nicer here, but that's not available
+ */
 class BMUtilityXCYIterator implements Iterator {
     private $position;
     private $list;

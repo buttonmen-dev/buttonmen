@@ -1,9 +1,12 @@
 <?php
-
 /**
  * BMGame: current status of a game
  *
  * @author james
+ */
+
+/**
+ * This class contains all the logic to do with games, specified at each game state
  *
  * @property      int   $gameId                  Game ID number in the database
  * @property      array $playerIdArray           Array of player IDs
@@ -51,7 +54,6 @@
  * @SuppressWarnings(PMD.TooManyMethods)
  * @SuppressWarnings(PMD.UnusedPrivateField)
  */
-
 class BMGame {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters

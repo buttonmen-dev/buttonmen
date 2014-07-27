@@ -2,7 +2,7 @@
 /**
  * BMFlagJustPerformedTripAttack: Used to signal that a die has just trip attacked
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**

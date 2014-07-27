@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackPass: Code specific to pass attacks
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to pass attacks
+ */
 class BMAttackPass extends BMAttack {
     public $type = "Pass";
 

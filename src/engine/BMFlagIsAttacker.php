@@ -2,7 +2,7 @@
 /**
  * BMFlagIsAttacker: Used to signal that a die is an attacker
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**

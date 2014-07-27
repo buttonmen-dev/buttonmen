@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillBerserk: Code specific to the berserk die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the berserk die skill
+ */
 class BMSkillBerserk extends BMSkill {
     public static $hooked_methods = array('attack_list', 'capture');
 

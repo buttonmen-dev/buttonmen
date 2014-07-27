@@ -1,9 +1,12 @@
 <?php
-
 /**
  * BMAttack: attack validation and committal code
  *
  * @author Julian
+ */
+
+/**
+ * This class is the parent class for all attack types
  */
 abstract class BMAttack {
     protected static $instance = array();

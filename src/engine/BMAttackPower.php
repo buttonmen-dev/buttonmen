@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackPower: code specific to power attacks
+ *
+ * @author Julian
+ */
 
+/**
+ * This class contains code specific to power attacks
+ */
 class BMAttackPower extends BMAttack {
     public $type = 'Power';
 

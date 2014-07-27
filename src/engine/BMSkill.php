@@ -2,7 +2,7 @@
 /**
  * BMSkill: Used to modify the operation of BMDie
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**

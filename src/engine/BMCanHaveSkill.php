@@ -1,12 +1,13 @@
 <?php
-
 /**
- * BMCanHaveSkill: convenience class to hold skill logic
+ * BMCanHaveSkill: convenience class to hold logic shared by die skills and button skills
  *
  * @author james
- *
  */
 
+/**
+ * This class is the parent class for BMSkill and BMBtnSkill
+ */
 class BMCanHaveSkill {
     // properties
 

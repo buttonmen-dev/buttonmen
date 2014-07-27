@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillMaximum: Code specific to the maximum die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the maximum die skill
+ */
 class BMSkillMaximum extends BMSkill {
     public static $hooked_methods = array('post_roll');
 

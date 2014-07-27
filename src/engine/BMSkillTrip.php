@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillTrip: Code specific to the trip die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the trip die skill
+ */
 class BMSkillTrip extends BMSkill {
     public static $hooked_methods = array('attack_list',
                                           'initiative_value',

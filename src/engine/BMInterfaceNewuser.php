@@ -4,13 +4,16 @@
  * BMInterfaceNewuser: new user interface between GUI and BMGame
  *
  * @author chaos
+ */
+
+/**
+ * This class should contain all interface functions which may be
+ * accessed by an unauthenticated user.  Its response format and
+ * database usage should mirror that of BMInterface.
  *
  * @property-read string $message                Message intended for GUI
  * @property-read DateTime $timestamp            Timestamp of last game action
  *
- * This class should contain all interface functions which may be
- * accessed by an unauthenticated user.  Its response format and
- * database usage should mirror that of BMInterface
  *
  */
 class BMInterfaceNewuser {

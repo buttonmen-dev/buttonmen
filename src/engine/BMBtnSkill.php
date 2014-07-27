@@ -1,29 +1,13 @@
 <?php
-
 /*
  * BMBtnSkill: Used to modify the operation of BMButton
  *
- * @author: James Ong
+ * @author: james
  */
 
+/**
+ * This class is the parent class for all button skills
+ */
 class BMBtnSkill {
 
-//    public static function attack_types() {
-//        return array(// skill related attack types
-//                     'Berserk',
-//                     'Konstant',
-//                     'Null',
-//                     'Shadow',
-//                     'Speed',
-//                     'Trip',
-//                     // standard attack types
-//                     'Power',
-//                     'Skill',
-//                     'Pass',
-//                     'Surrender');
-//    }
-//
-//    public static function incompatible_attack_types() {
-//        return array();
-//    }
 }
