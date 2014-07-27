@@ -1,11 +1,12 @@
 <?php
-/*
- * BMBtnSkillGiant: Code specific to Giant
+/**
+ *  BMBtnSkillGiant: Code specific to Giant
  *
- * @author: james
+ *  @author: james
  */
 
-/* This class currently supports the special skills of Giant
+/**
+ *  This class currently supports the special skills of Giant
  */
 class BMBtnSkillGiant extends BMBtnSkill {
     public static $hooked_methods = array('is_button_slow');

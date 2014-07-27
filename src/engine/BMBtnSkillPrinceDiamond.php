@@ -1,12 +1,13 @@
 <?php
-/*
- * BMBtnSkillPrinceDiamond: Code specific to Prince Diamond
+/**
+ *  BMBtnSkillPrinceDiamond: Code specific to Prince Diamond
  *
- * @author: james
+ *  @author: james
  */
 
-/* This class currently allows Prince Diamond to be re-enabled at
- * button selection.
+/**
+ *  This class currently allows Prince Diamond to be re-enabled at
+ *  button selection.
  */
 class BMBtnSkillPrinceDiamond extends BMBtnSkillArtificialReenable {
 

@@ -1,12 +1,13 @@
 <?php
-/*
- * BMBtnSkillSailorMoon: Code specific to Sailor Moon
+/**
+ *  BMBtnSkillSailorMoon: Code specific to Sailor Moon
  *
- * @author: james
+ *  @author: james
  */
 
-/* This class currently allows Sailor Moon to be re-enabled at
- * button selection.
+/**
+ *  This class currently allows Sailor Moon to be re-enabled at
+ *  button selection.
  */
 class BMBtnSkillSailorMoon extends BMBtnSkillArtificialReenable {
 

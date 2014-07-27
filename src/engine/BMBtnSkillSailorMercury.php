@@ -1,12 +1,13 @@
 <?php
-/*
- * BMBtnSkillSailorMercury: Code specific to Sailor Mercury
+/**
+ *  BMBtnSkillSailorMercury: Code specific to Sailor Mercury
  *
- * @author: james
+ *  @author: james
  */
 
-/* This class currently allows Sailor Mercury to be re-enabled at
- * button selection.
+/**
+ *  This class currently allows Sailor Mercury to be re-enabled at
+ *  button selection.
  */
 class BMBtnSkillSailorMercury extends BMBtnSkillArtificialReenable {
 

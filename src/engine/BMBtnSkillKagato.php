@@ -1,12 +1,13 @@
 <?php
-/*
- * BMBtnSkillKagato: Code specific to Kagato
+/**
+ *  BMBtnSkillKagato: Code specific to Kagato
  *
- * @author: james
+ *  @author: james
  */
 
-/* This class currently allows Kagato to be re-enabled at
- * button selection.
+/**
+ *  This class currently allows Kagato to be re-enabled at
+ *  button selection.
  */
 class BMBtnSkillKagato extends BMBtnSkillArtificialReenable {
 

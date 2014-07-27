@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * BMBtnSkill: Used to modify the operation of BMButton
  *
  * @author: james
