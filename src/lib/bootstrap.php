@@ -1,15 +1,23 @@
 <?php
+/**
+ * bootstrap: defines autoload behaviour for BM* classes
+ */
 
-// Find and set the root directory of ButtonWeavers PHP files, so
-// autoload can use it - this assumes this file itself is
-//   BW_PHP_ROOT/lib/bootstrap.php
+/**
+ * Find and set the root directory of ButtonWeavers PHP files, so
+ * autoload can use it - this assumes this file itself is
+ *   BW_PHP_ROOT/lib/bootstrap.php
+ */
 define('BW_PHP_ROOT', realpath(dirname(__DIR__)));
 
 /**
  * Take a class name and try and find the source file
  * 
- * * Designed to be used with the spl_autoload_register() function
- *   to capture calls for classes that don't exist
+ * Designed to be used with the spl_autoload_register() function
+ * to capture calls for classes that don't exist
+ *
+ * @param string $name
+ * @return boolean
  */
 function buttonweavers_autoload($name) {
 
