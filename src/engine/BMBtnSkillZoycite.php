@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillZoycite: Code specific to Zoycite
+ * BMBtnSkillZoycite: Code specific to Zoycite
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Zoycite to be re-enabled at
- *  button selection.
+ * This class currently allows Zoycite to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillZoycite extends BMBtnSkillArtificialReenable {
 

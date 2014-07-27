@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillKingEndymion: Code specific to King Endymion
+ * BMBtnSkillKingEndymion: Code specific to King Endymion
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows King Endymion to be re-enabled at
- *  button selection.
+ * This class currently allows King Endymion to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillKingEndymion extends BMBtnSkillArtificialReenable {
 

@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillDrClay: Code specific to Dr Clay
+ * BMBtnSkillDrClay: Code specific to Dr Clay
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Dr Clay to be re-enabled at
- *  button selection.
+ * This class currently allows Dr Clay to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillDrClay extends BMBtnSkillArtificialReenable {
 

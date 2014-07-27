@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillPrincessSerena: Code specific to Princess Serena
+ * BMBtnSkillPrincessSerena: Code specific to Princess Serena
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Princess Serena to be re-enabled at
- *  button selection.
+ * This class currently allows Princess Serena to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillPrincessSerena extends BMBtnSkillArtificialReenable {
 

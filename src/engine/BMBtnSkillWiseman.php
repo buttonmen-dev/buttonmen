@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillWiseman: Code specific to Wiseman
+ * BMBtnSkillWiseman: Code specific to Wiseman
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Wiseman to be re-enabled at
- *  button selection.
+ * This class currently allows Wiseman to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillWiseman extends BMBtnSkillArtificialReenable {
 

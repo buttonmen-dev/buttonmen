@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillSojasGuardians: Code specific to Soja's Guardians
+ * BMBtnSkillSojasGuardians: Code specific to Soja's Guardians
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Soja's Guardians to be re-enabled at
- *  button selection.
+ * This class currently allows Soja's Guardians to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillSojasGuardians extends BMBtnSkillArtificialReenable {
 

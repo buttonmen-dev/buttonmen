@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillWashu: Code specific to Washu
+ * BMBtnSkillWashu: Code specific to Washu
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Washu to be re-enabled at
- *  button selection.
+ * This class currently allows Washu to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillWashu extends BMBtnSkillArtificialReenable {
 

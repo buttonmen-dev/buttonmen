@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillPappy: Code specific to Pappy
+ * BMBtnSkillPappy: Code specific to Pappy
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Pappy to be re-enabled at
- *  button selection.
+ * This class currently allows Pappy to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillPappy extends BMBtnSkillArtificialReenable {
 
