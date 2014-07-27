@@ -35,7 +35,7 @@ class BMSkill {
      * Determine if there is an unimplemented skill in a skill recipe string
      *
      * @param string $skillString
-     * @return boolean
+     * @return bool
      */
     public static function unimplemented_skill_in_string($skillString) {
         if ('' === $skillString) {
@@ -215,7 +215,7 @@ class BMSkill {
     /**
      * Determine if a skill abbreviation should appear before the die recipe
      *
-     * @return boolean
+     * @return bool
      */
     public static function do_print_skill_preceding() {
         return TRUE;
@@ -272,7 +272,7 @@ class BMSkill {
     /**
      * Does this skill prevent the determination of whether a player can win?
      *
-     * @return boolean
+     * @return bool
      */
     public static function prevents_win_determination() {
         return FALSE;

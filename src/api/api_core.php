@@ -10,7 +10,7 @@
  *
  * @param string $username
  * @param string $password
- * @return boolean
+ * @return bool
  */
 function login($username, $password) {
     require_once '../database/mysql.inc.php';
@@ -72,7 +72,7 @@ function login($username, $password) {
  * If the user is logged in, make sure a valid session exists.
  * Otherwise, return false.
  *
- * @return boolean
+ * @return bool
  */
 function auth_session_exists() {
 
@@ -114,7 +114,7 @@ function auth_session_exists() {
 /**
  * Destroy currently running session, based on cookie parameters
  *
- * @return NULL
+ * @return void
  */
 function logout() {
     if (array_key_exists('auth_userid', $_COOKIE) &&

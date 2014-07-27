@@ -17,7 +17,7 @@ define('BW_PHP_ROOT', realpath(dirname(__DIR__)));
  * to capture calls for classes that don't exist
  *
  * @param string $name
- * @return boolean
+ * @return bool
  */
 function buttonweavers_autoload($name) {
 
