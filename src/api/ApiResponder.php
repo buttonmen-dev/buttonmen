@@ -1,5 +1,14 @@
 <?php
+/**
+ * ApiResponder: defines how UI arguments are passed to BMInterface
+ *
+ * @author chaos
+ */
 
+/**
+ * This class specifies the link between the public API functions and
+ * BMInterface
+ */
 class ApiResponder {
 
     // properties

@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillSapphire: Code specific to Sapphire
+ * BMBtnSkillSapphire: Code specific to Sapphire
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Sapphire to be re-enabled at
- *  button selection.
+ * This class currently allows Sapphire to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillSapphire extends BMBtnSkillArtificialReenable {
 

@@ -1,12 +1,12 @@
 <?php
 /**
- *  BMBtnSkillZero: Code specific to Zero
+ * BMBtnSkillZero: Code specific to Zero
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently supports the special skills of Zero
+ * This class currently supports the special skills of Zero
  */
 class BMBtnSkillZero extends BMBtnSkillEcho {
 

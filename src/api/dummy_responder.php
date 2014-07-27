@@ -1,8 +1,10 @@
 <?php
-
-/** Alternative responder which doesn't use real databases or
- *  sessions, but rather exists only to send dummy data used for
- *  automated testing of API compliance
+/**
+ * dummy_responder: Alternative responder which doesn't use real
+ * databases or sessions, but rather exists only to send dummy data
+ * used for automated testing of API compliance
+ *
+ * @author chaos
  */
 
 require_once 'DummyApiResponder.php';

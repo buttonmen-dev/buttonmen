@@ -1,12 +1,12 @@
 <?php
 /**
- *  BMBtnSkillEcho: Code specific to Echo
+ * BMBtnSkillEcho: Code specific to Echo
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently supports the special skills of Echo
+ * This class currently supports the special skills of Echo
  */
 class BMBtnSkillEcho extends BMBtnSkill {
     public static $hooked_methods = array('load_buttons');

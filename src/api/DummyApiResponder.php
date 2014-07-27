@@ -1,10 +1,13 @@
 <?php
-
-/** Alternative responder which doesn't use real databases or
- *  sessions, but rather exists only to send dummy data used for
- *  automated testing of API compliance
+/**
+ * DummyApiResponder: Contains the mock data used for unit testing the UI
+ *
+ * @author chaos
  */
 
+/**
+ * This class generates the mock data necessary for unit testing the UI
+ */
 class DummyApiResponder {
     // properties
 

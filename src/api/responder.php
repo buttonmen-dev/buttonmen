@@ -1,4 +1,9 @@
 <?php
+/**
+ * responder: responds to POST requests from the UI
+ *
+ * @author chaos
+ */
 
 require_once 'ApiResponder.php';
 require_once 'ApiSpec.php';

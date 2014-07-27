@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillSailorMars: Code specific to Sailor Mars
+ * BMBtnSkillSailorMars: Code specific to Sailor Mars
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Sailor Mars to be re-enabled at
- *  button selection.
+ * This class currently allows Sailor Mars to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillSailorMars extends BMBtnSkillArtificialReenable {
 

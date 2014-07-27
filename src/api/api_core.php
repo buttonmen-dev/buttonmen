@@ -1,4 +1,10 @@
 <?php
+/**
+ * api_core: functions handling login, authorisation, and logout
+ *
+ * @author james
+ */
+
 function login($username, $password) {
     require_once '../database/mysql.inc.php';
     $conn = conn();

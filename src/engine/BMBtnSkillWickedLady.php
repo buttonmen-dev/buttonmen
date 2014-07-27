@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillWickedLady: Code specific to Wicked Lady
+ * BMBtnSkillWickedLady: Code specific to Wicked Lady
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Wicked Lady to be re-enabled at
- *  button selection.
+ * This class currently allows Wicked Lady to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillWickedLady extends BMBtnSkillArtificialReenable {
 

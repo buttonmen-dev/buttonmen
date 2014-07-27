@@ -1,13 +1,13 @@
 <?php
 /**
- *  BMBtnSkillQueenBeryl: Code specific to Queen Beryl
+ * BMBtnSkillQueenBeryl: Code specific to Queen Beryl
  *
- *  @author: james
+ * @author: james
  */
 
 /**
- *  This class currently allows Queen Beryl to be re-enabled at
- *  button selection.
+ * This class currently allows Queen Beryl to be re-enabled at
+ * button selection.
  */
 class BMBtnSkillQueenBeryl extends BMBtnSkillArtificialReenable {
 
