@@ -6,8 +6,8 @@
  */
 
 /**
- * This class is a flag that signals that a die is an attacker.
- * It stores the attack type.
+ *  This class is a flag that signals that a die is an attacker.
+ *  It stores the attack type.
  */
 class BMFlagIsAttacker extends BMFlag {
 
