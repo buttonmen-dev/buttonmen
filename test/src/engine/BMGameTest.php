@@ -9169,6 +9169,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                 'dieValueArray' => array(6)
             )
         );
+        $this->assertFalse($game->activeDieArrayArray[0][0]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][1]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][2]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[0][3]->has_flag('IsAttacker'));
+        $this->assertFalse($game->activeDieArrayArray[1][0]->has_flag('IsAttackTarget'));
+        $this->assertFalse($game->activeDieArrayArray[1][1]->has_flag('IsAttackTarget'));
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $game->update_game_state();
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
