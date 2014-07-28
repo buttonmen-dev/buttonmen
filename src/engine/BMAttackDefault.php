@@ -1,5 +1,14 @@
 <?php
+/**
+ * BMAttackDefault: Code allowing automatic choice of a default attack
+ *
+ * @author james
+ */
 
+/**
+ * This class contains the code required to enable a default attack, when
+ * there is no ambiguity about the type of attack that is desired
+ */
 class BMAttackDefault extends BMAttack {
     public $type = 'Default';
     protected $resolvedType = '';
