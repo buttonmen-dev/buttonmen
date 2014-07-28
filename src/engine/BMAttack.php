@@ -62,10 +62,34 @@ abstract class BMAttack {
             }
         }
 
-        // james: deliberately ignore Surrender attacks here, so that it
-        //        does not appear in the list of attack types
+        uksort($allAttackTypesArray, 'BMAttack::display_cmp');
+
+        // james: deliberately ignore Default and Surrender attacks here,
+        //        so that they do not appear in the list of attack types
 
         return $allAttackTypesArray;
+    }
+
+    protected static function display_cmp($str1, $str2) {
+        if ($str1 == $str2) {
+            return 0;
+        }
+
+        // force Power attacks to be displayed first
+        if ('Power' == $str1) {
+            return -1;
+        } elseif ('Power' == $str2) {
+            return 1;
+        }
+
+        // force Skill attacks to be displayed first, except for Power
+        if ('Skill' == $str1) {
+            return -1;
+        } elseif ('Skill' == $str2) {
+            return 1;
+        }
+
+        return strcasecmp($str1, $str2);
     }
 
     public function add_die(BMDie $die) {
@@ -163,6 +187,8 @@ abstract class BMAttack {
             return FALSE;
         }
 
+        $this->resolve_default_attack($game);
+
         if ('Surrender' == $game->attack['attackType']) {
             $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray = array_fill(0, $game->nPlayers, FALSE);
@@ -225,6 +251,13 @@ abstract class BMAttack {
         return TRUE;
     }
 
+    protected function resolve_default_attack(&$game) {
+        if ('Default' == $game->attack['attackType']) {
+            $attack = $game->attack;
+            $attack['attackType'] = $this->resolvedType;
+            $game->attack = $attack;
+        }
+    }
 
     protected function process_captured_dice($game, array $defenders) {
         // james: currently only defenders, but could conceivably also include attackers
@@ -351,6 +384,10 @@ abstract class BMAttack {
         return $firingMaxima;
     }
 
+    public function type_for_log() {
+        return $this->type;
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -368,5 +405,9 @@ abstract class BMAttack {
 //            default:
 //                $this->$property = $value;
 //        }
+    }
+
+    public function __isset($property) {
+        return isset($this->$property);
     }
 }

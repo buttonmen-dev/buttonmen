@@ -1157,7 +1157,7 @@ class BMGame {
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
             array(
-                'attackType' => $attack->type,
+                'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
             )
@@ -1868,6 +1868,8 @@ class BMGame {
 
         $validAttackTypeArray = array();
 
+        $attackCache = $this->attack;
+
         // find out if there are any possible attacks with any combination of
         // the attacker's and defender's dice
         foreach ($attackTypeArray as $idx => $attackType) {
@@ -1887,14 +1889,14 @@ class BMGame {
             }
         }
 
-        $this->attack = NULL;
+        $this->attack = $attackCache;
 
         if (empty($validAttackTypeArray)) {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
-        // james: deliberately ignore Surrender attacks here, so that it
-        //        does not appear in the list of attack types
+        // james: deliberately ignore Default and Surrender attacks here,
+        //        so that they do not appear in the list of attack types
 
         return $validAttackTypeArray;
     }
