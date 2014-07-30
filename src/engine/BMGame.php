@@ -1118,6 +1118,17 @@ class BMGame {
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
         $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
 
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            if (empty($activeDieArray)) {
+                continue;
+            }
+
+            foreach ($activeDieArray as $die) {
+                $die->remove_flag('IsAttacker');
+                $die->remove_flag('IsAttackTarget');
+            }
+        }
+
         $this->log_action(
             'fire_cancel',
             $this->playerIdArray[$this->activePlayerIdx],
