@@ -157,7 +157,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         );
     }
 
-        /**
+    /**
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_power_after_fire_turndown() {
