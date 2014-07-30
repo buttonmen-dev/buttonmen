@@ -1,9 +1,12 @@
 <?php
-
 /**
  * BMGame: current status of a game
  *
  * @author james
+ */
+
+/**
+ * This class contains all the logic to do with games, specified at each game state
  *
  * @property      int   $gameId                  Game ID number in the database
  * @property      array $playerIdArray           Array of player IDs
@@ -51,7 +54,6 @@
  * @SuppressWarnings(PMD.TooManyMethods)
  * @SuppressWarnings(PMD.UnusedPrivateField)
  */
-
 class BMGame {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters
@@ -1118,6 +1120,17 @@ class BMGame {
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
         $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
 
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            if (empty($activeDieArray)) {
+                continue;
+            }
+
+            foreach ($activeDieArray as $die) {
+                $die->remove_flag('IsAttacker');
+                $die->remove_flag('IsAttackTarget');
+            }
+        }
+
         $this->log_action(
             'fire_cancel',
             $this->playerIdArray[$this->activePlayerIdx],
@@ -1157,7 +1170,7 @@ class BMGame {
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
             array(
-                'attackType' => $attack->type,
+                'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
             )
@@ -1868,6 +1881,8 @@ class BMGame {
 
         $validAttackTypeArray = array();
 
+        $attackCache = $this->attack;
+
         // find out if there are any possible attacks with any combination of
         // the attacker's and defender's dice
         foreach ($attackTypeArray as $idx => $attackType) {
@@ -1887,14 +1902,14 @@ class BMGame {
             }
         }
 
-        $this->attack = NULL;
+        $this->attack = $attackCache;
 
         if (empty($validAttackTypeArray)) {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
-        // james: deliberately ignore Surrender attacks here, so that it
-        //        does not appear in the list of attack types
+        // james: deliberately ignore Default and Surrender attacks here,
+        //        so that they do not appear in the list of attack types
 
         return $validAttackTypeArray;
     }

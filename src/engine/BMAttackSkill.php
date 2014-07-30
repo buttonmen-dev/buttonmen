@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackSkill: Code specific to skill attacks
+ *
+ * @author Julian
+ */
 
+/**
+ * This class contains code specific to skill attacks
+ */
 class BMAttackSkill extends BMAttack {
     public $type = "Skill";
 

@@ -1,9 +1,13 @@
 <?php
-
-/*
+/**
  * BMDie: the fundamental unit of game mechanics
  *
- * @author: Julian Lighton
+ * @author: Julian
+ */
+
+/**
+ * This class contains all the logic to do with dice, including instantiating, activating,
+ * rolling, capturing, describing, as well as die flags
  *
  * @property-read int    $min                   Minimum die value
  * @property-read int    $max                   Maximum die value
@@ -21,7 +25,6 @@
  * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  */
-
 class BMDie extends BMCanHaveSkill {
     // properties
 
@@ -181,7 +184,8 @@ class BMDie extends BMCanHaveSkill {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
+        $this->run_hooks('post_roll', array('die' => $this,
+                                            'isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     public function attack_list() {

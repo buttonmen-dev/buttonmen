@@ -54,7 +54,9 @@ Overview.showOverviewPage = function() {
   case 'monitor':
     Overview.monitorIsOn = true;
     // If we're in monitor mode, run the monitor first
-    Api.getUserPrefsData(Overview.executeMonitor);
+    Api.getUserPrefsData(function() {
+      Overview.executeMonitor();
+    });
     break;
   case 'preference':
     Api.getUserPrefsData(function() {
@@ -79,9 +81,10 @@ Overview.showOverviewPage = function() {
 
 Overview.getOverview = function(callback) {
   if (Login.logged_in) {
-    Api.getActiveGamesData(function() {
-      Api.getCompletedGamesData(callback);
-    });
+    Env.callAsyncInParallel([
+      Api.getActiveGamesData,
+      Api.getCompletedGamesData,
+    ], callback);
   } else {
     return callback();
   }
@@ -140,10 +143,11 @@ Overview.arrangePage = function() {
 
 Overview.executeMonitor = function() {
   if (Api.user_prefs.monitor_redirects_to_game &&
-    Api.user_prefs.monitor_redirects_to_forum) {
-    Api.getNextGameId(function() {
-      Api.getNextNewPostId(Overview.completeMonitor);
-    });
+      Api.user_prefs.monitor_redirects_to_forum) {
+    Env.callAsyncInParallel([
+      Api.getNextGameId,
+      Api.getNextNewPostId,
+    ], Overview.completeMonitor);
   } else if (Api.user_prefs.monitor_redirects_to_game) {
     Api.getNextGameId(Overview.completeMonitor);
   } else if (Api.user_prefs.monitor_redirects_to_forum) {

@@ -3,13 +3,7 @@
 DROP VIEW IF EXISTS forum_player_post_view;
 CREATE VIEW forum_player_post_view
 AS SELECT
-    post.id,
-    post.thread_id,
-    post.poster_player_id,
-    post.creation_time,
-    post.last_update_time,
-    post.body,
-    post.deleted,
+    post.*,
     poster.name_ingame AS poster_name,
     thread.board_id AS board_id,
     reader.id AS reader_player_id,

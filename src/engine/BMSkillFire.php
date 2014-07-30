@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillFire: Code specific to the fire die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the fire die skill
+ */
 class BMSkillFire extends BMSkill {
     public static $hooked_methods = array('attack_list',
                                           'assist_values');

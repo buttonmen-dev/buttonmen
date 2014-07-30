@@ -1,18 +1,22 @@
 <?php
-
 /**
  * BMEmail: an e-mail message sent by buttonmen
  *
- * @author cgolubi1
+ * @author chaos
+ */
+
+/**
+ * This class contains all logic needed to construct any e-mail message.
+ * 
+ * Note that there are no generic message construction or sending
+ * functions, intentionally.  Keep all the syntax needed to construct
+ * any e-mail message inside this class, so we can keep it all in sync.
  *
  * @property-read string $subject                Message subject header
  * @property-read string $recipient              Message recipient address
  * @property-read string $bodypars               Paragraphs to be placed in the message body
  * @property-read string $isTest                 Is this BMEmail object part of a test?
  *
- * Note that there are no generic message construction or sending
- * functions, intentionally.  Keep all the syntax needed to construct
- * any e-mail message inside this class, so we can keep it all in sync.
  */
 class BMEmail {
 

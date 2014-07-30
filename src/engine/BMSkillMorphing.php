@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillMorphing: Code specific to the morphing die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the morphing die skill
+ */
 class BMSkillMorphing extends BMSkill {
     public static $hooked_methods = array('capture');
 

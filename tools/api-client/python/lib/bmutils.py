@@ -12,6 +12,7 @@ SkillName = {
   'f': 'Focus',
   'k': 'Konstant',
   '&': 'Mad',
+  'M': 'Maximum',
   '?': 'Mood',
   'm': 'Morphing',
   'n': 'Null',
@@ -25,6 +26,7 @@ SkillName = {
   'g': 'Stinger',
   't': 'Trip',
   'v': 'Value',
+  'F': 'Fire',
 }
 
 class BMClientParser(bmapi.BMClient):

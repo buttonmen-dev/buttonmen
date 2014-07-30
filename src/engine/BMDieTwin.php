@@ -1,5 +1,15 @@
 <?php
+/**
+ * BMDieTwin: Code specific to twin dice
+ *
+ * @author james
+ */
 
+/**
+ * This class contains all the logic to do with instantiating twin dice
+ *
+ * @property      array $dice         Array of two dice that make up the twin die
+ */
 class BMDieTwin extends BMDie {
     public $dice;
 

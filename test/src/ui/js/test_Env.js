@@ -255,4 +255,61 @@ test("test_Env.toggleSpoiler", function() {
   Env.toggleSpoiler.call(spoiler);
   ok(!spoiler.hasClass('chatExposedSpoiler'),
     'Spoiler should not be styled as revealed');
+asyncTest("test_Env.callAsyncInParallel", function() {
+  expect(3); // number of tests plus 1 for the teardown test
+
+  var result1 = 0;
+  var result2 = 0;
+
+  var func1 = function(callback) {
+    setTimeout(function() {
+      result1 = 33;
+      callback();
+    }, 50);
+  };
+
+  var func2 = function(callback) {
+    setTimeout(function() {
+      result2 = 33;
+      callback();
+    }, 100);
+  };
+
+  Env.callAsyncInParallel([ func1, func2 ], function() {
+    equal(result1, 33, 'func1 should have completed its async task');
+    equal(result2, 33, 'func2 should have completed its async task');
+    start();
+  });
+});
+
+asyncTest("test_Env.callAsyncInParallel_withArgs", function() {
+  expect(3); // number of tests plus 1 for the teardown test
+
+  var result1 = 0;
+  var result2 = 0;
+
+  var func1 = function(input, callback) {
+    setTimeout(function() {
+      result1 = input;
+      callback();
+    }, 50);
+  };
+
+  var func2 = function(input, callback) {
+    setTimeout(function() {
+      result2 = input;
+      callback();
+    }, 100);
+  };
+
+  Env.callAsyncInParallel(
+    [
+      { 'func': func1, 'args': [ 11 ] },
+      { 'func': func2, 'args': [ 22 ] },
+    ], function() {
+      equal(result1, 11, 'func1 should have completed its async task');
+      equal(result2, 22, 'func2 should have completed its async task');
+      start();
+    });
+  });
 });
