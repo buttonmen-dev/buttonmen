@@ -4,6 +4,10 @@
  * BMInterface: interface between GUI and BMGame
  *
  * @author james
+ */
+
+/**
+ * This class deals with communication between the UI, the game code, and the database
  *
  * @property-read string $message                Message intended for GUI
  * @property-read DateTime $timestamp            Timestamp of last game action

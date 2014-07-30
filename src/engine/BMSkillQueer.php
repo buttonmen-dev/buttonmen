@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillQueer: Code specific to the queer die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the queer die skill
+ */
 class BMSkillQueer extends BMSkill {
     public static $hooked_methods = array('attack_list');
 

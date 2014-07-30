@@ -1,38 +1,43 @@
 <?php
-
 /**
- * BMCanHaveSkill: convenience class to hold skill logic
+ * BMCanHaveSkill: convenience class to hold logic shared by die skills and button skills
  *
  * @author james
- *
  */
 
+/**
+ * This class is the parent class for BMSkill and BMBtnSkill
+ */
 class BMCanHaveSkill {
     // properties
 
-    // an array keyed by function name. Value is an array of the skills
-    //  that are modifying that function
+    /**
+     * An array keyed by function name. Value is an array of the skills
+     * that are modifying that function.
+     *
+     * @var array
+     */
     protected $hookList = array();
-    // keyed by the Names of the skills that the die has, with values of
-    // the skill class's name
+    /**
+     * An array keyed by the names of the skills that the die has, with
+     * values of the skill class's name
+     *
+     * @var array
+     */
     protected $skillList = array();
 
     // methods
 
     // unhooked methods
 
-    // Run the skill hooks for a given function. $args is an array of
-    //  argumentsfor the function.
-    //
-    // Important note on PHP references, since they make no bloody sense:
-    //
-    // To put a reference into the args array and have it still be such
-    // when you take it out again, you must:
-    //
-    // Put it into the args array as a reference: $args = array(&$foo)
-    // --AND--
-    // Take it out as a reference: $thing = &$args[0]
-
+    /**
+     * Run the skill hooks for a given function. $args is an array of
+     * arguments for the function.
+     *
+     * @param string $func
+     * @param array $args
+     * @return array
+     */
     public function run_hooks($func, $args) {
         // get the hooks for the calling function
         if (!array_key_exists($func, $this->hookList)) {
@@ -54,11 +59,19 @@ class BMCanHaveSkill {
         return $resultArray;
     }
 
-    // Other code inside engine must never set $skillClass, but
-    // instead name skill classes according to the expected pattern.
-    // The optional argument is only for outside code which needs
-    // to add skills (currently, it's used for unit testing).
-    public function add_skill($skill, $skillClass = FALSE) {
+    /**
+     * Add a skill to a die or button.
+     *
+     * Other code inside engine must never set $skillClass, but
+     * instead name skill classes according to the expected pattern.
+     * The optional argument is only for outside code which needs
+     * to add skills (currently, it's used for unit testing).
+     *
+     * @param string $skill
+     * @param string $skillClass
+     * @return void
+     */
+    public function add_skill($skill, $skillClass = '') {
         if (!$skill) {
             return;
         }
@@ -83,6 +96,12 @@ class BMCanHaveSkill {
         $this->run_hooks(__FUNCTION__, array('die' => &$this));
     }
 
+    /**
+     * Add multiple skills at once
+     *
+     * @param array $skills
+     * @return void
+     */
     protected function add_multiple_skills($skills) {
         if ($skills) {
             foreach ($skills as $skillClass => $skill) {
@@ -95,8 +114,12 @@ class BMCanHaveSkill {
         }
     }
 
-// This one may need to be hookable. So might add_skill, depending on
-//  how Chaotic shakes out.
+    /**
+     * Remove a skill from a die or button
+     *
+     * @param string $skill
+     * @return bool
+     */
     public function remove_skill($skill) {
         if (!$this->has_skill($skill)) {
             return FALSE;
@@ -117,6 +140,11 @@ class BMCanHaveSkill {
         return TRUE;
     }
 
+    /**
+     * Remove all skills at once
+     *
+     * @return void
+     */
     public function remove_all_skills() {
         if (!isset($this->skillList) ||
             0 == count($this->skillList)) {
@@ -128,6 +156,12 @@ class BMCanHaveSkill {
         }
     }
 
+    /**
+     * Copy skills from one die to another
+     *
+     * @param BMDie $die
+     * @return void
+     */
     public function copy_skills_from_die($die) {
         $this->remove_all_skills();
 
@@ -141,6 +175,12 @@ class BMCanHaveSkill {
         }
     }
 
+    /**
+     * Check if a die or button has a skill
+     *
+     * @param string $skill
+     * @return bool
+     */
     public function has_skill($skill) {
         return array_key_exists($skill, $this->skillList);
     }

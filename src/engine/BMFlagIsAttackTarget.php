@@ -2,7 +2,7 @@
 /**
  * BMFlagIsAttackTarget: Used to signal that a die is an attack target
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**

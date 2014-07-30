@@ -1,15 +1,15 @@
 <?php
-
 /**
- * BMUtility: utility classes
+ * BMUtilityHitTable: utility class used for constructing hit tables
  *
  * @author Julian
  */
 
-// Class to hold and search all the possible combinations that a skill
-// attack could hit
-//
-// It's huge and complicated, but hopefully better than a naive search.
+/** Class to hold and search all the possible combinations that a skill
+ *  attack could hit
+ *
+ *  It's huge and complicated, but hopefully better than a naive search.
+ */
 class BMUtilityHitTable {
     private $dice = array();
 

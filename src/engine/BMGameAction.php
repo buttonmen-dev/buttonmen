@@ -1,16 +1,18 @@
 <?php
-
 /**
- * BMGameAction: record of an action which happened during a game
+ * BMGameAction: Record of an action which happened during a game
  *
  * @author chaos
+ */
+
+/**
+ * This class allows game actions at each game state to be logged
  *
  * @property     int    $gameState           BMGameState of the game when the action occurred
  * @property     string $actionType          Type of action which was taken
  * @property     int    $actingPlayerId      Database ID of player who took the action
  * @property     array  $params              Array of information about the action, format depends on actionType
  */
-
 class BMGameAction {
 
     private $gameState;

@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillMood: Code specific to the mood die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the mood die skill
+ */
 class BMSkillMood extends BMSkill {
     public static $hooked_methods = array('pre_roll', 'add_skill');
 

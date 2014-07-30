@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackSpeed: Code specific to speed attacks
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to speed attacks
+ */
 class BMAttackSpeed extends BMAttack {
     public $type = 'Speed';
 

@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillStinger: Code specific to the stinger die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the stinger die skill
+ */
 class BMSkillStinger extends BMSkill {
     public static $hooked_methods = array('initiative_value',
                                           'attack_values');

@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMGameState: The various game states possible in a game
+ *
+ * @author james
+ */
 
+/**
+ * This class defines the game states possible in a game
+ */
 class BMGameState {
     // pre-game
     const START_GAME = 10;
