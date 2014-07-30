@@ -142,6 +142,12 @@ class BMGameAction {
         $preAttackDice = $this->params['preAttackDice'];
         $postAttackDice = $this->params['postAttackDice'];
 
+        if (array_key_exists('lastActionType', $this->params)) {
+            $lastActionType = $this->params['lastActionType'];
+        } else {
+            $lastActionType = '';
+        }
+
         // Check for any attack types in which the defender changes
         // in some way we want to report prior to being captured
         if ($attackType == 'Trip') {
@@ -159,18 +165,22 @@ class BMGameAction {
             return $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
         }
 
-        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+        $message = '';
 
-        // Add the pre-attack status of all participating dice
-        $preAttackAttackers = array();
-        $preAttackDefenders = array();
-        foreach ($preAttackDice['attacker'] as $attackerInfo) {
-            $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+        if ('fire_turndown' != $lastActionType) {
+            $message .= $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+
+            // Add the pre-attack status of all participating dice
+            $preAttackAttackers = array();
+            $preAttackDefenders = array();
+            foreach ($preAttackDice['attacker'] as $attackerInfo) {
+                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+            }
+            foreach ($preAttackDice['defender'] as $defenderInfo) {
+                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
+            }
+            $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
         }
-        foreach ($preAttackDice['defender'] as $defenderInfo) {
-            $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-        }
-        $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders);
 
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
 
@@ -184,16 +194,16 @@ class BMGameAction {
             }
 
             $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
-            $message .= $messageDefender;
+            $message .= '; ' . $messageDefender;
 
             // now deal with morphing after trip
             if (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
                 ($postAttackDice['attacker'][0]['hasJustMorphed'])) {
-                $message .= $this->messageAttacker($midAttackDice, $postAttackDice);
+                $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
             }
         } else {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
-            $message .= $messageDefender.$messageAttacker;
+            $message .= $messageDefender . '; ' . $messageAttacker;
         }
 
         return $message;
@@ -236,7 +246,7 @@ class BMGameAction {
             } else {
                 $postEventsDefender[] = 'was not captured';
             }
-            $messageDefender .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+            $messageDefender .= 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
 
         return $messageDefender;
@@ -265,7 +275,7 @@ class BMGameAction {
                 $postEventsAttacker[] = 'does not reroll';
             }
             if (count($postEventsAttacker) > 0) {
-                $messageAttacker .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                $messageAttacker .= 'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
 

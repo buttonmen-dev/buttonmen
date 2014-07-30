@@ -1166,6 +1166,16 @@ class BMGame {
             $attAttackDieArray,
             $defAttackDieArray
         );
+
+        // james: note that end normally shifts the pointer, so use
+        // call_user_func and array_values to avoid changing the original array
+        if (empty($this->actionLog)) {
+            $lastActionType = '';
+        } else {
+            $lastLogEntry = call_user_func('end', array_values($this->actionLog));
+            $lastActionType = $lastLogEntry->actionType;
+        }
+
         $this->log_action(
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
@@ -1173,6 +1183,7 @@ class BMGame {
                 'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
+                'lastActionType' => $lastActionType,
             )
         );
 

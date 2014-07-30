@@ -157,6 +157,37 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+        /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_power_after_fire_turndown() {
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Power',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):1'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):2'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(10):1'),
+                ),
+            ),
+            'lastActionType' => 'fire_turndown'
+        ));
+
+        $this->assertEquals(
+            "Defender (10) was captured; Attacker (4) rerolled 3 => 2",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
     /**
      * @covers BMGameAction::friendly_message_attack()
      */
