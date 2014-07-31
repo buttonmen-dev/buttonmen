@@ -415,7 +415,8 @@ class BMInterface {
             array $playerIdArray,
             $maxWins,
             $currentPlayerId,
-            $previousGameId) {
+            $previousGameId
+    ) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
         foreach ($playerIdArray as $playerId) {
@@ -464,17 +465,20 @@ class BMInterface {
         }
 
         // Check that players match those from previous game, if specified
-        if ($previousGameId != NULL) {
-            $arePreviousPlayersValid = $this->validate_previous_game_players($previousGameId, $playerIdArray);
-            if (!$arePreviousPlayersValid) {
-                return NULL;
-            }
+        $arePreviousPlayersValid = $this->validate_previous_game_players($previousGameId, $playerIdArray);
+        if (!$arePreviousPlayersValid) {
+            return NULL;
         }
 
         return TRUE;
     }
 
     private function validate_previous_game_players($previousGameId, array $playerIdArray) {
+        // If there was no previous game, then there's nothing to worry about
+        if ($previousGameId == NULL) {
+            return TRUE;
+        }
+
         try {
             $query =
                 'SELECT pm.player_id, s.name AS status ' .
@@ -800,8 +804,11 @@ class BMInterface {
 
     protected function load_lastActionTime($game, $pos, $row) {
         if (isset($row['player_last_action_timestamp'])) {
-            $game->setArrayPropEntry('lastActionTimeArray', $pos,
-                (int)$row['player_last_action_timestamp']);
+            $game->setArrayPropEntry(
+                'lastActionTimeArray',
+                $pos,
+                (int)$row['player_last_action_timestamp']
+            );
         } else {
             $game->setArrayPropEntry('lastActionTimeArray', $pos, 0);
         }
