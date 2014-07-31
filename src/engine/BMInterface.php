@@ -470,7 +470,8 @@ class BMInterface {
         }
 
         // Check that players match those from previous game, if specified
-        $arePreviousPlayersValid = $this->validate_previous_game_players($previousGameId, $playerIdArray);
+        $arePreviousPlayersValid =
+            $this->validate_previous_game_players($previousGameId, $playerIdArray);
         if (!$arePreviousPlayersValid) {
             return NULL;
         }
@@ -524,16 +525,18 @@ class BMInterface {
                     return FALSE;
                 }
             }
+
+            return TRUE;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::validate_previous_game_players: ' .
                 $e->getMessage()
             );
             $this->message = 'Game create failed because of an error.';
-            return NULL;
+            return FALSE;
         }
     }
-    
+
     protected function resolve_random_button_selection(&$buttonNameArray) {
         $allButtonData = array();
         $allButtonNames = array();
