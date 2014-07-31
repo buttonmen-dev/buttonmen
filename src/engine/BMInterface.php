@@ -692,70 +692,42 @@ class BMInterface {
         $statement1 = self::$conn->prepare($query);
         $statement1->execute(array(':game_id' => $gameId));
 
-        // one row for each player
         while ($row = $statement1->fetch()) {
             // load game attributes
             if (!isset($game)) {
                 $game = new BMGame;
-                $game->gameId    = $gameId;
-                $game->gameState = $row['game_state'];
-                $game->maxWins   = $row['n_target_wins'];
-                $game->turnNumberInRound = $row['turn_number_in_round'];
-                $game->nRecentPasses = $row['n_recent_passes'];
-                $game->description = $row['description'];
-                if ($row['previous_game_id'] == NULL) {
-                    $game->previousGameId = NULL;
-                } else {
-                    $game->previousGameId = (int)$row['previous_game_id'];
-                }
-                $this->timestamp = (int)$row['last_action_timestamp'];
+                $game->gameId = $gameId;
+                $this->load_game_attributes($game, $row);
 
-                // initialise all temporary arrays
                 $nPlayers = $row['n_players'];
-                $playerIdArray = array_fill(0, $nPlayers, NULL);
-                $gameScoreArrayArray = array_fill(0, $nPlayers, array(0, 0, 0));
                 $buttonArray = array_fill(0, $nPlayers, NULL);
-                $waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
-                $autopassArray = array_fill(0, $nPlayers, FALSE);
             }
 
             $pos = $row['position'];
             if (isset($pos)) {
-                $playerIdArray[$pos] = $row['player_id'];
-                $autopassArray[$pos] = (bool)$row['autopass'];
+                $game->setArrayPropEntry('playerIdArray', $pos, $row['player_id']);
+                $game->setArrayPropEntry('autopassArray', $pos, (bool)$row['autopass']);
             }
 
             if (1 == $row['did_win_initiative']) {
                 $game->playerWithInitiativeIdx = $pos;
             }
 
-            $gameScoreArrayArray[$pos] = array($row['n_rounds_won'],
-                                               $row['n_rounds_lost'],
-                                               $row['n_rounds_drawn']);
+            $game->setArrayPropEntry(
+                'gameScoreArrayArray',
+                $pos,
+                array(
+                    'W' => $row['n_rounds_won'],
+                    'L' => $row['n_rounds_lost'],
+                    'D' => $row['n_rounds_drawn']
+                )
+            );
 
             $this->load_button($buttonArray, $pos, $row);
+            //$this->load_button($game, $pos, $row);
 
-            // load player attributes
-            switch ($row['is_awaiting_action']) {
-                case 1:
-                    $waitingOnActionArray[$pos] = TRUE;
-                    break;
-                case 0:
-                    $waitingOnActionArray[$pos] = FALSE;
-                    break;
-            }
-
-            if (isset($row['current_player_id']) &&
-                isset($row['player_id']) &&
-                ($row['current_player_id'] === $row['player_id'])) {
-                $game->activePlayerIdx = $pos;
-            }
-
-            if ($row['did_win_initiative']) {
-                $game->playerWithInitiativeIdx = $pos;
-            }
-
-            $this->load_lastActionTime($lastActionTimeArray, $pos, $row);
+            $this->load_player_attributes($game, $pos, $row);
+            $this->load_lastActionTime($game, $pos, $row);
         }
 
         if (!isset($game)) {
@@ -763,16 +735,54 @@ class BMInterface {
         }
 
         // fill up the game object with the database data
-        $game->playerIdArray = $playerIdArray;
-        $game->gameScoreArrayArray = $gameScoreArrayArray;
         $game->buttonArray = $buttonArray;
-        $game->waitingOnActionArray = $waitingOnActionArray;
-        $game->autopassArray = $autopassArray;
-        $game->lastActionTimeArray = $lastActionTimeArray;
 
         return $game;
     }
 
+    private function load_game_attributes($game, $row) {
+        $game->gameState = $row['game_state'];
+        $game->maxWins   = $row['n_target_wins'];
+        $game->turnNumberInRound = $row['turn_number_in_round'];
+        $game->nRecentPasses = $row['n_recent_passes'];
+        $game->description = $row['description'];
+        if ($row['previous_game_id'] == NULL) {
+            $game->previousGameId = NULL;
+        } else {
+            $game->previousGameId = (int)$row['previous_game_id'];
+        }
+        $this->timestamp = (int)$row['last_action_timestamp'];
+
+
+        // initialise game arrays
+        $nPlayers = $row['n_players'];
+        $game->playerIdArray = array_fill(0, $nPlayers, NULL);
+        $game->gameScoreArrayArray = array_fill(0, $nPlayers, array('W' => 0, 'L' => 0, 'D' => 0));
+        //$game->buttonArray = array_fill(0, $nPlayers, NULL);
+        $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
+        $game->autopassArray = array_fill(0, $nPlayers, FALSE);
+        $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
+    }
+
+//    protected function load_button($game, $pos, $row) {
+//        if (isset($row['button_name'])) {
+//            if (isset($row['alt_recipe'])) {
+//                var_dump('alt_recipe');
+//            } else {
+//                $recipe = $this->get_button_recipe_from_name($row['button_name']);
+//            }
+//            if (isset($recipe)) {
+//                $button = new BMButton;
+//                $button->load($recipe, $row['button_name']);
+//                if (isset($row['alt_recipe'])) {
+//                    $button->hasAlteredRecipe = TRUE;
+//                }
+//                $game->setArrayPropEntry('buttonArray', $pos, $button);
+//            } else {
+//                throw new InvalidArgumentException('Invalid button name.');
+//            }
+//        }
+//    }
     protected function load_button(&$buttonArray, $pos, $row) {
         if (isset($row['button_name'])) {
             if (isset($row['alt_recipe'])) {
@@ -793,12 +803,33 @@ class BMInterface {
         }
     }
 
-    protected function load_lastActionTime(&$lastActionTimeArray, $pos, $row) {
+    private function load_player_attributes($game, $pos, $row) {
+        switch ($row['is_awaiting_action']) {
+            case 1:
+                $game->setArrayPropEntry('waitingOnActionArray', $pos, TRUE);
+                break;
+            case 0:
+                $game->setArrayPropEntry('waitingOnActionArray', $pos, FALSE);
+                break;
+        }
+
+        if (isset($row['current_player_id']) &&
+            isset($row['player_id']) &&
+            ($row['current_player_id'] === $row['player_id'])) {
+            $game->activePlayerIdx = $pos;
+        }
+
+        if ($row['did_win_initiative']) {
+            $game->playerWithInitiativeIdx = $pos;
+        }
+    }
+
+    protected function load_lastActionTime($game, $pos, $row) {
         if (isset($row['player_last_action_timestamp'])) {
-            $lastActionTimeArray[$pos] =
-                (int)$row['player_last_action_timestamp'];
+            $game->setArrayPropEntry('lastActionTimeArray', $pos,
+                (int)$row['player_last_action_timestamp']);
         } else {
-            $lastActionTimeArray[$pos] = 0;
+            $game->setArrayPropEntry('lastActionTimeArray', $pos, 0);
         }
     }
 

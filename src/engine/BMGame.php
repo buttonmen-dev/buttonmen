@@ -2257,6 +2257,18 @@ class BMGame {
         }
     }
 
+    // Sets an individual entry in an array that's stored in a property on this
+    // object, because "$game->$property[$key] = $value;" is illegal.
+    //
+    // shadowshade suggests
+    // indicating awkward code
+    // with verse from the East
+    public function setArrayPropEntry($property, $key, $value) {
+        $array = $this->$property;
+        $array[$key] = $value;
+        $this->$property = $array;
+    }
+
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
