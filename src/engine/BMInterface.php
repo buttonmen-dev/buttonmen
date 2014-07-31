@@ -301,7 +301,6 @@ class BMInterface {
                 $playerIdArray,
                 $maxWins,
                 $currentPlayerId,
-                $description,
                 $previousGameId
             );
         if (!$isValidInfo) {
@@ -313,6 +312,40 @@ class BMInterface {
             return NULL;
         }
 
+        try {
+            $gameId = $this->insert_new_game($playerIdArray, $maxWins, $description, $previousGameId);
+
+            foreach ($playerIdArray as $position => $playerId) {
+                $this->add_player_to_new_game($gameId, $playerId, $buttonIdArray[$position], $position);
+            }
+
+            // update game state to latest possible
+            $game = $this->load_game($gameId);
+            if (!($game instanceof BMGame)) {
+                throw new Exception(
+                    "Could not load newly-created game $gameId"
+                );
+            }
+            $this->save_game($game);
+
+            $this->message = "Game $gameId created successfully.";
+            return array('gameId' => $gameId);
+        } catch (Exception $e) {
+            $this->message = 'Game create failed: ' . $e->getMessage();
+            error_log(
+                'Caught exception in BMInterface::create_game: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+    }
+
+    private function insert_new_game(
+        array $playerIdArray,
+        $maxWins = 3,
+        $description = '',
+        $previousGameId = NULL
+    ) {
         try {
             // create basic game details
             $query = 'INSERT INTO game '.
@@ -347,34 +380,9 @@ class BMInterface {
             $statement->execute();
             $fetchData = $statement->fetch();
             $gameId = (int)$fetchData[0];
-
-            foreach ($playerIdArray as $position => $playerId) {
-                // add info to game_player_map
-                $query = 'INSERT INTO game_player_map '.
-                         '(game_id, player_id, button_id, position) '.
-                         'VALUES '.
-                         '(:game_id, :player_id, :button_id, :position)';
-                $statement = self::$conn->prepare($query);
-
-                $statement->execute(array(':game_id'   => $gameId,
-                                          ':player_id' => $playerId,
-                                          ':button_id' => $buttonIdArray[$position],
-                                          ':position'  => $position));
-            }
-
-            // update game state to latest possible
-            $game = $this->load_game($gameId);
-            if (!($game instanceof BMGame)) {
-                throw new Exception(
-                    "Could not load newly-created game $gameId"
-                );
-            }
-            $this->save_game($game);
-
-            $this->message = "Game $gameId created successfully.";
-            return array('gameId' => $gameId);
+            return $gameId;
         } catch (Exception $e) {
-            // Failure might occur on DB insert or on the subsequent load
+            // Failure might occur on DB insert or afterward
             $errorData = $statement->errorInfo();
             if ($errorData[2]) {
                 $this->message = 'Game create failed: ' . $errorData[2];
@@ -382,18 +390,31 @@ class BMInterface {
                 $this->message = 'Game create failed: ' . $e->getMessage();
             }
             error_log(
-                'Caught exception in BMInterface::create_game: ' .
+                'Caught exception in BMInterface::insert_new_game: ' .
                 $e->getMessage()
             );
             return NULL;
         }
     }
 
+    private function add_player_to_new_game($gameId, $playerId, $buttonId, $position) {
+        // add info to game_player_map
+        $query = 'INSERT INTO game_player_map '.
+                 '(game_id, player_id, button_id, position) '.
+                 'VALUES '.
+                 '(:game_id, :player_id, :button_id, :position)';
+        $statement = self::$conn->prepare($query);
+
+        $statement->execute(array(':game_id'   => $gameId,
+                                  ':player_id' => $playerId,
+                                  ':button_id' => $buttonId,
+                                  ':position'  => $position));
+    }
+
     protected function validate_game_info(
             array $playerIdArray,
             $maxWins,
             $currentPlayerId,
-            $description,
             $previousGameId) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
@@ -444,57 +465,64 @@ class BMInterface {
 
         // Check that players match those from previous game, if specified
         if ($previousGameId != NULL) {
-            try {
-                $query =
-                    'SELECT pm.player_id, s.name AS status ' .
-                    'FROM game g ' .
-                        'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
-                        'INNER JOIN game_status s ON s.id = g.status_id ' .
-                    'WHERE g.id = :previous_game_id;';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':previous_game_id' => $previousGameId));
-
-                $previousPlayerIds = array();
-                while ($row = $statement->fetch()) {
-                    if ($row['status'] != 'COMPLETE') {
-                        $this->message =
-                            'Game create failed because the previous game has not been completed yet.';
-                        return FALSE;
-                    }
-                    $previousPlayerIds[] = (int)$row['player_id'];
-                }
-
-                if (count($previousPlayerIds) == 0) {
-                    $this->message =
-                        'Game create failed because the previous game was not found.';
-                    return FALSE;
-                }
-
-                foreach ($playerIdArray as $newPlayerId) {
-                    if (!in_array($newPlayerId, $previousPlayerIds)) {
-                        $this->message =
-                            'Game create failed because the previous game does not contain the same players.';
-                        return FALSE;
-                    }
-                }
-                foreach ($previousPlayerIds as $oldPlayerId) {
-                    if (!in_array($oldPlayerId, $playerIdArray)) {
-                        $this->message =
-                            'Game create failed because the previous game does not contain the same players.';
-                        return FALSE;
-                    }
-                }
-            } catch (Exception $e) {
-                error_log(
-                    'Caught exception in BMInterface::validate_game_info: ' .
-                    $e->getMessage()
-                );
-                $this->message = 'Game create failed because of an error.';
+            $arePreviousPlayersValid = $this->validate_previous_game_players($previousGameId, $playerIdArray);
+            if (!$arePreviousPlayersValid) {
                 return NULL;
             }
         }
 
         return TRUE;
+    }
+
+    private function validate_previous_game_players($previousGameId, array $playerIdArray) {
+        try {
+            $query =
+                'SELECT pm.player_id, s.name AS status ' .
+                'FROM game g ' .
+                    'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
+                    'INNER JOIN game_status s ON s.id = g.status_id ' .
+                'WHERE g.id = :previous_game_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':previous_game_id' => $previousGameId));
+
+            $previousPlayerIds = array();
+            while ($row = $statement->fetch()) {
+                if ($row['status'] != 'COMPLETE') {
+                    $this->message =
+                        'Game create failed because the previous game has not been completed yet.';
+                    return FALSE;
+                }
+                $previousPlayerIds[] = (int)$row['player_id'];
+            }
+
+            if (count($previousPlayerIds) == 0) {
+                $this->message =
+                    'Game create failed because the previous game was not found.';
+                return FALSE;
+            }
+
+            foreach ($playerIdArray as $newPlayerId) {
+                if (!in_array($newPlayerId, $previousPlayerIds)) {
+                    $this->message =
+                        'Game create failed because the previous game does not contain the same players.';
+                    return FALSE;
+                }
+            }
+            foreach ($previousPlayerIds as $oldPlayerId) {
+                if (!in_array($oldPlayerId, $playerIdArray)) {
+                    $this->message =
+                        'Game create failed because the previous game does not contain the same players.';
+                    return FALSE;
+                }
+            }
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::validate_previous_game_players: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Game create failed because of an error.';
+            return NULL;
+        }
     }
 
     protected function retrieve_button_ids($playerIdArray, $buttonNameArray) {
