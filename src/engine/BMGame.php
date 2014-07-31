@@ -2266,7 +2266,7 @@ class BMGame {
     public function setArrayPropEntry($property, $key, $value) {
         $array = $this->$property;
         $array[$key] = $value;
-        $this->$property = $array;
+        $this->__set($property, $array);
     }
 
     public function getJsonData($requestingPlayerId) {

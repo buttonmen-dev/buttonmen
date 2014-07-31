@@ -698,9 +698,6 @@ class BMInterface {
                 $game = new BMGame;
                 $game->gameId = $gameId;
                 $this->load_game_attributes($game, $row);
-
-                $nPlayers = $row['n_players'];
-                $buttonArray = array_fill(0, $nPlayers, NULL);
             }
 
             $pos = $row['position'];
@@ -723,9 +720,7 @@ class BMInterface {
                 )
             );
 
-            $this->load_button($buttonArray, $pos, $row);
-            //$this->load_button($game, $pos, $row);
-
+            $this->load_button($game, $pos, $row);
             $this->load_player_attributes($game, $pos, $row);
             $this->load_lastActionTime($game, $pos, $row);
         }
@@ -733,9 +728,6 @@ class BMInterface {
         if (!isset($game)) {
             return NULL;
         }
-
-        // fill up the game object with the database data
-        $game->buttonArray = $buttonArray;
 
         return $game;
     }
@@ -757,33 +749,15 @@ class BMInterface {
         // initialise game arrays
         $nPlayers = $row['n_players'];
         $game->playerIdArray = array_fill(0, $nPlayers, NULL);
-        $game->gameScoreArrayArray = array_fill(0, $nPlayers, array('W' => 0, 'L' => 0, 'D' => 0));
-        //$game->buttonArray = array_fill(0, $nPlayers, NULL);
+        $game->gameScoreArrayArray =
+            array_fill(0, $nPlayers, array('W' => 0, 'L' => 0, 'D' => 0));
+        $game->buttonArray = array_fill(0, $nPlayers, NULL);
         $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
     }
 
-//    protected function load_button($game, $pos, $row) {
-//        if (isset($row['button_name'])) {
-//            if (isset($row['alt_recipe'])) {
-//                var_dump('alt_recipe');
-//            } else {
-//                $recipe = $this->get_button_recipe_from_name($row['button_name']);
-//            }
-//            if (isset($recipe)) {
-//                $button = new BMButton;
-//                $button->load($recipe, $row['button_name']);
-//                if (isset($row['alt_recipe'])) {
-//                    $button->hasAlteredRecipe = TRUE;
-//                }
-//                $game->setArrayPropEntry('buttonArray', $pos, $button);
-//            } else {
-//                throw new InvalidArgumentException('Invalid button name.');
-//            }
-//        }
-//    }
-    protected function load_button(&$buttonArray, $pos, $row) {
+    protected function load_button($game, $pos, $row) {
         if (isset($row['button_name'])) {
             if (isset($row['alt_recipe'])) {
                 $recipe = $row['alt_recipe'];
@@ -796,7 +770,7 @@ class BMInterface {
                 if (isset($row['alt_recipe'])) {
                     $button->hasAlteredRecipe = TRUE;
                 }
-                $buttonArray[$pos] = $button;
+                $game->setArrayPropEntry('buttonArray', $pos, $button);
             } else {
                 throw new InvalidArgumentException('Invalid button name.');
             }
