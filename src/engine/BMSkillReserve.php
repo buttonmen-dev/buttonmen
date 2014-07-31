@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillReserve: Code specific to the reserve die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the reserve die skill
+ */
 class BMSkillReserve extends BMSkill {
     public static $hooked_methods = array('doesSkipSwingRequest');
 

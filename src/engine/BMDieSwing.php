@@ -1,5 +1,20 @@
 <?php
+/**
+ * BMDieSwing: Code specific to swing dice
+ *
+ * @author Julian
+ */
 
+/**
+ * This class contains all the logic to do with requesting and setting swing values
+ *
+ * @property      char  $swingType         Swing type
+ * @property      int   $swingValue        Swing value
+ * @property      int   $swingMax          Maximum possible value of this swing type
+ * @property      int   $swingMin          Minimum possible value of this swing type
+ * @property-read bool  $needsSwingValue   Flag indicating whether a swing value is still needed
+ * @property-read bool  $valueRequested    Flag indicating whether a swing request has been sent to the parent
+ */
 class BMDieSwing extends BMDie {
     public $swingType;
     public $swingValue;  // this is ALWAYS the value chosen by the player

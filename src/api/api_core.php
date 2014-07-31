@@ -1,4 +1,17 @@
 <?php
+/**
+ * api_core: functions handling login, authorisation, and logout
+ *
+ * @author james
+ */
+
+/**
+ * Start session based on username and password
+ *
+ * @param string $username
+ * @param string $password
+ * @return bool
+ */
 function login($username, $password) {
     require_once '../database/mysql.inc.php';
     $conn = conn();
@@ -55,8 +68,12 @@ function login($username, $password) {
     return $returnValue;
 }
 
-// If the user is logged in, make sure a valid session exists.
-// Otherwise, return false.
+/**
+ * If the user is logged in, make sure a valid session exists.
+ * Otherwise, return false.
+ *
+ * @return bool
+ */
 function auth_session_exists() {
 
     // there's an existing session, nothing to do
@@ -94,6 +111,11 @@ function auth_session_exists() {
     return FALSE;
 }
 
+/**
+ * Destroy currently running session, based on cookie parameters
+ *
+ * @return void
+ */
 function logout() {
     if (array_key_exists('auth_userid', $_COOKIE) &&
         array_key_exists('auth_key', $_COOKIE) &&
@@ -129,7 +151,5 @@ function logout() {
 
         session_destroy();
         session_write_close();
-    } else {
-        return NULL;
     }
 }

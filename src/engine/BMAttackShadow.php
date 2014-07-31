@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackShadow: Code specific to shadow attacks
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to shadow attacks
+ */
 class BMAttackShadow extends BMAttackPower {
     public $type = 'Shadow';
 

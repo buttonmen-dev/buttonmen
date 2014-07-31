@@ -33,6 +33,23 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    protected static function getMethod($name) {
+        $class = new ReflectionClass('BMInterface');
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
+    }
+
+    protected function load_game($gameId) {
+        $load_game = self::getMethod('load_game');
+        return $load_game->invokeArgs($this->object, array($gameId));
+    }
+
+    protected function save_game($game) {
+        $save_game = self::getMethod('save_game');
+        return $save_game->invokeArgs($this->object, array($game));
+    }
+
     /**
      * @covers BMInterfaceNewuser::create_user
      */
@@ -215,7 +232,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                              array('Bauer', 'Stark'), 4);
         $gameId = $retval['gameId'];
 
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check player info
         $this->assertCount(2, $game->playerIdArray);
@@ -321,12 +338,31 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
+    public function test_create_game_with_random_button() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                             array('__random', '__random'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertFalse(empty($game->buttonArray[0]->name));
+        $this->assertNotEquals('__random', $game->buttonArray[0]->name);
+        $this->assertFalse(empty($game->buttonArray[1]->name));
+        $this->assertNotEquals('__random', $game->buttonArray[1]->name);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::load_game
+     */
     public function test_create_and_load_new_game_with_empty_opponent() {
         $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
                                                    NULL),
                                              array('Bauer', 'Stark'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check player info
         $this->assertCount(2, $game->playerIdArray);
@@ -397,7 +433,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                              array('Bauer', NULL), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check player info
         $this->assertCount(2, $game->playerIdArray);
@@ -466,7 +502,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    NULL),
                                              array('Bauer', NULL), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check player info
         $this->assertCount(2, $game->playerIdArray);
@@ -537,7 +573,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($retval);
         $this->object->join_open_game(self::$userId2WithoutAutopass, $retval['gameId']);
 
-        $game = $this->object->load_game($retval['gameId']);
+        $game = self::load_game($retval['gameId']);
         $this->assertEquals(array(self::$userId1WithoutAutopass,
                                   self::$userId2WithoutAutopass),
                             $game->playerIdArray);
@@ -556,7 +592,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($retval);
         $this->object->select_button(self::$userId2WithoutAutopass, $retval['gameId'], 'Iago');
 
-        $game = $this->object->load_game($retval['gameId']);
+        $game = self::load_game($retval['gameId']);
         $this->assertEquals('Bauer', $game->buttonArray[0]->name);
         $this->assertEquals('(8) (10) (12) (20) (X)', $game->buttonArray[0]->recipe);
         $this->assertEquals('Iago', $game->buttonArray[1]->name);
@@ -628,12 +664,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Bauer', 'Stark'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X'=>19), array('X'=>5));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // check player info
         $this->assertCount(2, $game->playerIdArray);
@@ -748,13 +784,13 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Bauer', 'Stark'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X'=>17), array('X'=>8));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // artificially set die values
         $dieArrayArray = $game->activeDieArrayArray;
@@ -771,8 +807,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $game->activePlayerIdx = 1;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $game->attack = array(1,        // attackerPlayerIdx
                               0,        // defenderPlayerIdx
@@ -780,8 +816,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(4, $game->activeDieArrayArray[0]);
@@ -804,13 +840,13 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Coil', 'Bane'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('V'=>11), array('V'=>7));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // artificially set die values
         $dieArrayArray = $game->activeDieArrayArray;
@@ -827,8 +863,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $game->activePlayerIdx = 0;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(array(-2.5, 9.5), $game->roundScoreArray);
 
@@ -838,8 +874,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertCount(5, $game->activeDieArrayArray[0]);
@@ -960,8 +996,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
         $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(array('X'), array_keys($game->swingValueArrayArray[0]));
         $this->assertEquals(7, $game->swingValueArrayArray[0]['X']);
@@ -981,8 +1017,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // artificially set die values
         $dieArrayArray = $game->activeDieArrayArray;
@@ -1000,8 +1036,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array('V'), array_keys($game->swingValueArrayArray[1]));
         $this->assertEquals(11, $game->swingValueArrayArray[1]['V']);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
                                   array('W' => 1, 'L' => 0, 'D' => 0)),
@@ -1048,13 +1084,13 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         $game->waitingOnActionArray = array(FALSE, FALSE);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 7), array('V' => 11));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // artificially set player 1 as winning initiative
         $game->playerWithInitiativeIdx = 0;
@@ -1075,8 +1111,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::END_GAME, $game->gameState);
         $this->assertNull($game->swingValueArrayArray);
@@ -1157,8 +1193,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $dieArrayArray[0][1] = $newDie;
         $game->activeDieArrayArray = $dieArrayArray;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array('X' => 7), array('V' => 11)),
                             $game->swingValueArrayArray);
@@ -1222,8 +1258,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                             $game->gameScoreArrayArray);
         $this->assertEquals(1, $game->nRecentPasses);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(1, $game->activePlayerIdx);
@@ -1262,7 +1298,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId3WithAutopass),
                                                    array('Bunnies', 'Peace'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals('(1) (1) (1) (1) (X)', $game->buttonArray[0]->recipe);
         $this->assertEquals('s(10) s(12) s(20) s(X) s(X)', $game->buttonArray[1]->recipe);
@@ -1290,15 +1326,15 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->activePlayerIdx = 0;
         $game->waitingOnActionArray = array(TRUE, FALSE);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // player 1 performs skill attack, player 2 autopasses
         $game->attack = array(0, 1, array(0, 4), array(0), 'Skill');
         $game->proceed_to_next_user_action();
         $this->assertCount(4, $game->activeDieArrayArray[1]);
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(0, $game->activePlayerIdx);
@@ -1309,11 +1345,11 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // player 1 passes
         $game->attack = array(0, 1, array(), array(), 'Pass');
         $game->proceed_to_next_user_action();
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
         $game->swingValueArrayArray = array(array('X' => 4), array('X' => 20));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($gameId);
+        self::save_game($game);
+        $game = self::load_game($gameId);
 
         // should now be at the beginning of round 2
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
@@ -1337,7 +1373,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Cthulhu', 'Bill'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // load game
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
@@ -1348,8 +1384,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array(), array('V' => 11));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertTrue($game->activeDieArrayArray[1][3]->dice[0] instanceof BMDieSwing);
         $this->assertFalse($game->activeDieArrayArray[1][3]->dice[0]->needsSwingValue);
@@ -1412,8 +1448,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(3), // defenderAttackDieIdxArray
                               'Shadow'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1439,7 +1475,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    array('Al-Khwarizmi',
                                                          'Carl Friedrich Gauss'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // load game
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
@@ -1495,8 +1531,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Skill'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1513,6 +1549,117 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * The following unit tests ensure that konstant works correctly.
+     *
+     * @depends test_create_user
+     *
+     * @covers BMInterface::save_game
+     * @covers BMInterface::load_game
+     * @covers BMInterface::adjust_fire
+     */
+    function test_fire() {
+        // (4) (6) F(8) (20) (X) vs F(4) F(6) (6) (12) (X)
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Poly',
+                                                         'Adam Spam'), 4);
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        // load game
+        $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
+        $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $this->assertEquals( 4, $game->activeDieArrayArray[0][0]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[0][1]->max);
+        $this->assertEquals( 8, $game->activeDieArrayArray[0][2]->max);
+        $this->assertEquals(20, $game->activeDieArrayArray[0][3]->max);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][4]->max));
+        $this->assertEquals( 4, $game->activeDieArrayArray[1][0]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[1][1]->max);
+        $this->assertEquals( 6, $game->activeDieArrayArray[1][2]->max);
+        $this->assertEquals(12, $game->activeDieArrayArray[1][3]->max);
+        $this->assertFalse(isset($game->activeDieArrayArray[1][4]->max));
+        $this->assertTrue($game->activeDieArrayArray[0][2]->has_skill('Fire'));
+        $this->assertTrue($game->activeDieArrayArray[1][0]->has_skill('Fire'));
+        $this->assertTrue($game->activeDieArrayArray[1][1]->has_skill('Fire'));
+
+        $game->swingValueArrayArray = array(array('X' => 17), array('X' => 5));
+
+        self::save_game($game);
+        $game = self::load_game($gameId);
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(17, $game->activeDieArrayArray[0][4]->max);
+        $this->assertEquals( 5, $game->activeDieArrayArray[1][4]->max);
+
+        $this->assertNotNull($game->activeDieArrayArray[0][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[0][4]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][0]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][1]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][2]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
+        $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
+
+        // artificially set player 1 as winning initiative
+        $game->playerWithInitiativeIdx = 0;
+        $game->activePlayerIdx = 0;
+        $game->waitingOnActionArray = array(TRUE, FALSE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 1;
+        $dieArrayArray[0][1]->value = 1;
+        $dieArrayArray[0][2]->value = 6;
+        $dieArrayArray[0][3]->value = 1;
+        $dieArrayArray[0][4]->value = 1;
+        $dieArrayArray[1][0]->value = 4;
+        $dieArrayArray[1][1]->value = 6;
+        $dieArrayArray[1][2]->value = 6;
+        $dieArrayArray[1][3]->value = 12;
+        $dieArrayArray[1][4]->value = 5;
+
+        // perform valid attack
+        $game->attack = array(0,        // attackerPlayerIdx
+                              1,        // defenderPlayerIdx
+                              array(0), // attackerAttackDieIdxArray
+                              array(0), // defenderAttackDieIdxArray
+                              'Power'); // attackType
+
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::ADJUST_FIRE_DICE, $game->gameState);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(5, $game->activeDieArrayArray[1]);
+        $this->assertCount(0, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+
+        $retval = $this->object->adjust_fire(
+            self::$userId1WithoutAutopass,
+            $game->gameId,
+            1,
+            'ignore',
+            'turndown',
+            array(2),
+            array(3)
+        );
+
+        $this->assertTrue($retval);
+
+        $game = self::load_game($game->gameId);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+        $this->assertCount(5, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $this->assertCount(1, $game->capturedDieArrayArray[0]);
+        $this->assertCount(0, $game->capturedDieArrayArray[1]);
+    }
+
+    /**
      * The following unit tests ensure that surrender attacks work correctly.
      *
      * @depends test_create_user
@@ -1525,7 +1672,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Sonia', 'Tamiya'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $game->playerWithInitiativeIdx = 1;
         $game->activePlayerIdx = 1;
@@ -1550,8 +1697,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(1), // defenderAttackDieIdxArray
                               'Surrender'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(1, $game->activePlayerIdx);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -1572,8 +1719,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(),  // defenderAttackDieIdxArray
                               'Surrender'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(1, $game->activePlayerIdx);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -1594,8 +1741,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(),  // defenderAttackDieIdxArray
                               'Surrender'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
@@ -1622,7 +1769,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId4WithAutopass),
                                                    array('Scorpion', 'Kakita'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // artificially change button recipes
         $button1 = $game->buttonArray[0];
@@ -1638,8 +1785,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array(), array());
         $game->gameState = BMGameState::START_GAME;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1660,8 +1807,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(2),    // defenderAttackDieIdxArray
                               'Skill');    // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1683,8 +1830,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0),    // defenderAttackDieIdxArray
                               'Power');    // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1706,8 +1853,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(2),    // defenderAttackDieIdxArray
                               'Skill');    // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1728,8 +1875,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0),    // defenderAttackDieIdxArray
                               'Power');    // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1749,8 +1896,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0),    // defenderAttackDieIdxArray
                               'Skill');    // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -1778,7 +1925,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Lancelot', 'Gawaine'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -1808,7 +1955,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $gameId,
                 'decline')
         );
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -1842,7 +1989,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Kublai', 'Gawaine'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -1860,7 +2007,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             )
         );
 
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
@@ -1883,7 +2030,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $gameId,
                 'decline')
             );
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -1917,7 +2064,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Kublai', 'Gawaine'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -1945,7 +2092,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             )
         );
 
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertCount(6, $game->activeDieArrayArray[0]);
         $this->assertCount(6, $game->activeDieArrayArray[1]);
@@ -1959,7 +2106,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 'add',
                 5)
             );
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -2003,7 +2150,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Sailor Moon', 'Queen Beryl'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $game->gameScoreArrayArray = array(array('W' => 0, 'L' => 1, 'D' => 0),
                                            array('W' => 1, 'L' => 0, 'D' => 0));
@@ -2011,8 +2158,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2051,7 +2198,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 $gameId,
                 'decline')
         );
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(1, array_sum($game->waitingOnActionArray));
@@ -2084,7 +2231,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Sailor Moon', 'Queen Beryl'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $game->gameScoreArrayArray = array(array('W' => 0, 'L' => 1, 'D' => 0),
                                            array('W' => 1, 'L' => 0, 'D' => 0));
@@ -2092,8 +2239,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_RESERVE_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -2116,7 +2263,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                 'add',
                 5)
         );
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(1, array_sum($game->waitingOnActionArray));
@@ -2147,15 +2294,15 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Zomulgustar', 'Cammy Neko'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // specify option die
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $game->optValueArrayArray = array(array(1 => 5), array());
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
@@ -2178,8 +2325,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // we should now be at the point where the bug triggers, at the stage of
         // loading the previous round's swing values
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(2, $game->roundNumber);
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
@@ -2204,7 +2351,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Echo', 'Avis'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertInstanceOf('BMGame', $game);
         $this->assertEquals(24, $game->gameState);
@@ -2228,8 +2375,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $game->activeDieArrayArray[0][3]->originalPlayerIdx);
         $this->assertEquals(0, $game->activeDieArrayArray[0][4]->originalPlayerIdx);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals('(4) (4) (10) (12) (X)', $game->buttonArray[0]->recipe);
     }
@@ -2247,7 +2394,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Echo', 'Avis'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // artificially change Echo's recipe
         $button = $game->buttonArray[0];
@@ -2258,8 +2405,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array(), array());
         $game->gameState = BMGameState::START_GAME;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals('(V)', $game->buttonArray[0]->recipe);
     }
@@ -2276,7 +2423,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Ayeka', 'Merlin'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::CHOOSE_AUXILIARY_DICE, $game->gameState);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -2285,8 +2432,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // decline auxiliary dice
         $game->waitingOnActionArray = array(FALSE, FALSE);
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2298,8 +2445,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(5, $game->activeDieArrayArray[1]);
 
         $game->swingValueArrayArray = array(array(), array('X' => 5));
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
     }
@@ -2317,7 +2464,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Apples', 'Green Apple'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check buttons
         $this->assertEquals('Apples', $game->buttonArray[0]->name);
@@ -2336,8 +2483,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // specify option dice incorrectly
         $game->optValueArrayArray[0][2] = 6;
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertFalse(isset($game->activeDieArrayArray[0][2]->max));
 
@@ -2349,8 +2496,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
                             $game->optValueArrayArray);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20), array()),
                             $game->optValueArrayArray);
@@ -2362,8 +2509,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(16, $game->activeDieArrayArray[0][3]->max);
         $this->assertEquals(20, $game->activeDieArrayArray[0][4]->max);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
@@ -2420,8 +2567,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
                             $game->optValueArrayArray);
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array(2 => 12, 3 => 16, 4 => 20),
                                   array(2 =>  8, 3 =>  6, 4 => 12)),
@@ -2492,8 +2639,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                               array(0), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
                                   array('W' => 0, 'L' => 1, 'D' => 0)),
@@ -2516,7 +2663,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Farrell', 'Farrell'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         $this->assertEquals(array(array(), array()), $game->capturedDieArrayArray);
         $this->assertEquals(array(TRUE, TRUE), $game->waitingOnActionArray);
@@ -2537,7 +2684,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Gilly', 'Igor'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check buttons
         $this->assertEquals('Gilly', $game->buttonArray[0]->name);
@@ -2555,8 +2702,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('X' => 19), array('X' => 4));
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[0][4]);
         $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][4]);
@@ -2631,8 +2778,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
         $postSaveSwingSize = $game->activeDieArrayArray[1][4]->swingValue;
         $this->assertEquals($preSaveMoodMax, $postSaveMoodMax);
@@ -2650,7 +2797,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('TheFool', 'TheFool'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check buttons
         $this->assertEquals('TheFool', $game->buttonArray[0]->name);
@@ -2670,8 +2817,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         // specify swing dice correctly
         $game->swingValueArrayArray = array(array('R' => 16), array('R' => 2));
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertTrue($game->activeDieArrayArray[0][4]->has_skill('Mood'));
         $this->assertTrue($game->activeDieArrayArray[1][4]->has_skill('Mood'));
@@ -2764,8 +2911,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game->proceed_to_next_user_action();
 
         $preSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
         $postSaveMoodMax = $game->activeDieArrayArray[1][4]->max;
         $postSaveSwingSize1 = $game->activeDieArrayArray[1][4]->dice[0]->swingValue;
         $postSaveSwingSize2 = $game->activeDieArrayArray[1][4]->dice[1]->swingValue;
@@ -2785,15 +2932,15 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    array('Avis', 'Hammer'), 4);
         $gameId = $retval['gameId'];
 
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
 
         $this->object->update_last_action_time(self::$userId1WithoutAutopass);
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertEquals(array(0, 0), $game->lastActionTimeArray);
 
         $this->object->update_last_action_time(self::$userId1WithoutAutopass, $gameId);
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
         $this->assertNotEquals(array(0, 0), $game->lastActionTimeArray);
         $this->assertGreaterThan(0, $game->lastActionTimeArray[0]);
         $this->assertEquals(0, $game->lastActionTimeArray[1]);
@@ -2828,7 +2975,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
                                                    self::$userId2WithoutAutopass),
                                                    array('Frasquito', 'Wiseman'), 4);
         $gameId = $retval['gameId'];
-        $game = $this->object->load_game($gameId);
+        $game = self::load_game($gameId);
 
         // check buttons
         $this->assertEquals('Frasquito', $game->buttonArray[0]->name);
@@ -2841,8 +2988,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
         $game->optValueArrayArray = array(array(4 => 2), array());
 
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
 
@@ -2864,8 +3011,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // capture the option die
         $game->attack = array(1, 0, array(0, 1), array(4), 'Skill');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
         $dieArrayArray = $game->activeDieArrayArray;
@@ -2877,8 +3024,8 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(4, $game->activeDieArrayArray[1]);
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
         $dieArrayArray = $game->activeDieArrayArray;
@@ -2888,12 +3035,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(3, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
         $dieArrayArray = $game->activeDieArrayArray;
@@ -2903,12 +3050,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(2, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         // artificially set die value of rolled die
         $dieArrayArray = $game->activeDieArrayArray;
@@ -2918,12 +3065,12 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         $game->attack = array(0, 1, array(0), array(0), 'Power');
-        $this->object->save_game($game);
-        $game = $this->object->load_game($game->gameId);
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
 
         // we should now be at the point where the bug triggers, at end of round
         $this->assertEquals(2, $game->roundNumber);

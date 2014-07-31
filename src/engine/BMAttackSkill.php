@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackSkill: Code specific to skill attacks
+ *
+ * @author Julian
+ */
 
+/**
+ * This class contains code specific to skill attacks
+ */
 class BMAttackSkill extends BMAttack {
     public $type = "Skill";
 
@@ -63,7 +71,7 @@ class BMAttackSkill extends BMAttack {
         return FALSE;
     }
 
-    public function validate_attack($game, array $attackers, array $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
 
         if (count($attackers) < 1) {
@@ -94,7 +102,7 @@ class BMAttackSkill extends BMAttack {
             return TRUE;
         }
 
-        return $this->is_assisted_attack_valid($game, $attackers, $defenders, $dval);
+        return $this->is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue);
     }
 
     // array_intersect tries to convert to strings, so we use array_uintersect,
@@ -122,15 +130,25 @@ class BMAttackSkill extends BMAttack {
         }
     }
 
-    protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval) {
-        $helpers = $this->collect_helpers($game, $attackers, $defenders);
-        $bounds = $this->help_bounds($helpers);
+    protected function is_assisted_attack_valid($game, $attackers, $defenders, $dval, $helpValue) {
+        if (is_null($helpValue)) {
+            $bounds = $this->help_bounds(
+                $this->collect_helpers($game, $attackers, $defenders),
+                $this->collect_firing_maxima($attackers)
+            );
+        } else {
+            $bounds = array($helpValue, $helpValue);
+        }
+
         if ($bounds[0] == 0 && $bounds[1] == 0) {
             $this->validationMessage = 'Attacking die values do not sum up to target die value.';
             return FALSE;
         }
         for ($i = $bounds[0]; $i <= $bounds[1]; $i++) {
-            $combos = $this->hit_table->find_hit($dval + $i);
+            // james: This logic assumes that firing effectively reduces the defence value.
+            //        This assumption fails in the case that part of the skill sum comes
+            //        from a konstant die that is being subtracted from the total.
+            $combos = $this->hit_table->find_hit($dval - $i);
             if ($combos) {
                 foreach ($combos as $c) {
                     if (count($c) == count($attackers) &&

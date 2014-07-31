@@ -32,8 +32,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMAttackPower::validate_attack
      */
-    public function testValidate_attack()
-    {
+    public function testValidate_attack() {
         $game = new TestDummyGame;
 
         $die1 = new BMDie;
@@ -102,8 +101,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
      * @covers BMAttackPower::validate_attack()
      * @depends testValidate_attack
      */
-    public function testInterfaceValidate_attack()
-    {
+    public function testInterfaceValidate_attack() {
         $game = new BMGame;
 
         $die1 = new BMDie;
@@ -169,17 +167,109 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1)));
 
-        // Check that a shadow die cannot perform a power attack
-        $die9 = new BMDie;
-        $die9->init(6);
-        $die9->add_skill('Shadow');
-        $die9->value = 6;
+        // test case where the amount of help is explicitly specified
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1), 1));
+        $this->assertTrue($this->object->validate_attack($game, array($die2), array($die1), 5));
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1), 6));
+    }
 
-        $die10 = new BMDie;
-        $die10->init(6);
-        $die10->value = 5;
+    /**
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
+     */
+    public function testInterfaceValidate_attack_shadow() {
+        $game = new BMGame;
 
-        $this->assertFalse($this->object->validate_attack($game, array($die9), array($die10)));
+        $att = new BMDie;
+        $att->init(6);
+        $att->add_skill('Shadow');
+        $att->value = 6;
+
+        $def = new BMDie;
+        $def->init(6);
+        $def->value = 5;
+
+        $this->assertFalse($this->object->validate_attack($game, array($att), array($def)));
+    }
+
+    /**
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
+     */
+    public function testInterfaceValidate_attack_konstant() {
+        $game = new BMGame;
+
+        $att = new BMDie;
+        $att->init(6);
+        $att->add_skill('Konstant');
+        $att->value = 6;
+
+        $def = new BMDie;
+        $def->init(6);
+        $def->value = 5;
+
+        $this->assertFalse($this->object->validate_attack($game, array($att), array($def)));
+    }
+
+    /**
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
+     */
+    public function testInterfaceValidate_attack_stealth() {
+        $game = new BMGame;
+
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->add_skill('Stealth');
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->init(6);
+        $die2->value = 6;
+
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die1)));
+    }
+
+    /**
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
+     */
+    public function testInterfaceValidate_attack_fire() {
+        $game = new BMGame;
+
+        $att = new BMDie;
+        $att->init(6);
+        $att->add_skill('Fire');
+        $att->value = 6;
+
+        $def = new BMDie;
+        $def->init(6);
+        $def->value = 5;
+
+        $this->assertFalse($this->object->validate_attack($game, array($att), array($def)));
+    }
+
+    /**
+     * @covers BMAttackPower::validate_attack()
+     * @depends testValidate_attack
+     */
+    public function testInterfaceValidate_attack_queer() {
+        $game = new BMGame;
+
+        $att = new BMDie;
+        $att->init(6);
+        $att->add_skill('Queer');
+        $att->value = 6;
+
+        $def = new BMDie;
+        $def->init(6);
+        $def->value = 5;
+
+        $this->assertTrue($this->object->validate_attack($game, array($att), array($def)));
+
+        $att->value = 5;
+        $this->assertFalse($this->object->validate_attack($game, array($att), array($def)));
     }
 
     /**
@@ -187,16 +277,16 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
      * @depends testValidate_attack
      * @todo   Implement testFind_attack().
      */
-    public function testFind_attack()
-    {
+    public function testFind_attack() {
         $game = new TestDummyGame;
 
         // we find nothing when there are no attackers
         $this->assertFalse($this->object->find_attack($game));
 
-        // Load some dice into the attack.
+        // Load some dice into the attack:
+        // attackers: (7):6, (6):1
         $die1 = new BMDie;
-        $die1->init(6);
+        $die1->init(7);
         $die1->value = 6;
 
         $this->object->add_die($die1);
@@ -210,7 +300,6 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
         // we find nothing when there are no defenders
         $this->assertFalse($this->object->find_attack($game));
 
-
         $die3 = new BMDie;
         $die3->init(6);
         $die3->value = 6;
@@ -219,40 +308,90 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
         $die4->init(20);
         $die4->value = 7;
 
-        $game->defenderAllDieArray[] = $die3;
+        // defenders: (6):6
+        $game->defenderAllDieArray = array($die3);
 
         $this->assertTrue($this->object->find_attack($game));
 
-        $game->defenderAllDieArray = array();
-        $game->defenderAllDieArray[] = $die4;
+        // defenders: (20):7
+        $game->defenderAllDieArray = array($die4);
 
         $this->assertFalse($this->object->find_attack($game));
 
-        // with both
-        $game->defenderAllDieArray[] = $die3;
-
-        $this->assertTrue($this->object->find_attack($game));
-
-        // with an assist
-        $game->defenderAllDieArray = array();
-        $game->defenderAllDieArray[] = $die4;
-
-        // Attacks with helpers
-        $die5 = new BMDie;
-        $die5->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
-        $die5->value = 1;
-        $game->attackerAllDieArray[] = $die5;
+        // defenders: (20):7, (6):6
+        $game->defenderAllDieArray = array($die4, $die3);
 
         $this->assertTrue($this->object->find_attack($game));
     }
 
+    public function testFind_attack_with_help() {
+        $game = new TestDummyGame;
+
+        // Load die into the attack:
+        // attackers: (7):6
+        $die1 = new BMDie;
+        $die1->init(7);
+        $die1->value = 6;
+
+        $this->object->add_die($die1);
+
+        $die2 = new BMDie;
+        $die2->init(20);
+        $die2->value = 7;
+
+        // with an assist
+        $game->defenderAllDieArray = array($die2);
+
+        // Attacks with helpers
+        // attackers: (7):6
+        // helpers  : (6):1
+        // defenders: (20):7
+
+        $die3 = new BMDie;
+        $die3->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
+        $die3->value = 1;
+        $game->attackerAllDieArray[] = $die3;
+
+        $this->assertTrue($this->object->find_attack($game));
+    }
+
+    public function testFind_attack_impossible_even_with_help() {
+        $game = new TestDummyGame;
+
+        // Load die into the attack:
+        // attackers: (7):6
+        $die1 = new BMDie;
+        $die1->init(7);
+        $die1->value = 6;
+
+        $this->object->add_die($die1);
+
+        $die2 = new BMDie;
+        $die2->init(20);
+        $die2->value = 8;
+
+        // with an assist
+        $game->defenderAllDieArray = array($die2);
+
+        // Attacks with helpers
+        // attackers: (7):6
+        // helpers  : (6):6
+        // defenders: (20):8
+
+        $die3 = new BMDie;
+        $die3->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
+        $die3->value = 6;
+        $game->attackerAllDieArray[] = $die3;
+
+        // the attack must fail because help cannot boost a die past its maximum
+        $this->assertFalse($this->object->find_attack($game));
+    }
 
     /**
      * @coversNothing
      * @depends testValidate_attack
      */
-    public function testInterfaceFind_attack()
-    {
+    public function testInterfaceFind_attack() {
         $game = new BMGame;
 
         // we find nothing when there are no attackers
@@ -260,7 +399,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Load some dice into the attack.
         $die1 = new BMDie;
-        $die1->init(6);
+        $die1->init(7);
         $die1->value = 6;
 
         $this->object->add_die($die1);
@@ -302,7 +441,7 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
 
         // Attacks with helpers
         $die5 = new BMDie;
-        $die5->init(6, array("TestDummyBMSkillAVTesting" => "AVTesting"));
+        $die5->init(7, array("TestDummyBMSkillAVTesting" => "AVTesting"));
         $die5->value = 1;
 
         $game->activeDieArrayArray = array(array($die5), array($die4));
