@@ -412,10 +412,10 @@ class BMInterface {
     }
 
     protected function validate_game_info(
-            array $playerIdArray,
-            $maxWins,
-            $currentPlayerId,
-            $previousGameId
+        array $playerIdArray,
+        $maxWins,
+        $currentPlayerId,
+        $previousGameId
     ) {
         $areAllPlayersPresent = TRUE;
         // check for the possibility of unspecified players
