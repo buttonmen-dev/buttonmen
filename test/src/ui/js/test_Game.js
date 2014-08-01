@@ -575,8 +575,8 @@ asyncTest("test_Game.actionPlayTurnActive", function() {
 
     var item = document.getElementById('attack_type_select');
     ok(item, "#attack_type_select is set");
-    equal(item.innerHTML.match('selected'), null,
-      'No attack type is initially selected');
+    equal($(item).val(), 'Default',
+      'Default attack type is initially selected');
     var item = document.getElementById('game_chat');
     equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
