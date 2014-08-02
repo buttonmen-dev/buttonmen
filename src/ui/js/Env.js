@@ -444,30 +444,6 @@ Env.toggleSpoiler = function() {
   $(this).toggleClass('chatExposedSpoiler');
 };
 
-// Takes a URL that was entered by a user and returns a version of it that's
-// safe to insert into an anchor tag (or returns NULL if we can't sensibly do
-// that).
-// Based in part on advice from http://stackoverflow.com/questions/205923
-Env.validateUrl = function(url) {
-  // First, check for and reject anything with inappropriate characters
-  // (We can expand this list later if it becomes necessary)
-  if (!url.match(/^[-A-Za-z0-9+&@#/%?=~_!:,.\(\)]+$/)) {
-    return null;
-  }
-
-  // Then ensure that it begins with http:// or https://
-  if (url.toLowerCase().indexOf('http://') !== 0 &&
-      url.toLowerCase().indexOf('https://') !== 0) {
-    url = 'http://' + url;
-  }
-
-  // This should create a relatively safe URL. It does not verify that it's a
-  // *valid* URL, but if it is invalid, this should at least render it impotent.
-  // This also doesn't verify that the URL points to a safe page, but that is
-  // outside of the scope of this function.
-  return url;
-};
-
 // Calls several asynchronous methods in parallel, calling the final callback
 // when they've all completed. All functions must take a callback as their
 // final argument.
