@@ -143,6 +143,19 @@ class BMInterface {
             return NULL;
         }
 
+        $homepage = $addlInfo['homepage'];
+        if ($homepage != NULL && $homepage != "") {
+            $homepage = $this->validate_url($homepage);
+            if ($homepage != NULL) {
+                $infoArray['homepage'] = $homepage;
+            } else {
+                $this->message = 'Homepage is invalid. It may contain some characters that need to be escaped.';
+                return NULL;
+            }
+        } else {
+            $infoArray['homepage'] = NULL;
+        }
+
         if (isset($addlInfo['favorite_button'])) {
             $infoArray['favorite_button_id'] =
                 $this->get_button_id_from_name($addlInfo['favorite_button']);
@@ -4053,6 +4066,30 @@ class BMInterface {
         }
 
         return $gameColors;
+    }
+
+    // Takes a URL that was entered by a user and returns a version of it that's
+    // safe to insert into an anchor tag (or returns NULL if we can't sensibly do
+    // that).
+    // Based in part on advice from http://stackoverflow.com/questions/205923
+    private function validate_url($url) {
+        // First, check for and reject anything with inappropriate characters
+        // (We can expand this list later if it becomes necessary)
+        if (!preg_match('/^[-A-Za-z0-9+&@#\\/%?=~_!:,.\\(\\)]+$/', $url)) {
+          return NULL;
+        }
+
+        // Then ensure that it begins with http:// or https://
+        if (strpos(strtolower($url), 'http://') !== 0 &&
+            strpos(strtolower($url), 'https://') !== 0) {
+          $url = 'http://' . $url;
+        }
+
+        // This should create a relatively safe URL. It does not verify that it's a
+        // *valid* URL, but if it is invalid, this should at least render it impotent.
+        // This also doesn't verify that the URL points to a safe page, but that is
+        // outside of the scope of this function.
+        return $url;
     }
 
     public function __get($property) {

@@ -240,11 +240,11 @@ class ApiResponder {
             $infoArray['image_size'] = NULL;
         }
         $infoArray['uses_gravatar'] = ('true' == $args['uses_gravatar']);
-        $infoArray['homepage'] = $args['homepage'];
 
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
         $addlInfo['dob_day'] = (int)$args['dob_day'];
+        $addlInfo['homepage'] = $args['homepage'];
 
         if (isset($args['favorite_button'])) {
             $addlInfo['favorite_button'] = $args['favorite_button'];

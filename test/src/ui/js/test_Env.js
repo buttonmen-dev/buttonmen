@@ -238,20 +238,20 @@ test("test_Env.escapeRegexp", function() {
 
 test("test_Env.sanitizeUrl", function() {
   var rawUrl = 'example.com';
-  var cleanedUrl = Env.sanitizeUrl(rawUrl);
+  var cleanedUrl = Env.validateUrl(rawUrl);
   equal(cleanedUrl, 'http://example.com', 'URL should have correct protocol');
 
   var rawUrl = 'javascript:alert(\'Evil\');';
-  var cleanedUrl = Env.sanitizeUrl(rawUrl);
-  equal(cleanedUrl, 'http://javascript:alert(Evil);',
-    'Malicious URL should be made invalid');
+  var cleanedUrl = Env.validateUrl(rawUrl);
+  equal(cleanedUrl, null, 'Malicious URL should be rejected');
 
   var rawUrl = 'http://example.com/$';
-  var cleanedUrl = Env.sanitizeUrl(rawUrl);
-  equal(cleanedUrl, 'http://example.com/', 'Inappropriate characters should be removed');
+  var cleanedUrl = Env.validateUrl(rawUrl);
+  equal(cleanedUrl, null,
+    'URL with inappropriate characters should be rejected');
 
   var rawUrl = 'https://example.com';
-  var cleanedUrl = Env.sanitizeUrl(rawUrl);
+  var cleanedUrl = Env.validateUrl(rawUrl);
   equal(cleanedUrl, rawUrl, 'Valid URL should be unaffected');
 });
 
