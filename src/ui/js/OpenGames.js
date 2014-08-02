@@ -67,7 +67,7 @@ OpenGames.showPage = function() {
           'recipe': 'Random button',
           'greyed': false,
         },
-    };
+      };
     var anyUnimplementedButtons = false;
 
     $.each(Api.button.list, function(button, buttoninfo) {
