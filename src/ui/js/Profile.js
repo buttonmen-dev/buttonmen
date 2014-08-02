@@ -138,12 +138,20 @@ Profile.buildProfileTable = function() {
 
   var homepageLink = null;
   if (Api.profile_info.homepage) {
-    var homepageUrl = Env.sanitizeUrl(Api.profile_info.homepage);
-    homepageLink = $('<a>', {
-      'text': homepageUrl,
-      'href': homepageUrl,
-      'target': '_blank',
-    });
+    var homepageUrl = Env.validateUrl(Api.profile_info.homepage);
+    if (homepageUrl) {
+      homepageLink = $('<a>', {
+        'text': homepageUrl,
+        'href': homepageUrl,
+        'target': '_blank',
+      });
+    } else {
+      homepageLink = $('<a>', {
+        'text': 'INVALID URL',
+        'href': 'javascript:alert("Homepage URL was invalid")',
+        'target': '_blank',
+      });
+    }
   }
 
   var solipsismAlternatives = [
