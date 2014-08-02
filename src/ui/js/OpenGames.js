@@ -64,7 +64,7 @@ OpenGames.showPage = function() {
   } else {
     var buttons = {
       '__random': {
-          'recipe': 'A randomly selected button',
+          'recipe': 'Random button',
           'greyed': false,
         },
     };
@@ -223,7 +223,7 @@ OpenGames.buildGameTable = function(tableType, buttons) {
     tbody.append(gameRow);
 
     if (tableType == 'yours') {
-      // Layout rows for your open games table
+      // Lay out rows for your open games table
       gameRow.append($('<td>', {
         'class': 'gameAction',
         'text': 'Game ' + game.gameId,
@@ -232,20 +232,26 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         'text': game.challengerButton,
       }));
 
-      if (game.victimButton !== null) {
+      if (game.victimButton == '__random') {
         gameRow.append($('<td>', {
-          'text': game.victimButton,
+          'text': 'Random Button',
           'class': 'victimButton',
+          'style': 'font-style: italic;',
         }));
-      } else {
+      } else if (game.victimButton === null) {
         gameRow.append($('<td>', {
           'text': 'Any Button',
           'class': 'victimButton',
           'style': 'font-style: italic;',
         }));
+      } else {
+        gameRow.append($('<td>', {
+          'text': game.victimButton,
+          'class': 'victimButton',
+        }));
       }
     } else {
-      // Layout rows for joinable games table
+      // Lay out rows for joinable games table
       var gameActionTd = $('<td>', { 'class': 'gameAction', });
       gameRow.append(gameActionTd);
       var joinButton = $('<button>', {
@@ -256,12 +262,13 @@ OpenGames.buildGameTable = function(tableType, buttons) {
       gameActionTd.append(joinButton);
       joinButton.click(OpenGames.joinOpenGame);
 
-      if (game.victimButton !== null) {
+      if (game.victimButton == '__random') {
         gameRow.append($('<td>', {
-          'text': game.victimButton,
+          'text': 'Random Button',
           'class': 'victimButton',
+          'style': 'font-style: italic;',
         }));
-      } else {
+      } else if (game.victimButton === null) {
         var victimButtonTd = $('<td>', { 'class': 'victimButton', });
         gameRow.append(victimButtonTd);
         var buttonSelect = $('<select>');
@@ -279,6 +286,11 @@ OpenGames.buildGameTable = function(tableType, buttons) {
             'class': (buttonInfo.greyed ? 'greyed' : ''),
           }));
         });
+      } else {
+        gameRow.append($('<td>', {
+          'text': game.victimButton,
+          'class': 'victimButton',
+        }));
       }
 
       gameRow.append($('<td>', {

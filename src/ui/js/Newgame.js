@@ -542,7 +542,7 @@ Newgame.updateButtonList = function(player, limitid) {
   }
 
   Newgame.activity.buttonList[player] = {
-    '__random': 'A randomly selected button',
+    '__random': 'Random button',
   };
   var choiceid;
   var hasSkill;
