@@ -140,23 +140,12 @@ class BMInterface {
         $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
 
-        $isValidData = $this->validate_player_dob($infoArray) &&
-                       $this->validate_player_password_and_email($addlInfo, $playerId);
+        $isValidData =
+            ($this->validate_player_dob($infoArray) &&
+            $this->validate_player_password_and_email($addlInfo, $playerId) &&
+            $this->validate_and_set_homepage($addlInfo['homepage'], $infoArray));
         if (!$isValidData) {
             return NULL;
-        }
-
-        $homepage = $addlInfo['homepage'];
-        if ($homepage != NULL && $homepage != "") {
-            $homepage = $this->validate_url($homepage);
-            if ($homepage != NULL) {
-                $infoArray['homepage'] = $homepage;
-            } else {
-                $this->message = 'Homepage is invalid. It may contain some characters that need to be escaped.';
-                return NULL;
-            }
-        } else {
-            $infoArray['homepage'] = NULL;
         }
 
         if (isset($addlInfo['favorite_button'])) {
@@ -243,6 +232,27 @@ class BMInterface {
             }
         }
 
+        return TRUE;
+    }
+
+    private function validate_and_set_homepage($homepage, array &$infoArray) {
+        error_log('incoming homepage: ' . $homepage);
+        if ($homepage == NULL || $homepage == "") {
+            error_log('it was null');
+            $infoArray['homepage'] = NULL;
+            return TRUE;
+        }
+
+        $homepage = $this->validate_url($homepage);
+        if ($homepage == NULL) {
+            error_log('it was invalid');
+            $this->message = 'Homepage is invalid. It may contain some characters that need to be escaped.';
+            return FALSE;
+        }
+
+        error_log('it was valid');
+        $infoArray['homepage'] = $homepage;
+        error_log('outgoing homepage: ' . $infoArray['homepage']);
         return TRUE;
     }
 
@@ -4188,13 +4198,13 @@ class BMInterface {
         // First, check for and reject anything with inappropriate characters
         // (We can expand this list later if it becomes necessary)
         if (!preg_match('/^[-A-Za-z0-9+&@#\\/%?=~_!:,.\\(\\)]+$/', $url)) {
-          return NULL;
+            return NULL;
         }
 
         // Then ensure that it begins with http:// or https://
         if (strpos(strtolower($url), 'http://') !== 0 &&
             strpos(strtolower($url), 'https://') !== 0) {
-          $url = 'http://' . $url;
+            $url = 'http://' . $url;
         }
 
         // This should create a relatively safe URL. It does not verify that it's a
