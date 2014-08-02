@@ -236,22 +236,22 @@ test("test_Env.escapeRegexp", function() {
     'Escaped pattern should be as expected');
 });
 
-test("test_Env.validateUrl", function() {
+test("test_Profile.validateUrl", function() {
   var rawUrl = 'example.com';
-  var cleanedUrl = Env.validateUrl(rawUrl);
+  var cleanedUrl = Profile.validateUrl(rawUrl);
   equal(cleanedUrl, 'http://example.com', 'URL should have correct protocol');
 
   var rawUrl = 'javascript:alert(\'Evil\');';
-  var cleanedUrl = Env.validateUrl(rawUrl);
+  var cleanedUrl = Profile.validateUrl(rawUrl);
   equal(cleanedUrl, null, 'Malicious URL should be rejected');
 
   var rawUrl = 'http://example.com/$';
-  var cleanedUrl = Env.validateUrl(rawUrl);
+  var cleanedUrl = Profile.validateUrl(rawUrl);
   equal(cleanedUrl, null,
     'URL with inappropriate characters should be rejected');
 
   var rawUrl = 'https://example.com';
-  var cleanedUrl = Env.validateUrl(rawUrl);
+  var cleanedUrl = Profile.validateUrl(rawUrl);
   equal(cleanedUrl, rawUrl, 'Valid URL should be unaffected');
 });
 
