@@ -62,7 +62,12 @@ OpenGames.showPage = function() {
       'text': 'There are no open games.',
     };
   } else {
-    var buttons = { };
+    var buttons = {
+      '__random': {
+          'recipe': 'A randomly selected button',
+          'greyed': false,
+        },
+    };
     var anyUnimplementedButtons = false;
 
     $.each(Api.button.list, function(button, buttoninfo) {
