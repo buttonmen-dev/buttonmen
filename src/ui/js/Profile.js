@@ -138,7 +138,7 @@ Profile.buildProfileTable = function() {
 
   var homepageLink = null;
   if (Api.profile_info.homepage) {
-    var homepageUrl = Env.validateUrl(Api.profile_info.homepage);
+    var homepageUrl = Profile.validateUrl(Api.profile_info.homepage);
     if (homepageUrl) {
       homepageLink = $('<a>', {
         'text': homepageUrl,
