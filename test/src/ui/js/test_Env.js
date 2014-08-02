@@ -236,7 +236,7 @@ test("test_Env.escapeRegexp", function() {
     'Escaped pattern should be as expected');
 });
 
-test("test_Env.sanitizeUrl", function() {
+test("test_Env.validateUrl", function() {
   var rawUrl = 'example.com';
   var cleanedUrl = Env.validateUrl(rawUrl);
   equal(cleanedUrl, 'http://example.com', 'URL should have correct protocol');
