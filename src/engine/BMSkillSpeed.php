@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillSpeed: Code specific to the speed die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the speed die skill
+ */
 class BMSkillSpeed extends BMSkill {
     public static $hooked_methods = array('attack_list');
 

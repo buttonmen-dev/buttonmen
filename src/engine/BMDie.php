@@ -1,14 +1,19 @@
 <?php
-
-/*
+/**
  * BMDie: the fundamental unit of game mechanics
  *
- * @author: Julian Lighton
+ * @author: Julian
+ */
+
+/**
+ * This class contains all the logic to do with dice, including instantiating, activating,
+ * rolling, capturing, describing, as well as die flags
  *
  * @property-read int    $min                   Minimum die value
  * @property-read int    $max                   Maximum die value
  * @property      int    $value                 Current die value
  * @property-read string $recipe                Die recipe
+ * @property-read int    $firingMax             Maximum amount that the die can be fired up
  * @property      BMGame/BMButton $ownerObject  Game or button that owns the die
  * @property      int    $playerIdx             Index of player that currently owns the die
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
@@ -20,7 +25,6 @@
  * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  */
-
 class BMDie extends BMCanHaveSkill {
     // properties
 
@@ -29,6 +33,7 @@ class BMDie extends BMCanHaveSkill {
     protected $max;
     protected $value;
     protected $recipe;
+    protected $firingMax;
 
 // references back to the owner
     protected $ownerObject;
@@ -179,7 +184,8 @@ class BMDie extends BMCanHaveSkill {
             $this->value = mt_rand($this->min, $this->max);
         }
 
-        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
+        $this->run_hooks('post_roll', array('die' => $this,
+                                            'isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     public function attack_list() {
@@ -271,7 +277,7 @@ class BMDie extends BMCanHaveSkill {
     // Fire is currently the only skill that requires this
     //
     // Returned values must be sorted from lowest to highest, and zero
-    // must be ommited unlees you cannot contribute.
+    // must be omitted unless you cannot contribute.
     //
     // The attack code currently assumes that every value between the
     // lowest and highest is possible, and that 1 and -1 are possible
@@ -280,18 +286,16 @@ class BMDie extends BMCanHaveSkill {
     //
     // It does not assume that the values are positive, even though
     // they must be at the moment.
-    public function assist_values($type, array $attackers, array $defenders) {
-
+    public function assist_values($type, array $attackers) {
         $vals = array(0);
 
         // Attackers can't help their own attack
-        if (FALSE !== array_search($this, $attackers)) {
+        if (FALSE !== array_search($this, $attackers, TRUE)) {
             return $vals;
         }
 
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders,
+        $this->run_hooks(__FUNCTION__, array('attackType'           => $type,
+                                             'assistingDie'         => $this,
                                              'possibleAssistValues' => &$vals));
 
         return $vals;
@@ -557,6 +561,14 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /** function that calculates how much a die can be fired up by a helper die
+     *
+     * @return int Number of sides that the die can be fired up
+     */
+    protected function get_firingMax() {
+        return ($this->max - $this->value);
+    }
+
     // Return all information about a die which is useful when
     // constructing an action log entry, in the form of an array.
     // This function exists so that BMGame can easily compare the
@@ -620,7 +632,7 @@ class BMDie extends BMCanHaveSkill {
 
         $flagObject = BMFlag::create_from_string($flagString);
         if (isset($flagObject)) {
-            $this->flagList[$flag] = $flagObject;
+            $this->flagList[$flagObject->type()] = $flagObject;
         }
     }
 
@@ -663,6 +675,8 @@ class BMDie extends BMCanHaveSkill {
             switch ($property) {
                 case 'recipe':
                     return $this->get_recipe();
+                case 'firingMax':
+                    return $this->get_firingMax();
                 default:
                     return $this->$property;
             }

@@ -4,6 +4,10 @@
  * BMInterface: interface between GUI and BMGame
  *
  * @author james
+ */
+
+/**
+ * This class deals with communication between the UI, the game code, and the database
  *
  * @property-read string $message                Message intended for GUI
  * @property-read DateTime $timestamp            Timestamp of last game action
@@ -23,7 +27,6 @@ class BMInterface {
     private static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing
-
 
 
     // constructor
@@ -314,6 +317,8 @@ class BMInterface {
             return NULL;
         }
 
+        $this->resolve_random_button_selection($buttonNameArray);
+
         $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
         if (is_null($buttonIdArray)) {
             return NULL;
@@ -440,6 +445,27 @@ class BMInterface {
         return TRUE;
     }
 
+    protected function resolve_random_button_selection(&$buttonNameArray) {
+        $allButtonData = array();
+        $allButtonNames = array();
+        $nButtons = 0;
+
+        foreach ($buttonNameArray as &$buttonName) {
+            if ('__random' != $buttonName) {
+                continue;
+            }
+
+            if (empty($allButtonNames)) {
+                $allButtonData = $this->get_all_button_names();
+                $allButtonNames = $allButtonData['buttonNameArray'];
+                $nButtons = count($allButtonNames);
+            }
+
+            $buttonIdx = rand(0, $nButtons - 1);
+            $buttonName = $allButtonNames[$buttonIdx];
+        }
+    }
+
     protected function retrieve_button_ids($playerIdArray, $buttonNameArray) {
         $buttonIdArray = array();
         foreach (array_keys($playerIdArray) as $position) {
@@ -549,7 +575,7 @@ class BMInterface {
         }
     }
 
-    public function load_game($gameId, $logEntryLimit = NULL) {
+    protected function load_game($gameId, $logEntryLimit = NULL) {
         try {
             $game = $this->load_game_parameters($gameId);
 
@@ -903,7 +929,7 @@ class BMInterface {
         }
     }
 
-    public function save_game(BMGame $game) {
+    protected function save_game(BMGame $game) {
         // force game to proceed to the latest possible before saving
         $game->proceed_to_next_user_action();
 
@@ -1297,7 +1323,7 @@ class BMInterface {
 
     // Parse the search filters, converting them to standardized forms (such
     // as converting names to ID's), and validating them against the database
-    public function assemble_search_filters($searchParameters) {
+    protected function assemble_search_filters($searchParameters) {
         try {
             $searchFilters = array();
 
@@ -1405,7 +1431,7 @@ class BMInterface {
 
     // Parse out the additional options that affect how search results
     // are to be presented
-    public function assemble_search_options($searchParameters) {
+    protected function assemble_search_options($searchParameters) {
         try {
             $searchOptions = array();
 
@@ -2110,7 +2136,7 @@ class BMInterface {
         }
     }
 
-    public function get_button_recipe_from_name($name) {
+    protected function get_button_recipe_from_name($name) {
         try {
             $query = 'SELECT recipe FROM button_view '.
                      'WHERE name = :name';
@@ -2177,7 +2203,7 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_from_id($playerId) {
+    protected function get_player_name_from_id($playerId) {
         try {
             if (is_null($playerId)) {
                 return('');
@@ -2203,7 +2229,7 @@ class BMInterface {
         }
     }
 
-    public function get_player_name_mapping($game) {
+    protected function get_player_name_mapping($game) {
         $idNameMapping = array();
         foreach ($game->playerIdArray as $playerId) {
             $idNameMapping[$playerId] = $this->get_player_name_from_id($playerId);
@@ -2294,7 +2320,7 @@ class BMInterface {
 
     // Enter recent game actions into the action log
     // Note: it might be possible for this to be a protected function
-    public function log_game_actions(BMGame $game) {
+    protected function log_game_actions(BMGame $game) {
         $query = 'INSERT INTO game_action_log ' .
                  '(game_id, game_state, action_type, acting_player, message) ' .
                  'VALUES ' .
@@ -2312,7 +2338,7 @@ class BMInterface {
         $game->empty_action_log();
     }
 
-    public function load_game_action_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_action_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
                      'game_state,action_type,acting_player,message ' .
@@ -2361,7 +2387,7 @@ class BMInterface {
     }
 
     // Create a status message based on recent game actions
-    private function load_message_from_game_actions(BMGame $game) {
+    protected function load_message_from_game_actions(BMGame $game) {
         $this->message = '';
         $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
@@ -2426,7 +2452,7 @@ class BMInterface {
                                   ':timestamp' => $editTimestamp));
     }
 
-    public function load_game_chat_log(BMGame $game, $logEntryLimit) {
+    protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
         try {
             $query = 'SELECT UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
                      'chatting_player,message ' .
@@ -2844,7 +2870,7 @@ class BMInterface {
         }
     }
 
-    public function submit_swing_values(
+    protected function submit_swing_values(
         $playerId,
         $gameId,
         $roundNumber,
@@ -2924,7 +2950,7 @@ class BMInterface {
         }
     }
 
-    public function submit_option_values(
+    protected function submit_option_values(
         $playerId,
         $gameId,
         $roundNumber,
@@ -3335,6 +3361,92 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Internal error while reacting to initiative';
+            return FALSE;
+        }
+    }
+
+    // adjust_fire expects the following inputs:
+    //
+    //   $action:
+    //       One of {'turndown', 'cancel'}.
+    //
+    //   $dieIdxArray:
+    //       (i)  If this is a 'turndown' action, then this is the nonempty array
+    //             of die indices corresponding to the die values in
+    //             dieValueArray. This can be either the indices of ALL fire
+    //             dice OR just a subset.
+    //       (ii) If this is a 'cancel' action, then this will be ignored.
+    //
+    //   $dieValueArray:
+    //       This is only used for the 'turndown' action. It is a nonempty array
+    //       containing the values of the fire dice that have been chosen by
+    //       the user. The die indices of the dice being specified are given in
+    //       $dieIdxArray.
+    //
+    // The function returns a boolean telling whether the reaction has been
+    // successful.
+    // If it fails, $this->message will say why it has failed.
+
+    public function adjust_fire(
+        $playerId,
+        $gameId,
+        $roundNumber,
+        $submitTimestamp,
+        $action,
+        $dieIdxArray = NULL,
+        $dieValueArray = NULL
+    ) {
+        try {
+            $game = $this->load_game($gameId);
+            if (!$this->is_action_current(
+                $game,
+                BMGameState::ADJUST_FIRE_DICE,
+                $submitTimestamp,
+                $roundNumber,
+                $playerId
+            )) {
+                return FALSE;
+            }
+
+            $playerIdx = array_search($playerId, $game->playerIdArray);
+
+            $argArray = array('action' => $action,
+                              'playerIdx' => $playerIdx);
+
+            switch ($action) {
+                case 'turndown':
+                    if (count($dieIdxArray) != count($dieValueArray)) {
+                        $this->message = 'Mismatch in number of indices and values';
+                        return FALSE;
+                    }
+
+                    $argArray['fireValueArray'] = array();
+                    foreach ($dieIdxArray as $tempIdx => $dieIdx) {
+                        $argArray['fireValueArray'][$dieIdx] = $dieValueArray[$tempIdx];
+                    }
+                    break;
+                case 'cancel':
+                    $argArray['dieIdxArray'] = $dieIdxArray;
+                    $argArray['dieValueArray'] = $dieValueArray;
+                    break;
+                default:
+                    $this->message = 'Invalid action to adjust fire dice.';
+                    return FALSE;
+            }
+
+            $isSuccessful = $game->react_to_firing($argArray);
+            if ($isSuccessful) {
+                $this->save_game($game);
+            }
+            $this->message = $game->message;
+
+            return $isSuccessful;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::adjust_fire: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while adjusting fire dice';
             return FALSE;
         }
     }

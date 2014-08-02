@@ -1,15 +1,17 @@
 <?php
-
 /**
- * BMDieOption: option die
+ * BMDieOption: Code specific to option dice
  *
  * @author james
+ */
+
+/**
+ * This class contains all the logic to do with requesting and setting option values
  *
  * @property      array $optionValueArray  Possible option values
  * @property-read bool  $needsOptionValue  Flag indicating whether an option value is still needed
  * @property-read bool  $valueRequested    Flag indicating whether an option request has been sent to the parent
  */
-
 class BMDieOption extends BMDie {
     protected $optionValueArray;
     protected $needsOptionValue;

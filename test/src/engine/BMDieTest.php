@@ -427,6 +427,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($assistVals);
         $this->assertEquals(1, count($assistVals));
         $this->assertEquals(0, $assistVals[0]);
+
+        // test that two identical Fire dice do not conflict when one is in the attack and
+        // the other one isn't
+        $att2 = clone $this->object;
+        $assistVals = $this->object->assist_values($att, array($att2), array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(2, count($assistVals));
+        $this->assertEquals(-1, $assistVals[0]);
+        $this->assertEquals(1, $assistVals[1]);
     }
 
     /**

@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillFocus: Code specific to the focus die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the focus die skill
+ */
 class BMSkillFocus extends BMSkill {
     public static $hooked_methods = array("react_to_initiative");
 

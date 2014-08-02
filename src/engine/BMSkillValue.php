@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillValue: Code specific to the value die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the value die skill
+ */
 class BMSkillValue extends BMSkill {
     public static $hooked_methods = array("score_value", "capture");
 

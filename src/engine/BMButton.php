@@ -1,9 +1,12 @@
 <?php
-
 /**
- * BMButton: instantiated button as existing at the beginning of a round
+ * BMButton: Instantiated button as existing at the beginning of a round
  *
  * @author james
+ */
+
+/**
+ * This class contains all the logic to do with instantiating and activating buttons
  *
  * @property      string  $name                  Name of button
  * @property      string  $recipe                String representation of the button recipe

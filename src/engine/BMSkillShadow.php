@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillShadow: Code specific to the shadow die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the shadow die skill
+ */
 class BMSkillShadow extends BMSkill {
     public static $hooked_methods = array('attack_list');
 

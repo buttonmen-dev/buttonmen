@@ -1,10 +1,14 @@
 <?php
-
 /**
  * ApiSpec: specification of public API functions and args
  *
  * @author chaos
  *
+ */
+
+/**
+ * This class specifies the public API functions and what sort
+ * of arguments are mandatory and optional
  */
 class ApiSpec {
     // constants

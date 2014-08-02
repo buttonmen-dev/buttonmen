@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillMad: Code specific to the mad die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the mad die skill
+ */
 class BMSkillMad extends BMSkillMood {
 
     public static function valid_die_sizes(array $swingRange) {
