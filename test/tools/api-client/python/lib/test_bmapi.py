@@ -47,12 +47,12 @@ class TestBMClient(unittest.TestCase):
       'recipeArray'
     ]
     self.assertTrue(len(r.data) > 0)
-    testButton = null
+    testButton = None
     for i in range(len(data)):
       self.assertEqual(sorted(r.data[i].keys()), known_keys)
       if data[i]['buttonName'] == 'CactusJack':
         testButton = data[i]
-    self.assertNotEqual(testButton, null)
+    self.assertNotEqual(testButton, None)
     self.assertEqual(testButton['buttonSet'], 'Classic Fanatics')
     self.assertEqual(testButton['dieSkills'], ['Shadow', 'Speed'])
     self.assertEqual(testButton['hasUnimplementedSkill'], False)
