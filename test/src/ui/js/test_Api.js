@@ -84,7 +84,9 @@ asyncTest("test_Api.getButtonData", function() {
           "Api.button.list should be an object");
     deepEqual(
       Api.button.list["Avis"],
-      { 'hasUnimplementedSkill': false,
+      {
+        'buttonName': 'Avis',
+        'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
         'buttonSet': 'Soldiers',
         'dieSkills': [],
@@ -117,22 +119,37 @@ test("test_Api.parseButtonData", function() {
   expect(4); // number of tests plus 1 for the teardown test
 
   Api.button = {};
-  var retval = Api.parseButtonData({
-    'buttonNameArray': ['Avis', 'Adam Spam', 'Jellybean' ],
-    'recipeArray': ['(4) (4) (10) (12) (X)',
-                    'F(4) F(6) (6) (12) (X)',
-                    'p(20) s(20) (V) (X)' ],
-    'hasUnimplementedSkillArray': [ false, true, false ],
-    'buttonSetArray': [ 'Soldiers', 'Polycon', 'BROM' ],
-    'dieSkillsArray': [ [],
-                        [ 'Fire', ],
-                        [ 'Poison', 'Shadow', ] ],
-    'isTournamentLegalArray': [ true, true, true, ],
-  });
+  var retval = Api.parseButtonData([
+    {
+      'buttonName': 'Avis',
+      'recipe': '(4) (4) (10) (12) (X)',
+      'hasUnimplementedSkill': false,
+      'buttonSet': 'Soldiers',
+      'dieSkills': [],
+      'isTournamentLegal': true,
+    },
+    {
+      'buttonName': 'Adam Spam',
+      'recipe': 'F(4) F(6) (6) (12) (X)',
+      'hasUnimplementedSkill': true,
+      'buttonSet': 'Polycon',
+      'dieSkills': [ 'Fire', ],
+      'isTournamentLegal': true,
+    },
+    {
+      'buttonName': 'Jellybean',
+      'recipe': 'p(20) s(20) (V) (X)',
+      'hasUnimplementedSkill': false,
+      'buttonSet': 'BROM',
+      'dieSkills': [ 'Poison', 'Shadow', ],
+      'isTournamentLegal': true,
+    },
+  ]);
   equal(retval, true, "Api.parseButtonData() returns true");
   deepEqual(
     Api.button.list,
     { 'Adam Spam': {
+        'buttonName': 'Adam Spam',
         'hasUnimplementedSkill': true,
         'recipe': 'F(4) F(6) (6) (12) (X)',
         'buttonSet': 'Polycon',
@@ -140,6 +157,7 @@ test("test_Api.parseButtonData", function() {
         'isTournamentLegal': true,
       },
       'Avis': {
+        'buttonName': 'Avis',
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
         'buttonSet': 'Soldiers',
@@ -147,6 +165,7 @@ test("test_Api.parseButtonData", function() {
         'isTournamentLegal': true,
       },
       'Jellybean': {
+        'buttonName': 'Jellybean',
         'hasUnimplementedSkill': false,
         'recipe': 'p(20) s(20) (V) (X)',
         'buttonSet': 'BROM',

@@ -1,4 +1,6 @@
-# Table view definitions for button-related tables
+ALTER TABLE button
+ADD COLUMN flavor_text VARCHAR(500) NULL AFTER set_id,
+ADD COLUMN special_text VARCHAR(500) NULL AFTER flavor_text;
 
 DROP VIEW IF EXISTS button_view;
 CREATE VIEW button_view

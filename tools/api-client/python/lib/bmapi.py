@@ -86,7 +86,7 @@ class BMClient():
 
   def load_button_names(self):
     args = {
-      'type': 'loadButtonNames',
+      'type': 'loadButtonData',
     }
     return self._make_request(args)
 

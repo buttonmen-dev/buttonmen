@@ -198,8 +198,18 @@ class ApiResponder {
         return $interface->get_active_players((int)$args['numberOfPlayers']);
     }
 
-    protected function get_interface_response_loadButtonNames($interface) {
-        return $interface->get_all_button_names();
+    protected function get_interface_response_loadButtonData($interface, $args) {
+        if (isset($args['buttonName'])) {
+            $buttonName = $args['buttonName'];
+        } else {
+            $buttonName = NULL;
+        }
+        if (isset($args['buttonSet'])) {
+            $buttonSet = $args['buttonSet'];
+        } else {
+            $buttonSet = NULL;
+        }
+        return $interface->get_button_data($buttonName, $buttonSet);
     }
 
     protected function get_interface_response_loadGameData($interface, $args) {

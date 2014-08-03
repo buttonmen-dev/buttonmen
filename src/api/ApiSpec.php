@@ -232,9 +232,12 @@ class ApiSpec {
                 ),
             ),
         ),
-        'loadButtonNames' => array(
+        'loadButtonData' => array(
             'mandatory' => array(),
-            'permitted' => array(),
+            'permitted' => array(
+                'buttonName' => 'button',
+                'buttonSet' => 'string',
+            ),
         ),
         'loadCompletedGames' => array(
             'mandatory' => array(),

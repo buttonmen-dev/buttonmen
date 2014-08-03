@@ -441,13 +441,12 @@ class BMInterface {
             }
 
             if (empty($allButtonNames)) {
-                $allButtonData = $this->get_all_button_names();
-                $allButtonNames = $allButtonData['buttonNameArray'];
-                $nButtons = count($allButtonNames);
+                $allButtonData = $this->get_button_data(NULL, NULL);
+                $nButtons = count($allButtonData);
             }
 
             $buttonIdx = rand(0, $nButtons - 1);
-            $buttonName = $allButtonNames[$buttonIdx];
+            $buttonName = $allButtonData[$buttonIdx]['buttonName'];
         }
     }
 
@@ -2065,23 +2064,47 @@ class BMInterface {
         }
     }
 
-    public function get_all_button_names() {
+    // Retrieves a list of buttons along with associated information, including
+    // their names, recipes, special abilities, sets and TL status.
+    // If $buttonName is specified, it only returns that one button. It also
+    // includes extra textual data (flavor text, special ability and skill
+    // descriptions) that is otherwise omitted for efficiency.
+    // If $setName is specified, it only returns buttons in that set.
+    // If neither is specified, it returns all buttons.
+    public function get_button_data($buttonName = NULL, $setName = NULL) {
         try {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
 
-            $query = 'SELECT name, recipe, btn_special, set_name, tourn_legal FROM button_view';
+            $parameters = array();
+            $query =
+                'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text, special_text ' .
+                'FROM button_view v ';
+            if ($buttonName !== NULL) {
+                $query .= 'WHERE v.name = :button_name';
+                $parameters[':button_name'] = $buttonName;
+            } else if ($setName !== NULL) {
+                $query .= 'WHERE v.set_name = :set_name';
+                $parameters[':set_name'] = $setName;
+            }
             $statement = self::$conn->prepare($query);
-            $statement->execute();
+            $statement->execute($parameters);
 
-            // Look for unimplemented skills in each button definition.
-            // If we get an exception while checking, assume there's
-            // an unimplemented skill
+            $buttons = array();
             while ($row = $statement->fetch()) {
+                // Look for unimplemented skills in each button definition.
+                // If we get an exception while checking, assume there's
+                // an unimplemented skill
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
-                    $dieSkills = array_keys($button->dieSkills);
+                    // For efficiency's sake, we only include some info if just
+                    // a single button was requested.
+                    if ($buttonName !== NULL) {
+                        $dieSkills = $button->dieSkills;
+                    } else {
+                        $dieSkills = array_keys($button->dieSkills);
+                    }
                     sort($dieSkills);
 
                     $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
@@ -2090,33 +2113,39 @@ class BMInterface {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 
-                    $hasUnimplSkill = $button->hasUnimplementedSkill;
+                    $hasUnimplementedSkill = $button->hasUnimplementedSkill;
                 } catch (Exception $e) {
-                    $hasUnimplSkill = TRUE;
+                    $hasUnimplementedSkill = TRUE;
                 }
 
-                if (($site_type != 'production') || (!($hasUnimplSkill))) {
-                    $buttonNameArray[] = $row['name'];
-                    $recipeArray[] = $row['recipe'];
-                    $hasUnimplSkillArray[] = $hasUnimplSkill;
-                    $buttonSetArray[] = $row['set_name'];
-                    $dieSkillsArray[] = $dieSkills;
-                    $isTournamentLegalArray[] = ((int)$row['tourn_legal'] == 1);
+                $dieSkillDetails = array();
+
+                if (($site_type != 'production') || (!($hasUnimplementedSkill))) {
+                    $currentButton = array(
+                        'buttonName' => $row['name'],
+                        'recipe' => $row['recipe'],
+                        'hasUnimplementedSkill' => $hasUnimplementedSkill,
+                        'buttonSet' => $row['set_name'],
+                        'dieSkills' => $dieSkills,
+                        'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
+                    );
+                    // For efficiency's sake, we only include some info if just
+                    // a single button was requested.
+                    if ($buttonName !== NULL) {
+                        $currentButton['flavorText'] = $row['flavor_text'];
+                        $currentButton['specialText'] = $row['special_text'];
+                    }
+                    $buttons[] = $currentButton;
                 }
             }
             $this->message = 'All button names retrieved successfully.';
-            return array('buttonNameArray'            => $buttonNameArray,
-                         'recipeArray'                => $recipeArray,
-                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
-                         'buttonSetArray'             => $buttonSetArray,
-                         'dieSkillsArray'             => $dieSkillsArray,
-                         'isTournamentLegalArray'     => $isTournamentLegalArray);
+            return $buttons;
         } catch (Exception $e) {
             error_log(
-                'Caught exception in BMInterface::get_all_button_names: ' .
+                'Caught exception in BMInterface::get_button_data: ' .
                 $e->getMessage()
             );
-            $this->message = 'Button name get failed.';
+            $this->message = 'Button info get failed.';
             return NULL;
         }
     }

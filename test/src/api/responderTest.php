@@ -553,13 +553,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy player names should have matching structures");
     }
 
-    public function test_request_loadButtonNames() {
-        $this->verify_login_required('loadButtonNames');
+    public function test_request_loadButtonData() {
+        $this->verify_login_required('loadButtonData');
 
         $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadButtonNames');
+        $this->verify_invalid_arg_rejected('loadButtonData');
 
-        $args = array('type' => 'loadButtonNames');
+        $args = array('type' => 'loadButtonData');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
@@ -568,27 +568,24 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];
         $this->assertTrue(
-            $this->object_structures_match($retdata, $dummydata, True),
+            $this->object_structures_match($retdata[0], $dummydata[0], True),
             "Real and dummy button lists should have matching structures");
 
-	// Each button in the dummy data should exactly match a
-	// button in the live data
-        foreach ($dummydata['buttonNameArray'] as $dummyidx => $dbuttonname) {
+        // Each button in the dummy data should exactly match a
+        // button in the live data
+        foreach ($dummydata as $dButton) {
             $foundButton = False;
-            foreach ($retdata['buttonNameArray'] as $retidx => $rbuttonname) {
-                if ("$dbuttonname" === "$rbuttonname") {
+            foreach ($retdata as $rButton) {
+                if ($dButton['buttonName'] === $rButton['buttonName']) {
                     $foundButton = True;
                     $this->assertEquals(
-                        array("buttonName"            => $dummydata['buttonNameArray'][$dummyidx],
-                              "recipe"                => $dummydata['recipeArray'][$dummyidx],
-                              "hasUnimplementedSkill" => $dummydata['hasUnimplementedSkillArray'][$dummyidx]),
-                        array("buttonName"            => $retdata['buttonNameArray'][$retidx],
-                              "recipe"                => $retdata['recipeArray'][$retidx],
-                              "hasUnimplementedSkill" => $retdata['hasUnimplementedSkillArray'][$retidx]),
-                        "Dummy and live information about button $dbuttonname match exactly");
+                        $dButton,
+                        $rButton,
+                        'Dummy and live information about button ' . $dButton['buttonName'] . ' should match exactly'
+                    );
                 }
             }
-            $this->assertTrue($foundButton, "Dummy button $dbuttonname was found in live data");
+            $this->assertTrue($foundButton, 'Dummy button ' . $dButton['buttonName'] . ' was found in live data');
         }
     }
 

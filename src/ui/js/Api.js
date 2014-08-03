@@ -188,7 +188,7 @@ var Api = (function () {
 
   my.getButtonData = function(callbackfunc) {
     my.apiParsePost(
-      {'type': 'loadButtonNames', },
+      {'type': 'loadButtonData', },
       'button',
       my.parseButtonData,
       callbackfunc,
@@ -198,23 +198,12 @@ var Api = (function () {
 
   my.parseButtonData = function(data) {
     my.button.list = {};
-    if ((!($.isArray(data.buttonNameArray))) ||
-        (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray))) ||
-        (!($.isArray(data.buttonSetArray))) ||
-        (!($.isArray(data.dieSkillsArray))) ||
-        (!($.isArray(data.isTournamentLegalArray)))) {
+    if (!$.isArray(data)) {
       return false;
     }
     var i = 0;
-    while (i < data.buttonNameArray.length) {
-      my.button.list[data.buttonNameArray[i]] = {
-        'recipe': data.recipeArray[i],
-        'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
-        'buttonSet': data.buttonSetArray[i],
-        'dieSkills': data.dieSkillsArray[i],
-        'isTournamentLegal': data.isTournamentLegalArray[i],
-      };
+    while (i < data.length) {
+      my.button.list[data[i].buttonName] = data[i];
       i++;
     }
     return true;

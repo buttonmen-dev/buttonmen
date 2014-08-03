@@ -665,99 +665,118 @@ class DummyApiResponder {
             'Active players retrieved successfully.');
     }
 
-    protected function get_interface_response_loadButtonNames() {
-        $data = array(
-          'buttonNameArray' => array(), 'recipeArray' => array(), 'hasUnimplementedSkillArray' => array(),
-          'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournamentLegalArray' => array(),
-        );
+    protected function get_interface_response_loadButtonData() {
+        $data = array();
 
         // a button with no special skills
-        $data['buttonNameArray'][] = "Avis";
-        $data['recipeArray'][] = "(4) (4) (10) (12) (X)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Soldiers";
-        $data['dieSkillsArray'][] = array();
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Avis",
+            'recipe' => "(4) (4) (10) (12) (X)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Soldiers",
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+        );
 
         // a button with an unimplemented skill
-        $data['buttonNameArray'][] = "Zeppo";
-        $data['recipeArray'][] = "(4) (12) (20) (X)!";
-        $data['hasUnimplementedSkillArray'][] = TRUE;
-        $data['buttonSetArray'][] = "1999 Rare / Promo";
-        $data['dieSkillsArray'][] = array("Turbo");
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Zeppo",
+            'recipe' => "(4) (12) (20) (X)!",
+            'hasUnimplementedSkill' => TRUE,
+            'buttonSet' => "1999 Rare / Promo",
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+        );
 
         // a button with four dice and some implemented skills
-        $data['buttonNameArray'][] = "Jellybean";
-        $data['recipeArray'][] = "p(20) s(20) (V) (X)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "BROM";
-        $data['dieSkillsArray'][] = array("Poison", "Shadow");
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Jellybean",
+            'recipe' => "p(20) s(20) (V) (X)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "BROM",
+            'dieSkills' => array("Poison", "Shadow"),
+            'isTournamentLegal' => TRUE,
+        );
 
         // Buck Godot
-        $data['buttonNameArray'][] = "Buck Godot";
-        $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Studio Foglio";
-        $data['dieSkillsArray'][] = array();
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Buck Godot",
+            'recipe' => "(6,6) (10) (12) (20) (W,W)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Studio Foglio",
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+        );
 
         // Von Pinn
-        $data['buttonNameArray'][] = "Von Pinn";
-        $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Studio Foglio";
-        $data['dieSkillsArray'][] = array("Poison");
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Von Pinn",
+            'recipe' => "(4) p(6,6) (10) (20) (W)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Studio Foglio",
+            'dieSkills' => array("Poison"),
+            'isTournamentLegal' => TRUE,
+        );
 
         // Crab: a button with focus dice
-        $data['buttonNameArray'][] = "Crab";
-        $data['recipeArray'][] = "(8) (10) (12) f(20) f(20)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Legend of the Five Rings";
-        $data['dieSkillsArray'][] = array("Focus");
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Crab",
+            'recipe' => "(8) (10) (12) f(20) f(20)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Legend of the Five Rings",
+            'dieSkills' => array("Focus"),
+            'isTournamentLegal' => TRUE,
+        );
 
         // John Kovalic: a button with chance dice
-        $data['buttonNameArray'][] = "John Kovalic";
-        $data['recipeArray'][] = "(6) c(6) (10) (12) c(20)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Yoyodyne";
-        $data['dieSkillsArray'][] = array("Chance");
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "John Kovalic",
+            'recipe' => "(6) c(6) (10) (12) c(20)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Yoyodyne",
+            'dieSkills' => array("Chance"),
+            'isTournamentLegal' => TRUE,
+        );
 
+        $data[] = array(
         // King Arthur: a button with an auxiliary die
-        $data['buttonNameArray'][] = "King Arthur";
-        $data['recipeArray'][] = "(8) (8) (10) (20) (X) +(20)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Buttonlords";
-        $data['dieSkillsArray'][] = array("Auxiliary");
-        $data['isTournamentLegalArray'][] = TRUE;
+            'buttonName' => "King Arthur",
+            'recipe' => "(8) (8) (10) (20) (X) +(20)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Buttonlords",
+            'dieSkills' => array("Auxiliary"),
+            'isTournamentLegal' => TRUE,
+        );
 
         // Cammy Neko: a button with reserve dice
-        $data['buttonNameArray'][] = "Cammy Neko";
-        $data['recipeArray'][] = "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Geekz";
-        $data['dieSkillsArray'][] = array("Reserve");
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Cammy Neko",
+            'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Geekz",
+            'dieSkills' => array("Reserve"),
+            'isTournamentLegal' => TRUE,
+        );
 
         // Apples: a button with option dice
-        $data['buttonNameArray'][] = "Apples";
-        $data['recipeArray'][] = "(8) (8) (2/12) (8/16) (20/24)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Chicagoland Gamers Conclave";
-        $data['dieSkillsArray'][] = array();
-        $data['isTournamentLegalArray'][] = TRUE;
+        $data[] = array(
+            'buttonName' => "Apples",
+            'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Chicagoland Gamers Conclave",
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+        );
 
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
-        $data['buttonNameArray'][] = "CactusJack";
-        $data['recipeArray'][] = "z(8/12) (4/16) s(6/10) z(X) s(U)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Classic Fanatics";
-        $data['dieSkillsArray'][] = array("Shadow", "Speed");
-        $data['isTournamentLegalArray'][] = FALSE;
+        $data[] = array(
+            'buttonName' => "CactusJack",
+            'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Classic Fanatics",
+            'dieSkills' => array("Shadow", "Speed"),
+            'isTournamentLegal' => FALSE,
+        );
 
         return array($data, "All button names retrieved successfully.");
     }
