@@ -50,7 +50,7 @@ class TestBMClient(unittest.TestCase):
     testButton = null
     for i in range(len(data)):
       self.assertEqual(sorted(r.data[i].keys()), known_keys)
-      if (data[i]['buttonName'] == 'CactusJack')
+      if data[i]['buttonName'] == 'CactusJack'
         testButton = data[i]
     self.assertNotEqual(testButton, null)
     self.assertEqual(testButton['buttonSet'], 'Classic Fanatics')
