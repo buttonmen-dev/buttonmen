@@ -669,116 +669,40 @@ class DummyApiResponder {
         $data = array();
 
         // a button with no special skills
-        $data[] = array(
-            'buttonName' => "Avis",
-            'recipe' => "(4) (4) (10) (12) (X)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Soldiers",
-            'dieSkills' => array(),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Avis", "(4) (4) (10) (12) (X)", FALSE, "Soldiers", array(), TRUE);
         // a button with an unimplemented skill
-        $data[] = array(
-            'buttonName' => "Zeppo",
-            'recipe' => "(4) (12) (20) (X)!",
-            'hasUnimplementedSkill' => TRUE,
-            'buttonSet' => "1999 Rare / Promo",
-            'dieSkills' => array(),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Zeppo", "(4) (12) (20) (X)!", TRUE, "1999 Rare / Promo", array(), TRUE);
         // a button with four dice and some implemented skills
-        $data[] = array(
-            'buttonName' => "Jellybean",
-            'recipe' => "p(20) s(20) (V) (X)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "BROM",
-            'dieSkills' => array("Poison", "Shadow"),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Jellybean", "p(20) s(20) (V) (X)", FALSE, "BROM", array("Poison", "Shadow"), TRUE);
         // Buck Godot
-        $data[] = array(
-            'buttonName' => "Buck Godot",
-            'recipe' => "(6,6) (10) (12) (20) (W,W)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Studio Foglio",
-            'dieSkills' => array(),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Buck Godot", "(6,6) (10) (12) (20) (W,W)", FALSE, "Studio Foglio", array(), TRUE);
         // Von Pinn
-        $data[] = array(
-            'buttonName' => "Von Pinn",
-            'recipe' => "(4) p(6,6) (10) (20) (W)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Studio Foglio",
-            'dieSkills' => array("Poison"),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Von Pinn", "(4) p(6,6) (10) (20) (W)", FALSE, "Studio Foglio", array("Poison"), TRUE);
         // Crab: a button with focus dice
-        $data[] = array(
-            'buttonName' => "Crab",
-            'recipe' => "(8) (10) (12) f(20) f(20)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Legend of the Five Rings",
-            'dieSkills' => array("Focus"),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Crab", "(8) (10) (12) f(20) f(20)", FALSE, "Legend of the Five Rings", array("Focus"), TRUE);
         // John Kovalic: a button with chance dice
-        $data[] = array(
-            'buttonName' => "John Kovalic",
-            'recipe' => "(6) c(6) (10) (12) c(20)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Yoyodyne",
-            'dieSkills' => array("Chance"),
-            'isTournamentLegal' => TRUE,
-        );
-
-        $data[] = array(
+        $data[] = $this->make_dummy_button("John Kovalic", "(6) c(6) (10) (12) c(20)", FALSE, "Yoyodyne", array("Chance"), TRUE);
         // King Arthur: a button with an auxiliary die
-            'buttonName' => "King Arthur",
-            'recipe' => "(8) (8) (10) (20) (X) +(20)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Buttonlords",
-            'dieSkills' => array("Auxiliary"),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("King Arthur", "(8) (8) (10) (20) (X) +(20)", FALSE, "Buttonlords", array("Auxiliary"), TRUE);
         // Cammy Neko: a button with reserve dice
-        $data[] = array(
-            'buttonName' => "Cammy Neko",
-            'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Geekz",
-            'dieSkills' => array("Reserve"),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Cammy Neko", "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)", FALSE, "Geekz", array("Reserve"), TRUE);
         // Apples: a button with option dice
-        $data[] = array(
-            'buttonName' => "Apples",
-            'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Chicagoland Gamers Conclave",
-            'dieSkills' => array(),
-            'isTournamentLegal' => TRUE,
-        );
-
+        $data[] = $this->make_dummy_button("Apples", "(8) (8) (2/12) (8/16) (20/24)", FALSE, "Chicagoland Gamers Conclave", array(), TRUE);
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
-        $data[] = array(
-            'buttonName' => "CactusJack",
-            'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
-            'hasUnimplementedSkill' => FALSE,
-            'buttonSet' => "Classic Fanatics",
-            'dieSkills' => array("Shadow", "Speed"),
-            'isTournamentLegal' => FALSE,
-        );
+        $data[] = $this->make_dummy_button("CactusJack", "z(8/12) (4/16) s(6/10) z(X) s(U)", FALSE, "Classic Fanatics", array("Shadow", "Speed"), FALSE);
 
         return array($data, "All button names retrieved successfully.");
+    }
+
+    protected function make_dummy_button($buttonName, $recipe, $hasUnimplementedSkill, $buttonSet, $dieSkills, $isTournamentLegal) {
+        $data[] = array(
+            'buttonName' => $buttonName,
+            'recipe' => $recipe,
+            'hasUnimplementedSkill' => $hasUnimplementedSkill,
+            'buttonSet' => $buttonSet,
+            'dieSkills' => $dieSkills,
+            'isTournamentLegal' => $isTournamentLegal,
+        );
     }
 
     protected function get_interface_response_loadGameData($args) {

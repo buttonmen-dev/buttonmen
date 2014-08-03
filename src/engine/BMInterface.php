@@ -2083,7 +2083,7 @@ class BMInterface {
             if ($buttonName !== NULL) {
                 $query .= 'WHERE v.name = :button_name';
                 $parameters[':button_name'] = $buttonName;
-            } else if ($setName !== NULL) {
+            } elseif ($setName !== NULL) {
                 $query .= 'WHERE v.set_name = :set_name';
                 $parameters[':set_name'] = $setName;
             }
@@ -2117,8 +2117,6 @@ class BMInterface {
                 } catch (Exception $e) {
                     $hasUnimplementedSkill = TRUE;
                 }
-
-                $dieSkillDetails = array();
 
                 if (($site_type != 'production') || (!($hasUnimplementedSkill))) {
                     $currentButton = array(
