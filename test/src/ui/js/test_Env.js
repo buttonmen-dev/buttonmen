@@ -97,14 +97,11 @@ test("test_Env.showStatusMessage", function() {
 test("test_Env.formatTimestamp", function() {
   expect(4); // number of tests plus 1 for the teardown test
 
-  // Since the method we're testing produces output for the local time zone,
-  // we need to compensate for that in order to test it.
-  var offsetInMinutes = new Date().getTimezoneOffset();
-  var timestamp = 1395610690 + (offsetInMinutes * 60);
-
   var expectedDate = '2014-03-23';
   var expectedTime = '21:38:10';
   var expectedDateTime = '2014-03-23 21:38:10';
+
+  var timestamp = moment(expectedDateTime, 'YYYY-MM-DD HH:mm:ss', true).unix();
 
   var results = Env.formatTimestamp(timestamp, 'date');
   equal(results, expectedDate, 'formatTimestamp returned correct date');
@@ -117,13 +114,11 @@ test("test_Env.formatTimestamp", function() {
 });
 
 test("test_Env.parseDateTime", function() {
-  var input = '2014-03-23 21:38:10';
-  var offsetInMinutes = new Date().getTimezoneOffset();
-  var expectedOutput = 1395610690 + (offsetInMinutes * 60);
+  var expectedTimestamp = 1395610690;
+  var datetimeString = Env.formatTimestamp(expectedTimestamp);
 
-  var results = Env.parseDateTime(input, 'datetime');
-
-  equal(results, expectedOutput, 'parseDateTime returned correct timestamp');
+  var results = Env.parseDateTime(datetimeString, 'datetime');
+  equal(results, expectedTimestamp, 'parseDateTime returned correct timestamp');
 });
 
 test("test_Env.setCookieNoImages", function() {
