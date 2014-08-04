@@ -106,22 +106,3 @@ test("test_Profile.buildProfileTableRow", function() {
   valueTd = tr.find('td.missingValue');
   equal(valueTd.text(), 'nothing', 'Missing value should be in missingValue cell');
 });
-
-test("test_Profile.validateUrl", function() {
-  var rawUrl = 'example.com';
-  var cleanedUrl = Profile.validateUrl(rawUrl);
-  equal(cleanedUrl, 'http://example.com', 'URL should have correct protocol');
-
-  var rawUrl = 'javascript:alert(\'Evil\');';
-  var cleanedUrl = Profile.validateUrl(rawUrl);
-  equal(cleanedUrl, null, 'Malicious URL should be rejected');
-
-  var rawUrl = 'http://example.com/$';
-  var cleanedUrl = Profile.validateUrl(rawUrl);
-  equal(cleanedUrl, null,
-    'URL with inappropriate characters should be rejected');
-
-  var rawUrl = 'https://example.com';
-  var cleanedUrl = Profile.validateUrl(rawUrl);
-  equal(cleanedUrl, rawUrl, 'Valid URL should be unaffected');
-});
