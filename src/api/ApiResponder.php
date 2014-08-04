@@ -253,6 +253,7 @@ class ApiResponder {
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
         $addlInfo['dob_day'] = (int)$args['dob_day'];
+        $addlInfo['homepage'] = $args['homepage'];
 
         if (isset($args['favorite_button'])) {
             $addlInfo['favorite_button'] = $args['favorite_button'];

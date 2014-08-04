@@ -119,6 +119,7 @@ class BMInterface {
             'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
             'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
             'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
+            'homepage' => $infoArray['homepage'],
             'favorite_button' => $infoArray['favorite_button'],
             'favorite_buttonset' => $infoArray['favorite_buttonset'],
             'last_action_time' => $last_action_time,
@@ -139,8 +140,10 @@ class BMInterface {
         $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
 
-        $isValidData = $this->validate_player_dob($infoArray) &&
-                       $this->validate_player_password_and_email($addlInfo, $playerId);
+        $isValidData =
+            ($this->validate_player_dob($infoArray) &&
+            $this->validate_player_password_and_email($addlInfo, $playerId) &&
+            $this->validate_and_set_homepage($addlInfo['homepage'], $infoArray));
         if (!$isValidData) {
             return NULL;
         }
@@ -232,6 +235,22 @@ class BMInterface {
         return TRUE;
     }
 
+    private function validate_and_set_homepage($homepage, array &$infoArray) {
+        if ($homepage == NULL || $homepage == "") {
+            $infoArray['homepage'] = NULL;
+            return TRUE;
+        }
+
+        $homepage = $this->validate_url($homepage);
+        if ($homepage == NULL) {
+            $this->message = 'Homepage is invalid. It may contain some characters that need to be escaped.';
+            return FALSE;
+        }
+
+        $infoArray['homepage'] = $homepage;
+        return TRUE;
+    }
+
     public function get_profile_info($profilePlayerName) {
         $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
         if (!is_int($profilePlayerId)) {
@@ -279,6 +298,7 @@ class BMInterface {
             'image_size' => $playerInfo['image_size'],
             'uses_gravatar' => $playerInfo['uses_gravatar'],
             'comment' => $playerInfo['comment'],
+            'homepage' => $playerInfo['homepage'],
             'favorite_button' => $playerInfo['favorite_button'],
             'favorite_buttonset' => $playerInfo['favorite_buttonset'],
             'last_access_time' => $playerInfo['last_access_time'],
@@ -4163,6 +4183,30 @@ class BMInterface {
         }
 
         return $gameColors;
+    }
+
+    // Takes a URL that was entered by a user and returns a version of it that's
+    // safe to insert into an anchor tag (or returns NULL if we can't sensibly do
+    // that).
+    // Based in part on advice from http://stackoverflow.com/questions/205923
+    private function validate_url($url) {
+        // First, check for and reject anything with inappropriate characters
+        // (We can expand this list later if it becomes necessary)
+        if (!preg_match('/^[-A-Za-z0-9+&@#\\/%?=~_!:,.\\(\\)]+$/', $url)) {
+            return NULL;
+        }
+
+        // Then ensure that it begins with http:// or https://
+        if (strpos(strtolower($url), 'http://') !== 0 &&
+            strpos(strtolower($url), 'https://') !== 0) {
+            $url = 'http://' . $url;
+        }
+
+        // This should create a relatively safe URL. It does not verify that it's a
+        // *valid* URL, but if it is invalid, this should at least render it impotent.
+        // This also doesn't verify that the URL points to a safe page, but that is
+        // outside of the scope of this function.
+        return $url;
     }
 
     public function __get($property) {

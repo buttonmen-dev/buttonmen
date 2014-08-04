@@ -754,6 +754,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'gender' => '',
             'comment' => '',
+            'homepage' => '',
             'autopass' => 'True',
             'uses_gravatar' => 'False',
             'player_color' => '#dd99dd',

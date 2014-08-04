@@ -471,6 +471,10 @@ class ApiSpec {
                     'maxlength' => self::GENDER_MAX_LENGTH,
                 ),
                 'comment' => 'string',
+                'homepage' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => 100,
+                ),
                 'autopass' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
