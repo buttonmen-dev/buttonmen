@@ -65,10 +65,37 @@ Buttons.showButton = function() {
     var buttonDetailsArea = $('<div>');
     mainDiv.append(buttonDetailsArea);
     buttonDetailsArea.append(Buttons.buildButtonBox(button));
-    buttonDetailsArea.append($('<div>', {
+    var flavorBox = $('<div>', { 'class': 'flavorText' });
+    buttonDetailsArea.append(flavorBox);
+    flavorBox.append($('<p>', {
       'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
-      'class': 'flavorText',
     }));
+
+    if (button.specialText) {
+      mainDiv.append($('<h2>', { 'text': 'Special Features' }));
+      mainDiv.append($('<p>', { 'text': button.specialText }));
+    }
+
+    var skillsTable = $('<table>', { 'class': 'skills' });
+    $.each(button.dieSkills, function(skill, info) {
+      var skillRow = $('<tr>');
+      skillsTable.append(skillRow);
+
+      skillRow.append($('<th>', { 'text': skill + ' (' + info.code + ')' }));
+      var skillDescriptionCell = $('<td>');
+      skillRow.append(skillDescriptionCell);
+      skillDescriptionCell.append($('<p>', { 'text': info.description }));
+      $.each(info.interacts, function(otherSkill, interaction) {
+        skillDescriptionCell.append($('<p>', {
+          'text': otherSkill + ': ' + interaction
+        }));
+      });
+    });
+
+    if (skillsTable.find('tr').length > 0) {
+      mainDiv.append($('<h2>', { 'text': 'Skills' }));
+      mainDiv.append(skillsTable);
+    }
 
     Buttons.page.append(mainDiv);
   }

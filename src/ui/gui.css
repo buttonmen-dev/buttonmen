@@ -784,23 +784,39 @@ div.forum div.splitRight {
 
 /* END: BB Code */
 
+#buttons_page div.singleButton {
+    width: 800px;
+    margin: auto;
+}
 #buttons_page div.buttonBox {
-    top: 0px;
     height: 200px;
-    width: 200px;
+    width: 250px;
     margin: 20px;
     display: inline-block;
+    vertical-align: top;
+}
+
+#buttons_page div.singleButton div.buttonBox {
+    width: 300px;
 }
 
 #buttons_page div.flavorText {
-    top: 0px;
     font-style: italic;
     height: 200px;
-    width: 600px;
+    width: 350px;
     margin: 20px;
     display: inline-block;
+    vertical-align: top;
+}
+
+#buttons_page div.flavorText p {
+    /* why can't I vertically center this...? */
+    display: inline-block;
+    vertical-align: middle;
+    margin: auto;
 }
 
 #buttons_page div.singleButton div.buttonName {
     font-weight: bold;
+    font-size: 2em;
 }
