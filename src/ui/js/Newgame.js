@@ -232,7 +232,8 @@ Newgame.actionCreateGame = function() {
   buttonOptionsTable.append(Newgame.getButtonLimitRow(
     'Tournament legal:',
     'tourn_legal',
-    Newgame.activity.tournLegal
+    Newgame.activity.tournLegal,
+    false
   ));
   buttonOptionsTable.append(Newgame.getButtonLimitRow(
     'Die skill:',
@@ -595,16 +596,19 @@ Newgame.updateButtonList = function(player, limitid) {
   }
 };
 
-Newgame.getButtonLimitRow = function(desctext, limitid, choices) {
+Newgame.getButtonLimitRow = function(desctext, limitid, choices, multi) {
+  // Default to multi-selects
+  if (multi === undefined) { multi = true; }
+
   var limitRow = $('<tr>');
   limitRow.append(Newgame.getButtonLimitTd(
-    'player', desctext, limitid, choices));
+    'player', desctext, limitid, choices, multi));
   limitRow.append(Newgame.getButtonLimitTd(
-    'opponent', desctext, limitid, choices));
+    'opponent', desctext, limitid, choices, multi));
   return limitRow;
 };
 
-Newgame.getButtonLimitTd = function(player, desctext, limitid, choices) {
+Newgame.getButtonLimitTd = function(player, desctext, limitid, choices, multi) {
   var limitTd = $('<td>');
   var limitSubtable = $('<table>');
   var limitSubrow = $('<tr>');
@@ -613,7 +617,7 @@ Newgame.getButtonLimitTd = function(player, desctext, limitid, choices) {
   var limitSelect = $('<select>', {
     'id': selectId,
     'name': selectId,
-    'multiple': true,
+    'multiple': multi,
     'onchange': 'Newgame.updateButtonList("' + player + '", "' + limitid + '")',
   });
 
