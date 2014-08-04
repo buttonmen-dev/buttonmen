@@ -236,23 +236,18 @@ class BMInterface {
     }
 
     private function validate_and_set_homepage($homepage, array &$infoArray) {
-        error_log('incoming homepage: ' . $homepage);
         if ($homepage == NULL || $homepage == "") {
-            error_log('it was null');
             $infoArray['homepage'] = NULL;
             return TRUE;
         }
 
         $homepage = $this->validate_url($homepage);
         if ($homepage == NULL) {
-            error_log('it was invalid');
             $this->message = 'Homepage is invalid. It may contain some characters that need to be escaped.';
             return FALSE;
         }
 
-        error_log('it was valid');
         $infoArray['homepage'] = $homepage;
-        error_log('outgoing homepage: ' . $infoArray['homepage']);
         return TRUE;
     }
 
