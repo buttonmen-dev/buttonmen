@@ -44,7 +44,7 @@ UserPrefs.showUserPrefsPage = function() {
   if (Login.logged_in) {
     Env.callAsyncInParallel(
       [
-        Api.getButtonData,
+        { 'func': Api.getButtonData, 'args': [ null ] },
         Api.getUserPrefsData,
       ], UserPrefs.assemblePage);
   } else {

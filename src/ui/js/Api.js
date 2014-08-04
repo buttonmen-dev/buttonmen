@@ -186,9 +186,12 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
 
-  my.getButtonData = function(callbackfunc) {
+  my.getButtonData = function(buttonName, callbackfunc) {
     my.apiParsePost(
-      {'type': 'loadButtonData', },
+      {
+        'type': 'loadButtonData',
+        'buttonName': (buttonName ? buttonName : undefined),
+      },
       'button',
       my.parseButtonData,
       callbackfunc,

@@ -34,7 +34,7 @@ OpenGames.getOpenGames = function(callback) {
   if (Login.logged_in) {
     Env.callAsyncInParallel([
       Api.getOpenGamesData,
-      Api.getButtonData,
+      { 'func': Api.getButtonData, 'args': [ null ] },
     ], callback);
   } else {
     return callback();

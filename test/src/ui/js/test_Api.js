@@ -78,7 +78,7 @@ test("test_Api.verifyApiData", function() {
 
 asyncTest("test_Api.getButtonData", function() {
   expect(5); // number of tests plus 1 for the teardown test
-  Api.getButtonData(function() {
+  Api.getButtonData(null, function() {
     equal(Api.button.load_status, "ok", "Api.button.load_status should be ok");
     equal(typeof Api.button.list, "object",
           "Api.button.list should be an object");

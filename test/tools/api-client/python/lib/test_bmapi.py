@@ -48,10 +48,10 @@ class TestBMClient(unittest.TestCase):
     ]
     self.assertTrue(len(r.data) > 0)
     testButton = None
-    for i in range(len(data)):
+    for i in range(len(r.data)):
       self.assertEqual(sorted(r.data[i].keys()), known_keys)
-      if data[i]['buttonName'] == 'CactusJack':
-        testButton = data[i]
+      if r.data[i]['buttonName'] == 'CactusJack':
+        testButton = r.data[i]
     self.assertNotEqual(testButton, None)
     self.assertEqual(testButton['buttonSet'], 'Classic Fanatics')
     self.assertEqual(testButton['dieSkills'], ['Shadow', 'Speed'])
