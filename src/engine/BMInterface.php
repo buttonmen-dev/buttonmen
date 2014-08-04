@@ -331,6 +331,10 @@ class BMInterface {
                     "Could not load newly-created game $gameId"
                 );
             }
+            if ($previousGameId) {
+                $chatNotice = '[i]Continued from [game=' . $previousGameId . '][i]';
+                $game->add_chat(-1, $chatNotice);
+            }
             $this->save_game($game);
 
             $this->message = "Game $gameId created successfully.";

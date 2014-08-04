@@ -42,6 +42,9 @@ Newgame.showNewgamePage = function() {
   if (!Newgame.activity.previousGameId) {
     Newgame.activity.previousGameId = Env.getParameterByName('previousGameId');
   }
+  if (!Newgame.activity.nRounds) {
+    Newgame.activity.nRounds = Env.getParameterByName('maxWins');
+  }
 
   // Make sure the div element that we will need exists in the page body
   if ($('#newgame_page').length === 0) {
@@ -126,6 +129,7 @@ Newgame.actionCreateGame = function() {
   // Create empty page and undefined form objects to be filled later
   Newgame.page = $('<div>');
   if (Newgame.justCreatedGame === true) {
+    Newgame.activity.previousGameId = undefined;
     Newgame.page.css('display', 'none');
   }
   Newgame.form = null;

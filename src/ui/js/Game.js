@@ -121,6 +121,7 @@ Game.showStatePage = function() {
   Game.color = {
     'player': Api.game.player.playerColor,
     'opponent': Api.game.opponent.playerColor,
+    'noone': 'white',
   };
 
   // Figure out what to do next based on the game state
@@ -1580,7 +1581,6 @@ Game.pageAddGameHeader = function(action_desc) {
   });
   var actionDiv = $('<div>', { 'class': 'action_desc_div', });
   actionDiv.append(actionSpan);
-  Game.page.append(actionDiv);
 
   // If there's new chat the player hasn't seen yet, notify them
   if (Api.game.isParticipant && Api.game.player.lastActionTime &&
@@ -1592,6 +1592,7 @@ Game.pageAddGameHeader = function(action_desc) {
       'text': 'New chat message',
     }));
   }
+  Game.page.append(actionDiv);
 
   Game.page.append($('<br>'));
 
@@ -1818,8 +1819,8 @@ Game.buildNewGameLink = function(text, opponent, button, opponentButton,
   if (previousGameId) {
     url += 'previousGameId=' + previousGameId + '&';
   }
-  // Trim off the extra & at the end
-  url = url.replace(/&$/, '');
+  url += 'maxWins=' + Api.game.maxWins;
+
   holder.append($('<a>', {
     'text': text,
     'href': url,
@@ -1885,8 +1886,10 @@ Game.pageAddLogFooter = function() {
         var chatplayer;
         if (logentry.player == Api.game.player.playerName) {
           chatplayer = 'player';
-        } else {
+        } else if (logentry.player == Api.game.opponent.playerName) {
           chatplayer = 'opponent';
+        } else {
+          chatplayer = 'noone';
         }
         chatrow.append($('<td>', {
           'class': 'chat',
@@ -1949,23 +1952,6 @@ Game.pageAddLogFooter = function() {
 
       historyrow.append(historytd);
       logtable.append(historyrow);
-    }
-
-    if (Api.game.previousGameId) {
-      var prevGameRow = $('<tr>');
-      var prevGameTd = $('<td>', { 'class': 'prevGameMessage', });
-      if ((Api.game.actionLog.length > 0) && (Api.game.chatLog.length > 0)) {
-        prevGameTd.attr('colspan', 2);
-      }
-
-      prevGameTd.append('Continued from ');
-      prevGameTd.append($('<a>', {
-        'href': 'game.html?game=' + Api.game.previousGameId,
-        'text': 'Game ' + Api.game.previousGameId,
-      }));
-
-      prevGameRow.append(prevGameTd);
-      logtable.append(prevGameRow);
     }
 
     logdiv.append(logtable);
