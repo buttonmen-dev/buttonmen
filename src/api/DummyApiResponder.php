@@ -695,6 +695,7 @@ class DummyApiResponder {
             'buttonSet' => "Soldiers",
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'avis.png',
         );
     }
 
@@ -707,6 +708,7 @@ class DummyApiResponder {
             'buttonSet' => "1999 Rare / Promo",
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'zeppo.png',
         );
     }
 
@@ -719,6 +721,7 @@ class DummyApiResponder {
             'buttonSet' => "BROM",
             'dieSkills' => array("Poison", "Shadow"),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'jellybean.png',
         );
     }
 
@@ -731,6 +734,7 @@ class DummyApiResponder {
             'buttonSet' => "Studio Foglio",
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'buckgodot.png',
         );
     }
 
@@ -743,6 +747,7 @@ class DummyApiResponder {
             'buttonSet' => "Studio Foglio",
             'dieSkills' => array("Poison"),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'vonpinn.png',
         );
     }
 
@@ -755,6 +760,7 @@ class DummyApiResponder {
             'buttonSet' => "Legend of the Five Rings",
             'dieSkills' => array("Focus"),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'crab.png',
         );
     }
 
@@ -767,6 +773,7 @@ class DummyApiResponder {
             'buttonSet' => "Yoyodyne",
             'dieSkills' => array("Chance"),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'johnkovalic.png',
         );
     }
 
@@ -779,6 +786,7 @@ class DummyApiResponder {
             'buttonSet' => "Buttonlords",
             'dieSkills' => array("Auxiliary"),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'kingarthur.png',
         );
     }
 
@@ -791,6 +799,7 @@ class DummyApiResponder {
             'buttonSet' => "Geekz",
             'dieSkills' => array("Reserve"),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'cammyneko.png',
         );
     }
 
@@ -803,6 +812,7 @@ class DummyApiResponder {
             'buttonSet' => "Chicagoland Gamers Conclave",
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
+            'artFilename' => 'apples.png',
         );
     }
 
@@ -815,6 +825,7 @@ class DummyApiResponder {
             'buttonSet' => "Classic Fanatics",
             'dieSkills' => array("Shadow", "Speed"),
             'isTournamentLegal' => FALSE,
+            'artFilename' => 'BMdefaultRound.png',
         );
     }
 

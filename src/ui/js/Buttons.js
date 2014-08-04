@@ -85,11 +85,15 @@ Buttons.buildButtonBox = function(button) {
   }));
   buttonBox.append($('<div>', { 'text': button.recipe }));
   if (button.buttonName == Buttons.buttonName) {
-    buttonBox.append($('<div>', { 'text': button.buttonName }));
+    buttonBox.append($('<div>', {
+      'text': button.buttonName,
+      'class': 'buttonName',
+    }));
   } else {
     buttonBox.append($('<a>', {
       'href': 'buttons.html?button=' + encodeURIComponent(button.buttonName),
       'text': button.buttonName,
+      'class': 'buttonName',
     }));
   }
   return buttonBox;

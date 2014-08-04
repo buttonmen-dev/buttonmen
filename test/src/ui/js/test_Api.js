@@ -91,6 +91,7 @@ asyncTest("test_Api.getButtonData", function() {
         'buttonSet': 'Soldiers',
         'dieSkills': [],
         'isTournamentLegal': true,
+        'artFilename': 'avis.png',
       },
       "Button Avis should have correct contents");
     deepEqual(Env.message, undefined,
@@ -127,6 +128,7 @@ test("test_Api.parseButtonData", function() {
       'buttonSet': 'Soldiers',
       'dieSkills': [],
       'isTournamentLegal': true,
+      'artFilename': 'avis.png',
     },
     {
       'buttonName': 'Adam Spam',
@@ -135,6 +137,7 @@ test("test_Api.parseButtonData", function() {
       'buttonSet': 'Polycon',
       'dieSkills': [ 'Fire', ],
       'isTournamentLegal': true,
+      'artFilename': 'adamspam.png',
     },
     {
       'buttonName': 'Jellybean',
@@ -143,6 +146,7 @@ test("test_Api.parseButtonData", function() {
       'buttonSet': 'BROM',
       'dieSkills': [ 'Poison', 'Shadow', ],
       'isTournamentLegal': true,
+      'artFilename': 'jellybean.png',
     },
   ]);
   equal(retval, true, "Api.parseButtonData() returns true");
@@ -155,6 +159,7 @@ test("test_Api.parseButtonData", function() {
         'buttonSet': 'Polycon',
         'dieSkills': [ 'Fire', ],
         'isTournamentLegal': true,
+        'artFilename': 'adamspam.png',
       },
       'Avis': {
         'buttonName': 'Avis',
@@ -163,6 +168,7 @@ test("test_Api.parseButtonData", function() {
         'buttonSet': 'Soldiers',
         'dieSkills': [ ],
         'isTournamentLegal': true,
+        'artFilename': 'avis.png',
       },
       'Jellybean': {
         'buttonName': 'Jellybean',
@@ -171,6 +177,7 @@ test("test_Api.parseButtonData", function() {
         'buttonSet': 'BROM',
         'dieSkills': [ 'Poison', 'Shadow', ],
         'isTournamentLegal': true,
+        'artFilename': 'jellybean.png',
       }
   });
   deepEqual(Env.message, undefined,

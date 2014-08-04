@@ -2126,6 +2126,7 @@ class BMInterface {
                         'buttonSet' => $row['set_name'],
                         'dieSkills' => $dieSkills,
                         'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
+                        'artFilename' => $button->artFilename,
                     );
                     // For efficiency's sake, we only include some info if just
                     // a single button was requested.

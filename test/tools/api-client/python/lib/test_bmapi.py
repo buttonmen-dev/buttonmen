@@ -42,9 +42,8 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_button_names()
     self.assertEqual(r.status, 'ok', 'loadButtonData returns successfully')
     known_keys = [
-      'buttonNameArray', 'buttonSetArray', 'dieSkillsArray',
-      'hasUnimplementedSkillArray', 'isTournamentLegalArray',
-      'recipeArray'
+      'artFilename', 'buttonName', 'buttonSet', 'dieSkills',
+      'hasUnimplementedSkill', 'isTournamentLegal', 'recipe'
     ]
     self.assertTrue(len(r.data) > 0)
     testButton = None
@@ -58,6 +57,7 @@ class TestBMClient(unittest.TestCase):
     self.assertEqual(testButton['hasUnimplementedSkill'], False)
     self.assertEqual(testButton['isTournamentLegal'], False)
     self.assertEqual(testButton['recipe'], 'z(8/12) (4/16) s(6/10) z(X) s(U)')
+    self.assertEqual(testButton['artFilename'], 'cactusjack.png')
 
   def test_load_player_names(self):
     r = self.obj.load_player_names()

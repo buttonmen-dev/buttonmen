@@ -783,3 +783,24 @@ div.forum div.splitRight {
 }
 
 /* END: BB Code */
+
+#buttons_page div.buttonBox {
+    top: 0px;
+    height: 200px;
+    width: 200px;
+    margin: 20px;
+    display: inline-block;
+}
+
+#buttons_page div.flavorText {
+    top: 0px;
+    font-style: italic;
+    height: 200px;
+    width: 600px;
+    margin: 20px;
+    display: inline-block;
+}
+
+#buttons_page div.singleButton div.buttonName {
+    font-weight: bold;
+}
