@@ -2580,6 +2580,9 @@ class BMGame {
     // with verse from the East
     public function setArrayPropEntry($property, $key, $value) {
         $array = $this->$property;
+        if (!is_array($array)) {
+            throw new InvalidArgumentException("$property does not refer to an array");
+        }
         $array[$key] = $value;
         $this->__set($property, $array);
     }
