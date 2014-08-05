@@ -62,13 +62,21 @@ Buttons.showButton = function() {
 
     var mainDiv = $('<div>', { 'class': 'singleButton' });
 
-    var buttonDetailsArea = $('<div>');
+    var buttonDetailsArea = $('<div>', { 'class': 'buttonDetails' });
     mainDiv.append(buttonDetailsArea);
     buttonDetailsArea.append(Buttons.buildButtonBox(button));
-    var flavorBox = $('<div>', { 'class': 'flavorText' });
-    buttonDetailsArea.append(flavorBox);
-    flavorBox.append($('<p>', {
+    var secondBox = $('<div>', { 'class': 'secondaryDetails' });
+    buttonDetailsArea.append(secondBox);
+    secondBox.append($('<p>', {
+      'class': 'flavorText',
       'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
+    }));
+
+    var setLinkHolder = $('<div>', { 'text': 'Return to ' });
+    buttonDetailsArea.append(setLinkHolder);
+    setLinkHolder.append($('<a>', {
+      'href': 'buttons.html?set=' + encodeURIComponent(button.buttonSet),
+      'text': button.buttonSet,
     }));
 
     if (button.specialText) {

@@ -2098,28 +2098,16 @@ class BMInterface {
                 try {
                     $button = new BMButton();
                     $button->load($row['recipe'], $row['name']);
+                    $dieSkills = array_keys($button->dieSkills);
+                    sort($dieSkills);
                     // For efficiency's sake, we only include some info if just
                     // a single button was requested.
                     if ($buttonName !== NULL) {
-                        //TODO:
-                        // There must be a way to either make this simpler or at least
-                        // share the code with BMGame
-                        $buttonSkillsWithKeys = array();
-                        foreach ($button->dieArray as $buttonDie) {
-                            if (count($buttonDie->skillList) > 0) {
-                                $buttonSkillsWithKeys += $buttonDie->skillList;
-                            }
-                        }
-                        $buttonSkillsList = array_keys($buttonSkillsWithKeys);
-                        sort($buttonSkillsList);
-
+                        $dieSkillNames = $dieSkills;
                         $dieSkills = array();
-                        foreach ($buttonSkillsList as $skillType) {
-                            $dieSkills[$skillType] = BMSkill::describe($skillType, $buttonSkillsList);
+                        foreach ($dieSkillNames as $skillType) {
+                            $dieSkills[$skillType] = BMSkill::describe($skillType, $dieSkillNames);
                         }
-                    } else {
-                        $dieSkills = array_keys($button->dieSkills);
-                        sort($dieSkills);
                     }
 
                     $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
