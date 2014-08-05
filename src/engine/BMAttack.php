@@ -258,11 +258,6 @@ abstract class BMAttack {
     }
 
     public function resolve_default_attack(&$game) {
-        if ($game->debug) {
-            var_dump('resolved type');
-            var_dump($this->resolvedType);
-        }
-
         if ('Default' == $game->attack['attackType'] &&
             !empty($this->resolvedType)) {
             $attack = $game->attack;
