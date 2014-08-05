@@ -247,6 +247,9 @@ class BMGameAction {
                 $postEventsDefender[] = 'was not captured';
             }
             $messageDefender .= 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+            if ($idx < (count($preAttackDice['defender']) - 1)) {
+                $messageDefender .= '; ';
+            }
         }
 
         return $messageDefender;
@@ -276,6 +279,9 @@ class BMGameAction {
             }
             if (count($postEventsAttacker) > 0) {
                 $messageAttacker .= 'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                if ($idx < (count($preAttackDice['attacker']) - 1)) {
+                    $messageAttacker .= '; ';
+                }
             }
         }
 

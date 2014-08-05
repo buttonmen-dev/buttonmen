@@ -160,6 +160,72 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMGameAction::friendly_message_attack()
      */
+    public function test_friendly_message_attack_skill() {
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Skill',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1'),
+                    array('recipe' => '(5)', 'min' => 1, 'max' => 5, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(5):2'),
+                    array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):3'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 6, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):6'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):2'),
+                    array('recipe' => '(5)', 'min' => 1, 'max' => 5, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(5):3'),
+                    array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 5, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):5'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 6, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(10):6'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            "gameaction01 performed Skill attack using [(4):1,(5):2,(6):3] against [(10):6]; Defender (10) was captured; Attacker (4) rerolled 1 => 2; Attacker (5) rerolled 2 => 3; Attacker (6) rerolled 3 => 5",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_speed() {
+        $this->object = new BMGameAction(40, 'attack', 1, array(
+            'attackType' => 'Speed',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 6, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):6'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1'),
+                    array('recipe' => '(5)', 'min' => 1, 'max' => 5, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(5):2'),
+                    array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(6):3'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 8, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(10):8'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(4)', 'min' => 1, 'max' => 4, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(4):1'),
+                    array('recipe' => '(5)', 'min' => 1, 'max' => 5, 'value' => 2, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(5):2'),
+                    array('recipe' => '(6)', 'min' => 1, 'max' => 6, 'value' => 3, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(6):3'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            "gameaction01 performed Speed attack using [(10):6] against [(4):1,(5):2,(6):3]; Defender (4) was captured; Defender (5) was captured; Defender (6) was captured; Attacker (10) rerolled 6 => 8",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
     public function test_friendly_message_attack_power_after_fire_turndown() {
         $this->object = new BMGameAction(40, 'attack', 1, array(
             'attackType' => 'Power',
