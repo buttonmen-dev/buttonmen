@@ -6,6 +6,8 @@
   "playerWithInitiativeIdx": null,
   "roundNumber": 1,
   "maxWins": 3,
+  "description": "",
+  "previousGameId": null,
   "validAttackTypeArray": [],
   "gameSkillsInfo": {
     "Auxiliary": {

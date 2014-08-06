@@ -121,7 +121,7 @@ test("test_Game.redrawGamePageFailure", function() {
 test("test_Game.getCurrentGame", function() {
   BMTestUtils.GameType = 'newgame';
   $.ajaxSetup({ async: false });
-   Game.getCurrentGame(function() {
+  Game.getCurrentGame(function() {
     equal(Game.game, '1', "Set expected game number");
     equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
     equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
@@ -1486,4 +1486,80 @@ asyncTest("test_Game.dieFocusOutlineHandler", function() {
       "Focus outline is not hidden after tab is invoked on another die");
     start();
   });
+});
+
+asyncTest("test_Game.pageAddNewGameLinkFooter", function() {
+  expect(3); // tests plus teardown test
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddNewGameLinkFooter();
+    var newGameLinks = Game.page.find('a');
+    ok(newGameLinks.length > 0, 'New game links should exist');
+    var url = newGameLinks.attr('href');
+    ok(url.match('create_game\\.html'),
+      'New game links should go to the create game page');
+    start();
+  });
+});
+
+asyncTest("test_Game.pageAddNewGameLinkFooter_turn_active", function() {
+  expect(2); // tests plus teardown test
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddNewGameLinkFooter();
+    var newGameLinks = Game.page.find('a');
+    ok(newGameLinks.length == 0, 'New game links should not exist');
+    start();
+  });
+});
+
+test("test_Game.buildNewGameLink", function() {
+  Api.game = { 'maxWins': '2' };
+  var linkHolder = Game.buildNewGameLink(
+    'test game',
+    'Zebedee',
+    'Krosp',
+    'Hooloovoo',
+    17);
+  var link = linkHolder.find('a');
+  var expectedText = 'test game';
+  equal(link.text(), expectedText,
+    'New Game link should have the correct text');
+  var expectedUrl =
+    'create_game.html?opponent=Zebedee&playerButton=Krosp&' +
+    'opponentButton=Hooloovoo&previousGameId=17&maxWins=2';
+  equal(link.attr('href'), expectedUrl,
+    'New game link should have the correct URL');
+});
+
+test("test_Game.buildNewGameLink_open", function() {
+  Api.game = { 'maxWins': '2' };
+  var linkHolder = Game.buildNewGameLink(
+    'test game',
+    null,
+    'Krosp',
+    'Hooloovoo',
+    null);
+  var link = linkHolder.find('a');
+  var expectedUrl =
+    'create_game.html?playerButton=Krosp&opponentButton=Hooloovoo&maxWins=2';
+  equal(link.attr('href'), expectedUrl,
+    'Open new game link should have the correct URL');
+});
+
+test("test_Game.buildNewGameLink_rematch", function() {
+  Api.game = { 'maxWins': '2' };
+  var linkHolder = Game.buildNewGameLink(
+    'test game',
+    'Zebedee',
+    null,
+    null,
+    17);
+  var link = linkHolder.find('a');
+  var expectedUrl =
+    'create_game.html?opponent=Zebedee&previousGameId=17&maxWins=2';
+  equal(link.attr('href'), expectedUrl,
+    'Rematch new game link should have the correct URL');
 });

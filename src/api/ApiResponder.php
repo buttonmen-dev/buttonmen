@@ -116,10 +116,23 @@ class ApiResponder {
 
         $maxWins = $args['maxWins'];
 
+        if (isset($args['description'])) {
+            $description = $args['description'];
+        } else {
+            $description = '';
+        }
+        if (isset($args['previousGameId'])) {
+            $previousGameId = $args['previousGameId'];
+        } else {
+            $previousGameId = NULL;
+        }
+
         $retval = $interface->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
+            $description,
+            $previousGameId,
             (int)$_SESSION['user_id']
         );
 

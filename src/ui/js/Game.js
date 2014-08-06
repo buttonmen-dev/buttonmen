@@ -121,6 +121,7 @@ Game.showStatePage = function() {
   Game.color = {
     'player': Api.game.player.playerColor,
     'opponent': Api.game.opponent.playerColor,
+    'noone': 'white',
   };
 
   // Figure out what to do next based on the game state
@@ -1581,26 +1582,33 @@ Game.pageAddGameHeader = function(action_desc) {
     bgcolor = Game.color.opponent;
   }
 
-  var descspan = $('<span>', {
+  if (Api.game.description) {
+    Game.page.append($('<div>', {
+      'text': Api.game.description,
+      'class': 'gameDescDisplay',
+    }));
+  }
+
+  var actionSpan = $('<span>', {
     'id': 'action_desc_span',
     'class': 'action_desc_span',
     'style': 'background: none repeat scroll 0 0 ' + bgcolor,
     'text': action_desc,
   });
-  var descdiv = $('<div>', { 'class': 'action_desc_div', });
-  descdiv.append(descspan);
-  Game.page.append(descdiv);
+  var actionDiv = $('<div>', { 'class': 'action_desc_div', });
+  actionDiv.append(actionSpan);
 
   // If there's new chat the player hasn't seen yet, notify them
   if (Api.game.isParticipant && Api.game.player.lastActionTime &&
       Api.game.chatLog.length &&
       Api.game.chatLog[0].timestamp > Api.game.player.lastActionTime) {
-    descdiv.append(Game.SPACE_BULLET);
-    descdiv.append($('<span>', {
+    actionDiv.append(Game.SPACE_BULLET);
+    actionDiv.append($('<span>', {
       'class': 'action_desc_span new',
       'text': 'New chat message',
     }));
   }
+  Game.page.append(actionDiv);
 
   Game.page.append($('<br>'));
 
@@ -1625,6 +1633,7 @@ Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
   Game.pageAddSkillListFooter();
+  Game.pageAddNewGameLinkFooter();
   Game.pageAddLogFooter();
 };
 
@@ -1724,6 +1733,118 @@ Game.pageAddSkillListFooter = function() {
   return true;
 };
 
+// Display links to create new games similar to this one
+Game.pageAddNewGameLinkFooter = function() {
+  if (Api.game.gameState != Game.GAME_STATE_END_GAME) {
+    return;
+  }
+
+  var linkDiv;
+  if (Api.game.isParticipant) {
+    Game.page.append($('<br>'));
+
+    Game.page.append($('<div>', {
+      'text':
+        'Challenge ' + Api.game.opponent.playerName +
+        ' to a rematch, preserving chat:',
+    }));
+
+    linkDiv = $('<div>');
+    Game.page.append(linkDiv);
+
+    linkDiv.append(Game.buildNewGameLink(
+      'same buttons',
+      Api.game.opponent.playerName,
+      Api.game.player.button.name,
+      Api.game.opponent.button.name,
+      Api.game.gameId
+    ));
+
+    if (Api.game.player.button.name != Api.game.opponent.button.name) {
+      linkDiv.append(Game.buildNewGameLink(
+        'reverse',
+        Api.game.opponent.playerName,
+        Api.game.opponent.button.name,
+        Api.game.player.button.name,
+      Api.game.gameId
+      ));
+    }
+
+    linkDiv.append(Game.buildNewGameLink(
+      'new buttons',
+      Api.game.opponent.playerName,
+      null,
+      null,
+      Api.game.gameId
+    ));
+  }
+
+  Game.page.append($('<br>'));
+
+  Game.page.append($('<div>', {
+    'text': 'Create an open game with these buttons: ',
+  }));
+
+  linkDiv = $('<div>');
+  Game.page.append(linkDiv);
+
+  if (Api.game.player.button.name == Api.game.opponent.button.name) {
+    linkDiv.append(Game.buildNewGameLink(
+      'you both play ' + Api.game.player.button.name,
+      null,
+      Api.game.player.button.name,
+      Api.game.player.button.name,
+      null
+    ));
+  } else {
+    linkDiv.append(Game.buildNewGameLink(
+      'you play ' + Api.game.player.button.name,
+      null,
+      Api.game.player.button.name,
+      Api.game.opponent.button.name,
+      null
+    ));
+
+    linkDiv.append(Game.buildNewGameLink(
+      'you play ' + Api.game.opponent.button.name,
+      null,
+      Api.game.opponent.button.name,
+      Api.game.player.button.name,
+      null
+    ));
+  }
+
+  Game.page.append($('<br>'));
+};
+
+// Contstructs a span containing a link to the Create Game page
+Game.buildNewGameLink = function(text, opponent, button, opponentButton,
+    previousGameId) {
+  var holder = $('<span>');
+  holder.append('[');
+  var url = 'create_game.html?';
+  if (opponent) {
+    url += 'opponent=' + encodeURIComponent(opponent) + '&';
+  }
+  if (button) {
+    url += 'playerButton=' + encodeURIComponent(button) + '&';
+  }
+  if (opponentButton) {
+    url += 'opponentButton=' + encodeURIComponent(opponentButton) + '&';
+  }
+  if (previousGameId) {
+    url += 'previousGameId=' + previousGameId + '&';
+  }
+  url += 'maxWins=' + Api.game.maxWins;
+
+  holder.append($('<a>', {
+    'text': text,
+    'href': url,
+  }));
+  holder.append('] ');
+  return holder;
+};
+
 // Display recent game data from the action log at the foot of the page
 Game.pageAddLogFooter = function() {
   if ((Api.game.chatLog.length > 0) || (Api.game.actionLog.length > 0)) {
@@ -1781,8 +1902,10 @@ Game.pageAddLogFooter = function() {
         var chatplayer;
         if (logentry.player == Api.game.player.playerName) {
           chatplayer = 'player';
-        } else {
+        } else if (logentry.player == Api.game.opponent.playerName) {
           chatplayer = 'opponent';
+        } else {
+          chatplayer = 'noone';
         }
         chatrow.append($('<td>', {
           'class': 'chat',
