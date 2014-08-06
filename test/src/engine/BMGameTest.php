@@ -9188,8 +9188,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_default_round() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('(1) (1) (1) (1) z(1,1)', 'TestButton1');
-        $this->assertEquals('(1) (1) (1) (1) z(1,1)', $button1->recipe);
+        $button1->load('(1) (1) (1) (1) B(2)', 'TestButton1');
+        $this->assertEquals('(1) (1) (1) (1) B(2)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertCount(5, $button1->dieArray);
         $this->assertEquals(1, $button1->dieArray[0]->max);
@@ -9197,10 +9197,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $button1->dieArray[2]->max);
         $this->assertEquals(1, $button1->dieArray[3]->max);
         $this->assertEquals(2, $button1->dieArray[4]->max);
-        $this->assertEquals(array('attack_list'),
+        $this->assertEquals(array('attack_list', 'capture'),
                             array_keys($button1->dieArray[4]->hookList));
-        $this->assertEquals(array('BMSkillSpeed'),
+        $this->assertEquals(array('BMSkillBerserk'),
                             $button1->dieArray[4]->hookList['attack_list']);
+        $this->assertEquals(array('BMSkillBerserk'),
+                            $button1->dieArray[4]->hookList['capture']);
 
         $button2 = new BMButton;
         $button2->load('(1) (1) (1) z(1,1)', 'TestButton2');
@@ -9221,6 +9223,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game->buttonArray = array($button1, $button2);
         $game->waitingOnActionArray = array(FALSE, FALSE);
         $game->proceed_to_next_user_action();
+
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $activeDieArrayArray[0][4]->value = 2;
 
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
         $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
@@ -9259,8 +9264,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[0]);
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
 
-        // check that a default speed attack works
-        // (1) (1) (1) (1) (1,1) vs (1) (1) (1) (1,1)
+        // check that a default berserk attack works
+        // (1) (1) (1) (1) (2) vs (1) (1) (1) (1,1)
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
                               array(4), // attackerAttackDieIdxArray
@@ -9272,7 +9277,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         // call_user_func and array_values to avoid changing the original array
         $lastLogEntry = call_user_func('end', array_values($game->actionLog));
         $this->assertEquals('attack', $lastLogEntry->actionType);
-        $this->assertEquals('Speed', $lastLogEntry->params['attackType']);
+        $this->assertEquals('Berserk', $lastLogEntry->params['attackType']);
+        $this->assertEquals(1, $game->activeDieArrayArray[0][4]->max);
 
         $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
         $this->assertEquals(BMGameState::START_TURN, $game->gameState);
@@ -9283,7 +9289,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
 
         // check that a default power attack works
-        // (1) (1) (1) (1) (1,1) vs (1) (1,1)
+        // (1) (1) (1) (1) (1) vs (1) (1,1)
         $game->attack = array(1,        // attackerPlayerIdx
                               0,        // defenderPlayerIdx
                               array(1), // attackerAttackDieIdxArray
@@ -9305,7 +9311,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
 
         // check that a default skill attack works
-        // (1) (1) (1) (1,1) vs (1) (1,1)
+        // (1) (1) (1) (1) vs (1) (1,1)
         $game->attack = array(0,        // attackerPlayerIdx
                               1,        // defenderPlayerIdx
                               array(0, 1), // attackerAttackDieIdxArray

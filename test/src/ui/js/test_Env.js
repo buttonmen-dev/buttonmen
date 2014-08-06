@@ -97,14 +97,11 @@ test("test_Env.showStatusMessage", function() {
 test("test_Env.formatTimestamp", function() {
   expect(4); // number of tests plus 1 for the teardown test
 
-  // Since the method we're testing produces output for the local time zone,
-  // we need to compensate for that in order to test it.
-  var offsetInMinutes = new Date().getTimezoneOffset();
-  var timestamp = 1395610690 + (offsetInMinutes * 60);
-
   var expectedDate = '2014-03-23';
   var expectedTime = '21:38:10';
   var expectedDateTime = '2014-03-23 21:38:10';
+
+  var timestamp = moment(expectedDateTime, 'YYYY-MM-DD HH:mm:ss', true).unix();
 
   var results = Env.formatTimestamp(timestamp, 'date');
   equal(results, expectedDate, 'formatTimestamp returned correct date');
@@ -117,13 +114,11 @@ test("test_Env.formatTimestamp", function() {
 });
 
 test("test_Env.parseDateTime", function() {
-  var input = '2014-03-23 21:38:10';
-  var offsetInMinutes = new Date().getTimezoneOffset();
-  var expectedOutput = 1395610690 + (offsetInMinutes * 60);
+  var expectedTimestamp = 1395610690;
+  var datetimeString = Env.formatTimestamp(expectedTimestamp);
 
-  var results = Env.parseDateTime(input, 'datetime');
-
-  equal(results, expectedOutput, 'parseDateTime returned correct timestamp');
+  var results = Env.parseDateTime(datetimeString, 'datetime');
+  equal(results, expectedTimestamp, 'parseDateTime returned correct timestamp');
 });
 
 test("test_Env.setCookieNoImages", function() {
@@ -312,4 +307,23 @@ asyncTest("test_Env.callAsyncInParallel_withArgs", function() {
       start();
     });
   });
+});
+
+test("test_Env.validateUrl", function() {
+  var rawUrl = 'example.com';
+  var cleanedUrl = Env.validateUrl(rawUrl);
+  equal(cleanedUrl, 'http://example.com', 'URL should have correct protocol');
+
+  var rawUrl = 'javascript:alert(\'Evil\');';
+  var cleanedUrl = Env.validateUrl(rawUrl);
+  equal(cleanedUrl, null, 'Malicious URL should be rejected');
+
+  var rawUrl = 'http://example.com/$';
+  var cleanedUrl = Env.validateUrl(rawUrl);
+  equal(cleanedUrl, null,
+    'URL with inappropriate characters should be rejected');
+
+  var rawUrl = 'https://example.com';
+  var cleanedUrl = Env.validateUrl(rawUrl);
+  equal(cleanedUrl, rawUrl, 'Valid URL should be unaffected');
 });

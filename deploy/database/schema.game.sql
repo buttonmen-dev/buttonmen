@@ -18,7 +18,9 @@ CREATE TABLE game (
     last_winner_id     SMALLINT UNSIGNED,
     tournament_id      SMALLINT UNSIGNED,
     description        VARCHAR(255) NOT NULL,
-    chat               TEXT
+    chat               TEXT,
+    previous_game_id   MEDIUMINT UNSIGNED,
+    FOREIGN KEY (previous_game_id) REFERENCES game(id)
 );
 
 DROP TABLE IF EXISTS game_status;
