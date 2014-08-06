@@ -277,7 +277,8 @@ class BMGameAction {
                 $postEventsAttacker[] = 'does not reroll';
             }
             if (count($postEventsAttacker) > 0) {
-                $messageAttackerArray[] = 'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                $messageAttackerArray[] =
+                    'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
 
