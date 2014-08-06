@@ -2947,7 +2947,6 @@ class BMGame {
             $validAttackTypeArray = array();
         }
 
-        sort($validAttackTypeArray);
         return $validAttackTypeArray;
     }
 

@@ -819,6 +819,8 @@ Game.actionPlayTurnActive = function() {
     Game.form
   );
 
+  var attacksExist = false;
+
   for (var i = 0; i < Api.game.validAttackTypeArray.length; i++) {
     var attacktype = Api.game.validAttackTypeArray[i];
     var typetext;
@@ -828,6 +830,7 @@ Game.actionPlayTurnActive = function() {
       typetext = 'SURRENDER!?';
     } else {
       typetext = attacktype + ' Attack';
+      attacksExist = true;
     }
     var attacktypeopts = {
       'value': attacktype,
@@ -840,6 +843,19 @@ Game.actionPlayTurnActive = function() {
     }
     attacktypeselect.append($('<option>', attacktypeopts));
   }
+
+  if (attacksExist) {
+    var defaultAttackOptions = {
+      'value': 'Default',
+      'label': 'Default Attack',
+      'text': 'Default Attack',
+    };
+    if (Game.activity.attackType == 'Default' || !Game.activity.attackType) {
+      defaultAttackOptions.selected = 'selected';
+    }
+    attacktypeselect.prepend($('<option>', defaultAttackOptions));
+  }
+
   attackform.append(attacktypeselect);
 
   attackform.append($('<button>', {
