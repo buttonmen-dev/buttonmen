@@ -683,7 +683,7 @@ class DummyApiResponder {
         $data[] = $this->loadButtonDataForApples();
         $data[] = $this->loadButtonDataForCactusJack();
 
-        return array($data, "All button names retrieved successfully.");
+        return array($data, "Button data retrieved successfully.");
     }
 
     private function loadButtonDataForAvis() {

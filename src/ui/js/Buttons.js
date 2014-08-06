@@ -52,65 +52,167 @@ Buttons.showButton = function() {
         'text': 'An internal error occurred while loading the button.',
       };
     }
-  } else if (Api.button.list[Buttons.buttonName] === undefined) {
+
+    Buttons.arrangePage();
+    return;
+  }
+
+  // Assume that the version of the button name from the API is canonical
+  for (var buttonName in Api.button.list) {
+    Buttons.buttonName = buttonName;
+    break;
+  }
+
+  if (Api.button.list[Buttons.buttonName] === undefined) {
     Env.message = {
       'type': 'none',
       'text': 'Button not found.',
     };
-  } else {
-    var button = Api.button.list[Buttons.buttonName];
 
-    var mainDiv = $('<div>', { 'class': 'singleButton' });
-
-    var buttonDetailsArea = $('<div>', { 'class': 'buttonDetails' });
-    mainDiv.append(buttonDetailsArea);
-    buttonDetailsArea.append(Buttons.buildButtonBox(button));
-    var secondBox = $('<div>', { 'class': 'secondaryDetails' });
-    buttonDetailsArea.append(secondBox);
-    secondBox.append($('<p>', {
-      'class': 'flavorText',
-      'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
-    }));
-
-    var setLinkHolder = $('<div>', { 'text': 'Return to ' });
-    buttonDetailsArea.append(setLinkHolder);
-    setLinkHolder.append($('<a>', {
-      'href': 'buttons.html?set=' + encodeURIComponent(button.buttonSet),
-      'text': button.buttonSet,
-    }));
-
-    if (button.specialText) {
-      mainDiv.append($('<h2>', { 'text': 'Special Features' }));
-      mainDiv.append($('<p>', { 'text': button.specialText }));
-    }
-
-    var skillsTable = $('<table>', { 'class': 'skills' });
-    $.each(button.dieSkills, function(skill, info) {
-      var skillRow = $('<tr>');
-      skillsTable.append(skillRow);
-
-      skillRow.append($('<th>', { 'text': skill + ' (' + info.code + ')' }));
-      var skillDescriptionCell = $('<td>');
-      skillRow.append(skillDescriptionCell);
-      skillDescriptionCell.append($('<p>', { 'text': info.description }));
-      $.each(info.interacts, function(otherSkill, interaction) {
-        skillDescriptionCell.append($('<p>', {
-          'text': otherSkill + ': ' + interaction
-        }));
-      });
-    });
-
-    if (skillsTable.find('tr').length > 0) {
-      mainDiv.append($('<h2>', { 'text': 'Skills' }));
-      mainDiv.append(skillsTable);
-    }
-
-    Buttons.page.append(mainDiv);
+    Buttons.arrangePage();
+    return;
   }
 
-  // Actually lay out the page
+  var button = Api.button.list[Buttons.buttonName];
+
+  var mainDiv = $('<div>', { 'class': 'singleButton' });
+
+  var buttonDetailsArea = $('<div>', { 'class': 'buttonDetails' });
+  mainDiv.append(buttonDetailsArea);
+  buttonDetailsArea.append(Buttons.buildButtonBox(button));
+  var secondBox = $('<div>', { 'class': 'secondaryDetails' });
+  buttonDetailsArea.append(secondBox);
+  secondBox.append($('<p>', {
+    'class': 'flavorText',
+    'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
+  }));
+
+  if (button.specialText) {
+    mainDiv.append($('<h2>', { 'text': 'Special Features' }));
+    mainDiv.append($('<p>', { 'text': button.specialText }));
+  }
+
+  var skillsTable = $('<table>', { 'class': 'skills' });
+  $.each(button.dieSkills, function(skill, info) {
+    var skillRow = $('<tr>');
+    skillsTable.append(skillRow);
+
+    skillRow.append($('<th>', { 'text': skill + ' (' + info.code + ')' }));
+    var skillDescriptionCell = $('<td>');
+    skillRow.append(skillDescriptionCell);
+    skillDescriptionCell.append($('<p>', { 'text': info.description }));
+    $.each(info.interacts, function(otherSkill, interaction) {
+      skillDescriptionCell.append($('<p>', {
+        'text': otherSkill + ': ' + interaction
+      }));
+    });
+  });
+
+  if (skillsTable.find('tr').length > 0) {
+    mainDiv.append($('<h2>', { 'text': 'Skills' }));
+    mainDiv.append(skillsTable);
+  }
+
+  var returnLinkHolder = $('<div>', {
+    'class': 'returnLink',
+    'text': 'Return to ',
+  });
+  mainDiv.append(returnLinkHolder);
+  returnLinkHolder.append($('<a>', {
+    'href': 'buttons.html?set=' + encodeURIComponent(button.buttonSet),
+    'text': button.buttonSet,
+  }));
+
+  Buttons.page.append(mainDiv);
+
+  Buttons.arrangePage();
+  return;
+};
+
+Buttons.showSet = function() {
+  Buttons.page = $('<div>');
+
+  if (Api.buttonSet.load_status != 'ok') {
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'An internal error occurred while loading the button set.',
+      };
+    }
+
+    Buttons.arrangePage();
+    return;
+  }
+
+  // Assume that the version of the button name from the API is canonical
+  for (var setName in Api.buttonSet.list) {
+    Buttons.setName = setName;
+    break;
+  }
+
+  if (Api.buttonSet.list[Buttons.setName] === undefined) {
+    Env.message = {
+      'type': 'none',
+      'text': 'Button set not found.',
+    };
+
+    Buttons.arrangePage();
+    return;
+  }
+
+  var buttonSet = Api.buttonSet.list[Buttons.setName];
+
+  var mainDiv = $('<div>', { 'class': 'singleSet' });
+
+  mainDiv.append($('<h2>', { 'text': buttonSet.setName }));
+  $.each(buttonSet.buttons, function(buttonName, button) {
+    mainDiv.append(Buttons.buildButtonBox(button));
+  });
+  var returnLinkHolder = $('<div>', {
+    'class': 'returnLink',
+    'text': 'Return to ',
+  });
+  mainDiv.append(returnLinkHolder);
+  returnLinkHolder.append($('<a>', {
+    'href': 'buttons.html',
+    'text': 'All Button Sets',
+  }));
+
+  Buttons.page.append(mainDiv);
+
   Buttons.arrangePage();
 };
+
+Buttons.showSetList = function() {
+  Buttons.page = $('<div>');
+
+  if (Api.buttonSet.load_status != 'ok') {
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'An internal error occurred while loading the button set.',
+      };
+    }
+
+    Buttons.arrangePage();
+    return;
+  }
+
+  var mainDiv = $('<div>', { 'class': 'singleSet' });
+
+  mainDiv.append($('<h2>', { 'text': 'All Button Sets' }));
+  $.each(Api.buttonSet.list, function(setName, buttonSet) {
+    mainDiv.append($('<a>', {
+      'text': setName,
+      'href': 'buttons.html?set=' + encodeURIComponent(setName),
+      'class': 'buttonSetLink',
+    }));
+  });
+
+  Buttons.page.append(mainDiv);
+
+  Buttons.arrangePage();
+}
 
 Buttons.buildButtonBox = function(button) {
   var buttonBox = $('<div>', { 'class': 'buttonBox' });

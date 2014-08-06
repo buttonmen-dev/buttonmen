@@ -212,6 +212,15 @@ class ApiResponder {
         return $interface->get_button_data($buttonName, $buttonSet);
     }
 
+    protected function get_interface_response_loadButtonSetData($interface, $args) {
+        if (isset($args['buttonSet'])) {
+            $buttonSet = $args['buttonSet'];
+        } else {
+            $buttonSet = NULL;
+        }
+        return $interface->get_button_set_data($buttonSet);
+    }
+
     protected function get_interface_response_loadGameData($interface, $args) {
         if (isset($args['logEntryLimit'])) {
             $logEntryLimit = $args['logEntryLimit'];

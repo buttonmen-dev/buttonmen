@@ -239,6 +239,12 @@ class ApiSpec {
                 'buttonSet' => 'string',
             ),
         ),
+        'loadButtonSetData' => array(
+            'mandatory' => array(),
+            'permitted' => array(
+                'buttonSet' => 'string',
+            ),
+        ),
         'loadCompletedGames' => array(
             'mandatory' => array(),
             'permitted' => array(),

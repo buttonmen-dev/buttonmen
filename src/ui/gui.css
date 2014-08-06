@@ -784,13 +784,19 @@ div.forum div.splitRight {
 
 /* END: BB Code */
 
+#buttons_page a.buttonSetLink {
+    display: inline-block;
+    width: 250px;
+    margin: 10px;
+}
+
 #buttons_page div.singleButton {
     width: 800px;
     margin: auto;
 }
 
-#buttons_page div.buttonDetails {
-    margin-bottom: 50px;
+#buttons_page div.returnLink {
+    margin: 50px;
 }
 
 #buttons_page div.buttonBox {

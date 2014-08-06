@@ -213,6 +213,35 @@ var Api = (function () {
   };
 
   ////////////////////////////////////////////////////////////////////////
+  // Load and parse a list of button sets
+
+  my.getButtonSetData = function(buttonSet, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadButtonSetData',
+        'buttonSet': (buttonSet ? buttonSet : undefined),
+      },
+      'buttonSet',
+      my.parseButtonSetData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseButtonSetData = function(data) {
+    my.buttonSet.list = {};
+    if (!$.isArray(data)) {
+      return false;
+    }
+    var i = 0;
+    while (i < data.length) {
+      my.buttonSet.list[data[i].setName] = data[i];
+      i++;
+    }
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of players
 
   my.getPlayerData = function(callbackfunc) {

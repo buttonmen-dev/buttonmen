@@ -2140,7 +2140,13 @@ class BMInterface {
                     $buttons[] = $currentButton;
                 }
             }
-            $this->message = 'All button names retrieved successfully.';
+
+            if (count($buttons) == 0) {
+                $this->message = 'Button not found.';
+                return NULL;
+            }
+
+            $this->message = 'Button data retrieved successfully.';
             return $buttons;
         } catch (Exception $e) {
             error_log(
@@ -2148,6 +2154,52 @@ class BMInterface {
                 $e->getMessage()
             );
             $this->message = 'Button info get failed.';
+            return NULL;
+        }
+    }
+
+    // Retrieves a list of button sets along with associated information,
+    // including their name.
+    // If $setName is specified, it only returns that one set. It also
+    // includes the buttons in that set, which are otherwise omitted for
+    // efficiency.
+    // If $setName is not specified, it returns all sets.
+    public function get_button_set_data($setName = NULL) {
+        try {
+            $parameters = array();
+            $query =
+                'SELECT bs.name FROM buttonset bs ';
+            if ($setName !== NULL) {
+                $query .= 'WHERE bs.name = :set_name';
+                $parameters[':set_name'] = $setName;
+            }
+            $statement = self::$conn->prepare($query);
+            $statement->execute($parameters);
+
+            $sets = array();
+            while ($row = $statement->fetch()) {
+                $currentSet = array('setName' => $row['name']);
+                // For efficiency's sake, we only include some info if just
+                // a single set was requested.
+                if ($setName !== NULL) {
+                    $currentSet['buttons'] = $this->get_button_data(NULL, $setName);
+                }
+                $sets[] = $currentSet;
+            }
+
+            if (count($sets) == 0) {
+                $this->message = 'Button set not found.';
+                return NULL;
+            }
+
+            $this->message = 'Button set data retrieved successfully.';
+            return $sets;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_button_set_data: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Button set info get failed.';
             return NULL;
         }
     }
