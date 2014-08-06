@@ -48,8 +48,33 @@ class BMAttackDefault extends BMAttack {
                 $this->validationMessage = 'There is no valid attack corresponding to the dice selected.';
                 return FALSE;
             default:
+                if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders)) {
+                    $this->resolvedType = $validAttackTypeArray[0];
+                    return TRUE;
+                }
+
                 $this->validationMessage = 'Default attack is ambiguous.';
                 return FALSE;
+        }
+    }
+
+    protected function is_one_on_one_no_frills_attack($game, array $attackers, array $defenders) {
+        if (1 != count($attackers)) {
+            return FALSE;
+        }
+
+        if (1 != count($defenders)) {
+            return FALSE;
+        }
+
+        if ($attackers[0]->has_skill('Doppelganger')) {
+            return FALSE;
+        }
+
+        foreach ($game->attackerAllDieArray as $die) {
+            if ($die->has_skill('Fire')) {
+                return FALSE;
+            }
         }
     }
 
