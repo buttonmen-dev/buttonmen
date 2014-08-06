@@ -11,6 +11,14 @@
 class BMSkill {
 
     /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
+    public static $hooked_methods = array();
+
+    /**
      * Convert a string of skill abbreviations into an array of BMSkills
      *
      * @param string $skillString

@@ -43,6 +43,11 @@ abstract class BMAttack {
             static::$instance[$class] = new $class;
         }
         static::$instance[$class]->validDice = array();
+
+        if (!empty(static::$instance[$class]->resolvedType)) {
+            static::$instance[$class]->resolvedType = '';
+        }
+
         return static::$instance[$class];
     }
 
@@ -190,8 +195,6 @@ abstract class BMAttack {
             return FALSE;
         }
 
-        $this->resolve_default_attack($game);
-
         if ('Surrender' == $game->attack['attackType']) {
             $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
             $winnerArray = array_fill(0, $game->nPlayers, FALSE);
@@ -254,8 +257,9 @@ abstract class BMAttack {
         return TRUE;
     }
 
-    protected function resolve_default_attack(&$game) {
-        if ('Default' == $game->attack['attackType']) {
+    public function resolve_default_attack(&$game) {
+        if ('Default' == $game->attack['attackType'] &&
+            !empty($this->resolvedType)) {
             $attack = $game->attack;
             $attack['attackType'] = $this->resolvedType;
             $game->attack = $attack;

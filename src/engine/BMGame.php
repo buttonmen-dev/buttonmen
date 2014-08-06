@@ -867,6 +867,11 @@ class BMGame {
             return FALSE;
         }
 
+        if ('Default' == $this->attack['attackType']) {
+            $attack->resolve_default_attack($this);
+            $attack = BMAttack::get_instance($this->attack['attackType']);
+        }
+
         return array('attack' => $attack,
                      'attAttackDieArray' => $attAttackDieArray,
                      'defAttackDieArray' => $defAttackDieArray);
