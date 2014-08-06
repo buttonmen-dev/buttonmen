@@ -224,7 +224,7 @@ class BMGameAction {
     }
 
     protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
-        $messageDefender = '';
+        $messageDefenderArray = array();
         // Report what happened to each defending die
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
             $postInfo = $postAttackDice['defender'][$idx];
@@ -246,17 +246,16 @@ class BMGameAction {
             } else {
                 $postEventsDefender[] = 'was not captured';
             }
-            $messageDefender .= 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
-            if ($idx < (count($preAttackDice['defender']) - 1)) {
-                $messageDefender .= '; ';
-            }
+            $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
+
+        $messageDefender = implode('; ', $messageDefenderArray);
 
         return $messageDefender;
     }
 
     protected function messageAttacker($preAttackDice, $postAttackDice) {
-        $messageAttacker = '';
+        $messageAttackerArray = array();
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
@@ -278,12 +277,11 @@ class BMGameAction {
                 $postEventsAttacker[] = 'does not reroll';
             }
             if (count($postEventsAttacker) > 0) {
-                $messageAttacker .= 'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
-                if ($idx < (count($preAttackDice['attacker']) - 1)) {
-                    $messageAttacker .= '; ';
-                }
+                $messageAttackerArray[] = 'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
+
+        $messageAttacker = implode('; ', $messageAttackerArray);
 
         return $messageAttacker;
     }
