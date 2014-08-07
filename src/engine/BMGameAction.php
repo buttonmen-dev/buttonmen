@@ -165,6 +165,7 @@ class BMGameAction {
             return $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
         }
 
+        
         $message = '';
 
         if ('fire_turndown' != $lastActionType) {
