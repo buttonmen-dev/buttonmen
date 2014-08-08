@@ -2102,7 +2102,10 @@ class BMInterface {
                     sort($dieSkills);
                     // For efficiency's sake, we only include some info if just
                     // a single button was requested.
-                    if ($buttonName !== NULL) {
+                    if ($buttonName === NULL) {
+                        $dieTypes = array_keys($button->dieTypes);
+                    } else {
+                        $dieTypes = $button->dieTypes;
                         $dieSkillNames = $dieSkills;
                         $dieSkills = array();
                         foreach ($dieSkillNames as $skillType) {
@@ -2127,6 +2130,7 @@ class BMInterface {
                         'recipe' => $row['recipe'],
                         'hasUnimplementedSkill' => $hasUnimplementedSkill,
                         'buttonSet' => $row['set_name'],
+                        'dieTypes' => $dieTypes,
                         'dieSkills' => $dieSkills,
                         'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
                         'artFilename' => $button->artFilename,

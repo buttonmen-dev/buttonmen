@@ -24,6 +24,7 @@ class BMButton extends BMCanHaveSkill {
     protected $artFilename;
     protected $dieArray;
     protected $dieSkills;
+    protected $dieTypes;
     protected $ownerObject;
     protected $playerIdx;
     protected $hasUnimplementedSkill;
@@ -42,6 +43,7 @@ class BMButton extends BMCanHaveSkill {
         $this->recipe = $recipe;
         $this->dieArray = array();
         $this->dieSkills = array();
+        $this->dieTypes = array();
         $this->hasUnimplementedSkill = FALSE;
         $this->hasAlteredRecipe = $isRecipeAltered;
 
@@ -68,6 +70,7 @@ class BMButton extends BMCanHaveSkill {
                     $this->hasUnimplementedSkill = TRUE;
                 }
                 $this->dieSkills += $die->skillList;
+                $this->dieTypes += $die->typesList;
             }
         }
     }

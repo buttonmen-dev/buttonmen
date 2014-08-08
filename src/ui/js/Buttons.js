@@ -103,9 +103,18 @@ Buttons.showButton = function() {
     skillDescriptionCell.append($('<p>', { 'text': info.description }));
     $.each(info.interacts, function(otherSkill, interaction) {
       skillDescriptionCell.append($('<p>', {
-        'text': otherSkill + ': ' + interaction
+        'text': 'Interaction with ' + otherSkill + ': ' + interaction
       }));
     });
+  });
+  $.each(button.dieTypes, function(dieType, info) {
+    var skillRow = $('<tr>');
+    skillsTable.append(skillRow);
+
+    skillRow.append($('<th>', { 'text': dieType + ' (' + info.code + ')' }));
+    var skillDescriptionCell = $('<td>');
+    skillRow.append(skillDescriptionCell);
+    skillDescriptionCell.append($('<p>', { 'text': info.description }));
   });
 
   if (skillsTable.find('tr').length > 0) {
