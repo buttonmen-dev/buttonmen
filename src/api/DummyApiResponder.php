@@ -665,25 +665,60 @@ class DummyApiResponder {
             'Active players retrieved successfully.');
     }
 
-    protected function get_interface_response_loadButtonData() {
+    protected function get_interface_response_loadButtonData($args) {
         $data = array();
 
-        // Splitting these into separate methods makes the code less readable,
-        // but jenkins demands it because otherwise this method would be a few
-        // lines longer than he likes
-        $data[] = $this->loadButtonDataForAvis();
-        $data[] = $this->loadButtonDataForZeppo();
-        $data[] = $this->loadButtonDataForJellybean();
-        $data[] = $this->loadButtonDataForBuckGodot();
-        $data[] = $this->loadButtonDataForVonPinn();
-        $data[] = $this->loadButtonDataForCrab();
-        $data[] = $this->loadButtonDataForJohnKovalic();
-        $data[] = $this->loadButtonDataForKingArthur();
-        $data[] = $this->loadButtonDataForCammyNeko();
-        $data[] = $this->loadButtonDataForApples();
-        $data[] = $this->loadButtonDataForCactusJack();
+        if (isset($args['buttonName']) && $args['buttonName'] == 'Avis') {
+            $data[] = $this->loadDetailedButtonDataForAvis();
+        } else {
+            // Splitting these into separate methods makes the code less readable,
+            // but jenkins demands it because otherwise this method would be a few
+            // lines longer than he likes
+            $data[] = $this->loadButtonDataForAvis();
+            $data[] = $this->loadButtonDataForZeppo();
+            $data[] = $this->loadButtonDataForJellybean();
+            $data[] = $this->loadButtonDataForBuckGodot();
+            $data[] = $this->loadButtonDataForVonPinn();
+            $data[] = $this->loadButtonDataForCrab();
+            $data[] = $this->loadButtonDataForJohnKovalic();
+            $data[] = $this->loadButtonDataForKingArthur();
+            $data[] = $this->loadButtonDataForCammyNeko();
+            $data[] = $this->loadButtonDataForApples();
+            $data[] = $this->loadButtonDataForCactusJack();
+        }
 
         return array($data, "Button data retrieved successfully.");
+    }
+
+    private function loadDetailedButtonDataForAvis() {
+        // a button with no special skills
+        return array(
+            'buttonName' => "Avis",
+            'recipe' => "(4) (4) (10) (12) (X)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Soldiers",
+            'dieTypes' => array(
+                'X Swing' => array(
+                    'code' => 'X',
+                    'swingMin' => 4,
+                    'swingMax' => 20,
+                    'description' =>
+                        'X Swing Dice can be any die between 4 and 20. Swing Dice ' .
+                        'are allowed to be any integral size between their upper and ' .
+                        'lower limit, including both ends, and including nonstandard ' .
+                        'die sizes like 17 or 9. Each player chooses his or her ' .
+                        'Swing Die in secret at the beginning of the match, and ' .
+                        'thereafter the loser of each round may change their Swing ' .
+                        'Die between rounds. If a character has any two Swing Dice ' .
+                        'of the same letter, they must always be the same size.',
+                )
+            ),
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'avis.png',
+            'flavorText' => NULL,
+            'specialText' => NULL,
+        );
     }
 
     private function loadButtonDataForAvis() {
@@ -693,6 +728,7 @@ class DummyApiResponder {
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Soldiers",
+            'dieTypes' => array('X Swing'),
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
@@ -706,6 +742,7 @@ class DummyApiResponder {
             'recipe' => "(4) (12) (20) (X)!",
             'hasUnimplementedSkill' => TRUE,
             'buttonSet' => "1999 Rare / Promo",
+            'dieTypes' => array('X Swing'),
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'zeppo.png',
@@ -719,6 +756,7 @@ class DummyApiResponder {
             'recipe' => "p(20) s(20) (V) (X)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "BROM",
+            'dieTypes' => array('V Swing', 'X Swing'),
             'dieSkills' => array("Poison", "Shadow"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'jellybean.png',
@@ -732,6 +770,7 @@ class DummyApiResponder {
             'recipe' => "(6,6) (10) (12) (20) (W,W)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Studio Foglio",
+            'dieTypes' => array('Twin', 'W Swing'),
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'buckgodot.png',
@@ -745,6 +784,7 @@ class DummyApiResponder {
             'recipe' => "(4) p(6,6) (10) (20) (W)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Studio Foglio",
+            'dieTypes' => array('Twin', 'W Swing'),
             'dieSkills' => array("Poison"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'vonpinn.png',
@@ -758,6 +798,7 @@ class DummyApiResponder {
             'recipe' => "(8) (10) (12) f(20) f(20)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Legend of the Five Rings",
+            'dieTypes' => array(),
             'dieSkills' => array("Focus"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'crab.png',
@@ -771,6 +812,7 @@ class DummyApiResponder {
             'recipe' => "(6) c(6) (10) (12) c(20)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Yoyodyne",
+            'dieTypes' => array(),
             'dieSkills' => array("Chance"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'johnkovalic.png',
@@ -784,6 +826,7 @@ class DummyApiResponder {
             'recipe' => "(8) (8) (10) (20) (X) +(20)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Buttonlords",
+            'dieTypes' => array('X Swing'),
             'dieSkills' => array("Auxiliary"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'kingarthur.png',
@@ -797,6 +840,7 @@ class DummyApiResponder {
             'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Geekz",
+            'dieTypes' => array('Twin'),
             'dieSkills' => array("Reserve"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'cammyneko.png',
@@ -810,6 +854,7 @@ class DummyApiResponder {
             'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Chicagoland Gamers Conclave",
+            'dieTypes' => array('Option'),
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'apples.png',
@@ -823,6 +868,7 @@ class DummyApiResponder {
             'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
             'hasUnimplementedSkill' => FALSE,
             'buttonSet' => "Classic Fanatics",
+            'dieTypes' => array('Option', 'X Swing', 'U Swing'),
             'dieSkills' => array("Shadow", "Speed"),
             'isTournamentLegal' => FALSE,
             'artFilename' => 'BMdefaultRound.png',

@@ -559,6 +559,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $_SESSION = $this->mock_test_user_login();
         $this->verify_invalid_arg_rejected('loadButtonData');
 
+        // First, examine one button in detail
+        $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        var_dump($retdata);
+        var_dump($dummydata);
+        $this->assertTrue(
+            $this->object_structures_match($retdata[0], $dummydata[0], True),
+            "Real and dummy button lists should have matching structures");
+
+        // Then examine the rest
         $args = array('type' => 'loadButtonData');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
@@ -568,7 +584,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];
         $this->assertTrue(
-            $this->object_structures_match($retdata[0], $dummydata[0], True),
+            $this->object_structures_match($retdata[0], $dummydata[0], False),
             "Real and dummy button lists should have matching structures");
 
         // Each button in the dummy data should exactly match a

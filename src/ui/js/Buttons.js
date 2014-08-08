@@ -26,7 +26,7 @@ Buttons.showButtonsPage = function() {
 
   // Make sure the div element that we will need exists in the page body
   if ($('#buttons_page').length === 0) {
-    $('body').append($('<div>', {'id': 'buttons_page', }));
+    $('body').append($('<div>', { 'id': 'buttons_page', }));
   }
 
   // Figure out what we're here to display, get all needed information,
@@ -209,7 +209,7 @@ Buttons.showSetList = function() {
     return;
   }
 
-  var mainDiv = $('<div>', { 'class': 'singleSet' });
+  var mainDiv = $('<div>', { 'class': 'allSets' });
 
   mainDiv.append($('<h2>', { 'text': 'All Button Sets' }));
   $.each(Api.buttonSet.list, function(setName, buttonSet) {
