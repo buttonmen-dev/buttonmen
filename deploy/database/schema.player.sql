@@ -18,6 +18,7 @@ CREATE TABLE player (
     image_size          SMALLINT,
     uses_gravatar       BOOLEAN DEFAULT 0 NOT NULL,
     comment             VARCHAR(255),
+    homepage            VARCHAR(100),
     favorite_button_id      SMALLINT UNSIGNED,
     favorite_buttonset_id   SMALLINT UNSIGNED,
     player_color        VARCHAR(7),

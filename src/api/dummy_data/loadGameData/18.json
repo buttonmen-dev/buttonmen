@@ -5,6 +5,8 @@
   "activePlayerIdx": null,
   "playerWithInitiativeIdx": null,
   "roundNumber": 2,
+  "description": "",
+  "previousGameId": null,
   "maxWins": 3,
   "validAttackTypeArray": [],
   "gameSkillsInfo": {

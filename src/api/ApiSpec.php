@@ -17,6 +17,9 @@ class ApiSpec {
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
 
+    // constants
+    const GAME_DESCRIPTION_MAX_LENGTH = 255;
+
     // expected arguments for every API function:
     // * mandatory: argument which must be present
     // * permitted: additional argument which may be present
@@ -134,7 +137,13 @@ class ApiSpec {
                 ),
                 'maxWins' => 'number',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'description' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::GAME_DESCRIPTION_MAX_LENGTH,
+                ),
+                'previousGameId' => 'number',
+            ),
         ),
         'dismissGame' => array(
             'mandatory' => array(
@@ -480,6 +489,10 @@ class ApiSpec {
                     'maxlength' => self::GENDER_MAX_LENGTH,
                 ),
                 'comment' => 'string',
+                'homepage' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => 100,
+                ),
                 'autopass' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
