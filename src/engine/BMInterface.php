@@ -2081,12 +2081,14 @@ class BMInterface {
                 'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text, special_text ' .
                 'FROM button_view v ';
             if ($buttonName !== NULL) {
-                $query .= 'WHERE v.name = :button_name';
+                $query .= 'WHERE v.name = :button_name ';
                 $parameters[':button_name'] = $buttonName;
             } elseif ($setName !== NULL) {
-                $query .= 'WHERE v.set_name = :set_name';
+                $query .= 'WHERE v.set_name = :set_name ';
                 $parameters[':set_name'] = $setName;
             }
+            $query .=
+                'ORDER BY v.name ASC;';
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
 
@@ -2174,19 +2176,25 @@ class BMInterface {
             $query =
                 'SELECT bs.name FROM buttonset bs ';
             if ($setName !== NULL) {
-                $query .= 'WHERE bs.name = :set_name';
+                $query .= 'WHERE bs.name = :set_name ';
                 $parameters[':set_name'] = $setName;
             }
+            $query .=
+                'ORDER BY bs.name ASC;';
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
 
             $sets = array();
             while ($row = $statement->fetch()) {
+                $buttons = $this->get_button_data(NULL, $row['name']);
+                if (count($buttons) == 0) {
+                    continue;
+                }
                 $currentSet = array('setName' => $row['name']);
                 // For efficiency's sake, we only include some info if just
                 // a single set was requested.
                 if ($setName !== NULL) {
-                    $currentSet['buttons'] = $this->get_button_data(NULL, $setName);
+                    $currentSet['buttons'] = $buttons;
                 }
                 $sets[] = $currentSet;
             }

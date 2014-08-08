@@ -107,6 +107,8 @@ Buttons.showButton = function() {
       }));
     });
   });
+  // It's debatable whether or not die types should strictly be consider skills,
+  // but I think it's fair to lump them in together here.
   $.each(button.dieTypes, function(dieType, info) {
     var skillRow = $('<tr>');
     skillsTable.append(skillRow);
