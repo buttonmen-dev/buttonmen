@@ -85,6 +85,7 @@ class jenkins::server {
     "jdepend": ;
     "plot": ;
     "pmd": ;
+    "timestamper": ;
     "violations": ;
     "xunit": ;
 
