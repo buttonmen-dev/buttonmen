@@ -44,9 +44,6 @@ class BMAttackDefault extends BMAttack {
             case 1:
                 $this->resolvedType = $validAttackTypeArray[0];
                 return TRUE;
-            case 0:
-                $this->validationMessage = 'There is no valid attack corresponding to the dice selected.';
-                return FALSE;
             default:
                 if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders)) {
                     $this->resolvedType = $validAttackTypeArray[0];
@@ -76,6 +73,8 @@ class BMAttackDefault extends BMAttack {
                 return FALSE;
             }
         }
+
+        return TRUE;
     }
 
     public function type_for_log() {
