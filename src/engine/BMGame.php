@@ -41,6 +41,8 @@
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
+ * @property      string $description;           Description provided when the game was created
+ * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -90,6 +92,8 @@ class BMGame {
     private $firingAmount;          // amount of firing that has been submitted
     private $actionLog;             // game actions taken by this BMGame instance
     private $chat;                  // chat message submitted by the active player with an attack
+    private $description;           // description provided when the game was created
+    private $previousGameId;        // the game whose chat is being continued with this game
     private $message;               // message to be passed to the GUI
 
     private $forceRoundResult;      // boolean array whether each player has won the round
@@ -865,6 +869,11 @@ class BMGame {
             $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
             $this->attack = NULL;
             return FALSE;
+        }
+
+        if ('Default' == $this->attack['attackType']) {
+            $attack->resolve_default_attack($this);
+            $attack = BMAttack::get_instance($this->attack['attackType']);
         }
 
         return array('attack' => $attack,
@@ -2568,6 +2577,21 @@ class BMGame {
         }
     }
 
+    // Sets an individual entry in an array that's stored in a property on this
+    // object, because "$game->$property[$key] = $value;" is illegal.
+    //
+    // shadowshade suggests
+    // indicating awkward code
+    // with verse from the East
+    public function setArrayPropEntry($property, $key, $value) {
+        $array = $this->$property;
+        if (!is_array($array)) {
+            throw new InvalidArgumentException("$property does not refer to an array");
+        }
+        $array[$key] = $value;
+        $this->__set($property, $array);
+    }
+
     public function getJsonData($requestingPlayerId) {
         $requestingPlayerIdx = array_search($requestingPlayerId, $this->playerIdArray);
 
@@ -2578,6 +2602,8 @@ class BMGame {
             'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
             'roundNumber'                => $this->get__roundNumber(),
             'maxWins'                    => $this->maxWins,
+            'description'                => $this->description,
+            'previousGameId'             => $this->previousGameId,
             'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
             'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
             'playerDataArray'            => $this->get_playerDataArray($requestingPlayerIdx),
@@ -2942,7 +2968,6 @@ class BMGame {
             $validAttackTypeArray = array();
         }
 
-        sort($validAttackTypeArray);
         return $validAttackTypeArray;
     }
 

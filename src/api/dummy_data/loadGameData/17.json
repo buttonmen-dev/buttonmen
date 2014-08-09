@@ -6,6 +6,8 @@
   "playerWithInitiativeIdx": null,
   "roundNumber": 2,
   "maxWins": 3,
+  "description": "",
+  "previousGameId": null,
   "validAttackTypeArray": [],
   "gameSkillsInfo": {
     "Reserve": {

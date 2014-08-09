@@ -6,6 +6,8 @@
   "playerWithInitiativeIdx": 0,
   "roundNumber": 1,
   "maxWins": 3,
+  "description": "",
+  "previousGameId": null,
   "validAttackTypeArray": ["Power", "Skill"],
   "gameSkillsInfo": {
     "Fire": {
