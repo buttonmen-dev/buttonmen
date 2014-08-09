@@ -12,6 +12,9 @@
     <fileset dir="${basedir}/tools/api-client/python/lib" includes="**/*.pyc"/>
   </delete>
 
+  <exec executable="bash" failonerror="true">
+    <arg line="./deploy/jenkins/create_build_dir.sh ${basedir}" />
+  </exec>
   <mkdir dir="${basedir}/build"/>
   <mkdir dir="${basedir}/build/api"/>
   <mkdir dir="${basedir}/build/code-browser"/>
