@@ -32,7 +32,7 @@ BMTestUtils.getAllElements = function() {
   // Populate javascript variable info
   var jsInfo = {
     'ActivePlayers':  JSON.stringify(Api, null, "  "),
-    'Api':            JSON.stringify(Api, null, "  "),
+    'Api':            JSON.stringify(ActivePlayers, null, "  "),
     'Config':         JSON.stringify(Config, null, "  "),
     'Env':            JSON.stringify(Env, null, "  "),
     'Forum':          JSON.stringify(Forum, null, "  "),
@@ -41,13 +41,11 @@ BMTestUtils.getAllElements = function() {
     'Loader':         JSON.stringify(Loader, null, "  "),
     'Login':          JSON.stringify(Login, null, "  "),
     'Newgame':        JSON.stringify(Newgame, null, "  "),
-    'OpenGames':      JSON.stringify(OpenGames, null, "  "),
     'Newuser':        JSON.stringify(Newuser, null, "  "),
+    'OpenGames':      JSON.stringify(OpenGames, null, "  "),
     'Overview':       JSON.stringify(Overview, null, "  "),
     'Profile':        JSON.stringify(Profile, null, "  "),
-    // UserPrefs should be added at some point, but it presently contains
-    // circular structures
-    //'UserPrefs':    JSON.stringify(UserPrefs, null, "  "),
+    'UserPrefs':      JSON.stringify(UserPrefs, null, "  "),
     'Verify':         JSON.stringify(Verify, null, "  "),
   };
 
