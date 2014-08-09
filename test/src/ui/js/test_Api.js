@@ -7,6 +7,7 @@ module("Api", {
     // Delete all elements we expect this module to create
     delete Api.test_data;
     delete Api.button;
+    delete Api.buttonSet;
     delete Api.player;
     delete Api.active_games;
     delete Api.completed_games;
@@ -195,6 +196,40 @@ test("test_Api.parseButtonData_failure", function() {
   Api.button = {};
   var retval = Api.parseButtonData({});
   equal(retval, false, "Api.parseButtonData({}) returns false");
+});
+
+asyncTest("test_Api.getButtonSetData", function() {
+  expect(4); // number of tests plus 1 for the teardown test
+
+  Api.getButtonSetData(null, function() {
+    equal(Api.buttonSet.load_status, "ok",
+      "Api.buttonSet.load_status should be ok");
+    equal(typeof Api.buttonSet.list, "object",
+      "Api.buttonSet.list should be an object");
+    deepEqual(Env.message, undefined,
+      "Api.getButtonSetData should not set Env.message");
+    start();
+  });
+});
+
+test("test_Api.parseButtonSetData", function() {
+  Api.buttonSet = {};
+  Api.parseButtonSetData([
+    { 'setName': 'Lunch Money' },
+    { 'setName': 'Soldiers' },
+    { 'setName': 'The Big Cheese' },
+    { 'setName': 'Vampyres' },
+  ]);
+  deepEqual(
+    Api.buttonSet.list,
+    {
+      'Lunch Money': { 'setName': 'Lunch Money' },
+      'Soldiers': { 'setName': 'Soldiers' },
+      'The Big Cheese': { 'setName': 'The Big Cheese' },
+      'Vampyres': { 'setName': 'Vampyres' },
+    },
+    "Set list should have correct contents"
+  );
 });
 
 test("test_Api.parsePlayerData", function() {

@@ -3,20 +3,21 @@ var Buttons = {};
 
 ////////////////////////////////////////////////////////////////////////
 //
-// //TODO WRITE THIS
-//
 // Action flow through this page:
 // * Buttons.showButtonsPage() is the landing function.  Always call
-//   this first. It sets up #buttons_page and calls Buttons.getButtons()
-// * Buttons.getButtons() calls the API, setting Api.button and
-//   Api.open_games. It calls Buttons.showPage()
-// * Buttons.showPage() uses the data returned by the API to build
-//   the contents of the page as Buttons.page and calls
-//   Buttons.arrangePage()
-//
-//* Buttons.joinOpenGame() is called whenever the user clicks on one of the
-//  Join Game buttons. It calls the API to join the game, setting
-//  Api.join_game_result if successful
+//   this first. It sets up #buttons_page and inspects the query string.
+//   Depending on what it finds there, it calls the API and sets either
+//   Api.button or Api.buttonSet. It then calls either Buttons.showButton(),
+//   Buttons.showSet() or Buttons.showSetList().
+// * Buttons.showButton() uses the data returned by the API to build a page
+//   describing a single button, then calls Buttons.arragePage().
+// * Buttons.showSet() uses the data returned by the API to build a page
+//   describing a single button set with a list of all of its buttons, then
+//   calls Buttons.arragePage().
+// * Buttons.showSetList() uses the data returned by the API to build a page
+//   describing a list of all button sets, then calls Buttons.arragePage().
+// * Buttons.arragePage() sets the contents of <div id="buttons_page">
+//   on the live page.
 ////////////////////////////////////////////////////////////////////////
 
 Buttons.showButtonsPage = function() {
@@ -212,7 +213,7 @@ Buttons.showSetList = function() {
   var mainDiv = $('<div>', { 'class': 'allSets' });
 
   mainDiv.append($('<h2>', { 'text': 'All Button Sets' }));
-  $.each(Api.buttonSet.list, function(setName, buttonSet) {
+  $.each(Api.buttonSet.list, function(setName) {
     mainDiv.append($('<a>', {
       'text': setName,
       'href': 'buttons.html?set=' + encodeURIComponent(setName),
@@ -223,7 +224,7 @@ Buttons.showSetList = function() {
   Buttons.page.append(mainDiv);
 
   Buttons.arrangePage();
-}
+};
 
 Buttons.buildButtonBox = function(button) {
   var buttonBox = $('<div>', { 'class': 'buttonBox' });

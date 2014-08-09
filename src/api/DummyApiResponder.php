@@ -875,6 +875,45 @@ class DummyApiResponder {
         );
     }
 
+    protected function get_interface_response_loadButtonSetData($args) {
+        $data = array();
+
+        if (isset($args['buttonSet']) && $args['buttonSet'] == 'The Big Cheese') {
+            $data[] = array(
+                'setName' => 'The Big Cheese',
+                'buttons' => array(
+                    array(
+                        'buttonName' => "Bunnies",
+                        'recipe' => "(1) (1) (1) (1) (X)",
+                        'hasUnimplementedSkill' => FALSE,
+                        'buttonSet' => "The Big Cheese",
+                        'dieTypes' => array('X Swing'),
+                        'dieSkills' => array(),
+                        'isTournamentLegal' => FALSE,
+                        'artFilename' => 'bunnies.png',
+                    ),
+                    array(
+                        'buttonName' => "Lab Rat",
+                        'recipe' => "(2) (2) (2) (2) (X)",
+                        'hasUnimplementedSkill' => FALSE,
+                        'buttonSet' => "The Big Cheese",
+                        'dieTypes' => array('X Swing'),
+                        'dieSkills' => array(),
+                        'isTournamentLegal' => FALSE,
+                        'artFilename' => 'labrat.png',
+                    ),
+                ),
+            );
+        } else {
+            $data[] = array('setName' => 'Lunch Money');
+            $data[] = array('setName' => 'Soldiers');
+            $data[] = array('setName' => 'The Big Cheese');
+            $data[] = array('setName' => 'Vampyres');
+        }
+
+        return array($data, "Button set data retrieved successfully.");
+    }
+
     protected function get_interface_response_loadGameData($args) {
         // The dummy loadGameData returns one of a number of
         // sets of dummy game data, for general test use.

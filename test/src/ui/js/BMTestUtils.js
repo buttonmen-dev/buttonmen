@@ -31,8 +31,9 @@ BMTestUtils.getAllElements = function() {
 
   // Populate javascript variable info
   var jsInfo = {
-    'ActivePlayers':  JSON.stringify(Api, null, "  "),
+    'ActivePlayers':  JSON.stringify(ActivePlayers, null, "  "),
     'Api':            JSON.stringify(Api, null, "  "),
+    'Buttons':        JSON.stringify(Buttons, null, "  "),
     'Config':         JSON.stringify(Config, null, "  "),
     'Env':            JSON.stringify(Env, null, "  "),
     'Forum':          JSON.stringify(Forum, null, "  "),
