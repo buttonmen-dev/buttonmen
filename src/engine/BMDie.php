@@ -61,9 +61,6 @@ class BMDie extends BMCanHaveSkill {
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
 
-    // $typesList describes what special die types this die contains (twin, swing, etc.)
-    protected $typesList = array();
-
 // This needs to be fixed to work properly within PHP's magic method semantics
 //
 // will need an init_from_db method, too (eventually)
@@ -666,6 +663,11 @@ class BMDie extends BMCanHaveSkill {
         foreach ($flagArray as $flag) {
             $this->add_flag($flag);
         }
+    }
+
+    public function getDieTypes() {
+        $typesList = array();
+        return $typesList;
     }
 
     public static function standard_die_sizes() {

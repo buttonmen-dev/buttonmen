@@ -70,7 +70,7 @@ class BMButton extends BMCanHaveSkill {
                     $this->hasUnimplementedSkill = TRUE;
                 }
                 $this->dieSkills += $die->skillList;
-                $this->dieTypes += $die->typesList;
+                $this->dieTypes += $die->getDieTypes();
             }
         }
     }

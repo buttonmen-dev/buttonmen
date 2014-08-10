@@ -2223,21 +2223,7 @@ class BMInterface {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
 
-            $parameters = array();
-            $query =
-                'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text, special_text ' .
-                'FROM button_view v ';
-            if ($buttonName !== NULL) {
-                $query .= 'WHERE v.name = :button_name ';
-                $parameters[':button_name'] = $buttonName;
-            } elseif ($setName !== NULL) {
-                $query .= 'WHERE v.set_name = :set_name ';
-                $parameters[':set_name'] = $setName;
-            }
-            $query .=
-                'ORDER BY v.name ASC;';
-            $statement = self::$conn->prepare($query);
-            $statement->execute($parameters);
+            $statement = $this->execute_button_data_query($buttonName, $setName);
 
             $buttons = array();
             while ($row = $statement->fetch()) {
@@ -2309,6 +2295,26 @@ class BMInterface {
             $this->message = 'Button info get failed.';
             return NULL;
         }
+    }
+
+    private function execute_button_data_query($buttonName, $setName) {
+        $parameters = array();
+        $query =
+            'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text, special_text ' .
+            'FROM button_view v ';
+        if ($buttonName !== NULL) {
+            $query .= 'WHERE v.name = :button_name ';
+            $parameters[':button_name'] = $buttonName;
+        } elseif ($setName !== NULL) {
+            $query .= 'WHERE v.set_name = :set_name ';
+            $parameters[':set_name'] = $setName;
+        }
+        $query .=
+            'ORDER BY v.name ASC;';
+
+        $statement = self::$conn->prepare($query);
+        $statement->execute($parameters);
+        return $statement;
     }
 
     // Retrieves a list of button sets along with associated information,
