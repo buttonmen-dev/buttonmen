@@ -42,7 +42,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_button_names()
     self.assertEqual(r.status, 'ok', 'loadButtonData returns successfully')
     known_keys = [
-      'artFilename', 'buttonName', 'buttonSet', 'dieSkills',
+      'artFilename', 'buttonName', 'buttonSet', 'dieSkills', 'dieTypes',
       'hasUnimplementedSkill', 'isTournamentLegal', 'recipe'
     ]
     self.assertTrue(len(r.data) > 0)
@@ -54,6 +54,7 @@ class TestBMClient(unittest.TestCase):
     self.assertNotEqual(testButton, None)
     self.assertEqual(testButton['buttonSet'], 'Classic Fanatics')
     self.assertEqual(testButton['dieSkills'], ['Shadow', 'Speed'])
+    self.assertEqual(testButton['dieTypes'], ['Option', 'X Swing', 'U Swing'])
     self.assertEqual(testButton['hasUnimplementedSkill'], False)
     self.assertEqual(testButton['isTournamentLegal'], False)
     self.assertEqual(testButton['recipe'], 'z(8/12) (4/16) s(6/10) z(X) s(U)')
