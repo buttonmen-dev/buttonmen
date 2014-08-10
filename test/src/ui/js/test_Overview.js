@@ -13,7 +13,7 @@ module("Overview", {
       $('body').append($('<div>', {'id': 'overview_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
 
     // Delete all elements we expect this module to create
 
@@ -40,15 +40,15 @@ module("Overview", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.OverviewPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.OverviewPost, BMTestUtils.OverviewPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Overview module has been loaded
-test("test_Overview_is_loaded", function() {
-  ok(Overview, "The Overview namespace exists");
+test("test_Overview_is_loaded", function(assert) {
+  assert.ok(Overview, "The Overview namespace exists");
 });
 
 // Overview.showOverviewPage() does not directly take a callback,
@@ -57,24 +57,26 @@ test("test_Overview_is_loaded", function() {
 // It appears that QUnit's asynchronous testing framework can't
 // handle that situation, so don't use it --- instead turn off
 // asynchronous processing in AJAX while we test this one.
-test("test_Overview.showOverviewPage", function() {
+test("test_Overview.showOverviewPage", function(assert) {
   $.ajaxSetup({ async: false });
   Overview.showOverviewPage();
   var item = document.getElementById('overview_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#overview_page is a div after showOverviewPage() is called");
   $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Overview.getOverview", function() {
+test("test_Overview.getOverview", function(assert) {
+  stop();
   Overview.getOverview(function() {
-    ok(Api.active_games, "active games are parsed from server");
-    ok(Api.completed_games, "active games are parsed from server");
+    assert.ok(Api.active_games, "active games are parsed from server");
+    assert.ok(Api.completed_games, "active games are parsed from server");
     start();
   });
 });
 
-asyncTest("test_Overview.getOverview_logged_out", function() {
+test("test_Overview.getOverview_logged_out", function(assert) {
+  stop();
 
   // Undo the fake login data
   Login.player = null;
@@ -82,79 +84,85 @@ asyncTest("test_Overview.getOverview_logged_out", function() {
 
   Overview.getOverview(function() {
     Overview.showPage();
-    equal(Env.message, undefined,
+    assert.equal(Env.message, undefined,
           "No Env.message when logged out");
     var item = document.getElementById('overview_page');
-    ok(item.innerHTML.match('Welcome to Button Men'),
+    assert.ok(item.innerHTML.match('Welcome to Button Men'),
           "#overview_page contains some welcoming text");
     start();
   });
 });
 
-asyncTest("test_Overview.showPage", function() {
+test("test_Overview.showPage", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Overview.showPage();
     var htmlout = Overview.page.html();
-    ok(htmlout.length > 0,
+    assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
     start();
   });
 });
 
-asyncTest("test_Overview.arrangePage", function() {
+test("test_Overview.arrangePage", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.page.append($('<p>', {'text': 'hi world', }));
     Overview.arrangePage();
     var item = document.getElementById('overview_page');
-    equal(item.nodeName, "DIV",
+    assert.equal(item.nodeName, "DIV",
           "#overview_page is a div after arrangePage() is called");
     start();
   });
 });
 
-asyncTest("test_Overview.pageAddGameTables", function() {
+test("test_Overview.pageAddGameTables", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.pageAddGameTables();
-    ok(true, "No special testing of pageAddGameTables() as a whole is done");
+    assert.ok(true, "No special testing of pageAddGameTables() as a whole is done");
     start();
   });
 });
 
 // The default overview data contains games awaiting both the player and the opponent
-asyncTest("test_Overview.pageAddNewgameLink", function() {
+test("test_Overview.pageAddNewgameLink", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.pageAddNewgameLink();
     var htmlout = Overview.page.html();
-    ok(!htmlout.match("Create a new game"),
+    assert.ok(!htmlout.match("Create a new game"),
       "Overview page does not contain new game creation message when active games exist");
-    ok(!htmlout.match("join an open game"),
+    assert.ok(!htmlout.match("join an open game"),
       "Overview page does not contain message about joining open games when active games exist");
-    ok(htmlout.match("Go to your next pending game"),
+    assert.ok(htmlout.match("Go to your next pending game"),
       "Overview page contains a link to the 'next game' function when a game is awaiting action");
     start();
   });
 });
 
-asyncTest("test_Overview.pageAddNewgameLink_noactive", function() {
+test("test_Overview.pageAddNewgameLink_noactive", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Api.active_games.games.awaitingPlayer = [];
     Overview.page = $('<div>');
     Overview.pageAddNewgameLink();
     var htmlout = Overview.page.html();
-    ok(!htmlout.match("Create a new game"),
+    assert.ok(!htmlout.match("Create a new game"),
       "Overview page does not contain new game creation message when active games exist");
-    ok(!htmlout.match("join an open game"),
+    assert.ok(!htmlout.match("join an open game"),
       "Overview page does not contain message about joining open games when active games exist");
-    ok(!htmlout.match("Go to your next pending game"),
+    assert.ok(!htmlout.match("Go to your next pending game"),
       "Overview page does not contain a link to the 'next game' function when no game is awaiting action");
     start();
   });
 });
 
-asyncTest("test_Overview.pageAddNewgameLink_nogames", function() {
+test("test_Overview.pageAddNewgameLink_nogames", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Api.active_games.games = {
       'awaitingOpponent': [],
@@ -162,42 +170,44 @@ asyncTest("test_Overview.pageAddNewgameLink_nogames", function() {
     };
     Overview.page = $('<div>');
     Overview.pageAddNewgameLink();
-    ok(Overview.page.html().match("Create a new game"),
+    assert.ok(Overview.page.html().match("Create a new game"),
       "Overview page contains new game creation message");
-    ok(Overview.page.html().match("join an open game"),
+    assert.ok(Overview.page.html().match("join an open game"),
       "Overview page contains message about joining open games");
     start();
   });
 });
 
-asyncTest("test_Overview.pageAddGameTable", function() {
+test("test_Overview.pageAddGameTable", function(assert) {
+  stop();
   Overview.getOverview(function() {
     Overview.page = $('<div>');
     Overview.pageAddGameTable('awaitingPlayer', 'Active games');
     var htmlout = Overview.page.html();
-    ok(htmlout.match('<h2>Active games'), "Section header should be set");
-    ok(htmlout.match('<table class="gameList activeGames">'), "A table is created");
+    assert.ok(htmlout.match('<h2>Active games'), "Section header should be set");
+    assert.ok(htmlout.match('<table class="gameList activeGames">'), "A table is created");
     start();
   });
 });
 
-test("test_Overview.pageAddIntroText", function() {
+test("test_Overview.pageAddIntroText", function(assert) {
   Overview.page = $('<div>');
   Overview.pageAddIntroText();
   var htmlout = Overview.page.html();
-  ok(htmlout.match(
+  assert.ok(htmlout.match(
     'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games'),
     'Page intro text contains the Button Men copyright');
 });
 
-asyncTest("test_Overview.formDismissGame", function() {
+test("test_Overview.formDismissGame", function(assert) {
+  stop();
   expect(2);
   // Temporarily back up Overview.showOverviewPage and replace it with
   // a mocked version for testing
   var showOverviewPage = Overview.showOverviewPage;
   Overview.showOverviewPage = function() {
     Overview.showOverviewPage = showOverviewPage;
-    equal(Env.message.text, 'Successfully dismissed game',
+    assert.equal(Env.message.text, 'Successfully dismissed game',
       'Dismiss game should succeed');
     start();
   };
@@ -205,7 +215,7 @@ asyncTest("test_Overview.formDismissGame", function() {
   Overview.formDismissGame.call(link, $.Event());
 });
 
-test("test_Overview.goToNextNewForumPost", function() {
+test("test_Overview.goToNextNewForumPost", function(assert) {
   var initialUrl = "/ui/game.html?game=1";
   Env.window.location.href = initialUrl;
   Api.forumNavigation = {
@@ -218,12 +228,13 @@ test("test_Overview.goToNextNewForumPost", function() {
   notEqual(Env.window.location.href, initialUrl, "The page has been redirected");
   if (Env.window.location.href !== null && Env.window.location.href !== undefined)
   {
-    ok(Env.window.location.href.match(/forum\.html#!threadId=2&postId=3/),
+    assert.ok(Env.window.location.href.match(/forum\.html#!threadId=2&postId=3/),
       "The page has been redirected to the new post");
   }
 });
 
-asyncTest("test_Overview.executeMonitor", function() {
+test("test_Overview.executeMonitor", function(assert) {
+  stop();
   expect(2);
 
   Api.user_prefs = {
@@ -233,18 +244,19 @@ asyncTest("test_Overview.executeMonitor", function() {
 
   // Replacing functions with mocks, for testing purposes
   Overview.getOverview = function() {
-    ok(true, 'Should go straight to re-displaying the Overview');
+    assert.ok(true, 'Should go straight to re-displaying the Overview');
     start();
   };
   Overview.completeMonitor = function() {
-    ok(false, 'Should go straight to re-displaying the Overview');
+    assert.ok(false, 'Should go straight to re-displaying the Overview');
     start();
   };
 
   Overview.executeMonitor();
 });
 
-asyncTest("test_Overview.executeMonitor_withRedirects", function() {
+test("test_Overview.executeMonitor_withRedirects", function(assert) {
+  stop();
   expect(3);
 
   Api.user_prefs = {
@@ -254,20 +266,21 @@ asyncTest("test_Overview.executeMonitor_withRedirects", function() {
 
   // Replacing functions with mocks, for testing purposes
   Overview.getOverview = function() {
-    ok(false, 'Should go retrieve pending game data for redirect');
-    ok(false, 'Should go retrieve new psot data for redirect');
+    assert.ok(false, 'Should go retrieve pending game data for redirect');
+    assert.ok(false, 'Should go retrieve new psot data for redirect');
     start();
   };
   Overview.completeMonitor = function() {
-    ok(Api.gameNavigation, 'Should go retrieve pending game data for redirect');
-    ok(Api.forumNavigation, 'Should go retrieve new psot data for redirect');
+    assert.ok(Api.gameNavigation, 'Should go retrieve pending game data for redirect');
+    assert.ok(Api.forumNavigation, 'Should go retrieve new psot data for redirect');
     start();
   };
 
   Overview.executeMonitor();
 });
 
-asyncTest("test_Overview.completeMonitor", function() {
+test("test_Overview.completeMonitor", function(assert) {
+  stop();
   expect(2);
 
   Api.user_prefs = {
@@ -280,22 +293,23 @@ asyncTest("test_Overview.completeMonitor", function() {
 
   // Replacing functions with mocks, for testing purposes
   Overview.getOverview = function() {
-    ok(true, 'Should go straight to re-displaying the Overview');
+    assert.ok(true, 'Should go straight to re-displaying the Overview');
     start();
   };
   Login.goToNextPendingGame = function() {
-    ok(false, 'Should go straight to re-displaying the Overview');
+    assert.ok(false, 'Should go straight to re-displaying the Overview');
     start();
   };
   Overview.goToNextNewForumPost = function() {
-    ok(false, 'Should go straight to re-displaying the Overview');
+    assert.ok(false, 'Should go straight to re-displaying the Overview');
     start();
   };
 
   Overview.completeMonitor();
 });
 
-asyncTest("test_Overview.completeMonitor_withPendingGame", function() {
+test("test_Overview.completeMonitor_withPendingGame", function(assert) {
+  stop();
   expect(2);
 
   Api.user_prefs = {
@@ -308,22 +322,23 @@ asyncTest("test_Overview.completeMonitor_withPendingGame", function() {
 
   // Replacing functions with mocks, for testing purposes
   Overview.getOverview = function() {
-    ok(false, 'Should redirect to pending game');
+    assert.ok(false, 'Should redirect to pending game');
     start();
   };
   Login.goToNextPendingGame = function() {
-    ok(true, 'Should redirect to pending game');
+    assert.ok(true, 'Should redirect to pending game');
     start();
   };
   Overview.goToNextNewForumPost = function() {
-    ok(false, 'Should redirect to pending game');
+    assert.ok(false, 'Should redirect to pending game');
     start();
   };
 
   Overview.completeMonitor();
 });
 
-asyncTest("test_Overview.completeMonitor_withNewPost", function() {
+test("test_Overview.completeMonitor_withNewPost", function(assert) {
+  stop();
   expect(2);
 
   Api.user_prefs = {
@@ -336,15 +351,15 @@ asyncTest("test_Overview.completeMonitor_withNewPost", function() {
 
   // Replacing functions with mocks, for testing purposes
   Overview.getOverview = function() {
-    ok(false, 'Should redirect to new post');
+    assert.ok(false, 'Should redirect to new post');
     start();
   };
   Login.goToNextPendingGame = function() {
-    ok(false, 'Should redirect to new post');
+    assert.ok(false, 'Should redirect to new post');
     start();
   };
   Overview.goToNextNewForumPost = function() {
-    ok(true, 'Should redirect to new post');
+    assert.ok(true, 'Should redirect to new post');
     start();
   };
 

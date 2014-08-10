@@ -9,7 +9,7 @@
       $('body').append($('<div>', {'id': 'profile_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
 
     // Delete all elements we expect this module to create
 
@@ -27,82 +27,86 @@
 
     // Fail if any other elements were added or removed
     BMTestUtils.ProfilePost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.ProfilePost, BMTestUtils.ProfilePre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Profile module has been loaded
-test("test_Profile_is_loaded", function() {
-  ok(Profile, "The Profile namespace exists");
+test("test_Profile_is_loaded", function(assert) {
+  assert.ok(Profile, "The Profile namespace exists");
 });
 
-test("test_Profile.showProfilePage", function() {
-  $.ajaxSetup({ async: false });
+test("test_Profile.showProfilePage", function(assert) {
+  stop();
   Profile.showProfilePage();
   var item = document.getElementById('profile_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#profile_page is a div after showProfilePage() is called");
-  $.ajaxSetup({ async: true });
+  start();
 });
 
-asyncTest("test_Profile.getProfile", function() {
+test("test_Profile.getProfile", function(assert) {
+  stop();
   Env.window.location.search = '?player=tester';
   Profile.getProfile(function() {
-    ok(Api.profile_info, "Profile info parsed from server");
+    assert.ok(Api.profile_info, "Profile info parsed from server");
     if (Api.profile_info) {
-      equal(Api.profile_info.load_status, 'ok',
+      assert.equal(Api.profile_info.load_status, 'ok',
         "Profile info parsed successfully from server");
     }
     start();
   });
 });
 
-asyncTest("test_Profile.showPage", function() {
+test("test_Profile.showPage", function(assert) {
+  stop();
   Env.window.location.search = '?player=tester';
   Profile.getProfile(function() {
     Profile.showPage();
     var htmlout = Profile.page.html();
-    ok(htmlout.length > 0,
+    assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
     start();
   });
 });
 
-asyncTest("test_Profile.arrangePage", function() {
+test("test_Profile.arrangePage", function(assert) {
+  stop();
   Env.window.location.search = '?player=tester';
   Profile.getProfile(function() {
     Profile.page = $('<div>');
     Profile.page.append($('<p>', {'text': 'hi world', }));
     Profile.arrangePage();
     var item = document.getElementById('profile_page');
-    equal(item.nodeName, "DIV",
+    assert.equal(item.nodeName, "DIV",
           "#profile_page is a div after arrangePage() is called");
     start();
   });
 });
 
-asyncTest("test_Profile.buildProfileTable", function() {
+test("test_Profile.buildProfileTable", function(assert) {
+  stop();
   Env.window.location.search = '?player=tester';
   Profile.getProfile(function() {
     var table = Profile.buildProfileTable();
     var htmlout = table.html();
-    ok(htmlout.match('February 29'), "Profile table content was generated");
+    assert.ok(htmlout.match('February 29'), "Profile table content was generated");
     start();
   });
 });
 
-test("test_Profile.buildProfileTableRow", function() {
+test("test_Profile.buildProfileTableRow", function(assert) {
   var tr = Profile.buildProfileTableRow('Things', 'something', 'nothing', true);
   var valueTd = tr.find('td.partialValue');
-  equal(valueTd.text(), 'something', 'Value should be in partialValue cell');
+  assert.equal(valueTd.text(), 'something', 'Value should be in partialValue cell');
 
   var tr = Profile.buildProfileTableRow('Things', 'something', 'nothing', false);
   var valueTd = tr.find('td.value');
-  equal(valueTd.text(), 'something', 'Value should be in value cell');
+  assert.equal(valueTd.text(), 'something', 'Value should be in value cell');
 
   tr = Profile.buildProfileTableRow('Things', null, 'nothing', false);
   valueTd = tr.find('td.missingValue');
-  equal(valueTd.text(), 'nothing', 'Missing value should be in missingValue cell');
+  assert.equal(valueTd.text(), 'nothing', 'Missing value should be in missingValue cell');
 });

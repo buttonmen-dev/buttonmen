@@ -13,7 +13,7 @@ module("Forum", {
       $('body').append($('<div>', {'id': 'forum_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
 
     // Delete all elements we expect this module to create
 
@@ -41,118 +41,124 @@ module("Forum", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.ForumPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.ForumPost, BMTestUtils.ForumPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Forum module has been loaded
-test("test_Forum_is_loaded", function() {
-  ok(Forum, "The Forum namespace exists");
+test("test_Forum_is_loaded", function(assert) {
+  assert.ok(Forum, "The Forum namespace exists");
 });
 
-test("test_Forum.showForumPage", function() {
+test("test_Forum.showForumPage", function(assert) {
   expect(3); // tests plus teardown test
   $('div#forum_page').remove();
   Env.window.location.hash = '#!threadId=6';
   Forum.showPage = function(state) {
-    equal($('div#forum_page').length, 1,
+    assert.equal($('div#forum_page').length, 1,
       '#forum_page should exist after showForumPage() is called');
-    equal(state.threadId, 6,
+    assert.equal(state.threadId, 6,
       'History state should be set to match location hash');
   };
   Forum.showForumPage();
 });
 
-asyncTest("test_Forum.showPage", function() {
+test("test_Forum.showPage", function(assert) {
+  stop();
   expect(2); // tests plus teardown test
 
   Forum.arrangePage = Forum.showBoard = Forum.showThread =
     function() {
-      ok(false, 'Forum.showPage() should call Forum.showOverview()');
+      assert.ok(false, 'Forum.showPage() should call Forum.showOverview()');
       start();
     };
   Forum.showOverview = function() {
-    ok(true, 'Forum.showPage() should call the Forum.showOverview()');
+    assert.ok(true, 'Forum.showPage() should call the Forum.showOverview()');
     start();
   };
   Forum.showPage({ });
 });
 
-asyncTest("test_Forum.showPage_board", function() {
+test("test_Forum.showPage_board", function(assert) {
+  stop();
   expect(2); // tests plus teardown test
 
   Forum.arrangePage = Forum.showOverview = Forum.showThread =
     function() {
-      ok(false, 'Forum.showPage() should call Forum.showBoard()');
+      assert.ok(false, 'Forum.showPage() should call Forum.showBoard()');
       start();
     };
   Forum.showBoard = function() {
-    ok(true, 'Forum.showPage() should call the Forum.showBoard()');
+    assert.ok(true, 'Forum.showPage() should call the Forum.showBoard()');
     start();
   };
   Forum.showPage({ 'boardId': 3 });
 });
 
-asyncTest("test_Forum.showPage_thread", function() {
+test("test_Forum.showPage_thread", function(assert) {
+  stop();
   expect(2); // tests plus teardown test
 
   Forum.arrangePage = Forum.showOverview = Forum.showBoard =
     function() {
-      ok(false, 'Forum.showPage() should call Forum.showThread()');
+      assert.ok(false, 'Forum.showPage() should call Forum.showThread()');
       start();
     };
   Forum.showThread = function() {
-    ok(true, 'Forum.showPage() should call the Forum.showThread()');
+    assert.ok(true, 'Forum.showPage() should call the Forum.showThread()');
     start();
   };
   Forum.showPage({ 'threadId': 6 });
 });
 
-asyncTest("test_Forum.showOverview", function() {
+test("test_Forum.showOverview", function(assert) {
+  stop();
   Login.message = $('<div>');
   Api.loadForumOverview(function() {
     Forum.showOverview();
-    ok(Forum.page.find('table.boards').length > 0,
+    assert.ok(Forum.page.find('table.boards').length > 0,
        'The created page should have a table of the boards in the forum');
     start();
   });
 });
 
-asyncTest("test_Forum.showBoard", function() {
+test("test_Forum.showBoard", function(assert) {
+  stop();
   Login.message = $('<div>');
   Api.loadForumBoard(1, function() {
     Forum.showBoard();
-    ok(Forum.page.find('table.threads').length > 0,
+    assert.ok(Forum.page.find('table.threads').length > 0,
        'The created page should have a table of the threads on the board');
     start();
   });
 });
 
-asyncTest("test_Forum.showThread", function() {
+test("test_Forum.showThread", function(assert) {
+  stop();
   Login.message = $('<div>');
   Api.loadForumThread(1, 2, function() {
     Forum.showThread();
-    ok(Forum.page.find('table.posts').length > 0,
+    assert.ok(Forum.page.find('table.posts').length > 0,
        'The created page should have a table of the posts in the thread');
     start();
   });
 });
 
-test("test_Forum.arrangePage", function() {
+test("test_Forum.arrangePage", function(assert) {
   Login.message = $('<div>');
   Forum.page = $('<div>');
   Forum.page.append($('<p>', { 'text': 'hi world', }));
   Forum.page.append($('<a>', { 'class': 'pseudoLink', }));
   Forum.arrangePage();
   var pseudoLink = $('a.pseudoLink');
-  equal(pseudoLink.length, 1, 'There should be one pseudoLink on the page.');
-  ok(pseudoLink.attr('href'),
+  assert.equal(pseudoLink.length, 1, 'There should be one pseudoLink on the page.');
+  assert.ok(pseudoLink.attr('href'),
     'The pseudoLink should have been assigned an href');
 });
 
-test("test_Forum.formLinkToSubPage", function() {
+test("test_Forum.formLinkToSubPage", function(assert) {
   var element = $('<a>', {
     'data-threadId': 6,
     'data-postId': 9,
@@ -160,27 +166,28 @@ test("test_Forum.formLinkToSubPage", function() {
   Forum.showPage = function() { };
   // .call() calls a function, setting the passed-in parameter as 'this'
   Forum.formLinkToSubPage.call(element, $.Event());
-  equal(Env.history.state.threadId, 6,
+  assert.equal(Env.history.state.threadId, 6,
     'The threadId should be set in the history state');
-  equal(Env.history.state.threadId, 6,
+  assert.equal(Env.history.state.threadId, 6,
     'The postId should be set in the history state');
 });
 
-test("test_Forum.toggleNewThreadForm", function() {
+test("test_Forum.toggleNewThreadForm", function(assert) {
   $('#forum_page').append($('<input>', {
     'type': 'button',
     'id': 'newThreadButton',
     'visibility': 'visible',
   }));
   Forum.toggleNewThreadForm();
-  equal($('#newThreadButton').css('visibility'), 'hidden',
+  assert.equal($('#newThreadButton').css('visibility'), 'hidden',
     '#newThreadButton should have been hidden');
   Forum.toggleNewThreadForm();
-  equal($('#newThreadButton').css('visibility'), 'visible',
+  assert.equal($('#newThreadButton').css('visibility'), 'visible',
     '#newThreadButton should have been unhidden');
 });
 
-asyncTest("test_Forum.formPostNewThread", function() {
+test("test_Forum.formPostNewThread", function(assert) {
+  stop();
   expect(2); // tests plus teardown test
 
   Api.forum_board = { 'boardId': 3 };
@@ -192,7 +199,7 @@ asyncTest("test_Forum.formPostNewThread", function() {
   formHolder.append(button);
 
   Forum.showThread = function() {
-    equal(Api.forum_thread.load_status, 'ok',
+    assert.equal(Api.forum_thread.load_status, 'ok',
       'The thread should be loaded after it was added');
     start();
   };
@@ -200,7 +207,8 @@ asyncTest("test_Forum.formPostNewThread", function() {
   Forum.formPostNewThread.call(button);
 });
 
-asyncTest("test_Forum.formReplyToThread", function() {
+test("test_Forum.formReplyToThread", function(assert) {
+  stop();
   expect(2); // tests plus teardown test
 
   Api.forum_thread = { 'threadId': 3 };
@@ -211,7 +219,7 @@ asyncTest("test_Forum.formReplyToThread", function() {
   formHolder.append(button);
 
   Forum.showThread = function() {
-    equal(Api.forum_thread.load_status, 'ok',
+    assert.equal(Api.forum_thread.load_status, 'ok',
        'The thread should be loaded after it was replied to');
     start();
   };
@@ -219,7 +227,7 @@ asyncTest("test_Forum.formReplyToThread", function() {
   Forum.formReplyToThread.call(button);
 });
 
-test("test_Forum.quotePost", function() {
+test("test_Forum.quotePost", function(assert) {
   var postText = 'woe to thee';
 
   var postTr = $('<tr>');
@@ -236,11 +244,11 @@ test("test_Forum.quotePost", function() {
   // .call() calls a function, setting the passed-in parameter as 'this'
   Forum.quotePost.call(button);
   var replyText = replyBox.val();
-  ok(replyText.match(postText),
+  assert.ok(replyText.match(postText),
     'Reply textarea should contain quoted post text');
 });
 
-test("test_Forum.editPost", function() {
+test("test_Forum.editPost", function(assert) {
   var postText = 'woo to thee';
 
   var postTr = $('<tr>');
@@ -251,14 +259,14 @@ test("test_Forum.editPost", function() {
 
   // .call() calls a function, setting the passed-in parameter as 'this'
   Forum.editPost.call(button);
-  equal(postBody.css('display'), 'none', 'Post body cell should be hidden');
+  assert.equal(postBody.css('display'), 'none', 'Post body cell should be hidden');
   var editTd = postTr.find('td.editBody');
-  ok(editTd.length, 'Edit cell should be displayed');
+  assert.ok(editTd.length, 'Edit cell should be displayed');
   var editText = editTd.find('textarea').val();
-  equal(editText, postText, 'Edit textarea should contain post text');
+  assert.equal(editText, postText, 'Edit textarea should contain post text');
 });
 
-test("test_Forum.cancelEditPost", function() {
+test("test_Forum.cancelEditPost", function(assert) {
   var postTr = $('<tr>');
   var postBody = $('<td>', {
     'class': 'body',
@@ -274,13 +282,14 @@ test("test_Forum.cancelEditPost", function() {
 
   // .call() calls a function, setting the passed-in parameter as 'this'
   Forum.cancelEditPost.call(button);
-  equal(postBody.css('display'), 'table-cell',
+  assert.equal(postBody.css('display'), 'table-cell',
     'Post body cell should be revealed');
   var editTd = postTr.find('td.editBody');
-  ok(!editTd.length, 'Edit cell should be removed');
+  assert.ok(!editTd.length, 'Edit cell should be removed');
 });
 
-asyncTest("test_Forum.formSaveEditPost", function() {
+test("test_Forum.formSaveEditPost", function(assert) {
+  stop();
   expect(3); // tests plus teardown test
 
   var formHolder = $('<div>');
@@ -289,9 +298,9 @@ asyncTest("test_Forum.formSaveEditPost", function() {
   formHolder.append(button);
 
   Forum.showThread = function() {
-    equal(Api.forum_thread.load_status, 'ok',
+    assert.equal(Api.forum_thread.load_status, 'ok',
        'The thread should be loaded after the post was edited');
-    equal(Api.forum_thread.currentPostId, '2',
+    assert.equal(Api.forum_thread.currentPostId, '2',
        'The current post should be the post was edited');
     start();
   };
@@ -299,7 +308,7 @@ asyncTest("test_Forum.formSaveEditPost", function() {
   Forum.formSaveEditPost.call(button);
 });
 
-test("test_Forum.buildBoardRow", function() {
+test("test_Forum.buildBoardRow", function(assert) {
   var board = {
     'boardId': 3,
     'boardName': 'Features and Bugs',
@@ -315,11 +324,11 @@ test("test_Forum.buildBoardRow", function() {
 
   var row = Forum.buildBoardRow(board);
   var boardLink = row.find('a.pseudoLink');
-  equal(boardLink.attr('data-boardId'), 3,
+  assert.equal(boardLink.attr('data-boardId'), 3,
     'Row should contain a link to the board.');
 });
 
-test("test_Forum.buildThreadRow", function() {
+test("test_Forum.buildThreadRow", function(assert) {
   var thread = {
     'threadId': 6,
     'threadTitle': 'Who likes ice cream?',
@@ -333,11 +342,11 @@ test("test_Forum.buildThreadRow", function() {
 
   var row = Forum.buildThreadRow(thread);
   var boardLink = row.find('a.pseudoLink');
-  equal(boardLink.attr('data-threadId'), 6,
+  assert.equal(boardLink.attr('data-threadId'), 6,
     'Row should contain a link to the thread.');
 });
 
-test("test_Forum.buildPostRow", function() {
+test("test_Forum.buildPostRow", function(assert) {
   Api.forum_thread = { 'currentPostId': null };
 
   var post = {
@@ -352,16 +361,16 @@ test("test_Forum.buildPostRow", function() {
 
   var row = Forum.buildPostRow(post);
   var newFlag = row.find('.new');
-  equal(newFlag.length, 1, 'Row should indicate the post is new.');
+  assert.equal(newFlag.length, 1, 'Row should indicate the post is new.');
 });
 
-test("test_Forum.buildHelp", function() {
+test("test_Forum.buildHelp", function(assert) {
   var help = Forum.buildHelp();
   var helpText = help.text();
-  ok(helpText.match(/\[spoiler]/), 'Help text should mention BB code tags.');
+  assert.ok(helpText.match(/\[spoiler]/), 'Help text should mention BB code tags.');
 });
 
-test("test_Forum.scrollTo", function() {
+test("test_Forum.scrollTo", function(assert) {
   expect(3); // tests plus teardown test
 
   var massiveDiv = $('<div>', { 'html': '&nbsp;' });
@@ -378,7 +387,7 @@ test("test_Forum.scrollTo", function() {
     mockObj.animate = function(options, duration) {
       notEqual(options.scrollTop, 0,
         'Forum.scrollTo() should attempt to scroll down the page');
-      equal(duration, Forum.SCROLL_ANIMATION_MILLISECONDS,
+      assert.equal(duration, Forum.SCROLL_ANIMATION_MILLISECONDS,
         'Scrolling duration should be configured in pseudoconstant');
     };
     return mockObj;
@@ -387,26 +396,27 @@ test("test_Forum.scrollTo", function() {
   $ = real$;
 });
 
-test("test_Forum.readStateFromElement", function() {
+test("test_Forum.readStateFromElement", function(assert) {
   var element = $('<a>', {
     'data-threadId': 6,
     'data-postId': 9,
   });
   var state = Forum.readStateFromElement(element);
 
-  equal(state.boardId, undefined, 'The boardId should not be set.');
-  equal(state.threadId, 6, 'The threadId should be set.');
-  equal(state.postId, 9, 'The postId should be set.');
+  assert.equal(state.boardId, undefined, 'The boardId should not be set.');
+  assert.equal(state.threadId, 6, 'The threadId should be set.');
+  assert.equal(state.postId, 9, 'The postId should be set.');
 });
 
-test("test_Forum.buildUrlHash", function() {
+test("test_Forum.buildUrlHash", function(assert) {
   var state = { 'boardId': 3 };
   var hash = Forum.buildUrlHash(state);
 
-  equal(hash, '#!boardId=3', 'The hash should reflect the state.');
+  assert.equal(hash, '#!boardId=3', 'The hash should reflect the state.');
 });
 
-asyncTest("test_Forum.parseFormPost", function() {
+test("test_Forum.parseFormPost", function(assert) {
+  stop();
   expect(2); // tests plus teardown test
 
   Forum.parseFormPost(
@@ -416,13 +426,13 @@ asyncTest("test_Forum.parseFormPost", function() {
     }, 'forum_overview',
     null,
     function() {
-      equal(Api.forum_overview.load_status, 'ok', 'Response be loaded');
+      assert.equal(Api.forum_overview.load_status, 'ok', 'Response be loaded');
       start();
     }
   );
 });
 
-test("test_Forum.showError", function() {
+test("test_Forum.showError", function(assert) {
   Login.message = $('<div>');
   Env.setupEnvStub();
   Env.message = {
@@ -430,6 +440,6 @@ test("test_Forum.showError", function() {
     'text': 'Test error.',
   };
   Forum.showError();
-  equal($('#env_message').text(), 'Test error.', 'Error displayed');
+  assert.equal($('#env_message').text(), 'Test error.', 'Error displayed');
 });
 

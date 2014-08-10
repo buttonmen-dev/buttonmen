@@ -9,7 +9,7 @@
       $('body').append($('<div>', {'id': 'activeplayers_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
 
     // Delete all elements we expect this module to create
 
@@ -26,64 +26,68 @@
 
     // Fail if any other elements were added or removed
     BMTestUtils.ActivePlayersPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.ActivePlayersPost, BMTestUtils.ActivePlayersPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the ActivePlayers module has been loaded
-test("test_ActivePlayers_is_loaded", function() {
-  ok(ActivePlayers, "The ActivePlayers namespace exists");
+test("test_ActivePlayers_is_loaded", function(assert) {
+  assert.ok(ActivePlayers, "The ActivePlayers namespace exists");
 });
 
-test("test_ActivePlayers.showActivePlayersPage", function() {
-  $.ajaxSetup({ async: false });
+test("test_ActivePlayers.showActivePlayersPage", function(assert) {
+  stop();
   ActivePlayers.showActivePlayersPage();
   var item = document.getElementById('activeplayers_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#activeplayers_page is a div after showActivePlayersPage() is called");
-  $.ajaxSetup({ async: true });
+  start();
 });
 
-asyncTest("test_ActivePlayers.getActivePlayers", function() {
+test("test_ActivePlayers.getActivePlayers", function(assert) {
+  stop();
   ActivePlayers.getActivePlayers(function() {
-    ok(Api.active_players, "ActivePlayers info parsed from server");
+    assert.ok(Api.active_players, "ActivePlayers info parsed from server");
     if (Api.active_players) {
-      equal(Api.active_players.load_status, 'ok',
+      assert.equal(Api.active_players.load_status, 'ok',
         "ActivePlayers info parsed successfully from server");
     }
     start();
   });
 });
 
-asyncTest("test_ActivePlayers.showPage", function() {
+test("test_ActivePlayers.showPage", function(assert) {
+  stop();
   ActivePlayers.getActivePlayers(function() {
     ActivePlayers.showPage();
     var htmlout = ActivePlayers.page.html();
-    ok(htmlout.length > 0,
+    assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
     start();
   });
 });
 
-asyncTest("test_ActivePlayers.arrangePage", function() {
+test("test_ActivePlayers.arrangePage", function(assert) {
+  stop();
   ActivePlayers.getActivePlayers(function() {
     ActivePlayers.page = $('<div>');
     ActivePlayers.page.append($('<p>', {'text': 'hi world', }));
     ActivePlayers.arrangePage();
     var item = document.getElementById('activeplayers_page');
-    equal(item.nodeName, "DIV",
+    assert.equal(item.nodeName, "DIV",
           "#activeplayers_page is a div after arrangePage() is called");
     start();
   });
 });
 
-asyncTest("test_ActivePlayers.buildPlayersTable", function() {
+test("test_ActivePlayers.buildPlayersTable", function(assert) {
+  stop();
   ActivePlayers.getActivePlayers(function() {
     var table = ActivePlayers.buildPlayersTable();
     var htmlout = table.html();
-    ok(htmlout.match('12 minutes'), "Players table content was generated");
+    assert.ok(htmlout.match('12 minutes'), "Players table content was generated");
     start();
   });
 });

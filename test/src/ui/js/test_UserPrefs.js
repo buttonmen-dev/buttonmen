@@ -8,7 +8,7 @@ module("UserPrefs", {
       $('body').append($('<div>', {'id': 'userprefs_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
 
     // Delete all elements we expect this module to create
 
@@ -28,66 +28,67 @@ module("UserPrefs", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.UserPrefsPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.UserPrefsPost, BMTestUtils.UserPrefsPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the UserPrefs module has been loaded
-test("test_UserPrefs_is_loaded", function() {
-  ok(UserPrefs, "The UserPrefs namespace exists");
+test("test_UserPrefs_is_loaded", function(assert) {
+  assert.ok(UserPrefs, "The UserPrefs namespace exists");
 });
 
-asyncTest("test_UserPrefs.showUserPrefsPage", function() {
+test("test_UserPrefs.showUserPrefsPage", function(assert) {
+  stop();
   UserPrefs.showUserPrefsPage();
   var item = document.getElementById('userprefs_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#userprefs_page is a div after showUserPrefsPage() is called");
   start();
 });
 
-asyncTest("test_UserPrefs.assemblePage", function() {
+test("test_UserPrefs.assemblePage", function(assert) {
+  stop();
   Env.callAsyncInParallel([
     Api.getButtonData,
     Api.getUserPrefsData,
   ], function() {
     UserPrefs.assemblePage();
     var htmlout = UserPrefs.page.html();
-    ok(htmlout.length > 0,
+    assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
     start();
   });
 });
 
-// We're testing this synchronously, in the hope that this way qunit won't give
-// up on it before it finishes loading everything from the API
-test("test_UserPrefs.arrangePage", function() {
-  $.ajaxSetup({ async: false });
+test("test_UserPrefs.arrangePage", function(assert) {
+  stop();
   Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
     UserPrefs.arrangePage();
     var item = document.getElementById('userprefs_page');
-    equal(item.nodeName, "DIV",
+    assert.equal(item.nodeName, "DIV",
           "#userprefs_page is a div after arrangePage() is called");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_UserPrefs.actionFailed", function() {
+test("test_UserPrefs.actionFailed", function(assert) {
   UserPrefs.actionFailed();
-  equal(UserPrefs.form, null, "The failing action does not set a form");
+  assert.equal(UserPrefs.form, null, "The failing action does not set a form");
 });
 
-asyncTest("test_UserPrefs.actionSetPrefs", function() {
+test("test_UserPrefs.actionSetPrefs", function(assert) {
+  stop();
   Env.callAsyncInParallel([
     Api.getButtonData,
     Api.getUserPrefsData,
   ], function() {
     UserPrefs.actionSetPrefs();
     var autopass_checked = $('#userprefs_autopass').prop('checked');
-    ok(autopass_checked,
+    assert.ok(autopass_checked,
        "The autopass button should be checked in the prefs table");
     start();
   });
@@ -99,7 +100,8 @@ asyncTest("test_UserPrefs.actionSetPrefs", function() {
 // just redraws the page), so turn off asynchronous handling in
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
-asyncTest("test_UserPrefs.formSetPrefs", function() {
+test("test_UserPrefs.formSetPrefs", function(assert) {
+  stop();
   Env.callAsyncInParallel([
     Api.getButtonData,
     Api.getUserPrefsData,
@@ -107,7 +109,7 @@ asyncTest("test_UserPrefs.formSetPrefs", function() {
     UserPrefs.actionSetPrefs();
     $.ajaxSetup({ async: false });
     $('#userprefs_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success", "text": "User details set successfully."},
       "User preferences save succeeded");
@@ -116,7 +118,7 @@ asyncTest("test_UserPrefs.formSetPrefs", function() {
   });
 });
 
-test("test_UserPrefs.appendToPreferencesTable", function() {
+test("test_UserPrefs.appendToPreferencesTable", function(assert) {
   var table = $('<table>');
   var prefs = {
     'testing' : {
@@ -130,5 +132,5 @@ test("test_UserPrefs.appendToPreferencesTable", function() {
     'These are not real. There is no spoon.', prefs);
   var checkbox = table.find('input#userprefs_testing');
 
-  ok(checkbox.val(), 'User preference control created and populated');
+  assert.ok(checkbox.val(), 'User preference control created and populated');
 });
