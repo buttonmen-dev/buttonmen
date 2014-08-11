@@ -1525,6 +1525,26 @@ Game.formPlayTurnInactive = function() {
   );
 };
 
+// "Form" for dismissing a game after it's completed
+Game.formDismissGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'dismissGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    args,
+    messages,
+    $(this),
+    function() {
+      window.location.href = Env.ui_root;
+      return false;
+    },
+    Game.showGamePage
+  );
+};
+
 Game.readCurrentGameActivity = function() {
   // Initialize the array of die select statuses to all false, then
   // turn on the dice which have been selected
@@ -1611,6 +1631,20 @@ Game.pageAddGameHeader = function(action_desc) {
   Game.page.append(actionDiv);
 
   Game.page.append($('<br>'));
+
+  if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
+      Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    var dismissDiv = $('<div>');
+    Game.page.append(dismissDiv);
+    var dismissLink = $('<a>', {
+      'text': '[Dismiss Game]',
+      'href': '#',
+      'data-gameId': Api.game.gameId,
+    });
+    dismissLink.click(Game.formDismissGame);
+    dismissDiv.append(dismissLink);
+    Game.page.append($('<br>'));
+  }
 
   if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
       Api.game.isParticipant && Api.game.player.waitingOnAction &&
