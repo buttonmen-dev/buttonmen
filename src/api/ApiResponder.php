@@ -116,10 +116,23 @@ class ApiResponder {
 
         $maxWins = $args['maxWins'];
 
+        if (isset($args['description'])) {
+            $description = $args['description'];
+        } else {
+            $description = '';
+        }
+        if (isset($args['previousGameId'])) {
+            $previousGameId = $args['previousGameId'];
+        } else {
+            $previousGameId = NULL;
+        }
+
         $retval = $interface->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
+            $description,
+            $previousGameId,
             (int)$_SESSION['user_id']
         );
 
@@ -253,6 +266,7 @@ class ApiResponder {
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
         $addlInfo['dob_day'] = (int)$args['dob_day'];
+        $addlInfo['homepage'] = $args['homepage'];
 
         if (isset($args['favorite_button'])) {
             $addlInfo['favorite_button'] = $args['favorite_button'];

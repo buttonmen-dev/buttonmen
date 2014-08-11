@@ -101,7 +101,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'automatically_monitor' => 0,
             'autopass' => 1
         );
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
+        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
 
         $this->object->set_player_info($createResult['playerId'],
                                        $infoArray,
@@ -148,6 +148,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('opponent_color', $resultArray);
         $this->assertArrayHasKey('neutral_color_a', $resultArray);
         $this->assertArrayHasKey('neutral_color_b', $resultArray);
+        $this->assertArrayHasKey('homepage', $resultArray);
         $this->assertArrayHasKey('favorite_button', $resultArray);
         $this->assertArrayHasKey('favorite_buttonset', $resultArray);
         $this->assertArrayHasKey('last_action_time', $resultArray);
@@ -193,7 +194,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
             'monitor_redirects_to_forum' => 1,
             'automatically_monitor' => 1,
         );
-        $addlInfo = array('dob_month' => 0, 'dob_day' => 0);
+        $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => 'google.com');
 
         $this->object->set_player_info(self::$userId1WithoutAutopass,
                                        $infoArray,
@@ -204,6 +205,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_game']);
         $this->assertEquals(TRUE, $playerInfoArray['monitor_redirects_to_forum']);
         $this->assertEquals(TRUE, $playerInfoArray['automatically_monitor']);
+        $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
 
         $infoArray['autopass'] = 0;
         $infoArray['monitor_redirects_to_game'] = 0;
@@ -218,6 +220,17 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_game']);
         $this->assertEquals(FALSE, $playerInfoArray['monitor_redirects_to_forum']);
         $this->assertEquals(FALSE, $playerInfoArray['automatically_monitor']);
+
+        $addlInfo['homepage'] = 'javascript:alert(\"Evil\");';
+        $response =
+            $this->object->set_player_info(
+                self::$userId1WithoutAutopass,
+                $infoArray,
+                $addlInfo
+            );
+        $this->assertEquals(NULL, $response);
+        $data = $this->object->get_player_info(self::$userId1WithoutAutopass);
+        $this->assertEquals('http://google.com', $playerInfoArray['homepage']);
     }
 
     /**
@@ -338,7 +351,52 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
-    public function test_create_game_with_random_button() {
+    public function test_create_game_with_one_random_button() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                             array('Coil', '__random'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertFalse(empty($game->buttonArray[0]->name));
+        $this->assertEquals('Coil', $game->buttonArray[0]->name);
+        $this->assertFalse(empty($game->buttonArray[1]->name));
+        $this->assertNotEquals('__random', $game->buttonArray[1]->name);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::load_game
+     */
+    public function test_create_game_with_one_random_button_and_one_unspecified() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                             array('__random', NULL), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertTrue(empty($game->buttonArray[0]));
+        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertTrue(empty($game->buttonArray[1]));
+        $this->assertFalse($game->isButtonChoiceRandom[1]);
+
+        self::save_game($game);
+        $game = self::load_game($gameId);
+        $this->assertTrue(empty($game->buttonArray[0]));
+        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertTrue(empty($game->buttonArray[1]));
+        $this->assertFalse($game->isButtonChoiceRandom[1]);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::load_game
+     */
+    public function test_create_game_with_two_random_buttons() {
         $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
                                                    self::$userId2WithoutAutopass),
                                              array('__random', '__random'), 4);

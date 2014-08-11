@@ -304,6 +304,17 @@ OpenGames.buildGameTable = function(tableType, buttons) {
     gameRow.append($('<td>', {
       'text': game.targetWins,
     }));
+
+    if (game.description) {
+      var descRow = $('<tr>');
+      tbody.append(descRow);
+      var descTd = $('<td>', {
+        'class': 'gameDescDisplay',
+        'colspan': (tableType == 'yours' ? 4 : 5),
+        'text': game.description,
+      });
+      descRow.append(descTd);
+    }
   });
 
   if (anyRows) {

@@ -136,6 +136,24 @@ Profile.buildProfileTable = function() {
     commentHolder.append(cookedComment);
   }
 
+  var homepageLink = null;
+  if (Api.profile_info.homepage) {
+    var homepageUrl = Env.validateUrl(Api.profile_info.homepage);
+    if (homepageUrl) {
+      homepageLink = $('<a>', {
+        'text': homepageUrl,
+        'href': homepageUrl,
+        'target': '_blank',
+      });
+    } else {
+      homepageLink = $('<a>', {
+        'text': 'INVALID URL',
+        'href': 'javascript:alert("Homepage URL was invalid")',
+        'target': '_blank',
+      });
+    }
+  }
+
   var solipsismAlternatives = [
     'solipsism overflow',
     'autoludic prohibition',
@@ -199,6 +217,8 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
     challengeLinkHolder, solipsismNotification, false));
+  tbody.append(Profile.buildProfileTableRow('Homepage',
+    homepageLink, 'homeless', false));
   tbody.append(Profile.buildProfileTableRow('Comment',
     commentHolder, 'none', false));
 
@@ -254,3 +274,4 @@ Profile.buildProfileTableRow = function(
   }
   return tr;
 };
+
