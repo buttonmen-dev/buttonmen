@@ -56,7 +56,15 @@ class BMButton extends BMCanHaveSkill {
 
         // set die sides and skills, one die at a time
         foreach ($dieRecipeArray as $dieRecipe) {
-            $die = BMDie::create_from_recipe($dieRecipe);
+            try {
+                $die = BMDie::create_from_recipe($dieRecipe);
+            } catch (BMUnimplementedDieException $e) {
+                $this->hasUnimplementedSkill = TRUE;
+                continue;
+            } catch (Exception $e) {
+                error_log('Error loading die ' . $dieRecipe . ' for ' . $name);
+                error_log(print_r($e, TRUE));
+            }
             if (isset($this->ownerObject)) {
                 $die->ownerObject = $this->ownerObject;
                 $die->playerIdx = $this->playerIdx;

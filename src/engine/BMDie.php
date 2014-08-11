@@ -111,7 +111,7 @@ class BMDie extends BMCanHaveSkill {
                 $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
 //                $die = BMDieWildcard::create($recipe, $skills);
-                throw new Exception("Wildcard skill not implemented");
+                throw new BMUnimplementedDieException("Wildcard skill not implemented");
             } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
                 // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);

@@ -2271,43 +2271,31 @@ class BMInterface {
     }
 
     private function assemble_button_data($row, $site_type, $single_button) {
-        // Apparently BMButton::load() blows up if WildCard dice exist, and as a
-        // result $dieTypes and $dieSkills won't ever get set, so we need to
-        // set them to *something* so things don't blow up and fail miserably
-        $dieTypes = array();
-        $dieSkills = array();
-
         // Look for unimplemented skills in each button definition.
-        // If we get an exception while checking, assume there's
-        // an unimplemented skill
-        try {
-            $button = new BMButton();
-            $button->load($row['recipe'], $row['name']);
-            $dieSkills = array_keys($button->dieSkills);
-            sort($dieSkills);
-            // For efficiency's sake, we only include some info if just
-            // a single button was requested.
-            if (!$single_button) {
-                $dieTypes = array_keys($button->dieTypes);
-            } else {
-                $dieTypes = $button->dieTypes;
-                $dieSkillNames = $dieSkills;
-                $dieSkills = array();
-                foreach ($dieSkillNames as $skillType) {
-                    $dieSkills[$skillType] = BMSkill::describe($skillType, $dieSkillNames);
-                }
+        $button = new BMButton();
+        $button->load($row['recipe'], $row['name']);
+        $dieSkills = array_keys($button->dieSkills);
+        sort($dieSkills);
+        // For efficiency's sake, we only include some info if just
+        // a single button was requested.
+        if (!$single_button) {
+            $dieTypes = array_keys($button->dieTypes);
+        } else {
+            $dieTypes = $button->dieTypes;
+            $dieSkillNames = $dieSkills;
+            $dieSkills = array();
+            foreach ($dieSkillNames as $skillType) {
+                $dieSkills[$skillType] = BMSkill::describe($skillType, $dieSkillNames);
             }
-
-            $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
-            if (((int)$row['btn_special'] == 1) &&
-                !class_exists('BMBtnSkill' . $standardName)) {
-                $button->hasUnimplementedSkill = TRUE;
-            }
-
-            $hasUnimplementedSkill = $button->hasUnimplementedSkill;
-        } catch (Exception $e) {
-            $hasUnimplementedSkill = TRUE;
         }
+
+        $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
+        if (((int)$row['btn_special'] == 1) &&
+            !class_exists('BMBtnSkill' . $standardName)) {
+            $button->hasUnimplementedSkill = TRUE;
+        }
+
+        $hasUnimplementedSkill = $button->hasUnimplementedSkill;
 
         if ($site_type != 'production' || !$hasUnimplementedSkill) {
             $currentButton = array(
