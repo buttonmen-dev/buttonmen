@@ -88,6 +88,15 @@ Buttons.showButton = function() {
     'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
   }));
 
+  if (button.hasUnimplementedSkill) {
+    mainDiv.append($('<p>', {
+      'class': 'warning',
+      'text':
+        'Warning: This button has unimplemented skills and may not work as ' +
+        'expected in games.',
+    }));
+  }
+
   if (button.specialText) {
     mainDiv.append($('<h2>', { 'text': 'Special Features' }));
     mainDiv.append($('<p>', { 'text': button.specialText }));
@@ -104,6 +113,7 @@ Buttons.showButton = function() {
     skillDescriptionCell.append($('<p>', { 'text': info.description }));
     $.each(info.interacts, function(otherSkill, interaction) {
       skillDescriptionCell.append($('<p>', {
+        'class': 'interaction',
         'text': 'Interaction with ' + otherSkill + ': ' + interaction
       }));
     });
@@ -213,12 +223,34 @@ Buttons.showSetList = function() {
   var mainDiv = $('<div>', { 'class': 'allSets' });
 
   mainDiv.append($('<h2>', { 'text': 'All Button Sets' }));
-  $.each(Api.buttonSet.list, function(setName) {
-    mainDiv.append($('<a>', {
+  $.each(Api.buttonSet.list, function(setName, buttonSet) {
+    var setBox = $('<div>', { 'class': 'setBox', });
+    mainDiv.append(setBox);
+    if (buttonSet.onlyHasUnimplementedButtons) {
+      setBox.addClass('unimplemented');
+    }
+    setBox.append($('<a>', {
       'text': setName,
       'href': 'buttons.html?set=' + encodeURIComponent(setName),
       'class': 'buttonSetLink',
     }));
+    setBox.append($('<div>', {
+      'text': 'Buttons: ' + buttonSet.numberOfButtons,
+    }));
+    var skills = '';
+    $.each(buttonSet.dieSkills, function(index, dieSkill) {
+      skills += dieSkill + ', ';
+    });
+    $.each(buttonSet.dieTypes, function(index, dieType) {
+      skills += dieType + ', ';
+    });
+    if (skills) {
+      // Trim off the trailing ', '
+      skills = skills.replace(/(, )$/, '');
+      setBox.append($('<div>', {
+        'text': 'Skills: ' + skills,
+      }));
+    }
   });
 
   Buttons.page.append(mainDiv);
@@ -228,6 +260,9 @@ Buttons.showSetList = function() {
 
 Buttons.buildButtonBox = function(button) {
   var buttonBox = $('<div>', { 'class': 'buttonBox' });
+  if (button.hasUnimplementedSkill) {
+    buttonBox.addClass('unimplemented');
+  }
   buttonBox.append($('<img>', {
     'src': Env.ui_root + 'images/button/' + button.artFilename,
     'width': '150px',

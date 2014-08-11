@@ -444,6 +444,10 @@ table.activePlayerList th.idleness {
     size: 0.8em;
 }
 
+.warning {
+    color: red;
+}
+
 /* Game lists (Overview, Game History) */
 table.gameList a {
     color: black;
@@ -807,10 +811,16 @@ div.forum div.splitRight {
 
 /* END: BB Code */
 
-#buttons_page a.buttonSetLink {
+#buttons_page div.setBox {
     display: inline-block;
     width: 250px;
     margin: 10px;
+    padding: 10px;
+    vertical-align: top;
+}
+
+#buttons_page div.setBox a.buttonSetLink {
+    font-size: 1.2em;
 }
 
 #buttons_page div.singleButton {
@@ -824,9 +834,14 @@ div.forum div.splitRight {
 
 #buttons_page div.buttonBox {
     width: 250px;
-    margin: 20px;
+    margin: 10px;
+    padding: 10px;
     display: inline-block;
     vertical-align: middle;
+}
+
+#buttons_page .unimplemented {
+    background: #dddddd;
 }
 
 #buttons_page div.singleButton div.buttonBox {
@@ -866,4 +881,8 @@ div.forum div.splitRight {
 
 #buttons_page table.skills p {
     margin-top: 0;
+}
+
+#buttons_page table.skills p.interaction {
+    font-style: italic;
 }

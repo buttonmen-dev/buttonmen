@@ -2343,12 +2343,31 @@ class BMInterface {
                 if (count($buttons) == 0) {
                     continue;
                 }
+
                 $currentSet = array('setName' => $row['name']);
+
                 // For efficiency's sake, we only include some info if just
                 // a single set was requested.
                 if ($setName !== NULL) {
                     $currentSet['buttons'] = $buttons;
                 }
+
+                $currentSet['numberOfButtons'] = count($buttons);
+
+                $dieSkills= array();
+                $dieTypes = array();
+                $onlyHasUnimplementedButtons = TRUE;
+                foreach ($buttons as $button) {
+                    $dieSkills += $button['dieSkills'];
+                    $dieTypes += $button['dieTypes'];
+                    if (!$button['hasUnimplementedSkill']) {
+                        $onlyHasUnimplementedButtons = FALSE;
+                    }
+                }
+                $currentSet['dieSkills'] = $dieSkills;
+                $currentSet['dieTypes'] = $dieTypes;
+                $currentSet['onlyHasUnimplementedButtons'] = $onlyHasUnimplementedButtons;
+
                 $sets[] = $currentSet;
             }
 
