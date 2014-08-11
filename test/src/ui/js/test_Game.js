@@ -879,6 +879,21 @@ asyncTest("test_Game.formPlayTurnInactive", function() {
   });
 });
 
+asyncTest("test_Game.formDismissGame", function() {
+  expect(2);
+  // Temporarily back up Api.apiFormPost and replace it with
+  // a mocked version for testing
+  var apiFormPost = Api.apiFormPost;
+  Api.apiFormPost = function(args) {
+    Api.apiFormPost = apiFormPost;
+    deepEqual(args, { 'type': 'dismissGame', 'gameId': '5' },
+      'Dismiss game should try to dismiss the game');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Game.formDismissGame.call(link, $.Event());
+});
+
 asyncTest("test_Game.readCurrentGameActivity", function() {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
