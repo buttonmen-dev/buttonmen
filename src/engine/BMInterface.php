@@ -2305,7 +2305,7 @@ class BMInterface {
     private function execute_button_data_query($buttonName, $setName) {
         $parameters = array();
         $query =
-            'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text, special_text ' .
+            'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
             'FROM button_view v ';
         if ($buttonName !== NULL) {
             $query .= 'WHERE v.name = :button_name ';
