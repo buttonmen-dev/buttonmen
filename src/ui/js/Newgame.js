@@ -170,7 +170,7 @@ Newgame.actionCreateGame = function() {
                          null, Newgame.activity.opponentName, 'Anybody'));
 
   // Round selection
-  if (!('nRounds' in Newgame.activity)) {
+  if (!('nRounds' in Newgame.activity) || !Newgame.activity.nRounds) {
     Newgame.activity.nRounds = '3';
   }
   miscOptionsTable.append(

@@ -159,6 +159,7 @@ asyncTest("test_Newgame.actionCreateGame", function() {
     Newgame.actionCreateGame();
     equal(Newgame.form, Newgame.formCreateGame,
           "Form is set after the 'create game' action is processed");
+    equal($('#n_rounds').val(), 3, 'Rounds should default to 3');
     start();
   });
 });
@@ -409,7 +410,7 @@ test("test_Newgame.getButtonLimitTd", function() {
     { 'A': true,
       'B C': true,
     });
-  equal(item[0].tagName, "TD", "result is a TD"); 
+  equal(item[0].tagName, "TD", "result is a TD");
   var buttonSelect = item.find('select');
   ok(buttonSelect, "TD contains a select");
   var foundLabels = { 'ANY': 0, 'A': 0, 'B C': 0, };
@@ -444,7 +445,7 @@ test("test_Newgame.getButtonLimitTd_prevvals", function() {
     { 'A': true,
       'B C': true,
     });
-  equal(item[0].tagName, "TD", "result is a TD"); 
+  equal(item[0].tagName, "TD", "result is a TD");
   var buttonSelect = item.find('select');
   ok(buttonSelect, "TD contains a select");
   var foundLabels = { 'ANY': 0, 'A': 0, 'B C': 0, };
@@ -483,7 +484,7 @@ test("test_Newgame.getButtonLimitRow", function() {
     { 'A': true,
       'B C': true,
     });
-  equal(item[0].tagName, "TR", "result is a TR"); 
+  equal(item[0].tagName, "TR", "result is a TR");
 });
 
 test("test_Newgame.getLimitSelectid", function() {
