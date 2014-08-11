@@ -343,6 +343,7 @@ class BMInterface {
             foreach ($playerIdArray as $position => $playerId) {
                 $this->add_player_to_new_game($gameId, $playerId, $buttonIdArray[$position], $position);
             }
+            $this->set_random_button_flags($gameId, $buttonNameArray);
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
@@ -438,6 +439,21 @@ class BMInterface {
                                   ':player_id' => $playerId,
                                   ':button_id' => $buttonId,
                                   ':position'  => $position));
+    }
+
+    protected function set_random_button_flags($gameId, array $buttonNameArray) {
+        foreach ($buttonNameArray as $position => $buttonName) {
+            if ('__random' == $buttonName) {
+                $query = 'UPDATE game_player_map '.
+                         'SET is_button_random = 1 '.
+                         'WHERE game_id = :game_id '.
+                         'AND position = :position;';
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':game_id'   => $gameId,
+                                          ':position'  => $position));
+            }
+        }
     }
 
     protected function validate_game_info(
@@ -561,7 +577,14 @@ class BMInterface {
         }
     }
 
-    protected function resolve_random_button_selection(&$buttonNameArray) {
+    protected function resolve_random_button_selection(array &$buttonNameArray) {
+        // do not resolve random names unless all buttons have been chosen
+        foreach ($buttonNameArray as $buttonName) {
+            if (empty($buttonName)) {
+                return;
+            }
+        }
+
         $allButtonData = array();
         $allButtonNames = array();
         $nButtons = 0;
@@ -587,7 +610,10 @@ class BMInterface {
         foreach (array_keys($playerIdArray) as $position) {
             // get button ID
             $buttonName = $buttonNameArray[$position];
-            if (!empty($buttonName)) {
+
+            if ('__random' == $buttonName) {
+                $buttonIdArray[] = NULL;
+            } elseif (!empty($buttonName)) {
                 $query = 'SELECT id FROM button '.
                          'WHERE name = :button_name';
                 $statement = self::$conn->prepare($query);
@@ -738,6 +764,7 @@ class BMInterface {
                  'v.n_rounds_won, v.n_rounds_lost, v.n_rounds_drawn,'.
                  'v.did_win_initiative,'.
                  'v.is_awaiting_action, '.
+                 'v.is_button_random, '.
                  'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp '.
                  'FROM game AS g '.
                  'LEFT JOIN game_status AS s '.
@@ -809,6 +836,7 @@ class BMInterface {
         $game->gameScoreArrayArray =
             array_fill(0, $nPlayers, array('W' => 0, 'L' => 0, 'D' => 0));
         $game->buttonArray = array_fill(0, $nPlayers, NULL);
+        $game->isButtonChoiceRandom = array_fill(0, $nPlayers, FALSE);
         $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
@@ -831,6 +859,8 @@ class BMInterface {
             } else {
                 throw new InvalidArgumentException('Invalid button name.');
             }
+        } elseif ($row['is_button_random']) {
+            $game->isButtonChoiceRandom[$pos] = TRUE;
         }
     }
 
@@ -1066,6 +1096,7 @@ class BMInterface {
         try {
             $this->save_basic_game_parameters($game);
             $this->save_button_recipes($game);
+            $this->save_random_button_choice($game);
             $this->save_round_scores($game);
             $this->clear_swing_values_from_database($game);
             $this->clear_option_values_from_database($game);
@@ -1151,6 +1182,22 @@ class BMInterface {
                     $statement->execute(array(':alt_recipe' => $button->recipe,
                                               ':game_id' => $game->gameId,
                                               ':player_id' => $game->playerIdArray[$playerIdx]));
+                }
+            }
+        }
+    }
+
+    protected function save_random_button_choice($game) {
+        if (isset($game->isButtonChoiceRandom)) {
+            foreach ($game->isButtonChoiceRandom as $position => $isRandomButton) {
+                if ($isRandomButton) {
+                    $query = 'UPDATE game_player_map '.
+                             'SET is_button_random = 1 '.
+                             'WHERE game_id = :game_id '.
+                             'AND position = :position;';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':game_id' => $game->gameId,
+                                              ':position' => $position));
                 }
             }
         }
@@ -2890,7 +2937,6 @@ class BMInterface {
             $this->save_game($game);
 
             return TRUE;
-
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::select_button: ".
@@ -3398,7 +3444,6 @@ class BMInterface {
             }
 
             $this->save_game($game);
-
 
             return TRUE;
         } catch (Exception $e) {

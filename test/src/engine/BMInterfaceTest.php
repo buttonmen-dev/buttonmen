@@ -351,7 +351,52 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
-    public function test_create_game_with_random_button() {
+    public function test_create_game_with_one_random_button() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                             array('Coil', '__random'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertFalse(empty($game->buttonArray[0]->name));
+        $this->assertEquals('Coil', $game->buttonArray[0]->name);
+        $this->assertFalse(empty($game->buttonArray[1]->name));
+        $this->assertNotEquals('__random', $game->buttonArray[1]->name);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::load_game
+     */
+    public function test_create_game_with_one_random_button_and_one_unspecified() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                             array('__random', NULL), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertTrue(empty($game->buttonArray[0]));
+        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertTrue(empty($game->buttonArray[1]));
+        $this->assertFalse($game->isButtonChoiceRandom[1]);
+
+        self::save_game($game);
+        $game = self::load_game($gameId);
+        $this->assertTrue(empty($game->buttonArray[0]));
+        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertTrue(empty($game->buttonArray[1]));
+        $this->assertFalse($game->isButtonChoiceRandom[1]);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::load_game
+     */
+    public function test_create_game_with_two_random_buttons() {
         $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
                                                    self::$userId2WithoutAutopass),
                                              array('__random', '__random'), 4);
