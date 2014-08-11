@@ -97,6 +97,32 @@ class BMAttackDefaultTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMAttackDefault::validate_attack
+     */
+    public function testValidate_attack_invalid() {
+        $game = new BMGame;
+        $game->activePlayerIdx = 0;
+
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+
+        $die2 = new BMDie;
+        $die2->init(10);
+        $die2->value = 3;
+        $die2->add_skill('Shadow');
+
+        $die3 = new BMDie;
+        $die3->init(10);
+        $die3->value = 1;
+
+        $this->object->add_die($die2);
+        $game->activeDieArrayArray = array(array($die1, $die2), array($die3));
+        $game->attack = array(0, 1, array(1), array(0), 'Default');
+        $this->assertFalse($this->object->validate_attack($game, array($die2), array($die3)));
+    }
+
+    /**
+     * @covers BMAttackDefault::validate_attack
      * @covers BMAttackDefault::is_one_on_one_no_frills_attack
      */
     public function testValidate_attack_one_on_one_no_frills() {
