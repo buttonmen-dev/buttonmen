@@ -98,7 +98,7 @@ Buttons.showButton = function() {
   }
 
   if (button.specialText) {
-    mainDiv.append($('<h2>', { 'text': 'Special Features' }));
+    mainDiv.append($('<h2>', { 'text': 'Special' }));
     mainDiv.append($('<p>', { 'text': button.specialText }));
   }
 

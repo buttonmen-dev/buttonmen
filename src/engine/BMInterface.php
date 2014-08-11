@@ -2249,8 +2249,8 @@ class BMInterface {
                     }
 
                     $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
-                    if ((1 == $row['btn_special']) &&
-                        !class_exists('BMBtnSkill'.$standardName)) {
+                    if (((int)$row['btn_special'] == 1) &&
+                        !class_exists('BMBtnSkill' . $standardName)) {
                         $button->hasUnimplementedSkill = TRUE;
                     }
 
@@ -2274,7 +2274,12 @@ class BMInterface {
                     // a single button was requested.
                     if ($buttonName !== NULL) {
                         $currentButton['flavorText'] = $row['flavor_text'];
-                        $currentButton['specialText'] = $row['special_text'];
+                        $buttonSkillClass = 'BMBtnSkill' . $standardName;
+                        if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
+                            $currentButton['specialText'] = $buttonSkillClass::get_description();
+                        } else {
+                            $currentButton['specialText'] = NULL;
+                        }
                     }
                     $buttons[] = $currentButton;
                 }

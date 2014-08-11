@@ -903,12 +903,40 @@ class DummyApiResponder {
                         'artFilename' => 'labrat.png',
                     ),
                 ),
+                'numberOfButtons' => 2,
+                'dieSkills' => array(),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
             );
         } else {
-            $data[] = array('setName' => 'Lunch Money');
-            $data[] = array('setName' => 'Soldiers');
-            $data[] = array('setName' => 'The Big Cheese');
-            $data[] = array('setName' => 'Vampyres');
+            $data[] = array(
+                'setName' => 'Lunch Money',
+                'numberOfButtons' => 7,
+                'dieSkills' => array('Trip'),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+            $data[] = array(
+                'setName' => 'Soldiers',
+                'numberOfButtons' => 13,
+                'dieSkills' => array(),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+            $data[] = array(
+                'setName' => 'The Big Cheese',
+                'numberOfButtons' => 2,
+                'dieSkills' => array(),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+            $data[] = array(
+                'setName' => 'Vampyres',
+                'numberOfButtons' => 6,
+                'dieSkills' => array('Shadow'),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
         }
 
         return array($data, "Button set data retrieved successfully.");

@@ -190,12 +190,26 @@ test("test_Buttons.showSetList", function() {
     'list': {
       'Soldiers': {
         'setName': 'Soldiers',
+        'numberOfButtons': '13',
+        'dieSkills': [ ],
+        'dieTypes': [ 'X Swing' ],
+        'onlyHasUnimplementedButtons': false,
       },
       'Fantasy': {
         'setName': 'Fantasy',
+        'setName': 'Soldiers',
+        'numberOfButtons': '14',
+        'dieSkills': [ ],
+        'dieTypes': [ 'Option' ],
+        'onlyHasUnimplementedButtons': false,
       },
       'Samurai': {
         'setName': 'Samurai',
+        'setName': 'Soldiers',
+        'numberOfButtons': '7',
+        'dieSkills': [ 'Focus' ],
+        'dieTypes': [ 'V Swing', 'X Swing' ],
+        'onlyHasUnimplementedButtons': false,
       },
     },
   };
