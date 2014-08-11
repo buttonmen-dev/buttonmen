@@ -137,9 +137,9 @@ class DummyApiResponder {
             'gameId' => 21,
             'challengerId' => 2,
             'challengerName' => 'tester2',
-            'challengerButton' => 'Agatha',
+            'challengerButton' => 'Von Pinn',
             'challengerColor' => '#cccccc',
-            'victimButton' => 'Krosp',
+            'victimButton' => 'Apples',
             'targetWins' => 3,
         );
 

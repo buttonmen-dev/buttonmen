@@ -87,6 +87,14 @@ asyncTest("test_OpenGames.buildGameTable", function() {
       'recipe': 'Avis: (4) (4) (10) (12) (X)',
       'greyed': false,
     },
+    'Apples': {
+      'recipe': 'Apples: (8) (8) (2/12) (8/16) (20/24)',
+      'greyed': false,
+    },
+    'Von Pinn': {
+      'recipe': 'Von Pinn: (4) p(6,6) (10) (20) (W)',
+      'greyed': false,
+    },
   };
   Api.getOpenGamesData(function() {
     var table = OpenGames.buildGameTable('joinable', buttons);

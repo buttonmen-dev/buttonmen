@@ -223,15 +223,20 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         'class': 'gameAction',
         'text': 'Game ' + game.gameId,
       }));
-      gameRow.append($('<td>', {
-        'text': game.challengerButton,
-      }));
+      gameRow.append($('<td>').append(
+        Env.buildButtonLink(
+          game.challengerButton,
+          buttons[game.challengerButton].recipe
+        )
+      ));
 
       if (game.victimButton !== null) {
-        gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
-        }));
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       } else {
         gameRow.append($('<td>', {
           'text': 'Any Button',
@@ -252,10 +257,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
       joinButton.click(OpenGames.joinOpenGame);
 
       if (game.victimButton !== null) {
-        gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
-        }));
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       } else {
         var victimButtonTd = $('<td>', { 'class': 'victimButton', });
         gameRow.append(victimButtonTd);
@@ -276,9 +283,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         });
       }
 
-      gameRow.append($('<td>', {
-        'text': game.challengerButton,
-      }));
+      gameRow.append($('<td>').append(
+        Env.buildButtonLink(
+          game.challengerButton,
+          buttons[game.challengerButton].recipe
+        )
+      ));
       gameRow.append($('<td>', {
         'style': 'background-color: ' + game.challengerColor + ';',
       }).append(Env.buildProfileLink(game.challengerName)));

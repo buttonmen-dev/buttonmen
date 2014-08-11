@@ -129,6 +129,16 @@ Profile.buildProfileTable = function() {
       Api.profile_info.name_ingame + '&status=COMPLETE',
   }));
 
+  var favoriteButtonLink = null;
+  if (Api.profile_info.favorite_button) {
+    favoriteButtonLink = Env.buildButtonLink(Api.profile_info.favorite_button);
+  }
+  var favoriteButtonSetLink = null;
+  if (Api.profile_info.favorite_button) {
+    favoriteButtonSetLink =
+      Env.buildButtonSetLink(Api.profile_info.favorite_buttonset);
+  }
+
   var commentHolder = null;
   if (Api.profile_info.comment) {
     commentHolder = $('<span>');
@@ -211,9 +221,9 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
   tbody.append(Profile.buildProfileTableRow('Favorite button',
-    Api.profile_info.favorite_button, 'undecided', true));
+    favoriteButtonLink, 'undecided', true));
   tbody.append(Profile.buildProfileTableRow('Favorite button set',
-    Api.profile_info.favorite_buttonset, 'unselected', true));
+    favoriteButtonSetLink, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
     challengeLinkHolder, solipsismNotification, false));
