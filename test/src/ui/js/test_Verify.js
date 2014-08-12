@@ -51,6 +51,7 @@ test("test_Verify_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_Verify.showVerifyPage", function(assert) {
+  expect(5);
   var cached_getVerifyParams = Verify.getVerifyParams;
   var cached_showStatePage = Verify.showStatePage;
   var getVerifyParamsCalled = false;

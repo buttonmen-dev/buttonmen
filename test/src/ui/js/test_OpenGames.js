@@ -51,6 +51,7 @@ test("test_OpenGames_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_OpenGames.showOpenGamesPage", function(assert) {
+  expect(5);
   var cached_getOpenGames = OpenGames.getOpenGames;
   var cached_showStatePage = OpenGames.showPage;
   var getOpenGamesCalled = false;

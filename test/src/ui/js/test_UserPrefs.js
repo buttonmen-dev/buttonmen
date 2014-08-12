@@ -51,6 +51,7 @@ test("test_UserPrefs_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_UserPrefs.showUserPrefsPage", function(assert) {
+  expect(5);
   var cached_getter = Env.callAsyncInParallel;
   var cached_showStatePage = UserPrefs.assemblePage;
   var getterCalled = false;

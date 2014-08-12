@@ -54,6 +54,7 @@ test("test_Newgame_is_loaded", function(assert) {
 // Accomplish this by mocking the invoked functions
 
 test("test_Newgame.showNewgamePage", function(assert) {
+  expect(5);
   var cached_getNewgameData = Newgame.getNewgameData;
   var cached_showStatePage = Newgame.showPage;
   var getNewgameDataCalled = false;
@@ -78,6 +79,7 @@ test("test_Newgame.showNewgamePage", function(assert) {
 });
 
 test("test_Newgame.showNewgamePage_no_page_element", function(assert) {
+  expect(5);
 
   // Remove page element to make sure the function readds it
   $('#newgame_page').remove();
@@ -107,6 +109,7 @@ test("test_Newgame.showNewgamePage_no_page_element", function(assert) {
 });
 
 test("test_Newgame.showNewgamePage_logged_out", function(assert) {
+  expect(5);
 
   // Undo the fake login data
   Login.player = null;

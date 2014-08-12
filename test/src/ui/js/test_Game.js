@@ -72,7 +72,7 @@ test("test_Game_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_Game.showGamePage", function(assert) {
-
+  expect(5);
   var cached_getCurrentGame = Game.getCurrentGame;
   var cached_showStatePage = Game.showStatePage;
   var getCurrentGameCalled = false;

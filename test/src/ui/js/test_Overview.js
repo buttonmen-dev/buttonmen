@@ -63,6 +63,7 @@ test("test_Overview_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_Overview.showOverviewPage", function(assert) {
+  expect(5);
   var cached_getOverview = Overview.getOverview;
   var cached_showStatePage = Overview.showPage;
   var getOverviewCalled = false;

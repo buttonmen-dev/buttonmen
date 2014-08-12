@@ -50,6 +50,7 @@ test("test_Profile_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_Profile.showProfilePage", function(assert) {
+  expect(5);
   var cached_getProfile = Profile.getProfile;
   var cached_showStatePage = Profile.showPage;
   var getProfileCalled = false;

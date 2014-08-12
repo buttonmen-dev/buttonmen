@@ -49,6 +49,7 @@ test("test_ActivePlayers_is_loaded", function(assert) {
 //
 // Accomplish this by mocking the invoked functions
 test("test_ActivePlayers.showActivePlayersPage", function(assert) {
+  expect(5);
   var cached_getActivePlayers = ActivePlayers.getActivePlayers;
   var cached_showStatePage = ActivePlayers.showPage;
   var getActivePlayersCalled = false;
@@ -69,8 +70,6 @@ test("test_ActivePlayers.showActivePlayersPage", function(assert) {
   ActivePlayers.getActivePlayers = cached_getActivePlayers;
   ActivePlayers.showPage = cached_showStatePage;
 });
-
-
 
 test("test_ActivePlayers.getActivePlayers", function(assert) {
   stop();
