@@ -12,6 +12,11 @@ module("Verify", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JS objects
@@ -39,13 +44,32 @@ test("test_Verify_is_loaded", function(assert) {
   assert.ok(Verify, "The Verify namespace exists");
 });
 
+// The purpose of this test is to demonstrate that the flow of
+// Verify.showVerifyPage() is correct for a showXPage function,
+// namely that it calls an API getter with a showStatePage function
+// as a callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_Verify.showVerifyPage", function(assert) {
-  stop();
+  var cached_getVerifyParams = Verify.getVerifyParams;
+  var cached_showStatePage = Verify.showStatePage;
+  var getVerifyParamsCalled = false;
+  Verify.showStatePage = function() {
+    assert.ok(getVerifyParamsCalled, "Verify.getVerifyParams is called before Verify.showStatePage");
+  }
+  Verify.getVerifyParams = function(callback) {
+    getVerifyParamsCalled = true;
+    assert.equal(callback, Verify.showStatePage,
+      "Verify.getVerifyParams is called with Verify.showStatePage as an argument");
+    callback();
+  }
+
   Verify.showVerifyPage();
   var item = document.getElementById('verify_page');
   assert.equal(item.nodeName, "DIV",
         "#verify_page is a div after showVerifyPage() is called");
-  start();
+  Verify.getVerifyParams = cached_getVerifyParams;
+  Verify.showStatePage = cached_showStatePage;
 });
 
 test("test_Verify.getVerifyParams", function(assert) {

@@ -15,6 +15,11 @@ module("Forum", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JavaScript variables
@@ -53,7 +58,7 @@ test("test_Forum_is_loaded", function(assert) {
 });
 
 test("test_Forum.showForumPage", function(assert) {
-  expect(3); // tests plus teardown test
+  expect(4); // tests plus teardown test
   $('div#forum_page').remove();
   Env.window.location.hash = '#!threadId=6';
   Forum.showPage = function(state) {
@@ -67,7 +72,7 @@ test("test_Forum.showForumPage", function(assert) {
 
 test("test_Forum.showPage", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus teardown test
 
   Forum.arrangePage = Forum.showBoard = Forum.showThread =
     function() {
@@ -83,7 +88,7 @@ test("test_Forum.showPage", function(assert) {
 
 test("test_Forum.showPage_board", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus teardown test
 
   Forum.arrangePage = Forum.showOverview = Forum.showThread =
     function() {
@@ -99,7 +104,7 @@ test("test_Forum.showPage_board", function(assert) {
 
 test("test_Forum.showPage_thread", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus teardown test
 
   Forum.arrangePage = Forum.showOverview = Forum.showBoard =
     function() {
@@ -188,7 +193,7 @@ test("test_Forum.toggleNewThreadForm", function(assert) {
 
 test("test_Forum.formPostNewThread", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus teardown test
 
   Api.forum_board = { 'boardId': 3 };
 
@@ -209,7 +214,7 @@ test("test_Forum.formPostNewThread", function(assert) {
 
 test("test_Forum.formReplyToThread", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus teardown test
 
   Api.forum_thread = { 'threadId': 3 };
 
@@ -290,7 +295,7 @@ test("test_Forum.cancelEditPost", function(assert) {
 
 test("test_Forum.formSaveEditPost", function(assert) {
   stop();
-  expect(3); // tests plus teardown test
+  expect(4); // tests plus teardown test
 
   var formHolder = $('<div>');
   formHolder.append($('<textarea>', { 'text': 'Test body' } ));
@@ -371,7 +376,7 @@ test("test_Forum.buildHelp", function(assert) {
 });
 
 test("test_Forum.scrollTo", function(assert) {
-  expect(3); // tests plus teardown test
+  expect(4); // tests plus teardown test
 
   var massiveDiv = $('<div>', { 'html': '&nbsp;' });
   massiveDiv.css('height', '5000px');
@@ -417,7 +422,7 @@ test("test_Forum.buildUrlHash", function(assert) {
 
 test("test_Forum.parseFormPost", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus teardown test
 
   Forum.parseFormPost(
     {

@@ -15,6 +15,11 @@ module("Overview", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JavaScript variables
@@ -51,20 +56,35 @@ test("test_Overview_is_loaded", function(assert) {
   assert.ok(Overview, "The Overview namespace exists");
 });
 
-// Overview.showOverviewPage() does not directly take a callback,
-// but, under the hood, it calls a function (Overview.getOverview())
-// which calls a chain of two callbacks in succession.
-// It appears that QUnit's asynchronous testing framework can't
-// handle that situation, so don't use it --- instead turn off
-// asynchronous processing in AJAX while we test this one.
+// The purpose of this test is to demonstrate that the flow of
+// Overview.showOverviewPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_Overview.showOverviewPage", function(assert) {
-  $.ajaxSetup({ async: false });
+  var cached_getOverview = Overview.getOverview;
+  var cached_showStatePage = Overview.showPage;
+  var getOverviewCalled = false;
+  Overview.showPage = function() {
+    assert.ok(getOverviewCalled, "Overview.getOverview is called before Overview.showPage");
+  }
+  Overview.getOverview = function(callback) {
+    getOverviewCalled = true;
+    assert.equal(callback, Overview.showPage,
+      "Overview.getOverview is called with Overview.showPage as an argument");
+    callback();
+  }
+
   Overview.showOverviewPage();
   var item = document.getElementById('overview_page');
   assert.equal(item.nodeName, "DIV",
         "#overview_page is a div after showOverviewPage() is called");
-  $.ajaxSetup({ async: true });
+
+  Overview.getOverview = cached_getOverview;
+  Overview.showPage = cached_showStatePage;
 });
+
 
 test("test_Overview.getOverview", function(assert) {
   stop();
@@ -201,7 +221,7 @@ test("test_Overview.pageAddIntroText", function(assert) {
 
 test("test_Overview.formDismissGame", function(assert) {
   stop();
-  expect(2);
+  expect(3);
   // Temporarily back up Overview.showOverviewPage and replace it with
   // a mocked version for testing
   var showOverviewPage = Overview.showOverviewPage;
@@ -235,7 +255,7 @@ test("test_Overview.goToNextNewForumPost", function(assert) {
 
 test("test_Overview.executeMonitor", function(assert) {
   stop();
-  expect(2);
+  expect(3);
 
   Api.user_prefs = {
     'monitor_redirects_to_game': false,
@@ -257,7 +277,7 @@ test("test_Overview.executeMonitor", function(assert) {
 
 test("test_Overview.executeMonitor_withRedirects", function(assert) {
   stop();
-  expect(3);
+  expect(4);
 
   Api.user_prefs = {
     'monitor_redirects_to_game': true,
@@ -281,7 +301,7 @@ test("test_Overview.executeMonitor_withRedirects", function(assert) {
 
 test("test_Overview.completeMonitor", function(assert) {
   stop();
-  expect(2);
+  expect(3);
 
   Api.user_prefs = {
     'monitor_redirects_to_game': true,
@@ -310,7 +330,7 @@ test("test_Overview.completeMonitor", function(assert) {
 
 test("test_Overview.completeMonitor_withPendingGame", function(assert) {
   stop();
-  expect(2);
+  expect(3);
 
   Api.user_prefs = {
     'monitor_redirects_to_game': true,
@@ -339,7 +359,7 @@ test("test_Overview.completeMonitor_withPendingGame", function(assert) {
 
 test("test_Overview.completeMonitor_withNewPost", function(assert) {
   stop();
-  expect(2);
+  expect(3);
 
   Api.user_prefs = {
     'monitor_redirects_to_game': true,

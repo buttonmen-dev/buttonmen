@@ -11,6 +11,11 @@ module("Newgame", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JS objects
@@ -41,19 +46,35 @@ test("test_Newgame_is_loaded", function(assert) {
   assert.ok(Newgame, "The Newgame namespace exists");
 });
 
-// Newgame.showNewgamePage() does not directly take a callback,
-// but, under the hood, it calls a function (Newgame.getNewgameData())
-// which calls a chain of two callbacks in succession.
-// It appears that QUnit's asynchronous testing framework can't
-// handle that situation, so don't use it --- instead turn off
-// asynchronous processing in AJAX while we test this one.
+// The purpose of these tests is to demonstrate that the flow of
+// Newgame.showNewgamePage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
+
 test("test_Newgame.showNewgamePage", function(assert) {
-  $.ajaxSetup({ async: false });
+  var cached_getNewgameData = Newgame.getNewgameData;
+  var cached_showStatePage = Newgame.showPage;
+  var getNewgameDataCalled = false;
+  Newgame.showPage = function() {
+    assert.ok(getNewgameDataCalled, "Newgame.getNewgameData is called before Newgame.showPage");
+  }
+  Newgame.getNewgameData = function(callback) {
+    getNewgameDataCalled = true;
+    assert.equal(callback, Newgame.showPage,
+      "Newgame.getNewgameData is called with Newgame.showPage as an argument");
+    callback();
+  }
+
   Newgame.showNewgamePage();
   var item = document.getElementById('newgame_page');
   assert.equal(item.nodeName, "DIV",
         "#newgame_page is a div after showNewgamePage() is called");
   $.ajaxSetup({ async: true });
+
+  Newgame.getNewgameData = cached_getNewgameData;
+  Newgame.showPage = cached_showStatePage;
 });
 
 test("test_Newgame.showNewgamePage_no_page_element", function(assert) {
@@ -62,12 +83,27 @@ test("test_Newgame.showNewgamePage_no_page_element", function(assert) {
   $('#newgame_page').remove();
   $('#newgame_page').empty();
 
-  $.ajaxSetup({ async: false });
+  var cached_getNewgameData = Newgame.getNewgameData;
+  var cached_showStatePage = Newgame.showPage;
+  var getNewgameDataCalled = false;
+  Newgame.showPage = function() {
+    assert.ok(getNewgameDataCalled, "Newgame.getNewgameData is called before Newgame.showPage");
+  }
+  Newgame.getNewgameData = function(callback) {
+    getNewgameDataCalled = true;
+    assert.equal(callback, Newgame.showPage,
+      "Newgame.getNewgameData is called with Newgame.showPage as an argument");
+    callback();
+  }
+
   Newgame.showNewgamePage();
   var item = document.getElementById('newgame_page');
   assert.equal(item.nodeName, "DIV",
         "#newgame_page is a div after showNewgamePage() is called");
   $.ajaxSetup({ async: true });
+
+  Newgame.getNewgameData = cached_getNewgameData;
+  Newgame.showPage = cached_showStatePage;
 });
 
 test("test_Newgame.showNewgamePage_logged_out", function(assert) {
@@ -76,12 +112,27 @@ test("test_Newgame.showNewgamePage_logged_out", function(assert) {
   Login.player = null;
   Login.logged_in = false;
 
-  $.ajaxSetup({ async: false });
+  var cached_getNewgameData = Newgame.getNewgameData;
+  var cached_showStatePage = Newgame.showPage;
+  var getNewgameDataCalled = false;
+  Newgame.showPage = function() {
+    assert.ok(getNewgameDataCalled, "Newgame.getNewgameData is called before Newgame.showPage");
+  }
+  Newgame.getNewgameData = function(callback) {
+    getNewgameDataCalled = true;
+    assert.equal(callback, Newgame.showPage,
+      "Newgame.getNewgameData is called with Newgame.showPage as an argument");
+    callback();
+  }
+
   Newgame.showNewgamePage();
   var item = document.getElementById('newgame_page');
   assert.equal(item.nodeName, "DIV",
         "#newgame_page is a div after showNewgamePage() is called");
   $.ajaxSetup({ async: true });
+
+  Newgame.getNewgameData = cached_getNewgameData;
+  Newgame.showPage = cached_showStatePage;
 });
 
 test("test_Newgame.getNewgameData", function(assert) {

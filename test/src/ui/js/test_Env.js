@@ -6,6 +6,11 @@ module("Env", {
 },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
@@ -23,14 +28,14 @@ module("Env", {
 
 // pre-flight test of whether the Env module has been loaded
 test("test_Env_is_loaded", function(assert) {
-  expect(2); // number of tests plus 1 for the teardown test
+  expect(3); // number of tests plus 2 for the teardown test
   assert.ok(Env, "The Env namespace exists");
 });
 
 // Can't test this as written because we can't modify the real
 // location.search, and Env.getParameterByName won't accept a fake one
 test("test_Env.getParameterByName", function(assert) {
-  expect(3); // number of tests plus 1 for the teardown test
+  expect(4); // number of tests plus 2 for the teardown test
 
   Env.window.location.search = '?game=29';
   Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis'
@@ -43,7 +48,7 @@ test("test_Env.getParameterByName", function(assert) {
 });
 
 test("test_Env.setupEnvStub", function(assert) {
-  expect(4); // number of tests plus 1 for the teardown test
+  expect(5); // number of tests plus 2 for the teardown test
 
   var item = document.getElementById('env_message');
   assert.equal(item, null, "#env_message is null before setupEnvStub is called");
@@ -58,7 +63,7 @@ test("test_Env.setupEnvStub", function(assert) {
 });
 
 test("test_Env.showStatusMessage", function(assert) {
-  expect(5); // number of tests plus 1 for the teardown test
+  expect(6); // number of tests plus 2 for the teardown test
 
   // Setup the env stub, display the message, and verify that it is empty
   Env.setupEnvStub();
@@ -95,7 +100,7 @@ test("test_Env.showStatusMessage", function(assert) {
 });
 
 test("test_Env.formatTimestamp", function(assert) {
-  expect(4); // number of tests plus 1 for the teardown test
+  expect(5); // number of tests plus 2 for the teardown test
 
   var expectedDate = '2014-03-23';
   var expectedTime = '21:38:10';
@@ -255,7 +260,7 @@ test("test_Env.toggleSpoiler", function(assert) {
 
 test("test_Env.callAsyncInParallel", function(assert) {
   stop();
-  expect(3); // number of tests plus 1 for the teardown test
+  expect(4); // number of tests plus 2 for the teardown test
 
   var result1 = 0;
   var result2 = 0;
@@ -283,7 +288,7 @@ test("test_Env.callAsyncInParallel", function(assert) {
 
 test("test_Env.callAsyncInParallel_withArgs", function(assert) {
   stop();
-  expect(3); // number of tests plus 1 for the teardown test
+  expect(4); // number of tests plus 2 for the teardown test
 
   var result1 = 0;
   var result2 = 0;

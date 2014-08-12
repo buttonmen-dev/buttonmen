@@ -11,6 +11,11 @@ module("History", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JavaScript variables
@@ -51,17 +56,45 @@ test("test_History_is_loaded", function(assert) {
   assert.ok(History, "The History namespace exists");
 });
 
+// The purpose of this test is to demonstrate that the flow of
+// History.showHistoryPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_History.showHistoryPage", function(assert) {
-  // showHistoryPage is apparently just too amazing for qunit to handle testing
-  // it asynchronously
-  $.ajaxSetup({ async: false });
+  expect(7);
+  var cached_getFilters = History.getFilters;
+  var cached_getHistory = History.getHistory;
+  var cached_showStatePage = History.showPage;
+  var getFiltersCalled = false;
+  var getHistoryCalled = false;
+  History.showPage = function() {
+    assert.ok(getFiltersCalled, "History.getFilters is called before History.showPage");
+    assert.ok(getHistoryCalled, "History.getHistory is called before History.showPage");
+  }
+  History.getFilters = function(callback) {
+    getFiltersCalled = true;
+    assert.ok(true, "History.getFilters is called");
+    callback();
+  }
+  History.getHistory = function(callback) {
+    getHistoryCalled = true;
+    assert.equal(callback, History.showPage,
+      "History.getHistory is called with History.showPage as an argument");
+    callback();
+  }
+
   // Remove #history_page so that showHistoryPage will have something to add
   $('#history_page').remove();
   History.showHistoryPage();
   var item = document.getElementById('history_page');
   assert.equal(item.nodeName, "DIV",
         "#history_page is a div after showHistoryPage() is called");
-  $.ajaxSetup({ async: true });
+
+  History.getFilters = cached_getFilters;
+  History.getHistory = cached_getHistory;
+  History.showPage = cached_showStatePage;
 });
 
 test("test_History.getHistory", function(assert) {

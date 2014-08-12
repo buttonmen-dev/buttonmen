@@ -4,6 +4,11 @@ module("Api", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
     delete Api.test_data;
     delete Api.button;
@@ -41,12 +46,12 @@ module("Api", {
 
 // pre-flight test of whether the Api module has been loaded
 test("test_Api_is_loaded", function(assert) {
-  expect(2); // number of tests plus 1 for the teardown test
+  expect(3); // number of tests plus 2 for the teardown test
   assert.ok(Api, "The Api namespace exists");
 });
 
 test("test_Api.parseGenericData", function(assert) {
-  expect(2); // number of tests plus 1 for the teardown test
+  expect(3); // number of tests plus 2 for the teardown test
 
   var apiKey = 'test_data';
   Api[apiKey] = { };
@@ -56,7 +61,7 @@ test("test_Api.parseGenericData", function(assert) {
 });
 
 test("test_Api.verifyApiData", function(assert) {
-  expect(3); // number of tests plus 1 for the teardown test
+  expect(4); // number of tests plus 2 for the teardown test
 
   var apiKey = 'test_data';
 
@@ -78,7 +83,7 @@ test("test_Api.verifyApiData", function(assert) {
 
 test("test_Api.getButtonData", function(assert) {
   stop();
-  expect(5); // number of tests plus 1 for the teardown test
+  expect(6); // number of tests plus 2 for the teardown test
   Api.getButtonData(function() {
     assert.equal(Api.button.load_status, "ok", "Api.button.load_status should be ok");
     assert.equal(typeof Api.button.list, "object",
@@ -100,7 +105,7 @@ test("test_Api.getButtonData", function(assert) {
 
 test("test_Api.getPlayerData", function(assert) {
   stop();
-  expect(5); // number of tests plus 1 for the teardown test
+  expect(6); // number of tests plus 2 for the teardown test
   Api.getPlayerData(function() {
     assert.equal(Api.player.load_status, "ok", "Api.player.load_status should be ok");
     assert.equal(typeof Api.player.list, "object",
@@ -116,7 +121,7 @@ test("test_Api.getPlayerData", function(assert) {
 });
 
 test("test_Api.parseButtonData", function(assert) {
-  expect(4); // number of tests plus 1 for the teardown test
+  expect(5); // number of tests plus 2 for the teardown test
 
   Api.button = {};
   var retval = Api.parseButtonData({
@@ -167,7 +172,7 @@ test("test_Api.parseButtonData_failure", function(assert) {
 });
 
 test("test_Api.parsePlayerData", function(assert) {
-  expect(4); // number of tests plus 1 for the teardown test
+  expect(5); // number of tests plus 2 for the teardown test
 
   Api.player = {};
   var retval = Api.parsePlayerData({

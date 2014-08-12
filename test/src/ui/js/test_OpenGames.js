@@ -11,6 +11,11 @@ module("OpenGames", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JavaScript variables
@@ -39,13 +44,33 @@ test("test_OpenGames_is_loaded", function(assert) {
   assert.ok(OpenGames, "The OpenGames namespace exists");
 });
 
+// The purpose of this test is to demonstrate that the flow of
+// OpenGames.showOpenGamesPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_OpenGames.showOpenGamesPage", function(assert) {
-  $.ajaxSetup({ async: false });
+  var cached_getOpenGames = OpenGames.getOpenGames;
+  var cached_showStatePage = OpenGames.showPage;
+  var getOpenGamesCalled = false;
+  OpenGames.showPage = function() {
+    assert.ok(getOpenGamesCalled, "OpenGames.getOpenGames is called before OpenGames.showPage");
+  }
+  OpenGames.getOpenGames = function(callback) {
+    getOpenGamesCalled = true;
+    assert.equal(callback, OpenGames.showPage,
+      "OpenGames.getOpenGames is called with OpenGames.showPage as an argument");
+    callback();
+  }
+
   OpenGames.showOpenGamesPage();
   var item = document.getElementById('opengames_page');
   assert.equal(item.nodeName, "DIV",
         "#opengames_page is a div after showOpenGamesPage() is called");
-  $.ajaxSetup({ async: true });
+
+  OpenGames.getOpenGames = cached_getOpenGames;
+  OpenGames.showPage = cached_showStatePage;
 });
 
 test("test_OpenGames.getOpenGames", function(assert) {

@@ -20,6 +20,11 @@ module("Game", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // Revert cookies
@@ -60,22 +65,39 @@ test("test_Game_is_loaded", function(assert) {
   assert.ok(Game, "The Game namespace exists");
 });
 
-// Use stop()/start() because the AJAX-using operation needs to
-// finish before its results can be tested
+// The purpose of this test is to demonstrate that the flow of
+// Game.showGamePage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_Game.showGamePage", function(assert) {
-  stop();
-  BMTestUtils.GameType = 'newgame';
+
+  var cached_getCurrentGame = Game.getCurrentGame;
+  var cached_showStatePage = Game.showStatePage;
+  var getCurrentGameCalled = false;
+  Game.showStatePage = function() {
+    assert.ok(getCurrentGameCalled, "Game.getCurrentGame is called before Game.showStatePage");
+  }
+  Game.getCurrentGame = function(callback) {
+    getCurrentGameCalled = true;
+    assert.equal(callback, Game.showStatePage,
+      "Game.getCurrentGame is called with Game.showStatePage as an argument");
+    callback();
+  }
+
   Game.showGamePage();
   var item = document.getElementById('game_page');
   assert.equal(item.nodeName, "DIV",
         "#game_page is a div after showGamePage() is called");
-  start();
+  Game.getCurrentGame = cached_getCurrentGame;
+  Game.showStatePage = cached_showStatePage;
 });
 
 // Use stop()/start() because the AJAX-using operation needs to
 // finish before its results can be tested
 test("test_Game.redrawGamePageSuccess", function(assert) {
-  stop();
+  $.ajaxSetup({ async: false });
   BMTestUtils.GameType = 'newgame';
   Game.activity.chat = "Some chat text";
   Game.redrawGamePageSuccess();
@@ -84,13 +106,13 @@ test("test_Game.redrawGamePageSuccess", function(assert) {
         "#game_page is a div after redrawGamePageSuccess() is called");
   assert.deepEqual(Game.activity, {},
         "Game.activity is cleared by redrawGamePageSuccess()");
-  start();
+  $.ajaxSetup({ async: true });
 });
 
 // Use stop()/start() because the AJAX-using operation needs to
 // finish before its results can be tested
 test("test_Game.redrawGamePageFailure", function(assert) {
-  stop();
+  $.ajaxSetup({ async: false });
   BMTestUtils.GameType = 'newgame';
   Game.activity.chat = "Some chat text";
   Game.redrawGamePageFailure();
@@ -99,7 +121,7 @@ test("test_Game.redrawGamePageFailure", function(assert) {
         "#game_page is a div after redrawGamePageFailure() is called");
   assert.equal(Game.activity.chat, "Some chat text",
         "Game.activity.chat is retained by redrawGamePageSuccess()");
-  start();
+  $.ajaxSetup({ async: true });
 });
 
 // N.B. Almost all of these tests should use stop(), set a test
@@ -109,6 +131,7 @@ test("test_Game.redrawGamePageFailure", function(assert) {
 // start().  So the typical format will be:
 //
 // test("test_Game.someFunction", function(assert) {
+//   stop();
 //   BMTestUtils.GameType = '<sometype>';
 //   Game.getCurrentGame(function() {
 //     <setup any additional prereqs for someFunction>
@@ -1560,7 +1583,7 @@ test("test_Game.dieFocusOutlineHandler", function(assert) {
 
 test("test_Game.pageAddNewGameLinkFooter", function(assert) {
   stop();
-  expect(3); // tests plus teardown test
+  expect(4); // tests plus 2 teardown tests
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -1576,7 +1599,7 @@ test("test_Game.pageAddNewGameLinkFooter", function(assert) {
 
 test("test_Game.pageAddNewGameLinkFooter_turn_active", function(assert) {
   stop();
-  expect(2); // tests plus teardown test
+  expect(3); // tests plus 2 teardown tests
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');

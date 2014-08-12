@@ -10,6 +10,11 @@ module("UserPrefs", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JS objects
@@ -39,13 +44,33 @@ test("test_UserPrefs_is_loaded", function(assert) {
   assert.ok(UserPrefs, "The UserPrefs namespace exists");
 });
 
+// The purpose of this test is to demonstrate that the flow of
+// UserPrefs.showUserPrefsPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_UserPrefs.showUserPrefsPage", function(assert) {
-  stop();
+  var cached_getter = Env.callAsyncInParallel;
+  var cached_showStatePage = UserPrefs.assemblePage;
+  var getterCalled = false;
+  UserPrefs.assemblePage = function() {
+    assert.ok(getterCalled, "Env.callAsyncInParallel is called before UserPrefs.assemblePage");
+  }
+  Env.callAsyncInParallel = function(scripts, callback) {
+    getterCalled = true;
+    assert.equal(callback, UserPrefs.assemblePage,
+      "Env.callAsyncInParallel is called with UserPrefs.assemblePage as an argument");
+    callback();
+  }
+
   UserPrefs.showUserPrefsPage();
   var item = document.getElementById('userprefs_page');
   assert.equal(item.nodeName, "DIV",
         "#userprefs_page is a div after showUserPrefsPage() is called");
-  start();
+
+  Env.callAsyncInParallel = cached_getter;
+  UserPrefs.assemblePage = cached_showStatePage;
 });
 
 test("test_UserPrefs.assemblePage", function(assert) {

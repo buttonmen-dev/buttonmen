@@ -4,6 +4,11 @@ module("Login", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
     BMTestUtils.deleteEnvMessage();
     delete Api.gameNavigation;

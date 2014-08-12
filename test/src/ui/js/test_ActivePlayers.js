@@ -11,6 +11,11 @@
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JavaScript variables
@@ -37,14 +42,35 @@ test("test_ActivePlayers_is_loaded", function(assert) {
   assert.ok(ActivePlayers, "The ActivePlayers namespace exists");
 });
 
-test("test_ActivePlayers.showActivePlayersPage", function(assert) {
-  stop();
+// The purpose of this test is to demonstrate that the flow of
+// ActivePlayers.showActivePlayersPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
+ test("test_ActivePlayers.showActivePlayersPage", function(assert) {
+  var cached_getActivePlayers = ActivePlayers.getActivePlayers;
+  var cached_showStatePage = ActivePlayers.showPage;
+  var getActivePlayersCalled = false;
+  ActivePlayers.showPage = function() {
+    assert.ok(getActivePlayersCalled, "ActivePlayers.getActivePlayers is called before ActivePlayers.showPage");
+  }
+  ActivePlayers.getActivePlayers = function(callback) {
+    getActivePlayersCalled = true;
+    assert.equal(callback, ActivePlayers.showPage,
+      "ActivePlayers.getActivePlayers is called with ActivePlayers.showPage as an argument");
+    callback();
+  }
+
   ActivePlayers.showActivePlayersPage();
   var item = document.getElementById('activeplayers_page');
   assert.equal(item.nodeName, "DIV",
         "#activeplayers_page is a div after showActivePlayersPage() is called");
-  start();
+  ActivePlayers.getActivePlayers = cached_getActivePlayers;
+  ActivePlayers.showPage = cached_showStatePage;
 });
+
+
 
 test("test_ActivePlayers.getActivePlayers", function(assert) {
   stop();

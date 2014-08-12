@@ -9,6 +9,11 @@ module("Newuser", {
   },
   'teardown': function(assert) {
 
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
+
     // Delete all elements we expect this module to create
 
     // JS objects
@@ -36,31 +41,24 @@ test("test_Newuser_is_loaded", function(assert) {
 });
 
 test("test_Newuser.showNewuserPage", function(assert) {
-  stop();
   Newuser.showNewuserPage();
   var item = document.getElementById('newuser_page');
   assert.equal(item.nodeName, "DIV",
         "#newuser_page is a div after showNewuserPage() is called");
-  start();
 });
 
 test("test_Newuser.showNewuserPage_logged_in", function(assert) {
-  stop();
-
   BMTestUtils.setupFakeLogin();
 
   Newuser.showNewuserPage();
   var item = document.getElementById('newuser_page');
   assert.equal(item.nodeName, "DIV",
         "#newuser_page is a div after showNewuserPage() is called");
-  start();
 
   BMTestUtils.cleanupFakeLogin();
 });
 
 test("test_Newuser.showNewuserPage_no_page_element", function(assert) {
-  stop();
-
   // Remove page element to make sure the function readds it
   $('#newuser_page').remove();
   $('#newuser_page').empty();
@@ -69,7 +67,6 @@ test("test_Newuser.showNewuserPage_no_page_element", function(assert) {
   var item = document.getElementById('newuser_page');
   assert.equal(item.nodeName, "DIV",
         "#newuser_page is a div after showNewuserPage() is called");
-  start();
 });
 
 test("test_Newuser.arrangePage", function(assert) {

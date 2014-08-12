@@ -1,4 +1,4 @@
-  module("Profile", {
+module("Profile", {
   'setup': function() {
     BMTestUtils.ProfilePre = BMTestUtils.getAllElements();
 
@@ -10,6 +10,11 @@
     }
   },
   'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -38,13 +43,33 @@ test("test_Profile_is_loaded", function(assert) {
   assert.ok(Profile, "The Profile namespace exists");
 });
 
+// The purpose of this test is to demonstrate that the flow of
+// Profile.showProfilePage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
 test("test_Profile.showProfilePage", function(assert) {
-  stop();
+  var cached_getProfile = Profile.getProfile;
+  var cached_showStatePage = Profile.showPage;
+  var getProfileCalled = false;
+  Profile.showPage = function() {
+    assert.ok(getProfileCalled, "Profile.getProfile is called before Profile.showPage");
+  }
+  Profile.getProfile = function(callback) {
+    getProfileCalled = true;
+    assert.equal(callback, Profile.showPage,
+      "Profile.getProfile is called with Profile.showPage as an argument");
+    callback();
+  }
+
   Profile.showProfilePage();
   var item = document.getElementById('profile_page');
   assert.equal(item.nodeName, "DIV",
         "#profile_page is a div after showProfilePage() is called");
-  start();
+
+  Profile.getProfile = cached_getProfile;
+  Profile.showPage = cached_showStatePage;
 });
 
 test("test_Profile.getProfile", function(assert) {
