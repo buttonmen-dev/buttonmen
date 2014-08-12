@@ -247,6 +247,32 @@ test("test_Env.buildProfileLink", function(assert) {
     'Link text should point to profile page.');
 });
 
+test("test_Env.buildButtonLink", function(assert) {
+  var link = Env.buildButtonLink('tester');
+  assert.equal(link.attr('href'), 'buttons.html?button=tester',
+    'Link should point to button page.');
+
+  var link = Env.buildButtonLink('tester', '(1) (2) (3) (4) (5)');
+  assert.equal(link.attr('href'), 'buttons.html?button=tester',
+    'Link should point to button page.');
+  assert.equal(link.attr('title'), '(1) (2) (3) (4) (5)',
+    'Link should include recipe as tooltip.');
+
+  var linktext = Env.buildButtonLink('tester', null, true);
+  assert.equal(linktext, 'buttons.html?button=tester',
+    'Link text should point to button page.');
+});
+
+test("test_Env.buildButtonSetLink", function(assert) {
+  var link = Env.buildButtonSetLink('tester');
+  assert.equal(link.attr('href'), 'buttons.html?set=tester',
+    'Link should point to button page.');
+
+  var linktext = Env.buildButtonSetLink('tester', true);
+  assert.equal(linktext, 'buttons.html?set=tester',
+    'Link text should point to button page.');
+});
+
 test("test_Env.toggleSpoiler", function(assert) {
   var spoiler = $('<span>', { 'class': 'chatSpoiler' });
 
