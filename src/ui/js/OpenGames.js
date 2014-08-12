@@ -228,9 +228,16 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         'class': 'gameAction',
         'text': 'Game ' + game.gameId,
       }));
-      gameRow.append($('<td>', {
-        'text': game.challengerButton,
-      }));
+      if (game.challengerButton == '__random') {
+        gameRow.append($('<td>', {
+          'text': 'Random Button',
+          'style': 'font-style: italic;',
+        }));
+      } else {
+        gameRow.append($('<td>', {
+          'text': game.challengerButton,
+        }));
+      }
 
       if (game.victimButton == '__random') {
         gameRow.append($('<td>', {
@@ -293,9 +300,16 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         }));
       }
 
-      gameRow.append($('<td>', {
-        'text': game.challengerButton,
-      }));
+      if (game.challengerButton == '__random') {
+        gameRow.append($('<td>', {
+          'text': 'Random Button',
+          'style': 'font-style: italic;',
+        }));
+      } else {
+        gameRow.append($('<td>', {
+          'text': game.challengerButton,
+        }));
+      }
       gameRow.append($('<td>', {
         'style': 'background-color: ' + game.challengerColor + ';',
       }).append(Env.buildProfileLink(game.challengerName)));

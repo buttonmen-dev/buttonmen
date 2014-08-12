@@ -2140,7 +2140,9 @@ class BMInterface {
                     'v_challenger.player_id AS challenger_id, ' .
                     'v_challenger.player_name AS challenger_name, ' .
                     'v_challenger.button_name AS challenger_button, ' .
+                    'v_challenger.is_button_random AS challenger_random, ' .
                     'v_victim.button_name AS victim_button, ' .
+                    'v_victim.is_button_random AS victim_random, ' .
                     'g.n_target_wins AS target_wins, ' .
                     'g.description AS description ' .
                 'FROM game AS g ' .
@@ -2168,13 +2170,24 @@ class BMInterface {
                     (int)$row['challenger_id']
                 );
 
+                if ((int)$row['challenger_random'] == 1) {
+                    $challengerButton = '__random';
+                } else {
+                    $challengerButton = $row['challenger_button'];
+                }
+                if ((int)$row['victim_random'] == 1) {
+                    $victimButton = '__random';
+                } else {
+                    $victimButton = $row['victim_button'];
+                }
+
                 $games[] = array(
                     'gameId' => (int)$row['game_id'],
                     'challengerId' => (int)$row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
-                    'challengerButton' => $row['challenger_button'],
+                    'challengerButton' => $challengerButton,
                     'challengerColor' => $gameColors['playerB'],
-                    'victimButton' => $row['victim_button'],
+                    'victimButton' => $victimButton,
                     'targetWins' => (int)$row['target_wins'],
                     'description' => $row['description'],
                 );
