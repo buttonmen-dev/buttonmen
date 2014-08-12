@@ -108,13 +108,6 @@ Env.formatTimestamp = function(timestamp, format) {
     format = 'datetime';
   }
 
-  // Most pages don't use moment, so we don't always load it in the HTML
-  if (typeof moment === 'undefined') {
-    $.ajaxSetup({ async: false, });
-    $.getScript('js/extern/moment.js');
-    $.ajaxSetup({ async: true, });
-  }
-
   var datetime = moment.unix(timestamp);
   if (!datetime.isValid()) {
     return null;
@@ -145,13 +138,6 @@ Env.parseDateTime = function(input, format) {
 
   if (!format) {
     format = 'datetime';
-  }
-
-  // Most pages don't use moment, so we don't always load it in the HTML
-  if (typeof moment === 'undefined') {
-    $.ajaxSetup({ async: false, });
-    $.getScript('js/extern/moment.js');
-    $.ajaxSetup({ async: true, });
   }
 
   var datetime;
