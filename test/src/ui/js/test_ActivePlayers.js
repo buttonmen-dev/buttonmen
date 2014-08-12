@@ -48,7 +48,7 @@ test("test_ActivePlayers_is_loaded", function(assert) {
 // callback.
 //
 // Accomplish this by mocking the invoked functions
- test("test_ActivePlayers.showActivePlayersPage", function(assert) {
+test("test_ActivePlayers.showActivePlayersPage", function(assert) {
   var cached_getActivePlayers = ActivePlayers.getActivePlayers;
   var cached_showStatePage = ActivePlayers.showPage;
   var getActivePlayersCalled = false;
