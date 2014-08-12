@@ -480,8 +480,7 @@ test("test_Newgame.getButtonLimitTd", function(assert) {
     { 'A': true,
       'B C': true,
     });
-  assert.equal(item[0].tagName, "TD", "result is a TD");
-  assert.equal(item[0].tagName, "TD", "result is a TD");
+  assert.equal(item[0].tagName, "TD", "result is a TD"); 
   var buttonSelect = item.find('select');
   assert.ok(buttonSelect, "TD contains a select");
   var foundLabels = { 'ANY': 0, 'A': 0, 'B C': 0, };
@@ -516,8 +515,7 @@ test("test_Newgame.getButtonLimitTd_prevvals", function(assert) {
     { 'A': true,
       'B C': true,
     });
-  assert.equal(item[0].tagName, "TD", "result is a TD");
-  assert.equal(item[0].tagName, "TD", "result is a TD");
+  assert.equal(item[0].tagName, "TD", "result is a TD"); 
   var buttonSelect = item.find('select');
   assert.ok(buttonSelect, "TD contains a select");
   var foundLabels = { 'ANY': 0, 'A': 0, 'B C': 0, };
@@ -556,8 +554,7 @@ test("test_Newgame.getButtonLimitRow", function(assert) {
     { 'A': true,
       'B C': true,
     });
-  assert.equal(item[0].tagName, "TR", "result is a TR");
-  assert.equal(item[0].tagName, "TR", "result is a TR");
+  assert.equal(item[0].tagName, "TR", "result is a TR"); 
 });
 
 test("test_Newgame.getLimitSelectid", function(assert) {
