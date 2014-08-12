@@ -372,7 +372,7 @@ test("test_Api.disableSubmitButton", function(assert) {
     'id': 'api_action_button',
     'text': 'Submit',
   }));
-  Api.disableSubmitButton('api_action_button');
+  Api.disableSubmitButton('#api_action_button');
   var item = document.getElementById('api_action_button');
   assert.equal(item.getAttribute('disabled'), 'disabled',
         "After a submit button has been clicked, it should be disabled");

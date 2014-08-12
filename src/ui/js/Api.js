@@ -479,10 +479,7 @@ var Api = (function () {
 
   my.disableSubmitButton = function(button) {
     if (button) {
-      if (!(button instanceof jQuery)) {
-        button = $('#' + button);
-      }
-      button.attr('disabled', 'disabled');
+      $(button).attr('disabled', 'disabled');
     }
   };
 
