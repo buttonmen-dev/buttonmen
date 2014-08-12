@@ -330,7 +330,7 @@ class BMInterface {
             return NULL;
         }
 
-        $this->resolve_random_button_selection($buttonNameArray);
+        $this->resolve_random_button_selection($buttonNameArray, $playerIdArray);
 
         $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
         if (is_null($buttonIdArray)) {
@@ -577,10 +577,17 @@ class BMInterface {
         }
     }
 
-    protected function resolve_random_button_selection(array &$buttonNameArray) {
+    protected function resolve_random_button_selection(array &$buttonNameArray, array $playerIdArray) {
         // do not resolve random names unless all buttons have been chosen
         foreach ($buttonNameArray as $buttonName) {
             if (empty($buttonName)) {
+                return;
+            }
+        }
+
+        // do not resolve random names unless all players have joined the game
+        foreach ($playerIdArray as $playerId) {
+            if (empty($playerId)) {
                 return;
             }
         }

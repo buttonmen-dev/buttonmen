@@ -415,6 +415,25 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
      * @covers BMInterface::create_game
      * @covers BMInterface::load_game
      */
+    public function test_create_game_with_two_random_buttons_with_one_unspecified_player() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   NULL),
+                                             array('__random', '__random'), 4);
+        $gameId = $retval['gameId'];
+
+        $game = self::load_game($gameId);
+        $this->assertTrue(empty($game->buttonArray[0]));
+        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertTrue(empty($game->buttonArray[1]));
+        $this->assertTrue($game->isButtonChoiceRandom[1]);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::create_game
+     * @covers BMInterface::load_game
+     */
     public function test_create_and_load_new_game_with_empty_opponent() {
         $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
                                                    NULL),
