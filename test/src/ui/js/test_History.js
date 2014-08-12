@@ -275,8 +275,9 @@ test("test_History.buildResultsTableBody", function(assert) {
 
   History.getHistory(function() {
     var tbody = History.buildResultsTableBody();
-    var avisCell = tbody.find('td:contains("Avis")');
-    assert.ok(avisCell.length > 0, 'Table body contains game information.');
+    var htmlout = tbody.html();
+    assert.ok(htmlout.match('<td>Avis</td>'),
+      'Table body contains game information.');
     start();
   });
 });
