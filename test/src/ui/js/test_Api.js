@@ -85,7 +85,7 @@ test("test_Api.verifyApiData", function(assert) {
 test("test_Api.getButtonData", function(assert) {
   stop();
   expect(6); // number of tests plus 2 for the teardown test
-  Api.getButtonData(null, function() {
+  Api.getButtonData(function() {
     assert.equal(Api.button.load_status, "ok", "Api.button.load_status should be ok");
     assert.equal(typeof Api.button.list, "object",
           "Api.button.list should be an object");
@@ -129,38 +129,18 @@ test("test_Api.parseButtonData", function(assert) {
   expect(5); // number of tests plus 2 for the teardown test
 
   Api.button = {};
-  var retval = Api.parseButtonData([
-    {
-      'buttonName': 'Avis',
-      'recipe': '(4) (4) (10) (12) (X)',
-      'hasUnimplementedSkill': false,
-      'buttonSet': 'Soldiers',
-      'dieTypes': [ 'X Swing', ],
-      'dieSkills': [],
-      'isTournamentLegal': true,
-      'artFilename': 'avis.png',
-    },
-    {
-      'buttonName': 'Adam Spam',
-      'recipe': 'F(4) F(6) (6) (12) (X)',
-      'hasUnimplementedSkill': true,
-      'buttonSet': 'Polycon',
-      'dieTypes': [ 'X Swing', ],
-      'dieSkills': [ 'Fire', ],
-      'isTournamentLegal': true,
-      'artFilename': 'adamspam.png',
-    },
-    {
-      'buttonName': 'Jellybean',
-      'recipe': 'p(20) s(20) (V) (X)',
-      'hasUnimplementedSkill': false,
-      'buttonSet': 'BROM',
-      'dieTypes': [ 'V Swing', 'X Swing', ],
-      'dieSkills': [ 'Poison', 'Shadow', ],
-      'isTournamentLegal': true,
-      'artFilename': 'jellybean.png',
-    },
-  ]);
+  var retval = Api.parseButtonData({
+    'buttonNameArray': ['Avis', 'Adam Spam', 'Jellybean' ],
+    'recipeArray': ['(4) (4) (10) (12) (X)',
+                    'F(4) F(6) (6) (12) (X)',
+                    'p(20) s(20) (V) (X)' ],
+    'hasUnimplementedSkillArray': [ false, true, false ],
+    'buttonSetArray': [ 'Soldiers', 'Polycon', 'BROM' ],
+    'dieSkillsArray': [ [],
+                        [ 'Fire', ],
+                        [ 'Poison', 'Shadow', ] ],
+    'isTournamentLegalArray': [ true, true, true, ],
+  });
   assert.equal(retval, true, "Api.parseButtonData() returns true");
   assert.deepEqual(
     Api.button.list,
@@ -205,43 +185,8 @@ test("test_Api.parseButtonData_failure", function(assert) {
   assert.equal(retval, false, "Api.parseButtonData({}) returns false");
 });
 
-test("test_Api.getButtonSetData", function(assert) {
-  stop();
-  expect(5); // number of tests plus 2 for the teardown tests
-
-  Api.getButtonSetData(null, function() {
-    assert.equal(Api.buttonSet.load_status, "ok",
-      "Api.buttonSet.load_status should be ok");
-    assert.equal(typeof Api.buttonSet.list, "object",
-      "Api.buttonSet.list should be an object");
-    assert.deepEqual(Env.message, undefined,
-      "Api.getButtonSetData should not set Env.message");
-    start();
-  });
-});
-
-test("test_Api.parseButtonSetData", function(assert) {
-  Api.buttonSet = {};
-  Api.parseButtonSetData([
-    { 'setName': 'Lunch Money' },
-    { 'setName': 'Soldiers' },
-    { 'setName': 'The Big Cheese' },
-    { 'setName': 'Vampyres' },
-  ]);
-  assert.deepEqual(
-    Api.buttonSet.list,
-    {
-      'Lunch Money': { 'setName': 'Lunch Money' },
-      'Soldiers': { 'setName': 'Soldiers' },
-      'The Big Cheese': { 'setName': 'The Big Cheese' },
-      'Vampyres': { 'setName': 'Vampyres' },
-    },
-    "Set list should have correct contents"
-  );
-});
-
 test("test_Api.parsePlayerData", function(assert) {
-  expect(5); // number of tests plus 2 for the teardown tests
+  expect(5); // number of tests plus 2 for the teardown test
 
   Api.player = {};
   var retval = Api.parsePlayerData({
