@@ -6,7 +6,12 @@ module("Loader", {
 
     BMTestUtils.LoaderPre = BMTestUtils.getAllElements();
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -17,21 +22,22 @@ module("Loader", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.LoaderPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.LoaderPost, BMTestUtils.LoaderPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Loader module has been loaded
-test("test_Loader_is_loaded", function() {
-  ok(Verify, "The Loader namespace exists");
+test("test_Loader_is_loaded", function(assert) {
+  assert.ok(Verify, "The Loader namespace exists");
 });
 
-asyncTest("test_Loader.loadScripts", function() {
+test("test_Loader.loadScripts", function(assert) {
+  stop();
   Loader.loadScripts([ 'js/dummy2.js' ], function () {
-    equal(Dummy.One, 1, "default script was loaded");
-    equal(Dummy.Two, 2, "explicit script was loaded");
+    assert.equal(Dummy.One, 1, "default script was loaded");
+    assert.equal(Dummy.Two, 2, "explicit script was loaded");
     start();
   });
 });
