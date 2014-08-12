@@ -939,22 +939,6 @@ test("test_Game.formPlayTurnInactive", function(assert) {
   });
 });
 
-test("test_Game.formDismissGame", function(assert) {
-  stop();
-  assert.expect(3); // test plus 2 teardown
-  // Temporarily back up Api.apiFormPost and replace it with
-  // a mocked version for testing
-  var apiFormPost = Api.apiFormPost;
-  Api.apiFormPost = function(args) {
-    Api.apiFormPost = apiFormPost;
-    assert.deepEqual(args, { 'type': 'dismissGame', 'gameId': '5' },
-      'Dismiss game should try to dismiss the game');
-    start();
-  };
-  var link = $('<a>', { 'data-gameId': 5 });
-  Game.formDismissGame.call(link, $.Event());
-});
-
 test("test_Game.readCurrentGameActivity", function(assert) {
   stop();
   BMTestUtils.GameType = 'turn_active';
