@@ -10,7 +10,12 @@ module("Verify", {
       $('body').append($('<div>', {'id': 'verify_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -28,34 +33,56 @@ module("Verify", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.VerifyPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.VerifyPost, BMTestUtils.VerifyPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Verify module has been loaded
-test("test_Verify_is_loaded", function() {
-  ok(Verify, "The Verify namespace exists");
+test("test_Verify_is_loaded", function(assert) {
+  assert.ok(Verify, "The Verify namespace exists");
 });
 
-asyncTest("test_Verify.showVerifyPage", function() {
+// The purpose of this test is to demonstrate that the flow of
+// Verify.showVerifyPage() is correct for a showXPage function,
+// namely that it calls an API getter with a showStatePage function
+// as a callback.
+//
+// Accomplish this by mocking the invoked functions
+test("test_Verify.showVerifyPage", function(assert) {
+  expect(5);
+  var cached_getVerifyParams = Verify.getVerifyParams;
+  var cached_showStatePage = Verify.showStatePage;
+  var getVerifyParamsCalled = false;
+  Verify.showStatePage = function() {
+    assert.ok(getVerifyParamsCalled, "Verify.getVerifyParams is called before Verify.showStatePage");
+  }
+  Verify.getVerifyParams = function(callback) {
+    getVerifyParamsCalled = true;
+    assert.equal(callback, Verify.showStatePage,
+      "Verify.getVerifyParams is called with Verify.showStatePage as an argument");
+    callback();
+  }
+
   Verify.showVerifyPage();
   var item = document.getElementById('verify_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#verify_page is a div after showVerifyPage() is called");
-  start();
+  Verify.getVerifyParams = cached_getVerifyParams;
+  Verify.showStatePage = cached_showStatePage;
 });
 
-asyncTest("test_Verify.getVerifyParams", function() {
+test("test_Verify.getVerifyParams", function(assert) {
+  stop();
   Verify.getVerifyParams(function() {
-    equal(Env.message.type, "success",
+    assert.equal(Env.message.type, "success",
           "getVerifyParams() succeeds in its POST");
     start();
   });
 });
 
-test("test_Verify.showStatePage", function() {
+test("test_Verify.showStatePage", function(assert) {
   Env.setupEnvStub();
   Env.message = {
     'type': 'error',
@@ -63,15 +90,15 @@ test("test_Verify.showStatePage", function() {
   };
   Verify.showStatePage();
   var item = document.getElementById('env_message');
-  ok(item.innerHTML.match('test error'), "env message is set by this function");
+  assert.ok(item.innerHTML.match('test error'), "env message is set by this function");
 });
 
-test("test_Verify.setVerifyUserSuccessMessage", function() {
+test("test_Verify.setVerifyUserSuccessMessage", function(assert) {
   Verify.setVerifyUserSuccessMessage('test success');
-  equal(Env.message.type, 'success', 'message type is success');
+  assert.equal(Env.message.type, 'success', 'message type is success');
 });
 
-test("test_Verify.setVerifyUserFailureMessage", function() {
+test("test_Verify.setVerifyUserFailureMessage", function(assert) {
   Verify.setVerifyUserFailureMessage('test failure');
-  equal(Env.message.type, 'error', 'message type is error');
+  assert.equal(Env.message.type, 'error', 'message type is error');
 });
