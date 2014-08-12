@@ -20,7 +20,11 @@ BMTestUtils.getAllElements = function() {
     if ((elemNode == "SPAN") && (elemId == "") &&
         ((elemClass == "module-name") || (elemClass == "test-name") ||
          (elemClass == "passed") || (elemClass == "total") ||
-         (elemClass == "failed"))) {
+         (elemClass == "failed") || (elemClass == "test-message"))) {
+      continue;
+    }
+    if ((elemNode == "LI") && (elemId == "") &&
+        ((elemClass == "pass") || (elemClass == "fail"))) {
       continue;
     }
 
