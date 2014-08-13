@@ -606,11 +606,8 @@ class ApiSpec {
                     }
                     continue;
                 }
-                if (array_key_exists($argname, $argsExpected['mandatory'])) {
-                    $expectedType = $argsExpected['mandatory'][$argname];
-                } elseif (array_key_exists($argname, $argsExpected['permitted'])) {
-                    $expectedType = $argsExpected['permitted'][$argname];
-                } else {
+                $expectedType = $this->determineExpectedType($argname, $argsExpected);
+                if (!$expectedType) {
                     return array(
                         'ok' => FALSE,
                         'message' => 'Unexpected argument provided to function ' . $args['type'],
@@ -625,13 +622,12 @@ class ApiSpec {
                 }
             }
 
-            foreach (array_keys($argsExpected['mandatory']) as $argrequired) {
-                if (!(array_key_exists($argrequired, $args))) {
-                    return array(
-                        'ok' => FALSE,
-                        'message' => "Missing mandatory argument $argrequired for function " . $args['type'],
-                    );
-                }
+            $missingArg = $this->find_missing_mandatory_arguments($argsExpected, $args);
+            if ($missingArg) {
+                return array(
+                    'ok' => FALSE,
+                    'message' => "Missing mandatory argument $missingArg for function " . $args['type'],
+                );
             }
             return array('ok' => TRUE);
         } else {
@@ -639,6 +635,25 @@ class ApiSpec {
                 'ok' => FALSE,
                 'message' => 'Specified API function does not exist',
             );
+        }
+    }
+
+    private function determineExpectedType($argName, $argsExpected) {
+        if (array_key_exists($argName, $argsExpected['mandatory'])) {
+            return $argsExpected['mandatory'][$argName];
+        }
+        if (array_key_exists($argName, $argsExpected['permitted'])) {
+            return $argsExpected['permitted'][$argName];
+        }
+        return NULL;
+    }
+
+    // Returns the missing argument name if one is missing or NULL if all are present
+    private function find_missing_mandatory_arguments($argsExpected, $args) {
+        foreach (array_keys($argsExpected['mandatory']) as $argRequired) {
+            if (!(array_key_exists($argRequired, $args))) {
+                return $argRequired;
+            }
         }
     }
 
