@@ -1,5 +1,14 @@
 ALTER TABLE game_player_map ADD is_button_random BOOLEAN DEFAULT FALSE NOT NULL;
 
+DROP VIEW IF EXISTS button_view;
+CREATE VIEW button_view
+AS SELECT b.id, b.name, b.recipe, b.tourn_legal, b.btn_special,
+          s.name AS set_name
+FROM button AS b
+LEFT JOIN buttonset AS s
+ON b.set_id = s.id
+ORDER BY b.set_id, b.id;
+
 DROP VIEW IF EXISTS game_player_view;
 CREATE VIEW game_player_view
 AS SELECT

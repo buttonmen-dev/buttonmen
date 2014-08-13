@@ -667,11 +667,13 @@ class DummyApiResponder {
 
     protected function get_interface_response_loadButtonNames() {
         $data = array(
+          'buttonIdArray' => array(),
           'buttonNameArray' => array(), 'recipeArray' => array(), 'hasUnimplementedSkillArray' => array(),
           'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournamentLegalArray' => array(),
         );
 
         // a button with no special skills
+        $data['buttonIdArray'][] = 264;
         $data['buttonNameArray'][] = "Avis";
         $data['recipeArray'][] = "(4) (4) (10) (12) (X)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -680,6 +682,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // a button with an unimplemented skill
+        $data['buttonIdArray'][] = 1;
         $data['buttonNameArray'][] = "Zeppo";
         $data['recipeArray'][] = "(4) (12) (20) (X)!";
         $data['hasUnimplementedSkillArray'][] = TRUE;
@@ -688,6 +691,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // a button with four dice and some implemented skills
+        $data['buttonIdArray'][] = 58;
         $data['buttonNameArray'][] = "Jellybean";
         $data['recipeArray'][] = "p(20) s(20) (V) (X)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -696,6 +700,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // Buck Godot
+        $data['buttonIdArray'][] = 282;
         $data['buttonNameArray'][] = "Buck Godot";
         $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -704,6 +709,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // Von Pinn
+        $data['buttonIdArray'][] = 286;
         $data['buttonNameArray'][] = "Von Pinn";
         $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -712,6 +718,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // Crab: a button with focus dice
+        $data['buttonIdArray'][] = 200;
         $data['buttonNameArray'][] = "Crab";
         $data['recipeArray'][] = "(8) (10) (12) f(20) f(20)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -720,6 +727,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // John Kovalic: a button with chance dice
+        $data['buttonIdArray'][] = 315;
         $data['buttonNameArray'][] = "John Kovalic";
         $data['recipeArray'][] = "(6) c(6) (10) (12) c(20)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -728,6 +736,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // King Arthur: a button with an auxiliary die
+        $data['buttonIdArray'][] = 82;
         $data['buttonNameArray'][] = "King Arthur";
         $data['recipeArray'][] = "(8) (8) (10) (20) (X) +(20)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -736,6 +745,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // Cammy Neko: a button with reserve dice
+        $data['buttonIdArray'][] = 140;
         $data['buttonNameArray'][] = "Cammy Neko";
         $data['recipeArray'][] = "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -744,6 +754,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // Apples: a button with option dice
+        $data['buttonIdArray'][] = 10;
         $data['buttonNameArray'][] = "Apples";
         $data['recipeArray'][] = "(8) (8) (2/12) (8/16) (20/24)";
         $data['hasUnimplementedSkillArray'][] = FALSE;
@@ -752,6 +763,7 @@ class DummyApiResponder {
         $data['isTournamentLegalArray'][] = TRUE;
 
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
+        $data['buttonIdArray'][] = 414;
         $data['buttonNameArray'][] = "CactusJack";
         $data['recipeArray'][] = "z(8/12) (4/16) s(6/10) z(X) s(U)";
         $data['hasUnimplementedSkillArray'][] = FALSE;

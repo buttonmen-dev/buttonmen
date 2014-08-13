@@ -358,9 +358,9 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $gameId = $retval['gameId'];
 
         $game = self::load_game($gameId);
-        $this->assertFalse(empty($game->buttonArray[0]->name));
+        $this->assertFalse(empty($game->buttonArray[0]));
         $this->assertEquals('Coil', $game->buttonArray[0]->name);
-        $this->assertFalse(empty($game->buttonArray[1]->name));
+        $this->assertFalse(empty($game->buttonArray[1]));
         $this->assertNotEquals('__random', $game->buttonArray[1]->name);
     }
 
@@ -388,6 +388,14 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->isButtonChoiceRandom[0]);
         $this->assertTrue(empty($game->buttonArray[1]));
         $this->assertFalse($game->isButtonChoiceRandom[1]);
+
+        $retval = $this->object->select_button(self::$userId2WithoutAutopass, $gameId, '__random');
+        $this->assertTrue($retval);
+        $game = self::load_game($gameId);
+        $this->assertFalse(empty($game->buttonArray[0]));
+        $this->assertTrue($game->isButtonChoiceRandom[0]);
+        $this->assertFalse(empty($game->buttonArray[1]));
+        $this->assertTrue($game->isButtonChoiceRandom[1]);
     }
 
     /**

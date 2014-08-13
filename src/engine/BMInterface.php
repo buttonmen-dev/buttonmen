@@ -330,8 +330,6 @@ class BMInterface {
             return NULL;
         }
 
-        $this->resolve_random_button_selection($buttonNameArray, $playerIdArray);
-
         $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
         if (is_null($buttonIdArray)) {
             return NULL;
@@ -574,41 +572,6 @@ class BMInterface {
             );
             $this->message = 'Game create failed because of an error.';
             return FALSE;
-        }
-    }
-
-    protected function resolve_random_button_selection(array &$buttonNameArray, array $playerIdArray) {
-        // do not resolve random names unless all buttons have been chosen
-        foreach ($buttonNameArray as $buttonName) {
-            if (empty($buttonName)) {
-                return;
-            }
-        }
-
-        // do not resolve random names unless all players have joined the game
-        foreach ($playerIdArray as $playerId) {
-            if (empty($playerId)) {
-                return;
-            }
-        }
-
-        $allButtonData = array();
-        $allButtonNames = array();
-        $nButtons = 0;
-
-        foreach ($buttonNameArray as &$buttonName) {
-            if ('__random' != $buttonName) {
-                continue;
-            }
-
-            if (empty($allButtonNames)) {
-                $allButtonData = $this->get_all_button_names();
-                $allButtonNames = $allButtonData['buttonNameArray'];
-                $nButtons = count($allButtonNames);
-            }
-
-            $buttonIdx = rand(0, $nButtons - 1);
-            $buttonName = $allButtonNames[$buttonIdx];
         }
     }
 
@@ -866,7 +829,9 @@ class BMInterface {
             } else {
                 throw new InvalidArgumentException('Invalid button name.');
             }
-        } elseif ($row['is_button_random']) {
+        }
+
+        if ($row['is_button_random']) {
             $game->isButtonChoiceRandom[$pos] = TRUE;
         }
     }
@@ -1101,6 +1066,7 @@ class BMInterface {
         $game->proceed_to_next_user_action();
 
         try {
+            $this->resolve_random_button_selection($game);
             $this->save_basic_game_parameters($game);
             $this->save_button_recipes($game);
             $this->save_random_button_choice($game);
@@ -1125,6 +1091,61 @@ class BMInterface {
             );
             $this->message = "Game save failed: $e";
         }
+    }
+
+    protected function resolve_random_button_selection(BMGame $game) {
+        // do not resolve random names unless all buttons have been chosen
+        foreach ($game->buttonArray as $buttonIdx => $button) {
+            if (empty($button) && !$game->isButtonChoiceRandom[$buttonIdx]) {
+                return;
+            }
+        }
+
+        // do not resolve random names unless all players have joined the game
+        foreach ($game->playerIdArray as $playerId) {
+            if (empty($playerId)) {
+                return;
+            }
+        }
+
+        $allButtonData = array();
+        $allButtonNames = array();
+        $nButtons = 0;
+
+        foreach ($game->buttonArray as $buttonIdx => $button) {
+            if (!empty($button)) {
+                continue;
+            }
+
+            if (!$game->isButtonChoiceRandom[$buttonIdx]) {
+                continue;
+            }
+
+            if (empty($allButtonNames)) {
+                $allButtonData = $this->get_all_button_details();
+                $allButtonIds = $allButtonData['buttonIdArray'];
+                $nButtons = count($allButtonIds);
+            }
+
+            $randIdx = rand(0, $nButtons - 1);
+            $buttonId = $allButtonIds[$randIdx];
+
+            $this->choose_button($game, $buttonId, $buttonIdx);
+        }
+    }
+
+    protected function choose_button(BMGame $game, $buttonId, $buttonIdx) {
+        // add info to game_player_map
+        $query = 'UPDATE game_player_map '.
+                 'SET button_id = :button_id '.
+                 'WHERE '.
+                 'game_id = :game_id AND '.
+                 'position = :position';
+        $statement = self::$conn->prepare($query);
+
+        $statement->execute(array(':game_id'   => $game->gameId,
+                                  ':button_id' => $buttonId,
+                                  ':position'  => $buttonIdx));
     }
 
     protected function save_basic_game_parameters($game) {
@@ -2279,12 +2300,12 @@ class BMInterface {
         }
     }
 
-    public function get_all_button_names() {
+    public function get_all_button_details() {
         try {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
 
-            $query = 'SELECT name, recipe, btn_special, set_name, tourn_legal FROM button_view';
+            $query = 'SELECT id, name, recipe, btn_special, set_name, tourn_legal FROM button_view';
             $statement = self::$conn->prepare($query);
             $statement->execute();
 
@@ -2310,6 +2331,7 @@ class BMInterface {
                 }
 
                 if (($site_type != 'production') || (!($hasUnimplSkill))) {
+                    $buttonIdArray[] = (int)$row['id'];
                     $buttonNameArray[] = $row['name'];
                     $recipeArray[] = $row['recipe'];
                     $hasUnimplSkillArray[] = $hasUnimplSkill;
@@ -2319,7 +2341,8 @@ class BMInterface {
                 }
             }
             $this->message = 'All button names retrieved successfully.';
-            return array('buttonNameArray'            => $buttonNameArray,
+            return array('buttonIdArray'              => $buttonIdArray,
+                         'buttonNameArray'            => $buttonNameArray,
                          'recipeArray'                => $recipeArray,
                          'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
                          'buttonSetArray'             => $buttonSetArray,
@@ -2327,10 +2350,10 @@ class BMInterface {
                          'isTournamentLegalArray'     => $isTournamentLegalArray);
         } catch (Exception $e) {
             error_log(
-                'Caught exception in BMInterface::get_all_button_names: ' .
+                'Caught exception in BMInterface::get_all_button_details: ' .
                 $e->getMessage()
             );
-            $this->message = 'Button name get failed.';
+            $this->message = 'Button detail get failed.';
             return NULL;
         }
     }
@@ -2925,26 +2948,37 @@ class BMInterface {
                 return FALSE;
             }
 
-            $query = 'SELECT id FROM button '.
-                     'WHERE name = :button_name';
-            $statement = self::$conn->prepare($query);
-            $statement->execute(array(':button_name' => $buttonName));
-            $fetchData = $statement->fetch();
-            if (FALSE === $fetchData) {
-                $this->message = 'Button select failed because button name was not valid.';
-                return FALSE;
+            if ('__random' == $buttonName) {
+                $query = 'UPDATE game_player_map SET is_button_random = 1 '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id';
+
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':game_id'   => $gameId,
+                                          ':player_id' => $playerId));
+            } else {
+                $query = 'SELECT id FROM button '.
+                         'WHERE name = :button_name';
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':button_name' => $buttonName));
+                $fetchData = $statement->fetch();
+                if (FALSE === $fetchData) {
+                    $this->message = 'Button select failed because button name was not valid.';
+                    return FALSE;
+                }
+                $buttonId = $fetchData[0];
+
+                $query = 'UPDATE game_player_map SET button_id = :button_id '.
+                         'WHERE game_id = :game_id '.
+                         'AND player_id = :player_id';
+
+                $statement = self::$conn->prepare($query);
+
+                $statement->execute(array(':game_id'   => $gameId,
+                                          ':player_id' => $playerId,
+                                          ':button_id' => $buttonId));
             }
-            $buttonId = $fetchData[0];
-
-            $query = 'UPDATE game_player_map SET button_id = :button_id '.
-                     'WHERE game_id = :game_id '.
-                     'AND player_id = :player_id';
-
-            $statement = self::$conn->prepare($query);
-
-            $statement->execute(array(':game_id'   => $gameId,
-                                      ':player_id' => $playerId,
-                                      ':button_id' => $buttonId));
 
             $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
                      'WHERE id = :id';

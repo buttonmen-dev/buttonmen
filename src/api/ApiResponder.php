@@ -212,7 +212,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_loadButtonNames($interface) {
-        return $interface->get_all_button_names();
+        return $interface->get_all_button_details();
     }
 
     protected function get_interface_response_loadGameData($interface, $args) {
