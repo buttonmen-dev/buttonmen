@@ -25,6 +25,8 @@ var Api = (function () {
     'December',
   ];
 
+  my.automatedApiCall = false;
+
   // private methods and variables should be defined separately
   var activity = {};
 
@@ -58,6 +60,7 @@ var Api = (function () {
     my[apikey] = {
       'load_status': 'failed',
     };
+    args['automatedApiCall'] = my.automatedApiCall;
     $.post(
       Env.api_location,
       args,

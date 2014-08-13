@@ -67,6 +67,24 @@ Env.getParameterByName = function(name) {
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
 
+Env.removeParameterByName = function(name) {
+  var newQueryString = '?';
+  var parameterChunks = Env.window.location.search.split(/[?&]/);
+  $.each(parameterChunks, function(index, chunk) {
+    if (chunk === '') { return; }
+    if (chunk.split('=')[0] == name) { return; }
+    newQueryString += chunk + '&';
+  });
+
+  // Trim off the trailing ? or &
+  newQueryString = newQueryString.replace(/[?&]$/, '');
+  var newUrl =
+    Env.window.location.origin + Env.window.location.pathname +
+    newQueryString + Env.window.location.hash;
+  // Replace the current URL without messing up the browser history
+  Env.history.replaceState(null, $(document).find("title").text(), newUrl);
+};
+
 // Make sure that the page body contains a div for displaying status
 // messages
 Env.setupEnvStub = function() {

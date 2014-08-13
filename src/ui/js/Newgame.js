@@ -41,6 +41,8 @@ Newgame.showNewgamePage = function() {
   }
   if (!Newgame.activity.previousGameId) {
     Newgame.activity.previousGameId = Env.getParameterByName('previousGameId');
+    // We apparently don't want it to remain visible in the URL
+    Env.removeParameterByName('previousGameId');
   }
   if (!Newgame.activity.nRounds) {
     Newgame.activity.nRounds = Env.getParameterByName('maxWins');

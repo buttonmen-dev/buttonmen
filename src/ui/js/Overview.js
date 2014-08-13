@@ -6,7 +6,9 @@ var Overview = {};
 Overview.GAME_STATE_END_GAME = 60;
 
 // Number of seconds before refreshing the monitor
-Overview.MONITOR_TIMEOUT = 60;
+//TODO glasonion, reject this pull request if I haven't put this back yet!
+//Overview.MONITOR_TIMEOUT = 60;
+Overview.MONITOR_TIMEOUT = 10;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
@@ -133,6 +135,8 @@ Overview.showPage = function() {
 };
 
 Overview.arrangePage = function() {
+  Api.automatedApiCall = false;
+
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
@@ -142,6 +146,7 @@ Overview.arrangePage = function() {
 };
 
 Overview.executeMonitor = function() {
+  Api.automatedApiCall = true;
   if (Api.user_prefs.monitor_redirects_to_game &&
       Api.user_prefs.monitor_redirects_to_forum) {
     Env.callAsyncInParallel([
@@ -453,17 +458,24 @@ Overview.formDismissGame = function(e) {
 
 // Redirect to the next new forum post if there is one
 Overview.goToNextNewForumPost = function() {
+  // If we're making this call automatically for the monitor, keep track of that
+  var appendix = '';
+  if (Api.automatedApiCall) {
+    appendix = '?auto=true';
+  }
+
   if (Api.forumNavigation.load_status == 'ok') {
     if (Api.forumNavigation.nextNewPostId !== null &&
         $.isNumeric(Api.forumNavigation.nextNewPostId)) {
       Env.window.location.href =
-        'forum.html#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
+        'forum.html' + appendix +
+          '#!threadId=' + Api.forumNavigation.nextNewPostThreadId +
           '&postId=' + Api.forumNavigation.nextNewPostId;
     }
   } else {
     // If there are no new posts (which presumably means the user read them but
     // left this page open while doing so), just show the forum overview
-    Env.window.location.href = 'forum.html';
+    Env.window.location.href = 'forum.html' + appendix;
   }
 };
 

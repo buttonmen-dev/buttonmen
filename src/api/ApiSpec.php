@@ -598,7 +598,7 @@ class ApiSpec {
                     continue;
                 }
                 if ($argname == 'automatedApiCall') {
-                    if ($args[$argname] == 'true' && !in_array($args['type'], $this->$automatableApiCalls)) {
+                    if ($args[$argname] == 'true' && !in_array($args['type'], $this->automatableApiCalls)) {
                         return array(
                             'ok' => FALSE,
                             'message' => $args['type'] . ' can\'t be treated as an automated API call',

@@ -16,6 +16,13 @@ Login.nextGameRefreshCallback = false;
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
+  // Check if this was an automatic redirect from the Monitor
+  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
+  // Perform appendectomy (so a reload won't still register as automated)
+  if (Api.automatedApiCall) {
+    Env.removeParameterByName('auto');
+  }
+
   if (Login.status_type === 0) {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
@@ -274,11 +281,17 @@ Login.formLogin = function() {
 
 // Redirect to the player's next pending game if there is one
 Login.goToNextPendingGame = function() {
+  // If we're making this call automatically for the monitor, keep track of that
+  var appendix = '';
+  if (Api.automatedApiCall) {
+    appendix = '&auto=true';
+  }
+
   if (Api.gameNavigation.load_status == 'ok') {
     if (Api.gameNavigation.nextGameId !== null &&
         $.isNumeric(Api.gameNavigation.nextGameId)) {
       Env.window.location.href =
-        'game.html?game=' + Api.gameNavigation.nextGameId;
+        'game.html?game=' + Api.gameNavigation.nextGameId + appendix;
     } else {
       // If there are no active games, and we're on the Overview page, tell
       // the user so and refresh the list of games
@@ -290,7 +303,7 @@ Login.goToNextPendingGame = function() {
         Login.nextGameRefreshCallback();
       } else {
         // If we're not on the Overview page, send them there
-        Env.window.location.href = '/ui/index.html?mode=preference';
+        Env.window.location.href = '/ui/index.html?mode=preference' + appendix;
       }
     }
   } else {

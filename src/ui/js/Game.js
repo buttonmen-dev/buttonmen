@@ -47,7 +47,6 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 Game.showGamePage = function() {
-
   // Setup necessary elements for displaying status messages
   Env.setupEnvStub();
 
@@ -210,6 +209,8 @@ Game.showStatePage = function() {
 };
 
 Game.arrangePage = function() {
+  Api.automatedApiCall = false;
+
   if ($('#game_page').length === 0) {
     throw('Internal error: #game_page not defined in arrangePage()');
   }
