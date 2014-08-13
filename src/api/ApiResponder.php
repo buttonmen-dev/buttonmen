@@ -633,6 +633,9 @@ class ApiResponder {
 // running PHP unit tests, so we need to fake so things don't fail miserably.
 if (!function_exists('apache_note')) {
     function apache_note($note_name, $note_value) {
-        return $note_name . ': ' . $note_value;
+        if (strpos($note_name, 'BM') !== 0) {
+            throw new Exception('Note name should be prefixed with "BM"');
+        }
+        return $note_value;
     }
 }
