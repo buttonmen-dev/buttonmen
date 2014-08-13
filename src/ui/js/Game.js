@@ -2182,7 +2182,7 @@ Game.dieTableEntry = function(i, activeDieArray) {
     };
     if ((die.properties.indexOf('dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
-      dieopts.class = 'recipe_greyed';
+      dieopts['class'] = 'recipe_greyed';
       if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
         dieopts.title += '. (This die is dizzy because it has been turned ' +
           'down. If the owner wins initiative, this die can\'t be used in ' +
@@ -2193,16 +2193,16 @@ Game.dieTableEntry = function(i, activeDieArray) {
       }
     } else if ((die.properties.indexOf('disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
-      dieopts.class = 'recipe_greyed';
+      dieopts['class'] = 'recipe_greyed';
       dieopts.title += '. (This chance die cannot be rerolled again ' +
         'during this round, because the player has already rerolled a ' +
         'chance die)';
     } else if (die.properties.indexOf('IsAttacker') >= 0) {
-      dieopts.class = 'recipe_inuse';
+      dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is an attacker in the attack which ' +
         'is currently in progress.)';
     } else if (die.properties.indexOf('IsAttackTarget') >= 0) {
-      dieopts.class = 'recipe_inuse';
+      dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is a target of the attack which ' +
         'is currently in progress.)';
     }
@@ -2425,13 +2425,14 @@ Game.gamePlayerDice = function(player, player_active) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        containerDivOpts.class = 'hide_focus die_container die_alive selected';
+        containerDivOpts['class'] =
+          'hide_focus die_container die_alive selected';
       } else {
-        containerDivOpts.class =
+        containerDivOpts['class'] =
           'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
-      divOpts.class = 'die_img';
+      divOpts['class'] = 'die_img';
       dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
@@ -2453,13 +2454,13 @@ Game.gamePlayerDice = function(player, player_active) {
       Game.dieFocusOutlineHandler(dieContainerDiv);
     } else {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
-      divOpts.class = 'die_img die_greyed';
+      divOpts['class'] = 'die_img die_greyed';
       if (player_active) {
         containerDivOpts.title +=
           '. (This die is dizzy because it was turned ' +
           'down.  It can\'t be used during this attack.)';
       }
-      containerDivOpts.class = 'die_container die_alive';
+      containerDivOpts['class'] = 'die_container die_alive';
       dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
