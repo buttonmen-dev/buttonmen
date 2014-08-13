@@ -42,6 +42,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_button_names()
     self.assertEqual(r.status, 'ok', 'loadButtonNames returns successfully')
     known_keys = [
+      'buttonIdArray',
       'buttonNameArray', 'buttonSetArray', 'dieSkillsArray',
       'hasUnimplementedSkillArray', 'isTournamentLegalArray',
       'recipeArray'
