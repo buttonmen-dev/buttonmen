@@ -238,7 +238,7 @@ Newuser.formCreateUser = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'newuser_action_button',
+      '#newuser_action_button',
       Newuser.showNewuserPage,
       Newuser.showNewuserPage
     );

@@ -20,7 +20,11 @@ BMTestUtils.getAllElements = function() {
     if ((elemNode == "SPAN") && (elemId == "") &&
         ((elemClass == "module-name") || (elemClass == "test-name") ||
          (elemClass == "passed") || (elemClass == "total") ||
-         (elemClass == "failed"))) {
+         (elemClass == "failed") || (elemClass == "test-message"))) {
+      continue;
+    }
+    if ((elemNode == "LI") && (elemId == "") &&
+        ((elemClass == "pass") || (elemClass == "fail"))) {
       continue;
     }
 
@@ -31,7 +35,7 @@ BMTestUtils.getAllElements = function() {
 
   // Populate javascript variable info
   var jsInfo = {
-    'ActivePlayers':  JSON.stringify(Api, null, "  "),
+    'ActivePlayers':  JSON.stringify(ActivePlayers, null, "  "),
     'Api':            JSON.stringify(Api, null, "  "),
     'Config':         JSON.stringify(Config, null, "  "),
     'Env':            JSON.stringify(Env, null, "  "),
@@ -41,13 +45,11 @@ BMTestUtils.getAllElements = function() {
     'Loader':         JSON.stringify(Loader, null, "  "),
     'Login':          JSON.stringify(Login, null, "  "),
     'Newgame':        JSON.stringify(Newgame, null, "  "),
-    'OpenGames':      JSON.stringify(OpenGames, null, "  "),
     'Newuser':        JSON.stringify(Newuser, null, "  "),
+    'OpenGames':      JSON.stringify(OpenGames, null, "  "),
     'Overview':       JSON.stringify(Overview, null, "  "),
     'Profile':        JSON.stringify(Profile, null, "  "),
-    // UserPrefs should be added at some point, but it presently contains
-    // circular structures
-    //'UserPrefs':    JSON.stringify(UserPrefs, null, "  "),
+    'UserPrefs':      JSON.stringify(UserPrefs, null, "  "),
     'Verify':         JSON.stringify(Verify, null, "  "),
   };
 

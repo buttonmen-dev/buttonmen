@@ -137,10 +137,10 @@ class TestBMClient(unittest.TestCase):
 
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
-      'gameScoreArray', 'lastActionTime', 'optRequestArray',
-      'playerColor', 'playerId', 'playerName', 'prevOptValueArray',
-      'prevSwingValueArray', 'roundScore', 'sideScore', 'swingRequestArray',
-      'waitingOnAction'
+      'gameScoreArray', 'hasDismissedGame', 'lastActionTime',
+      'optRequestArray', 'playerColor', 'playerId', 'playerName',
+      'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',
+      'swingRequestArray', 'waitingOnAction'
     ]
     player_data = r.data['playerDataArray'][0]
     self.assertEqual(sorted(player_data.keys()), player_data_keys)

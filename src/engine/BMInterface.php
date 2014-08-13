@@ -735,7 +735,8 @@ class BMInterface {
                  'v.did_win_initiative,'.
                  'v.is_awaiting_action, '.
                  'v.is_button_random, '.
-                 'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp '.
+                 'UNIX_TIMESTAMP(v.last_action_time) AS player_last_action_timestamp, '.
+                 'v.was_game_dismissed '.
                  'FROM game AS g '.
                  'LEFT JOIN game_status AS s '.
                  'ON s.id = g.status_id '.
@@ -777,6 +778,7 @@ class BMInterface {
             $this->load_button($game, $pos, $row);
             $this->load_player_attributes($game, $pos, $row);
             $this->load_lastActionTime($game, $pos, $row);
+            $this->load_hasPlayerDismissedGame($game, $pos, $row);
         }
 
         if (!isset($game)) {
@@ -810,6 +812,7 @@ class BMInterface {
         $game->waitingOnActionArray = array_fill(0, $nPlayers, FALSE);
         $game->autopassArray = array_fill(0, $nPlayers, FALSE);
         $game->lastActionTimeArray = array_fill(0, $nPlayers, NULL);
+        $game->hasPlayerDismissedGameArray = array_fill(0, $nPlayers, FALSE);
     }
 
     protected function load_button($game, $pos, $row) {
@@ -866,6 +869,18 @@ class BMInterface {
             );
         } else {
             $game->setArrayPropEntry('lastActionTimeArray', $pos, 0);
+        }
+    }
+
+    protected function load_hasPlayerDismissedGame($game, $pos, $row) {
+        if (isset($row['was_game_dismissed'])) {
+            $game->setArrayPropEntry(
+                'hasPlayerDismissedGameArray',
+                $pos,
+                ((int)$row['was_game_dismissed'] == 1)
+            );
+        } else {
+            $game->setArrayPropEntry('hasPlayerDismissedGameArray', $pos, 0);
         }
     }
 
