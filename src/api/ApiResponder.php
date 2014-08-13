@@ -628,3 +628,11 @@ class ApiResponder {
         }
     }
 }
+
+// This function exists when we're running under apache, but not when we're
+// running PHP unit tests, so we need to fake so things don't fail miserably.
+if (!function_exists('apache_note')) {
+    function apache_note($note_name, $note_value) {
+        return $note_value;
+    }
+}
