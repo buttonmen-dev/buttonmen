@@ -221,7 +221,7 @@ test("test_Newgame.actionCreateGame", function(assert) {
     Newgame.actionCreateGame();
     assert.equal(Newgame.form, Newgame.formCreateGame,
           "Form is set after the 'create game' action is processed");
-    equal($('#n_rounds').val(), 3, 'Rounds should default to 3');
+    assert.equal($('#n_rounds').val(), 3, 'Rounds should default to 3');
     start();
   });
 });
