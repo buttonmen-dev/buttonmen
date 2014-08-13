@@ -128,7 +128,9 @@ class BMInterfaceNewuser {
 
             $this->message = 'User ' . $username . ' created successfully.  ' .
                              'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
-                             'Follow the link in that message to start beating people up!';
+                             'Follow the link in that message to start beating people up! ' .
+                             '(Note: If you don\'t see the email shortly, be sure to check ' .
+                             'your spam folder.)';
 
             return $result;
         } catch (Exception $e) {

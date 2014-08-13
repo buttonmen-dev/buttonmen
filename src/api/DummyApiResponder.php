@@ -91,7 +91,9 @@ class DummyApiResponder {
         return array(array('userName' => $username),
                      'User ' . $username . ' created successfully.  ' .
                      'A verification code has been e-mailed to ' . $username . '@example.com.  ' .
-                     'Follow the link in that message to start beating people up!');
+                     'Follow the link in that message to start beating people up! ' .
+                     '(Note: If you don\'t see the email shortly, be sure to check ' .
+                     'your spam folder.)');
     }
 
     protected function get_interface_response_verifyUser() {
