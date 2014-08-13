@@ -2149,9 +2149,14 @@ Game.dieTableEntry = function(i, activeDieArray) {
     if ((die.properties.indexOf('dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
       dieopts.class = 'recipe_greyed';
-      dieopts.title += '. (This die is dizzy because it has been turned ' +
-        'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.)';
+      if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. If the owner wins initiative, this die can\'t be used in ' +
+          'their first attack.)';
+      } else {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. It can\'t be used during this attack.)';
+      }
     } else if ((die.properties.indexOf('disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
       dieopts.class = 'recipe_greyed';
