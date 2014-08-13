@@ -674,6 +674,22 @@ class DummyApiResponder {
           'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournamentLegalArray' => array(),
         );
 
+        $this->add_standard_button($data);
+        $this->add_button_with_unimplemented_skill($data);
+        $this->add_button_with_four_dice_and_some_implemented_skills($data);
+        $this->add_button_with_twin_dice($data);
+        $this->add_button_with_twin_dice_with_die_skill($data);
+        $this->add_button_with_focus($data);
+        $this->add_button_with_chance($data);
+        $this->add_button_with_auxiliary($data);
+        $this->add_button_with_reserve($data);
+        $this->add_button_with_option($data);
+        $this->add_button_with_swing_and_option_and_skills($data);
+
+        return array($data, "All button names retrieved successfully.");
+    }
+
+    protected function add_standard_button(&$data) {
         // a button with no special skills
         $data['buttonIdArray'][] = 264;
         $data['buttonNameArray'][] = "Avis";
@@ -682,8 +698,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Soldiers";
         $data['dieSkillsArray'][] = array();
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // a button with an unimplemented skill
+    protected function add_button_with_unimplemented_skill(&$data) {
         $data['buttonIdArray'][] = 1;
         $data['buttonNameArray'][] = "Zeppo";
         $data['recipeArray'][] = "(4) (12) (20) (X)!";
@@ -691,8 +708,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "1999 Rare / Promo";
         $data['dieSkillsArray'][] = array("Turbo");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // a button with four dice and some implemented skills
+    protected function add_button_with_four_dice_and_some_implemented_skills(&$data) {
         $data['buttonIdArray'][] = 58;
         $data['buttonNameArray'][] = "Jellybean";
         $data['recipeArray'][] = "p(20) s(20) (V) (X)";
@@ -700,8 +718,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "BROM";
         $data['dieSkillsArray'][] = array("Poison", "Shadow");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // Buck Godot
+    protected function add_button_with_twin_dice(&$data) {
         $data['buttonIdArray'][] = 282;
         $data['buttonNameArray'][] = "Buck Godot";
         $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
@@ -709,8 +728,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Studio Foglio";
         $data['dieSkillsArray'][] = array();
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // Von Pinn
+    protected function add_button_with_twin_dice_with_die_skill(&$data) {
         $data['buttonIdArray'][] = 286;
         $data['buttonNameArray'][] = "Von Pinn";
         $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
@@ -718,8 +738,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Studio Foglio";
         $data['dieSkillsArray'][] = array("Poison");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // Crab: a button with focus dice
+    protected function add_button_with_focus(&$data) {
         $data['buttonIdArray'][] = 200;
         $data['buttonNameArray'][] = "Crab";
         $data['recipeArray'][] = "(8) (10) (12) f(20) f(20)";
@@ -727,8 +748,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Legend of the Five Rings";
         $data['dieSkillsArray'][] = array("Focus");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // John Kovalic: a button with chance dice
+    protected function add_button_with_chance(&$data) {
         $data['buttonIdArray'][] = 315;
         $data['buttonNameArray'][] = "John Kovalic";
         $data['recipeArray'][] = "(6) c(6) (10) (12) c(20)";
@@ -736,8 +758,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Yoyodyne";
         $data['dieSkillsArray'][] = array("Chance");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // King Arthur: a button with an auxiliary die
+    protected function add_button_with_auxiliary(&$data) {
         $data['buttonIdArray'][] = 82;
         $data['buttonNameArray'][] = "King Arthur";
         $data['recipeArray'][] = "(8) (8) (10) (20) (X) +(20)";
@@ -745,8 +768,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Buttonlords";
         $data['dieSkillsArray'][] = array("Auxiliary");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // Cammy Neko: a button with reserve dice
+    protected function add_button_with_reserve(&$data) {
         $data['buttonIdArray'][] = 140;
         $data['buttonNameArray'][] = "Cammy Neko";
         $data['recipeArray'][] = "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)";
@@ -754,8 +778,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Geekz";
         $data['dieSkillsArray'][] = array("Reserve");
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // Apples: a button with option dice
+    protected function add_button_with_option(&$data) {
         $data['buttonIdArray'][] = 10;
         $data['buttonNameArray'][] = "Apples";
         $data['recipeArray'][] = "(8) (8) (2/12) (8/16) (20/24)";
@@ -763,8 +788,9 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Chicagoland Gamers Conclave";
         $data['dieSkillsArray'][] = array();
         $data['isTournamentLegalArray'][] = TRUE;
+    }
 
-        // CactusJack: a button with swing and option dice (and shadow and speed skills)
+    protected function add_button_with_swing_and_option_and_skills(&$data) {
         $data['buttonIdArray'][] = 414;
         $data['buttonNameArray'][] = "CactusJack";
         $data['recipeArray'][] = "z(8/12) (4/16) s(6/10) z(X) s(U)";
@@ -772,8 +798,6 @@ class DummyApiResponder {
         $data['buttonSetArray'][] = "Classic Fanatics";
         $data['dieSkillsArray'][] = array("Shadow", "Speed");
         $data['isTournamentLegalArray'][] = FALSE;
-
-        return array($data, "All button names retrieved successfully.");
     }
 
     protected function get_interface_response_loadGameData($args) {
