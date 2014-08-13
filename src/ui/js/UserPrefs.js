@@ -6,6 +6,7 @@ UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.MIN_IMAGE_SIZE = 80;
 UserPrefs.MAX_IMAGE_SIZE = 200;
 UserPrefs.GENDER_MAX_LENGTH = 100;
+UserPrefs.HOMEPAGE_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 UserPrefs.DEFAULT_COLORS = {
   'player_color': '#dd99dd',
@@ -187,6 +188,12 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'select',
       'value': Api.user_prefs.favorite_buttonset,
       'source': buttonSets,
+    },
+    'homepage': {
+      'text': 'Homepage',
+      'type': 'text',
+      'value': Api.user_prefs.homepage,
+      'length': UserPrefs.HOMEPAGE_MAX_LENGTH,
     },
     'comment': {
       'text': 'Comment',
@@ -382,6 +389,7 @@ UserPrefs.formSetPrefs = function() {
   var favorite_button = $('#userprefs_favorite_button').val();
   var favorite_buttonset = $('#userprefs_favorite_buttonset').val();
   var image_size = $('#userprefs_image_size').val();
+  var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var monitor_redirects_to_game =
@@ -486,6 +494,7 @@ UserPrefs.formSetPrefs = function() {
       'favorite_buttonset': favorite_buttonset,
       'image_size': image_size,
       'uses_gravatar': uses_gravatar,
+      'homepage': homepage,
       'comment': comment,
       'autopass': autopass,
       'monitor_redirects_to_game': monitor_redirects_to_game,
@@ -503,7 +512,7 @@ UserPrefs.formSetPrefs = function() {
       'ok': { 'type': 'fixed', 'text': 'User details set successfully.', },
       'notok': { 'type': 'server', }
     },
-    'userprefs_action_button',
+    '#userprefs_action_button',
     UserPrefs.showUserPrefsPage,
     UserPrefs.showUserPrefsPage
   );

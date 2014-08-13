@@ -6,6 +6,8 @@
   "playerWithInitiativeIdx": 0,
   "roundNumber": 1,
   "maxWins": 3,
+  "description": "",
+  "previousGameId": null,
   "validAttackTypeArray": ["Power", "Skill"],
   "gameSkillsInfo": {
     "Fire": {
@@ -49,6 +51,7 @@
       "sideScore": 0,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null
     },
     {
@@ -76,6 +79,7 @@
       "sideScore": 0,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null
     }
   ],

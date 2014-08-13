@@ -91,7 +91,9 @@ class DummyApiResponder {
         return array(array('userName' => $username),
                      'User ' . $username . ' created successfully.  ' .
                      'A verification code has been e-mailed to ' . $username . '@example.com.  ' .
-                     'Follow the link in that message to start beating people up!');
+                     'Follow the link in that message to start beating people up! ' .
+                     '(Note: If you don\'t see the email shortly, be sure to check ' .
+                     'your spam folder.)');
     }
 
     protected function get_interface_response_verifyUser() {
@@ -835,6 +837,7 @@ class DummyApiResponder {
                                 'monitor_redirects_to_forum' => FALSE,
                                 'automatically_monitor' => FALSE,
                                 'comment' => NULL,
+                                'homepage' => NULL,
                                 'favorite_button' => NULL,
                                 'favorite_buttonset' => NULL,
                                 'last_action_time' => 0,
@@ -866,6 +869,7 @@ class DummyApiResponder {
             'image_size' => NULL,
             'uses_gravatar' => FALSE,
             'comment' => '',
+            'homepage' => NULL,
             'favorite_button' => NULL,
             'favorite_buttonset' => NULL,
             'last_access_time' => 0,

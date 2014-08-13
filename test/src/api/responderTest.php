@@ -63,14 +63,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function object_structures_match($obja, $objb, $inspect_child_arrays=False) {
         foreach ($obja as $akey => $avalue) {
             if (!(array_key_exists($akey, $objb))) {
+                $this->output_mismatched_objects($obja, $objb);
                 return False;
             }
             if (gettype($obja[$akey]) != gettype($objb[$akey])) {
+                $this->output_mismatched_objects($obja, $objb);
                 return False;
             }
             if (($inspect_child_arrays) and (gettype($obja[$akey]) == 'array')) {
                 if ((array_key_exists(0, $obja[$akey])) || (array_key_exists(0, $objb[$akey]))) {
                     if (gettype($obja[$akey][0]) != gettype($objb[$akey][0])) {
+                        $this->output_mismatched_objects($obja, $objb);
                         return False;
                     }
                 }
@@ -78,10 +81,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
         }
         foreach ($objb as $bkey => $bvalue) {
             if (!(array_key_exists($bkey, $obja))) {
+                $this->output_mismatched_objects($obja, $objb);
                 return False;
             }
         }
         return True;
+    }
+
+    /**
+     * Helper method used by object_structures_match() to provide debugging
+     * feedback if the check fails.
+     */
+    private function output_mismatched_objects($obja, $objb) {
+        var_dump('First object: ');
+        var_dump($obja);
+        var_dump('Second object: ');
+        var_dump($objb);
     }
 
     /**
@@ -754,6 +769,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'dob_day' => '29',
             'gender' => '',
             'comment' => '',
+            'homepage' => '',
             'autopass' => 'True',
             'uses_gravatar' => 'False',
             'player_color' => '#dd99dd',

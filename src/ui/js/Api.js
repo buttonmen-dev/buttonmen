@@ -385,6 +385,8 @@ var Api = (function () {
     my.game.gameState = data.gameState;
     my.game.roundNumber = data.roundNumber;
     my.game.maxWins = data.maxWins;
+    my.game.description = data.description;
+    my.game.previousGameId = data.previousGameId;
     my.game.validAttackTypeArray = data.validAttackTypeArray;
     my.game.gameSkillsInfo = data.gameSkillsInfo;
 
@@ -477,10 +479,7 @@ var Api = (function () {
 
   my.disableSubmitButton = function(button) {
     if (button) {
-      if (!(button instanceof jQuery)) {
-        button = $('#' + button);
-      }
-      button.attr('disabled', 'disabled');
+      $(button).attr('disabled', 'disabled');
     }
   };
 

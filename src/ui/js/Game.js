@@ -121,6 +121,7 @@ Game.showStatePage = function() {
   Game.color = {
     'player': Api.game.player.playerColor,
     'opponent': Api.game.opponent.playerColor,
+    'noone': 'white',
   };
 
   // Figure out what to do next based on the game state
@@ -819,6 +820,8 @@ Game.actionPlayTurnActive = function() {
     Game.form
   );
 
+  var attacksExist = false;
+
   for (var i = 0; i < Api.game.validAttackTypeArray.length; i++) {
     var attacktype = Api.game.validAttackTypeArray[i];
     var typetext;
@@ -828,6 +831,7 @@ Game.actionPlayTurnActive = function() {
       typetext = 'SURRENDER!?';
     } else {
       typetext = attacktype + ' Attack';
+      attacksExist = true;
     }
     var attacktypeopts = {
       'value': attacktype,
@@ -840,6 +844,19 @@ Game.actionPlayTurnActive = function() {
     }
     attacktypeselect.append($('<option>', attacktypeopts));
   }
+
+  if (attacksExist) {
+    var defaultAttackOptions = {
+      'value': 'Default',
+      'label': 'Default Attack',
+      'text': 'Default Attack',
+    };
+    if (Game.activity.attackType == 'Default' || !Game.activity.attackType) {
+      defaultAttackOptions.selected = 'selected';
+    }
+    attacktypeselect.prepend($('<option>', defaultAttackOptions));
+  }
+
   attackform.append(attacktypeselect);
 
   attackform.append($('<button>', {
@@ -1107,7 +1124,7 @@ Game.formSpecifyDiceActive = function() {
       { 'ok': { 'type': 'fixed', 'text': 'Successfully set swing values', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1134,7 +1151,7 @@ Game.formChooseAuxiliaryDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1191,7 +1208,7 @@ Game.formChooseReserveDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1313,7 +1330,7 @@ Game.formReactToInitiativeActive = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1414,7 +1431,7 @@ Game.formAdjustFireDiceActive = function() {
         'ok': { 'type': 'server', },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1478,7 +1495,7 @@ Game.formPlayTurnActive = function() {
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
@@ -1502,9 +1519,29 @@ Game.formPlayTurnInactive = function() {
   Api.apiFormPost(
     formargs,
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
+  );
+};
+
+// "Form" for dismissing a game after it's completed
+Game.formDismissGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'dismissGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    args,
+    messages,
+    $(this),
+    function() {
+      window.location.href = Env.ui_root;
+      return false;
+    },
+    Game.showGamePage
   );
 };
 
@@ -1565,28 +1602,49 @@ Game.pageAddGameHeader = function(action_desc) {
     bgcolor = Game.color.opponent;
   }
 
-  var descspan = $('<span>', {
+  if (Api.game.description) {
+    Game.page.append($('<div>', {
+      'text': Api.game.description,
+      'class': 'gameDescDisplay',
+    }));
+  }
+
+  var actionSpan = $('<span>', {
     'id': 'action_desc_span',
     'class': 'action_desc_span',
     'style': 'background: none repeat scroll 0 0 ' + bgcolor,
     'text': action_desc,
   });
-  var descdiv = $('<div>', { 'class': 'action_desc_div', });
-  descdiv.append(descspan);
-  Game.page.append(descdiv);
+  var actionDiv = $('<div>', { 'class': 'action_desc_div', });
+  actionDiv.append(actionSpan);
 
   // If there's new chat the player hasn't seen yet, notify them
   if (Api.game.isParticipant && Api.game.player.lastActionTime &&
       Api.game.chatLog.length &&
       Api.game.chatLog[0].timestamp > Api.game.player.lastActionTime) {
-    descdiv.append(Game.SPACE_BULLET);
-    descdiv.append($('<span>', {
+    actionDiv.append(Game.SPACE_BULLET);
+    actionDiv.append($('<span>', {
       'class': 'action_desc_span new',
       'text': 'New chat message',
     }));
   }
+  Game.page.append(actionDiv);
 
   Game.page.append($('<br>'));
+
+  if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
+      Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    var dismissDiv = $('<div>');
+    Game.page.append(dismissDiv);
+    var dismissLink = $('<a>', {
+      'text': '[Dismiss Game]',
+      'href': '#',
+      'data-gameId': Api.game.gameId,
+    });
+    dismissLink.click(Game.formDismissGame);
+    dismissDiv.append(dismissLink);
+    Game.page.append($('<br>'));
+  }
 
   if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
       Api.game.isParticipant && Api.game.player.waitingOnAction &&
@@ -1609,6 +1667,7 @@ Game.pageAddFooter = function(isChatHidden) {
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
   Game.pageAddSkillListFooter();
+  Game.pageAddNewGameLinkFooter();
   Game.pageAddLogFooter();
 };
 
@@ -1708,6 +1767,118 @@ Game.pageAddSkillListFooter = function() {
   return true;
 };
 
+// Display links to create new games similar to this one
+Game.pageAddNewGameLinkFooter = function() {
+  if (Api.game.gameState != Game.GAME_STATE_END_GAME) {
+    return;
+  }
+
+  var linkDiv;
+  if (Api.game.isParticipant) {
+    Game.page.append($('<br>'));
+
+    Game.page.append($('<div>', {
+      'text':
+        'Challenge ' + Api.game.opponent.playerName +
+        ' to a rematch, preserving chat:',
+    }));
+
+    linkDiv = $('<div>');
+    Game.page.append(linkDiv);
+
+    linkDiv.append(Game.buildNewGameLink(
+      'same buttons',
+      Api.game.opponent.playerName,
+      Api.game.player.button.name,
+      Api.game.opponent.button.name,
+      Api.game.gameId
+    ));
+
+    if (Api.game.player.button.name != Api.game.opponent.button.name) {
+      linkDiv.append(Game.buildNewGameLink(
+        'reverse',
+        Api.game.opponent.playerName,
+        Api.game.opponent.button.name,
+        Api.game.player.button.name,
+      Api.game.gameId
+      ));
+    }
+
+    linkDiv.append(Game.buildNewGameLink(
+      'new buttons',
+      Api.game.opponent.playerName,
+      null,
+      null,
+      Api.game.gameId
+    ));
+  }
+
+  Game.page.append($('<br>'));
+
+  Game.page.append($('<div>', {
+    'text': 'Create an open game with these buttons: ',
+  }));
+
+  linkDiv = $('<div>');
+  Game.page.append(linkDiv);
+
+  if (Api.game.player.button.name == Api.game.opponent.button.name) {
+    linkDiv.append(Game.buildNewGameLink(
+      'you both play ' + Api.game.player.button.name,
+      null,
+      Api.game.player.button.name,
+      Api.game.player.button.name,
+      null
+    ));
+  } else {
+    linkDiv.append(Game.buildNewGameLink(
+      'you play ' + Api.game.player.button.name,
+      null,
+      Api.game.player.button.name,
+      Api.game.opponent.button.name,
+      null
+    ));
+
+    linkDiv.append(Game.buildNewGameLink(
+      'you play ' + Api.game.opponent.button.name,
+      null,
+      Api.game.opponent.button.name,
+      Api.game.player.button.name,
+      null
+    ));
+  }
+
+  Game.page.append($('<br>'));
+};
+
+// Contstructs a span containing a link to the Create Game page
+Game.buildNewGameLink = function(text, opponent, button, opponentButton,
+    previousGameId) {
+  var holder = $('<span>');
+  holder.append('[');
+  var url = 'create_game.html?';
+  if (opponent) {
+    url += 'opponent=' + encodeURIComponent(opponent) + '&';
+  }
+  if (button) {
+    url += 'playerButton=' + encodeURIComponent(button) + '&';
+  }
+  if (opponentButton) {
+    url += 'opponentButton=' + encodeURIComponent(opponentButton) + '&';
+  }
+  if (previousGameId) {
+    url += 'previousGameId=' + previousGameId + '&';
+  }
+  url += 'maxWins=' + Api.game.maxWins;
+
+  holder.append($('<a>', {
+    'text': text,
+    'href': url,
+  }));
+  holder.append('] ');
+  return holder;
+};
+
 // Display recent game data from the action log at the foot of the page
 Game.pageAddLogFooter = function() {
   if ((Api.game.chatLog.length > 0) || (Api.game.actionLog.length > 0)) {
@@ -1765,8 +1936,10 @@ Game.pageAddLogFooter = function() {
         var chatplayer;
         if (logentry.player == Api.game.player.playerName) {
           chatplayer = 'player';
-        } else {
+        } else if (logentry.player == Api.game.opponent.playerName) {
           chatplayer = 'opponent';
+        } else {
+          chatplayer = 'noone';
         }
         chatrow.append($('<td>', {
           'class': 'chat',
@@ -2010,9 +2183,14 @@ Game.dieTableEntry = function(i, activeDieArray) {
     if ((die.properties.indexOf('dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
       dieopts.class = 'recipe_greyed';
-      dieopts.title += '. (This die is dizzy because it has been turned ' +
-        'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.)';
+      if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. If the owner wins initiative, this die can\'t be used in ' +
+          'their first attack.)';
+      } else {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. It can\'t be used during this attack.)';
+      }
     } else if ((die.properties.indexOf('disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
       dieopts.class = 'recipe_greyed';

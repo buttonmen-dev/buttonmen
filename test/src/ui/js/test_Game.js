@@ -18,7 +18,12 @@ module("Game", {
       'opponent': '#ddffdd',
     };
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -49,63 +54,84 @@ module("Game", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.GamePost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.GamePost, BMTestUtils.GamePre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Game module has been loaded
-test("test_Game_is_loaded", function() {
-  ok(Game, "The Game namespace exists");
+test("test_Game_is_loaded", function(assert) {
+  assert.ok(Game, "The Game namespace exists");
 });
 
-asyncTest("test_Game.showGamePage", function() {
-  BMTestUtils.GameType = 'newgame';
+// The purpose of this test is to demonstrate that the flow of
+// Game.showGamePage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
+test("test_Game.showGamePage", function(assert) {
+  expect(5);
+  var cached_getCurrentGame = Game.getCurrentGame;
+  var cached_showStatePage = Game.showStatePage;
+  var getCurrentGameCalled = false;
+  Game.showStatePage = function() {
+    assert.ok(getCurrentGameCalled, "Game.getCurrentGame is called before Game.showStatePage");
+  }
+  Game.getCurrentGame = function(callback) {
+    getCurrentGameCalled = true;
+    assert.equal(callback, Game.showStatePage,
+      "Game.getCurrentGame is called with Game.showStatePage as an argument");
+    callback();
+  }
+
   Game.showGamePage();
   var item = document.getElementById('game_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#game_page is a div after showGamePage() is called");
-  start();
+  Game.getCurrentGame = cached_getCurrentGame;
+  Game.showStatePage = cached_showStatePage;
 });
 
-// We're testing this synchronously, in the hope that this way qunit won't give
-// up on it before it finishes loading everything from the API
-test("test_Game.redrawGamePageSuccess", function() {
+// Use stop()/start() because the AJAX-using operation needs to
+// finish before its results can be tested
+test("test_Game.redrawGamePageSuccess", function(assert) {
+  $.ajaxSetup({ async: false });
   BMTestUtils.GameType = 'newgame';
   Game.activity.chat = "Some chat text";
-  $.ajaxSetup({ async: false });
   Game.redrawGamePageSuccess();
-  $.ajaxSetup({ async: true });
   var item = document.getElementById('game_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#game_page is a div after redrawGamePageSuccess() is called");
-  deepEqual(Game.activity, {},
+  assert.deepEqual(Game.activity, {},
         "Game.activity is cleared by redrawGamePageSuccess()");
+  $.ajaxSetup({ async: true });
 });
 
-// We're testing this synchronously, in the hope that this way qunit won't give
-// up on it before it finishes loading everything from the API
-test("test_Game.redrawGamePageFailure", function() {
+// Use stop()/start() because the AJAX-using operation needs to
+// finish before its results can be tested
+test("test_Game.redrawGamePageFailure", function(assert) {
+  $.ajaxSetup({ async: false });
   BMTestUtils.GameType = 'newgame';
   Game.activity.chat = "Some chat text";
-  $.ajaxSetup({ async: false });
   Game.redrawGamePageFailure();
-  $.ajaxSetup({ async: true });
   var item = document.getElementById('game_page');
-  equal(item.nodeName, "DIV",
+  assert.equal(item.nodeName, "DIV",
         "#game_page is a div after redrawGamePageFailure() is called");
-  equal(Game.activity.chat, "Some chat text",
+  assert.equal(Game.activity.chat, "Some chat text",
         "Game.activity.chat is retained by redrawGamePageSuccess()");
+  $.ajaxSetup({ async: true });
 });
 
-// N.B. Almost all of these tests should use asyncTest, set a test
+// N.B. Almost all of these tests should use stop(), set a test
 // game type, and invoke Game.getCurrentGame(), because that's the
 // way to get the dummy responder data which all the other functions
-// need.  Then run tests against the function itself.  So the typical
-// format will be:
+// need.  Then run tests against the function itself, and end with
+// start().  So the typical format will be:
 //
-// asyncTest("test_Game.someFunction", function() {
+// test("test_Game.someFunction", function(assert) {
+//   stop();
 //   BMTestUtils.GameType = '<sometype>';
 //   Game.getCurrentGame(function() {
 //     <setup any additional prereqs for someFunction>
@@ -115,166 +141,166 @@ test("test_Game.redrawGamePageFailure", function() {
 //   });
 // });
 
-// But despite what the comment just inches above says...
-// We're testing this synchronously, in the hope that this way qunit won't give
-// up on it before it finishes loading everything from the API
-test("test_Game.getCurrentGame", function() {
+test("test_Game.getCurrentGame", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
-  $.ajaxSetup({ async: false });
-   Game.getCurrentGame(function() {
-    equal(Game.game, '1', "Set expected game number");
-    equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
-    equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
+  Game.getCurrentGame(function() {
+    assert.equal(Game.game, '1', "Set expected game number");
+    assert.equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
+    assert.equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage", function() {
+test("test_Game.showStatePage", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_chooseaux_active", function() {
+test("test_Game.showStatePage_chooseaux_active", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chooseaux_active';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    equal(htmlout.match('figure out what action to take next'), null,
-          "The game action should be defined");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    assert.equal(htmlout.match('figure out what action to take next'), null,
+      "The game action should be defined");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_reserve_active", function() {
+test("test_Game.showStatePage_reserve_active", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_active';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    equal(htmlout.match('figure out what action to take next'), null,
-          "The game action should be defined");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    assert.equal(htmlout.match('figure out what action to take next'), null,
+      "The game action should be defined");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_reserve_inactive", function() {
+test("test_Game.showStatePage_reserve_inactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_inactive';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    equal(htmlout.match('figure out what action to take next'), null,
-          "The game action should be defined");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    assert.equal(htmlout.match('figure out what action to take next'), null,
+      "The game action should be defined");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_reserve_nonplayer", function() {
+test("test_Game.showStatePage_reserve_nonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_nonplayer';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    equal(htmlout.match('figure out what action to take next'), null,
-          "The game action should be defined");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    assert.equal(htmlout.match('figure out what action to take next'), null,
+      "The game action should be defined");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_swingset", function() {
+test("test_Game.showStatePage_swingset", function(assert) {
+  stop();
   BMTestUtils.GameType = 'swingset';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_newgame_nonplayer", function() {
+test("test_Game.showStatePage_newgame_nonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame_nonplayer';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_turn_active", function() {
+test("test_Game.showStatePage_turn_active", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    ok(!Game.page.is('.compactMode'),
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    assert.ok(!Game.page.is('.compactMode'),
       "The created page should be in normal mode")
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_turn_active_compactMode", function() {
+test("test_Game.showStatePage_turn_active_compactMode", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Env.setCookieCompactMode(true);
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    ok(Game.page.is('.compactMode'),
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    assert.ok(Game.page.is('.compactMode'),
       "The created page should be in compact mode")
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_turn_inactive", function() {
+// EOT
+
+test("test_Game.showStatePage_turn_inactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_inactive';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-test("test_Game.showStatePage_turn_nonplayer", function() {
+test("test_Game.showStatePage_turn_nonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_nonplayer';
-  $.ajaxSetup({ async: false });
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
+    assert.ok(htmlout.length > 0,
+      "The created page should have nonzero contents");
+    start();
   });
-  $.ajaxSetup({ async: true });
 });
 
-asyncTest("test_Game.arrangePage", function() {
+test("test_Game.arrangePage", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
 
@@ -283,69 +309,75 @@ asyncTest("test_Game.arrangePage", function() {
     Game.page.append($('<p>', {'text': 'hi world', }));
     Game.arrangePage();
     var item = document.getElementById('game_page');
-    equal(item.nodeName, "DIV",
-          "#game_page is a div after arrangePage() is called");
+    assert.equal(item.nodeName, "DIV",
+      "#game_page is a div after arrangePage() is called");
     start();
   });
 });
 
-asyncTest("test_Game.parseValidInitiativeActions", function() {
+test("test_Game.parseValidInitiativeActions", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
-    deepEqual(Api.game.player.initiativeActions, {},
-              "No valid initiative actions during choose swing phase");
+    assert.deepEqual(Api.game.player.initiativeActions, {},
+      "No valid initiative actions during choose swing phase");
     start();
   });
 });
 
-asyncTest("test_Game.parseValidReserveOptions", function() {
+test("test_Game.parseValidReserveOptions", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.parseValidReserveOptions();
-    deepEqual(Api.game.player.reserveOptions, {},
-              "No valid reserve die options during choose swing phase");
+    assert.deepEqual(Api.game.player.reserveOptions, {},
+      "No valid reserve die options during choose swing phase");
     start();
   });
 });
 
-asyncTest("test_Game.parseValidReserveOptions_reserve_active", function() {
+test("test_Game.parseValidReserveOptions_reserve_active", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.parseValidReserveOptions();
-    deepEqual(Api.game.player.reserveOptions,
-              {'4': true, '5': true, '6': true, '7': true, },
-              "Four valid reserve die options during first choose reserve phase");
+    assert.deepEqual(Api.game.player.reserveOptions,
+      {'4': true, '5': true, '6': true, '7': true, },
+      "Four valid reserve die options during first choose reserve phase");
     start();
   });
 });
 
-asyncTest("test_Game.parseValidFireOptions", function() {
+test("test_Game.parseValidFireOptions", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.parseValidFireOptions();
-    deepEqual(Api.game.player.fireOptions, {},
-              "No valid fire die options during choose swing phase");
+    assert.deepEqual(Api.game.player.fireOptions, {},
+      "No valid fire die options during choose swing phase");
     start();
   });
 });
 
-asyncTest("test_Game.parseValidFireOptions_fire_active", function() {
+test("test_Game.parseValidFireOptions_fire_active", function(assert) {
+  stop();
   BMTestUtils.GameType = 'fire_active';
   Game.getCurrentGame(function() {
     Game.parseValidFireOptions();
-    deepEqual(Api.game.player.fireOptions,
-              {'0': [1, ], },
-              "One valid fire die option during adjust fire phase");
+    assert.deepEqual(Api.game.player.fireOptions,
+      {'0': [1, ], },
+      "One valid fire die option during adjust fire phase");
     start();
   });
 });
 
-asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
+test("test_Game.parseValidInitiativeActions_focus", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
-    deepEqual(
+    assert.deepEqual(
       Api.game.player.initiativeActions,
         {'focus': {
           '3': [5, 4, 3, 2, 1],
@@ -357,11 +389,12 @@ asyncTest("test_Game.parseValidInitiativeActions_focus", function() {
   });
 });
 
-asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
+test("test_Game.parseValidInitiativeActions_chance", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chance_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
-    deepEqual(
+    assert.deepEqual(
       Api.game.player.initiativeActions,
         {'chance': { '1': true, '4': true }, 'decline': true },
         "Correct valid initiative actions identified for John Kovalic");
@@ -369,276 +402,290 @@ asyncTest("test_Game.parseValidInitiativeActions_chance", function() {
   });
 });
 
-asyncTest("test_Game.parseAuxiliaryDieOptions", function() {
+test("test_Game.parseAuxiliaryDieOptions", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chooseaux_active';
   Game.getCurrentGame(function() {
     Game.parseAuxiliaryDieOptions();
-    equal(Api.game.player.auxiliaryDieRecipe, "+(20)",
-          "Correct auxiliary die option for player");
-    equal(Api.game.opponent.auxiliaryDieRecipe, "+(20)",
-          "Correct auxiliary die option for opponent");
+    assert.equal(Api.game.player.auxiliaryDieRecipe, "+(20)",
+      "Correct auxiliary die option for player");
+    assert.equal(Api.game.opponent.auxiliaryDieRecipe, "+(20)",
+      "Correct auxiliary die option for opponent");
     start();
   });
 });
 
-asyncTest("test_Game.actionSpecifyDiceActive", function() {
+test("test_Game.actionSpecifyDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     var item = document.getElementById('die_specify_table');
-    equal(item.nodeName, "TABLE",
-          "#die_specify_table is a table after actionSpecifyDiceActive() is called");
-    ok(item.innerHTML.match(/X \(4-20\):/),
-       "swing table should contain request to set X swing");
+    assert.equal(item.nodeName, "TABLE",
+      "#die_specify_table is a table after actionSpecifyDiceActive() is called");
+    assert.ok(item.innerHTML.match(/X \(4-20\):/),
+      "swing table should contain request to set X swing");
 
     var item = document.getElementById('opponent_swing');
-    equal(item.nodeName, "TABLE",
-          "#opponent_swing is a table after actionSpecifyDiceActive() is called");
+    assert.equal(item.nodeName, "TABLE",
+      "#opponent_swing is a table after actionSpecifyDiceActive() is called");
     start();
   });
 });
 
-asyncTest("test_Game.actionSpecifyDiceActive_option", function() {
+test("test_Game.actionSpecifyDiceActive_option", function(assert) {
+  stop();
   BMTestUtils.GameType = 'option_active';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     var item = document.getElementById('die_specify_table');
-    equal(item.nodeName, "TABLE",
-          "#die_specify_table is a table after actionSpecifyDiceActive() is called");
+    assert.equal(item.nodeName, "TABLE",
+      "#die_specify_table is a table after actionSpecifyDiceActive() is called");
     var item = document.getElementById('option_3');
-    ok(item, "#option_3 select is set");
-//    $.each(item.childNodes, function(childid, child) {
-//      if (child.getAttribute('label') == '6') {
-//        deepEqual(child.getAttribute('selected'), 'selected',
-//         'Focus die is initially set to maximum value');
-//      }
-//    });
+    assert.ok(item, "#option_3 select is set");
 
     var item = document.getElementById('opponent_swing');
-    equal(item.nodeName, "TABLE",
-          "#opponent_swing is a table after actionSpecifyDiceActive() is called");
+    assert.equal(item.nodeName, "TABLE",
+      "#opponent_swing is a table after actionSpecifyDiceActive() is called");
     start();
   });
 });
 
-asyncTest("test_Game.actionSpecifyDiceInactive", function() {
+test("test_Game.actionSpecifyDiceInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceInactive();
     var item = document.getElementById('die_specify_table');
-    equal(item, null, "#die_specify_table is NULL");
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(item, null, "#die_specify_table is NULL");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionSpecifyDiceNonplayer", function() {
+test("test_Game.actionSpecifyDiceNonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceNonplayer();
     var item = document.getElementById('die_specify_table');
-    equal(item, null, "#die_specify_table is NULL");
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(item, null, "#die_specify_table is NULL");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseAuxiliaryDiceActive", function() {
+test("test_Game.actionChooseAuxiliaryDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chooseaux_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
-    ok(Game.form, "Game.form is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseAuxiliaryDiceInactive", function() {
+test("test_Game.actionChooseAuxiliaryDiceInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chooseaux_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceInactive();
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseAuxiliaryDiceNonplayer", function() {
+test("test_Game.actionChooseAuxiliaryDiceNonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chooseaux_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceNonplayer();
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseReserveDiceActive", function() {
+test("test_Game.actionChooseReserveDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
-    ok(Game.form, "Game.form is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseReserveDiceInactive", function() {
+test("test_Game.actionChooseReserveDiceInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceInactive();
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionChooseReserveDiceNonplayer", function() {
+test("test_Game.actionChooseReserveDiceNonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceNonplayer();
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionReactToInitiativeActive", function() {
+test("test_Game.actionReactToInitiativeActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     var item = document.getElementById('init_react_3');
-    ok(item, "#init_react_3 select is set");
+    assert.ok(item, "#init_react_3 select is set");
     $.each(item.childNodes, function(childid, child) {
       if (child.getAttribute('label') == '6') {
-        deepEqual(child.getAttribute('selected'), 'selected',
+        assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Focus die is initially set to maximum value');
       }
     });
     item = document.getElementById('init_react_4');
-    ok(item, "#init_react_4 select is set");
-    ok(Game.form, "Game.form is set");
+    assert.ok(item, "#init_react_4 select is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionReactToInitiativeActive_prevvals", function() {
+test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.activity.initiativeDieIdxArray = [ 3, ];
   Game.activity.initiativeDieValueArray = [ 2, ];
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
     var item = document.getElementById('init_react_3');
-    ok(item, "#init_react_3 select is set");
+    assert.ok(item, "#init_react_3 select is set");
     $.each(item.childNodes, function(childid, child) {
       if (child.getAttribute('label') == '2') {
-        deepEqual(child.getAttribute('selected'), 'selected',
+        assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Focus die is turned down to previously chosen value');
       }
     });
     item = document.getElementById('init_react_4');
-    ok(item, "#init_react_4 select is set");
-    ok(Game.form, "Game.form is set");
+    assert.ok(item, "#init_react_4 select is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionReactToInitiativeInactive", function() {
+test("test_Game.actionReactToInitiativeInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chance_inactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
     var item = document.getElementById('die_recipe_table');
-    ok(item, "page contains die recipe table");
+    assert.ok(item, "page contains die recipe table");
     item = document.getElementById('init_react_1');
-    equal(item, null, "#init_react_1 select is not set");
-    equal(Game.form, null, "Game.form is not set");
+    assert.equal(item, null, "#init_react_1 select is not set");
+    assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
 });
 
-asyncTest("test_Game.actionReactToInitiativeNonplayer", function() {
+test("test_Game.actionReactToInitiativeNonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chance_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeNonplayer();
     var item = document.getElementById('die_recipe_table');
-    ok(item, "page contains die recipe table");
+    assert.ok(item, "page contains die recipe table");
     item = document.getElementById('init_react_1');
-    equal(item, null, "#init_react_1 select is not set");
-    equal(Game.form, null, "Game.form is not set");
+    assert.equal(item, null, "#init_react_1 select is not set");
+    assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
 });
 
-asyncTest("test_Game.actionPlayTurnActive", function() {
+test("test_Game.actionPlayTurnActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    equal(item.innerHTML.match('selected'), null,
+    assert.equal(item.innerHTML.match('selected'), null,
       'No attacking die is initially selected');
-    equal(item.tabIndex, 0,
+    assert.equal(item.tabIndex, 0,
       'Attacking die should be accessible via the keyboard');
 
     var item = document.getElementById('attack_type_select');
-    ok(item, "#attack_type_select is set");
-    equal(item.innerHTML.match('selected'), null,
-      'No attack type is initially selected');
+    assert.ok(item, "#attack_type_select is set");
+    assert.equal($(item).val(), 'Default',
+      'Default attack type is initially selected');
     var item = document.getElementById('game_chat');
-    equal(item.innerHTML, '',
+    assert.equal(item.innerHTML, '',
       'Chat box is empty when there is no previous text');
-    equal(item.tabIndex, 0,
+    assert.equal(item.tabIndex, 0,
       'Chat box should be accessible via the keyboard');
     var item = document.getElementById('game_action_button');
-    ok(item.innerHTML.match('Beat People UP!'),
+    assert.ok(item.innerHTML.match('Beat People UP!'),
        "Attack submit button says Beat People UP!");
-    ok(Game.form, "Game.form is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionAdjustFireDiceActive", function() {
+test("test_Game.actionAdjustFireDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'fire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
     var htmlout = Game.page.html();
-    ok(htmlout.match('Turn down Fire dice by a total of 1'),
+    assert.ok(htmlout.match('Turn down Fire dice by a total of 1'),
       'Page describes the necessary Fire die turndown');
     var item = document.getElementById('fire_adjust_0');
-    ok(item, "#fire_adjust_0 select is set");
+    assert.ok(item, "#fire_adjust_0 select is set");
     $.each(item.childNodes, function(childid, child) {
       if (child.getAttribute('label') == '2') {
-        deepEqual(child.getAttribute('selected'), 'selected',
+        assert.deepEqual(child.getAttribute('selected'), 'selected',
          'Fire die is initially set to current (maximum) value');
       }
     });
     item = document.getElementById('fire_adjust_1');
-    ok(!item, "#fire_adjust_1 select is not set");
-    ok(Game.form, "Game.form is set");
+    assert.ok(!item, "#fire_adjust_1 select is not set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionAdjustFireDiceInactive", function() {
+test("test_Game.actionAdjustFireDiceInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'fire_inactive';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceInactive();
     var item = document.getElementById('die_recipe_table');
-    ok(item, "page contains die recipe table");
+    assert.ok(item, "page contains die recipe table");
     item = document.getElementById('fire_adjust_0');
-    equal(item, null, "#fire_adjust_0 select is not set");
-    equal(Game.form, null, "Game.form is not set");
+    assert.equal(item, null, "#fire_adjust_0 select is not set");
+    assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
 });
 
-asyncTest("test_Game.actionAdjustFireDiceNonplayer", function() {
+test("test_Game.actionAdjustFireDiceNonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'fire_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceNonplayer();
     var item = document.getElementById('die_recipe_table');
-    ok(item, "page contains die recipe table");
+    assert.ok(item, "page contains die recipe table");
     item = document.getElementById('fire_adjust_0');
-    equal(item, null, "#fire_adjust_0 select is not set");
-    equal(Game.form, null, "Game.form is not set");
+    assert.equal(item, null, "#fire_adjust_0 select is not set");
+    assert.equal(Game.form, null, "Game.form is not set");
     start();
   });
 });
 
-asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
+test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.activity.chat = 'I had previously typed some text';
   Game.activity.attackType = 'Skill';
@@ -653,51 +700,54 @@ asyncTest("test_Game.actionPlayTurnActive_prevvals", function() {
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     var item = document.getElementById('playerIdx_0_dieIdx_0');
-    deepEqual(item.className, 'hide_focus die_container die_alive selected',
+    assert.deepEqual(item.className, 'hide_focus die_container die_alive selected',
       'Previous attacking die selection is retained');
     var item = document.getElementById('attack_type_select');
-    ok(item.innerHTML.match('selected'),
+    assert.ok(item.innerHTML.match('selected'),
       'Previous attack type selection is retained');
     var item = document.getElementById('game_chat');
-    equal($(item).val(), 'I had previously typed some text',
+    assert.equal($(item).val(), 'I had previously typed some text',
       'Previous text is retained by game chat');
-    ok(Game.form, "Game.form is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionPlayTurnInactive", function() {
+test("test_Game.actionPlayTurnInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_inactive';
   Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     var item = document.getElementById('attack_type_select');
-    equal(item, null, "#attack_type_select is not set");
+    assert.equal(item, null, "#attack_type_select is not set");
     var item = document.getElementById('game_chat');
-    equal($(item).val(), 'I had previously typed some text',
+    assert.equal($(item).val(), 'I had previously typed some text',
       'Previous text is retained by game chat');
-    ok(Game.form, "Game.form is set");
+    assert.ok(Game.form, "Game.form is set");
     start();
   });
 });
 
-asyncTest("test_Game.actionPlayTurnNonplayer", function() {
+test("test_Game.actionPlayTurnNonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnNonplayer();
     var item = document.getElementById('attack_type_select');
-    equal(item, null, "#attack_type_select is not set");
-    equal(Game.form, null, "Game.form is NULL");
+    assert.equal(item, null, "#attack_type_select is not set");
+    assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
 });
 
-asyncTest("test_Game.actionShowFinishedGame", function() {
+test("test_Game.actionShowFinishedGame", function(assert) {
+  stop();
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
-    equal(Game.form, null, "Game.form is NULL");
-    equal(Game.logEntryLimit, undefined, "Log history is assumed to be full");
+    assert.equal(Game.form, null, "Game.form is NULL");
+    assert.equal(Game.logEntryLimit, undefined, "Log history is assumed to be full");
     start();
     Game.logEntryLimit = 10;
   });
@@ -709,14 +759,15 @@ asyncTest("test_Game.actionShowFinishedGame", function() {
 // just redraws the page), so turn off asynchronous handling in
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
-asyncTest("test_Game.formSpecifyDiceActive", function() {
+test("test_Game.formSpecifyDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     $('#swing_X').val('7');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success", "text": "Successfully set swing values"},
       "Game action succeeded when expected arguments were set");
@@ -725,14 +776,15 @@ asyncTest("test_Game.formSpecifyDiceActive", function() {
   });
 });
 
-asyncTest("test_Game.formChooseAuxiliaryDiceActive", function() {
+test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chooseaux_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
     $('#auxiliary_die_select').val('add');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success",
        "text": "Auxiliary die chosen successfully"},
@@ -742,7 +794,8 @@ asyncTest("test_Game.formChooseAuxiliaryDiceActive", function() {
   });
 });
 
-asyncTest("test_Game.formChooseReserveDiceActive", function() {
+test("test_Game.formChooseReserveDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
@@ -750,7 +803,7 @@ asyncTest("test_Game.formChooseReserveDiceActive", function() {
     $('#choose_reserve_5').prop('checked', true);
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success",
        "text": "Reserve die chosen successfully"},
@@ -760,14 +813,15 @@ asyncTest("test_Game.formChooseReserveDiceActive", function() {
   });
 });
 
-asyncTest("test_Game.formChooseReserveDiceActive_decline", function() {
+test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
+  stop();
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
     $('#reserve_select').val('decline');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success",
        "text": "Reserve die chosen successfully"},
@@ -777,7 +831,8 @@ asyncTest("test_Game.formChooseReserveDiceActive_decline", function() {
   });
 });
 
-asyncTest("test_Game.formReactToInitiativeActive", function() {
+test("test_Game.formReactToInitiativeActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
@@ -785,7 +840,7 @@ asyncTest("test_Game.formReactToInitiativeActive", function() {
     $('#init_react_3').val('5');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success",
        "text": "Successfully gained initiative using focus dice"},
@@ -795,7 +850,8 @@ asyncTest("test_Game.formReactToInitiativeActive", function() {
   });
 });
 
-asyncTest("test_Game.formReactToInitiativeActive_decline_invalid", function() {
+test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
@@ -803,7 +859,7 @@ asyncTest("test_Game.formReactToInitiativeActive_decline_invalid", function() {
     $('#init_react_3').val('5');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "error",
        "text": "Chose not to react to initiative, but modified a die value"},
@@ -813,7 +869,8 @@ asyncTest("test_Game.formReactToInitiativeActive_decline_invalid", function() {
   });
 });
 
-asyncTest("test_Game.formAdjustFireDiceActive", function() {
+test("test_Game.formAdjustFireDiceActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'fire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
@@ -821,7 +878,7 @@ asyncTest("test_Game.formAdjustFireDiceActive", function() {
     $('#fire_adjust_0').val('1');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success",
        "text": "Successfully completed attack by turning down fire dice"},
@@ -831,13 +888,14 @@ asyncTest("test_Game.formAdjustFireDiceActive", function() {
   });
 });
 
-asyncTest("test_Game.formPlayTurnActive", function() {
+test("test_Game.formPlayTurnActive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success", "text": "Dummy turn submission accepted"},
       "Game action succeeded when expected arguments were set");
@@ -846,7 +904,8 @@ asyncTest("test_Game.formPlayTurnActive", function() {
   });
 });
 
-asyncTest("test_Game.formPlayTurnActive_surrender_dice", function() {
+test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
@@ -854,7 +913,7 @@ asyncTest("test_Game.formPlayTurnActive_surrender_dice", function() {
     $('#attack_type_select').val('Surrender');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "error", "text": "Please deselect all dice before surrendering."},
       "UI rejects surrender action when dice are selected");
@@ -863,14 +922,15 @@ asyncTest("test_Game.formPlayTurnActive_surrender_dice", function() {
   });
 });
 
-asyncTest("test_Game.formPlayTurnInactive", function() {
+test("test_Game.formPlayTurnInactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
     $('#game_chat').val('hello world');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
-    deepEqual(
+    assert.deepEqual(
       Env.message,
       {"type": "success", "text": "Added game message"},
       "Game action succeeded when expected arguments were set");
@@ -879,178 +939,207 @@ asyncTest("test_Game.formPlayTurnInactive", function() {
   });
 });
 
-asyncTest("test_Game.readCurrentGameActivity", function() {
+test("test_Game.formDismissGame", function(assert) {
+  stop();
+  assert.expect(3); // test plus 2 teardown
+  // Temporarily back up Api.apiFormPost and replace it with
+  // a mocked version for testing
+  var apiFormPost = Api.apiFormPost;
+  Api.apiFormPost = function(args) {
+    Api.apiFormPost = apiFormPost;
+    assert.deepEqual(args, { 'type': 'dismissGame', 'gameId': '5' },
+      'Dismiss game should try to dismiss the game');
+    start();
+  };
+  var link = $('<a>', { 'data-gameId': 5 });
+  Game.formDismissGame.call(link, $.Event());
+});
+
+test("test_Game.readCurrentGameActivity", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
     $('#playerIdx_1_dieIdx_0').click();
     $('#game_chat').val('hello world');
     Game.readCurrentGameActivity();
-    ok(Game.activity.dieSelectStatus['playerIdx_1_dieIdx_0'],
+    assert.ok(Game.activity.dieSelectStatus['playerIdx_1_dieIdx_0'],
       "Player 1's die 0 is selected");
-    ok(!Game.activity.dieSelectStatus['playerIdx_0_dieIdx_0'],
+    assert.ok(!Game.activity.dieSelectStatus['playerIdx_0_dieIdx_0'],
       "Player 0's die 0 is not selected");
-    equal(Game.activity.chat, 'hello world', "chat is correctly set");
+    assert.equal(Game.activity.chat, 'hello world', "chat is correctly set");
     start();
   });
 });
 
-asyncTest("test_Game.showFullLogHistory", function() {
+test("test_Game.showFullLogHistory", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     $.ajaxSetup({ async: false });
     Game.showFullLogHistory();
-    ok(Api.game.chatLog.length > 10, "Full chat log was returned");
+    assert.ok(Api.game.chatLog.length > 10, "Full chat log was returned");
     $.ajaxSetup({ async: true });
     start();
     Game.logEntryLimit = 10;
   });
 });
 
-asyncTest("test_Game.pageAddGameHeader", function() {
+test("test_Game.pageAddGameHeader", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameHeader('Howdy, world');
     var html = Game.page.html();
 
-    ok(html.match(/Game #1/), "Game header should contain game number");
-    ok(html.match(/Round #1/), "Game header should contain round number");
-    ok(html.match(/class="action_desc_span"/),
-       "Action description span class should be defined");
-    ok(html.match(/Howdy, world/),
-       "Action description should contain specified text");
+    assert.ok(html.match(/Game #1/), "Game header should contain game number");
+    assert.ok(html.match(/Round #1/), "Game header should contain round number");
+    assert.ok(html.match(/class="action_desc_span"/),
+      "Action description span class should be defined");
+    assert.ok(html.match(/Howdy, world/),
+      "Action description should contain specified text");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddFooter", function() {
+test("test_Game.pageAddFooter", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddFooter();
-    ok(true, "No special testing of pageAddFooter() as a whole is done");
+    assert.ok(true, "No special testing of pageAddFooter() as a whole is done");
     start();
   });
 });
 
-test("test_Game.pageAddUnhideChatButton", function() {
+test("test_Game.pageAddUnhideChatButton", function(assert) {
   Game.page = $('<div>');
   Game.pageAddUnhideChatButton(true);
   var unhideButton = Game.page.find('.unhideChat');
-  ok(unhideButton.length, 'Add/Edit Chat button should appear when requested');
+  assert.ok(unhideButton.length, 'Add/Edit Chat button should appear when requested');
 
   Game.page.empty();
   Game.pageAddUnhideChatButton(false);
   var unhideButton = Game.page.find('.unhideChat');
-  ok(!unhideButton.length,
+  assert.ok(!unhideButton.length,
     'Add/Edit Chat button should not appear when not requested');
 });
 
-asyncTest("test_Game.pageAddGameNavigationFooter", function() {
+test("test_Game.pageAddGameNavigationFooter", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    ok(htmlout.match('Go to your next pending game \\(if any\\)'),
-       "Next game link exists and reflects no known pending games");
+    assert.ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
+    assert.ok(htmlout.match('Go to your next pending game \\(if any\\)'),
+      "Next game link exists and reflects no known pending games");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddGameNavigationFooter_pendingGames", function() {
+test("test_Game.pageAddGameNavigationFooter_pendingGames", function(assert) {
+  stop();
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Api.pending_games.count = 3;
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
-    ok(htmlout.match('Go to your next pending game \\(at least 3\\)'),
-       "Next game link exists and reflects pending games");
+    assert.ok(htmlout.match('<br>'), "Game navigation footer should insert line break");
+    assert.ok(htmlout.match('Go to your next pending game \\(at least 3\\)'),
+      "Next game link exists and reflects pending games");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddGameNavigationFooter_turn_active", function() {
+test("test_Game.pageAddGameNavigationFooter_turn_active", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
-    ok(!htmlout.match('Go to your next pending game'),
-       "Next game link is correctly suppressed");
+    assert.ok(!htmlout.match('Go to your next pending game'),
+      "Next game link is correctly suppressed");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function() {
+test("test_Game.pageAddGameNavigationFooter_turn_nonplayer", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_nonplayer';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameNavigationFooter();
     var htmlout = Game.page.html();
-    ok(!htmlout.match('Go to your next pending game'),
-       "Next game link is correctly suppressed");
+    assert.ok(!htmlout.match('Go to your next pending game'),
+      "Next game link is correctly suppressed");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddSkillListFooter", function() {
+test("test_Game.pageAddSkillListFooter", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddSkillListFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match('<br>'), "Skill list footer should insert line break");
-    ok(htmlout.match('<div>Die skills in this game: '),
-       "Die skills footer text is present");
-    ok(htmlout.match('Focus'),
-       "Die skills footer text lists the Focus skill");
+    assert.ok(htmlout.match('<br>'), "Skill list footer should insert line break");
+    assert.ok(htmlout.match('<div>Die skills in this game: '),
+      "Die skills footer text is present");
+    assert.ok(htmlout.match('Focus'),
+      "Die skills footer text lists the Focus skill");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddLogFooter", function() {
+test("test_Game.pageAddLogFooter", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    deepEqual(htmlout, "", "Action log footer for a new game should be empty");
+    assert.deepEqual(htmlout, "", "Action log footer for a new game should be empty");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddLogFooter_actionlog", function() {
+test("test_Game.pageAddLogFooter_actionlog", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    ok(htmlout.match("tester2 performed Power attack"),
-       "Action log footer for a game in progress should contain entries");
+    assert.ok(htmlout.match("tester2 performed Power attack"),
+      "Action log footer for a game in progress should contain entries");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddLogFooter_chatlog", function() {
+test("test_Game.pageAddLogFooter_chatlog", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
     var htmlout = Game.page.html();
-    ok(!htmlout.match("<script"), "Chat log does not contain unencoded HTML.");
-    ok(htmlout.match("&lt;script"), "Chat log does contain encoded HTML.");
-    ok(htmlout.match("<br"), "Chat log contain HTML newlines.");
-    ok(htmlout.match("&nbsp;&nbsp;&nbsp;"), "Chat contains HTML spaces.");
+    assert.ok(!htmlout.match("<script"), "Chat log does not contain unencoded HTML.");
+    assert.ok(htmlout.match("&lt;script"), "Chat log does contain encoded HTML.");
+    assert.ok(htmlout.match("<br"), "Chat log contain HTML newlines.");
+    assert.ok(htmlout.match("&nbsp;&nbsp;&nbsp;"), "Chat contains HTML spaces.");
     start();
   });
 });
 
-asyncTest("test_Game.dieRecipeTable", function() {
+test("test_Game.dieRecipeTable", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -1059,18 +1148,19 @@ asyncTest("test_Game.dieRecipeTable", function() {
     Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
-    ok(item, "Document should contain die recipe table");
-    equal(item.nodeName, "TABLE",
-          "Die recipe table should be a table element");
-    ok(item.innerHTML.match('Avis'),
-       "Die recipe table should contain button names");
-    ok(item.innerHTML.match('0/0/0'),
-       "Die recipe table should contain game state");
+    assert.ok(item, "Document should contain die recipe table");
+    assert.equal(item.nodeName, "TABLE",
+      "Die recipe table should be a table element");
+    assert.ok(item.innerHTML.match('Avis'),
+      "Die recipe table should contain button names");
+    assert.ok(item.innerHTML.match('0/0/0'),
+      "Die recipe table should contain game state");
     start();
   });
 });
 
-asyncTest("test_Game.dieRecipeTable_focus", function() {
+test("test_Game.dieRecipeTable_focus", function(assert) {
+  stop();
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
@@ -1080,24 +1170,25 @@ asyncTest("test_Game.dieRecipeTable_focus", function() {
     Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
-    ok(item, "Document should contain die recipe table");
-    equal(item.nodeName, "TABLE",
-          "Die recipe table should be a table element");
-    ok(item.innerHTML.match('Crab'),
-       "Die recipe table should contain button names");
-    ok(item.innerHTML.match('Value'),
-       "Die recipe table should contain header for table of values");
-    ok(item.innerHTML.match(/7/),
-       "Die recipe table should contain entries for table of values");
-    ok(item.innerHTML.match(/id="init_react_3"/),
-       "Die recipe table should contain an init reaction entry for die idx 3");
-    ok(item.innerHTML.match(/id="init_react_4"/),
-       "Die recipe table should contain an init reaction entry for die idx 4");
+    assert.ok(item, "Document should contain die recipe table");
+    assert.equal(item.nodeName, "TABLE",
+      "Die recipe table should be a table element");
+    assert.ok(item.innerHTML.match('Crab'),
+      "Die recipe table should contain button names");
+    assert.ok(item.innerHTML.match('Value'),
+      "Die recipe table should contain header for table of values");
+    assert.ok(item.innerHTML.match(/7/),
+      "Die recipe table should contain entries for table of values");
+    assert.ok(item.innerHTML.match(/id="init_react_3"/),
+      "Die recipe table should contain an init reaction entry for die idx 3");
+    assert.ok(item.innerHTML.match(/id="init_react_4"/),
+      "Die recipe table should contain an init reaction entry for die idx 4");
     start();
   });
 });
 
-asyncTest("test_Game.dieRecipeTable_chance", function() {
+test("test_Game.dieRecipeTable_chance", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chance_active';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
@@ -1107,167 +1198,180 @@ asyncTest("test_Game.dieRecipeTable_chance", function() {
     Game.arrangePage();
 
     var item = document.getElementById('die_recipe_table');
-    ok(item, "Document should contain die recipe table");
-    equal(item.nodeName, "TABLE",
-          "Die recipe table should be a table element");
-    ok(item.innerHTML.match('John Kovalic'),
-       "Die recipe table should contain button names");
-    ok(item.innerHTML.match('Value'),
-       "Die recipe table should contain header for table of values");
-    ok(item.innerHTML.match(/id="init_react_1"/),
-       "Die recipe table should contain an init reaction entry for die idx 1");
+    assert.ok(item, "Document should contain die recipe table");
+    assert.equal(item.nodeName, "TABLE",
+      "Die recipe table should be a table element");
+    assert.ok(item.innerHTML.match('John Kovalic'),
+      "Die recipe table should contain button names");
+    assert.ok(item.innerHTML.match('Value'),
+      "Die recipe table should contain header for table of values");
+    assert.ok(item.innerHTML.match(/id="init_react_1"/),
+      "Die recipe table should contain an init reaction entry for die idx 1");
     start();
   });
 });
 
-asyncTest("test_Game.dieTableEntry", function() {
+test("test_Game.dieTableEntry", function(assert) {
+  stop();
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     var htmlobj = Game.dieTableEntry(4, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, '<td title="X Swing Die (with 4 sides)">(X=4)</td>',
+    assert.deepEqual(html, '<td title="X Swing Die (with 4 sides)">(X=4)</td>',
       "Die table entry has expected contents");
     start();
   });
 });
 
-asyncTest("test_Game.dieTableEntry_empty", function() {
+test("test_Game.dieTableEntry_empty", function(assert) {
+  stop();
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     var htmlobj = Game.dieTableEntry(6, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    deepEqual(html, "<td></td>",
+    assert.deepEqual(html, "<td></td>",
       "Empty die table entry has expected contents");
     start();
   });
 });
 
-asyncTest("test_Game.activeDieFieldString", function() {
+test("test_Game.activeDieFieldString", function(assert) {
+  stop();
   BMTestUtils.GameType = 'chance_active';
   Game.getCurrentGame(function() {
     var valstr = Game.activeDieFieldString(4, 'value', Api.game.player.activeDieArray);
-    deepEqual(valstr, 4, "Die value string has expected contents for an existing die");
+    assert.deepEqual(valstr, 4, "Die value string has expected contents for an existing die");
 
     valstr = Game.activeDieFieldString(6, 'value', Api.game.player.activeDieArray);
-    deepEqual(valstr, '', "Die value string has expected contents for a nonexistent die");
+    assert.deepEqual(valstr, '', "Die value string has expected contents for a nonexistent die");
     start();
   });
 });
 
-asyncTest("test_Game.pageAddDieBattleTable", function() {
+test("test_Game.pageAddDieBattleTable", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddDieBattleTable();
     var htmlout = Game.page.html();
-    ok(Game.page.find('div.battle_mat_player').length > 0,
+    assert.ok(Game.page.find('div.battle_mat_player').length > 0,
       "die battle table should insert player battle mat");
-    ok(Game.page.find('div.battle_mat_opponent').length > 0,
+    assert.ok(Game.page.find('div.battle_mat_opponent').length > 0,
       "die battle table should insert opponent battle mat");
     start();
   });
 });
 
-asyncTest("test_Game.gamePlayerStatus", function() {
+test("test_Game.gamePlayerStatus", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerStatus('player', false, true));
     var htmlout = Game.page.html();
-    ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
-    ok(htmlout.match('Dice captured'),
-       "game player status should report captured dice");
-    ok(htmlout.match('(X=4)'),
-       "status should report that player captured an X=4");
+    assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
+    assert.ok(htmlout.match('Dice captured'),
+      "game player status should report captured dice");
+    assert.ok(htmlout.match('(X=4)'),
+      "status should report that player captured an X=4");
     start();
   });
 });
 
-asyncTest("test_Game.gamePlayerDice", function() {
+test("test_Game.gamePlayerDice", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
     var htmlout = Game.page.html();
-    ok(htmlout.match('die_container die_alive unselected'),
-       "dice should include some text with the correct CSS class");
+    assert.ok(htmlout.match('die_container die_alive unselected'),
+      "dice should include some text with the correct CSS class");
     start();
   });
 });
 
-asyncTest("test_Game.gamePlayerDice_disabled", function() {
+test("test_Game.gamePlayerDice_disabled", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', false));
     var htmlout = Game.page.html();
-    ok(htmlout.match('die_img die_greyed'),
-       "dice should include some text with the correct CSS class");
+    assert.ok(htmlout.match('die_img die_greyed'),
+      "dice should include some text with the correct CSS class");
     start();
   });
 });
 
-asyncTest("test_Game.gamePlayerDice_captured", function() {
+test("test_Game.gamePlayerDice_captured", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
-    ok(Game.page.find('.die_dead').length > 0,
-       "dice should include one that's been captured");
+    assert.ok(Game.page.find('.die_dead').length > 0,
+      "dice should include one that's been captured");
     start();
   });
 });
 
-asyncTest("test_Game.buttonImageDisplay", function() {
+test("test_Game.buttonImageDisplay", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.buttonImageDisplay('player'));
     var htmlout = Game.page.html();
-    ok(htmlout.match('avis.png'),
-       "page should include a link to the button image");
+    assert.ok(htmlout.match('avis.png'),
+      "page should include a link to the button image");
     start();
   });
 });
 
-asyncTest("test_Game.buttonImageDisplay_noImage", function() {
+test("test_Game.buttonImageDisplay_noImage", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Env.setCookieNoImages(true);
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.buttonImageDisplay('player'));
     var htmlout = Game.page.html();
-    ok(!htmlout.match('avis.png'),
-       "page should not include a link to the button image");
+    assert.ok(!htmlout.match('avis.png'),
+      "page should not include a link to the button image");
     start();
   });
 });
 
-asyncTest("test_Game.gameWinner", function() {
+test("test_Game.gameWinner", function(assert) {
+  stop();
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gameWinner());
     var htmlout = Game.page.html();
-    ok(htmlout.match('tester1 won!'),
-       "correct game winner should be displayed");
+    assert.ok(htmlout.match('tester1 won!'),
+      "correct game winner should be displayed");
     start();
   });
 });
 
-asyncTest("test_Game.dieIndexId", function() {
+test("test_Game.dieIndexId", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     var idxval = Game.dieIndexId('opponent', 3);
-    equal(idxval, 'playerIdx_1_dieIdx_3',
-          "die index string should be correct");
+    assert.equal(idxval, 'playerIdx_1_dieIdx_3',
+      "die index string should be correct");
     start();
   });
 });
 
-asyncTest("test_Game.playerOpponentHeaderRow", function() {
+test("test_Game.playerOpponentHeaderRow", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -1278,86 +1382,87 @@ asyncTest("test_Game.playerOpponentHeaderRow", function() {
     Game.arrangePage();
 
     var item = document.getElementById('game_page');
-    ok(item.innerHTML.match('<th>'),
-       "header row should contain <th> entries");
-    ok(item.innerHTML.match('Avis'),
-       "header row should contain button names");
+    assert.ok(item.innerHTML.match('<th>'),
+      "header row should contain <th> entries");
+    assert.ok(item.innerHTML.match('Avis'),
+      "header row should contain button names");
     start();
   });
 });
 
-test("test_Game.dieRecipeText", function() {
+test("test_Game.dieRecipeText", function(assert) {
   var text = Game.dieRecipeText("p(4)", "4");
-  equal(text, "p(4)", "text for non-swing die with skills should be correct");
+  assert.equal(text, "p(4)", "text for non-swing die with skills should be correct");
 
   text = Game.dieRecipeText("zs(X)", "7");
-  equal(text, "zs(X=7)",
-        "text for swing die with skills should be correct");
+  assert.equal(text, "zs(X=7)",
+    "text for swing die with skills should be correct");
 
   text = Game.dieRecipeText("(W)", null);
-  equal(text, "(W)",
-        "text for swing die with unknown value should be correct");
+  assert.equal(text, "(W)",
+    "text for swing die with unknown value should be correct");
 
   text = Game.dieRecipeText("(6,6)", "12");
-  equal(text, "(6,6)", "text for non-swing option die should be correct");
+  assert.equal(text, "(6,6)", "text for non-swing option die should be correct");
 
   text = Game.dieRecipeText("(W,W)", "14");
-  equal(text, "(W,W=7)", "text for swing option die should be correct");
+  assert.equal(text, "(W,W=7)", "text for swing option die should be correct");
 });
 
-test("test_Game.dieValidTurndownValues", function() {
-  deepEqual(Game.dieValidTurndownValues({
+test("test_Game.dieValidTurndownValues", function(assert) {
+  assert.deepEqual(Game.dieValidTurndownValues({
       'recipe': 's(4)',
       'skills': ['Shadow', ],
       'value': 3,
     }, 'REACT_TO_INITIATIVE'), [], "An arbitrary non-focus die has no valid turndown values");
-  deepEqual(Game.dieValidTurndownValues({
+  assert.deepEqual(Game.dieValidTurndownValues({
       'recipe': 'f(7)',
       'skills': ['Focus', ],
       'value': 5,
     }, 'REACT_TO_INITIATIVE'), [4, 3, 2, 1], "A focus die has valid turndown values");
-  deepEqual(Game.dieValidTurndownValues({
+  assert.deepEqual(Game.dieValidTurndownValues({
       'recipe': 'f(7)',
       'skills': ['Focus', ],
       'value': 1,
     }, 'REACT_TO_INITIATIVE'), [], "A focus die showing 1 has no valid turndown values");
-  deepEqual(Game.dieValidTurndownValues({
+  assert.deepEqual(Game.dieValidTurndownValues({
       'recipe': 'f(7,7)',
       'skills': ['Focus', ],
       'value': 4,
     }, 'REACT_TO_INITIATIVE'), [3, 2], "A twin focus die can only turn down as far as 2");
-  deepEqual(Game.dieValidTurndownValues({
+  assert.deepEqual(Game.dieValidTurndownValues({
       'recipe': 'F(7)',
       'skills': ['Fire', ],
       'value': 3,
     }, 'REACT_TO_INITIATIVE'), [], "A fire die has no valid turndown values during 'react to initiative' state");
-  deepEqual(Game.dieValidTurndownValues({
+  assert.deepEqual(Game.dieValidTurndownValues({
       'recipe': 'F(7)',
       'skills': ['Fire', ],
       'value': 3,
     }, 'ADJUST_FIRE_DICE'), [2, 1], "A fire die has valid turndown values during 'adjust fire dice' state");
 });
 
-test("test_Game.dieCanRerollForInitiative", function() {
-  equal(Game.dieCanRerollForInitiative({
+test("test_Game.dieCanRerollForInitiative", function(assert) {
+  assert.equal(Game.dieCanRerollForInitiative({
       'recipe': 's(4)',
       'skills': ['Shadow', ],
       'value': 3,
     }), false, "An arbitrary non-chance die cannot reroll for initiative");
-  equal(Game.dieCanRerollForInitiative({
+  assert.equal(Game.dieCanRerollForInitiative({
       'recipe': 'c(5,5)',
       'skills': ['Chance', ],
       'value': 6,
     }), true, "An arbitrary chance die can reroll for initiative");
 });
 
-test("test_Game.chatBox", function() {
+test("test_Game.chatBox", function(assert) {
   var obj = Game.chatBox();
   var html = obj.html();
-  ok(html.match(/"game_chat"/), "Game chat box has correct ID in page");
+  assert.ok(html.match(/"game_chat"/), "Game chat box has correct ID in page");
 });
 
-asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
+test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -1368,23 +1473,24 @@ asyncTest("test_Game.dieBorderTogglePlayerHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_0_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container die_alive unselected_player'),
-       "die is unselected before click");
+    assert.ok(html.match('die_container die_alive unselected_player'),
+      "die is unselected before click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container die_alive selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_alive selected'), "die is selected after first click");
 
     $('#playerIdx_0_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container die_alive unselected_player'),
-       "die is unselected after second click");
+    assert.ok(html.match('die_container die_alive unselected_player'),
+      "die is unselected after second click");
 
     start();
   });
 });
 
-asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
+test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
@@ -1395,82 +1501,85 @@ asyncTest("test_Game.dieBorderToggleOpponentHandler", function() {
     // and unselected on click
     var dieobj = $('#playerIdx_1_dieIdx_0');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container die_alive unselected_opponent'),
-       "die is unselected before click");
+    assert.ok(html.match('die_container die_alive unselected_opponent'),
+      "die is unselected before click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container die_alive selected'), "die is selected after first click");
+    assert.ok(html.match('die_container die_alive selected'), "die is selected after first click");
 
     $('#playerIdx_1_dieIdx_0').trigger('click');
     var html = $('<div>').append(dieobj.clone()).remove().html();
-    ok(html.match('die_container die_alive unselected_opponent'),
-       "die is unselected after second click");
+    assert.ok(html.match('die_container die_alive unselected_opponent'),
+      "die is unselected after second click");
 
     start();
   });
 });
 
-asyncTest("test_Game.waitingOnPlayerNames", function() {
+test("test_Game.waitingOnPlayerNames", function(assert) {
+  stop();
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     var namesString = Game.waitingOnPlayerNames();
-    equal(namesString, "tester1 and tester2",
+    assert.equal(namesString, "tester1 and tester2",
       "String with name(s) of active player(s) has expected contents");
     start();
   });
 });
 
-asyncTest("test_Game.waitingOnPlayerNames_inactive", function() {
+test("test_Game.waitingOnPlayerNames_inactive", function(assert) {
+  stop();
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     var namesString = Game.waitingOnPlayerNames();
-    equal(namesString, "tester2",
+    assert.equal(namesString, "tester2",
       "String with name(s) of active player(s) has expected contents");
     start();
   });
 });
 
-test("test_Game.dieValueSelectTd", function() {
+test("test_Game.dieValueSelectTd", function(assert) {
   var td = Game.dieValueSelectTd("hiworld", [2, 3, 4, 5], 1, 3);
   var html = td.html();
-  ok(html.match(/<select /), "select row should contain a select");
+  assert.ok(html.match(/<select /), "select row should contain a select");
 });
 
-test("test_Game.reactToInitiativeSuccessMsg", function() {
+test("test_Game.reactToInitiativeSuccessMsg", function(assert) {
   Game.activity.initiativeReactType = 'chance';
   Game.reactToInitiativeSuccessMsg(
     'look, a message', { 'gainedInitiative': false, });
-  equal(
+  assert.equal(
     Env.message.type, 'success',
     'Env.message is set to success when initiative action does not fail');
-  equal(
+  assert.equal(
     Env.message.text, 'Rerolled chance die, but did not gain initiative',
     'Correct message text when chance reroll does not gain initiative');
 
   Game.activity.initiativeReactType = 'chance';
   Game.reactToInitiativeSuccessMsg(
     'look, a message', { 'gainedInitiative': true, });
-  equal(
+  assert.equal(
     Env.message.text, 'Successfully gained initiative by rerolling chance die',
     'Correct message text when chance reroll gains initiative');
 
   Game.activity.initiativeReactType = 'decline';
   Game.reactToInitiativeSuccessMsg(
     'look, a message', { 'gainedInitiative': false, });
-  equal(
+  assert.equal(
     Env.message.text, 'Declined to use chance/focus dice',
     'Correct message text when initiative action is declined');
 
   Game.activity.initiativeReactType = 'focus';
   Game.reactToInitiativeSuccessMsg(
     'look, a message', { 'gainedInitiative': true, });
-  equal(
+  assert.equal(
     Env.message.text, 'Successfully gained initiative using focus dice',
     'Correct message text when focus turndown gains initiative');
 });
 
-asyncTest("test_Game.dieFocusOutlineHandler", function() {
+test("test_Game.dieFocusOutlineHandler", function(assert) {
+  stop();
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
@@ -1479,11 +1588,89 @@ asyncTest("test_Game.dieFocusOutlineHandler", function() {
     var tabPress = jQuery.Event('keyup');
     tabPress.which = 9;
 
-    ok($('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+    assert.ok($('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
       "Focus outline is hidden before tab is invoked on another die");
     item.trigger(tabPress);
-    ok(!$('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
+    assert.ok(!$('#playerIdx_0_dieIdx_0').hasClass('hide_focus'),
       "Focus outline is not hidden after tab is invoked on another die");
     start();
   });
+});
+
+test("test_Game.pageAddNewGameLinkFooter", function(assert) {
+  stop();
+  expect(4); // tests plus 2 teardown tests
+  BMTestUtils.GameType = 'finished';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddNewGameLinkFooter();
+    var newGameLinks = Game.page.find('a');
+    assert.ok(newGameLinks.length > 0, 'New game links should exist');
+    var url = newGameLinks.attr('href');
+    assert.ok(url.match('create_game\\.html'),
+      'New game links should go to the create game page');
+    start();
+  });
+});
+
+test("test_Game.pageAddNewGameLinkFooter_turn_active", function(assert) {
+  stop();
+  expect(3); // tests plus 2 teardown tests
+  BMTestUtils.GameType = 'turn_active';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.pageAddNewGameLinkFooter();
+    var newGameLinks = Game.page.find('a');
+    assert.ok(newGameLinks.length == 0, 'New game links should not exist');
+    start();
+  });
+});
+
+test("test_Game.buildNewGameLink", function(assert) {
+  Api.game = { 'maxWins': '2' };
+  var linkHolder = Game.buildNewGameLink(
+    'test game',
+    'Zebedee',
+    'Krosp',
+    'Hooloovoo',
+    17);
+  var link = linkHolder.find('a');
+  var expectedText = 'test game';
+  assert.equal(link.text(), expectedText,
+    'New Game link should have the correct text');
+  var expectedUrl =
+    'create_game.html?opponent=Zebedee&playerButton=Krosp&' +
+    'opponentButton=Hooloovoo&previousGameId=17&maxWins=2';
+  assert.equal(link.attr('href'), expectedUrl,
+    'New game link should have the correct URL');
+});
+
+test("test_Game.buildNewGameLink_open", function(assert) {
+  Api.game = { 'maxWins': '2' };
+  var linkHolder = Game.buildNewGameLink(
+    'test game',
+    null,
+    'Krosp',
+    'Hooloovoo',
+    null);
+  var link = linkHolder.find('a');
+  var expectedUrl =
+    'create_game.html?playerButton=Krosp&opponentButton=Hooloovoo&maxWins=2';
+  assert.equal(link.attr('href'), expectedUrl,
+    'Open new game link should have the correct URL');
+});
+
+test("test_Game.buildNewGameLink_rematch", function(assert) {
+  Api.game = { 'maxWins': '2' };
+  var linkHolder = Game.buildNewGameLink(
+    'test game',
+    'Zebedee',
+    null,
+    null,
+    17);
+  var link = linkHolder.find('a');
+  var expectedUrl =
+    'create_game.html?opponent=Zebedee&previousGameId=17&maxWins=2';
+  assert.equal(link.attr('href'), expectedUrl,
+    'Rematch new game link should have the correct URL');
 });
