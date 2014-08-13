@@ -512,7 +512,7 @@ UserPrefs.formSetPrefs = function() {
       'ok': { 'type': 'fixed', 'text': 'User details set successfully.', },
       'notok': { 'type': 'server', }
     },
-    'userprefs_action_button',
+    '#userprefs_action_button',
     UserPrefs.showUserPrefsPage,
     UserPrefs.showUserPrefsPage
   );

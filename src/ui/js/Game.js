@@ -1124,7 +1124,7 @@ Game.formSpecifyDiceActive = function() {
       { 'ok': { 'type': 'fixed', 'text': 'Successfully set swing values', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1151,7 +1151,7 @@ Game.formChooseAuxiliaryDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1208,7 +1208,7 @@ Game.formChooseReserveDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1330,7 +1330,7 @@ Game.formReactToInitiativeActive = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1431,7 +1431,7 @@ Game.formAdjustFireDiceActive = function() {
         'ok': { 'type': 'server', },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1495,7 +1495,7 @@ Game.formPlayTurnActive = function() {
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
@@ -1519,7 +1519,7 @@ Game.formPlayTurnInactive = function() {
   Api.apiFormPost(
     formargs,
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
