@@ -16,9 +16,20 @@ class ApiSpec {
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
-
-    // constants
     const GAME_DESCRIPTION_MAX_LENGTH = 255;
+
+    // These are API methods that might get called automatically, e.g. via the
+    // monitor
+    private $automatableApiCalls = array(
+        'loadNextPendingGame',
+        'loadNextNewPost',
+        'loadActiveGames',
+        'loadCompletedGames',
+        'loadPlayerInfo',
+        'loadForumThread',
+        'countPendingGames',
+        'loadGameData',
+    );
 
     // expected arguments for every API function:
     // * mandatory: argument which must be present
@@ -583,6 +594,15 @@ class ApiSpec {
             $argsExpected = $this->functionArgs[$args['type']];
             foreach ($args as $argname => $argvalue) {
                 if ($argname == 'type') {
+                    continue;
+                }
+                if ($argname == 'automatedApiCall') {
+                    if ($args[$argname] == 'true' && !in_array($args['type'], $automatableApiCalls)) {
+                        return array(
+                            'ok' => FALSE,
+                            'message' => $args['type'] . ' can\'t be treated as an automated API call',
+                        );
+                    }
                     continue;
                 }
                 if (array_key_exists($argname, $argsExpected['mandatory'])) {

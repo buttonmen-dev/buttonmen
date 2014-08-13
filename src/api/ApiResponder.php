@@ -577,16 +577,19 @@ class ApiResponder {
             // are syntactically reasonable
             $argcheck = $this->spec->verify_function_args($args);
             if ($argcheck['ok']) {
-
                 // As far as we can easily tell, it's safe to call
                 // the function.  Go ahead and create an interface
                 // object, invoke the function, and return the result
                 if ($check['functype'] == 'auth') {
+                    apache_note('BMUserID', $_SESSION['user_id']);
                     $interface = new BMInterface($this->isTest);
-                    $interface->update_last_access_time($_SESSION['user_id']);
+                    if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
+                        $interface->update_last_access_time($_SESSION['user_id']);
+                    }
                 } else {
                     $interface = new BMInterfaceNewuser($this->isTest);
                 }
+                apache_note('BMAPIMethod', $args['type']);
                 $data = $this->$check['funcname']($interface, $args);
 
                 $output = array(
