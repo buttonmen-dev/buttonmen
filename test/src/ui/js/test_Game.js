@@ -38,6 +38,8 @@ module("Game", {
     delete Game.page;
     delete Game.form;
     delete Game.color;
+
+    Api.automatedApiCall = false;
     Game.activity = {};
 
     // Page elements
@@ -301,9 +303,9 @@ test("test_Game.showStatePage_turn_nonplayer", function(assert) {
 
 test("test_Game.arrangePage", function(assert) {
   stop();
+  Api.automatedApiCall = true;
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
-
     $('body').append($('<div>', {'id': 'game_page', }));
     Game.page = $('<div>');
     Game.page.append($('<p>', {'text': 'hi world', }));
@@ -311,6 +313,8 @@ test("test_Game.arrangePage", function(assert) {
     var item = document.getElementById('game_page');
     assert.equal(item.nodeName, "DIV",
       "#game_page is a div after arrangePage() is called");
+    assert.ok(!Api.automatedApiCall,
+      'arrangePage should unset Api.automatedApiCall');
     start();
   });
 });

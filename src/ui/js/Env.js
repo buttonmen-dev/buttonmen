@@ -68,6 +68,9 @@ Env.getParameterByName = function(name) {
 };
 
 Env.removeParameterByName = function(name) {
+  // If the query string is already empty, there's obviously nothing to do
+  if (!Env.window.location.search) { return; }
+
   var newQueryString = '?';
   var parameterChunks = Env.window.location.search.split(/[?&]/);
   $.each(parameterChunks, function(index, chunk) {
@@ -82,7 +85,7 @@ Env.removeParameterByName = function(name) {
     Env.window.location.origin + Env.window.location.pathname +
     newQueryString + Env.window.location.hash;
   // Replace the current URL without messing up the browser history
-  Env.history.replaceState(null, $(document).find("title").text(), newUrl);
+  Env.history.replaceState(null, $(document).find('title').text(), newUrl);
 };
 
 // Make sure that the page body contains a div for displaying status

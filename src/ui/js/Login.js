@@ -16,13 +16,6 @@ Login.nextGameRefreshCallback = false;
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
-  // Check if this was an automatic redirect from the Monitor
-  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
-  // Perform appendectomy (so a reload won't still register as automated)
-  if (Api.automatedApiCall) {
-    Env.removeParameterByName('auto');
-  }
-
   if (Login.status_type === 0) {
     Login.status_type = Login.STATUS_NO_ACTIVITY;
   }
@@ -63,10 +56,17 @@ Login.showLoginHeader = function(callbackfunc) {
   // Save the callback function
   Login.callback = callbackfunc;
 
+  // Check if this was an automatic redirect from the Monitor
+  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
+  // Perform appendectomy (so a reload won't still register as automated)
+  if (Api.automatedApiCall) {
+    Env.removeParameterByName('auto');
+  }
+
   // Make sure div elements that we will need exist in the page body
   if ($('#login_header').length === 0) {
     $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>'));
+    $('body').append($('<hr>', { 'id': 'header_separator', }));
   }
 
   // Find the current login header contents and display them followed by

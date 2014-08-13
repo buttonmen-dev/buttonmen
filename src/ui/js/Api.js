@@ -60,7 +60,7 @@ var Api = (function () {
     my[apikey] = {
       'load_status': 'failed',
     };
-    args['automatedApiCall'] = my.automatedApiCall;
+    args.automatedApiCall = my.automatedApiCall;
     $.post(
       Env.api_location,
       args,
