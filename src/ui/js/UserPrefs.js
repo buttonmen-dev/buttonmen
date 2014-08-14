@@ -23,38 +23,19 @@ UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 // * UserPrefs.assemblePage(), which calls one of a number of functions
 //   UserPrefs.action<SomeAction>()
 // * each UserPrefs.action<SomeAction>() function must set UserPrefs.page and
-//   UserPrefs.form, then call UserPrefs.arrangePage()
-// * UserPrefs.arrangePage() sets the contents of <div id="userprefs_page">
-//   on the live page
+//   UserPrefs.form, then call Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 UserPrefs.showUserPrefsPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#userprefs_page').length === 0) {
-    $('body').append($('<div>', {'id': 'userprefs_page' }));
-  }
-
-  // Only allow logged-in users to view and change preferences
-  if (Login.logged_in) {
-    Env.callAsyncInParallel(
-      [
-        Api.getButtonData,
-        Api.getUserPrefsData,
-      ], UserPrefs.assemblePage);
-  } else {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t view/set preferences because you are not logged in',
-    };
-    UserPrefs.actionFailed();
-  }
+  Env.callAsyncInParallel(
+    [
+      Api.getButtonData,
+      Api.getUserPrefsData,
+    ], UserPrefs.assemblePage
+  );
 };
 
 // Assemble and display the userprefs portion of the page
@@ -69,26 +50,11 @@ UserPrefs.assemblePage = function() {
   }
 };
 
-// Actually lay out the page
-UserPrefs.arrangePage = function() {
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#userprefs_page').empty();
-  $('#userprefs_page').append(UserPrefs.page);
-
-  if (UserPrefs.form) {
-    $('#userprefs_action_button').click(UserPrefs.form);
-  }
-};
-
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by UserPrefs.js.
 // Each function should start by populating UserPrefs.page and
-// UserPrefs.form and end by invoking UserPrefs.arrangePage();
+// UserPrefs.form and end by invoking Login.arrangePage();
 
 UserPrefs.actionFailed = function() {
 
@@ -100,7 +66,7 @@ UserPrefs.actionFailed = function() {
   // will tell the user what happened
 
   // Lay out the page
-  UserPrefs.arrangePage();
+  Login.arrangePage(UserPrefs.page, UserPrefs.form, '#userprefs_action_button');
 };
 
 UserPrefs.actionSetPrefs = function() {
@@ -367,7 +333,7 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.form = UserPrefs.formSetPrefs;
 
   // Lay out the page
-  UserPrefs.arrangePage();
+  Login.arrangePage(UserPrefs.page, UserPrefs.form, '#userprefs_action_button');
 };
 
 ////////////////////////////////////////////////////////////////////////

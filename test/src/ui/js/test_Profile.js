@@ -98,20 +98,6 @@ test("test_Profile.showPage", function(assert) {
   });
 });
 
-test("test_Profile.arrangePage", function(assert) {
-  stop();
-  Env.window.location.search = '?player=tester';
-  Profile.getProfile(function() {
-    Profile.page = $('<div>');
-    Profile.page.append($('<p>', {'text': 'hi world', }));
-    Profile.arrangePage();
-    var item = document.getElementById('profile_page');
-    assert.equal(item.nodeName, "DIV",
-          "#profile_page is a div after arrangePage() is called");
-    start();
-  });
-});
-
 test("test_Profile.buildProfileTable", function(assert) {
   stop();
   Env.window.location.search = '?player=tester';

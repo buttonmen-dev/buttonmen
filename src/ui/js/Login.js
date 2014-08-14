@@ -13,6 +13,12 @@ Login.STATUS_ACTION_FAILED    = 3;
 // This is used to refresh the Overview page if there's no next game
 Login.nextGameRefreshCallback = false;
 
+// Most pages shouldn't be viewable if you're not logged in
+Login.pageRequiresLogin = true;
+
+// The ID of the div for the main body of the page
+Login.bodyDivId = null;
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -47,7 +53,7 @@ Login.getLoginHeader = function() {
       } else {
         Login.stateLoggedIn(welcomeText);
       }
-      return Login.layoutHeader();
+      return Login.arrangeHeader();
     }
   );
 };
@@ -67,7 +73,7 @@ Login.showLoginHeader = function(callbackfunc) {
   Login.getLoginHeader();
 };
 
-Login.layoutHeader = function() {
+Login.arrangeHeader = function() {
   $('#login_header').empty();
   $('#login_header').append(Login.message);
 
@@ -75,7 +81,41 @@ Login.layoutHeader = function() {
     $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
-  return Login.callback();
+
+  // Set up necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  // Make sure the div element that we will need exists in the page body
+  if (Login.bodyDivId) {
+    if ($('#' + Login.bodyDivId).length === 0) {
+      $('body').append($('<div>', {'id': Login.bodyDivId, }));
+    }
+  }
+
+  if (Login.logged_in || !Login.pageRequiresLogin) {
+    return Login.callback();
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must be logged in in order to view this page.',
+    };
+    Env.showStatusMessage();
+  }
+};
+
+Login.arrangePage = function(page, form, buttonSelector) {
+  // If there is a message from a current or previous invocation of this
+  // page, display it now
+  Env.showStatusMessage();
+
+  if (Login.bodyDivId) {
+    $('#' + Login.bodyDivId).empty();
+    $('#' + Login.bodyDivId).append(page);
+  }
+
+  if (form && buttonSelector) {
+    $(buttonSelector).click(form);
+  }
 };
 
 // Get an empty form of the Login type

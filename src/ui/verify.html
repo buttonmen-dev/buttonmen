@@ -20,13 +20,15 @@
     </noscript>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
     <script>
-$(document).ready(function() {
-  $.getScript('js/Loader.js', function() {
-    Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Verify.js' ], function() {
-        Login.showLoginHeader(Verify.showVerifyPage);
-    });
-  });
-});
+        $(document).ready(function() {
+          $.getScript('js/Loader.js', function() {
+            Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Verify.js' ], function() {
+                Login.pageRequiresLogin = false;
+                Login.bodyDivId = 'verify_page';
+                Login.showLoginHeader(Verify.showVerifyPage);
+            });
+          });
+        });
     </script>
 </body>
 

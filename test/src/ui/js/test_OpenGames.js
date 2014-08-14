@@ -97,19 +97,6 @@ test("test_OpenGames.showPage", function(assert) {
   });
 });
 
-test("test_OpenGames.arrangePage", function(assert) {
-  stop();
-  OpenGames.getOpenGames(function() {
-    OpenGames.page = $('<div>');
-    OpenGames.page.append($('<p>', {'text': 'hi world', }));
-    OpenGames.arrangePage();
-    var item = document.getElementById('opengames_page');
-    assert.equal(item.nodeName, "DIV",
-          "#opengames_page is a div after arrangePage() is called");
-    start();
-  });
-});
-
 test("test_OpenGames.buildGameTable", function(assert) {
   stop();
   var buttons = {

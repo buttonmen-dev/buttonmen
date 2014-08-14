@@ -3,13 +3,6 @@ var Verify = {
 };
 
 Verify.showVerifyPage = function() {
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#verify_page').length === 0) {
-    $('body').append($('<div>', {'id': 'verify_page', }));
-  }
-
   // Find the verification parameters and submit them to the server,
   // then display the result
   Verify.getVerifyParams(Verify.showStatePage);

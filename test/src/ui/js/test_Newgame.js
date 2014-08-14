@@ -8,6 +8,8 @@ module("Newgame", {
     if (document.getElementById('newgame_page') == null) {
       $('body').append($('<div>', {'id': 'newgame_page', }));
     }
+
+    Login.bodyDivId = 'newgame_page';
   },
   'teardown': function(assert) {
 
@@ -24,6 +26,8 @@ module("Newgame", {
     delete Newgame.page;
     delete Newgame.form;
     delete Newgame.justCreatedGame;
+
+    Login.bodyDivId = null;
     Newgame.activity = {};
 
     // Page elements
@@ -54,7 +58,7 @@ test("test_Newgame_is_loaded", function(assert) {
 // Accomplish this by mocking the invoked functions
 
 test("test_Newgame.showNewgamePage", function(assert) {
-  expect(5);
+  expect(4);
   var cached_getNewgameData = Newgame.getNewgameData;
   var cached_showStatePage = Newgame.showPage;
   var getNewgameDataCalled = false;
@@ -69,47 +73,13 @@ test("test_Newgame.showNewgamePage", function(assert) {
   }
 
   Newgame.showNewgamePage();
-  var item = document.getElementById('newgame_page');
-  assert.equal(item.nodeName, "DIV",
-        "#newgame_page is a div after showNewgamePage() is called");
-  $.ajaxSetup({ async: true });
-
-  Newgame.getNewgameData = cached_getNewgameData;
-  Newgame.showPage = cached_showStatePage;
-});
-
-test("test_Newgame.showNewgamePage_no_page_element", function(assert) {
-  expect(5);
-
-  // Remove page element to make sure the function readds it
-  $('#newgame_page').remove();
-  $('#newgame_page').empty();
-
-  var cached_getNewgameData = Newgame.getNewgameData;
-  var cached_showStatePage = Newgame.showPage;
-  var getNewgameDataCalled = false;
-  Newgame.showPage = function() {
-    assert.ok(getNewgameDataCalled, "Newgame.getNewgameData is called before Newgame.showPage");
-  }
-  Newgame.getNewgameData = function(callback) {
-    getNewgameDataCalled = true;
-    assert.equal(callback, Newgame.showPage,
-      "Newgame.getNewgameData is called with Newgame.showPage as an argument");
-    callback();
-  }
-
-  Newgame.showNewgamePage();
-  var item = document.getElementById('newgame_page');
-  assert.equal(item.nodeName, "DIV",
-        "#newgame_page is a div after showNewgamePage() is called");
-  $.ajaxSetup({ async: true });
 
   Newgame.getNewgameData = cached_getNewgameData;
   Newgame.showPage = cached_showStatePage;
 });
 
 test("test_Newgame.showNewgamePage_logged_out", function(assert) {
-  expect(5);
+  expect(4);
 
   // Undo the fake login data
   Login.player = null;
@@ -129,10 +99,6 @@ test("test_Newgame.showNewgamePage_logged_out", function(assert) {
   }
 
   Newgame.showNewgamePage();
-  var item = document.getElementById('newgame_page');
-  assert.equal(item.nodeName, "DIV",
-        "#newgame_page is a div after showNewgamePage() is called");
-  $.ajaxSetup({ async: true });
 
   Newgame.getNewgameData = cached_getNewgameData;
   Newgame.showPage = cached_showStatePage;
@@ -178,19 +144,6 @@ test("test_Newgame.showPage_player_load_failed", function(assert) {
     var htmlout = Newgame.page.html();
     assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_Newgame.arrangePage", function(assert) {
-  stop();
-  Newgame.getNewgameData(function() {
-    Newgame.page = $('<div>');
-    Newgame.page.append($('<p>', {'text': 'hi world', }));
-    Newgame.arrangePage();
-    var item = document.getElementById('newgame_page');
-    assert.equal(item.nodeName, "DIV",
-          "#newgame_page is a div after arrangePage() is called");
     start();
   });
 });

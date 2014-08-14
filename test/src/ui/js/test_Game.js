@@ -17,6 +17,8 @@ module("Game", {
       'player': '#dd99dd',
       'opponent': '#ddffdd',
     };
+
+    Login.bodyDivId = 'game_page';
   },
   'teardown': function(assert) {
 
@@ -38,6 +40,8 @@ module("Game", {
     delete Game.page;
     delete Game.form;
     delete Game.color;
+
+    Login.bodyDivId = null;
     Game.activity = {};
 
     // Page elements
@@ -295,22 +299,6 @@ test("test_Game.showStatePage_turn_nonplayer", function(assert) {
     var htmlout = Game.page.html();
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_Game.arrangePage", function(assert) {
-  stop();
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-
-    $('body').append($('<div>', {'id': 'game_page', }));
-    Game.page = $('<div>');
-    Game.page.append($('<p>', {'text': 'hi world', }));
-    Game.arrangePage();
-    var item = document.getElementById('game_page');
-    assert.equal(item.nodeName, "DIV",
-      "#game_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -1145,7 +1133,7 @@ test("test_Game.dieRecipeTable", function(assert) {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "Document should contain die recipe table");
@@ -1167,7 +1155,7 @@ test("test_Game.dieRecipeTable_focus", function(assert) {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "Document should contain die recipe table");
@@ -1195,7 +1183,7 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "Document should contain die recipe table");
@@ -1379,7 +1367,7 @@ test("test_Game.playerOpponentHeaderRow", function(assert) {
     var table = $('<table>');
     table.append(row);
     Game.page.append(table);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('game_page');
     assert.ok(item.innerHTML.match('<th>'),
@@ -1467,7 +1455,7 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
@@ -1495,7 +1483,7 @@ test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click

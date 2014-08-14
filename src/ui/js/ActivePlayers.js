@@ -12,42 +12,22 @@ ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS = 50;
 //   It calls ActivePlayers.showPage()
 // * ActivePlayers.showPage() uses the data returned by the API to build
 //   the contents of the page as ActivePlayers.page and calls
-//   ActivePlayers.arrangePage()
-// * ActivePlayers.arrangePage() sets the contents of
-//   <div id="activeplayers_page"> on the live page
+//   Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ActivePlayers.showActivePlayersPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#activeplayers_page').length === 0) {
-    $('body').append($('<div>', {'id': 'activeplayers_page', }));
-  }
-
   // Get all needed information, then display Active Players page
   ActivePlayers.getActivePlayers(ActivePlayers.showPage);
 };
 
 ActivePlayers.getActivePlayers = function(callback) {
-  if (Login.logged_in) {
-    Api.getActivePlayers(ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS, callback);
-  } else {
-    return callback();
-  }
+  Api.getActivePlayers(ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS, callback);
 };
 
 ActivePlayers.showPage = function() {
   ActivePlayers.page = $('<div>');
 
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t view players because you\'re not logged in',
-    };
-  } else if (Api.active_players.load_status != 'ok') {
+  if (Api.active_players.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
@@ -64,17 +44,8 @@ ActivePlayers.showPage = function() {
     ActivePlayers.page.append(ActivePlayers.buildPlayersTable());
   }
 
-  // Actually layout the page
-  ActivePlayers.arrangePage();
-};
-
-ActivePlayers.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#activeplayers_page').empty();
-  $('#activeplayers_page').append(ActivePlayers.page);
+  // Actually lay out the page
+  Login.arrangePage(ActivePlayers.page);
 };
 
 ////////////////////////////////////////////////////////////////////////

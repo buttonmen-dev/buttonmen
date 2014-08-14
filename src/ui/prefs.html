@@ -20,17 +20,18 @@
     </noscript>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
     <script>
-$(document).ready(function() {
-  $.getScript('js/Loader.js', function() {
-    Loader.loadScripts([
-        'js/extern/jquery-ui.min.js',
-        'js/extern/spectrum.js',
-        'js/UserPrefs.js'
-    ], function() {
-        Login.showLoginHeader(UserPrefs.showUserPrefsPage);
-    });
-  });
-});
+        $(document).ready(function() {
+          $.getScript('js/Loader.js', function() {
+            Loader.loadScripts([
+                'js/extern/jquery-ui.min.js',
+                'js/extern/spectrum.js',
+                'js/UserPrefs.js'
+            ], function() {
+                Login.bodyDivId = 'userprefs_page';
+                Login.showLoginHeader(UserPrefs.showUserPrefsPage);
+            });
+          });
+        });
     </script>
 </body>
 </html>

@@ -9,7 +9,7 @@ var OpenGames = {};
 //   Api.open_games. It calls OpenGames.showPage()
 // * OpenGames.showPage() uses the data returned by the API to build
 //   the contents of the page as OpenGames.page and calls
-//   OpenGames.arrangePage()
+//   Login.arrangePage()
 //
 //* OpenGames.joinOpenGame() is called whenever the user clicks on one of the
 //  Join Game buttons. It calls the API to join the game, setting
@@ -17,39 +17,21 @@ var OpenGames = {};
 ////////////////////////////////////////////////////////////////////////
 
 OpenGames.showOpenGamesPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#opengames_page').length === 0) {
-    $('body').append($('<div>', {'id': 'opengames_page', }));
-  }
-
   // Get all needed information, then display Open Games page
   OpenGames.getOpenGames(OpenGames.showPage);
 };
 
 OpenGames.getOpenGames = function(callback) {
-  if (Login.logged_in) {
-    Env.callAsyncInParallel([
-      Api.getOpenGamesData,
-      Api.getButtonData,
-    ], callback);
-  } else {
-    return callback();
-  }
+  Env.callAsyncInParallel([
+    Api.getOpenGamesData,
+    Api.getButtonData,
+  ], callback);
 };
 
 OpenGames.showPage = function() {
   OpenGames.page = $('<div>');
 
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t join games because you are not logged in',
-    };
-  } else if (Api.open_games.load_status != 'ok') {
+  if (Api.open_games.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
@@ -107,16 +89,7 @@ OpenGames.showPage = function() {
   }
 
   // Actually layout the page
-  OpenGames.arrangePage();
-};
-
-OpenGames.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#opengames_page').empty();
-  $('#opengames_page').append(OpenGames.page);
+  Login.arrangePage(OpenGames.page);
 };
 
 OpenGames.joinOpenGame = function() {

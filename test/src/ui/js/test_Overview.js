@@ -12,6 +12,8 @@ module("Overview", {
     if (document.getElementById('overview_page') == null) {
       $('body').append($('<div>', {'id': 'overview_page', }));
     }
+
+    Login.bodyDivId = 'overview_page';
   },
   'teardown': function(assert) {
 
@@ -31,6 +33,8 @@ module("Overview", {
     delete Overview.page;
     delete Overview.monitorIsOn;
     delete Env.window.location.href;
+
+    Login.bodyDivId = null;
     Login.nextGameRefreshCallback = false;
 
     // Page elements
@@ -121,19 +125,6 @@ test("test_Overview.showPage", function(assert) {
     var htmlout = Overview.page.html();
     assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_Overview.arrangePage", function(assert) {
-  stop();
-  Overview.getOverview(function() {
-    Overview.page = $('<div>');
-    Overview.page.append($('<p>', {'text': 'hi world', }));
-    Overview.arrangePage();
-    var item = document.getElementById('overview_page');
-    assert.equal(item.nodeName, "DIV",
-          "#overview_page is a div after arrangePage() is called");
     start();
   });
 });

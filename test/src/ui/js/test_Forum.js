@@ -12,6 +12,8 @@ module("Forum", {
     if (document.getElementById('forum_page') == null) {
       $('body').append($('<div>', {'id': 'forum_page', }));
     }
+
+    Login.bodyDivId = 'forum_page';
   },
   'teardown': function(assert) {
 
@@ -33,6 +35,8 @@ module("Forum", {
     delete Forum.page;
     delete Forum.scrollTarget;
     delete Login.message;
+
+    Login.bodyDivId = null;
 
     // Page elements
     $('#forum_page').remove();
@@ -58,12 +62,9 @@ test("test_Forum_is_loaded", function(assert) {
 });
 
 test("test_Forum.showForumPage", function(assert) {
-  expect(4); // tests plus teardown test
-  $('div#forum_page').remove();
+  expect(3); // test plus 2 teardown tests
   Env.window.location.hash = '#!threadId=6';
   Forum.showPage = function(state) {
-    assert.equal($('div#forum_page').length, 1,
-      '#forum_page should exist after showForumPage() is called');
     assert.equal(state.threadId, 6,
       'History state should be set to match location hash');
   };
@@ -74,7 +75,7 @@ test("test_Forum.showPage", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Forum.arrangePage = Forum.showBoard = Forum.showThread =
+  Forum.showBoard = Forum.showThread =
     function() {
       assert.ok(false, 'Forum.showPage() should call Forum.showOverview()');
       start();
@@ -90,7 +91,7 @@ test("test_Forum.showPage_board", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Forum.arrangePage = Forum.showOverview = Forum.showThread =
+  Forum.showOverview = Forum.showThread =
     function() {
       assert.ok(false, 'Forum.showPage() should call Forum.showBoard()');
       start();
@@ -106,7 +107,7 @@ test("test_Forum.showPage_thread", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Forum.arrangePage = Forum.showOverview = Forum.showBoard =
+  Forum.showOverview = Forum.showBoard =
     function() {
       assert.ok(false, 'Forum.showPage() should call Forum.showThread()');
       start();

@@ -20,8 +20,6 @@ Overview.MONITOR_TIMEOUT = 60;
 //   It sets Api.active_games, Api.completed_games and potentially
 //   Api.user_prefs.  If successful, it calls Overview.showPage().
 // * Overview.showPage() assembles the page contents as a variable.
-// * Overview.arrangePage() sets the contents of <div id="overview_page">
-//   on the live page.
 //
 // N.B. There is no form submission on this page (aside from the [Dismiss]
 // links); it's just a landing page with links to other pages. So it's
@@ -29,18 +27,10 @@ Overview.MONITOR_TIMEOUT = 60;
 ////////////////////////////////////////////////////////////////////////
 
 Overview.showOverviewPage = function() {
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
   // Set up the callback for refreshing the page if there's no next game
   Login.nextGameRefreshCallback = function() {
     Overview.getOverview(Overview.showPage);
   };
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#overview_page').length === 0) {
-    $('body').append($('<div>', {'id': 'overview_page', }));
-  }
 
   var mode = 'default';
   if (Login.logged_in) {
@@ -129,16 +119,7 @@ Overview.showPage = function() {
   }
 
   // Actually layout the page
-  Overview.arrangePage();
-};
-
-Overview.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#overview_page').empty();
-  $('#overview_page').append(Overview.page);
+  Login.arrangePage(Overview.page);
 };
 
 Overview.executeMonitor = function() {

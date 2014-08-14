@@ -1,6 +1,11 @@
 module("Login", {
   'setup': function() {
     BMTestUtils.LoginPre = BMTestUtils.getAllElements();
+
+    // Create the login_header div so functions have something to modify
+    if (document.getElementById('login_header') == null) {
+      $('body').append($('<div>', {'id': 'login_header', }));
+    }
   },
   'teardown': function(assert) {
 
@@ -15,6 +20,14 @@ module("Login", {
     delete Api.forumNavigation;
     delete Env.window.location.href;
     delete Login.message;
+
+    Login.bodyDivId = null;
+
+    // Page elements
+    $('#login_header').remove();
+    $('#login_header').empty();
+
+    BMTestUtils.deleteEnvMessage();
 
     // Fail if any other elements were added or removed
     BMTestUtils.LoginPost = BMTestUtils.getAllElements();
@@ -37,8 +50,66 @@ test("test_Login.showLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
 });
 
-test("test_Login.layoutHeader", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.layoutHeader not implemented");
+test("test_Login.arrangeHeader", function(assert) {
+  expect(5); // tests + 2 teardown
+
+  Login.message = 'Hello.';
+  Login.bodyDivId = 'test_page';
+  Login.callback = function() {
+    assert.ok(true, "Login callback should be called");
+  };
+
+  BMTestUtils.setupFakeLogin();
+  Login.arrangeHeader();
+  BMTestUtils.cleanupFakeLogin();
+
+  var bodyDiv = $('#' + Login.bodyDivId);
+  assert.equal(bodyDiv.length, 1,
+    "Main page body div should be created");
+  bodyDiv.remove();
+  bodyDiv.empty();
+
+  assert.equal($('#env_message').length, 1,
+    "Env message div should be created");
+});
+
+test("test_Login.arrangePage", function(assert) {
+  expect(5); // tests + 2 teardown
+
+  Login.bodyDivId = 'test_page';
+  $('body').append($('<div>', {'id': Login.bodyDivId, }));
+
+  Env.setupEnvStub();
+  Env.message = {
+    'type': 'none',
+    'text': 'It\'s Howdy Doody time!',
+  };
+
+  var page = $('<div>', {
+    'class': 'testPageContents',
+    'text': 'Kilroy was here.',
+  });
+  var button = $('<input>', {
+    'type': 'button',
+    'id': 'testFormButton',
+  });
+  page.append(button);
+  var formFunction = function() {
+    assert.ok(true, 'Form should be activated on click.');
+  };
+  Login.arrangePage(page, formFunction, '#testFormButton');
+
+  var envMessage = $('#env_message');
+  assert.equal(envMessage.text(), Env.message.text,
+    'Env message should be displayed');
+  var testPageContents = $('#test_page div.testPageContents');
+  assert.equal(testPageContents.text(), page.text(),
+    'Page contents should exist on actual page.');
+  button.click();
+
+  $('#' + Login.bodyDivId).remove();
+  $('#' + Login.bodyDivId).empty();
+
 });
 
 test("test_Login.getLoginForm", function(assert) {

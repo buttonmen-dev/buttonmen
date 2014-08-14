@@ -34,9 +34,9 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 // * Forum.showThread() builds a version of Forum.page that includes a list
 //   of posts on a given thread and a form to create a new one (attaching the
 //   Forum.formReplyToThread() event to it). Then it calls Forum.arrangePage().
-// * Forum.arrangePage() sets the contents of <div id="forum_page">
-//   on the live page. It also binds Forum.formLinkToSubPage to every
-//   .pseudoLink element (e.g., the links to a given board or thread).
+// * Forum.arrangePage() calls Login.arrangePage(). It also binds
+//   Forum.formLinkToSubPage to every .pseudoLink element (e.g., the links to a
+//   given board or thread).
 //
 // Major events:
 // * Forum.formLinkToSubPage() is called every time a user clicks on an internal
@@ -54,14 +54,6 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 // These functions are part of the main action flow to load the page
 
 Forum.showForumPage = function() {
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#forum_page').length === 0) {
-    $('body').append($('<div>', {'id': 'forum_page', }));
-  }
-
   $(window).bind('popstate', Forum.showPage);
 
   var state = {
@@ -75,15 +67,6 @@ Forum.showForumPage = function() {
 };
 
 Forum.showPage = function(state) {
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t view the forum because you\'re not logged in',
-    };
-    Forum.arrangePage();
-    return;
-  }
-
   // If this was called from a popState event, the parameter might be an event
   // object containing a state rather than the state itself
   if (state.state !== undefined) {
@@ -348,10 +331,6 @@ Forum.showThread = function() {
 };
 
 Forum.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
   var pseudoLinks =
     Forum.page.find('.pseudoLink').add(Login.message.find('.pseudoLink'));
   pseudoLinks.each(function() {
@@ -364,8 +343,7 @@ Forum.arrangePage = function() {
     $(this).attr('href', 'forum.html' + Forum.buildUrlHash(state));
   });
 
-  $('#forum_page').empty();
-  $('#forum_page').append(Forum.page);
+  Login.arrangePage(Forum.page);
 
   Forum.scrollTo(Forum.scrollTarget);
 };

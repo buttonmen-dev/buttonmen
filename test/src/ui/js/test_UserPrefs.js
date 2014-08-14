@@ -7,6 +7,8 @@ module("UserPrefs", {
     if (document.getElementById('userprefs_page') == null) {
       $('body').append($('<div>', {'id': 'userprefs_page', }));
     }
+
+    Login.bodyDivId = 'userprefs_page';
   },
   'teardown': function(assert) {
 
@@ -23,6 +25,8 @@ module("UserPrefs", {
     delete Api.user_prefs;
     delete UserPrefs.page;
     delete UserPrefs.form;
+
+    Login.bodyDivId = null;
 
     // Page elements
     $('#userprefs_page').remove();
@@ -86,19 +90,6 @@ test("test_UserPrefs.assemblePage", function(assert) {
     var htmlout = UserPrefs.page.html();
     assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_UserPrefs.arrangePage", function(assert) {
-  stop();
-  Api.getUserPrefsData(function() {
-    UserPrefs.page = $('<div>');
-    UserPrefs.page.append($('<p>', {'text': 'hi world', }));
-    UserPrefs.arrangePage();
-    var item = document.getElementById('userprefs_page');
-    assert.equal(item.nodeName, "DIV",
-          "#userprefs_page is a div after arrangePage() is called");
     start();
   });
 });

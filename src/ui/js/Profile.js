@@ -8,21 +8,10 @@ var Profile = {};
 // * Profile.getProfile() calls the API, setting Api.profile_info. It calls
 //   Profile.showPage()
 // * Profile.showPage() uses the data returned by the API to build
-//   the contents of the page as Profile.page and calls Profile.arrangePage()
-// * Profile.arrangePage() sets the contents of <div id="profile_page"> on the
-//   live page
+//   the contents of the page as Profile.page and calls Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 Profile.showProfilePage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#profile_page').length === 0) {
-    $('body').append($('<div>', {'id': 'profile_page', }));
-  }
-
   // Get all needed information, then display Profile page
   Profile.getProfile(Profile.showPage);
 };
@@ -30,22 +19,13 @@ Profile.showProfilePage = function() {
 Profile.getProfile = function(callback) {
   var playerName = Env.getParameterByName('player');
 
-  if (Login.logged_in) {
-    Api.loadProfileInfo(playerName, callback);
-  } else {
-    return callback();
-  }
+  Api.loadProfileInfo(playerName, callback);
 };
 
 Profile.showPage = function() {
   Profile.page = $('<div>');
 
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t view player profile because you are not logged in',
-    };
-  } else if (Api.profile_info.load_status != 'ok') {
+  if (Api.profile_info.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
@@ -57,16 +37,7 @@ Profile.showPage = function() {
   }
 
   // Actually layout the page
-  Profile.arrangePage();
-};
-
-Profile.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#profile_page').empty();
-  $('#profile_page').append(Profile.page);
+  Login.arrangePage(Profile.page);
 };
 
 ////////////////////////////////////////////////////////////////////////

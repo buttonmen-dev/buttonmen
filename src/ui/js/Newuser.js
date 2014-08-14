@@ -16,23 +16,13 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 //   Newuser.action<SomeAction>()
 // * each Newuser.action<SomeAction>() function must set Newuser.page and
 //   Newuser.form, then call Newuser.arrangePage()
-// * Newuser.arrangePage() sets the contents of <div id="newuser_page">
-//   on the live page
+// * Newuser.arrangePage() calls Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 Newuser.showNewuserPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#newuser_page').length === 0) {
-    $('body').append($('<div>', {'id': 'newuser_page', }));
-  }
-
   if (Newuser.justCreatedAccount === true) {
     // Don't re-display the form if they've already created an account
     Newuser.page = $('<div>');
@@ -47,13 +37,7 @@ Newuser.showNewuserPage = function() {
 
 // Actually lay out the page
 Newuser.arrangePage = function() {
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#newuser_page').empty();
-  $('#newuser_page').append(Newuser.page);
+  Login.arrangePage(Newuser.page);
 
   if (Newuser.form) {
     $('#newuser_action_button').click(Newuser.form);

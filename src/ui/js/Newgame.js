@@ -17,19 +17,13 @@ Newgame.GAME_DESCRIPTION_MAX_LENGTH = 255;
 //   the received data from getNewgameOptions().  It calls one of several
 //   functions, Newgame.action<SomeAction>()
 // * each Newgame.action<SomeAction>() function must set Newgame.page and
-//   Newgame.form, then call Newgame.arrangePage()
-// * Newgame.arrangePage() sets the contents of <div id="newgame_page">
-//   on the live page
+//   Newgame.form, then call Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 Newgame.showNewgamePage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
   if (!Newgame.activity.opponentName) {
     Newgame.activity.opponentName = Env.getParameterByName('opponent');
   }
@@ -46,26 +40,16 @@ Newgame.showNewgamePage = function() {
     Newgame.activity.nRounds = Env.getParameterByName('maxWins');
   }
 
-  // Make sure the div element that we will need exists in the page body
-  if ($('#newgame_page').length === 0) {
-    $('body').append($('<div>', {'id': 'newgame_page', }));
-  }
-
   // Get all needed information, then display newgame page
   Newgame.getNewgameData(Newgame.showPage);
 };
 
 Newgame.getNewgameData = function(callback) {
-  if (Login.logged_in) {
-    Env.callAsyncInParallel(
-      [
-        Api.getButtonData,
-        Api.getPlayerData,
-      ], callback);
-  } else {
-    // The player needs to be logged in for anything good to happen here
-    Newgame.actionLoggedOut();
-  }
+  Env.callAsyncInParallel(
+    [
+      Api.getButtonData,
+      Api.getPlayerData,
+    ], callback);
 };
 
 // This function is called after Api.player has been loaded with new data
@@ -77,26 +61,11 @@ Newgame.showPage = function() {
   }
 };
 
-// Actually lay out the page
-Newgame.arrangePage = function() {
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#newgame_page').empty();
-  $('#newgame_page').append(Newgame.page);
-
-  if (Newgame.form) {
-    $('#newgame_action_button').click(Newgame.form);
-  }
-};
-
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newgame.js.
 // Each function should start by populating Newgame.page and Newgame.form
-// ane end by invoking Newgame.arrangePage();
+// ane end by invoking Login.arrangePage();
 
 Newgame.actionLoggedOut = function() {
 
@@ -108,7 +77,7 @@ Newgame.actionLoggedOut = function() {
   Newgame.addLoggedOutPage();
 
   // Lay out the page
-  Newgame.arrangePage();
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
 };
 
 Newgame.actionInternalErrorPage = function() {
@@ -121,7 +90,7 @@ Newgame.actionInternalErrorPage = function() {
   Newgame.addInternalErrorPage();
 
   // Lay out the page
-  Newgame.arrangePage();
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
 };
 
 Newgame.actionCreateGame = function() {
@@ -313,7 +282,7 @@ Newgame.actionCreateGame = function() {
   Newgame.form = Newgame.formCreateGame;
 
   // Lay out the page
-  Newgame.arrangePage();
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
 };
 
 

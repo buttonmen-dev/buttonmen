@@ -38,24 +38,13 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 //   the received data from getCurrentGame().  It calls one of several
 //   functions, Game.action<SomeAction>()
 // * each Game.action<SomeAction>() function must set Game.page and
-//   Game.form, then call Game.arrangePage()
-// * Game.arrangePage() sets the contents of <div id="game_page"> on the
-//   live page
+//   Game.form, then call Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 Game.showGamePage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#game_page').length === 0) {
-    $('body').append($('<div>', {'id': 'game_page', }));
-  }
-
   if (Game.logEntryLimit && Env.getCookieCompactMode()) {
     Game.logEntryLimit = 5;
   }
@@ -92,13 +81,6 @@ Game.getCurrentGame = function(callbackfunc) {
     Env.message = {
       'type': 'error',
       'text': 'Specified game is not a valid number.  Nothing to do.'
-    };
-    return callbackfunc();
-  }
-  if (Login.logged_in === false) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Not logged in.  Nothing to do.'
     };
     return callbackfunc();
   }
@@ -192,12 +174,12 @@ Game.showStatePage = function() {
       Game.page =
         $('<p>', {'text': 'The game hasn\'t started yet.', });
       Game.form = null;
-      Game.arrangePage();
+      Login.arrangePage(Game.page, Game.form, '#game_action_button');
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
-      Game.arrangePage();
+      Login.arrangePage(Game.page, Game.form, '#game_action_button');
     }
   } else {
 
@@ -205,23 +187,7 @@ Game.showStatePage = function() {
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Game.arrangePage();
-  }
-};
-
-Game.arrangePage = function() {
-  if ($('#game_page').length === 0) {
-    throw('Internal error: #game_page not defined in arrangePage()');
-  }
-
-  $('#game_page').empty();
-  $('#game_page').append(Game.page);
-
-  // If a game form is specified, activate the game form on mouse click.
-  // (The form will automatically be invoked when the player presses
-  // the return key as well.)
-  if (Game.form) {
-    $('#game_action_button').click(Game.form);
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
   }
 };
 
@@ -419,7 +385,7 @@ Game.actionSpecifyDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionSpecifyDiceInactive = function() {
@@ -436,7 +402,7 @@ Game.actionSpecifyDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionSpecifyDiceNonplayer = function() {
@@ -458,7 +424,7 @@ Game.actionSpecifyDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
@@ -516,7 +482,7 @@ Game.actionChooseAuxiliaryDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
@@ -541,7 +507,7 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
@@ -563,7 +529,7 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseReserveDiceActive = function() {
@@ -619,7 +585,7 @@ Game.actionChooseReserveDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseReserveDiceInactive = function() {
@@ -644,7 +610,7 @@ Game.actionChooseReserveDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
@@ -666,7 +632,7 @@ Game.actionChooseReserveDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionReactToInitiativeActive = function() {
@@ -734,7 +700,7 @@ Game.actionReactToInitiativeActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionReactToInitiativeInactive = function() {
@@ -754,7 +720,7 @@ Game.actionReactToInitiativeInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
@@ -776,7 +742,7 @@ Game.actionReactToInitiativeNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionPlayTurnActive = function() {
@@ -869,7 +835,7 @@ Game.actionPlayTurnActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionPlayTurnInactive = function() {
@@ -905,7 +871,7 @@ Game.actionPlayTurnInactive = function() {
   Game.pageAddFooter(true);
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionPlayTurnNonplayer = function() {
@@ -928,7 +894,7 @@ Game.actionPlayTurnNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionAdjustFireDiceActive = function() {
@@ -1009,7 +975,7 @@ Game.actionAdjustFireDiceActive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionAdjustFireDiceInactive = function() {
@@ -1029,7 +995,7 @@ Game.actionAdjustFireDiceInactive = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionAdjustFireDiceNonplayer = function() {
@@ -1051,7 +1017,7 @@ Game.actionAdjustFireDiceNonplayer = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionShowFinishedGame = function() {
@@ -1079,7 +1045,7 @@ Game.actionShowFinishedGame = function() {
   Game.pageAddFooter();
 
   // Now layout the page
-  Game.arrangePage();
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 ////////////////////////////////////////////////////////////////////////

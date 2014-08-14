@@ -6,6 +6,8 @@ module("Newuser", {
     if (document.getElementById('newuser_page') == null) {
       $('body').append($('<div>', {'id': 'newuser_page', }));
     }
+
+    Login.bodyDivId = 'newuser_page';
   },
   'teardown': function(assert) {
 
@@ -20,6 +22,8 @@ module("Newuser", {
     delete Newuser.page;
     delete Newuser.form;
     delete Newuser.justCreatedAccount;
+
+    Login.bodyDivId = null;
 
     // Page elements
     $('#newuser_page').remove();
@@ -56,17 +60,6 @@ test("test_Newuser.showNewuserPage_logged_in", function(assert) {
         "#newuser_page is a div after showNewuserPage() is called");
 
   BMTestUtils.cleanupFakeLogin();
-});
-
-test("test_Newuser.showNewuserPage_no_page_element", function(assert) {
-  // Remove page element to make sure the function readds it
-  $('#newuser_page').remove();
-  $('#newuser_page').empty();
-
-  Newuser.showNewuserPage();
-  var item = document.getElementById('newuser_page');
-  assert.equal(item.nodeName, "DIV",
-        "#newuser_page is a div after showNewuserPage() is called");
 });
 
 test("test_Newuser.arrangePage", function(assert) {

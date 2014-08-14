@@ -94,19 +94,6 @@ test("test_ActivePlayers.showPage", function(assert) {
   });
 });
 
-test("test_ActivePlayers.arrangePage", function(assert) {
-  stop();
-  ActivePlayers.getActivePlayers(function() {
-    ActivePlayers.page = $('<div>');
-    ActivePlayers.page.append($('<p>', {'text': 'hi world', }));
-    ActivePlayers.arrangePage();
-    var item = document.getElementById('activeplayers_page');
-    assert.equal(item.nodeName, "DIV",
-          "#activeplayers_page is a div after arrangePage() is called");
-    start();
-  });
-});
-
 test("test_ActivePlayers.buildPlayersTable", function(assert) {
   stop();
   ActivePlayers.getActivePlayers(function() {
