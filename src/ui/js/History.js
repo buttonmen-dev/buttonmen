@@ -165,7 +165,7 @@ History.getFilters = function(callback) {
   Env.callAsyncInParallel(
     [
       Api.getPlayerData,
-      Api.getButtonData,
+      { 'func': Api.getButtonData, 'args': [ null ] },
     ], function() {
       var playerValues = { };
       $.each(Api.player.list, function(name, playerInfo) {

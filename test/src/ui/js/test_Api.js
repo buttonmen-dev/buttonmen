@@ -2,11 +2,17 @@ module("Api", {
   'setup': function() {
     BMTestUtils.ApiPre = BMTestUtils.getAllElements();
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
     delete Api.test_data;
     delete Api.button;
+    delete Api.buttonSet;
     delete Api.player;
     delete Api.active_games;
     delete Api.completed_games;
@@ -33,39 +39,39 @@ module("Api", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.ApiPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.ApiPost, BMTestUtils.ApiPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Api module has been loaded
-test("test_Api_is_loaded", function() {
-  expect(2); // number of tests plus 1 for the teardown test
-  ok(Api, "The Api namespace exists");
+test("test_Api_is_loaded", function(assert) {
+  expect(3); // number of tests plus 2 for the teardown test
+  assert.ok(Api, "The Api namespace exists");
 });
 
-test("test_Api.parseGenericData", function() {
-  expect(2); // number of tests plus 1 for the teardown test
+test("test_Api.parseGenericData", function(assert) {
+  expect(3); // number of tests plus 2 for the teardown test
 
   var apiKey = 'test_data';
   Api[apiKey] = { };
   var data = { 'value': 37 };
   Api.parseGenericData(data, apiKey);
-  equal(Api.test_data.value, 37, 'Data value should be set on the Api object');
+  assert.equal(Api.test_data.value, 37, 'Data value should be set on the Api object');
 });
 
-test("test_Api.verifyApiData", function() {
-  expect(3); // number of tests plus 1 for the teardown test
+test("test_Api.verifyApiData", function(assert) {
+  expect(4); // number of tests plus 2 for the teardown test
 
   var apiKey = 'test_data';
 
   Env.message = undefined;
   var message = undefined;
-  Api.verifyApiData(apiKey, function() {
+  Api.verifyApiData(apiKey, function(assert) {
     message = Env.message;
   });
-  equal(message.type, 'error', 'Should error if data is missing');
+  assert.equal(message.type, 'error', 'Should error if data is missing');
 
   Env.message = undefined;
   message = undefined;
@@ -73,210 +79,290 @@ test("test_Api.verifyApiData", function() {
   Api.verifyApiData(apiKey, function() {
     message = Env.message;
   });
-  equal(message, undefined, 'Should not error if data is present');
+  assert.equal(message, undefined, 'Should not error if data is present');
 });
 
-asyncTest("test_Api.getButtonData", function() {
-  expect(5); // number of tests plus 1 for the teardown test
-  Api.getButtonData(function() {
-    equal(Api.button.load_status, "ok", "Api.button.load_status should be ok");
-    equal(typeof Api.button.list, "object",
+test("test_Api.getButtonData", function(assert) {
+  stop();
+  expect(6); // number of tests plus 2 for the teardown test
+  Api.getButtonData(null, function() {
+    assert.equal(Api.button.load_status, "ok", "Api.button.load_status should be ok");
+    assert.equal(typeof Api.button.list, "object",
           "Api.button.list should be an object");
-    deepEqual(
+    assert.deepEqual(
       Api.button.list["Avis"],
-      { 'hasUnimplementedSkill': false,
+      {
+        'buttonName': 'Avis',
+        'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
         'buttonSet': 'Soldiers',
+        'dieTypes': [ 'X Swing', ],
         'dieSkills': [],
         'isTournamentLegal': true,
+        'artFilename': 'avis.png',
       },
       "Button Avis should have correct contents");
-    deepEqual(Env.message, undefined,
+    assert.deepEqual(Env.message, undefined,
               "Api.getButtonData should not set Env.message");
     start();
   });
 });
 
-asyncTest("test_Api.getPlayerData", function() {
-  expect(5); // number of tests plus 1 for the teardown test
+test("test_Api.getPlayerData", function(assert) {
+  stop();
+  expect(6); // number of tests plus 2 for the teardown test
   Api.getPlayerData(function() {
-    equal(Api.player.load_status, "ok", "Api.player.load_status should be ok");
-    equal(typeof Api.player.list, "object",
+    assert.equal(Api.player.load_status, "ok", "Api.player.load_status should be ok");
+    assert.equal(typeof Api.player.list, "object",
           "Api.player.list should be an object");
-    deepEqual(
+    assert.deepEqual(
       Api.player.list["tester2"],
       {'status': 'active', },
       "Player tester2 should have correct contents");
-    deepEqual(Env.message, undefined,
+    assert.deepEqual(Env.message, undefined,
               "Api.getPlayerData should not set Env.message");
     start();
   });
 });
 
-test("test_Api.parseButtonData", function() {
-  expect(4); // number of tests plus 1 for the teardown test
+test("test_Api.parseButtonData", function(assert) {
+  expect(5); // number of tests plus 2 for the teardown test
 
   Api.button = {};
-  var retval = Api.parseButtonData({
-    'buttonNameArray': ['Avis', 'Adam Spam', 'Jellybean' ],
-    'recipeArray': ['(4) (4) (10) (12) (X)',
-                    'F(4) F(6) (6) (12) (X)',
-                    'p(20) s(20) (V) (X)' ],
-    'hasUnimplementedSkillArray': [ false, true, false ],
-    'buttonSetArray': [ 'Soldiers', 'Polycon', 'BROM' ],
-    'dieSkillsArray': [ [],
-                        [ 'Fire', ],
-                        [ 'Poison', 'Shadow', ] ],
-    'isTournamentLegalArray': [ true, true, true, ],
-  });
-  equal(retval, true, "Api.parseButtonData() returns true");
-  deepEqual(
+  var retval = Api.parseButtonData([
+    {
+      'buttonName': 'Avis',
+      'recipe': '(4) (4) (10) (12) (X)',
+      'hasUnimplementedSkill': false,
+      'buttonSet': 'Soldiers',
+      'dieTypes': [ 'X Swing', ],
+      'dieSkills': [],
+      'isTournamentLegal': true,
+      'artFilename': 'avis.png',
+    },
+    {
+      'buttonName': 'Adam Spam',
+      'recipe': 'F(4) F(6) (6) (12) (X)',
+      'hasUnimplementedSkill': true,
+      'buttonSet': 'Polycon',
+      'dieTypes': [ 'X Swing', ],
+      'dieSkills': [ 'Fire', ],
+      'isTournamentLegal': true,
+      'artFilename': 'adamspam.png',
+    },
+    {
+      'buttonName': 'Jellybean',
+      'recipe': 'p(20) s(20) (V) (X)',
+      'hasUnimplementedSkill': false,
+      'buttonSet': 'BROM',
+      'dieTypes': [ 'V Swing', 'X Swing', ],
+      'dieSkills': [ 'Poison', 'Shadow', ],
+      'isTournamentLegal': true,
+      'artFilename': 'jellybean.png',
+    },
+  ]);
+  assert.equal(retval, true, "Api.parseButtonData() returns true");
+  assert.deepEqual(
     Api.button.list,
     { 'Adam Spam': {
+        'buttonName': 'Adam Spam',
         'hasUnimplementedSkill': true,
         'recipe': 'F(4) F(6) (6) (12) (X)',
         'buttonSet': 'Polycon',
+        'dieTypes': [ 'X Swing', ],
         'dieSkills': [ 'Fire', ],
         'isTournamentLegal': true,
+        'artFilename': 'adamspam.png',
       },
       'Avis': {
+        'buttonName': 'Avis',
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
         'buttonSet': 'Soldiers',
+        'dieTypes': [ 'X Swing', ],
         'dieSkills': [ ],
         'isTournamentLegal': true,
+        'artFilename': 'avis.png',
       },
       'Jellybean': {
+        'buttonName': 'Jellybean',
         'hasUnimplementedSkill': false,
         'recipe': 'p(20) s(20) (V) (X)',
         'buttonSet': 'BROM',
+        'dieTypes': [ 'V Swing', 'X Swing', ],
         'dieSkills': [ 'Poison', 'Shadow', ],
         'isTournamentLegal': true,
+        'artFilename': 'jellybean.png',
       }
   });
-  deepEqual(Env.message, undefined,
+  assert.deepEqual(Env.message, undefined,
             "Api.parseButtonData should not set Env.message");
 });
 
-test("test_Api.parseButtonData_failure", function() {
+test("test_Api.parseButtonData_failure", function(assert) {
   Api.button = {};
   var retval = Api.parseButtonData({});
-  equal(retval, false, "Api.parseButtonData({}) returns false");
+  assert.equal(retval, false, "Api.parseButtonData({}) returns false");
 });
 
-test("test_Api.parsePlayerData", function() {
-  expect(4); // number of tests plus 1 for the teardown test
+test("test_Api.getButtonSetData", function(assert) {
+  stop();
+  expect(5); // number of tests plus 2 for the teardown tests
+
+  Api.getButtonSetData(null, function() {
+    assert.equal(Api.buttonSet.load_status, "ok",
+      "Api.buttonSet.load_status should be ok");
+    assert.equal(typeof Api.buttonSet.list, "object",
+      "Api.buttonSet.list should be an object");
+    assert.deepEqual(Env.message, undefined,
+      "Api.getButtonSetData should not set Env.message");
+    start();
+  });
+});
+
+test("test_Api.parseButtonSetData", function(assert) {
+  Api.buttonSet = {};
+  Api.parseButtonSetData([
+    { 'setName': 'Lunch Money' },
+    { 'setName': 'Soldiers' },
+    { 'setName': 'The Big Cheese' },
+    { 'setName': 'Vampyres' },
+  ]);
+  assert.deepEqual(
+    Api.buttonSet.list,
+    {
+      'Lunch Money': { 'setName': 'Lunch Money' },
+      'Soldiers': { 'setName': 'Soldiers' },
+      'The Big Cheese': { 'setName': 'The Big Cheese' },
+      'Vampyres': { 'setName': 'Vampyres' },
+    },
+    "Set list should have correct contents"
+  );
+});
+
+test("test_Api.parsePlayerData", function(assert) {
+  expect(5); // number of tests plus 2 for the teardown tests
 
   Api.player = {};
   var retval = Api.parsePlayerData({
     'nameArray': ['tester1', 'tester2', 'tester3' ],
     'statusArray': ['active', 'active', 'active' ],
   });
-  equal(retval, true, "Api.parsePlayerData() returns true");
-  deepEqual(
+  assert.equal(retval, true, "Api.parsePlayerData() returns true");
+  assert.deepEqual(
     Api.player.list,
     { 'tester1': {'status': 'active', },
       'tester2': {'status': 'active', },
       'tester3': {'status': 'active', }
     }
   );
-  deepEqual(Env.message, undefined,
+  assert.deepEqual(Env.message, undefined,
             "Api.parseButtonData should not set Env.message");
 });
 
-test("test_Api.parsePlayerData_failure", function() {
+test("test_Api.parsePlayerData_failure", function(assert) {
   Api.player = {};
   var retval = Api.parsePlayerData({});
-  equal(retval, false, "Api.parsePlayerData({}) returns false");
+  assert.equal(retval, false, "Api.parsePlayerData({}) returns false");
 });
 
-asyncTest("test_Api.getActiveGamesData", function() {
+test("test_Api.getActiveGamesData", function(assert) {
+  stop();
   Api.getActiveGamesData(function() {
-    equal(Api.active_games.load_status, 'ok',
+    assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    equal(Api.active_games.nGames, 15, 'Got expected number of active games');
+    assert.equal(Api.active_games.nGames, 15, 'Got expected number of active games');
     start();
   });
 });
 
-asyncTest("test_Api.parseActiveGamesData", function() {
+test("test_Api.parseActiveGamesData", function(assert) {
+  stop();
   Api.getActiveGamesData(function() {
-    equal(Api.active_games.games.awaitingPlayer.length, 9,
+    assert.equal(Api.active_games.games.awaitingPlayer.length, 9,
           "expected number of games parsed as waiting for the active player");
     start();
   });
 });
 
-asyncTest("test_Api.getCompletedGamesData", function() {
+test("test_Api.getCompletedGamesData", function(assert) {
+  stop();
   Api.getCompletedGamesData(function() {
-    equal(Api.completed_games.load_status, 'ok',
+    assert.equal(Api.completed_games.load_status, 'ok',
          'Successfully loaded completed games data');
-    equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
+    assert.equal(Api.completed_games.nGames, 1, 'Got expected number of completed games');
     start();
   });
 });
 
-asyncTest("test_Api.parseCompletedGamesData", function() {
+test("test_Api.parseCompletedGamesData", function(assert) {
+  stop();
   Api.getCompletedGamesData(function() {
-    equal(Api.completed_games.games[0].gameId, 5,
+    assert.equal(Api.completed_games.games[0].gameId, 5,
           "expected completed game ID exists");
     start();
   });
 });
 
-asyncTest("test_Api.getUserPrefsData", function() {
+test("test_Api.getUserPrefsData", function(assert) {
+  stop();
   Api.getUserPrefsData(function() {
-    equal(Api.user_prefs.load_status, 'ok', "Successfully loaded user data");
+    assert.equal(Api.user_prefs.load_status, 'ok', "Successfully loaded user data");
     start();
   });
 });
 
-asyncTest("test_Api.parseUserPrefsData", function() {
+test("test_Api.parseUserPrefsData", function(assert) {
+  stop();
   Api.getUserPrefsData(function() {
-    equal(Api.user_prefs.autopass, true, "Successfully parsed autopass value");
+    assert.equal(Api.user_prefs.autopass, true, "Successfully parsed autopass value");
     start();
   });
 });
 
-asyncTest("test_Api.getGameData", function() {
+test("test_Api.getGameData", function(assert) {
+  stop();
   Game.game = '1';
   Api.getGameData(Game.game, 10, function() {
-    equal(Api.game.gameId, '1', "parseGameData() parsed gameId from API data");
-    equal(Api.game.isParticipant, true, "parseGameData() set isParticipant based on API data");
-    equal(Api.game.playerIdx, 0, "parseGameData() set playerIdx based on API data");
-    equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx based on API data");
-    equal(Api.game.activePlayerIdx, null, "parseGameData() parsed activePlayerIdx from API data");
-    equal(Api.game.playerWithInitiativeIdx, null, "parseGameData() parsed playerWithInitiativeIdx from API data");
+    assert.equal(Api.game.gameId, '1', "parseGameData() parsed gameId from API data");
+    assert.equal(Api.game.isParticipant, true, "parseGameData() set isParticipant based on API data");
+    assert.equal(Api.game.playerIdx, 0, "parseGameData() set playerIdx based on API data");
+    assert.equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx based on API data");
+    assert.equal(Api.game.activePlayerIdx, null, "parseGameData() parsed activePlayerIdx from API data");
+    assert.equal(Api.game.playerWithInitiativeIdx, null, "parseGameData() parsed playerWithInitiativeIdx from API data");
     delete Game.game;
     start();
   });
 });
 
-asyncTest("test_Api.getGameData_nonplayer", function() {
+test("test_Api.getGameData_nonplayer", function(assert) {
+  stop();
   Game.game = '10';
   Api.getGameData(Game.game, 10, function() {
-    equal(Api.game.gameId, '10',
+    assert.equal(Api.game.gameId, '10',
           "parseGameData() set gameId for nonparticipant");
     delete Game.game;
     start();
   });
 });
 
-asyncTest("test_Api.getGameData_somelogs", function() {
+test("test_Api.getGameData_somelogs", function(assert) {
+  stop();
   Game.game = '3';
   Api.getGameData(Game.game, 3, function() {
-    equal(Api.game.actionLog.length, 3, "getGameData() passed limited action log length");
-    equal(Api.game.chatLog.length, 3, "getGameData() passed limited chat log length");
+    assert.equal(Api.game.actionLog.length, 3, "getGameData() passed limited action log length");
+    assert.equal(Api.game.chatLog.length, 3, "getGameData() passed limited chat log length");
     delete Game.game;
     start();
   });
 });
 
-asyncTest("test_Api.getGameData_alllogs", function() {
+test("test_Api.getGameData_alllogs", function(assert) {
+  stop();
   Game.game = '3';
   Api.getGameData(Game.game, 0, function() {
-    ok(Api.game.actionLog.length > 3, "getGameData() passed unlimited action log length");
-    ok(Api.game.chatLog.length > 3, "getGameData() passed unlimited chat log length");
+    assert.ok(Api.game.actionLog.length > 3, "getGameData() passed unlimited action log length");
+    assert.ok(Api.game.chatLog.length > 3, "getGameData() passed unlimited chat log length");
     delete Game.game;
     start();
   });
@@ -284,37 +370,40 @@ asyncTest("test_Api.getGameData_alllogs", function() {
 
 // N.B. use Api.getGameData() to query dummy_responder, but
 // test any details of parsePlayerData()'s processing here
-asyncTest("test_Api.parseGamePlayerData", function() {
+test("test_Api.parseGamePlayerData", function(assert) {
+  stop();
   Game.game = '1';
   Api.getGameData(Game.game, 10, function() {
-    deepEqual(Api.game.player.playerId, 1,
+    assert.deepEqual(Api.game.player.playerId, 1,
               "player ID should be parsed from API response");
-    deepEqual(Api.game.player.playerName, 'tester1',
+    assert.deepEqual(Api.game.player.playerName, 'tester1',
               "player name should be parsed from API response");
-    deepEqual(Api.game.player.waitingOnAction, true,
+    assert.deepEqual(Api.game.player.waitingOnAction, true,
               "'waiting on action' status should be parsed from API response");
-    deepEqual(Api.game.player.roundScore, null,
+    assert.deepEqual(Api.game.player.roundScore, null,
               "round score should be parsed from API response");
-    deepEqual(Api.game.player.sideScore, null,
+    assert.deepEqual(Api.game.player.sideScore, null,
               "side score should be parsed from API response");
-    deepEqual(Api.game.player.gameScoreArray, {'W': 0, 'L': 0, 'D': 0, },
+    assert.deepEqual(Api.game.player.gameScoreArray, {'W': 0, 'L': 0, 'D': 0, },
               "game score array should be parsed from API response");
-    deepEqual(Api.game.player.lastActionTime, 0,
+    assert.deepEqual(Api.game.player.lastActionTime, 0,
               "last action time should be parsed from API response");
-    deepEqual(Api.game.player.canStillWin, null,
+    assert.deepEqual(Api.game.player.hasDismissedGame, false,
+              "'has dismissed game' should be parsed from API response");
+    assert.deepEqual(Api.game.player.canStillWin, null,
               "'can still win' should be parsed from API response");
-    deepEqual(Api.game.player.button, {
+    assert.deepEqual(Api.game.player.button, {
                 'name': 'Avis',
                 'recipe': '(4) (4) (10) (12) (X)',
                 'artFilename': 'avis.png',
               }, "recipe data should be parsed from API response");
-    deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
+    assert.deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
               "die descriptions should be parsed");
-    deepEqual(Api.game.player.activeDieArray[4].recipe, '(X)',
+    assert.deepEqual(Api.game.player.activeDieArray[4].recipe, '(X)',
               "player die recipe should be parsed correctly");
-    deepEqual(Api.game.player.capturedDieArray, [],
+    assert.deepEqual(Api.game.player.capturedDieArray, [],
               "array of captured dice should be parsed");
-    deepEqual(
+    assert.deepEqual(
       Api.game.player.swingRequestArray['X'],
       {'min': 4, 'max': 20},
       "swing request array should contain X entry with correct min/max");
@@ -323,11 +412,12 @@ asyncTest("test_Api.parseGamePlayerData", function() {
   });
 });
 
-asyncTest("test_Api.parseGamePlayerData_option", function() {
+test("test_Api.parseGamePlayerData_option", function(assert) {
+  stop();
   Game.game = '19';
   Api.getGameData(Game.game, 10, function() {
-    deepEqual(Api.game.player.swingRequestArray, {});
-    deepEqual(Api.game.player.optRequestArray, {
+    assert.deepEqual(Api.game.player.swingRequestArray, {});
+    assert.deepEqual(Api.game.player.optRequestArray, {
       2: [2, 12],
       3: [8, 16],
       4: [20, 24],
@@ -337,44 +427,48 @@ asyncTest("test_Api.parseGamePlayerData_option", function() {
   });
 });
 
-asyncTest("test_Api.playerWLTText", function() {
+test("test_Api.playerWLTText", function(assert) {
+  stop();
   Api.getGameData('5', 10, function() {
     var text = Api.playerWLTText('opponent');
-    ok(text.match('2/3/0'),
+    assert.ok(text.match('2/3/0'),
        "opponent WLT text should contain opponent's view of WLT state");
     start();
   });
 });
 
-test("test_Api.disableSubmitButton", function() {
+test("test_Api.disableSubmitButton", function(assert) {
   $('body').append($('<div>', {'id': 'api_page', }));
   $('#api_page').append($('<button>', {
     'id': 'api_action_button',
     'text': 'Submit',
   }));
-  Api.disableSubmitButton('api_action_button');
+  Api.disableSubmitButton('#api_action_button');
   var item = document.getElementById('api_action_button');
-  equal(item.getAttribute('disabled'), 'disabled',
+  assert.equal(item.getAttribute('disabled'), 'disabled',
         "After a submit button has been clicked, it should be disabled");
 });
 
-asyncTest("test_Api.getNextGameId", function() {
+test("test_Api.getNextGameId", function(assert) {
+  stop();
   Api.getNextGameId(
     function() {
-      equal(Api.gameNavigation.load_status, 'ok',
+      assert.equal(Api.gameNavigation.load_status, 'ok',
         'Successfully retrieved next game ID');
       start();
     });
 });
 
-asyncTest("test_Api.parseNextGameId", function() {
+test("test_Api.parseNextGameId", function(assert) {
+  stop();
   Api.getNextGameId(function() {
-    equal(Api.gameNavigation.nextGameId, 7, "Successfully parsed next game ID");
+    assert.equal(Api.gameNavigation.nextGameId, 7, "Successfully parsed next game ID");
     start();
   });
 });
 
-asyncTest("test_Api.parseNextGameId_skipping", function() {
+test("test_Api.parseNextGameId_skipping", function(assert) {
+  stop();
   Api.game =
     {
       'gameId': 7,
@@ -382,86 +476,95 @@ asyncTest("test_Api.parseNextGameId_skipping", function() {
       'player': { 'waitingOnAction': true },
     };
   Api.getNextGameId(function() {
-    equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
+    assert.equal(Api.gameNavigation.nextGameId, 4, "Successfully parsed next game ID");
     start();
   });
 });
 
-asyncTest("test_Api.getNextNewPostId", function() {
+test("test_Api.getNextNewPostId", function(assert) {
+  stop();
   Api.getNextNewPostId(
     function() {
-      equal(Api.forumNavigation.load_status, 'ok',
+      assert.equal(Api.forumNavigation.load_status, 'ok',
         'Successfully retrieved next game ID');
-      equal(Api.forumNavigation.nextNewPostId, 3,
+      assert.equal(Api.forumNavigation.nextNewPostId, 3,
         'Retrieved correct next game ID');
       start();
     });
 });
 
-asyncTest("test_Api.getOpenGamesData", function() {
+test("test_Api.getOpenGamesData", function(assert) {
+  stop();
   Api.getOpenGamesData(
     function() {
-      equal(Api.open_games.load_status, 'ok',
+      assert.equal(Api.open_games.load_status, 'ok',
         'Successfully retrieved open games');
       start();
     });
 });
 
-asyncTest("test_Api.loadForumOverview", function() {
+test("test_Api.loadForumOverview", function(assert) {
+  stop();
   Api.loadForumOverview(
     function() {
-      equal(Api.forum_overview.load_status, 'ok',
+      assert.equal(Api.forum_overview.load_status, 'ok',
         'Successfully loaded forum overview');
       start();
     });
 });
 
-asyncTest("test_Api.loadForumBoard", function() {
+test("test_Api.loadForumBoard", function(assert) {
+  stop();
   Api.loadForumBoard(1,
     function() {
-      equal(Api.forum_board.load_status, 'ok',
+      assert.equal(Api.forum_board.load_status, 'ok',
         'Successfully loaded forum board');
       start();
     });
 });
 
-asyncTest("test_Api.loadForumThread", function() {
+test("test_Api.loadForumThread", function(assert) {
+  stop();
   Api.loadForumThread(1, 2,
     function() {
-      equal(Api.forum_thread.load_status, 'ok',
+      assert.equal(Api.forum_thread.load_status, 'ok',
         'Successfully loaded forum overview');
       start();
     });
 });
 
-asyncTest("test_Api.getActivePlayers", function() {
+test("test_Api.getActivePlayers", function(assert) {
+  stop();
   Api.getActivePlayers(20,
     function() {
-      equal(Api.active_players.load_status, 'ok',
+      assert.equal(Api.active_players.load_status, 'ok',
         'Successfully retrieved active players');
       start();
     });
 });
 
-asyncTest("test_Api.parseActivePlayers", function() {
+test("test_Api.parseActivePlayers", function(assert) {
+  stop();
   Api.getActivePlayers(20,
     function() {
-      ok(Api.active_players.players.length,
+      assert.ok(Api.active_players.players.length,
         "Successfully parsed active players info");
       start();
     });
 });
 
-asyncTest("test_Api.loadProfileInfo", function() {
+test("test_Api.loadProfileInfo", function(assert) {
+  stop();
   Api.loadProfileInfo('tester',
     function() {
-      equal(Api.profile_info.load_status, 'ok',
+      assert.equal(Api.profile_info.load_status, 'ok',
         'Successfully retrieved profile info');
       start();
     });
 });
 
-asyncTest("test_Api.searchGameHistory", function() {
+test("test_Api.searchGameHistory", function(assert) {
+  stop();
   var searchParameters = {
             'sortColumn': 'lastMove',
             'sortDirection': 'DESC',
@@ -473,56 +576,61 @@ asyncTest("test_Api.searchGameHistory", function() {
 
   Api.searchGameHistory(searchParameters,
     function() {
-      equal(Api.game_history.load_status, 'ok',
+      assert.equal(Api.game_history.load_status, 'ok',
         'Successfully performed search');
     start();
   });
 });
 
-asyncTest("test_Api.parseOpenGames", function() {
+test("test_Api.parseOpenGames", function(assert) {
+  stop();
   Api.getOpenGamesData(function() {
-    ok(Api.open_games.games.length > 0, "Successfully parsed open games");
+    assert.ok(Api.open_games.games.length > 0, "Successfully parsed open games");
     start();
   });
 });
 
-asyncTest("test_Api.joinOpenGame", function() {
+test("test_Api.joinOpenGame", function(assert) {
+  stop();
   Api.joinOpenGame(21, 'Avis',
     function() {
-      equal(Api.join_game_result.load_status, 'ok',
+      assert.equal(Api.join_game_result.load_status, 'ok',
         'Successfully retrieved open games');
       start();
     },
     function() {
-      ok(false, 'Retrieving game data should succeed');
+      assert.ok(false, 'Retrieving game data should succeed');
       start();
     });
 });
 
-asyncTest("test_Api.parseJoinGameResult", function() {
+test("test_Api.parseJoinGameResult", function(assert) {
+  stop();
   Api.joinOpenGame(21, 'Avis',
     function() {
-      equal(Api.join_game_result.success, true,
+      assert.equal(Api.join_game_result.success, true,
         "Successfully parsed join game result");
       start();
     },
     function() {
-      ok(false, 'Retrieving game data should succeed');
+      assert.ok(false, 'Retrieving game data should succeed');
       start();
     });
 });
 
-asyncTest("test_Api.parseNextGameId", function() {
+test("test_Api.parseNextGameId", function(assert) {
+  stop();
   Api.loadProfileInfo('tester',
     function() {
-      equal(Api.profile_info.name_ingame, 'tester',
+      assert.equal(Api.profile_info.name_ingame, 'tester',
         "Successfully parsed profile info");
       start();
     });
 });
 
 
-asyncTest("test_Api.parseSearchResults_games", function() {
+test("test_Api.parseSearchResults_games", function(assert) {
+  stop();
   var searchParameters = {
             'sortColumn': 'lastMove',
             'sortDirection': 'DESC',
@@ -533,13 +641,14 @@ asyncTest("test_Api.parseSearchResults_games", function() {
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    equal(Api.game_history.games.length, 1,
+    assert.equal(Api.game_history.games.length, 1,
       "Successfully parsed search results games list");
     start();
   });
 });
 
-asyncTest("test_Api.parseSearchResults_summary", function() {
+test("test_Api.parseSearchResults_summary", function(assert) {
+  stop();
   var searchParameters = {
             'sortColumn': 'lastMove',
             'sortDirection': 'DESC',
@@ -549,17 +658,18 @@ asyncTest("test_Api.parseSearchResults_summary", function() {
   };
 
   Api.searchGameHistory(searchParameters, function() {
-    equal(Api.game_history.summary.matchesFound, 2,
+    assert.equal(Api.game_history.summary.matchesFound, 2,
       "Successfully parsed search results summary data");
     start();
   });
 });
 
-asyncTest("test_Api.getPendingGameCount", function() {
+test("test_Api.getPendingGameCount", function(assert) {
+  stop();
   Api.getPendingGameCount(function() {
-    equal(Api.pending_games.load_status, 'ok',
+    assert.equal(Api.pending_games.load_status, 'ok',
       "Successfully retrieved count of pending games");
-    ok(typeof Api.pending_games.count === 'number',
+    assert.ok(typeof Api.pending_games.count === 'number',
       "Successfully retrieved valid count of pending games");
     start();
   });

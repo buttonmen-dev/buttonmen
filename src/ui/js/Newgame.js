@@ -59,7 +59,7 @@ Newgame.getNewgameData = function(callback) {
   if (Login.logged_in) {
     Env.callAsyncInParallel(
       [
-        Api.getButtonData,
+        { 'func': Api.getButtonData, 'args': [ null ] },
         Api.getPlayerData,
       ], callback);
   } else {
@@ -170,7 +170,7 @@ Newgame.actionCreateGame = function() {
                          null, Newgame.activity.opponentName, 'Anybody'));
 
   // Round selection
-  if (!('nRounds' in Newgame.activity)) {
+  if (!('nRounds' in Newgame.activity) || !Newgame.activity.nRounds) {
     Newgame.activity.nRounds = '3';
   }
   miscOptionsTable.append(
@@ -390,7 +390,7 @@ Newgame.formCreateGame = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'newgame_action_button',
+      '#newgame_action_button',
       Newgame.showNewgamePage,
       Newgame.showNewgamePage
     );

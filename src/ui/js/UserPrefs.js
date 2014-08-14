@@ -45,7 +45,7 @@ UserPrefs.showUserPrefsPage = function() {
   if (Login.logged_in) {
     Env.callAsyncInParallel(
       [
-        Api.getButtonData,
+        { 'func': Api.getButtonData, 'args': [ null ] },
         Api.getUserPrefsData,
       ], UserPrefs.assemblePage);
   } else {
@@ -512,7 +512,7 @@ UserPrefs.formSetPrefs = function() {
       'ok': { 'type': 'fixed', 'text': 'User details set successfully.', },
       'notok': { 'type': 'server', }
     },
-    'userprefs_action_button',
+    '#userprefs_action_button',
     UserPrefs.showUserPrefsPage,
     UserPrefs.showUserPrefsPage
   );

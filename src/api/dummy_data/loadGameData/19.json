@@ -39,6 +39,7 @@
       "sideScore": null,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null,
       "playerColor": "#dd99dd"
     },
@@ -67,6 +68,7 @@
       "sideScore": null,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null,
       "playerColor": "#ddffdd"
     }

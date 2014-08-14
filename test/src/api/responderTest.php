@@ -63,14 +63,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function object_structures_match($obja, $objb, $inspect_child_arrays=False) {
         foreach ($obja as $akey => $avalue) {
             if (!(array_key_exists($akey, $objb))) {
+                $this->output_mismatched_objects($obja, $objb);
                 return False;
             }
             if (gettype($obja[$akey]) != gettype($objb[$akey])) {
+                $this->output_mismatched_objects($obja, $objb);
                 return False;
             }
             if (($inspect_child_arrays) and (gettype($obja[$akey]) == 'array')) {
                 if ((array_key_exists(0, $obja[$akey])) || (array_key_exists(0, $objb[$akey]))) {
                     if (gettype($obja[$akey][0]) != gettype($objb[$akey][0])) {
+                        $this->output_mismatched_objects($obja, $objb);
                         return False;
                     }
                 }
@@ -78,10 +81,22 @@ class responderTest extends PHPUnit_Framework_TestCase {
         }
         foreach ($objb as $bkey => $bvalue) {
             if (!(array_key_exists($bkey, $obja))) {
+                $this->output_mismatched_objects($obja, $objb);
                 return False;
             }
         }
         return True;
+    }
+
+    /**
+     * Helper method used by object_structures_match() to provide debugging
+     * feedback if the check fails.
+     */
+    private function output_mismatched_objects($obja, $objb) {
+        var_dump('First object: ');
+        var_dump($obja);
+        var_dump('Second object: ');
+        var_dump($objb);
     }
 
     /**
@@ -553,13 +568,14 @@ class responderTest extends PHPUnit_Framework_TestCase {
             "Real and dummy player names should have matching structures");
     }
 
-    public function test_request_loadButtonNames() {
-        $this->verify_login_required('loadButtonNames');
+    public function test_request_loadButtonData() {
+        $this->verify_login_required('loadButtonData');
 
         $_SESSION = $this->mock_test_user_login();
-        $this->verify_invalid_arg_rejected('loadButtonNames');
+        $this->verify_invalid_arg_rejected('loadButtonData');
 
-        $args = array('type' => 'loadButtonNames');
+        // First, examine one button in detail
+        $args = array('type' => 'loadButtonData', 'buttonName' => 'Avis');
         $retval = $this->object->process_request($args);
         $dummyval = $this->dummy->process_request($args);
         $this->assertEquals('ok', $retval['status'], "responder should succeed");
@@ -568,27 +584,87 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $retdata = $retval['data'];
         $dummydata = $dummyval['data'];
         $this->assertTrue(
-            $this->object_structures_match($retdata, $dummydata, True),
+            $this->object_structures_match($retdata[0], $dummydata[0], True),
             "Real and dummy button lists should have matching structures");
 
-	// Each button in the dummy data should exactly match a
-	// button in the live data
-        foreach ($dummydata['buttonNameArray'] as $dummyidx => $dbuttonname) {
+        // Then examine the rest
+        $args = array('type' => 'loadButtonData');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata[0], $dummydata[0], False),
+            "Real and dummy button lists should have matching structures");
+
+        // Each button in the dummy data should exactly match a
+        // button in the live data
+        foreach ($dummydata as $dummyButton) {
             $foundButton = False;
-            foreach ($retdata['buttonNameArray'] as $retidx => $rbuttonname) {
-                if ("$dbuttonname" === "$rbuttonname") {
+            foreach ($retdata as $realButton) {
+                if ($dummyButton['buttonName'] === $realButton['buttonName']) {
                     $foundButton = True;
                     $this->assertEquals(
-                        array("buttonName"            => $dummydata['buttonNameArray'][$dummyidx],
-                              "recipe"                => $dummydata['recipeArray'][$dummyidx],
-                              "hasUnimplementedSkill" => $dummydata['hasUnimplementedSkillArray'][$dummyidx]),
-                        array("buttonName"            => $retdata['buttonNameArray'][$retidx],
-                              "recipe"                => $retdata['recipeArray'][$retidx],
-                              "hasUnimplementedSkill" => $retdata['hasUnimplementedSkillArray'][$retidx]),
-                        "Dummy and live information about button $dbuttonname match exactly");
+                        $dummyButton,
+                        $realButton,
+                        'Dummy and live information about button ' . $dummyButton['buttonName'] . ' should match exactly'
+                    );
                 }
             }
-            $this->assertTrue($foundButton, "Dummy button $dbuttonname was found in live data");
+            $this->assertTrue($foundButton, 'Dummy button ' . $dummyButton['buttonName'] . ' was found in live data');
+        }
+    }
+
+    public function test_request_loadButtonSetData() {
+        $this->verify_login_required('loadButtonSetData');
+
+        $_SESSION = $this->mock_test_user_login();
+        $this->verify_invalid_arg_rejected('loadButtonSetData');
+
+        // First, examine one set in detail
+        $args = array('type' => 'loadButtonSetData', 'buttonSet' => 'The Big Cheese');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata[0], $dummydata[0], True),
+            "Real and dummy set lists should have matching structures");
+
+        // Then examine the rest
+        $args = array('type' => 'loadButtonSetData');
+        $retval = $this->object->process_request($args);
+        $dummyval = $this->dummy->process_request($args);
+        $this->assertEquals('ok', $retval['status'], "responder should succeed");
+        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
+
+        $retdata = $retval['data'];
+        $dummydata = $dummyval['data'];
+        $this->assertTrue(
+            $this->object_structures_match($retdata[0], $dummydata[0], False),
+            "Real and dummy set lists should have matching structures");
+
+        // Each button in the dummy data should exactly match a
+        // button in the live data
+        foreach ($dummydata as $dummySet) {
+            $foundSet = False;
+            foreach ($retdata as $realSet) {
+                if ($dummySet['setName'] === $realSet['setName']) {
+                    $foundSet = True;
+                    $this->assertEquals(
+                        $dummySet,
+                        $realSet,
+                        'Dummy and live information about set ' . $dummySet['setName'] . ' should match exactly'
+                    );
+                }
+            }
+            $this->assertTrue($foundSet, 'Dummy set ' . $dummySet['setName'] . ' was found in live data');
         }
     }
 

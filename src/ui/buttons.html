@@ -6,7 +6,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
     <meta charset="utf-8" />
-    <title>Button Men Online &mdash; History</title>
+    <title>Button Men Online &mdash; Buttons</title>
     <link rel="stylesheet" href="js/extern/jquery-ui.css" />
     <link rel="stylesheet" href="gui.css" />
     <meta http-equiv="Cache-control" content="no-cache" />
@@ -21,11 +21,8 @@
     <script>
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
-            Loader.loadScripts([
-                'js/extern/jquery-ui.min.js',
-                'js/History.js',
-            ], function() {
-                Login.showLoginHeader(History.showHistoryPage);
+            Loader.loadScripts([ 'js/Buttons.js' ], function() {
+                Login.showLoginHeader(Buttons.showButtonsPage);
             });
           });
         });
