@@ -12,6 +12,8 @@ module("Buttons", {
     if (document.getElementById('buttons_page') == null) {
       $('body').append($('<div>', {'id': 'buttons_page', }));
     }
+
+    Login.bodyDivId = 'buttons_page';
   },
   'teardown': function(assert) {
     // Do not ignore intermittent failures in this test --- you
@@ -28,6 +30,8 @@ module("Buttons", {
     delete Buttons.buttonName;
     delete Buttons.setName;
     delete Buttons.page;
+
+    Login.bodyDivId = null;
 
     // Page elements
     $('#buttons_page').remove();
@@ -244,13 +248,4 @@ test("test_Buttons.buildButtonBox", function(assert) {
   var name = buttonBox.find('.buttonName');
   assert.equal(name.text(), 'Avis',
     'Button box should contain the correct name');
-});
-
-test("test_Buttons.arrangePage", function(assert) {
-    Buttons.page = $('<div>');
-    Buttons.page.append($('<p>', {'text': 'hi world', }));
-    Buttons.arrangePage();
-    var pageElement = $('body #buttons_page p');
-    assert.equal(pageElement.text(), 'hi world',
-          "Page elements should exist in DOM after page is arranged");
 });
