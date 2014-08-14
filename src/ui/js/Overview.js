@@ -34,7 +34,17 @@ Overview.showOverviewPage = function() {
 
   // Set up the callback for refreshing the page if there's no next game
   Login.nextGameRefreshCallback = function() {
-    Overview.getOverview(Overview.showPage);
+    Api.getUserPrefsData(function() {
+      if (Api.user_prefs.automatically_monitor) {
+        Overview.monitorIsOn = true;
+        // If we're in monitor mode, run the monitor first
+        Overview.executeMonitor();
+      } else {
+        Overview.monitorIsOn = false;
+        // Get all needed information, then display overview page
+        Overview.getOverview(Overview.showPage);
+      }
+    });
   };
 
   // Make sure the div element that we will need exists in the page body
