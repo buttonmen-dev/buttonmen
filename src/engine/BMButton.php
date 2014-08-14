@@ -64,6 +64,8 @@ class BMButton extends BMCanHaveSkill {
             } catch (Exception $e) {
                 error_log('Error loading die ' . $dieRecipe . ' for ' . $name);
                 error_log(print_r($e, TRUE));
+                $this->hasUnimplementedSkill = TRUE;
+                continue;
             }
             if (isset($this->ownerObject)) {
                 $die->ownerObject = $this->ownerObject;

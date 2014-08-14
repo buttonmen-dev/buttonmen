@@ -913,7 +913,7 @@ class DummyApiResponder {
                 'setName' => 'Lunch Money',
                 'numberOfButtons' => 7,
                 'dieSkills' => array('Trip'),
-                'dieTypes' => array('X Swing'),
+                'dieTypes' => array('X Swing', 'Y Swing'),
                 'onlyHasUnimplementedButtons' => FALSE,
             );
             $data[] = array(

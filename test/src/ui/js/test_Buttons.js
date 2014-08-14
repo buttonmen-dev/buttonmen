@@ -1,5 +1,5 @@
 module("Buttons", {
-  'setup': function() {
+  'setup': function(assert) {
     BMTestUtils.ButtonsPre = BMTestUtils.getAllElements();
 
     // Back up any methods that we might decide to replace with mocks
@@ -13,7 +13,11 @@ module("Buttons", {
       $('body').append($('<div>', {'id': 'buttons_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -37,69 +41,69 @@ module("Buttons", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.ButtonsPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.ButtonsPost, BMTestUtils.ButtonsPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the Buttons module has been loaded
-test("test_Buttons_is_loaded", function() {
-  ok(Buttons, "The Buttons namespace exists");
+test("test_Buttons_is_loaded", function(assert) {
+  assert.ok(Buttons, "The Buttons namespace exists");
 });
 
-test("test_Buttons.showButtonsPage", function() {
-  expect(2); // Tests plus teardown test
+test("test_Buttons.showButtonsPage", function(assert) {
+  expect(3); // Tests plus teardown 2 tests
 
   Api.getButtonSetData = function(passedSetName) {
-    equal(passedSetName, null,
+    assert.equal(passedSetName, null,
       'No set name should get passed to Api.getButtonSetData');
   }
 
   Api.getButtonData = function() {
-    ok(false, 'Api.getButtonData should not be invoked');
+    assert.ok(false, 'Api.getButtonData should not be invoked');
   }
 
   Buttons.showButtonsPage();
 });
 
-test("test_Buttons.showButtonsPage_set", function() {
-  expect(2); // Tests plus teardown test
+test("test_Buttons.showButtonsPage_set", function(assert) {
+  expect(3); // Tests plus 2 teardown tests
 
   var expectedSetName = 'Soldiers';
   Env.window.location.search = '?set=' + expectedSetName;
 
   Api.getButtonSetData = function(passedSetName) {
-    equal(passedSetName, expectedSetName,
+    assert.equal(passedSetName, expectedSetName,
       'Set name should get passed to Api.getButtonSetData');
   }
 
   Api.getButtonData = function() {
-    ok(false, 'Api.getButtonData should not be invoked');
+    assert.ok(false, 'Api.getButtonData should not be invoked');
   }
 
   Buttons.showButtonsPage();
 });
 
-test("test_Buttons.showButtonsPage_button", function() {
-  expect(2); // Tests plus teardown test
+test("test_Buttons.showButtonsPage_button", function(assert) {
+  expect(3); // Tests plus 2 teardown tests
 
   var expectedButtonName = 'Avis';
   Env.window.location.search = '?button=' + expectedButtonName;
 
   Api.getButtonData = function(passedButtonName) {
-    equal(passedButtonName, expectedButtonName,
+    assert.equal(passedButtonName, expectedButtonName,
       'Button name should get passed to Api.getButtonData');
   }
 
   Api.getButtonSetData = function() {
-    ok(false, 'Api.getButtonSetData should not be invoked');
+    assert.ok(false, 'Api.getButtonSetData should not be invoked');
   }
 
   Buttons.showButtonsPage();
 });
 
-test("test_Buttons.showButton", function() {
+test("test_Buttons.showButton", function(assert) {
   Buttons.buttonName = 'Avis';
 
   Api.button = {
@@ -138,11 +142,11 @@ test("test_Buttons.showButton", function() {
   Buttons.showButton();
 
   var buttonName = $('div.singleButton div.buttonName');
-  equal(buttonName.text(), 'Avis',
+  assert.equal(buttonName.text(), 'Avis',
     'Button name should be displayed in single button mode');
 });
 
-test("test_Buttons.showSet", function() {
+test("test_Buttons.showSet", function(assert) {
   Buttons.setName = 'Soldiers';
 
   Api.buttonSet = {
@@ -178,13 +182,13 @@ test("test_Buttons.showSet", function() {
 
   var setName = $('div.singleSet > h2');
   var buttonNames = $('div.singleSet a.buttonName');
-  equal(setName.text(), 'Soldiers',
+  assert.equal(setName.text(), 'Soldiers',
     'Set name should be displayed in single set mode');
-  equal(buttonNames.length, 2,
+  assert.equal(buttonNames.length, 2,
     'All buttons in set should be displayed in single set mode');
 });
 
-test("test_Buttons.showSetList", function() {
+test("test_Buttons.showSetList", function(assert) {
   Api.buttonSet = {
     'load_status': 'ok',
     'list': {
@@ -217,10 +221,10 @@ test("test_Buttons.showSetList", function() {
   Buttons.showSetList();
 
   var setNames = $('div.allSets a.buttonSetLink');
-  equal(setNames.length, 3, 'All sets should be displayed in all sets mode');
+  assert.equal(setNames.length, 3, 'All sets should be displayed in all sets mode');
 });
 
-test("test_Buttons.buildButtonBox", function() {
+test("test_Buttons.buildButtonBox", function(assert) {
   Buttons.buttonName = 'Avis';
   var button = {
     'buttonName': 'Avis',
@@ -235,18 +239,18 @@ test("test_Buttons.buildButtonBox", function() {
   var buttonBox = Buttons.buildButtonBox(button);
 
   var img = buttonBox.find('img');
-  ok(img.attr('src').match(/avis\.png/),
+  assert.ok(img.attr('src').match(/avis\.png/),
     'Button box should contain the correct image');
   var name = buttonBox.find('.buttonName');
-  equal(name.text(), 'Avis',
+  assert.equal(name.text(), 'Avis',
     'Button box should contain the correct name');
 });
 
-test("test_Buttons.arrangePage", function() {
+test("test_Buttons.arrangePage", function(assert) {
     Buttons.page = $('<div>');
     Buttons.page.append($('<p>', {'text': 'hi world', }));
     Buttons.arrangePage();
     var pageElement = $('body #buttons_page p');
-    equal(pageElement.text(), 'hi world',
+    assert.equal(pageElement.text(), 'hi world',
           "Page elements should exist in DOM after page is arranged");
 });

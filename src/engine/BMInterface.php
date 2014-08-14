@@ -2276,8 +2276,9 @@ class BMInterface {
         $button->load($row['recipe'], $row['name']);
         $dieSkills = array_keys($button->dieSkills);
         sort($dieSkills);
-        // For efficiency's sake, we only include some info if just
-        // a single button was requested.
+        // For efficiency's sake, there exist some pieces of information
+        // which we include only in the case where only one button was
+        // requested.
         if (!$single_button) {
             $dieTypes = array_keys($button->dieTypes);
         } else {
@@ -2308,8 +2309,9 @@ class BMInterface {
                 'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
                 'artFilename' => $button->artFilename,
             );
-            // For efficiency's sake, we only include some info if just
-            // a single button was requested.
+            // For efficiency's sake, there exist some pieces of information
+            // which we include only in the case where only one button was
+            // requested.
             if ($single_button) {
                 $currentButton['flavorText'] = $row['flavor_text'];
                 $buttonSkillClass = 'BMBtnSkill' . $standardName;
@@ -2354,24 +2356,36 @@ class BMInterface {
 
                 $currentSet = array('setName' => $row['name']);
 
-                // For efficiency's sake, we only include some info if just
-                // a single set was requested.
+                // For efficiency's sake, there exist some pieces of information
+                // which we include only in the case that not more than a single
+                // button was requested.
                 if ($setName !== NULL) {
                     $currentSet['buttons'] = $buttons;
                 }
 
                 $currentSet['numberOfButtons'] = count($buttons);
 
-                $dieSkills= array();
+                $dieSkills = array();
                 $dieTypes = array();
                 $onlyHasUnimplementedButtons = TRUE;
                 foreach ($buttons as $button) {
-                    $dieSkills += $button['dieSkills'];
-                    $dieTypes += $button['dieTypes'];
+                    if ($row['name'] == 'Fairies') {
+                        error_log('skills so far: ' . print_r($dieSkills, true));
+                        error_log('button: ' . $button['buttonName']);
+                        error_log('button skills: ' . print_r($button['dieSkills'], true));
+                    }
+                    $dieSkills = array_unique(array_merge($dieSkills, $button['dieSkills']));
+                    if ($row['name'] == 'Fairies') {
+                        error_log('skills after addition: ' . print_r($dieSkills, true));
+                    }
+                    $dieTypes = array_unique(array_merge($dieTypes, $button['dieTypes']));
                     if (!$button['hasUnimplementedSkill']) {
                         $onlyHasUnimplementedButtons = FALSE;
                     }
                 }
+                sort($dieSkills);
+                sort($dieTypes);
+
                 $currentSet['dieSkills'] = $dieSkills;
                 $currentSet['dieTypes'] = $dieTypes;
                 $currentSet['onlyHasUnimplementedButtons'] = $onlyHasUnimplementedButtons;
