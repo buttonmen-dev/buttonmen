@@ -2369,15 +2369,7 @@ class BMInterface {
                 $dieTypes = array();
                 $onlyHasUnimplementedButtons = TRUE;
                 foreach ($buttons as $button) {
-                    if ($row['name'] == 'Fairies') {
-                        error_log('skills so far: ' . print_r($dieSkills, true));
-                        error_log('button: ' . $button['buttonName']);
-                        error_log('button skills: ' . print_r($button['dieSkills'], true));
-                    }
                     $dieSkills = array_unique(array_merge($dieSkills, $button['dieSkills']));
-                    if ($row['name'] == 'Fairies') {
-                        error_log('skills after addition: ' . print_r($dieSkills, true));
-                    }
                     $dieTypes = array_unique(array_merge($dieTypes, $button['dieTypes']));
                     if (!$button['hasUnimplementedSkill']) {
                         $onlyHasUnimplementedButtons = FALSE;
