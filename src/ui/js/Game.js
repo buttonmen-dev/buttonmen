@@ -1780,7 +1780,7 @@ Game.pageAddNewGameLinkFooter = function() {
     Game.page.append($('<div>', {
       'text':
         'Challenge ' + Api.game.opponent.playerName +
-        ' to a rematch, preserving chat:',
+        ' to a another game, preserving chat:',
     }));
 
     linkDiv = $('<div>');
