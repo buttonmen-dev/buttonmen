@@ -1108,7 +1108,13 @@ class BMInterface {
         }
     }
 
-    protected function resolve_random_button_selection(BMGame $game) {
+    protected function resolve_random_button_selection(BMGame &$game) {
+        // only resolve random names if there are some to resolve
+        if (empty($game->isButtonChoiceRandom) ||
+            !in_array(TRUE, $game->isButtonChoiceRandom)) {
+            return;
+        }
+
         // do not resolve random names unless all buttons have been chosen
         foreach ($game->buttonArray as $buttonIdx => $button) {
             if (empty($button) && !$game->isButtonChoiceRandom[$buttonIdx]) {
@@ -1147,12 +1153,16 @@ class BMInterface {
 
             $this->choose_button($game, $buttonId, $buttonIdx);
         }
+
+        $game = $this->load_game($game->gameId);
+        $game->proceed_to_next_user_action();
     }
 
     protected function choose_button(BMGame $game, $buttonId, $buttonIdx) {
         // add info to game_player_map
         $query = 'UPDATE game_player_map '.
-                 'SET button_id = :button_id '.
+                 'SET button_id = :button_id, '.
+                 '    is_awaiting_action = 0 '.
                  'WHERE '.
                  'game_id = :game_id AND '.
                  'position = :position';

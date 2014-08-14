@@ -362,6 +362,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Coil', $game->buttonArray[0]->name);
         $this->assertFalse(empty($game->buttonArray[1]));
         $this->assertNotEquals('__random', $game->buttonArray[1]->name);
+        $this->assertGreaterThan(BMGameState::START_GAME, $game->gameState);
     }
 
     /**
@@ -388,6 +389,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->isButtonChoiceRandom[0]);
         $this->assertTrue(empty($game->buttonArray[1]));
         $this->assertFalse($game->isButtonChoiceRandom[1]);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
 
         $retval = $this->object->select_button(self::$userId2WithoutAutopass, $gameId, '__random');
         $this->assertTrue($retval);
@@ -396,6 +398,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->isButtonChoiceRandom[0]);
         $this->assertFalse(empty($game->buttonArray[1]));
         $this->assertTrue($game->isButtonChoiceRandom[1]);
+        $this->assertGreaterThan(BMGameState::START_GAME, $game->gameState);
     }
 
     /**
@@ -415,6 +418,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEquals('__random', $game->buttonArray[0]->name);
         $this->assertFalse(empty($game->buttonArray[1]->name));
         $this->assertNotEquals('__random', $game->buttonArray[1]->name);
+        $this->assertGreaterThan(BMGameState::START_GAME, $game->gameState);
     }
 
     /**
@@ -434,6 +438,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($game->isButtonChoiceRandom[0]);
         $this->assertTrue(empty($game->buttonArray[1]));
         $this->assertTrue($game->isButtonChoiceRandom[1]);
+        $this->assertEquals(BMGameState::START_GAME, $game->gameState);
     }
 
     /**
