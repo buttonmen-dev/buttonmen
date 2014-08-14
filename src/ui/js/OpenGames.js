@@ -174,7 +174,16 @@ OpenGames.displayJoinResult = function(
 
   if (buttonSelect !== undefined) {
     buttonSelect.hide();
-    buttonSelect.after($('<span>', { 'text': buttonName, }));
+    var buttonNameSpan;
+    if (buttonName == '__random') {
+      buttonNameSpan = $('<span>', {
+        'text': 'Random Button',
+        'style': 'font-style: italic;',
+      });
+    } else {
+      buttonNameSpan = $('<span>', { 'text': buttonName, });
+    }
+    buttonSelect.after(buttonNameSpan);
   }
 };
 
