@@ -9,5 +9,7 @@
  * This class is the parent class for all button skills
  */
 class BMBtnSkill {
-
+    public static function get_description() {
+        return NULL;
+    }
 }

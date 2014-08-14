@@ -19,5 +19,6 @@ CREATE TABLE button (
     btn_special BOOLEAN NOT NULL,
     tourn_legal BOOLEAN NOT NULL,
     set_id      SMALLINT UNSIGNED,
+    flavor_text VARCHAR(500),
     INDEX (name)
 );

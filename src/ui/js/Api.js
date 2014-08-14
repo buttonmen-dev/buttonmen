@@ -186,9 +186,12 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
 
-  my.getButtonData = function(callbackfunc) {
+  my.getButtonData = function(buttonName, callbackfunc) {
     my.apiParsePost(
-      {'type': 'loadButtonNames', },
+      {
+        'type': 'loadButtonData',
+        'buttonName': (buttonName ? buttonName : undefined),
+      },
       'button',
       my.parseButtonData,
       callbackfunc,
@@ -198,23 +201,41 @@ var Api = (function () {
 
   my.parseButtonData = function(data) {
     my.button.list = {};
-    if ((!($.isArray(data.buttonNameArray))) ||
-        (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray))) ||
-        (!($.isArray(data.buttonSetArray))) ||
-        (!($.isArray(data.dieSkillsArray))) ||
-        (!($.isArray(data.isTournamentLegalArray)))) {
+    if (!$.isArray(data)) {
       return false;
     }
     var i = 0;
-    while (i < data.buttonNameArray.length) {
-      my.button.list[data.buttonNameArray[i]] = {
-        'recipe': data.recipeArray[i],
-        'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
-        'buttonSet': data.buttonSetArray[i],
-        'dieSkills': data.dieSkillsArray[i],
-        'isTournamentLegal': data.isTournamentLegalArray[i],
-      };
+    while (i < data.length) {
+      my.button.list[data[i].buttonName] = data[i];
+      i++;
+    }
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse a list of button sets
+
+  my.getButtonSetData = function(buttonSet, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadButtonSetData',
+        'buttonSet': (buttonSet ? buttonSet : undefined),
+      },
+      'buttonSet',
+      my.parseButtonSetData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseButtonSetData = function(data) {
+    my.buttonSet.list = {};
+    if (!$.isArray(data)) {
+      return false;
+    }
+    var i = 0;
+    while (i < data.length) {
+      my.buttonSet.list[data[i].setName] = data[i];
       i++;
     }
     return true;

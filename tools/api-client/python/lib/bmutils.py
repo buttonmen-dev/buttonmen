@@ -39,14 +39,8 @@ class BMClientParser(bmapi.BMClient):
       raise ValueError, "Failed to get button data, got: %s" % retval
     data = retval.data
     buttons = {}
-    for i in range(len(data['buttonNameArray'])):
-      buttons[data['buttonNameArray'][i]] = {
-        'buttonSet': data['buttonSetArray'][i],
-        'recipe': data['recipeArray'][i],
-        'unimplemented': data['hasUnimplementedSkillArray'][i],
-        'tourn_legal': data['isTournamentLegalArray'][i],
-        'skills': data['dieSkillsArray'][i],
-      }
+    for i in range(len(data)):
+      buttons[data[i]['buttonName']] = data[i]
     return buttons
 
   def wrap_load_player_names(self):

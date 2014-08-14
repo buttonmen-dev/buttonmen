@@ -59,7 +59,7 @@ Newgame.getNewgameData = function(callback) {
   if (Login.logged_in) {
     Env.callAsyncInParallel(
       [
-        Api.getButtonData,
+        { 'func': Api.getButtonData, 'args': [ null ] },
         Api.getPlayerData,
       ], callback);
   } else {
