@@ -667,137 +667,281 @@ class DummyApiResponder {
             'Active players retrieved successfully.');
     }
 
-    protected function get_interface_response_loadButtonNames() {
-        $data = array(
-          'buttonIdArray' => array(),
-          'buttonNameArray' => array(), 'recipeArray' => array(), 'hasUnimplementedSkillArray' => array(),
-          'buttonSetArray' => array(), 'dieSkillsArray' => array(), 'isTournamentLegalArray' => array(),
-        );
+    protected function get_interface_response_loadButtonData($args) {
+        $data = array();
 
-        $this->add_standard_button($data);
-        $this->add_button_with_unimplemented_skill($data);
-        $this->add_button_with_four_dice_and_some_implemented_skills($data);
-        $this->add_button_with_twin_dice($data);
-        $this->add_button_with_twin_dice_with_die_skill($data);
-        $this->add_button_with_focus($data);
-        $this->add_button_with_chance($data);
-        $this->add_button_with_auxiliary($data);
-        $this->add_button_with_reserve($data);
-        $this->add_button_with_option($data);
-        $this->add_button_with_swing_and_option_and_skills($data);
+        if (isset($args['buttonName']) && $args['buttonName'] == 'Avis') {
+            $data[] = $this->loadDetailedButtonDataForAvis();
+        } else {
+            // Splitting these into separate methods makes the code less readable,
+            // but jenkins demands it because otherwise this method would be a few
+            // lines longer than he likes
+            $data[] = $this->loadButtonDataForAvis();
+            $data[] = $this->loadButtonDataForZeppo();
+            $data[] = $this->loadButtonDataForJellybean();
+            $data[] = $this->loadButtonDataForBuckGodot();
+            $data[] = $this->loadButtonDataForVonPinn();
+            $data[] = $this->loadButtonDataForCrab();
+            $data[] = $this->loadButtonDataForJohnKovalic();
+            $data[] = $this->loadButtonDataForKingArthur();
+            $data[] = $this->loadButtonDataForCammyNeko();
+            $data[] = $this->loadButtonDataForApples();
+            $data[] = $this->loadButtonDataForCactusJack();
+        }
 
-        return array($data, "All button names retrieved successfully.");
+        return array($data, "Button data retrieved successfully.");
     }
 
-    protected function add_standard_button(&$data) {
+    private function loadDetailedButtonDataForAvis() {
         // a button with no special skills
-        $data['buttonIdArray'][] = 264;
-        $data['buttonNameArray'][] = "Avis";
-        $data['recipeArray'][] = "(4) (4) (10) (12) (X)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Soldiers";
-        $data['dieSkillsArray'][] = array();
-        $data['isTournamentLegalArray'][] = TRUE;
+        return array(
+            'buttonName' => "Avis",
+            'recipe' => "(4) (4) (10) (12) (X)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Soldiers",
+            'dieTypes' => array(
+                'X Swing' => array(
+                    'code' => 'X',
+                    'swingMin' => 4,
+                    'swingMax' => 20,
+                    'description' =>
+                        'X Swing Dice can be any die between 4 and 20. Swing Dice ' .
+                        'are allowed to be any integral size between their upper and ' .
+                        'lower limit, including both ends, and including nonstandard ' .
+                        'die sizes like 17 or 9. Each player chooses his or her ' .
+                        'Swing Die in secret at the beginning of the match, and ' .
+                        'thereafter the loser of each round may change their Swing ' .
+                        'Die between rounds. If a character has any two Swing Dice ' .
+                        'of the same letter, they must always be the same size.',
+                )
+            ),
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'avis.png',
+            'flavorText' => NULL,
+            'specialText' => NULL,
+        );
     }
 
-    protected function add_button_with_unimplemented_skill(&$data) {
-        $data['buttonIdArray'][] = 1;
-        $data['buttonNameArray'][] = "Zeppo";
-        $data['recipeArray'][] = "(4) (12) (20) (X)!";
-        $data['hasUnimplementedSkillArray'][] = TRUE;
-        $data['buttonSetArray'][] = "1999 Rare / Promo";
-        $data['dieSkillsArray'][] = array("Turbo");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForAvis() {
+        // a button with no special skills
+        return array(
+            'buttonName' => "Avis",
+            'recipe' => "(4) (4) (10) (12) (X)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Soldiers",
+            'dieTypes' => array('X Swing'),
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'avis.png',
+        );
     }
 
-    protected function add_button_with_four_dice_and_some_implemented_skills(&$data) {
-        $data['buttonIdArray'][] = 58;
-        $data['buttonNameArray'][] = "Jellybean";
-        $data['recipeArray'][] = "p(20) s(20) (V) (X)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "BROM";
-        $data['dieSkillsArray'][] = array("Poison", "Shadow");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForZeppo() {
+        // a button with an unimplemented skill
+        return array(
+            'buttonName' => "Zeppo",
+            'recipe' => "(4) (12) (20) (X)!",
+            'hasUnimplementedSkill' => TRUE,
+            'buttonSet' => "1999 Rare / Promo",
+            'dieTypes' => array('X Swing'),
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'zeppo.png',
+        );
     }
 
-    protected function add_button_with_twin_dice(&$data) {
-        $data['buttonIdArray'][] = 282;
-        $data['buttonNameArray'][] = "Buck Godot";
-        $data['recipeArray'][] = "(6,6) (10) (12) (20) (W,W)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Studio Foglio";
-        $data['dieSkillsArray'][] = array();
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForJellybean() {
+        // a button with four dice and some implemented skills
+        return array(
+            'buttonName' => "Jellybean",
+            'recipe' => "p(20) s(20) (V) (X)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "BROM",
+            'dieTypes' => array('V Swing', 'X Swing'),
+            'dieSkills' => array("Poison", "Shadow"),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'jellybean.png',
+        );
     }
 
-    protected function add_button_with_twin_dice_with_die_skill(&$data) {
-        $data['buttonIdArray'][] = 286;
-        $data['buttonNameArray'][] = "Von Pinn";
-        $data['recipeArray'][] = "(4) p(6,6) (10) (20) (W)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Studio Foglio";
-        $data['dieSkillsArray'][] = array("Poison");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForBuckGodot() {
+        // Buck Godot
+        return array(
+            'buttonName' => "Buck Godot",
+            'recipe' => "(6,6) (10) (12) (20) (W,W)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Studio Foglio",
+            'dieTypes' => array('Twin', 'W Swing'),
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'buckgodot.png',
+        );
     }
 
-    protected function add_button_with_focus(&$data) {
-        $data['buttonIdArray'][] = 200;
-        $data['buttonNameArray'][] = "Crab";
-        $data['recipeArray'][] = "(8) (10) (12) f(20) f(20)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Legend of the Five Rings";
-        $data['dieSkillsArray'][] = array("Focus");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForVonPinn() {
+        // Von Pinn
+        return array(
+            'buttonName' => "Von Pinn",
+            'recipe' => "(4) p(6,6) (10) (20) (W)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Studio Foglio",
+            'dieTypes' => array('Twin', 'W Swing'),
+            'dieSkills' => array("Poison"),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'vonpinn.png',
+        );
     }
 
-    protected function add_button_with_chance(&$data) {
-        $data['buttonIdArray'][] = 315;
-        $data['buttonNameArray'][] = "John Kovalic";
-        $data['recipeArray'][] = "(6) c(6) (10) (12) c(20)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Yoyodyne";
-        $data['dieSkillsArray'][] = array("Chance");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForCrab() {
+        // Crab: a button with focus dice
+        return array(
+            'buttonName' => "Crab",
+            'recipe' => "(8) (10) (12) f(20) f(20)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Legend of the Five Rings",
+            'dieTypes' => array(),
+            'dieSkills' => array("Focus"),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'crab.png',
+        );
     }
 
-    protected function add_button_with_auxiliary(&$data) {
-        $data['buttonIdArray'][] = 82;
-        $data['buttonNameArray'][] = "King Arthur";
-        $data['recipeArray'][] = "(8) (8) (10) (20) (X) +(20)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Buttonlords";
-        $data['dieSkillsArray'][] = array("Auxiliary");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForJohnKovalic() {
+        // John Kovalic: a button with chance dice
+        return array(
+            'buttonName' => "John Kovalic",
+            'recipe' => "(6) c(6) (10) (12) c(20)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Yoyodyne",
+            'dieTypes' => array(),
+            'dieSkills' => array("Chance"),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'johnkovalic.png',
+        );
     }
 
-    protected function add_button_with_reserve(&$data) {
-        $data['buttonIdArray'][] = 140;
-        $data['buttonNameArray'][] = "Cammy Neko";
-        $data['recipeArray'][] = "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Geekz";
-        $data['dieSkillsArray'][] = array("Reserve");
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForKingArthur() {
+        // King Arthur: a button with an auxiliary die
+        return array(
+            'buttonName' => "King Arthur",
+            'recipe' => "(8) (8) (10) (20) (X) +(20)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Buttonlords",
+            'dieTypes' => array('X Swing'),
+            'dieSkills' => array("Auxiliary"),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'kingarthur.png',
+        );
     }
 
-    protected function add_button_with_option(&$data) {
-        $data['buttonIdArray'][] = 10;
-        $data['buttonNameArray'][] = "Apples";
-        $data['recipeArray'][] = "(8) (8) (2/12) (8/16) (20/24)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Chicagoland Gamers Conclave";
-        $data['dieSkillsArray'][] = array();
-        $data['isTournamentLegalArray'][] = TRUE;
+    private function loadButtonDataForCammyNeko() {
+        // Cammy Neko: a button with reserve dice
+        return array(
+            'buttonName' => "Cammy Neko",
+            'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Geekz",
+            'dieTypes' => array('Twin'),
+            'dieSkills' => array("Reserve"),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'cammyneko.png',
+        );
     }
 
-    protected function add_button_with_swing_and_option_and_skills(&$data) {
-        $data['buttonIdArray'][] = 414;
-        $data['buttonNameArray'][] = "CactusJack";
-        $data['recipeArray'][] = "z(8/12) (4/16) s(6/10) z(X) s(U)";
-        $data['hasUnimplementedSkillArray'][] = FALSE;
-        $data['buttonSetArray'][] = "Classic Fanatics";
-        $data['dieSkillsArray'][] = array("Shadow", "Speed");
-        $data['isTournamentLegalArray'][] = FALSE;
+    private function loadButtonDataForApples() {
+        // Apples: a button with option dice
+        return array(
+            'buttonName' => "Apples",
+            'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Chicagoland Gamers Conclave",
+            'dieTypes' => array('Option'),
+            'dieSkills' => array(),
+            'isTournamentLegal' => TRUE,
+            'artFilename' => 'apples.png',
+        );
+    }
+
+    private function loadButtonDataForCactusJack() {
+        // CactusJack: a button with swing and option dice (and shadow and speed skills)
+        return array(
+            'buttonName' => "CactusJack",
+            'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
+            'hasUnimplementedSkill' => FALSE,
+            'buttonSet' => "Classic Fanatics",
+            'dieTypes' => array('Option', 'X Swing', 'U Swing'),
+            'dieSkills' => array("Shadow", "Speed"),
+            'isTournamentLegal' => FALSE,
+            'artFilename' => 'BMdefaultRound.png',
+        );
+    }
+
+    protected function get_interface_response_loadButtonSetData($args) {
+        $data = array();
+
+        if (isset($args['buttonSet']) && $args['buttonSet'] == 'The Big Cheese') {
+            $data[] = array(
+                'setName' => 'The Big Cheese',
+                'buttons' => array(
+                    array(
+                        'buttonName' => "Bunnies",
+                        'recipe' => "(1) (1) (1) (1) (X)",
+                        'hasUnimplementedSkill' => FALSE,
+                        'buttonSet' => "The Big Cheese",
+                        'dieTypes' => array('X Swing'),
+                        'dieSkills' => array(),
+                        'isTournamentLegal' => FALSE,
+                        'artFilename' => 'bunnies.png',
+                    ),
+                    array(
+                        'buttonName' => "Lab Rat",
+                        'recipe' => "(2) (2) (2) (2) (X)",
+                        'hasUnimplementedSkill' => FALSE,
+                        'buttonSet' => "The Big Cheese",
+                        'dieTypes' => array('X Swing'),
+                        'dieSkills' => array(),
+                        'isTournamentLegal' => FALSE,
+                        'artFilename' => 'labrat.png',
+                    ),
+                ),
+                'numberOfButtons' => 2,
+                'dieSkills' => array(),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+        } else {
+            $data[] = array(
+                'setName' => 'Lunch Money',
+                'numberOfButtons' => 7,
+                'dieSkills' => array('Trip'),
+                'dieTypes' => array('X Swing', 'Y Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+            $data[] = array(
+                'setName' => 'Soldiers',
+                'numberOfButtons' => 13,
+                'dieSkills' => array(),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+            $data[] = array(
+                'setName' => 'The Big Cheese',
+                'numberOfButtons' => 2,
+                'dieSkills' => array(),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+            $data[] = array(
+                'setName' => 'Vampyres',
+                'numberOfButtons' => 6,
+                'dieSkills' => array('Shadow'),
+                'dieTypes' => array('X Swing'),
+                'onlyHasUnimplementedButtons' => FALSE,
+            );
+        }
+
+        return array($data, "Button set data retrieved successfully.");
     }
 
     protected function get_interface_response_loadGameData($args) {
