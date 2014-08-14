@@ -45,11 +45,16 @@ Newgame.showNewgamePage = function() {
 };
 
 Newgame.getNewgameData = function(callback) {
-  Env.callAsyncInParallel(
-    [
-      Api.getButtonData,
-      Api.getPlayerData,
-    ], callback);
+  if (Login.logged_in) {
+    Env.callAsyncInParallel(
+      [
+        { 'func': Api.getButtonData, 'args': [ null ] },
+        Api.getPlayerData,
+      ], callback);
+  } else {
+    // The player needs to be logged in for anything good to happen here
+    Newgame.actionLoggedOut();
+  }
 };
 
 // This function is called after Api.player has been loaded with new data

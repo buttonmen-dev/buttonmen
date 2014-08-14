@@ -212,6 +212,7 @@ Login.addMainNavbar = function() {
     'Preferences': 'prefs.html',
     'Profile': Env.buildProfileLink(Login.player, true),
     'History': 'history.html',
+    'Buttons': 'buttons.html',
     'Who\'s online': 'active_players.html',
     'Forum': 'forum.html',
     'Next game': Env.ui_root + 'index.html?mode=nextGame',

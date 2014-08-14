@@ -30,12 +30,29 @@ UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 UserPrefs.showUserPrefsPage = function() {
-  Env.callAsyncInParallel(
-    [
-      Api.getButtonData,
-      Api.getUserPrefsData,
-    ], UserPrefs.assemblePage
-  );
+
+  // Setup necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  // Make sure the div element that we will need exists in the page body
+  if ($('#userprefs_page').length === 0) {
+    $('body').append($('<div>', {'id': 'userprefs_page' }));
+  }
+
+  // Only allow logged-in users to view and change preferences
+  if (Login.logged_in) {
+    Env.callAsyncInParallel(
+      [
+        { 'func': Api.getButtonData, 'args': [ null ] },
+        Api.getUserPrefsData,
+      ], UserPrefs.assemblePage);
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'Can\'t view/set preferences because you are not logged in',
+    };
+    UserPrefs.actionFailed();
+  }
 };
 
 // Assemble and display the userprefs portion of the page

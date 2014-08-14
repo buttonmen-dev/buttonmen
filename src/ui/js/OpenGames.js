@@ -22,10 +22,14 @@ OpenGames.showOpenGamesPage = function() {
 };
 
 OpenGames.getOpenGames = function(callback) {
-  Env.callAsyncInParallel([
-    Api.getOpenGamesData,
-    Api.getButtonData,
-  ], callback);
+  if (Login.logged_in) {
+    Env.callAsyncInParallel([
+      Api.getOpenGamesData,
+      { 'func': Api.getButtonData, 'args': [ null ] },
+    ], callback);
+  } else {
+    return callback();
+  }
 };
 
 OpenGames.showPage = function() {

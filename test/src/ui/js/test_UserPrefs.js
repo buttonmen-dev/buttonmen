@@ -83,7 +83,7 @@ test("test_UserPrefs.showUserPrefsPage", function(assert) {
 test("test_UserPrefs.assemblePage", function(assert) {
   stop();
   Env.callAsyncInParallel([
-    Api.getButtonData,
+    { 'func': Api.getButtonData, 'args': [ null ] },
     Api.getUserPrefsData,
   ], function() {
     UserPrefs.assemblePage();
@@ -102,7 +102,7 @@ test("test_UserPrefs.actionFailed", function(assert) {
 test("test_UserPrefs.actionSetPrefs", function(assert) {
   stop();
   Env.callAsyncInParallel([
-    Api.getButtonData,
+    { 'func': Api.getButtonData, 'args': [ null ] },
     Api.getUserPrefsData,
   ], function() {
     UserPrefs.actionSetPrefs();
@@ -122,7 +122,7 @@ test("test_UserPrefs.actionSetPrefs", function(assert) {
 test("test_UserPrefs.formSetPrefs", function(assert) {
   stop();
   Env.callAsyncInParallel([
-    Api.getButtonData,
+    { 'func': Api.getButtonData, 'args': [ null ] },
     Api.getUserPrefsData,
   ], function() {
     UserPrefs.actionSetPrefs();
