@@ -5,10 +5,7 @@ var Overview = {};
 // setting here rather than importing Game.js
 Overview.GAME_STATE_END_GAME = 60;
 
-// Number of seconds before refreshing the monitor
-//TODO glasonion, reject this pull request if I haven't put this back yet!
-//Overview.MONITOR_TIMEOUT = 60;
-Overview.MONITOR_TIMEOUT = 10;
+Overview.MONITOR_TIMEOUT = 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
