@@ -134,20 +134,20 @@ class BMGameAction {
 
         $message = '';
 
-        $message .= $actingPlayerName . ' performed ' . $attackType . ' attack';
+        if (empty($this->params['fireCache'])) {
+            $message .= $actingPlayerName . ' performed ' . $attackType . ' attack';
 
-        // Add the pre-attack status of all participating dice
-        $preAttackAttackers = array();
-        $preAttackDefenders = array();
-        foreach ($preAttackDice['attacker'] as $attackerInfo) {
-            $preAttackAttackers[] = $attackerInfo['recipeStatus'];
-        }
-        foreach ($preAttackDice['defender'] as $defenderInfo) {
-            $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-        }
-        $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
-
-        if (!empty($this->params['fireCache'])) {
+            // Add the pre-attack status of all participating dice
+            $preAttackAttackers = array();
+            $preAttackDefenders = array();
+            foreach ($preAttackDice['attacker'] as $attackerInfo) {
+                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+            }
+            foreach ($preAttackDice['defender'] as $defenderInfo) {
+                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
+            }
+            $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
+        } else {
             $fireRecipes = $this->params['fireCache']['fireRecipes'];
             $oldValues = $this->params['fireCache']['oldValues'];
             $newValues = $this->params['fireCache']['newValues'];

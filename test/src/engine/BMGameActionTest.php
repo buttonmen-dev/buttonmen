@@ -238,7 +238,6 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
         ));
 
         $this->assertEquals(
-            'gameaction01 performed Power attack using [(4):3] against [(10):1]; ' .
             'gameaction01 turned down fire dice: Fs(6) from 5 to 3, Fd(15) from 9 to 8; ' .
             'Defender (10) was captured; Attacker (4) rerolled 3 => 2',
             $this->object->friendly_message($this->playerIdNames, 0, 0)
