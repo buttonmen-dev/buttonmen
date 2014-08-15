@@ -92,6 +92,7 @@ test("test_Api.getButtonData", function(assert) {
     assert.deepEqual(
       Api.button.list["Avis"],
       {
+        'buttonId': 264,
         'buttonName': 'Avis',
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
