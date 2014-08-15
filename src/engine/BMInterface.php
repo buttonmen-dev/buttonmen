@@ -1109,29 +1109,8 @@ class BMInterface {
     }
 
     protected function resolve_random_button_selection(BMGame &$game) {
-        // only resolve random names if there are some randomly chosen buttons
-        if (empty($game->isButtonChoiceRandom) ||
-            !in_array(TRUE, $game->isButtonChoiceRandom)) {
+        if (!$this->does_need_random_button_selection($game)) {
             return;
-        }
-
-        // only resolve random names if there are some left to resolve
-        if (!in_array(NULL, $game->buttonArray, TRUE)) {
-            return;
-        }
-
-        // do not resolve random names unless all buttons have been chosen
-        foreach ($game->buttonArray as $buttonIdx => $button) {
-            if (empty($button) && !$game->isButtonChoiceRandom[$buttonIdx]) {
-                return;
-            }
-        }
-
-        // do not resolve random names unless all players have joined the game
-        foreach ($game->playerIdArray as $playerId) {
-            if (empty($playerId)) {
-                return;
-            }
         }
 
         $allButtonData = array();
@@ -1159,6 +1138,35 @@ class BMInterface {
 
         $game = $this->load_game($game->gameId);
         $game->proceed_to_next_user_action();
+    }
+
+    protected function does_need_random_button_selection(BMGame $game) {
+        // only resolve random names if there are some randomly chosen buttons
+        if (empty($game->isButtonChoiceRandom) ||
+            !in_array(TRUE, $game->isButtonChoiceRandom)) {
+            return FALSE;
+        }
+
+        // only resolve random names if there are some left to resolve
+        if (!in_array(NULL, $game->buttonArray, TRUE)) {
+            return FALSE;
+        }
+
+        // do not resolve random names unless all buttons have been chosen
+        foreach ($game->buttonArray as $buttonIdx => $button) {
+            if (empty($button) && !$game->isButtonChoiceRandom[$buttonIdx]) {
+                return FALSE;
+            }
+        }
+
+        // do not resolve random names unless all players have joined the game
+        foreach ($game->playerIdArray as $playerId) {
+            if (empty($playerId)) {
+                return FALSE;
+            }
+        }
+
+        return TRUE;
     }
 
     protected function choose_button(BMGame $game, $buttonId, $buttonIdx) {
