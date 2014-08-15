@@ -2313,33 +2313,65 @@ class BMInterface {
 
         $hasUnimplementedSkill = $button->hasUnimplementedSkill;
 
-        if ($site_type != 'production' || !$hasUnimplementedSkill) {
-            $currentButton = array(
-                'buttonName' => $row['name'],
-                'recipe' => $row['recipe'],
-                'hasUnimplementedSkill' => $hasUnimplementedSkill,
-                'buttonSet' => $row['set_name'],
-                'dieTypes' => $dieTypes,
-                'dieSkills' => $dieSkills,
-                'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
-                'artFilename' => $button->artFilename,
-            );
-            // For efficiency's sake, there exist some pieces of information
-            // which we include only in the case where only one button was
-            // requested.
-            if ($single_button) {
-                $currentButton['flavorText'] = $row['flavor_text'];
-                $buttonSkillClass = 'BMBtnSkill' . $standardName;
-                if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
-                    $currentButton['specialText'] = $buttonSkillClass::get_description();
-                } else {
-                    $currentButton['specialText'] = NULL;
-                }
-            }
-            return $currentButton;
-        } else {
+        if ($site_type == 'production' && $hasUnimplementedSkill) {
             return NULL;
         }
+
+        $currentButton = array(
+            'buttonName' => $row['name'],
+            'recipe' => $row['recipe'],
+            'hasUnimplementedSkill' => $hasUnimplementedSkill,
+            'buttonSet' => $row['set_name'],
+            'dieTypes' => $dieTypes,
+            'dieSkills' => $dieSkills,
+            'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
+            'artFilename' => $button->artFilename,
+            'tags' => $this->get_button_tags($row['name']),
+        );
+
+        // For efficiency's sake, there exist some pieces of information
+        // which we include only in the case where only one button was
+        // requested.
+        if ($single_button) {
+            $currentButton['flavorText'] = $row['flavor_text'];
+            $buttonSkillClass = 'BMBtnSkill' . $standardName;
+            if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
+                $currentButton['specialText'] = $buttonSkillClass::get_description();
+            } else {
+                $currentButton['specialText'] = NULL;
+            }
+        }
+        return $currentButton;
+    }
+
+    private function get_button_tags($buttonName) {
+        $tags = array();
+
+        try {
+            $query =
+                'SELECT t.name ' .
+                'FROM button_tag_map btm ' .
+                    'INNER JOIN button b ON b.id = btm.button_id ' .
+                    'INNER JOIN tag t ON t.id = btm.tag_id ' .
+                'WHERE b.name = :button_name ' .
+                'ORDER BY t.name ASC;';
+            $statement = self::$conn->prepare($query);
+            $parameters = array(':button_name' => $buttonName);
+            $statement->execute($parameters);
+
+            while ($row = $statement->fetch()) {
+                $tags[] = $row['name'];
+            }
+        } catch (Exception $e) {
+            // If this fails, we should log the error, but we don't need to
+            // fail the whole request just on account of tags
+            error_log(
+                'Caught exception in BMInterface::get_button_tags for ' .
+                $buttonName . ': ' . $e->getMessage()
+            );
+        }
+
+        return $tags;
     }
 
     // Retrieves a list of button sets along with associated information,
