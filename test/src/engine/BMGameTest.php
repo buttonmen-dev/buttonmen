@@ -9188,8 +9188,8 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     public function test_default_round() {
         // load buttons
         $button1 = new BMButton;
-        $button1->load('(1) (1) (1) (1) B(2)', 'TestButton1');
-        $this->assertEquals('(1) (1) (1) (1) B(2)', $button1->recipe);
+        $button1->load('D(1) (1) (1) (1) B(2)', 'TestButton1');
+        $this->assertEquals('D(1) (1) (1) (1) B(2)', $button1->recipe);
         // check dice in $button1->dieArray are correct
         $this->assertCount(5, $button1->dieArray);
         $this->assertEquals(1, $button1->dieArray[0]->max);
@@ -9197,6 +9197,10 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $button1->dieArray[2]->max);
         $this->assertEquals(1, $button1->dieArray[3]->max);
         $this->assertEquals(2, $button1->dieArray[4]->max);
+        $this->assertEquals(array('capture'),
+                            array_keys($button1->dieArray[0]->hookList));
+        $this->assertEquals(array('BMSkillDoppelganger'),
+                            $button1->dieArray[0]->hookList['capture']);
         $this->assertEquals(array('attack_list', 'capture'),
                             array_keys($button1->dieArray[4]->hookList));
         $this->assertEquals(array('BMSkillBerserk'),

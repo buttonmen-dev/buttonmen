@@ -1130,7 +1130,6 @@ class BMInterface {
         }
 
         $allButtonData = array();
-        $allButtonNames = array();
         $nButtons = 0;
 
         foreach ($game->buttonArray as $buttonIdx => $button) {
@@ -1142,14 +1141,13 @@ class BMInterface {
                 continue;
             }
 
-            if (empty($allButtonNames)) {
-                $allButtonData = $this->get_all_button_details();
-                $allButtonIds = $allButtonData['buttonIdArray'];
-                $nButtons = count($allButtonIds);
+            if (empty($allButtonData)) {
+                $allButtonData = $this->get_button_data();
+                $nButtons = count($allButtonData);
             }
 
             $randIdx = rand(0, $nButtons - 1);
-            $buttonId = $allButtonIds[$randIdx];
+            $buttonId = $allButtonData[$randIdx]['buttonId'];
 
             $this->choose_button($game, $buttonId, $buttonIdx);
         }
@@ -2325,60 +2323,194 @@ class BMInterface {
         }
     }
 
-    public function get_all_button_details() {
+    // Retrieves a list of buttons along with associated information, including
+    // their names, recipes, special abilities, sets and TL status.
+    // If $buttonName is specified, it only returns that one button. It also
+    // includes extra textual data (flavor text, special ability and skill
+    // descriptions) that is otherwise omitted for efficiency.
+    // If $setName is specified, it only returns buttons in that set.
+    // If neither is specified, it returns all buttons.
+    public function get_button_data($buttonName = NULL, $setName = NULL) {
         try {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
+            $single_button = ($buttonName !== NULL);
+            $statement = $this->execute_button_data_query($buttonName, $setName);
 
-            $query = 'SELECT id, name, recipe, btn_special, set_name, tourn_legal FROM button_view';
-            $statement = self::$conn->prepare($query);
-            $statement->execute();
-
-            // Look for unimplemented skills in each button definition.
-            // If we get an exception while checking, assume there's
-            // an unimplemented skill
+            $buttons = array();
             while ($row = $statement->fetch()) {
-                try {
-                    $button = new BMButton();
-                    $button->load($row['recipe'], $row['name']);
-                    $dieSkills = array_keys($button->dieSkills);
-                    sort($dieSkills);
-
-                    $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
-                    if ((1 == $row['btn_special']) &&
-                        !class_exists('BMBtnSkill'.$standardName)) {
-                        $button->hasUnimplementedSkill = TRUE;
-                    }
-
-                    $hasUnimplSkill = $button->hasUnimplementedSkill;
-                } catch (Exception $e) {
-                    $hasUnimplSkill = TRUE;
-                }
-
-                if (($site_type != 'production') || (!($hasUnimplSkill))) {
-                    $buttonIdArray[] = (int)$row['id'];
-                    $buttonNameArray[] = $row['name'];
-                    $recipeArray[] = $row['recipe'];
-                    $hasUnimplSkillArray[] = $hasUnimplSkill;
-                    $buttonSetArray[] = $row['set_name'];
-                    $dieSkillsArray[] = $dieSkills;
-                    $isTournamentLegalArray[] = ((int)$row['tourn_legal'] == 1);
+                $currentButton = $this->assemble_button_data($row, $site_type, $single_button);
+                if ($currentButton) {
+                    $buttons[] = $currentButton;
                 }
             }
-            $this->message = 'All button names retrieved successfully.';
-            return array('buttonIdArray'              => $buttonIdArray,
-                         'buttonNameArray'            => $buttonNameArray,
-                         'recipeArray'                => $recipeArray,
-                         'hasUnimplementedSkillArray' => $hasUnimplSkillArray,
-                         'buttonSetArray'             => $buttonSetArray,
-                         'dieSkillsArray'             => $dieSkillsArray,
-                         'isTournamentLegalArray'     => $isTournamentLegalArray);
+
+            if (count($buttons) == 0) {
+                $this->message = 'Button not found.';
+                return NULL;
+            }
+
+            $this->message = 'Button data retrieved successfully.';
+            return $buttons;
         } catch (Exception $e) {
             error_log(
-                'Caught exception in BMInterface::get_all_button_details: ' .
+                'Caught exception in BMInterface::get_button_data: ' .
                 $e->getMessage()
             );
-            $this->message = 'Button detail get failed.';
+            $this->message = 'Button info get failed.';
+            return NULL;
+        }
+    }
+
+    private function execute_button_data_query($buttonName, $setName) {
+        $parameters = array();
+        $query =
+            'SELECT id, name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
+            'FROM button_view v ';
+        if ($buttonName !== NULL) {
+            $query .= 'WHERE v.name = :button_name ';
+            $parameters[':button_name'] = $buttonName;
+        } elseif ($setName !== NULL) {
+            $query .= 'WHERE v.set_name = :set_name ';
+            $parameters[':set_name'] = $setName;
+        }
+        $query .=
+            'ORDER BY v.set_id ASC, v.name ASC;';
+
+        $statement = self::$conn->prepare($query);
+        $statement->execute($parameters);
+        return $statement;
+    }
+
+    private function assemble_button_data($row, $site_type, $single_button) {
+        // Look for unimplemented skills in each button definition.
+        $button = new BMButton();
+        $button->load($row['recipe'], $row['name']);
+        $dieSkills = array_keys($button->dieSkills);
+        sort($dieSkills);
+        // For efficiency's sake, there exist some pieces of information
+        // which we include only in the case where only one button was
+        // requested.
+        if (!$single_button) {
+            $dieTypes = array_keys($button->dieTypes);
+        } else {
+            $dieTypes = $button->dieTypes;
+            $dieSkillNames = $dieSkills;
+            $dieSkills = array();
+            foreach ($dieSkillNames as $skillType) {
+                $dieSkills[$skillType] = BMSkill::describe($skillType, $dieSkillNames);
+            }
+        }
+
+        $standardName = preg_replace('/[^a-zA-Z0-9]/', '', $button->name);
+        if (((int)$row['btn_special'] == 1) &&
+            !class_exists('BMBtnSkill' . $standardName)) {
+            $button->hasUnimplementedSkill = TRUE;
+        }
+
+        $hasUnimplementedSkill = $button->hasUnimplementedSkill;
+
+        if ($site_type != 'production' || !$hasUnimplementedSkill) {
+            $currentButton = array(
+                'buttonId' => $row['id'],
+                'buttonName' => $row['name'],
+                'recipe' => $row['recipe'],
+                'hasUnimplementedSkill' => $hasUnimplementedSkill,
+                'buttonSet' => $row['set_name'],
+                'dieTypes' => $dieTypes,
+                'dieSkills' => $dieSkills,
+                'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
+                'artFilename' => $button->artFilename,
+            );
+            // For efficiency's sake, there exist some pieces of information
+            // which we include only in the case where only one button was
+            // requested.
+            if ($single_button) {
+                $currentButton['flavorText'] = $row['flavor_text'];
+                $buttonSkillClass = 'BMBtnSkill' . $standardName;
+                if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
+                    $currentButton['specialText'] = $buttonSkillClass::get_description();
+                } else {
+                    $currentButton['specialText'] = NULL;
+                }
+            }
+            return $currentButton;
+        } else {
+            return NULL;
+        }
+    }
+
+    // Retrieves a list of button sets along with associated information,
+    // including their name.
+    // If $setName is specified, it only returns that one set. It also
+    // includes the buttons in that set, which are otherwise omitted for
+    // efficiency.
+    // If $setName is not specified, it returns all sets.
+    public function get_button_set_data($setName = NULL) {
+        try {
+            $parameters = array();
+            $query =
+                'SELECT bs.name FROM buttonset bs ';
+            if ($setName !== NULL) {
+                $query .= 'WHERE bs.name = :set_name ';
+                $parameters[':set_name'] = $setName;
+            }
+            $query .=
+                'ORDER BY bs.name ASC;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute($parameters);
+
+            $sets = array();
+            while ($row = $statement->fetch()) {
+                $buttons = $this->get_button_data(NULL, $row['name']);
+                if (count($buttons) == 0) {
+                    continue;
+                }
+
+                $currentSet = array('setName' => $row['name']);
+
+                // For efficiency's sake, there exist some pieces of information
+                // which we include only in the case that not more than a single
+                // button was requested.
+                if ($setName !== NULL) {
+                    $currentSet['buttons'] = $buttons;
+                }
+
+                $currentSet['numberOfButtons'] = count($buttons);
+
+                $dieSkills = array();
+                $dieTypes = array();
+                $onlyHasUnimplementedButtons = TRUE;
+                foreach ($buttons as $button) {
+                    $dieSkills = array_unique(array_merge($dieSkills, $button['dieSkills']));
+                    $dieTypes = array_unique(array_merge($dieTypes, $button['dieTypes']));
+                    if (!$button['hasUnimplementedSkill']) {
+                        $onlyHasUnimplementedButtons = FALSE;
+                    }
+                }
+                sort($dieSkills);
+                sort($dieTypes);
+
+                $currentSet['dieSkills'] = $dieSkills;
+                $currentSet['dieTypes'] = $dieTypes;
+                $currentSet['onlyHasUnimplementedButtons'] = $onlyHasUnimplementedButtons;
+
+                $sets[] = $currentSet;
+            }
+
+            if (count($sets) == 0) {
+                $this->message = 'Button set not found.';
+                return NULL;
+            }
+
+            $this->message = 'Button set data retrieved successfully.';
+            return $sets;
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::get_button_set_data: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Button set info get failed.';
             return NULL;
         }
     }

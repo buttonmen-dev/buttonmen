@@ -40,27 +40,25 @@ class TestBMClient(unittest.TestCase):
 
   def test_load_button_names(self):
     r = self.obj.load_button_names()
-    self.assertEqual(r.status, 'ok', 'loadButtonNames returns successfully')
+    self.assertEqual(r.status, 'ok', 'loadButtonData returns successfully')
     known_keys = [
-      'buttonIdArray',
-      'buttonNameArray', 'buttonSetArray', 'dieSkillsArray',
-      'hasUnimplementedSkillArray', 'isTournamentLegalArray',
-      'recipeArray'
+      'artFilename', 'buttonId', 'buttonName', 'buttonSet', 'dieSkills', 'dieTypes',
+      'hasUnimplementedSkill', 'isTournamentLegal', 'recipe'
     ]
-    self.assertEqual(sorted(r.data.keys()), known_keys)
-    for key in sorted(r.data.keys()):
-      if key == 'buttonNameArray':
-        self.assertTrue(len(r.data[key]) > 0)
-      else:
-        self.assertEqual(len(r.data[key]), len(r.data['buttonNameArray']))
-    self.assertTrue('CactusJack' in r.data['buttonNameArray'])
-    idx = r.data['buttonNameArray'].index('CactusJack')
-    self.assertEqual(r.data['buttonSetArray'][idx], 'Classic Fanatics')
-    self.assertEqual(r.data['dieSkillsArray'][idx], ['Shadow', 'Speed'])
-    self.assertEqual(r.data['hasUnimplementedSkillArray'][idx], False)
-    self.assertEqual(r.data['isTournamentLegalArray'][idx], False)
-    self.assertEqual(r.data['recipeArray'][idx],
-      'z(8/12) (4/16) s(6/10) z(X) s(U)')
+    self.assertTrue(len(r.data) > 0)
+    testButton = None
+    for i in range(len(r.data)):
+      self.assertEqual(sorted(r.data[i].keys()), known_keys)
+      if r.data[i]['buttonName'] == 'CactusJack':
+        testButton = r.data[i]
+    self.assertNotEqual(testButton, None)
+    self.assertEqual(testButton['buttonSet'], 'Classic Fanatics')
+    self.assertEqual(testButton['dieSkills'], ['Shadow', 'Speed'])
+    self.assertEqual(testButton['dieTypes'], ['Option', 'X Swing', 'U Swing'])
+    self.assertEqual(testButton['hasUnimplementedSkill'], False)
+    self.assertEqual(testButton['isTournamentLegal'], False)
+    self.assertEqual(testButton['recipe'], 'z(8/12) (4/16) s(6/10) z(X) s(U)')
+    self.assertEqual(testButton['artFilename'], 'BMdefaultRound.png')
 
   def test_load_player_names(self):
     r = self.obj.load_player_names()
