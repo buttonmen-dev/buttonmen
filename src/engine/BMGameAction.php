@@ -148,30 +148,7 @@ class BMGameAction {
             }
             $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
         } else {
-            $fireRecipes = $this->params['fireCache']['fireRecipes'];
-            $oldValues = $this->params['fireCache']['oldValues'];
-            $newValues = $this->params['fireCache']['newValues'];
-
-            $message .= $actingPlayerName . ' turned down fire dice: ';
-
-            $isFirstReducedFireDie = TRUE;
-            foreach ($fireRecipes as $dieIdx => $recipe) {
-                $oldValue = $oldValues[$dieIdx];
-                $newValue = $newValues[$dieIdx];
-                if ($oldValue == $newValue) {
-                    continue;
-                }
-
-                if ($isFirstReducedFireDie) {
-                    $isFirstReducedFireDie = FALSE;
-                } else {
-                    $message .= ', ';
-                }
-
-                $message .= $recipe . ' from ' . $oldValue . ' to ' . $newValue;
-            }
-
-            $message .= '; ';
+            $message .= $this->fire_turndown_message($this->params['fireCache'], $actingPlayerName);
         }
 
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
@@ -197,6 +174,29 @@ class BMGameAction {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
             $message .= $messageDefender . '; ' . $messageAttacker;
         }
+
+        return $message;
+    }
+
+    protected function fire_turndown_message($fireCache, $actingPlayerName) {
+        $fireRecipes = $fireCache['fireRecipes'];
+        $oldValues = $fireCache['oldValues'];
+        $newValues = $fireCache['newValues'];
+
+        $message = $actingPlayerName . ' turned down fire dice: ';
+        $messageArray = array();
+
+        foreach ($fireRecipes as $dieIdx => $recipe) {
+            $oldValue = $oldValues[$dieIdx];
+            $newValue = $newValues[$dieIdx];
+            if ($oldValue == $newValue) {
+                continue;
+            }
+
+            $messageArray[] = $recipe . ' from ' . $oldValue . ' to ' . $newValue;
+        }
+
+        $message .= implode(', ', $messageArray) . '; ';
 
         return $message;
     }
