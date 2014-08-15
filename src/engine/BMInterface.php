@@ -1109,9 +1109,14 @@ class BMInterface {
     }
 
     protected function resolve_random_button_selection(BMGame &$game) {
-        // only resolve random names if there are some to resolve
+        // only resolve random names if there are some randomly chosen buttons
         if (empty($game->isButtonChoiceRandom) ||
             !in_array(TRUE, $game->isButtonChoiceRandom)) {
+            return;
+        }
+
+        // only resolve random names if there are some left to resolve
+        if (!in_array(NULL, $game->buttonArray, TRUE)) {
             return;
         }
 
@@ -1238,7 +1243,11 @@ class BMInterface {
         }
     }
 
-    protected function save_random_button_choice($game) {
+    protected function save_random_button_choice(BMGame $game) {
+        if ($game->gameState > BMGameState::START_GAME) {
+            return;
+        }
+
         if (isset($game->isButtonChoiceRandom)) {
             foreach ($game->isButtonChoiceRandom as $position => $isRandomButton) {
                 if ($isRandomButton) {
@@ -2330,7 +2339,8 @@ class BMInterface {
     // descriptions) that is otherwise omitted for efficiency.
     // If $setName is specified, it only returns buttons in that set.
     // If neither is specified, it returns all buttons.
-    public function get_button_data($buttonName = NULL, $setName = NULL) {
+    // Set $forceImplemented to TRUE to only retrieve buttons with fully implemented skills.
+    public function get_button_data($buttonName = NULL, $setName = NULL, $forceImplemented = FALSE) {
         try {
             // if the site is production, don't report unimplemented buttons at all
             $site_type = $this->get_config('site_type');
@@ -2339,7 +2349,7 @@ class BMInterface {
 
             $buttons = array();
             while ($row = $statement->fetch()) {
-                $currentButton = $this->assemble_button_data($row, $site_type, $single_button);
+                $currentButton = $this->assemble_button_data($row, $site_type, $single_button, $forceImplemented);
                 if ($currentButton) {
                     $buttons[] = $currentButton;
                 }
@@ -2382,7 +2392,7 @@ class BMInterface {
         return $statement;
     }
 
-    private function assemble_button_data($row, $site_type, $single_button) {
+    private function assemble_button_data($row, $site_type, $single_button, $forceImplemented = FALSE) {
         // Look for unimplemented skills in each button definition.
         $button = new BMButton();
         $button->load($row['recipe'], $row['name']);
@@ -2410,34 +2420,38 @@ class BMInterface {
 
         $hasUnimplementedSkill = $button->hasUnimplementedSkill;
 
-        if ($site_type != 'production' || !$hasUnimplementedSkill) {
-            $currentButton = array(
-                'buttonId' => (int)$row['id'],
-                'buttonName' => $row['name'],
-                'recipe' => $row['recipe'],
-                'hasUnimplementedSkill' => $hasUnimplementedSkill,
-                'buttonSet' => $row['set_name'],
-                'dieTypes' => $dieTypes,
-                'dieSkills' => $dieSkills,
-                'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
-                'artFilename' => $button->artFilename,
-            );
-            // For efficiency's sake, there exist some pieces of information
-            // which we include only in the case where only one button was
-            // requested.
-            if ($single_button) {
-                $currentButton['flavorText'] = $row['flavor_text'];
-                $buttonSkillClass = 'BMBtnSkill' . $standardName;
-                if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
-                    $currentButton['specialText'] = $buttonSkillClass::get_description();
-                } else {
-                    $currentButton['specialText'] = NULL;
-                }
-            }
-            return $currentButton;
-        } else {
+        if ('production' == $site_type) {
+            $forceImplemented = TRUE;
+        }
+
+        if ($hasUnimplementedSkill && $forceImplemented) {
             return NULL;
         }
+
+        $currentButton = array(
+            'buttonId' => (int)$row['id'],
+            'buttonName' => $row['name'],
+            'recipe' => $row['recipe'],
+            'hasUnimplementedSkill' => $hasUnimplementedSkill,
+            'buttonSet' => $row['set_name'],
+            'dieTypes' => $dieTypes,
+            'dieSkills' => $dieSkills,
+            'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
+            'artFilename' => $button->artFilename,
+        );
+        // For efficiency's sake, there exist some pieces of information
+        // which we include only in the case where only one button was
+        // requested.
+        if ($single_button) {
+            $currentButton['flavorText'] = $row['flavor_text'];
+            $buttonSkillClass = 'BMBtnSkill' . $standardName;
+            if ((int)$row['btn_special'] == 1 && class_exists($buttonSkillClass)) {
+                $currentButton['specialText'] = $buttonSkillClass::get_description();
+            } else {
+                $currentButton['specialText'] = NULL;
+            }
+        }
+        return $currentButton;
     }
 
     // Retrieves a list of button sets along with associated information,
