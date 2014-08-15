@@ -58,7 +58,7 @@ class BMInterface {
                     'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
                     'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
                     'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
-                'FROM player p ' .
+                'FROM player_view p ' .
                     'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
                     'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
                 'WHERE p.id = :id';
@@ -2437,7 +2437,7 @@ class BMInterface {
 
     public function get_player_names_like($input = '') {
         try {
-            $query = 'SELECT name_ingame,status FROM player '.
+            $query = 'SELECT name_ingame, status FROM player_view '.
                      'WHERE name_ingame LIKE :input '.
                      'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);

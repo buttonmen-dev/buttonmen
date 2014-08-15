@@ -1006,7 +1006,7 @@ class DummyApiResponder {
                                 'name_irl' => '',
                                 'email' => 'tester1@example.com',
                                 'is_email_public' => FALSE,
-                                'status' => 'active',
+                                'status' => 'ACTIVE',
                                 'dob_month' => 0,
                                 'dob_day' => 0,
                                 'gender' => '',
@@ -1070,11 +1070,11 @@ class DummyApiResponder {
 
         // three test players exist and are all active
         $data['nameArray'][] = 'tester1';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
         $data['nameArray'][] = 'tester2';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
         $data['nameArray'][] = 'tester3';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
 
         return array($data, "Names retrieved successfully.");
     }

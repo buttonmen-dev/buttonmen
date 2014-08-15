@@ -158,7 +158,7 @@ Newgame.actionCreateGame = function() {
   var playerNames = {};
   for (var playerName in Api.player.list) {
     if ((playerName != Login.player) &&
-        (Api.player.list[playerName].status == 'active')) {
+        (Api.player.list[playerName].status == 'ACTIVE')) {
       playerNames[playerName] = playerName;
     }
   }

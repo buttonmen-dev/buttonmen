@@ -117,7 +117,7 @@ test("test_Api.getPlayerData", function(assert) {
           "Api.player.list should be an object");
     assert.deepEqual(
       Api.player.list["tester2"],
-      {'status': 'active', },
+      {'status': 'ACTIVE', },
       "Player tester2 should have correct contents");
     assert.deepEqual(Env.message, undefined,
               "Api.getPlayerData should not set Env.message");
@@ -246,14 +246,14 @@ test("test_Api.parsePlayerData", function(assert) {
   Api.player = {};
   var retval = Api.parsePlayerData({
     'nameArray': ['tester1', 'tester2', 'tester3' ],
-    'statusArray': ['active', 'active', 'active' ],
+    'statusArray': ['ACTIVE', 'ACTIVE', 'ACTIVE' ],
   });
   assert.equal(retval, true, "Api.parsePlayerData() returns true");
   assert.deepEqual(
     Api.player.list,
-    { 'tester1': {'status': 'active', },
-      'tester2': {'status': 'active', },
-      'tester3': {'status': 'active', }
+    { 'tester1': {'status': 'ACTIVE', },
+      'tester2': {'status': 'ACTIVE', },
+      'tester3': {'status': 'ACTIVE', }
     }
   );
   assert.deepEqual(Env.message, undefined,

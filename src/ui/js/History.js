@@ -169,7 +169,7 @@ History.getFilters = function(callback) {
     ], function() {
       var playerValues = { };
       $.each(Api.player.list, function(name, playerInfo) {
-        if (playerInfo.status == 'active') {
+        if (playerInfo.status == 'ACTIVE') {
           playerValues[name] = name;
         }
       });
