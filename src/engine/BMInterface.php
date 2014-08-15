@@ -1130,7 +1130,6 @@ class BMInterface {
         }
 
         $allButtonData = array();
-        $allButtonNames = array();
         $nButtons = 0;
 
         foreach ($game->buttonArray as $buttonIdx => $button) {
@@ -1142,14 +1141,13 @@ class BMInterface {
                 continue;
             }
 
-            if (empty($allButtonNames)) {
-                $allButtonData = $this->get_all_button_details();
-                $allButtonIds = $allButtonData['buttonIdArray'];
-                $nButtons = count($allButtonIds);
+            if (empty($allButtonData)) {
+                $allButtonData = $this->get_button_data();
+                $nButtons = count($allButtonData);
             }
 
             $randIdx = rand(0, $nButtons - 1);
-            $buttonId = $allButtonIds[$randIdx];
+            $buttonId = $allButtonData[$randIdx]['buttonId'];
 
             $this->choose_button($game, $buttonId, $buttonIdx);
         }
@@ -2367,7 +2365,7 @@ class BMInterface {
     private function execute_button_data_query($buttonName, $setName) {
         $parameters = array();
         $query =
-            'SELECT name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
+            'SELECT id, name, recipe, btn_special, set_name, tourn_legal, flavor_text ' .
             'FROM button_view v ';
         if ($buttonName !== NULL) {
             $query .= 'WHERE v.name = :button_name ';
