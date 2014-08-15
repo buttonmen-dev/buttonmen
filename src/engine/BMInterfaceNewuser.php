@@ -224,9 +224,7 @@ class BMInterfaceNewuser {
 
         // send the e-mail message
         $email = new BMEmail($playerEmail, $this->isTest);
-        //TODO restore this
-        // glassonion, reject this pull request if I don't restore this
-        //$email->send_verification_link($playerId, $username, $playerKey);
+        $email->send_verification_link($playerId, $username, $playerKey);
     }
 
     public function __get($property) {
