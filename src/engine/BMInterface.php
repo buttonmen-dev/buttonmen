@@ -2412,7 +2412,7 @@ class BMInterface {
 
         if ($site_type != 'production' || !$hasUnimplementedSkill) {
             $currentButton = array(
-                'buttonId' => $row['id'],
+                'buttonId' => (int)$row['id'],
                 'buttonName' => $row['name'],
                 'recipe' => $row['recipe'],
                 'hasUnimplementedSkill' => $hasUnimplementedSkill,
