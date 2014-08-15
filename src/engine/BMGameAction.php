@@ -104,34 +104,6 @@ class BMGameAction {
         return $message;
     }
 
-    protected function friendly_message_fire_turndown() {
-        $actingPlayerName = $this->outputPlayerIdNames[$this->actingPlayerId];
-        $fireRecipes = $this->params['fireRecipes'];
-        $oldValues = $this->params['oldValues'];
-        $newValues = $this->params['newValues'];
-
-        $message = $actingPlayerName . ' completed the attack by turning down fire dice: ';
-
-        $isFirstReducedFireDie = TRUE;
-        foreach ($fireRecipes as $dieIdx => $recipe) {
-            $oldValue = $oldValues[$dieIdx];
-            $newValue = $newValues[$dieIdx];
-            if ($oldValue == $newValue) {
-                continue;
-            }
-
-            if ($isFirstReducedFireDie) {
-                $isFirstReducedFireDie = FALSE;
-            } else {
-                $message .= ', ';
-            }
-
-            $message .= $recipe . ' from ' . $oldValue . ' to ' . $newValue;
-        }
-
-        return $message;
-    }
-
     protected function friendly_message_fire_cancel() {
         return $this->outputPlayerIdNames[$this->actingPlayerId] .
                ' chose to abandon this attack and start over';
@@ -141,12 +113,7 @@ class BMGameAction {
         $attackType = $this->params['attackType'];
         $preAttackDice = $this->params['preAttackDice'];
         $postAttackDice = $this->params['postAttackDice'];
-
-        if (array_key_exists('lastActionType', $this->params)) {
-            $lastActionType = $this->params['lastActionType'];
-        } else {
-            $lastActionType = '';
-        }
+        $actingPlayerName = $this->outputPlayerIdNames[$this->actingPlayerId];
 
         // Check for any attack types in which the defender changes
         // in some way we want to report prior to being captured
@@ -158,29 +125,53 @@ class BMGameAction {
 
         // First, what type of attack was this?
         if ($attackType == 'Pass') {
-            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
+            return $actingPlayerName . ' passed';
         }
 
         if ($attackType == 'Surrender') {
-            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
+            return $actingPlayerName . ' surrendered';
         }
 
-        
         $message = '';
 
-        if ('fire_turndown' != $lastActionType) {
-            $message .= $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+        $message .= $actingPlayerName . ' performed ' . $attackType . ' attack';
 
-            // Add the pre-attack status of all participating dice
-            $preAttackAttackers = array();
-            $preAttackDefenders = array();
-            foreach ($preAttackDice['attacker'] as $attackerInfo) {
-                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+        // Add the pre-attack status of all participating dice
+        $preAttackAttackers = array();
+        $preAttackDefenders = array();
+        foreach ($preAttackDice['attacker'] as $attackerInfo) {
+            $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+        }
+        foreach ($preAttackDice['defender'] as $defenderInfo) {
+            $preAttackDefenders[] = $defenderInfo['recipeStatus'];
+        }
+        $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
+
+        if (!empty($this->params['fireCache'])) {
+            $fireRecipes = $this->params['fireCache']['fireRecipes'];
+            $oldValues = $this->params['fireCache']['oldValues'];
+            $newValues = $this->params['fireCache']['newValues'];
+
+            $message .= $actingPlayerName . ' turned down fire dice: ';
+
+            $isFirstReducedFireDie = TRUE;
+            foreach ($fireRecipes as $dieIdx => $recipe) {
+                $oldValue = $oldValues[$dieIdx];
+                $newValue = $newValues[$dieIdx];
+                if ($oldValue == $newValue) {
+                    continue;
+                }
+
+                if ($isFirstReducedFireDie) {
+                    $isFirstReducedFireDie = FALSE;
+                } else {
+                    $message .= ', ';
+                }
+
+                $message .= $recipe . ' from ' . $oldValue . ' to ' . $newValue;
             }
-            foreach ($preAttackDice['defender'] as $defenderInfo) {
-                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-            }
-            $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
+
+            $message .= '; ';
         }
 
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);

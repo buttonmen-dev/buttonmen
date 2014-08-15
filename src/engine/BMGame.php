@@ -109,6 +109,7 @@ class BMGame {
     public $lastActionTimeArray;
     public $hasPlayerDismissedGameArray;
 
+    private $fireCache;             // internal cache of fire info, used for logging
     private $debug;
 
     // methods
@@ -1111,14 +1112,10 @@ class BMGame {
         $this->firingAmount = $firingAmount;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
 
-        $this->log_action(
-            'fire_turndown',
-            $this->playerIdArray[$this->attackerPlayerIdx],
-            array(
-                'fireRecipes' => $fireRecipes,
-                'oldValues' => $oldValues,
-                'newValues' => $newValues,
-            )
+        $this->fireCache = array(
+            'fireRecipes' => $fireRecipes,
+            'oldValues' => $oldValues,
+            'newValues' => $newValues,
         );
 
         $this->message = 'Successfully turned down fire dice.';
@@ -1178,13 +1175,10 @@ class BMGame {
             $defAttackDieArray
         );
 
-        // james: note that end normally shifts the pointer, so use
-        // call_user_func and array_values to avoid changing the original array
-        if (empty($this->actionLog)) {
-            $lastActionType = '';
+        if (empty($this->fireCache)) {
+            $fireCache = NULL;
         } else {
-            $lastLogEntry = call_user_func('end', array_values($this->actionLog));
-            $lastActionType = $lastLogEntry->actionType;
+            $fireCache = $this->fireCache;
         }
 
         $this->log_action(
@@ -1194,7 +1188,7 @@ class BMGame {
                 'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
-                'lastActionType' => $lastActionType,
+                'fireCache' => $fireCache,
             )
         );
 
@@ -1238,6 +1232,7 @@ class BMGame {
             }
         }
 
+        unset($this->fireCache);
         $this->gameState = BMGameState::END_TURN;
     }
 

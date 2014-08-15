@@ -103,21 +103,6 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMGameAction::friendly_message_fire_turndown()
-     */
-    public function test_friendly_message_fire_turndown() {
-        $this->object = new BMGameAction(40, 'fire_turndown', 1, array(
-            'fireRecipes' => array('F(4)', 'Fs(6)', 'Fd(15)'),
-            'oldValues' => array(4, 5, 9),
-            'newValues' => array(4, 3, 8),
-        ));
-        $this->assertEquals(
-            "gameaction01 completed the attack by turning down fire dice: Fs(6) from 5 to 3, Fd(15) from 9 to 8",
-            $this->object->friendly_message($this->playerIdNames, 0, 0)
-        );
-    }
-
-    /**
      * @covers BMGameAction::friendly_message_fire_cancel()
      */
     public function test_friendly_message_fire_cancel() {
@@ -245,11 +230,17 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
                     array('recipe' => '(10)', 'min' => 1, 'max' => 10, 'value' => 1, 'doesReroll' => TRUE, 'captured' => TRUE, 'recipeStatus' => '(10):1'),
                 ),
             ),
-            'lastActionType' => 'fire_turndown'
+            'fireCache' => array(
+                'fireRecipes' => array('F(4)', 'Fs(6)', 'Fd(15)'),
+                'oldValues' => array(4, 5, 9),
+                'newValues' => array(4, 3, 8),
+            )
         ));
 
         $this->assertEquals(
-            "Defender (10) was captured; Attacker (4) rerolled 3 => 2",
+            'gameaction01 performed Power attack using [(4):3] against [(10):1]; ' .
+            'gameaction01 turned down fire dice: Fs(6) from 5 to 3, Fd(15) from 9 to 8; ' .
+            'Defender (10) was captured; Attacker (4) rerolled 3 => 2',
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }
