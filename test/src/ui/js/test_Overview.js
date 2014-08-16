@@ -37,6 +37,7 @@ module("Overview", {
     delete Env.window.location.href;
 
     Api.automatedApiCall = false;
+    Login.bodyDivId = null;
     Login.nextGameRefreshCallback = false;
 
     // Page elements
@@ -128,22 +129,6 @@ test("test_Overview.showPage", function(assert) {
     var htmlout = Overview.page.html();
     assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_Overview.arrangePage", function(assert) {
-  stop();
-  Api.automatedApiCall = true;
-  Overview.getOverview(function() {
-    Overview.page = $('<div>');
-    Overview.page.append($('<p>', {'text': 'hi world', }));
-    Overview.arrangePage();
-    var item = document.getElementById('overview_page');
-    assert.equal(item.nodeName, 'DIV',
-          '#overview_page is a div after arrangePage() is called');
-    assert.ok(!Api.automatedApiCall,
-      'arrangePage should unset Api.automatedApiCall');
     start();
   });
 });

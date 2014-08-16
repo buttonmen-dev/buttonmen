@@ -41,7 +41,7 @@ module("Game", {
     delete Game.form;
     delete Game.color;
 
-    Api.automatedApiCall = false;
+    Login.bodyDivId = null;
     Game.activity = {};
 
     // Page elements
@@ -299,24 +299,6 @@ test("test_Game.showStatePage_turn_nonplayer", function(assert) {
     var htmlout = Game.page.html();
     assert.ok(htmlout.length > 0,
       "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_Game.arrangePage", function(assert) {
-  stop();
-  Api.automatedApiCall = true;
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    $('body').append($('<div>', {'id': 'game_page', }));
-    Game.page = $('<div>');
-    Game.page.append($('<p>', {'text': 'hi world', }));
-    Game.arrangePage();
-    var item = document.getElementById('game_page');
-    assert.equal(item.nodeName, "DIV",
-      "#game_page is a div after arrangePage() is called");
-    assert.ok(!Api.automatedApiCall,
-      'arrangePage should unset Api.automatedApiCall');
     start();
   });
 });

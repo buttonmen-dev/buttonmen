@@ -118,18 +118,7 @@ Overview.showPage = function() {
   }
 
   // Actually layout the page
-  Overview.arrangePage();
-};
-
-Overview.arrangePage = function() {
-  Api.automatedApiCall = false;
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#overview_page').empty();
-  $('#overview_page').append(Overview.page);
+  Login.arrangePage(Overview.page);
 };
 
 Overview.executeMonitor = function() {
@@ -465,4 +454,3 @@ Overview.goToNextNewForumPost = function() {
     Env.window.location.href = 'forum.html' + appendix;
   }
 };
-

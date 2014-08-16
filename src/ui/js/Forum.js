@@ -331,12 +331,6 @@ Forum.showThread = function() {
 };
 
 Forum.arrangePage = function() {
-  Api.automatedApiCall = false;
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
   var pseudoLinks =
     Forum.page.find('.pseudoLink').add(Login.message.find('.pseudoLink'));
   pseudoLinks.each(function() {

@@ -36,7 +36,7 @@ module("Forum", {
     delete Forum.scrollTarget;
     delete Login.message;
 
-    Api.automatedApiCall = false;
+    Login.bodyDivId = null;
 
     // Page elements
     $('#forum_page').remove();
@@ -451,4 +451,3 @@ test("test_Forum.showError", function(assert) {
   Forum.showError();
   assert.equal($('#env_message').text(), 'Test error.', 'Error displayed');
 });
-
