@@ -5,6 +5,8 @@ module("Overview", {
     // Back up any properties that we might decide to replace with mocks
     BMTestUtils.OverviewBackup = { };
     BMTestUtils.CopyAllMethods(Overview, BMTestUtils.OverviewBackup);
+    BMTestUtils.LoginBackup = { };
+    BMTestUtils.CopyAllMethods(Login, BMTestUtils.LoginBackup);
 
     BMTestUtils.setupFakeLogin();
 
@@ -34,6 +36,7 @@ module("Overview", {
     delete Overview.monitorIsOn;
     delete Env.window.location.href;
 
+    Api.automatedApiCall = false;
     Login.bodyDivId = null;
     Login.nextGameRefreshCallback = false;
 
@@ -46,6 +49,7 @@ module("Overview", {
 
     // Restore any properties that we might have replaced with mocks
     BMTestUtils.CopyAllMethods(BMTestUtils.OverviewBackup, Overview);
+    BMTestUtils.CopyAllMethods(BMTestUtils.LoginBackup, Login);
 
     // Fail if any other elements were added or removed
     BMTestUtils.OverviewPost = BMTestUtils.getAllElements();
