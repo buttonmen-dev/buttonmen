@@ -590,7 +590,9 @@ Newgame.updateButtonList = function(player, limitid) {
     });
   }
 
-  Newgame.activity.buttonList[player] = {};
+  Newgame.activity.buttonList[player] = {
+    '__random': 'Random button',
+  };
   var choiceid;
   var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {
