@@ -791,7 +791,7 @@ test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
     assert.deepEqual(
       Env.message,
       {"type": "success",
-       "text": "Auxiliary die chosen successfully"},
+       "text": "Chose to add auxiliary die"},
       "Game action succeeded when expected arguments were set");
     $.ajaxSetup({ async: true });
     start();
