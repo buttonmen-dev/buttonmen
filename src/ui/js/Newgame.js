@@ -41,6 +41,8 @@ Newgame.showNewgamePage = function() {
   }
   if (!Newgame.activity.previousGameId) {
     Newgame.activity.previousGameId = Env.getParameterByName('previousGameId');
+    // We apparently don't want it to remain visible in the URL
+    Env.removeParameterByName('previousGameId');
   }
   if (!Newgame.activity.nRounds) {
     Newgame.activity.nRounds = Env.getParameterByName('maxWins');
@@ -590,7 +592,9 @@ Newgame.updateButtonList = function(player, limitid) {
     });
   }
 
-  Newgame.activity.buttonList[player] = {};
+  Newgame.activity.buttonList[player] = {
+    '__random': 'Random button',
+  };
   var choiceid;
   var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {

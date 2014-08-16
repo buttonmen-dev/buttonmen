@@ -33,6 +33,8 @@ module("Api", {
     delete Env.message;
     BMTestUtils.deleteEnvMessage();
 
+    Api.automatedApiCall = false;
+
     // Page elements (for test use only)
     $('#api_page').remove();
     $('#api_page').empty();
@@ -49,6 +51,28 @@ module("Api", {
 test("test_Api_is_loaded", function(assert) {
   expect(3); // number of tests plus 2 for the teardown test
   assert.ok(Api, "The Api namespace exists");
+});
+
+test("test_Api.parseApiPost_automatedApiCall", function(assert) {
+  stop(2); // this test has two async calls that need to resolve separately
+  expect(4); // tests + 2 teardown
+
+  Api.automatedApiCall = true;
+
+  // Api.getGameData calls Api.parseApiPost
+  Api.getGameData(1, 10, function() {
+    assert.equal(Api.game.load_status, 'ok',
+      'getGameData should be a valid automated API call');
+    start();
+  });
+
+  // Api.getUserPrefsData calls Api.parseApiPost
+  Api.getUserPrefsData(function() {
+    assert.notEqual(Api.game.user_prefs, 'ok',
+      'getUserPrefsData should not be a valid automated API call');
+    start();
+  });
+
 });
 
 test("test_Api.parseGenericData", function(assert) {
@@ -92,6 +116,7 @@ test("test_Api.getButtonData", function(assert) {
     assert.deepEqual(
       Api.button.list["Avis"],
       {
+        'buttonId': 264,
         'buttonName': 'Avis',
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',

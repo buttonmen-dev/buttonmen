@@ -676,17 +676,17 @@ class DummyApiResponder {
             // Splitting these into separate methods makes the code less readable,
             // but jenkins demands it because otherwise this method would be a few
             // lines longer than he likes
-            $data[] = $this->loadButtonDataForAvis();
-            $data[] = $this->loadButtonDataForZeppo();
-            $data[] = $this->loadButtonDataForJellybean();
-            $data[] = $this->loadButtonDataForBuckGodot();
-            $data[] = $this->loadButtonDataForVonPinn();
-            $data[] = $this->loadButtonDataForCrab();
-            $data[] = $this->loadButtonDataForJohnKovalic();
-            $data[] = $this->loadButtonDataForKingArthur();
-            $data[] = $this->loadButtonDataForCammyNeko();
-            $data[] = $this->loadButtonDataForApples();
-            $data[] = $this->loadButtonDataForCactusJack();
+            $data[] = $this->loadButtonDataStandard();
+            $data[] = $this->loadButtonDataUnimplementedSkill();
+            $data[] = $this->loadButtonDataFourDice();
+            $data[] = $this->loadButtonDataTwinDice();
+            $data[] = $this->loadButtonDataTwinDiceWithDieSkill();
+            $data[] = $this->loadButtonDataFocus();
+            $data[] = $this->loadButtonDataChance();
+            $data[] = $this->loadButtonDataAuxiliary();
+            $data[] = $this->loadButtonDataReserve();
+            $data[] = $this->loadButtonDataOption();
+            $data[] = $this->loadButtonDataSwingOptionSkills();
         }
 
         return array($data, "Button data retrieved successfully.");
@@ -695,6 +695,7 @@ class DummyApiResponder {
     private function loadDetailedButtonDataForAvis() {
         // a button with no special skills
         return array(
+            'buttonId' => 264,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -724,9 +725,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForAvis() {
+    private function loadButtonDataStandard() {
         // a button with no special skills
         return array(
+            'buttonId' => 264,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -739,9 +741,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForZeppo() {
+    private function loadButtonDataUnimplementedSkill() {
         // a button with an unimplemented skill
         return array(
+            'buttonId' => 1,
             'buttonName' => "Zeppo",
             'recipe' => "(4) (12) (20) (X)!",
             'hasUnimplementedSkill' => TRUE,
@@ -754,9 +757,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForJellybean() {
+    private function loadButtonDataFourDice() {
         // a button with four dice and some implemented skills
         return array(
+            'buttonId' => 58,
             'buttonName' => "Jellybean",
             'recipe' => "p(20) s(20) (V) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -769,9 +773,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForBuckGodot() {
+    private function loadButtonDataTwinDice() {
         // Buck Godot
         return array(
+            'buttonId' => 282,
             'buttonName' => "Buck Godot",
             'recipe' => "(6,6) (10) (12) (20) (W,W)",
             'hasUnimplementedSkill' => FALSE,
@@ -784,9 +789,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForVonPinn() {
+    private function loadButtonDataTwinDiceWithDieSkill() {
         // Von Pinn
         return array(
+            'buttonId' => 286,
             'buttonName' => "Von Pinn",
             'recipe' => "(4) p(6,6) (10) (20) (W)",
             'hasUnimplementedSkill' => FALSE,
@@ -799,9 +805,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForCrab() {
+    private function loadButtonDataFocus() {
         // Crab: a button with focus dice
         return array(
+            'buttonId' => 200,
             'buttonName' => "Crab",
             'recipe' => "(8) (10) (12) f(20) f(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -814,9 +821,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForJohnKovalic() {
+    private function loadButtonDataChance() {
         // John Kovalic: a button with chance dice
         return array(
+            'buttonId' => 315,
             'buttonName' => "John Kovalic",
             'recipe' => "(6) c(6) (10) (12) c(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -829,9 +837,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForKingArthur() {
+    private function loadButtonDataAuxiliary() {
         // King Arthur: a button with an auxiliary die
         return array(
+            'buttonId' => 82,
             'buttonName' => "King Arthur",
             'recipe' => "(8) (8) (10) (20) (X) +(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -844,9 +853,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForCammyNeko() {
+    private function loadButtonDataReserve() {
         // Cammy Neko: a button with reserve dice
         return array(
+            'buttonId' => 140,
             'buttonName' => "Cammy Neko",
             'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
             'hasUnimplementedSkill' => FALSE,
@@ -859,9 +869,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForApples() {
+    private function loadButtonDataOption() {
         // Apples: a button with option dice
         return array(
+            'buttonId' => 10,
             'buttonName' => "Apples",
             'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
             'hasUnimplementedSkill' => FALSE,
@@ -874,9 +885,10 @@ class DummyApiResponder {
         );
     }
 
-    private function loadButtonDataForCactusJack() {
+    private function loadButtonDataSwingOptionSkills() {
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
         return array(
+            'buttonId' => 414,
             'buttonName' => "CactusJack",
             'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
             'hasUnimplementedSkill' => FALSE,
