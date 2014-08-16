@@ -2789,14 +2789,22 @@ class BMInterface {
 
     // Create a status message based on recent game actions
     protected function load_message_from_game_actions(BMGame $game) {
-        $this->message = '';
+        $message = '';
         $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
-            $this->message .= $gameAction->friendly_message(
+            $messagePart = $gameAction->friendly_message(
                 $playerIdNames,
                 $game->roundNumber,
                 $game->gameState
-            ) . '. ';
+            );
+
+            if (!empty($messagePart)) {
+                $message .= $messagePart . '. ';
+            }
+        }
+
+        if (!empty($message)) {
+            $this->message = $message;
         }
     }
 
@@ -3579,7 +3587,7 @@ class BMInterface {
                             'die' => $die->get_action_log_data(),
                         )
                     );
-                    $this->message = 'Auxiliary die chosen successfully';
+                    $this->message = 'Chose to add auxiliary die';
                     break;
                 case 'decline':
                     $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
