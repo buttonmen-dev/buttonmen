@@ -51,6 +51,7 @@
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
+ * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
@@ -106,6 +107,9 @@ class BMGame {
     public $prevOptValueArrayArray;
 
     public $lastActionTimeArray;
+    public $isButtonChoiceRandom;   // used by the database to record whether the choice of the
+                                    // button was random or not
+    public $hasPlayerDismissedGameArray;
 
     private $debug;
 
@@ -2634,6 +2638,7 @@ class BMGame {
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $this->gameScoreArrayArray[$playerIdx],
                 'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],
+                'hasDismissedGame'    => $this->hasPlayerDismissedGameArray[$playerIdx],
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
 

@@ -170,7 +170,7 @@ Newgame.actionCreateGame = function() {
                          null, Newgame.activity.opponentName, 'Anybody'));
 
   // Round selection
-  if (!('nRounds' in Newgame.activity)) {
+  if (!('nRounds' in Newgame.activity) || !Newgame.activity.nRounds) {
     Newgame.activity.nRounds = '3';
   }
   miscOptionsTable.append(
@@ -390,7 +390,7 @@ Newgame.formCreateGame = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'newgame_action_button',
+      '#newgame_action_button',
       Newgame.showNewgamePage,
       Newgame.showNewgamePage
     );
@@ -590,7 +590,9 @@ Newgame.updateButtonList = function(player, limitid) {
     });
   }
 
-  Newgame.activity.buttonList[player] = {};
+  Newgame.activity.buttonList[player] = {
+    '__random': 'Random button',
+  };
   var choiceid;
   var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {

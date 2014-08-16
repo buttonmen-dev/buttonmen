@@ -42,7 +42,7 @@ class TestBMClient(unittest.TestCase):
     r = self.obj.load_button_names()
     self.assertEqual(r.status, 'ok', 'loadButtonData returns successfully')
     known_keys = [
-      'artFilename', 'buttonName', 'buttonSet', 'dieSkills', 'dieTypes',
+      'artFilename', 'buttonId', 'buttonName', 'buttonSet', 'dieSkills', 'dieTypes',
       'hasUnimplementedSkill', 'isTournamentLegal', 'recipe'
     ]
     self.assertTrue(len(r.data) > 0)
@@ -136,10 +136,10 @@ class TestBMClient(unittest.TestCase):
 
     player_data_keys = [
       'activeDieArray', 'button', 'canStillWin', 'capturedDieArray',
-      'gameScoreArray', 'lastActionTime', 'optRequestArray',
-      'playerColor', 'playerId', 'playerName', 'prevOptValueArray',
-      'prevSwingValueArray', 'roundScore', 'sideScore', 'swingRequestArray',
-      'waitingOnAction'
+      'gameScoreArray', 'hasDismissedGame', 'lastActionTime',
+      'optRequestArray', 'playerColor', 'playerId', 'playerName',
+      'prevOptValueArray', 'prevSwingValueArray', 'roundScore', 'sideScore',
+      'swingRequestArray', 'waitingOnAction'
     ]
     player_data = r.data['playerDataArray'][0]
     self.assertEqual(sorted(player_data.keys()), player_data_keys)

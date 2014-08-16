@@ -1,5 +1,5 @@
 ALTER TABLE button
-ADD COLUMN flavor_text VARCHAR(500) NULL AFTER set_id,
+ADD COLUMN flavor_text VARCHAR(500) NULL AFTER set_id;
 
 DROP VIEW IF EXISTS button_view;
 CREATE VIEW button_view

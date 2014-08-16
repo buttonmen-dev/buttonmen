@@ -1124,7 +1124,7 @@ Game.formSpecifyDiceActive = function() {
       { 'ok': { 'type': 'fixed', 'text': 'Successfully set swing values', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1151,7 +1151,7 @@ Game.formChooseAuxiliaryDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1208,7 +1208,7 @@ Game.formChooseReserveDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1330,7 +1330,7 @@ Game.formReactToInitiativeActive = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1431,7 +1431,7 @@ Game.formAdjustFireDiceActive = function() {
         'ok': { 'type': 'server', },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
+      '#game_action_button',
       Game.showGamePage,
       Game.showGamePage
     );
@@ -1495,7 +1495,7 @@ Game.formPlayTurnActive = function() {
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
@@ -1519,9 +1519,29 @@ Game.formPlayTurnInactive = function() {
   Api.apiFormPost(
     formargs,
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
+  );
+};
+
+// "Form" for dismissing a game after it's completed
+Game.formDismissGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'dismissGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    args,
+    messages,
+    $(this),
+    function() {
+      window.location.href = Env.ui_root;
+      return false;
+    },
+    Game.showGamePage
   );
 };
 
@@ -1611,6 +1631,20 @@ Game.pageAddGameHeader = function(action_desc) {
   Game.page.append(actionDiv);
 
   Game.page.append($('<br>'));
+
+  if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
+      Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    var dismissDiv = $('<div>');
+    Game.page.append(dismissDiv);
+    var dismissLink = $('<a>', {
+      'text': '[Dismiss Game]',
+      'href': '#',
+      'data-gameId': Api.game.gameId,
+    });
+    dismissLink.click(Game.formDismissGame);
+    dismissDiv.append(dismissLink);
+    Game.page.append($('<br>'));
+  }
 
   if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
       Api.game.isParticipant && Api.game.player.waitingOnAction &&
@@ -2148,22 +2182,27 @@ Game.dieTableEntry = function(i, activeDieArray) {
     };
     if ((die.properties.indexOf('dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
-      dieopts.class = 'recipe_greyed';
-      dieopts.title += '. (This die is dizzy because it has been turned ' +
-        'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.)';
+      dieopts['class'] = 'recipe_greyed';
+      if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. If the owner wins initiative, this die can\'t be used in ' +
+          'their first attack.)';
+      } else {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. It can\'t be used during this attack.)';
+      }
     } else if ((die.properties.indexOf('disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
-      dieopts.class = 'recipe_greyed';
+      dieopts['class'] = 'recipe_greyed';
       dieopts.title += '. (This chance die cannot be rerolled again ' +
         'during this round, because the player has already rerolled a ' +
         'chance die)';
     } else if (die.properties.indexOf('IsAttacker') >= 0) {
-      dieopts.class = 'recipe_inuse';
+      dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is an attacker in the attack which ' +
         'is currently in progress.)';
     } else if (die.properties.indexOf('IsAttackTarget') >= 0) {
-      dieopts.class = 'recipe_inuse';
+      dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is a target of the attack which ' +
         'is currently in progress.)';
     }
@@ -2387,13 +2426,14 @@ Game.gamePlayerDice = function(player, player_active) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        containerDivOpts.class = 'hide_focus die_container die_alive selected';
+        containerDivOpts['class'] =
+          'hide_focus die_container die_alive selected';
       } else {
-        containerDivOpts.class =
+        containerDivOpts['class'] =
           'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
-      divOpts.class = 'die_img';
+      divOpts['class'] = 'die_img';
       dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
@@ -2415,13 +2455,13 @@ Game.gamePlayerDice = function(player, player_active) {
       Game.dieFocusOutlineHandler(dieContainerDiv);
     } else {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
-      divOpts.class = 'die_img die_greyed';
+      divOpts['class'] = 'die_img die_greyed';
       if (player_active) {
         containerDivOpts.title +=
           '. (This die is dizzy because it was turned ' +
           'down.  It can\'t be used during this attack.)';
       }
-      containerDivOpts.class = 'die_container die_alive';
+      containerDivOpts['class'] = 'die_container die_alive';
       dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);

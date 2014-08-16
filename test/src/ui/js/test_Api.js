@@ -92,6 +92,7 @@ test("test_Api.getButtonData", function(assert) {
     assert.deepEqual(
       Api.button.list["Avis"],
       {
+        'buttonId': 264,
         'buttonName': 'Avis',
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
@@ -388,6 +389,8 @@ test("test_Api.parseGamePlayerData", function(assert) {
               "game score array should be parsed from API response");
     assert.deepEqual(Api.game.player.lastActionTime, 0,
               "last action time should be parsed from API response");
+    assert.deepEqual(Api.game.player.hasDismissedGame, false,
+              "'has dismissed game' should be parsed from API response");
     assert.deepEqual(Api.game.player.canStillWin, null,
               "'can still win' should be parsed from API response");
     assert.deepEqual(Api.game.player.button, {
@@ -441,7 +444,7 @@ test("test_Api.disableSubmitButton", function(assert) {
     'id': 'api_action_button',
     'text': 'Submit',
   }));
-  Api.disableSubmitButton('api_action_button');
+  Api.disableSubmitButton('#api_action_button');
   var item = document.getElementById('api_action_button');
   assert.equal(item.getAttribute('disabled'), 'disabled',
         "After a submit button has been clicked, it should be disabled");
