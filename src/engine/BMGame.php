@@ -111,6 +111,7 @@ class BMGame {
                                     // button was random or not
     public $hasPlayerDismissedGameArray;
 
+    private $fireCache;             // internal cache of fire info, used for logging
     private $debug;
 
     // methods
@@ -1113,14 +1114,10 @@ class BMGame {
         $this->firingAmount = $firingAmount;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
 
-        $this->log_action(
-            'fire_turndown',
-            $this->playerIdArray[$this->attackerPlayerIdx],
-            array(
-                'fireRecipes' => $fireRecipes,
-                'oldValues' => $oldValues,
-                'newValues' => $newValues,
-            )
+        $this->fireCache = array(
+            'fireRecipes' => $fireRecipes,
+            'oldValues' => $oldValues,
+            'newValues' => $newValues,
         );
 
         $this->message = 'Successfully turned down fire dice.';
@@ -1179,6 +1176,13 @@ class BMGame {
             $attAttackDieArray,
             $defAttackDieArray
         );
+
+        if (empty($this->fireCache)) {
+            $fireCache = NULL;
+        } else {
+            $fireCache = $this->fireCache;
+        }
+
         $this->log_action(
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
@@ -1186,6 +1190,7 @@ class BMGame {
                 'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
+                'fireCache' => $fireCache,
             )
         );
 
@@ -1229,6 +1234,7 @@ class BMGame {
             }
         }
 
+        unset($this->fireCache);
         $this->gameState = BMGameState::END_TURN;
     }
 
