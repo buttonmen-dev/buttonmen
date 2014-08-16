@@ -1126,7 +1126,7 @@ class BMInterface {
             }
 
             if (empty($allButtonData)) {
-                $allButtonData = $this->get_button_data();
+                $allButtonData = $this->get_button_data(NULL, NULL, TRUE);
                 $nButtons = count($allButtonData);
             }
 
