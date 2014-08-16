@@ -348,6 +348,8 @@ Forum.showThread = function() {
 };
 
 Forum.arrangePage = function() {
+  Api.automatedApiCall = false;
+
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
