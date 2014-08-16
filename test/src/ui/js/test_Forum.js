@@ -36,7 +36,7 @@ module("Forum", {
     delete Forum.scrollTarget;
     delete Login.message;
 
-    Login.bodyDivId = null;
+    Api.automatedApiCall = false;
 
     // Page elements
     $('#forum_page').remove();

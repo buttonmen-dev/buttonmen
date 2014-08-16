@@ -45,6 +45,14 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 Game.showGamePage = function() {
+  // Setup necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  // Make sure the div element that we will need exists in the page body
+  if ($('#game_page').length === 0) {
+    $('body').append($('<div>', {'id': 'game_page', }));
+  }
+
   if (Game.logEntryLimit && Env.getCookieCompactMode()) {
     Game.logEntryLimit = 5;
   }
@@ -187,7 +195,25 @@ Game.showStatePage = function() {
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Login.arrangePage(Game.page, Game.form, '#game_action_button');
+    Game.arrangePage();
+  }
+};
+
+Game.arrangePage = function() {
+  Api.automatedApiCall = false;
+
+  if ($('#game_page').length === 0) {
+    throw('Internal error: #game_page not defined in arrangePage()');
+  }
+
+  $('#game_page').empty();
+  $('#game_page').append(Game.page);
+
+  // If a game form is specified, activate the game form on mouse click.
+  // (The form will automatically be invoked when the player presses
+  // the return key as well.)
+  if (Game.form) {
+    $('#game_action_button').click(Game.form);
   }
 };
 
