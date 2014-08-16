@@ -39,6 +39,9 @@ module("History", {
     $('#history_page').empty();
     $('#ui-datepicker-div').remove();
     $('#ui-datepicker-div').empty();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

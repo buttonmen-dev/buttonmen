@@ -36,6 +36,9 @@ module("Buttons", {
     // Page elements
     $('#buttons_page').remove();
     $('#buttons_page').empty();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

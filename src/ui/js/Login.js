@@ -19,6 +19,28 @@ Login.pageRequiresLogin = true;
 // The ID of the div for the main body of the page
 Login.bodyDivId = null;
 
+Login.showLoginHeader = function(callbackfunc) {
+  // Save the callback function
+  Login.callback = callbackfunc;
+
+  // Check if this was an automatic redirect from the Monitor
+  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
+  // Perform appendectomy (so a reload won't still register as automated)
+  if (Api.automatedApiCall) {
+    Env.removeParameterByName('auto');
+  }
+
+  // Make sure div elements that we will need exist in the page body
+  if ($('#login_header').length === 0) {
+    $('body').append($('<div>', {'id': 'login_header', }));
+    $('body').append($('<hr>', { 'id': 'header_separator', }));
+  }
+
+  // Find the current login header contents and display them followed by
+  // the specified callback routine
+  Login.getLoginHeader();
+};
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -53,31 +75,73 @@ Login.getLoginHeader = function() {
       } else {
         Login.stateLoggedIn(welcomeText);
       }
-      return Login.arrangeHeader();
+
+      Login.getFooter();
     }
   );
 };
 
-Login.showLoginHeader = function(callbackfunc) {
-  // Save the callback function
-  Login.callback = callbackfunc;
+Login.getFooter = function() {
+  Login.footer = $('<div>');
 
-  // Check if this was an automatic redirect from the Monitor
-  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
-  // Perform appendectomy (so a reload won't still register as automated)
-  if (Api.automatedApiCall) {
-    Env.removeParameterByName('auto');
+  var copyright = $('<div>');
+  Login.footer.append(copyright);
+  copyright.append(
+    'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games: ');
+  copyright.append($('<a>', {
+    'href': 'http://www.cheapass.com',
+    'text': 'www.cheapass.com',
+  }));
+  copyright.append(' and ');
+  copyright.append($('<a>', {
+    'href': 'http://www.beatpeopleup.com',
+    'text': 'www.beatpeopleup.com',
+  }));
+  copyright.append(', and is used with permission.');
+
+  var contact = $('<div>');
+  Login.footer.append(contact);
+  contact.append(
+    'If you find anything broken or hard to use, or if you have any ' +
+    'questions, please get in touch, either by opening a ticket at ');
+  contact.append($('<a>', {
+    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
+    'text': 'the buttonweavers issue tracker',
+  }));
+  contact.append(' or by e-mailing us at help@buttonweavers.com.');
+
+  if (Login.logged_in || !Login.pageRequiresLogin) {
+    // Whatever method this is set to is required to call Login.arrangePage()
+    Login.callback();
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must be logged in in order to view this page.',
+    };
+    Login.arrangePage();
+  }
+};
+
+Login.arrangePage = function(page, form, buttonSelector) {
+  // Now that the player is being given control, we're no longer automated
+  Api.automatedApiCall = false;
+
+  Login.arrangeHeader();
+
+  // If there is a message from a current or previous invocation of this
+  // page, display it now
+  Env.showStatusMessage();
+
+  if (Login.bodyDivId) {
+    $('#' + Login.bodyDivId).empty();
+    $('#' + Login.bodyDivId).append(page);
   }
 
-  // Make sure div elements that we will need exist in the page body
-  if ($('#login_header').length === 0) {
-    $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>', { 'id': 'header_separator', }));
+  if (form && buttonSelector) {
+    $(buttonSelector).click(form);
   }
 
-  // Find the current login header contents and display them followed by
-  // the specified callback routine
-  Login.getLoginHeader();
+  Login.arrangeFooter();
 };
 
 Login.arrangeHeader = function() {
@@ -95,37 +159,21 @@ Login.arrangeHeader = function() {
   // Make sure the div element that we will need exists in the page body
   if (Login.bodyDivId) {
     if ($('#' + Login.bodyDivId).length === 0) {
-      $('body').append($('<div>', {'id': Login.bodyDivId, }));
+      $('body').append($('<div>', {
+        'id': Login.bodyDivId,
+        'class': 'mainBody',
+      }));
     }
-  }
-
-  if (Login.logged_in || !Login.pageRequiresLogin) {
-    return Login.callback();
-  } else {
-    Env.message = {
-      'type': 'error',
-      'text': 'You must be logged in in order to view this page.',
-    };
-    Env.showStatusMessage();
   }
 };
 
-Login.arrangePage = function(page, form, buttonSelector) {
-  // Now that the player is being given control, we're no longer automated
-  Api.automatedApiCall = false;
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  if (Login.bodyDivId) {
-    $('#' + Login.bodyDivId).empty();
-    $('#' + Login.bodyDivId).append(page);
+Login.arrangeFooter = function() {
+  if ($('#footer').length === 0) {
+    $('body').append($('<hr>', { 'id': 'footer_separator', }));
+    $('body').append($('<div>', {'id': 'footer', }));
   }
-
-  if (form && buttonSelector) {
-    $(buttonSelector).click(form);
-  }
+  $('#footer').empty();
+  $('#footer').append(Login.footer);
 };
 
 // Get an empty form of the Login type

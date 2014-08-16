@@ -26,6 +26,9 @@ module("Profile", {
     // Page elements
     $('#profile_page').remove();
     $('#profile_page').empty();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();

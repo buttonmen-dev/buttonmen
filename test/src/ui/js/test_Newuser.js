@@ -28,6 +28,9 @@ module("Newuser", {
     // Page elements
     $('#newuser_page').remove();
     $('#newuser_page').empty();
+    $('#footer_separator').remove();
+    $('#footer').remove();
+    $('#footer').empty();
 
     BMTestUtils.deleteEnvMessage();
 

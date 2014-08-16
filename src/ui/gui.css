@@ -886,3 +886,11 @@ div.forum div.splitRight {
 #buttons_page table.skills p.interaction {
     font-style: italic;
 }
+
+div.mainBody {
+min-height: 300px;
+}
+
+#footer_separator {
+    margin-top: 40px;
+}
