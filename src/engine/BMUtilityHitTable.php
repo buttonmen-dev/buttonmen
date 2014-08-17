@@ -5,21 +5,36 @@
  * @author Julian
  */
 
-/** Class to hold and search all the possible combinations that a skill
- *  attack could hit
+/**
+ * Class to hold and search all the possible combinations that a skill
+ * attack could hit
  *
- *  It's huge and complicated, but hopefully better than a naive search.
+ * It's huge and complicated, but hopefully better than a naive search.
  */
 class BMUtilityHitTable {
+    /**
+     * Initial array of dice used to form combinations.
+     *
+     * @var array
+     */
     private $dice = array();
 
-    // $hits is an array keyed by numbers. Values is an array, keyed
-    // by the combined unique ids of the sets of dice used to make the value
-    //
-    // So, if 4 can be made with A and B or C and D,
-    // $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
+    /**
+     * $hits is an array keyed by numbers. Values is an array, keyed
+     * by the combined unique ids of the sets of dice used to make the value
+     *
+     * So, if 4 can be made with A and B or C and D,
+     * $hits[4] = [ AB => [ dieA, dieB ], CD => [ dieC, dieD ] ]
+     *
+     * @var array
+     */
     private $hits = array();
 
+    /**
+     * Constructor
+     *
+     * @param array $dice
+     */
     public function __construct($dice) {
         // For building hash keys, every die needs a unique
         // identifier, no matter how many there are, but if there are
@@ -76,7 +91,12 @@ class BMUtilityHitTable {
         }
     }
 
-    // Test for a hit. Return all possible sets of dice that can make that hit.
+    /**
+     * Test for a hit. Return all possible sets of dice that can make that hit.
+     *
+     * @param int $target
+     * @return boolean
+     */
     public function find_hit($target) {
         if (array_key_exists($target, $this->hits)) {
             return array_values($this->hits[$target]);
@@ -84,15 +104,31 @@ class BMUtilityHitTable {
         return FALSE;
     }
 
-    // Return a list of all possible hits
+    /**
+     * Return a list of all possible hits.
+     *
+     * @return array
+     */
     public function list_hits() {
         return array_keys($this->hits);
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         return $this->$property;
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         throw new LogicException(
             "BMUtilityHitTable->$property cannot be set (attempting to set value $value)."

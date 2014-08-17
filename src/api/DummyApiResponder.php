@@ -17,11 +17,16 @@ class DummyApiResponder {
     // * TRUE:  this instance is being accessed locally by unit tests
     private $isTest;               // whether this invocation is for testing
 
-    // constructor
-    // * For live invocation:
-    //   * start a session (don't use api_core because dummy_responder has no backend)
-    // * For test invocation:
-    //   * don't start a session
+    /**
+     * Constructor
+     * For live invocation:
+     *   start a session (don't use api_core because dummy_responder has no backend)
+     * For test invocation:
+     *   don't start a session
+     *
+     * @param ApiSpec $spec
+     * @param boolean $isTest
+     */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
         $this->isTest = $isTest;
