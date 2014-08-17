@@ -22,8 +22,10 @@
       "message": "tester2 performed Skill attack using [F(6):5,(6):5] against [(12):11], and needs to turn down Fire dice in order to complete this attack"
     }
   ],
+  "gameActionLogCount": 1,
   "gameChatLog": [
   ],
+  "gameChatLogCount": 0,
   "gameChatEditable": false,
   "playerDataArray": [
     {

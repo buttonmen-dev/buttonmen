@@ -1987,7 +1987,9 @@ Game.pageAddLogFooter = function() {
       }
     }
 
-    if (Game.logEntryLimit !== undefined) {
+    if (Game.logEntryLimit !== undefined &&
+        ((Api.game.actionLogCount > Api.game.actionLog.length) ||
+        (Api.game.chatLogCount > Api.game.chatLog.length))) {
       var historyrow = $('<tr>', { 'class': 'loghistory' });
       var historytd = $('<td>');
       if ((Api.game.actionLog.length > 0) && (Api.game.chatLog.length > 0)) {

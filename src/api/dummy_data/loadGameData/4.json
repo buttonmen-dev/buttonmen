@@ -11,7 +11,9 @@
   "validAttackTypeArray": ["Power", "Skill"],
   "gameSkillsInfo": [],
   "gameActionLog": [],
+  "gameActionLogCount": 0,
   "gameChatLog": [],
+  "gameChatLogCount": 0,
   "gameChatEditable": false,
   "playerDataArray": [
     {

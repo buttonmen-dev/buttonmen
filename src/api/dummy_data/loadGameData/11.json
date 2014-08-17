@@ -17,6 +17,7 @@
     {"timestamp": 1387746219, "message": "tester1 performed Power attack using [(4): 3] against [(10): 3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"},
     {"timestamp": 1387746192, "message": "tester2 performed Skill attack using [(4): 1, (10): 5, (12): 5] against [(12): 11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1"}
   ],
+  "gameActionLogCount": 5,
   "gameChatLog": [
     {"timestamp": 1387746541, "player": "tester2", "message": "Hello!\n    Ceci n'est pas une <script>tag<\/script>."},
     {"timestamp": 1387746536, "player": "tester1", "message": "Hi."},
@@ -29,6 +30,7 @@
     {"timestamp": 1387745792, "player": "tester1", "message": "Howdy."},
     {"timestamp": 1387745692, "player": "tester2", "message": "Ping!"}
   ],
+  "gameChatLogCount": 10,
   "gameChatEditable": false,
   "playerDataArray": [
     {

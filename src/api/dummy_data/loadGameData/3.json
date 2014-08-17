@@ -32,6 +32,7 @@
       "message": "tester2 performed Skill attack using [(4): 1, (10): 5, (12): 5] against [(12): 11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1"
     }
   ],
+  "gameActionLogCount": 5,
   "gameChatLog": [
     {
       "timestamp": 1387746541,
@@ -89,6 +90,7 @@
       "message": "G'day."
     }
   ],
+  "gameChatLogCount": 11,
   "gameChatEditable": false,
   "playerDataArray": [
     {

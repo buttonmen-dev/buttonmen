@@ -625,7 +625,9 @@ class BMInterface {
             }
 
             $data['gameActionLog'] = $this->load_game_action_log($game, $logEntryLimit);
+            $data['gameActionLogCount'] = $this->count_game_action_log($game);
             $data['gameChatLog'] = $this->load_game_chat_log($game, $logEntryLimit);
+            $data['gameChatLogCount'] = $this->count_game_chat_log($game);
             $data['timestamp'] = $this->timestamp;
 
             $data['gameChatEditable'] = $this->find_editable_chat_timestamp(
@@ -2787,6 +2789,27 @@ class BMInterface {
         }
     }
 
+    protected function count_game_action_log(BMGame $game) {
+        try {
+            $query =
+                'SELECT COUNT(*) AS num_entries ' .
+                'FROM game_action_log ' .
+                'WHERE game_id = :game_id;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $game->gameId));
+            $fetchResult = $statement->fetchAll();
+            return (int)$fetchResult[0]['num_entries'];
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::count_game_action_log: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while counting log entries';
+            return NULL;
+        }
+    }
+
     // Create a status message based on recent game actions
     protected function load_message_from_game_actions(BMGame $game) {
         $message = '';
@@ -2895,6 +2918,32 @@ class BMInterface {
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_game_chat_log: ' .
+                $e->getMessage()
+            );
+            $this->message = 'Internal error while reading chat entries';
+            return NULL;
+        }
+    }
+
+    protected function count_game_chat_log(BMGame $game) {
+        try {
+            $sqlParameters = array(':game_id' => $game->gameId);
+            $query =
+                'SELECT COUNT(*) AS num_entries ' .
+                'FROM game_chat_log ' .
+                'WHERE game_id = :game_id ';
+            if ($game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
+                $query .= 'OR game_id = :previous_game_id ';
+                $sqlParameters[':previous_game_id'] = $game->previousGameId;
+            }
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute($sqlParameters);
+            $fetchResult = $statement->fetchAll();
+            return (int)$fetchResult[0]['num_entries'];
+        } catch (Exception $e) {
+            error_log(
+                'Caught exception in BMInterface::count_game_chat_log: ' .
                 $e->getMessage()
             );
             $this->message = 'Internal error while reading chat entries';

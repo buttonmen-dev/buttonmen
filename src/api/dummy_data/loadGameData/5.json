@@ -32,6 +32,7 @@
       "message": "tester2 performed Power attack using [(10): 10] against [(4): 4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"
     }
   ],
+  "gameActionLogCount": 5,
   "gameChatLog": [
     {
       "timestamp": "2013-12-20 00:52:42",
@@ -44,6 +45,7 @@
       "message": "Ping!"
     }
   ],
+  "gameChatLogCount": 2,
   "gameChatEditable": false,
   "playerDataArray": [
     {
