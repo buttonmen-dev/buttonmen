@@ -134,7 +134,7 @@ Profile.buildProfileTable = function() {
     favoriteButtonLink = Env.buildButtonLink(Api.profile_info.favorite_button);
   }
   var favoriteButtonSetLink = null;
-  if (Api.profile_info.favorite_button) {
+  if (Api.profile_info.favorite_buttonset) {
     favoriteButtonSetLink =
       Env.buildButtonSetLink(Api.profile_info.favorite_buttonset);
   }
