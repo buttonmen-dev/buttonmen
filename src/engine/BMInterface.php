@@ -533,8 +533,6 @@ class BMInterface {
     ) {
         $usedPlayerIds = array();
         foreach ($playerInfoArray as $playerInfo) {
-            error_log(print_r($playerInfoArray, true));
-
             // Validate player ID
             if (!is_null($playerInfo['playerId'])) {
                 if (!is_int($playerInfo['playerId'])) {
