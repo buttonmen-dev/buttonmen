@@ -303,12 +303,12 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       }
     }
     gameRow.append(gameLinkTd);
-    gameRow.append($('<td>', {
-      'text': gameInfo.playerButtonName,
-    }));
-    gameRow.append($('<td>', {
-      'text': gameInfo.opponentButtonName,
-    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.playerButtonName)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.opponentButtonName)
+    ));
     gameRow.append($('<td>', {
       'style': 'background-color: ' + opponentColor,
     }).append(Env.buildProfileLink(gameInfo.opponentName)));

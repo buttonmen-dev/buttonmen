@@ -1754,7 +1754,7 @@ Game.pageAddSkillListFooter = function() {
     gameSkillDiv.append($('<span>', {
       'text': 'i',
       'title': skillDesc,
-      'class': 'skill_desc_i',
+      'class': 'info_icon',
     }));
     firstSkill = false;
   });
@@ -2283,8 +2283,9 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].gameScoreStr,
   });
   var buttonInfo = $('<div>', {
-    'text': 'Button: ' + Api.game[player].button.name,
+    'text': 'Button: '
   });
+  buttonInfo.append(Env.buildButtonLink(Api.game[player].button.name));
   var buttonRecipe = $('<div>', {
     'text': Api.game[player].button.recipe,
   });
