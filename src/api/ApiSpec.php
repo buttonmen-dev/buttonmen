@@ -140,12 +140,18 @@ class ApiSpec {
                     'minlength' => 2,
                     'maxlength' => 2,
                     'key_type' => 'number',
-                    'elem_type' => array('arg_type' => 'array',
-                                         'has_keys' => TRUE,
-                                         'minlength' => 0,
-                                         'maxlength' => 2,
-                                         'key_type' => 'number',
-                                         'elem_type' => 'string'),
+                    'elem_type' => array(
+                        'arg_type' => 'object',
+                        'fields' => array(
+                            'playerName' => 'string',
+                            'buttonNames' => array(
+                                'arg_type' => 'array',
+                                'has_keys' => FALSE,
+                                'elem_type' => 'button',
+                            ),
+                            'isButtonRandom' => 'boolean',
+                        ),
+                    ),
                 ),
                 'maxWins' => 'number',
             ),
@@ -197,6 +203,17 @@ class ApiSpec {
                 'gameId' => 'number',
             ),
             'permitted' => array(
+                'playerInfo' => array(
+                    'arg_type' => 'object',
+                    'fields' => array(
+                        'buttonNames' => array(
+                            'arg_type' => 'array',
+                            'has_keys' => FALSE,
+                            'elem_type' => 'button',
+                        ),
+                        'isButtonRandom' => 'boolean',
+                    ),
+                ),
                 'buttonName' => 'button',
             ),
         ),
@@ -669,19 +686,12 @@ class ApiSpec {
     // landing function for verifying that an argument is of the correct type
     protected function verify_argument_type($arg, $argtype) {
         if (is_array($argtype)) {
-            switch ($argtype['arg_type']) {
-                case 'exactString':
-                    return $this->verify_argument_exact_string_type($arg, $argtype['values']);
-                case 'array':
-                    return $this->verify_argument_array_type($arg, $argtype);
-                default:
-                    $checkfunc = 'verify_argument_of_type_' . $argtype['arg_type'];
+            $checkfunc = 'verify_argument_of_type_' . $argtype['arg_type'];
 
-                    if (method_exists($this, $checkfunc)) {
-                        return $this->$checkfunc($arg, $argtype);
-                    }
-                    return FALSE;
+            if (method_exists($this, $checkfunc)) {
+                return $this->$checkfunc($arg, $argtype);
             }
+            return FALSE;
         } else {
             $checkfunc = 'verify_argument_of_type_' . $argtype;
 
@@ -694,7 +704,7 @@ class ApiSpec {
 
     // verify that the argument is an array, and verify the types
     // of each of its elements
-    protected function verify_argument_array_type($arg, $argtype) {
+    protected function verify_argument_of_type_array($arg, $argtype) {
         if (is_array($arg)) {
             if (array_key_exists('minlength', $argtype)) {
                 if (count($arg) < $argtype['minlength']) {
@@ -727,8 +737,41 @@ class ApiSpec {
         return FALSE;
     }
 
+    // verify that the argument is a set of key-value pairs, and that each
+    // value is of the correct type
+    protected function verify_argument_of_type_object($arg, $argtype) {
+        if (!is_array($arg)) {
+            return FALSE;
+        }
+
+        if (!isset($argtype['fields'])) {
+            return FALSE;
+        }
+
+        $fieldsExpected = $argtype['fields'];
+        foreach ($arg as $fieldName => $fieldValue) {
+            if (array_key_exists($fieldName, $fieldsExpected)) {
+                $expectedType = $fieldsExpected[$fieldName];
+            } else {
+                return FALSE;
+            }
+            if (!($this->verify_argument_type($fieldValue, $expectedType))) {
+                return FALSE;
+            }
+        }
+
+        foreach (array_keys($fieldsExpected) as $fieldRequired) {
+            if (!(array_key_exists($fieldRequired, $arg))) {
+                FALSE;
+            }
+        }
+
+        return TRUE;
+    }
+
     // verify that the argument is one of the exact strings permitted
-    protected function verify_argument_exact_string_type($arg, $values) {
+    protected function verify_argument_of_type_exactString($arg, $argtype) {
+        $values = $argtype['values'];
         return (is_string($arg) && in_array($arg, $values));
     }
 

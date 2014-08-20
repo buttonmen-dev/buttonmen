@@ -315,16 +315,36 @@ class BMInterface {
     }
 
     public function create_game(
-        array $playerIdArray,
-        array $buttonNameArray,
+        array $rawPlayerInfoArray,
         $maxWins = 3,
         $description = '',
         $previousGameId = NULL,
         $currentPlayerId = NULL
     ) {
+        $playerInfoArray = $this->process_player_info($rawPlayerInfoArray);
+        if (!$playerInfoArray) {
+            return NULL;
+        }
+
+        // After processing, $playerInfoArray contains an array of sets of
+        // player info, where each set of player info is a bunch of name/value
+        // fields, e.g.:
+        //  [
+        //      0 => array(
+        //          'playerId' => 7,
+        //          'buttonIds' => array(12, 48),
+        //          'isButtonRandom' => TRUE,
+        //      ),
+        //      1 => array(
+        //          'playerName' => 93,
+        //          'buttonNames => array(),
+        //          'isButtonRandom' => FALSE,
+        //      ),
+        //  ],
+
         $isValidInfo =
             $this->validate_game_info(
-                $playerIdArray,
+                $playerInfoArray,
                 $maxWins,
                 $currentPlayerId,
                 $previousGameId
@@ -333,18 +353,18 @@ class BMInterface {
             return NULL;
         }
 
-        $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
-        if (is_null($buttonIdArray)) {
-            return NULL;
-        }
-
         try {
-            $gameId = $this->insert_new_game($playerIdArray, $maxWins, $description, $previousGameId);
+            $gameId = $this->insert_new_game(
+                count($playerInfoArray),
+                $currentPlayerId,
+                $maxWins,
+                $description,
+                $previousGameId
+            );
 
-            foreach ($playerIdArray as $position => $playerId) {
-                $this->add_player_to_new_game($gameId, $playerId, $buttonIdArray[$position], $position);
+            foreach ($playerInfoArray as $position => $playerInfo) {
+                $this->add_player_to_new_game($gameId, $playerInfo, $position);
             }
-            $this->set_random_button_flags($gameId, $buttonNameArray);
 
             // update game state to latest possible
             $game = $this->load_game($gameId);
@@ -371,8 +391,63 @@ class BMInterface {
         }
     }
 
+    private function process_player_info(array $rawPlayerInfoArray) {
+        // $rawPlayerInfoArray contains an array of sets of player info,
+        // where each set of player info is a bunch of name/value fields, e.g.:
+        //  [
+        //      0 => array(
+        //          'playerName' => 'playerName1',
+        //          'buttonNames' => array('buttonName1A', 'buttonName2A'),
+        //          'isButtonRandom' => 'true',
+        //      ),
+        //      1 => array(
+        //          'playerName' => 'playerName2',
+        //          'buttonNames => array(),
+        //          'isButtonRandom' => 'false',
+        //      ),
+        //  ],
+
+        $playerInfoArray = array();
+
+        foreach ($rawPlayerInfoArray as $playerIndex => $rawPlayerInfo) {
+            $playerInfo = array();
+
+            if ($rawPlayerInfo['playerName'] == NULL) {
+                $playerInfo['playerId'] = NULL;
+            } else {
+                $playerInfo['playerId'] =
+                    $this->get_player_id_from_name($rawPlayerInfo['playerName']);
+                if (!$playerInfo['playerId']) {
+                    $this->message =
+                        'Failed to identfy player ' . $playerIndex . ': ' . $this->message;
+                    return NULL;
+                }
+            }
+
+            $playerInfo['buttonIds'] = array();
+            foreach($rawPlayerInfo['buttonNames'] as $buttonName) {
+                $buttonId = $this->get_button_id_from_name($buttonName);
+                if (!$buttonId) {
+                    $this->message =
+                        'Failed to identfy player ' . $buttonName .
+                        ' for player ' . $playerIndex . ': ' . $this->message;
+                    return NULL;
+                }
+                $playerInfo['buttonIds'][] = $buttonId;
+            }
+
+            $playerInfo['isButtonRandom'] =
+                ($rawPlayerInfo['isButtonRandom'] == 'true');
+
+            $playerInfoArray[] = $playerInfo;
+        }
+
+        return $playerInfoArray;
+    }
+
     private function insert_new_game(
-        array $playerIdArray,
+        $playerCount,
+        $creatorId,
         $maxWins = 3,
         $description = '',
         $previousGameId = NULL
@@ -399,10 +474,10 @@ class BMInterface {
                      '     :previous_game_id)';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':status'        => 'OPEN',
-                                      ':n_players'     => count($playerIdArray),
+                                      ':n_players'     => $playerCount,
                                       ':n_target_wins' => $maxWins,
                                       ':n_recent_passes' => 0,
-                                      ':creator_id'    => $playerIdArray[0],
+                                      ':creator_id'    => $creatorId,
                                       ':start_time' => time(),
                                       ':description' => $description,
                                       ':previous_game_id' => $previousGameId));
@@ -428,71 +503,70 @@ class BMInterface {
         }
     }
 
-    private function add_player_to_new_game($gameId, $playerId, $buttonId, $position) {
+    private function add_player_to_new_game($gameId, $playerInfo, $position) {
         // add info to game_player_map
         $query = 'INSERT INTO game_player_map '.
-                 '(game_id, player_id, button_id, position) '.
+                 '(game_id, player_id, button_id, is_button_random, position) '.
                  'VALUES '.
-                 '(:game_id, :player_id, :button_id, :position)';
+                 '(:game_id, :player_id, :button_id, :is_button_random, :position)';
         $statement = self::$conn->prepare($query);
 
+        // Only set the player's button if one has actually been chosen
+        if (count($playerInfo['buttonIds']) == 1) {
+            $buttonId = $playerInfo['buttonIds'][0];
+        } else {
+            $buttonId = NULL;
+        }
+
         $statement->execute(array(':game_id'   => $gameId,
-                                  ':player_id' => $playerId,
+                                  ':player_id' => $playerInfo['playerId'],
                                   ':button_id' => $buttonId,
+                                  ':is_button_random' => $playerInfo['isButtonRandom'],
                                   ':position'  => $position));
     }
 
-    protected function set_random_button_flags($gameId, array $buttonNameArray) {
-        foreach ($buttonNameArray as $position => $buttonName) {
-            if ('__random' == $buttonName) {
-                $query = 'UPDATE game_player_map '.
-                         'SET is_button_random = 1 '.
-                         'WHERE game_id = :game_id '.
-                         'AND position = :position;';
-                $statement = self::$conn->prepare($query);
-
-                $statement->execute(array(':game_id'   => $gameId,
-                                          ':position'  => $position));
-            }
-        }
-    }
-
     protected function validate_game_info(
-        array $playerIdArray,
+        $playerInfoArray,
         $maxWins,
         $currentPlayerId,
         $previousGameId
     ) {
-        $areAllPlayersPresent = TRUE;
-        // check for the possibility of unspecified players
-        foreach ($playerIdArray as $playerId) {
-            if (is_null($playerId)) {
-                $areAllPlayersPresent = FALSE;
+        $usedPlayerIds = array();
+        foreach ($playerInfoArray as $playerInfo) {
+            error_log(print_r($playerInfoArray, true));
+
+            // Validate player ID
+            if (!is_null($playerInfo['playerId'])) {
+                if (!is_int($playerInfo['playerId'])) {
+                    $this->message = 'Game create failed because player ID is not valid.';
+                    return FALSE;
+                }
+
+                if (in_array($playerInfo['playerId'], $usedPlayerIds)) {
+                    $this->message = 'Game create failed because a player has been selected more than once.';
+                    return FALSE;
+                }
+
+                $usedPlayerIds[] = $playerInfo['playerId'];
             }
-        }
 
-        // check for nonunique player ids
-        if ($areAllPlayersPresent &&
-            count(array_flip($playerIdArray)) < count($playerIdArray)) {
-            $this->message = 'Game create failed because a player has been selected more than once.';
-            return FALSE;
-        }
-
-        // validate all inputs
-        foreach ($playerIdArray as $playerId) {
-            if (!(is_null($playerId) || is_int($playerId))) {
-                $this->message = 'Game create failed because player ID is not valid.';
+            // Validate buttons
+            // Eventually we'll allow groups of buttons to be passed in (e.g.
+            // for random selections), but that's not supported yet
+            if (count($playerInfo['buttonIds']) > 1) {
+                $this->message = 'Game create failed because a player has multiple buttons.';
                 return FALSE;
             }
         }
 
         // force first player ID to be the current player ID, if specified
         if (!is_null($currentPlayerId)) {
-            if ($currentPlayerId !== $playerIdArray[0]) {
+            if (count($playerInfoArray) < 1 ||
+                    $playerInfoArray[0]['playerId'] !== $currentPlayerId) {
                 $this->message = 'Game create failed because you must be the first player.';
                 error_log(
                     'validate_game_info() failed because currentPlayerId (' . $currentPlayerId .
-                    ') does not match playerIdArray[0] (' . $playerIdArray[0] . ')'
+                    ') does not match playerInfoArray[0][playerId] (' . $playerInfoArray[0]['playerId'] . ')'
                 );
                 return FALSE;
             }
@@ -512,7 +586,7 @@ class BMInterface {
 
         // Check that players match those from previous game, if specified
         $arePreviousPlayersValid =
-            $this->validate_previous_game_players($previousGameId, $playerIdArray);
+            $this->validate_previous_game_players($previousGameId, $playerInfoArray);
         if (!$arePreviousPlayersValid) {
             return NULL;
         }
@@ -520,7 +594,7 @@ class BMInterface {
         return TRUE;
     }
 
-    private function validate_previous_game_players($previousGameId, array $playerIdArray) {
+    private function validate_previous_game_players($previousGameId, array $playerInfoArray) {
         // If there was no previous game, then there's nothing to worry about
         if ($previousGameId == NULL) {
             return TRUE;
@@ -552,19 +626,17 @@ class BMInterface {
                 return FALSE;
             }
 
-            foreach ($playerIdArray as $newPlayerId) {
-                if (!in_array($newPlayerId, $previousPlayerIds)) {
+            foreach ($playerInfoArray as $playerInfo) {
+                if (!in_array($playerInfo['playerId'], $previousPlayerIds)) {
                     $this->message =
                         'Game create failed because the previous game does not contain the same players.';
                     return FALSE;
                 }
             }
-            foreach ($previousPlayerIds as $oldPlayerId) {
-                if (!in_array($oldPlayerId, $playerIdArray)) {
-                    $this->message =
-                        'Game create failed because the previous game does not contain the same players.';
-                    return FALSE;
-                }
+            if (count($playerInfoArray) !=  count($previousPlayerIds)) {
+                $this->message =
+                    'Game create failed because the previous game does not contain the same players.';
+                return FALSE;
             }
 
             return TRUE;
@@ -576,33 +648,6 @@ class BMInterface {
             $this->message = 'Game create failed because of an error.';
             return FALSE;
         }
-    }
-
-    protected function retrieve_button_ids($playerIdArray, $buttonNameArray) {
-        $buttonIdArray = array();
-        foreach (array_keys($playerIdArray) as $position) {
-            // get button ID
-            $buttonName = $buttonNameArray[$position];
-
-            if ('__random' == $buttonName) {
-                $buttonIdArray[] = NULL;
-            } elseif (!empty($buttonName)) {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
-                    $this->message = 'Game create failed because a button name was not valid.';
-                    return NULL;
-                }
-                $buttonIdArray[] = $fetchData[0];
-            } else {
-                $buttonIdArray[] = NULL;
-            }
-        }
-
-        return $buttonIdArray;
     }
 
     public function load_api_game_data($playerId, $gameId, $logEntryLimit) {

@@ -329,14 +329,28 @@ Newgame.formCreateGame = function() {
   } else {
     // create an array with one element for each player/button combination
     var playerInfoArray = [];
-    playerInfoArray[0] = [
-      Login.player,
-      Newgame.activity.playerButton,
-    ];
-    playerInfoArray[1] = [
-      Newgame.activity.opponentName,
-      Newgame.activity.opponentButton,
-    ];
+
+    playerInfoArray[0] = {
+      'playerName': Login.player,
+      'buttonNames': [ ],
+      'isButtonRandom': false,
+    };
+    if (Newgame.activity.playerButton == '__random') {
+      playerInfoArray[0].isButtonRandom = true;
+    } else if (Newgame.activity.playerButton) {
+      playerInfoArray[0].buttonNames.push(Newgame.activity.playerButton);
+    }
+
+    playerInfoArray[1] = {
+      'playerName': Newgame.activity.opponentName,
+      'buttonNames': [ ],
+      'isButtonRandom': false,
+    };
+    if (Newgame.activity.opponentButton == '__random') {
+      playerInfoArray[1].isButtonRandom = true;
+    } else if (Newgame.activity.opponentButton) {
+      playerInfoArray[1].buttonNames.push(Newgame.activity.opponentButton);
+    }
 
     var args =
       {

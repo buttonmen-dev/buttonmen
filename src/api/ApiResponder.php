@@ -95,29 +95,7 @@ class ApiResponder {
     }
 
     protected function get_interface_response_createGame($interface, $args) {
-        // $args['playerInfoArray'] contains an array of arrays, with one
-        // subarray for each player/button combination,
-        //   e.g., [0 => ['playerName1', 'buttonName1'],
-        //          1 => ['playerName2', NULL]]
-        $playerIdArray = array();
-        $buttonNameArray = array();
-        foreach ($args['playerInfoArray'] as $playerIdx => $playerInfo) {
-            $playerId = '';
-            if (isset($playerInfo[0])) {
-                $playerId = $interface->get_player_id_from_name($playerInfo[0]);
-            }
-            if (is_int($playerId)) {
-                $playerIdArray[$playerIdx] = $playerId;
-            } else {
-                $playerIdArray[$playerIdx] = NULL;
-            }
-
-            if (isset($playerInfo[1])) {
-                $buttonNameArray[$playerIdx] = $playerInfo[1];
-            } else {
-                $buttonNameArray[$playerIdx] = NULL;
-            }
-        }
+        $playerInfoArray = $args['playerInfoArray'];
 
         $maxWins = $args['maxWins'];
 
@@ -133,8 +111,7 @@ class ApiResponder {
         }
 
         $retval = $interface->create_game(
-            $playerIdArray,
-            $buttonNameArray,
+            $playerInfoArray,
             $maxWins,
             $description,
             $previousGameId,
@@ -142,11 +119,7 @@ class ApiResponder {
         );
 
         if (isset($retval)) {
-            foreach ($playerIdArray as $playerId) {
-                if (isset($playerId)) {
-                    $interface->update_last_action_time($playerId, $retval['gameId']);
-                }
-            }
+            $interface->update_last_action_time((int)$_SESSION['user_id'], $retval['gameId']);
         }
 
         return $retval;
