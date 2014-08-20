@@ -1,4 +1,24 @@
-# Views for player-related tables
+CREATE TABLE player_status (
+    id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(20) NOT NULL
+);
+
+INSERT INTO player_status (name)
+VALUES
+    ('ACTIVE'),
+    ('UNVERIFIED'),
+    ('DISABLED');
+
+ALTER TABLE player
+    ADD COLUMN status_id TINYINT UNSIGNED NULL AFTER status;
+
+UPDATE player p
+SET p.status_id = (SELECT ps.id FROM player_status ps WHERE ps.name = p.status);
+
+ALTER TABLE player
+    DROP COLUMN status,
+    CHANGE status_id status_id TINYINT(3) UNSIGNED NOT NULL,
+    ADD FOREIGN KEY (status_id) REFERENCES player_status(id);
 
 DROP VIEW IF EXISTS player_view;
 CREATE VIEW player_view
