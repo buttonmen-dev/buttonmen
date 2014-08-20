@@ -4,7 +4,9 @@ DROP TABLE IF EXISTS buttonset;
 CREATE TABLE buttonset (
     id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     # 'Chicagoland Games Enclave' has 27 characters
-    name        VARCHAR(40) NOT NULL
+    name        VARCHAR(40) NOT NULL,
+    # We may as well sort sets without a sort order to the end
+    sort_order  INT NOT NULL DEFAULT 999999
 );
 
 DROP TABLE IF EXISTS button;
