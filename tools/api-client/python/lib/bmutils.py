@@ -82,7 +82,7 @@ class BMClientParser(bmapi.BMClient):
       raise ValueError, "Failed to call loadCompletedGames, got: " + retval
     return self._wrap_game_list_data(retval.data)
 
-  def wrap_create_game(self, pbutton, obutton=None, opponent=None):
+  def wrap_create_game(self, pbutton, obutton='', opponent=''):
     retval = self.create_game(pbutton, obutton, opponent)
     if not retval.status == 'ok':
       raise ValueError, "Failed to call createGame, got: " + retval
