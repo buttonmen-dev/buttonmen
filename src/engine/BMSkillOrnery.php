@@ -12,9 +12,19 @@ class BMSkillOrnery extends BMSkill {
     public static $hooked_methods = array('perform_end_of_turn_die_actions');
 
     public static function perform_end_of_turn_die_actions(&$args) {
-        if (!is_array($args) ||
-            !array_key_exists('die', $args) ||
-            !array_key_exists('attackType', $args)) {
+        if (!is_array($args)) {
+            return;
+        }
+
+        if (!array_key_exists('die', $args)) {
+            return;
+        }
+
+        if (!($args['die'] instanceof BMDie)) {
+            return;
+        }
+
+        if (!array_key_exists('attackType', $args)) {
             return;
         }
 
