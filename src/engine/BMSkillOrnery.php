@@ -9,9 +9,9 @@
  * This class contains code specific to the ornery die skill
  */
 class BMSkillOrnery extends BMSkill {
-    public static $hooked_methods = array('perform_post_attack_rerolls');
+    public static $hooked_methods = array('perform_end_of_turn_die_actions');
 
-    public static function perform_post_attack_rerolls(&$args) {
+    public static function perform_end_of_turn_die_actions(&$args) {
         if (!is_array($args) ||
             !array_key_exists('die', $args) ||
             !array_key_exists('attackType', $args)) {
@@ -25,6 +25,10 @@ class BMSkillOrnery extends BMSkill {
         $die = $args['die'];
 
         if ($die->hasAttacked) {
+            return;
+        }
+
+        if ($die->unavailable) {
             return;
         }
 

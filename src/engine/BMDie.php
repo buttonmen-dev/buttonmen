@@ -473,22 +473,6 @@ class BMDie extends BMCanHaveSkill {
         return $dice;
     }
 
-    public function run_hooks_at_game_state($gameState, $args) {
-        switch ($gameState) {
-            case BMGameState::END_TURN:
-                if ($this->playerIdx === $args['activePlayerIdx']) {
-                    $this->inactive = "";
-                }
-                $this->hasAttacked = FALSE;
-                break;
-            default:
-                // do nothing special
-        }
-
-        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' =>
-                                             $args['activePlayerIdx']));
-    }
-
     public function get_recipe($addMaxvals = FALSE) {
         $recipe = '';
         foreach ($this->skillList as $skill) {
