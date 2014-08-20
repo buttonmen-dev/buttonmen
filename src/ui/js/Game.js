@@ -1897,10 +1897,12 @@ Game.pageAddLogFooter = function() {
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Api.game.actionLog, function(logindex, logentry) {
         var actionplayer;
-        if (logentry.message.indexOf(Api.game.player.playerName + ' ') === 0) {
+        if (logentry.player == Api.game.player.playerName) {
           actionplayer = 'player';
-        } else {
+        } else if (logentry.player == Api.game.opponent.playerName) {
           actionplayer = 'opponent';
+        } else {
+          actionplayer = 'noone';
         }
         var actionrow = $('<tr>');
         actionrow.append(

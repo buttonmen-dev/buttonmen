@@ -2803,6 +2803,7 @@ class BMInterface {
                 if ($message) {
                     $logEntries[] = array(
                         'timestamp' => (int)$row['action_timestamp'],
+                        'player' => $this->get_player_name_from_id($gameAction->actingPlayerId),
                         'message' => $message,
                     );
                 }
