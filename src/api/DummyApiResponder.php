@@ -1101,7 +1101,7 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_reactToAuxiliary() {
-        return array(TRUE, 'Auxiliary die chosen successfully');
+        return array(TRUE, 'Chose to add auxiliary die');
     }
 
     protected function get_interface_response_reactToReserve() {

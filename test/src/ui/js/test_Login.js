@@ -15,6 +15,16 @@ module("Login", {
     delete Api.forumNavigation;
     delete Env.window.location.href;
     delete Login.message;
+    delete Env.window.location.search;
+    delete Env.window.location.hash;
+    delete Env.history.state;
+
+    Api.automatedApiCall = false;
+
+    // Page elements
+    $('#login_header').remove();
+    $('#login_header').empty();
+    $('#header_separator').remove();
 
     // Fail if any other elements were added or removed
     BMTestUtils.LoginPost = BMTestUtils.getAllElements();
@@ -37,9 +47,27 @@ test("test_Login.showLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
 });
 
+test("test_Login.showLoginHeader_auto", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Login.getLoginHeader = function() {
+    assert.ok(!Api.automatedApiCall,
+      'showLoginHeader should not set Api.automatedApiCall without auto=true');
+  };
+  Login.showLoginHeader();
+
+  Env.window.location.search = '?auto=true';
+  Login.getLoginHeader = function() {
+    assert.ok(Api.automatedApiCall,
+      'showLoginHeader should set Api.automatedApiCall when auto=true');
+  };
+  Login.showLoginHeader();
+});
+
 test("test_Login.layoutHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.layoutHeader not implemented");
 });
+
 
 test("test_Login.getLoginForm", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.getLoginForm not implemented");

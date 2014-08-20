@@ -34,6 +34,8 @@ module("Forum", {
     delete Forum.scrollTarget;
     delete Login.message;
 
+    Api.automatedApiCall = false;
+
     // Page elements
     $('#forum_page').remove();
     $('#forum_page').empty();
@@ -152,6 +154,7 @@ test("test_Forum.showThread", function(assert) {
 });
 
 test("test_Forum.arrangePage", function(assert) {
+  Api.automatedApiCall = true;
   Login.message = $('<div>');
   Forum.page = $('<div>');
   Forum.page.append($('<p>', { 'text': 'hi world', }));
@@ -161,6 +164,8 @@ test("test_Forum.arrangePage", function(assert) {
   assert.equal(pseudoLink.length, 1, 'There should be one pseudoLink on the page.');
   assert.ok(pseudoLink.attr('href'),
     'The pseudoLink should have been assigned an href');
+  assert.ok(!Api.automatedApiCall,
+    'arrangePage should unset Api.automatedApiCall');
 });
 
 test("test_Forum.formLinkToSubPage", function(assert) {

@@ -56,10 +56,17 @@ Login.showLoginHeader = function(callbackfunc) {
   // Save the callback function
   Login.callback = callbackfunc;
 
+  // Check if this was an automatic redirect from the Monitor
+  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
+  // Perform appendectomy (so a reload won't still register as automated)
+  if (Api.automatedApiCall) {
+    Env.removeParameterByName('auto');
+  }
+
   // Make sure div elements that we will need exist in the page body
   if ($('#login_header').length === 0) {
     $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>'));
+    $('body').append($('<hr>', { 'id': 'header_separator', }));
   }
 
   // Find the current login header contents and display them followed by
@@ -275,11 +282,17 @@ Login.formLogin = function() {
 
 // Redirect to the player's next pending game if there is one
 Login.goToNextPendingGame = function() {
+  // If we're making this call automatically for the monitor, keep track of that
+  var appendix = '';
+  if (Api.automatedApiCall) {
+    appendix = '&auto=true';
+  }
+
   if (Api.gameNavigation.load_status == 'ok') {
     if (Api.gameNavigation.nextGameId !== null &&
         $.isNumeric(Api.gameNavigation.nextGameId)) {
       Env.window.location.href =
-        'game.html?game=' + Api.gameNavigation.nextGameId;
+        'game.html?game=' + Api.gameNavigation.nextGameId + appendix;
     } else {
       // If there are no active games, and we're on the Overview page, tell
       // the user so and refresh the list of games
@@ -291,7 +304,7 @@ Login.goToNextPendingGame = function() {
         Login.nextGameRefreshCallback();
       } else {
         // If we're not on the Overview page, send them there
-        Env.window.location.href = '/ui/index.html?mode=preference';
+        Env.window.location.href = '/ui/index.html?mode=preference' + appendix;
       }
     }
   } else {
