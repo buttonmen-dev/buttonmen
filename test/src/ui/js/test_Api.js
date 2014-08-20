@@ -125,6 +125,7 @@ test("test_Api.getButtonData", function(assert) {
         'dieSkills': [],
         'isTournamentLegal': true,
         'artFilename': 'avis.png',
+        'tags': [ ],
       },
       "Button Avis should have correct contents");
     assert.deepEqual(Env.message, undefined,

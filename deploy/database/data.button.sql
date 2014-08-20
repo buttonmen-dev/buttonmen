@@ -1,3 +1,7 @@
+DELETE FROM button_tag_map;
+
+DELETE FROM tag;
+
 DELETE FROM buttonset;
 INSERT INTO buttonset (name, sort_order) VALUES
 # Official Sets (in order of release)

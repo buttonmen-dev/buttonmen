@@ -719,6 +719,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
+            'tags' => array(),
             'flavorText' => NULL,
             'specialText' => NULL,
         );
@@ -736,6 +737,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
+            'tags' => array(),
         );
     }
 
@@ -751,6 +753,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'zeppo.png',
+            'tags' => array(),
         );
     }
 
@@ -766,6 +769,7 @@ class DummyApiResponder {
             'dieSkills' => array("Poison", "Shadow"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'jellybean.png',
+            'tags' => array(),
         );
     }
 
@@ -781,6 +785,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'buckgodot.png',
+            'tags' => array(),
         );
     }
 
@@ -796,6 +801,7 @@ class DummyApiResponder {
             'dieSkills' => array("Poison"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'vonpinn.png',
+            'tags' => array(),
         );
     }
 
@@ -811,6 +817,7 @@ class DummyApiResponder {
             'dieSkills' => array("Focus"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'crab.png',
+            'tags' => array(),
         );
     }
 
@@ -826,6 +833,7 @@ class DummyApiResponder {
             'dieSkills' => array("Chance"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'johnkovalic.png',
+            'tags' => array(),
         );
     }
 
@@ -841,6 +849,7 @@ class DummyApiResponder {
             'dieSkills' => array("Auxiliary"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'kingarthur.png',
+            'tags' => array(),
         );
     }
 
@@ -856,6 +865,7 @@ class DummyApiResponder {
             'dieSkills' => array("Reserve"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'cammyneko.png',
+            'tags' => array(),
         );
     }
 
@@ -871,6 +881,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'apples.png',
+            'tags' => array(),
         );
     }
 
@@ -886,6 +897,7 @@ class DummyApiResponder {
             'dieSkills' => array("Shadow", "Speed"),
             'isTournamentLegal' => FALSE,
             'artFilename' => 'BMdefaultRound.png',
+            'tags' => array(),
         );
     }
 
@@ -905,6 +917,7 @@ class DummyApiResponder {
                         'dieSkills' => array(),
                         'isTournamentLegal' => FALSE,
                         'artFilename' => 'bunnies.png',
+                        'tags' => array(),
                     ),
                     array(
                         'buttonName' => "Lab Rat",
@@ -915,6 +928,7 @@ class DummyApiResponder {
                         'dieSkills' => array(),
                         'isTournamentLegal' => FALSE,
                         'artFilename' => 'labrat.png',
+                        'tags' => array(),
                     ),
                 ),
                 'numberOfButtons' => 2,
