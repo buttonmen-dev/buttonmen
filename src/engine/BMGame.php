@@ -1172,6 +1172,8 @@ class BMGame {
         $this->turnNumberInRound++;
         $attack->commit_attack($this, $attAttackDieArray, $defAttackDieArray);
 
+        $this->perform_post_attack_rerolls();
+
         $postAttackDice = $this->get_action_log_data(
             $attAttackDieArray,
             $defAttackDieArray
@@ -1218,6 +1220,18 @@ class BMGame {
             foreach ($capturedDieArray as $die) {
                 $die->remove_all_flags();
             }
+        }
+    }
+
+    protected function perform_post_attack_rerolls() {
+        foreach ($this->attackerAllDieArray as $die) {
+            $die->run_hooks(
+                __FUNCTION__,
+                array(
+                    'die' => $this,
+                    'attackType' => $this->attack['attackType']
+                )
+            );
         }
     }
 
