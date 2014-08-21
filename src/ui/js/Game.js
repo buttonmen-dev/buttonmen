@@ -36,9 +36,9 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 //   requested game.  It clobbers Api.game.  If successful, it calls
 // * Game.showStatePage() determines what action to take next based on
 //   the received data from getCurrentGame().  It calls one of several
-//   functions, Game.action<SomeAction>()
+//   functions, Game.action<SomeAction>(), and then calls Login.arrangePage()
 // * each Game.action<SomeAction>() function must set Game.page and
-//   Game.form, then call Login.arrangePage()
+//   Game.form
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
@@ -94,6 +94,7 @@ Game.getCurrentGame = function(callbackfunc) {
 
 // Assemble and display the game portion of the page
 Game.showStatePage = function() {
+  var includeFooter = true;
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -174,21 +175,27 @@ Game.showStatePage = function() {
       Game.page =
         $('<p>', {'text': 'The game hasn\'t started yet.', });
       Game.form = null;
-      Login.arrangePage(Game.page, Game.form, '#game_action_button');
+      includeFooter = false;
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
-      Login.arrangePage(Game.page, Game.form, '#game_action_button');
+      includeFooter = false;
     }
   } else {
-
     // Game retrieval failed, so just layout the page with no contents
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Login.arrangePage(Game.page, Game.form, '#game_action_button');
+    includeFooter = false;
   }
+
+  if (includeFooter) {
+    Game.pageAddFooter();
+  }
+
+  // Now lay out the page
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 /////
@@ -382,10 +389,6 @@ Game.actionSpecifyDiceActive = function() {
 
   // Add the die table to the page
   Game.page.append(dietable);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionSpecifyDiceInactive = function() {
@@ -398,11 +401,6 @@ Game.actionSpecifyDiceInactive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionSpecifyDiceNonplayer = function() {
@@ -420,11 +418,6 @@ Game.actionSpecifyDiceNonplayer = function() {
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
   Game.page.append($('<br>'));
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
@@ -479,10 +472,6 @@ Game.actionChooseAuxiliaryDiceActive = function() {
 
   // Add the form to the page
   Game.page.append(auxform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
@@ -503,11 +492,6 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
 
   Game.page.append($('<p>', {'text':
     'Please wait for your opponent to decide whether to use auxiliary dice' }));
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
@@ -525,11 +509,6 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
   var dietable = Game.dieRecipeTable(false, false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseReserveDiceActive = function() {
@@ -582,10 +561,6 @@ Game.actionChooseReserveDiceActive = function() {
 
   // Add the form to the page
   Game.page.append(reserveform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseReserveDiceInactive = function() {
@@ -606,11 +581,6 @@ Game.actionChooseReserveDiceInactive = function() {
 
   Game.page.append($('<p>', {'text':
     'Please wait for your opponent to decide whether to add reserve dice' }));
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
@@ -629,10 +599,6 @@ Game.actionChooseReserveDiceNonplayer = function() {
 
   // Add the table to the page
   Game.page.append(dietable);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionReactToInitiativeActive = function() {
@@ -697,10 +663,6 @@ Game.actionReactToInitiativeActive = function() {
 
   // Add the form to the page
   Game.page.append(reactform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionReactToInitiativeInactive = function() {
@@ -716,11 +678,6 @@ Game.actionReactToInitiativeInactive = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
@@ -738,11 +695,6 @@ Game.actionReactToInitiativeNonplayer = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionPlayTurnActive = function() {
@@ -831,11 +783,6 @@ Game.actionPlayTurnActive = function() {
   }));
   attackdiv.append(attackform);
   Game.page.append(attackdiv);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionPlayTurnInactive = function() {
@@ -869,9 +816,6 @@ Game.actionPlayTurnInactive = function() {
   Game.page.append(chatdiv);
 
   Game.pageAddFooter(true);
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionPlayTurnNonplayer = function() {
@@ -891,10 +835,6 @@ Game.actionPlayTurnNonplayer = function() {
 
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(false);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionAdjustFireDiceActive = function() {
@@ -972,10 +912,6 @@ Game.actionAdjustFireDiceActive = function() {
 
   // Add the form to the page
   Game.page.append(fireform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionAdjustFireDiceInactive = function() {
@@ -991,11 +927,6 @@ Game.actionAdjustFireDiceInactive = function() {
   var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionAdjustFireDiceNonplayer = function() {
@@ -1013,11 +944,6 @@ Game.actionAdjustFireDiceNonplayer = function() {
   var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 Game.actionShowFinishedGame = function() {
@@ -1042,10 +968,6 @@ Game.actionShowFinishedGame = function() {
   dieEndgameTable.append(dieEndgameTr);
   Game.page.append(dieEndgameTable);
   Game.logEntryLimit = undefined;
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1630,6 +1552,10 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function(isChatHidden) {
+  if (!Game.page) {
+    return;
+  }
+
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
   Game.pageAddSkillListFooter();
