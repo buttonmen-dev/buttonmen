@@ -1251,8 +1251,8 @@ class BMGame {
                 )
             );
 
-            if ($die->playerIdx === $this->activePlayerIdx) {
-                $this->inactive = '';
+            if ($die->playerIdx === $this->attack['attackerPlayerIdx']) {
+                $die->inactive = '';
             }
             $die->hasAttacked = FALSE;
         }
