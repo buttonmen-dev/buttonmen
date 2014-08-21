@@ -1246,7 +1246,7 @@ class BMGame {
             $die->run_hooks(
                 __FUNCTION__,
                 array(
-                    'die' => $this,
+                    'die' => $die,
                     'attackType' => $this->attack['attackType']
                 )
             );
