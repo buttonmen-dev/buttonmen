@@ -23,8 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/Game.js' ], function() {
-                Login.bodyDivId = 'game_page';
-                Login.showLoginHeader(Game.showGamePage);
+                Login.showLoginHeader(Game);
             });
           });
         });

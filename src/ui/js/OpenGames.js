@@ -1,9 +1,11 @@
 // namespace for this "module"
 var OpenGames = {};
 
+OpenGames.bodyDivId = 'opengames_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * OpenGames.showOpenGamesPage() is the landing function.  Always call
+// * OpenGames.showLoggedInPage() is the landing function.  Always call
 //   this first. It sets up #opengames_page and calls OpenGames.getOpenGames()
 // * OpenGames.getOpenGames() calls the API, setting Api.button and
 //   Api.open_games. It calls OpenGames.showPage()
@@ -16,7 +18,7 @@ var OpenGames = {};
 //  Api.join_game_result if successful
 ////////////////////////////////////////////////////////////////////////
 
-OpenGames.showOpenGamesPage = function() {
+OpenGames.showLoggedInPage = function() {
   // Get all needed information, then display Open Games page
   OpenGames.getOpenGames(OpenGames.showPage);
 };

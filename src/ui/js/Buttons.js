@@ -1,14 +1,15 @@
 // namespace for this "module"
 var Buttons = {};
 
+Buttons.bodyDivId = 'buttons_page';
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Action flow through this page:
-// * Buttons.showButtonsPage() is the landing function.  Always call
-//   this first. It sets up #buttons_page and inspects the query string.
-//   Depending on what it finds there, it calls the API and sets either
-//   Api.button or Api.buttonSet. It then calls either Buttons.showButton(),
-//   Buttons.showSet() or Buttons.showSetList().
+// * Buttons.showLoggedInPage() is the landing function.  Always call
+//   this first. It inspects the query string. Depending on what it finds there,
+//   it calls the API and sets either Api.button or Api.buttonSet. It then calls
+//   either Buttons.showButton(), Buttons.showSet() or Buttons.showSetList().
 // * Buttons.showButton() uses the data returned by the API to build a page
 //   describing a single button, then calls Login.arrangePage().
 // * Buttons.showSet() uses the data returned by the API to build a page
@@ -18,7 +19,7 @@ var Buttons = {};
 //   describing a list of all button sets, then calls Login.arrangePage().
 ////////////////////////////////////////////////////////////////////////
 
-Buttons.showButtonsPage = function() {
+Buttons.showLoggedInPage = function() {
   // Figure out what we're here to display, get all needed information,
   // then display the page
   Buttons.buttonName = Env.getParameterByName('button');

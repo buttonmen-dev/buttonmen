@@ -3,6 +3,8 @@ var Game = {
   'activity': {},
 };
 
+Game.bodyDivId = 'game_page';
+
 // Game states must match those reported by the API
 Game.GAME_STATE_START_GAME = 'START_GAME';
 Game.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
@@ -31,7 +33,7 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Game.showGamePage() is the landing function.  Always call this first
+// * Game.showLoggedInPage() is the landing function.  Always call this first
 // * Game.getCurrentGame() asks the API for information about the
 //   requested game.  It clobbers Api.game.  If successful, it calls
 // * Game.showStatePage() determines what action to take next based on
@@ -44,7 +46,7 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-Game.showGamePage = function() {
+Game.showLoggedInPage = function() {
   if (Game.logEntryLimit && Env.getCookieCompactMode()) {
     Game.logEntryLimit = 5;
   }
@@ -58,13 +60,13 @@ Game.showGamePage = function() {
 // clear all activity variables set by the previous invocation
 Game.redrawGamePageSuccess = function() {
   Game.activity = {};
-  Game.showGamePage();
+  Game.showLoggedInPage();
 };
 
 // Redraw the page after a previous action failed: to do this,
 // retain activity variables where it makes sense to do so
 Game.redrawGamePageFailure = function() {
-  Game.showGamePage();
+  Game.showLoggedInPage();
 };
 
 // the current game should be provided as a GET parameter to the page
@@ -1013,15 +1015,15 @@ Game.formSpecifyDiceActive = function() {
         'notok': {'type': 'server', },
       },
       '#game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': 'Some swing values missing or nonnumeric',
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1040,15 +1042,15 @@ Game.formChooseAuxiliaryDiceActive = function() {
         'notok': {'type': 'server', },
       },
       '#game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': 'Could not parse decision to use or not use auxiliary dice',
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1097,15 +1099,15 @@ Game.formChooseReserveDiceActive = function() {
         'notok': {'type': 'server', },
       },
       '#game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': inputError,
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1219,15 +1221,15 @@ Game.formReactToInitiativeActive = function() {
         'notok': { 'type': 'server', },
       },
       '#game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': error,
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1320,15 +1322,15 @@ Game.formAdjustFireDiceActive = function() {
         'notok': { 'type': 'server', },
       },
       '#game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': error,
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1429,7 +1431,7 @@ Game.formDismissGame = function(e) {
       window.location.href = Env.ui_root;
       return false;
     },
-    Game.showGamePage
+    Game.showLoggedInPage
   );
 };
 
@@ -1462,7 +1464,7 @@ Game.readCurrentGameActivity = function() {
 Game.showFullLogHistory = function() {
   Game.readCurrentGameActivity();
   Game.logEntryLimit = undefined;
-  Game.showGamePage();
+  Game.showLoggedInPage();
 };
 
 ////////////////////////////////////////////////////////////////////////

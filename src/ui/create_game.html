@@ -23,8 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Newgame.js' ], function() {
-                Login.bodyDivId = 'newgame_page';
-                Login.showLoginHeader(Newgame.showNewgamePage);
+                Login.showLoginHeader(Newgame);
             });
           });
         });

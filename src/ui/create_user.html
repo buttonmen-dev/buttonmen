@@ -23,9 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Newuser.js' ], function() {
-                Login.pageRequiresLogin = false;
-                Login.bodyDivId = 'newuser_page';
-                Login.showLoginHeader(Newuser.showNewuserPage);
+                Login.showLoginHeader(Newuser);
             });
           });
         });

@@ -1,6 +1,8 @@
 // namespace for this "module"
 var Newuser = {};
 
+Newuser.bodyDivId = 'newuser_page';
+
 // Valid username match
 Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 
@@ -11,9 +13,10 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Newuser.showNewuserPage() is the landing function.  Always call
-//   this first.  It calls one of a couple of functions,
-//   Newuser.action<SomeAction>()
+// * Newuser.showLoggedInPage() is the landing function.  Always call
+//   this first when logged in.  It calls Newuser.actionLoggedIn()
+// * Newuser.showLoggedOutPage() is the other landing function.  Always call
+//   this first when logged out.  It calls Newuser.actionCreateUser()
 // * each Newuser.action<SomeAction>() function must set Newuser.page and
 //   Newuser.form, then call Newuser.arrangePage()
 // * Newuser.arrangePage() calls Login.arrangePage()
@@ -22,14 +25,16 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-Newuser.showNewuserPage = function() {
+Newuser.showLoggedInPage = function() {
+    // Don't allow logged-in users to create new accounts
+    Newuser.actionLoggedIn();
+};
+
+Newuser.showLoggedOutPage = function() {
   if (Newuser.justCreatedAccount === true) {
     // Don't re-display the form if they've already created an account
     Newuser.page = $('<div>');
     Newuser.arrangePage();
-  } else if (Login.logged_in === true) {
-    // Don't allow logged-in users to create new accounts
-    Newuser.actionLoggedIn();
   } else {
     Newuser.actionCreateUser();
   }
@@ -167,46 +172,46 @@ Newuser.formCreateUser = function() {
       'type': 'error',
       'text': 'You need to set a username',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
 
   } else if (!(username.match(Newuser.VALID_USERNAME_REGEX))) {
     Env.message = {
       'type': 'error',
       'text': 'Usernames may only contain letters, numbers, and underscores',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
 
   } else if (!(email.match(Api.VALID_EMAIL_REGEX))) {
     Env.message = {
       'type': 'error',
       'text': 'A valid email address is required',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
 
   } else if (password.length === 0) {
     Env.message = {
       'type': 'error',
       'text': 'You need to set a password',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
   } else if (password != password_confirm) {
     Env.message = {
       'type': 'error',
       'text': 'Passwords do not match',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
   } else if (email.length === 0) {
     Env.message = {
       'type': 'error',
       'text': 'You need to provide an e-mail address',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
   } else if (email != email_confirm) {
     Env.message = {
       'type': 'error',
       'text': 'E-mail addresses do not match',
     };
-    Newuser.showNewuserPage();
+    Newuser.showLoggedOutPage();
   } else {
     Api.apiFormPost(
       {
@@ -223,8 +228,8 @@ Newuser.formCreateUser = function() {
         'notok': { 'type': 'server', },
       },
       '#newuser_action_button',
-      Newuser.showNewuserPage,
-      Newuser.showNewuserPage
+      Newuser.showLoggedOutPage,
+      Newuser.showLoggedOutPage
     );
   }
 };

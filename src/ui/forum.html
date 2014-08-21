@@ -23,8 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/Forum.js' ], function() {
-                Login.bodyDivId = 'forum_page';
-                Login.showLoginHeader(Forum.showForumPage);
+                Login.showLoginHeader(Forum);
             });
           });
         });

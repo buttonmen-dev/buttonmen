@@ -1,9 +1,11 @@
 // namespace for this "module"
 var Profile = {};
 
+Profile.bodyDivId = 'profile_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Profile.showProfilePage() is the landing function. Always call
+// * Profile.showLoggedInPage() is the landing function. Always call
 // this first. It sets up #profile_page and calls Profile.getProfile()
 // * Profile.getProfile() calls the API, setting Api.profile_info. It calls
 //   Profile.showPage()
@@ -11,7 +13,7 @@ var Profile = {};
 //   the contents of the page as Profile.page and calls Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
-Profile.showProfilePage = function() {
+Profile.showLoggedInPage = function() {
   // Get all needed information, then display Profile page
   Profile.getProfile(Profile.showPage);
 };

@@ -22,8 +22,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/Buttons.js' ], function() {
-                Login.bodyDivId = 'buttons_page';
-                Login.showLoginHeader(Buttons.showButtonsPage);
+                Login.showLoginHeader(Buttons);
             });
           });
         });

@@ -2,13 +2,15 @@
 var Newgame = {
   'activity': {},
 };
+Login.bodyDivId = 'newuser_page';
+Newgame.bodyDivId = 'newgame_page';
 
 // Maximum number of characters permitted in the game description
 Newgame.GAME_DESCRIPTION_MAX_LENGTH = 255;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Newgame.showNewgamePage() is the landing function.  Always call
+// * Newgame.showLoggedInPage() is the landing function.  Always call
 //   this first
 // * Newgame.getNewgameOptions() asks the API for information about players
 //   and buttons to be used when creating the game.  It clobbers
@@ -23,7 +25,7 @@ Newgame.GAME_DESCRIPTION_MAX_LENGTH = 255;
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-Newgame.showNewgamePage = function() {
+Newgame.showLoggedInPage = function() {
   if (!Newgame.activity.opponentName) {
     Newgame.activity.opponentName = Env.getParameterByName('opponent');
   }
@@ -323,7 +325,7 @@ Newgame.formCreateGame = function() {
       'type': 'error',
       'text': errorMessage,
     };
-    Newgame.showNewgamePage();
+    Newgame.showLoggedInPage();
   } else {
     // create an array with one element for each player/button combination
     var playerInfoArray = [];
@@ -351,7 +353,7 @@ Newgame.formCreateGame = function() {
     // failure so the player can correct selections, on success in
     // case the player wants to create another similar game.
     // Therefore, it's fine to pass the form post the same function
-    // (showNewgamePage) for both success and failure conditions.
+    // (showLoggedInPage) for both success and failure conditions.
     Api.apiFormPost(
       args,
       {
@@ -362,8 +364,8 @@ Newgame.formCreateGame = function() {
         'notok': { 'type': 'server', },
       },
       '#newgame_action_button',
-      Newgame.showNewgamePage,
-      Newgame.showNewgamePage
+      Newgame.showLoggedInPage,
+      Newgame.showLoggedInPage
     );
   }
 };

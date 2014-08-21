@@ -13,11 +13,8 @@ Login.STATUS_ACTION_FAILED    = 3;
 // This is used to refresh the Overview page if there's no next game
 Login.nextGameRefreshCallback = false;
 
-// Most pages shouldn't be viewable if you're not logged in
-Login.pageRequiresLogin = true;
-
-// The ID of the div for the main body of the page
-Login.bodyDivId = null;
+// Which module is responsible for loading the main part of the page
+Login.pageModule = null;
 
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
@@ -58,9 +55,13 @@ Login.getLoginHeader = function() {
   );
 };
 
-Login.showLoginHeader = function(callbackfunc) {
-  // Save the callback function
-  Login.callback = callbackfunc;
+// pageModule is the module that's responsible for loading the main part of the
+// page, such as Overview or Game. It needs to have a bodyDivId property and
+// a showLoggedInPage() method, and if it should be viewable when logged out,
+// a showLoggedOutPage() method as well.
+Login.showLoginHeader = function(pageModule) {
+  // Note which module we're using for this page
+  Login.pageModule = pageModule;
 
   // Check if this was an automatic redirect from the Monitor
   Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
@@ -76,7 +77,7 @@ Login.showLoginHeader = function(callbackfunc) {
   }
 
   // Find the current login header contents and display them followed by
-  // the specified callback routine
+  // the main body of the page (via the current page module)
   Login.getLoginHeader();
 };
 
@@ -93,14 +94,29 @@ Login.arrangeHeader = function() {
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
-  if (Login.bodyDivId) {
-    if ($('#' + Login.bodyDivId).length === 0) {
-      $('body').append($('<div>', {'id': Login.bodyDivId, }));
+  if (Login.pageModule && Login.pageModule.bodyDivId) {
+    if ($('#' + Login.pageModule.bodyDivId).length === 0) {
+      $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
     }
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text':
+        'This page failed to load. Your browser may have cached an outdated ' +
+        'version of it. Try reloading the page, and if that doesn\'t work, ' +
+        'please drop us a line at help@buttonweavers.com or file a bug ' +
+        'report. Sorry for the inconvenience.',
+    };
+    // If we can't create the main section of the page, then jump straight to
+    // rendering what little we have and then bail out
+    Login.arrangePage();
+    return;
   }
 
-  if (Login.logged_in || !Login.pageRequiresLogin) {
-    return Login.callback();
+  if (Login.logged_in) {
+    return Login.pageModule.showLoggedInPage();
+  } else if (Login.pageModule.showLoggedOutPage) {
+    Login.pageModule.showLoggedOutPage();
   } else {
     Env.message = {
       'type': 'error',
@@ -118,10 +134,8 @@ Login.arrangePage = function(page, form, buttonSelector) {
   // page, display it now
   Env.showStatusMessage();
 
-  if (Login.bodyDivId) {
-    $('#' + Login.bodyDivId).empty();
-    $('#' + Login.bodyDivId).append(page);
-  }
+  $('#' + Login.pageModule.bodyDivId).empty();
+  $('#' + Login.pageModule.bodyDivId).append(page);
 
   if (form && buttonSelector) {
     $(buttonSelector).click(form);
@@ -284,13 +298,13 @@ Login.postToResponder = function(responder_args) {
       if (responder_args.type == 'logout') {
         Env.window.location.href = Env.ui_root;
       } else {
-        Login.showLoginHeader(Login.callback);
+        Login.showLoginHeader(Login.pageModule);
       }
     }
   ).fail(
     function() {
       Login.status_type = Login.STATUS_ACTION_FAILED;
-      Login.showLoginHeader(Login.callback);
+      Login.showLoginHeader(Login.pageModule);
     }
   );
 };
