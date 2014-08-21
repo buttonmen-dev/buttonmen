@@ -6141,7 +6141,18 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
                               array(3), // defenderAttackDieIdxArray
                               'Power'); // attackType
 
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->hasAttacked);
+                $this->assertEquals('', $die->inactive);
+            }
+        }
+
         $dice = $game->activeDieArrayArray;
+
+        // artificially set one of the ornery dice to be inactive
+        $dice[0][1]->inactive = 'Yes';
+        $this->assertEquals('Yes', $game->activeDieArrayArray[0][1]->inactive);
 
         // recipes are:
         //   (99) o(99) o(99) o(99) (99) (1) (1) (1) (1) (1)
@@ -6176,6 +6187,13 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         );
 
         $game->proceed_to_next_user_action();
+
+        foreach ($game->activeDieArrayArray as $activeDieArray) {
+            foreach ($activeDieArray as $die) {
+                $this->assertFalse($die->hasAttacked);
+                $this->assertEquals('', $die->inactive);
+            }
+        }
 
         $dice = $game->activeDieArrayArray;
 
