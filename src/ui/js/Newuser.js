@@ -26,8 +26,8 @@ Newuser.EMAIL_MAX_LENGTH = 254;
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
 Newuser.showLoggedInPage = function() {
-    // Don't allow logged-in users to create new accounts
-    Newuser.actionLoggedIn();
+  // Don't allow logged-in users to create new accounts
+  Newuser.actionLoggedIn();
 };
 
 Newuser.showLoggedOutPage = function() {
