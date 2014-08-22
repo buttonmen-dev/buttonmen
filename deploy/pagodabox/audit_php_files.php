@@ -12,6 +12,7 @@
   // These directories may contain PHP files which we don't check
   // for class compliance
   $php_noncompliant_dirs = array(
+    "deploy/jenkins",
     "deploy/pagodabox",
     "src/api",
     "src/database",
