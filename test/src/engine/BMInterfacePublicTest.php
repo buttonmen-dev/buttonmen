@@ -19,6 +19,17 @@
  *   returned and the value of $this->object->message which is set.
  *   The goal is to catch subtle (and not-subtle) regressions, so
  *   don't be shy.
+ * * Every time you receive an API result, check three things:
+ *   1. $this->object->message contains the string you expect
+ *   2. $this->assertEquals(0, count($BM_RAND_VALS));
+ *      N.B. you only have to test this if you actually set any
+ *      random values for this call; if you started the call with
+ *      no random values and turn out to need some, an exception
+ *      will be thrown without you having to do anything
+ *   3. the return value of the API call contains what you expect
+ *   Check them in that order for ease of test debugging --- that
+ *   way, if you mess up, the first thing you see is the hopefully-useful
+ *   API message telling you so.
  */
 
 class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
@@ -31,6 +42,20 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
     private static $userId2WithoutAutopass;
     private static $userId3WithAutopass;
     private static $userId4WithAutopass;
+
+    // duplicate skill info in one place so we don't have to retype it
+    private static $skillInfo = array(
+        'Poison' => array(
+            'code' => 'p',
+            'description' => 'These dice are worth negative points. If you keep a Poison Die of your own at the end of a round, subtract its full value from your score. If you capture a Poison Die from someone else, subtract half its value from your score.',
+            'interacts' => array(),
+        ),
+        'Shadow' => array(
+            'code' => 's',
+            'description' => 'These dice are normal in all respects, except that they cannot make Power Attacks. Instead, they make inverted Power Attacks, called "Shadow Attacks." To make a Shadow Attack, Use one of your Shadow Dice to capture one of your opponent\'s dice. The number showing on the die you capture must be greater than or equal to the number showing on your die, but within its range. For example, a shadow 10-sided die showing a 2 can capture a die showing any number from 2 to 10.',
+            'interacts' => array(),
+        ),
+    );
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -113,6 +138,71 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         return $attack;
     }
 
+    // Utility function to initialize a data array, just because
+    // there's a lot of stuff in this, and a lot of it is always
+    // the same at the beginning of a game, so save some typing.
+    // This does *not* initialize buttons or active dice --- you
+    // need to do that
+    protected function generate_init_expected_data_array(
+        $gameId, $playerId1, $playerId2, $username1, $username2, $maxWins, $gameState
+    ) {
+        $expData = array(
+            'gameId' => $gameId,
+            'gameState' => $gameState,
+            'activePlayerIdx' => NULL,
+            'playerWithInitiativeIdx' => NULL,
+            'roundNumber' => 1,
+            'maxWins' => $maxWins,
+            'description' => '',
+            'previousGameId' => NULL,
+            'currentPlayerIdx' => 0,
+            'timestamp' => 'TIMESTAMP',
+            'validAttackTypeArray' => array(),
+            'gameSkillsInfo' => array(),
+            'playerDataArray' => array(
+                array(
+                    'playerId' => $playerId1,
+                    'capturedDieArray' => array(),
+                    'swingRequestArray' => array(),
+                    'optRequestArray' => array(),
+                    'prevSwingValueArray' => array(),
+                    'prevOptValueArray' => array(),
+                    'waitingOnAction' => TRUE,
+                    'roundScore' => NULL,
+                    'sideScore' => NULL,
+                    'gameScoreArray' => array('W' => 0, 'L' => 0, 'D' => 0),
+                    'lastActionTime' => 0,
+                    'hasDismissedGame' => FALSE,
+                    'canStillWin' => NULL,
+                    'playerName' => $username1,
+                    'playerColor' => '#dd99dd',
+                ),
+                array(
+                    'playerId' => $playerId2,
+                    'capturedDieArray' => array(),
+                    'swingRequestArray' => array(),
+                    'optRequestArray' => array(),
+                    'prevSwingValueArray' => array(),
+                    'prevOptValueArray' => array(),
+                    'waitingOnAction' => TRUE,
+                    'roundScore' => NULL,
+                    'sideScore' => NULL,
+                    'gameScoreArray' => array('W' => 0, 'L' => 0, 'D' => 0),
+                    'lastActionTime' => 0,
+                    'hasDismissedGame' => FALSE,
+                    'canStillWin' => NULL,
+                    'playerName' => $username2,
+                    'playerColor' => '#ddffdd',
+                ),
+            ),
+            'gameActionLog' => array(),
+            'gameChatLog' => array(),
+            'gameChatEditable' => FALSE,
+        );
+        return $expData;
+    }
+
+
     /**
      * @covers BMInterfaceNewuser::create_user
      */
@@ -142,7 +232,10 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($created_real,
             "Creation of $username user should be reported as success");
         self::$userId1WithoutAutopass = (int)$createResult['playerId'];
-        // FIXME: test return value more
+        $this->assertEquals(
+            'User ' . $username . ' created successfully.  A verification code has been e-mailed to ' . $username . '@example.com.  Follow the link in that message to start beating people up! (Note: If you don\'t see the email shortly, be sure to check your spam folder.)',
+            $this->object->message);
+        $this->assertEquals(array('userName' => $username, 'playerId' => self::$userId1WithoutAutopass), $createResult);
 
         $username = 'ifacepub' . sprintf('%03d', $trynum);
         $email = $username . '@example.com';
@@ -171,11 +264,11 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $addlInfo = array('dob_month' => 0, 'dob_day' => 0, 'homepage' => '');
 
         $this->object = new BMInterface(TRUE);
-        $this->object->set_player_info($createResult['playerId'],
-                                       $infoArray,
-                                       $addlInfo);
+        $retval = $this->object->set_player_info(
+            $createResult['playerId'], $infoArray, $addlInfo);
         self::$userId3WithAutopass = (int)$createResult['playerId'];
-        // FIXME: test result
+        $this->assertEquals('Player info updated successfully.', $this->object->message);
+        $this->assertEquals(array('playerId' => self::$userId3WithAutopass), $retval);
 
         $trynum++;
         $username = 'ifacepub' . sprintf('%03d', $trynum);
@@ -216,80 +309,30 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $BM_RAND_VALS = array(4, 6, 8, 12, 1, 1, 1, 1);
         $retval = $this->object->create_game(array($playerId1, $playerId2),
                                              array('Frasquito', 'Wiseman'), 4);
-        $this->assertEquals(0, count($BM_RAND_VALS));
         $gameId = $retval['gameId'];
-        $this->assertEquals(array('gameId' => $gameId), $retval);
         $this->assertEquals('Game ' . $gameId . ' created successfully.', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(array('gameId' => $gameId), $retval);
 
         // Initial expected game data object
-        $expData = array(
-            'gameId' => $gameId,
-            'gameState' => 'SPECIFY_DICE',
-            'activePlayerIdx' => NULL,
-            'playerWithInitiativeIdx' => NULL,
-            'roundNumber' => 1,
-            'maxWins' => 4,
-            'description' => '',
-            'previousGameId' => NULL,
-            'currentPlayerIdx' => 0,
-            'timestamp' => 'TIMESTAMP',
-            'validAttackTypeArray' => array(),
-            'gameSkillsInfo' => array(),
-            'playerDataArray' => array(
-                array(
-                    'playerId' => $playerId1,
-                    'button' => array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'BMdefaultRound.png'),
-                    'activeDieArray' => array(
-                        array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
-                        array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
-                        array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
-                        array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
-                        array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(2/20)', 'description' => 'Option Die (with 2 or 20 sides)'),
-                    ),
-                    'capturedDieArray' => array(),
-                    'swingRequestArray' => array(),
-                    'optRequestArray' => array('4' => array(2, 20)),
-                    'prevSwingValueArray' => array(),
-                    'prevOptValueArray' => array(),
-                    'waitingOnAction' => TRUE,
-                    'roundScore' => NULL,
-                    'sideScore' => NULL,
-                    'gameScoreArray' => array('W' => 0, 'L' => 0, 'D' => 0),
-                    'lastActionTime' => 0,
-                    'hasDismissedGame' => FALSE,
-                    'canStillWin' => NULL,
-                    'playerName' => $username1,
-                    'playerColor' => '#dd99dd',
-                ),
-                array(
-                    'playerId' => $playerId2,
-                    'button' => array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png'),
-                    'activeDieArray' => array(
-                        array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
-                        array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
-                        array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
-                        array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
-                    ),
-                    'capturedDieArray' => array(),
-                    'swingRequestArray' => array(),
-                    'optRequestArray' => array(),
-                    'prevSwingValueArray' => array(),
-                    'prevOptValueArray' => array(),
-                    'waitingOnAction' => FALSE,
-                    'roundScore' => NULL,
-                    'sideScore' => NULL,
-                    'gameScoreArray' => array('W' => 0, 'L' => 0, 'D' => 0),
-                    'lastActionTime' => 0,
-                    'hasDismissedGame' => FALSE,
-                    'canStillWin' => NULL,
-                    'playerName' => $username2,
-                    'playerColor' => '#ddffdd',
-                ),
-            ),
-            'gameActionLog' => array(),
-            'gameChatLog' => array(),
-            'gameChatEditable' => FALSE,
+        $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 4, 'SPECIFY_DICE');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Frasquito', 'recipe' => '(4) (6) (8) (12) (2/20)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(6)', 'description' => '6-sided die'),
+            array('value' => NULL, 'sides' => 8, 'skills' => array(), 'properties' => array(), 'recipe' => '(8)', 'description' => '8-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(2/20)', 'description' => 'Option Die (with 2 or 20 sides)'),
         );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['optRequestArray'] = array('4' => array(2, 20));
 
         // now load the game and check its state
         $this->object = new BMInterface(TRUE);
@@ -656,5 +699,159 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($expData, $cleanedRetval);
 // FIXME: uncomment once #1225 is fixed
 //        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @covers BMInterface::load_swing_values_from_last_round
+     *
+     * Game scenario (both players have autopass):
+     * p1 (Jellybean) vs. p2 (Dirgo):
+     *  1. p1 set swing values: V=6, X=10
+     *  2. p2 set swing values: X=4
+     *  3. p1 won initiative for round 1. Initial die values: p1 rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], p2 rolled [(20):5, (20):8, (20):12, (X=4):4].
+     *  4. p1 performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15
+     *  5. p2 performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12
+     *     p1 passed
+     *  6. p2 performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13
+     *     p1 passed
+     *  7. p2 performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1
+     *     p1 passed
+     *     p2 passed
+     *     End of round: p1 won round 1 (30 vs. 28)
+     *  8. p2 set swing values: X=7
+     *     p1 won initiative for round 2. Initial die values: p1 rolled [p(20):8, s(20):6, (V=6):1, (X=10):1], p2 rolled [(20):7, (20):2, (20):17, (X=7):2].
+     */
+    public function test_interface_game_002() {
+        global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
+        $BM_RAND_REQUIRE_OVERRIDE = TRUE;
+
+        // arguments that won't change over the course of the test
+        $playerId1 = self::$userId3WithAutopass;
+        $playerId2 = self::$userId4WithAutopass;
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->get_player_info($playerId1);
+        $username1 = $retval['user_prefs']['name_ingame'];
+        $retval = $this->object->get_player_info($playerId2);
+        $username2 = $retval['user_prefs']['name_ingame'];
+        $logEntryLimit = 10;
+
+        //////////////////// 
+        // initial game setup
+
+        // Non-swing dice are initially rolled, namely:
+        // p(20) s(20)  (20) (20) (20)
+        $this->object = new BMInterface(TRUE);
+        $BM_RAND_VALS = array(1, 1, 1, 1, 1);
+        $retval = $this->object->create_game(array($playerId1, $playerId2),
+                                             array('Jellybean', 'Dirgo'), 3);
+        $gameId = $retval['gameId'];
+        $this->assertEquals('Game ' . $gameId . ' created successfully.', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(array('gameId' => $gameId), $retval);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = array('Poison' => self::$skillInfo['Poison'], 'Shadow' => self::$skillInfo['Shadow']);
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Jellybean', 'recipe' => 'p(20) s(20) (V) (X)', 'artFilename' => 'jellybean.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Dirgo', 'recipe' => '(20) (20) (20) (X)', 'artFilename' => 'dirgo.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 20, 'skills' => array('Poison'), 'properties' => array(), 'recipe' => 'p(20)', 'description' => 'Poison 20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(20)', 'description' => 'Shadow 20-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(V)', 'description' => 'V Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20), 'V' => array(6, 12));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
+
+        // now load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment this when #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+
+
+        //////////////////// 
+        // Move 01 - player 1 specifies swing dice
+
+        // this causes all specified dice to be rerolled twice with values that are never used:
+        // p(20) s(20) (V) (X)   (20) (20) (20)
+        $this->object = new BMInterface(TRUE);
+        $BM_RAND_VALS = array(2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3);
+        $retval = $this->object->submit_die_values($playerId1, $gameId, 1, array('V' => 6, 'X' => 10), array());
+        $this->assertEquals('Successfully set die sizes', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes to game state
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = 'V Swing Die (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = 'X Swing Die (with 10 sides)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' set die sizes'));
+
+        // load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment once #1225 is fixed
+        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+
+
+        //////////////////// 
+        // Move 02 - player 2 specifies swing dice
+
+        // this causes all specified dice to be rerolled with their real values:
+        // p(20) s(20) (V) (X)   (20) (20) (20) (X)
+        $this->object = new BMInterface(TRUE);
+        $BM_RAND_VALS = array(2, 11, 3, 1, 5, 8, 12, 4);
+        $retval = $this->object->submit_die_values($playerId2, $gameId, 1, array('X' => 4), array());
+        $this->assertEquals('Successfully set die sizes', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes to game state
+        $expData['gameState'] = 'START_TURN';
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Skill', 'Shadow');
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = -2;
+        $expData['playerDataArray'][1]['roundScore'] = 32;
+        $expData['playerDataArray'][0]['sideScore'] = -22.7;
+        $expData['playerDataArray'][1]['sideScore'] = 22.7;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'X Swing Die (with 4 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 12;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
+        $expData['gameActionLog'][0]['message'] = $username1 . ' set swing values: V=6, X=10';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' set swing values: X=4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], ' . $username2 . ' rolled [(20):5, (20):8, (20):12, (X=4):4].'));
+
+        // load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment once #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
     }
 }
