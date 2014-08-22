@@ -126,7 +126,7 @@ Login.arrangeHeader = function() {
   }
 };
 
-Login.arrangePage = function(page, form, buttonSelector) {
+Login.arrangePage = function(page, form, submitSelector) {
   // Now that the player is being given control, we're no longer automated
   Api.automatedApiCall = false;
 
@@ -139,8 +139,8 @@ Login.arrangePage = function(page, form, buttonSelector) {
     $('#' + Login.pageModule.bodyDivId).append(page);
   }
 
-  if (form && buttonSelector) {
-    $(buttonSelector).click(form);
+  if (form && submitSelector) {
+    $(submitSelector).click(form);
   }
 };
 
