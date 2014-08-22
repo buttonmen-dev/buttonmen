@@ -31,7 +31,7 @@ module("Login", {
     $('#login_header').empty();
     $('#header_separator').remove();
 
-    Login.bodyDivId = null;
+    Login.pageModule = null;
 
     // Page elements
     $('#login_header').remove();
@@ -81,16 +81,19 @@ test("test_Login.arrangeHeader", function(assert) {
   expect(5); // tests + 2 teardown
 
   Login.message = 'Hello.';
-  Login.bodyDivId = 'test_page';
-  Login.callback = function() {
-    assert.ok(true, "Login callback should be called");
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
   };
 
   BMTestUtils.setupFakeLogin();
   Login.arrangeHeader();
   BMTestUtils.cleanupFakeLogin();
 
-  var bodyDiv = $('#' + Login.bodyDivId);
+  var bodyDiv = $('#' + Login.pageModule.bodyDivId);
   assert.equal(bodyDiv.length, 1,
     "Main page body div should be created");
   bodyDiv.remove();
@@ -103,8 +106,8 @@ test("test_Login.arrangeHeader", function(assert) {
 test("test_Login.arrangePage", function(assert) {
   expect(5); // tests + 2 teardown
 
-  Login.bodyDivId = 'test_page';
-  $('body').append($('<div>', {'id': Login.bodyDivId, }));
+  Login.pageModule = { 'bodyDivId': 'test_page' };
+  $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
 
   Env.setupEnvStub();
   Env.message = {
@@ -134,8 +137,10 @@ test("test_Login.arrangePage", function(assert) {
     'Page contents should exist on actual page.');
   button.click();
 
-  $('#' + Login.bodyDivId).remove();
-  $('#' + Login.bodyDivId).empty();
+  if (Login.pageModule) {
+    $('#' + Login.pageModule.bodyDivId).remove();
+    $('#' + Login.pageModule.bodyDivId).empty();
+  }
 });
 
 

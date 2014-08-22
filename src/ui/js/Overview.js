@@ -78,14 +78,10 @@ Overview.showLoggedOutPage = function() {
 };
 
 Overview.getOverview = function(callback) {
-  if (Login.logged_in) {
-    Env.callAsyncInParallel([
-      Api.getActiveGamesData,
-      Api.getCompletedGamesData,
-    ], callback);
-  } else {
-    return callback();
-  }
+  Env.callAsyncInParallel([
+    Api.getActiveGamesData,
+    Api.getCompletedGamesData,
+  ], callback);
 };
 
 Overview.showPage = function() {
@@ -433,8 +429,8 @@ Overview.formDismissGame = function(e) {
     'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
     'notok': { 'type': 'server' },
   };
-  Api.apiFormPost(args, messages, $(this), Overview.showOverviewPage,
-    Overview.showOverviewPage);
+  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
+    Overview.showLoggedInPage);
 };
 
 // Redirect to the next new forum post if there is one

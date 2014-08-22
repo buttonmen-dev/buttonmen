@@ -9,7 +9,7 @@ module("Newgame", {
       $('body').append($('<div>', {'id': 'newgame_page', }));
     }
 
-    Login.bodyDivId = 'newgame_page';
+    Login.pageModule = { 'bodyDivId': 'newgame_page' };
   },
   'teardown': function(assert) {
 
@@ -27,7 +27,7 @@ module("Newgame", {
     delete Newgame.form;
     delete Newgame.justCreatedGame;
 
-    Login.bodyDivId = null;
+    Login.pageModule = null;
     Newgame.activity = {};
 
     // Page elements
@@ -51,13 +51,13 @@ test("test_Newgame_is_loaded", function(assert) {
 });
 
 // The purpose of these tests is to demonstrate that the flow of
-// Newgame.showNewgamePage() is correct for a showXPage function, namely
+// Newgame.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
 
-test("test_Newgame.showNewgamePage", function(assert) {
+test("test_Newgame.showLoggedInPage", function(assert) {
   expect(4);
   var cached_getNewgameData = Newgame.getNewgameData;
   var cached_showStatePage = Newgame.showPage;
@@ -72,13 +72,13 @@ test("test_Newgame.showNewgamePage", function(assert) {
     callback();
   }
 
-  Newgame.showNewgamePage();
+  Newgame.showLoggedInPage();
 
   Newgame.getNewgameData = cached_getNewgameData;
   Newgame.showPage = cached_showStatePage;
 });
 
-test("test_Newgame.showNewgamePage_logged_out", function(assert) {
+test("test_Newgame.showLoggedInPage_logged_out", function(assert) {
   expect(4);
 
   // Undo the fake login data
@@ -98,7 +98,7 @@ test("test_Newgame.showNewgamePage_logged_out", function(assert) {
     callback();
   }
 
-  Newgame.showNewgamePage();
+  Newgame.showLoggedInPage();
 
   Newgame.getNewgameData = cached_getNewgameData;
   Newgame.showPage = cached_showStatePage;

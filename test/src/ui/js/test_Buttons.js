@@ -13,7 +13,7 @@ module("Buttons", {
       $('body').append($('<div>', {'id': 'buttons_page', }));
     }
 
-    Login.bodyDivId = 'buttons_page';
+    Login.pageModule = { 'bodyDivId': 'buttons_page' };
   },
   'teardown': function(assert) {
     // Do not ignore intermittent failures in this test --- you
@@ -31,7 +31,7 @@ module("Buttons", {
     delete Buttons.setName;
     delete Buttons.page;
 
-    Login.bodyDivId = null;
+    Login.pageModule = null;
 
     // Page elements
     $('#buttons_page').remove();
@@ -56,7 +56,7 @@ test("test_Buttons_is_loaded", function(assert) {
   assert.ok(Buttons, "The Buttons namespace exists");
 });
 
-test("test_Buttons.showButtonsPage", function(assert) {
+test("test_Buttons.showLoggedInPage", function(assert) {
   expect(3); // Tests plus teardown 2 tests
 
   Api.getButtonSetData = function(passedSetName) {
@@ -68,10 +68,10 @@ test("test_Buttons.showButtonsPage", function(assert) {
     assert.ok(false, 'Api.getButtonData should not be invoked');
   }
 
-  Buttons.showButtonsPage();
+  Buttons.showLoggedInPage();
 });
 
-test("test_Buttons.showButtonsPage_set", function(assert) {
+test("test_Buttons.showLoggedInPage_set", function(assert) {
   expect(3); // Tests plus 2 teardown tests
 
   var expectedSetName = 'Soldiers';
@@ -86,10 +86,10 @@ test("test_Buttons.showButtonsPage_set", function(assert) {
     assert.ok(false, 'Api.getButtonData should not be invoked');
   }
 
-  Buttons.showButtonsPage();
+  Buttons.showLoggedInPage();
 });
 
-test("test_Buttons.showButtonsPage_button", function(assert) {
+test("test_Buttons.showLoggedInPage_button", function(assert) {
   expect(3); // Tests plus 2 teardown tests
 
   var expectedButtonName = 'Avis';
@@ -104,7 +104,7 @@ test("test_Buttons.showButtonsPage_button", function(assert) {
     assert.ok(false, 'Api.getButtonSetData should not be invoked');
   }
 
-  Buttons.showButtonsPage();
+  Buttons.showLoggedInPage();
 });
 
 test("test_Buttons.showButton", function(assert) {

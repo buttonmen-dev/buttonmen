@@ -134,8 +134,10 @@ Login.arrangePage = function(page, form, buttonSelector) {
   // page, display it now
   Env.showStatusMessage();
 
-  $('#' + Login.pageModule.bodyDivId).empty();
-  $('#' + Login.pageModule.bodyDivId).append(page);
+  if (Login.pageModule && Login.pageModule.bodyDivId) {
+    $('#' + Login.pageModule.bodyDivId).empty();
+    $('#' + Login.pageModule.bodyDivId).append(page);
+  }
 
   if (form && buttonSelector) {
     $(buttonSelector).click(form);

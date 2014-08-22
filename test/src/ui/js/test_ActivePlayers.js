@@ -43,37 +43,37 @@ test("test_ActivePlayers_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// ActivePlayers.showActivePlayersPage() is correct for a showXPage function, namely
+// ActivePlayers.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_ActivePlayers.showActivePlayersPage", function(assert) {
+test("test_ActivePlayers.showLoggedInPage", function(assert) {
   expect(5);
-  var cached_getActivePlayers = ActivePlayers.getActivePlayers;
+  var cached_getActivePlayers = Api.getActivePlayers;
   var cached_showStatePage = ActivePlayers.showPage;
   var getActivePlayersCalled = false;
   ActivePlayers.showPage = function() {
     assert.ok(getActivePlayersCalled, "ActivePlayers.getActivePlayers is called before ActivePlayers.showPage");
   }
-  ActivePlayers.getActivePlayers = function(callback) {
+  Api.getActivePlayers = function(number, callback) {
     getActivePlayersCalled = true;
     assert.equal(callback, ActivePlayers.showPage,
       "ActivePlayers.getActivePlayers is called with ActivePlayers.showPage as an argument");
     callback();
   }
 
-  ActivePlayers.showActivePlayersPage();
+  ActivePlayers.showLoggedInPage();
   var item = document.getElementById('activeplayers_page');
   assert.equal(item.nodeName, "DIV",
-        "#activeplayers_page is a div after showActivePlayersPage() is called");
-  ActivePlayers.getActivePlayers = cached_getActivePlayers;
+        "#activeplayers_page is a div after showLoggedInPage() is called");
+  Api.getActivePlayers = cached_getActivePlayers;
   ActivePlayers.showPage = cached_showStatePage;
 });
 
 test("test_ActivePlayers.getActivePlayers", function(assert) {
   stop();
-  ActivePlayers.getActivePlayers(function() {
+  Api.getActivePlayers(50, function() {
     assert.ok(Api.active_players, "ActivePlayers info parsed from server");
     if (Api.active_players) {
       assert.equal(Api.active_players.load_status, 'ok',
@@ -85,7 +85,7 @@ test("test_ActivePlayers.getActivePlayers", function(assert) {
 
 test("test_ActivePlayers.showPage", function(assert) {
   stop();
-  ActivePlayers.getActivePlayers(function() {
+  Api.getActivePlayers(50, function() {
     ActivePlayers.showPage();
     var htmlout = ActivePlayers.page.html();
     assert.ok(htmlout.length > 0,
@@ -96,7 +96,7 @@ test("test_ActivePlayers.showPage", function(assert) {
 
 test("test_ActivePlayers.buildPlayersTable", function(assert) {
   stop();
-  ActivePlayers.getActivePlayers(function() {
+  Api.getActivePlayers(50, function() {
     var table = ActivePlayers.buildPlayersTable();
     var htmlout = table.html();
     assert.ok(htmlout.match('12 minutes'), "Players table content was generated");

@@ -2,7 +2,7 @@
 var Newgame = {
   'activity': {},
 };
-Login.bodyDivId = 'newuser_page';
+
 Newgame.bodyDivId = 'newgame_page';
 
 // Maximum number of characters permitted in the game description

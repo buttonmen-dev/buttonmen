@@ -15,7 +15,7 @@ module("Overview", {
       $('body').append($('<div>', {'id': 'overview_page', }));
     }
 
-    Login.bodyDivId = 'overview_page';
+    Login.pageModule = { 'bodyDivId': 'overview_page' };
   },
   'teardown': function(assert) {
 
@@ -37,7 +37,7 @@ module("Overview", {
     delete Env.window.location.href;
 
     Api.automatedApiCall = false;
-    Login.bodyDivId = null;
+    Login.pageModule = null;
     Login.nextGameRefreshCallback = false;
 
     // Page elements
@@ -65,12 +65,12 @@ test("test_Overview_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// Overview.showOverviewPage() is correct for a showXPage function, namely
+// Overview.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_Overview.showOverviewPage", function(assert) {
+test("test_Overview.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getOverview = Overview.getOverview;
   var cached_showStatePage = Overview.showPage;
@@ -85,10 +85,10 @@ test("test_Overview.showOverviewPage", function(assert) {
     callback();
   }
 
-  Overview.showOverviewPage();
+  Overview.showLoggedInPage();
   var item = document.getElementById('overview_page');
   assert.equal(item.nodeName, "DIV",
-        "#overview_page is a div after showOverviewPage() is called");
+        "#overview_page is a div after showLoggedInPage() is called");
 
   Overview.getOverview = cached_getOverview;
   Overview.showPage = cached_showStatePage;
@@ -104,22 +104,17 @@ test("test_Overview.getOverview", function(assert) {
   });
 });
 
-test("test_Overview.getOverview_logged_out", function(assert) {
-  stop();
-
+test("test_Overview.showLoggedOutPage", function(assert) {
   // Undo the fake login data
   Login.player = null;
   Login.logged_in = false;
 
-  Overview.getOverview(function() {
-    Overview.showPage();
-    assert.equal(Env.message, undefined,
-          "No Env.message when logged out");
-    var item = document.getElementById('overview_page');
-    assert.ok(item.innerHTML.match('Welcome to Button Men'),
-          "#overview_page contains some welcoming text");
-    start();
-  });
+  Overview.showLoggedOutPage();
+  assert.equal(Env.message, undefined,
+        "No Env.message when logged out");
+  var item = document.getElementById('overview_page');
+  assert.ok(item.innerHTML.match('Welcome to Button Men'),
+        "#overview_page contains some welcoming text");
 });
 
 test("test_Overview.showPage", function(assert) {
@@ -218,11 +213,11 @@ test("test_Overview.pageAddIntroText", function(assert) {
 test("test_Overview.formDismissGame", function(assert) {
   stop();
   expect(3);
-  // Temporarily back up Overview.showOverviewPage and replace it with
+  // Temporarily back up Overview.showLoggedInPage and replace it with
   // a mocked version for testing
-  var showOverviewPage = Overview.showOverviewPage;
-  Overview.showOverviewPage = function() {
-    Overview.showOverviewPage = showOverviewPage;
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
     assert.equal(Env.message.text, 'Successfully dismissed game',
       'Dismiss game should succeed');
     start();
