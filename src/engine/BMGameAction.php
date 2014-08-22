@@ -447,6 +447,33 @@ class BMGameAction {
         return $message;
     }
 
+    protected function friendly_message_ornery_reroll() {
+        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                   '\'s idle ornery dice reroll at end of turn: ';
+
+        $messageArray = array();
+        // Report what happened to each rerolling die
+        foreach ($this->params['postRerollDieInfo'] as $idx => $postInfo) {
+            if (!$dieData['hasJustRerolledOrnery']) {
+                continue;
+            }
+
+            $preInfo = $this->params['preRerollDieInfo'][$idx];
+
+            if ($preInfo['doesReroll']) {
+                $messageArray[] = $preInfo['recipe'] . ' rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
+            }
+
+            if ($postInfo['recipe'] != $preInfo['recipe']) {
+                $messageArray[] = 'recipe changed from ' . $preInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            }
+        }
+
+        $message .= implode('; ', $messageArray);
+
+        return $message;
+    }
+
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {

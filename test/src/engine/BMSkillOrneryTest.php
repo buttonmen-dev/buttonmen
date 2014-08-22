@@ -35,22 +35,27 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
         $parArray = NULL;
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array();
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('die' => 1);
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('die' => $die);
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
     }
 
     /*
@@ -65,6 +70,7 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
         $parArray = array('die' => $die, 'attackType' => 'Pass');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
     }
 
     /*
@@ -80,6 +86,7 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
         $parArray = array('die' => $die, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
     }
 
     /*
@@ -95,6 +102,7 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
         $parArray = array('die' => $die, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
         $this->assertEquals($dieValue, $die->value);
+        $this->assertFalse($die->has_flag('HasJustRerolledOrnery'));
     }
 
     /*
@@ -114,18 +122,23 @@ class BMSkillOrneryTest extends PHPUnit_Framework_TestCase {
 
         $parArray = array('die' => $die1, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
+        $this->assertTrue($die1->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('die' => $die2, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
+        $this->assertTrue($die2->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('die' => $die3, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
+        $this->assertTrue($die3->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('die' => $die4, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
+        $this->assertTrue($die4->has_flag('HasJustRerolledOrnery'));
 
         $parArray = array('die' => $die5, 'attackType' => 'Power');
         BMSkillOrnery::perform_end_of_turn_die_actions($parArray);
+        $this->assertTrue($die5->has_flag('HasJustRerolledOrnery'));
 
         $this->assertNotEquals(
             array_fill(0, 5, $dieValue),

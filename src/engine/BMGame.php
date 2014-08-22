@@ -1242,8 +1242,14 @@ class BMGame {
     }
 
     protected function perform_end_of_turn_die_actions() {
+        $preRerollDieInfo = array();
+        $postRerollDieInfo = array();
+        $hasRerolled = FALSE;
+
         foreach ($this->get__attackerAllDieArray() as $die) {
-            $die->run_hooks(
+            $preRerollDieInfo[] = $die->get_action_log_data();
+
+            $hasRerolled |= $die->run_hooks(
                 __FUNCTION__,
                 array(
                     'die' => $die,
@@ -1251,10 +1257,23 @@ class BMGame {
                 )
             );
 
+            $postRerollDieInfo[] = $die->get_action_log_data();
+
             if ($die->playerIdx === $this->attack['attackerPlayerIdx']) {
                 $die->inactive = '';
             }
             $die->hasAttacked = FALSE;
+        }
+
+        if ($hasRerolled) {
+            $this->log_action(
+                'ornery_reroll',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'preRerollDieInfo' => $preRerollDieInfo,
+                    'postRerollDieInfo' => $postRerollDieInfo,
+                )
+            );
         }
     }
 

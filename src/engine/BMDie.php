@@ -574,6 +574,7 @@ class BMDie extends BMCanHaveSkill {
             'forceReportDieSize' => $this->forceReportDieSize(),
             'valueAfterTripAttack' => $valueAfterTripAttack,
             'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
+            'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
         ));
     }
 
