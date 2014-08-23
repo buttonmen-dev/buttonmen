@@ -33,19 +33,7 @@ Overview.showOverviewPage = function() {
   Env.setupEnvStub();
 
   // Set up the callback for refreshing the page if there's no next game
-  Login.nextGameRefreshCallback = function() {
-    Api.getUserPrefsData(function() {
-      if (Api.user_prefs.automatically_monitor) {
-        Overview.monitorIsOn = true;
-        // If we're in monitor mode, run the monitor first
-        Overview.executeMonitor();
-      } else {
-        Overview.monitorIsOn = false;
-        // Get all needed information, then display overview page
-        Overview.getOverview(Overview.showPage);
-      }
-    });
-  };
+  Login.nextGameRefreshCallback = Overview.showPreferredOverview;
 
   // Make sure the div element that we will need exists in the page body
   if ($('#overview_page').length === 0) {
@@ -69,17 +57,7 @@ Overview.showOverviewPage = function() {
     });
     break;
   case 'preference':
-    Api.getUserPrefsData(function() {
-      if (Api.user_prefs.automatically_monitor) {
-        Overview.monitorIsOn = true;
-        // If we're in monitor mode, run the monitor first
-        Overview.executeMonitor();
-      } else {
-        Overview.monitorIsOn = false;
-        // Get all needed information, then display overview page
-        Overview.getOverview(Overview.showPage);
-      }
-    });
+    Overview.showPreferredOverview();
     break;
   default:
     Overview.monitorIsOn = false;
@@ -87,6 +65,20 @@ Overview.showOverviewPage = function() {
     Overview.getOverview(Overview.showPage);
     break;
   }
+};
+
+Overview.showPreferredOverview = function() {
+  Api.getUserPrefsData(function() {
+    if (Api.user_prefs.automatically_monitor) {
+      Overview.monitorIsOn = true;
+      // If we're in monitor mode, run the monitor first
+      Overview.executeMonitor();
+    } else {
+      Overview.monitorIsOn = false;
+      // Get all needed information, then display overview page
+      Overview.getOverview(Overview.showPage);
+    }
+  });
 };
 
 Overview.getOverview = function(callback) {
