@@ -3,8 +3,7 @@
 class BMFlagHasJustRerolledOrneryTest extends PHPUnit_Framework_TestCase {
     
     /**
-     * @covers BMFlagHasJustRerolledOrnery::__construct
-     * @covers BMFlagHasJustRerolledOrnery::value
+     * @covers BMFlag::create_from_string
      */
     public function testConstruct() {
         $flag = BMFlag::create_from_string('HasJustRerolledOrnery');
@@ -12,7 +11,7 @@ class BMFlagHasJustRerolledOrneryTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMFlagHasJustRerolledOrnery::__toString
+     * @covers BMFlag::__toString
      */
     public function testToString() {
         $flag = BMFlag::create_from_string('HasJustRerolledOrnery');
