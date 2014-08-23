@@ -285,8 +285,6 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_create_user
      *
-     * @coversNothing
-     *
      * This is the same game setup as in BMInterfaceTest::test_option_reset_bug()
      */
     public function test_interface_game_001() {
@@ -650,7 +648,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $BM_RAND_VALS = array(4, 1, 1, 1, 1, 2, 15, 16, 17, 18);
         $retval = $this->object->submit_turn(
             $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Power', 0, 1, '');
-//        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(0, count($BM_RAND_VALS));
         $this->assertEquals(
             $username1 . ' performed Power attack using [(4):3] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 3 => 4. End of round: ' . $username1 . ' won round 1 (95 vs. 2). ' . $username1 . ' won initiative for round 2. Initial die values: ' . $username1 . ' rolled [(4):1, (6):1, (8):1, (12):1, (2/20=2):2], ' . $username2 . ' rolled [(20):15, (20):16, (20):17, (20):18].. ',
             $this->object->message);
@@ -704,23 +702,21 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_create_user
      *
-     * @covers BMInterface::load_swing_values_from_last_round
-     *
      * Game scenario (both players have autopass):
      * p1 (Jellybean) vs. p2 (Dirgo):
      *  1. p1 set swing values: V=6, X=10
      *  2. p2 set swing values: X=4
-     *  3. p1 won initiative for round 1. Initial die values: p1 rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], p2 rolled [(20):5, (20):8, (20):12, (X=4):4].
-     *  4. p1 performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15
-     *  5. p2 performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12
+     *     p1 won initiative for round 1. Initial die values: p1 rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], p2 rolled [(20):5, (20):8, (20):12, (X=4):4].
+     *  3. p1 performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15
+     *  4. p2 performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12
      *     p1 passed
-     *  6. p2 performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13
+     *  5. p2 performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13
      *     p1 passed
-     *  7. p2 performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1
+     *  6. p2 performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1
      *     p1 passed
      *     p2 passed
      *     End of round: p1 won round 1 (30 vs. 28)
-     *  8. p2 set swing values: X=7
+     *  7. p2 set swing values: X=7
      *     p1 won initiative for round 2. Initial die values: p1 rolled [p(20):8, s(20):6, (V=6):1, (X=10):1], p2 rolled [(20):7, (20):2, (20):17, (X=7):2].
      */
     public function test_interface_game_002() {
@@ -803,7 +799,6 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         // load the game and check its state
         $this->object = new BMInterface(TRUE);
         $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment once #1225 is fixed
         $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
         $cleanedRetval = $this->squash_game_data_timestamps($retval);
         $this->assertEquals($expData, $cleanedRetval);
@@ -845,6 +840,213 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['gameActionLog'][0]['message'] = $username1 . ' set swing values: V=6, X=10';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' set swing values: X=4'));
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], ' . $username2 . ' rolled [(20):5, (20):8, (20):12, (X=4):4].'));
+
+        // load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment once #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+
+
+        //////////////////// 
+        // Move 03 - player 1 performs shadow attack
+
+        // p(20) s(20) (V) (X)  vs.  (20) (20) (20) (X)
+        $this->object = new BMInterface(TRUE);
+        $attack = $this->generate_valid_attack_array($retval, array(array(0, 1), array(1, 2)));
+        $BM_RAND_VALS = array(15);
+        $retval = $this->object->submit_turn(
+            $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Shadow', 0, 1, '');
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(
+            $username1 . ' performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15. ',
+            $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes to game state
+        $expData['activePlayerIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 18;
+        $expData['playerDataArray'][1]['roundScore'] = 22;
+        $expData['playerDataArray'][0]['sideScore'] = -2.7;
+        $expData['playerDataArray'][1]['sideScore'] = 2.7;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 15;
+        $expData['playerDataArray'][0]['capturedDieArray'][]= 
+            array('value' => 12, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15'));
+
+        // load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment once #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+
+
+        //////////////////// 
+        // Move 04 - player 2 performs power attack; player 1 passes
+
+        // p(20) s(20) (V) (X)  vs.  (20) (20) (X)
+        $this->object = new BMInterface(TRUE);
+        $attack = $this->generate_valid_attack_array($retval, array(array(1, 0), array(0, 2)));
+        $BM_RAND_VALS = array(12);
+        $retval = $this->object->submit_turn(
+            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Power', 1, 0, '');
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(
+            $username2 . ' performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12. ' . $username1 . ' passed. ',
+            $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes to game state
+        $expData['playerDataArray'][0]['roundScore'] = 15;
+        $expData['playerDataArray'][1]['roundScore'] = 28;
+        $expData['playerDataArray'][0]['sideScore'] = -8.7;
+        $expData['playerDataArray'][1]['sideScore'] = 8.7;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 12;
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'][]= 
+            array('value' => 3, 'sides' => 6, 'properties' => array(), 'recipe' => '(V)');
+        array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 1);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
+
+        // load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment once #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+
+
+        //////////////////// 
+        // Move 05 - player 2 performs power attack; player 1 passes
+
+        // p(20) s(20) (X)  vs.  (20) (20) (X)
+        $this->object = new BMInterface(TRUE);
+        $attack = $this->generate_valid_attack_array($retval, array(array(1, 1), array(0, 2)));
+        $BM_RAND_VALS = array(13);
+        $retval = $this->object->submit_turn(
+            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Power', 1, 0, '');
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(
+            $username2 . ' performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13. ' . $username1 . ' passed. ',
+            $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // no new code coverage; load the data, but don't bother to test it
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+
+
+        //////////////////// 
+        // Move 06 - player 2 performs power attack; player 1 passes; player 2 passes; round ends
+
+        // p(20) s(20)  vs.  (20) (20) (X)
+        // random values needed: 1 for reroll, 7 for end of turn reroll
+        $this->object = new BMInterface(TRUE);
+        $attack = $this->generate_valid_attack_array($retval, array(array(1, 0), array(0, 0)));
+        $BM_RAND_VALS = array(1, 2, 2, 2, 2, 2, 2, 2);
+        $retval = $this->object->submit_turn(
+            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Power', 1, 0, '');
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(
+            $username2 . ' performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1. ' . $username1 . ' passed. ' . $username2 . ' passed. End of round: ' . $username1 . ' won round 1 (30 vs. 28). ',
+            $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes to game state
+        $expData['roundNumber'] = 2;
+        $expData['gameState'] = 'SPECIFY_DICE';
+        $expData['activePlayerIdx'] = NULL;
+        $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][0]['gameScoreArray']['W'] = 1;
+        $expData['playerDataArray'][1]['gameScoreArray']['L'] = 1;
+        $expData['playerDataArray'][0]['roundScore'] = NULL;
+        $expData['playerDataArray'][1]['roundScore'] = NULL;
+        $expData['playerDataArray'][0]['sideScore'] = NULL;
+        $expData['playerDataArray'][1]['sideScore'] = NULL;
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array('V' => 6, 'X' => 10);
+        $expData['playerDataArray'][1]['prevSwingValueArray'] = array('X' => 4);
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 20, 'skills' => array('Poison'), 'properties' => array(), 'recipe' => 'p(20)', 'description' => 'Poison 20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array('Shadow'), 'properties' => array(), 'recipe' => 's(20)', 'description' => 'Shadow 20-sided die'),
+            array('value' => NULL, 'sides' => 6, 'skills' => array(), 'properties' => array(), 'recipe' => '(V)', 'description' => 'V Swing Die (with 6 sides)'),
+            array('value' => NULL, 'sides' => 10, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die (with 10 sides)'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(X)', 'description' => 'X Swing Die'),
+        );
+        $expData['playerDataArray'][0]['capturedDieArray'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'] = array();
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' passed'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'End of round: ' . $username1 . ' won round 1 (30 vs. 28)'));
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
+
+        // load the game and check its state
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
+// FIXME: uncomment once #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+
+
+        //////////////////// 
+        // Move 07 - player 2 specifies swing dice
+
+        // this causes all specified dice to be rerolled with their real values:
+        // p(20) s(20) (V) (X)   (20) (20) (20) (X)
+        $this->object = new BMInterface(TRUE);
+        $BM_RAND_VALS = array(8, 6, 1, 1, 7, 2, 17, 2);
+        $retval = $this->object->submit_die_values($playerId2, $gameId, 2, array('X' => 7), array());
+        $this->assertEquals('Successfully set die sizes', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes to game state
+        $expData['gameState'] = 'START_TURN';
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Shadow');
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = -2;
+        $expData['playerDataArray'][1]['roundScore'] = 33.5;
+        $expData['playerDataArray'][0]['sideScore'] = -23.7;
+        $expData['playerDataArray'][1]['sideScore'] = 23.7;
+        $expData['playerDataArray'][0]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][1]['prevSwingValueArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 7;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'X Swing Die (with 7 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 7;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 17;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 2;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' set swing values: X=7'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 2. Initial die values: ' . $username1 . ' rolled [p(20):8, s(20):6, (V=6):1, (X=10):1], ' . $username2 . ' rolled [(20):7, (20):2, (20):17, (X=7):2].'));
+        array_pop($expData['gameActionLog']);
+        array_pop($expData['gameActionLog']);
 
         // load the game and check its state
         $this->object = new BMInterface(TRUE);
