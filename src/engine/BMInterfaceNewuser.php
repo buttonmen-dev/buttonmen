@@ -28,7 +28,11 @@ class BMInterfaceNewuser {
 
     private $isTest;         // indicates if the interface is for testing
 
-    // constructor
+    /**
+     * Constructor
+     *
+     * @param boolean $isTest
+     */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
@@ -227,6 +231,12 @@ class BMInterfaceNewuser {
         $email->send_verification_link($playerId, $username, $playerKey);
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -236,6 +246,12 @@ class BMInterfaceNewuser {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'message':
