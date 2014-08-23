@@ -454,11 +454,19 @@ class BMGameAction {
         $messageArray = array();
         // Report what happened to each rerolling die
         foreach ($this->params['postRerollDieInfo'] as $idx => $postInfo) {
-            if (!$dieData['hasJustRerolledOrnery']) {
+            if (!$postInfo['hasJustRerolledOrnery']) {
                 continue;
             }
 
             $preInfo = $this->params['preRerollDieInfo'][$idx];
+
+            if ($postInfo['max'] != $preInfo['max']) {
+                $messageArray[] = $preInfo['recipe'] . ' changed size from ' . $preInfo['max'] . ' to ' .
+                                  $postInfo['max'] . ' sides';
+            } elseif (array_key_exists('forceReportDieSize', $preInfo) &&
+                      $preInfo['forceReportDieSize']) {
+                $messageArray[] = $preInfo['recipe'] . ' remained the same size';
+            }
 
             if ($preInfo['doesReroll']) {
                 $messageArray[] = $preInfo['recipe'] . ' rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
