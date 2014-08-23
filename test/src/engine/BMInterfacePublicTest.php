@@ -42,6 +42,10 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
     private static $userId2WithoutAutopass;
     private static $userId3WithAutopass;
     private static $userId4WithAutopass;
+    private static $username1;
+    private static $username2;
+    private static $username3;
+    private static $username4;
 
     // duplicate skill info in one place so we don't have to retype it
     private static $skillInfo = array(
@@ -96,6 +100,9 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         if (is_array($modData)) {
             if (array_key_exists('timestamp', $modData) && is_int($modData['timestamp']) && $modData['timestamp'] > 0) {
                 $modData['timestamp'] = 'TIMESTAMP';
+            }
+            if (array_key_exists('gameChatEditable', $modData) && is_int($modData['gameChatEditable']) && $modData['gameChatEditable'] > 0) {
+                $modData['gameChatEditable'] = 'TIMESTAMP';
             }
             if (count($modData['gameActionLog']) > 0) {
                 foreach ($modData['gameActionLog'] as $idx => $value) {
@@ -202,9 +209,82 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         return $expData;
     }
 
+    /**
+     * verify_create_game() - helper routine which calls
+     * BMInterface::create_game() using provided fake die
+     * rolls, and makes standard assertions about its return value
+     */
+    protected function verify_create_game($postCreateDieRolls, $playerArray, $buttonArray, $maxWins, $description='', $prevGame=NULL) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $postCreateDieRolls;
+        $this->object = new BMInterface(TRUE);
+        if (is_null($prevGame)) {
+            $retval = $this->object->create_game($playerArray, $buttonArray, $maxWins, $description);
+        } else {
+            $retval = $this->object->create_game($playerArray, $buttonArray, $maxWins, $description, $prevGame);
+        }
+        $gameId = $retval['gameId'];
+        $this->assertEquals('Game ' . $gameId . ' created successfully.', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(array('gameId' => $gameId), $retval);
+        return $gameId;
+    }
 
     /**
-     * @covers BMInterfaceNewuser::create_user
+     * verify_submit_die_values() - helper routine which calls
+     * BMInterface::submit_die_values() using provided fake die
+     * rolls, and makes standard assertions about its return value
+     */
+    protected function verify_submit_die_values($postSubmitDieRolls, $playerId, $gameId, $roundNum, $swingArray, $optionArray) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $postSubmitDieRolls;
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->submit_die_values($playerId, $gameId, $roundNum, $swingArray, $optionArray);
+        $this->assertEquals('Successfully set die sizes', $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(TRUE, $retval);
+    }
+
+    /**
+     * verify_submit_turn() - helper routine which calls
+     * BMInterface::submit_turn() using provided fake die
+     * rolls, and makes standard assertions about its return value
+     */
+    protected function verify_submit_turn(
+	$postSubmitDieRolls, $expMessage, $prevRetval, $participatingDice,
+	$playerId, $gameId, $roundNum, $attackType, $attackerIdx, $defenderIdx, $chat
+    ) {
+        global $BM_RAND_VALS;
+        $BM_RAND_VALS = $postSubmitDieRolls;
+        $this->object = new BMInterface(TRUE);
+        $dieSelects = $this->generate_valid_attack_array($prevRetval, $participatingDice);
+        $retval = $this->object->submit_turn(
+            $playerId, $gameId, $roundNum, $prevRetval['timestamp'], $dieSelects, $attackType, $attackerIdx, $defenderIdx, $chat);
+        $this->assertEquals($expMessage, $this->object->message);
+        $this->assertEquals(0, count($BM_RAND_VALS));
+        $this->assertEquals(TRUE, $retval);
+    }
+
+    /*
+     * verify_load_api_game_data() - helper routine which calls
+     * BMInterface::load_api_game_data(), makes standard assertions
+     * about its return value which shouldn't change, and compares
+     * its return value to an expected game state object compiled
+     * by the caller.
+     */
+    protected function verify_load_api_game_data($expData, $playerId, $gameId, $logEntryLimit) {
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->load_api_game_data($playerId, $gameId, $logEntryLimit);
+// FIXME: uncomment this when #1225 is fixed
+//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $cleanedRetval = $this->squash_game_data_timestamps($retval);
+        $this->assertEquals($expData, $cleanedRetval);
+        return $retval;
+    }
+
+
+    /**
+     * @covers BMInterfaceNewuser
      */
     public function test_create_user() {
         $created_real = False;
@@ -232,6 +312,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($created_real,
             "Creation of $username user should be reported as success");
         self::$userId1WithoutAutopass = (int)$createResult['playerId'];
+        self::$username1 = $username;
         $this->assertEquals(
             'User ' . $username . ' created successfully.  A verification code has been e-mailed to ' . $username . '@example.com.  Follow the link in that message to start beating people up! (Note: If you don\'t see the email shortly, be sure to check your spam folder.)',
             $this->object->message);
@@ -242,6 +323,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $this->object = new BMInterfaceNewuser(TRUE);
         $createResult = $this->object->create_user($username, 't', $email);
         self::$userId2WithoutAutopass = (int)$createResult['playerId'];
+        self::$username2 = $username;
 
         $trynum++;
         $username = 'ifacepub' . sprintf('%03d', $trynum);
@@ -267,6 +349,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->object->set_player_info(
             $createResult['playerId'], $infoArray, $addlInfo);
         self::$userId3WithAutopass = (int)$createResult['playerId'];
+        self::$username3 = $username;
         $this->assertEquals('Player info updated successfully.', $this->object->message);
         $this->assertEquals(array('playerId' => self::$userId3WithAutopass), $retval);
 
@@ -280,37 +363,48 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
                                        $infoArray,
                                        $addlInfo);
         self::$userId4WithAutopass = (int)$createResult['playerId'];
+        self::$username4 = $username;
     }
 
     /**
      * @depends test_create_user
+     * @covers BMInterface
+     *
+     */
+    public function test_get_profile_info() {
+
+        // successful retrieval of profile info (maybe later actually test the profile info itself)
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->get_profile_info(self::$username3);
+        $this->assertEquals('Player ID retrieved successfully.', $this->object->message);
+
+        // unsuccessful retrieval of profile info
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->get_profile_info(self::$username3 + 'foobar');
+        $this->assertEquals('Player name does not exist.', $this->object->message);
+        $this->assertEquals(NULL, $retval);
+    }
+
+    /**
+     * @depends test_create_user
+     * @covers BMInterface
      *
      * This is the same game setup as in BMInterfaceTest::test_option_reset_bug()
      */
     public function test_interface_game_001() {
-        global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
-        $BM_RAND_REQUIRE_OVERRIDE = TRUE;
 
         // arguments that won't change over the course of the test
         $playerId1 = self::$userId1WithoutAutopass;
         $playerId2 = self::$userId2WithoutAutopass;
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->get_player_info($playerId1);
-        $username1 = $retval['user_prefs']['name_ingame'];
-        $retval = $this->object->get_player_info($playerId2);
-        $username2 = $retval['user_prefs']['name_ingame'];
+        $username1 = self::$username1;
+        $username2 = self::$username2;
         $logEntryLimit = 10;
 
         // Non-option dice are initially rolled, namely:
         // (4) (6) (8) (12)   (20) (20) (20) (20)
-        $this->object = new BMInterface(TRUE);
-        $BM_RAND_VALS = array(4, 6, 8, 12, 1, 1, 1, 1);
-        $retval = $this->object->create_game(array($playerId1, $playerId2),
-                                             array('Frasquito', 'Wiseman'), 4);
-        $gameId = $retval['gameId'];
-        $this->assertEquals('Game ' . $gameId . ' created successfully.', $this->object->message);
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(array('gameId' => $gameId), $retval);
+        $gameId = $this->verify_create_game(
+            array(4, 6, 8, 12, 1, 1, 1, 1),
+            array($playerId1, $playerId2), array('Frasquito', 'Wiseman'), 4);
 
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 4, 'SPECIFY_DICE');
@@ -333,24 +427,16 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['optRequestArray'] = array('4' => array(2, 20));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment this when #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 01 - specify option dice
 
         // this should cause all 9 dice to be rerolled
-        $this->object = new BMInterface(TRUE);
-        $BM_RAND_VALS = array(4, 6, 8, 12, 2, 1, 1, 1, 1);
-        $retval = $this->object->submit_die_values($playerId1, $gameId, 1, array(), array(4 => 2));
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals('Successfully set die sizes', $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_die_values(
+            array(4, 6, 8, 12, 2, 1, 1, 1, 1),
+            $playerId1, $gameId, 1, array(), array(4 => 2));
 
         // expected changes to game state
         $expData['gameState'] = 'START_TURN';
@@ -380,28 +466,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username2 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [(4):4, (6):6, (8):8, (12):12, (2/20=2):2], ' . $username2 . ' rolled [(20):1, (20):1, (20):1, (20):1].'));
 
         // load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 02 - player 2 captures player 1's option die
 
         // capture the option die - two attacking dice need to reroll
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(1, 0), array(1, 1), array(0, 4)));
-        $BM_RAND_VALS = array(1, 1);
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Skill', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(1, 1),
             $username2 . ' performed Skill attack using [(20):1,(20):1] against [(2/20=2):2]; Defender (2/20=2) was captured; Attacker (20) rerolled 1 => 1; Attacker (20) rerolled 1 => 1. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(1, 0), array(1, 1), array(0, 4)),
+            $playerId2, $gameId, 1, 'Skill', 1, 0, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 0;
@@ -421,28 +497,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 03 - player 1 captures player 2's first 20-sider
 
         // 4 6 8 12 vs 1 1 1 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(0, 0), array(1, 0)));
-        $BM_RAND_VALS = array(4);
-        $retval = $this->object->submit_turn(
-            $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Power', 0, 1, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(4),
             $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 4. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(0, 0), array(1, 0)),
+            $playerId1, $gameId, 1, 'Power', 0, 1, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 1;
@@ -460,27 +526,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 4'));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 04 - player 2 passes
 
         // 4 6 8 12 vs 1 1 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array());
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Pass', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(),
             $username2 . ' passed. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(),
+            $playerId2, $gameId, 1, 'Pass', 1, 0, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 0;
@@ -495,27 +552,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' passed'));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 05 - player 1 captures player 2's first remaining (20)
 
         // 4 6 8 12 vs 1 1 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(0, 0), array(1, 0)));
-        $BM_RAND_VALS = array(3);
-        $retval = $this->object->submit_turn(
-            $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Power', 0, 1, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $actiondesc = $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 3';
-        $this->assertEquals($actiondesc . '. ', $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_turn(
+            array(3),
+            $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 3. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $playerId1, $gameId, 1, 'Power', 0, 1, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 1;
@@ -531,28 +579,21 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 0, 1);
         $expData['playerDataArray'][0]['capturedDieArray'][]= 
             array('value' => 1, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $actiondesc));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 3'));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 06 - player 2 passes
 
         // 4 6 8 12 vs 1 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array());
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Pass', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals($username2 . ' passed. ', $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_turn(
+            array(),
+            $username2 . ' passed. ',
+            $retval, array(),
+            $playerId2, $gameId, 1, 'Pass', 1, 0, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 0;
@@ -563,27 +604,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' passed'));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 07 - player 1 captures player 2's first remaining (20)
 
         // 4 6 8 12 vs 1 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(0, 1), array(1, 0)));
-        $BM_RAND_VALS = array(2);
-        $retval = $this->object->submit_turn(
-            $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Power', 0, 1, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $actiondesc = $username1 . ' performed Power attack using [(6):6] against [(20):1]; Defender (20) was captured; Attacker (6) rerolled 6 => 2';
-        $this->assertEquals($actiondesc . '. ', $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_turn(
+            array(2),
+            $username1 . ' performed Power attack using [(6):6] against [(20):1]; Defender (20) was captured; Attacker (6) rerolled 6 => 2. ',
+            $retval, array(array(0, 1), array(1, 0)),
+            $playerId1, $gameId, 1, 'Power', 0, 1, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 1;
@@ -599,28 +631,21 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 0, 1);
         $expData['playerDataArray'][0]['capturedDieArray'][]= 
             array('value' => 1, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $actiondesc));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(6):6] against [(20):1]; Defender (20) was captured; Attacker (6) rerolled 6 => 2'));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 08 - player 2 passes
 
         // 4 6 8 12 vs 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array());
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Pass', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals($username2 . ' passed. ', $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_turn(
+            array(),
+            $username2 . ' passed. ',
+            $retval, array(),
+            $playerId2, $gameId, 1, 'Pass', 1, 0, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 0;
@@ -631,28 +656,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' passed'));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 09 - player 1 captures player 2's last remaining (20)
 
         // 4 6 8 12 vs 1
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(0, 0), array(1, 0)));
-        $BM_RAND_VALS = array(4, 1, 1, 1, 1, 2, 15, 16, 17, 18);
-        $retval = $this->object->submit_turn(
-            $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Power', 0, 1, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(4, 1, 1, 1, 1, 2, 15, 16, 17, 18),
             $username1 . ' performed Power attack using [(4):3] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 3 => 4. End of round: ' . $username1 . ' won round 1 (95 vs. 2). ' . $username1 . ' won initiative for round 2. Initial die values: ' . $username1 . ' rolled [(4):1, (6):1, (8):1, (12):1, (2/20=2):2], ' . $username2 . ' rolled [(20):15, (20):16, (20):17, (20):18].. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(0, 0), array(1, 0)),
+            $playerId1, $gameId, 1, 'Power', 0, 1, '');
 
         // expected changes as a result of the attack
         $expData['activePlayerIdx'] = 0;
@@ -691,16 +706,12 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['gameActionLog']);
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
     }
 
     /**
      * @depends test_create_user
+     * @covers BMInterface
      *
      * Game scenario (both players have autopass):
      * p1 (Jellybean) vs. p2 (Dirgo):
@@ -720,8 +731,6 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
      *     p1 won initiative for round 2. Initial die values: p1 rolled [p(20):8, s(20):6, (V=6):1, (X=10):1], p2 rolled [(20):7, (20):2, (20):17, (X=7):2].
      */
     public function test_interface_game_002() {
-        global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
-        $BM_RAND_REQUIRE_OVERRIDE = TRUE;
 
         // arguments that won't change over the course of the test
         $playerId1 = self::$userId3WithAutopass;
@@ -738,14 +747,9 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
         // Non-swing dice are initially rolled, namely:
         // p(20) s(20)  (20) (20) (20)
-        $this->object = new BMInterface(TRUE);
-        $BM_RAND_VALS = array(1, 1, 1, 1, 1);
-        $retval = $this->object->create_game(array($playerId1, $playerId2),
-                                             array('Jellybean', 'Dirgo'), 3);
-        $gameId = $retval['gameId'];
-        $this->assertEquals('Game ' . $gameId . ' created successfully.', $this->object->message);
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(array('gameId' => $gameId), $retval);
+        $gameId = $this->verify_create_game(
+            array(1, 1, 1, 1, 1),
+            array($playerId1, $playerId2), array('Jellybean', 'Dirgo'), 3);
 
         // Initial expected game data object
         $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 3, 'SPECIFY_DICE');
@@ -768,12 +772,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['swingRequestArray'] = array('X' => array(4, 20));
 
         // now load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment this when #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
@@ -781,12 +780,9 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
         // this causes all specified dice to be rerolled twice with values that are never used:
         // p(20) s(20) (V) (X)   (20) (20) (20)
-        $this->object = new BMInterface(TRUE);
-        $BM_RAND_VALS = array(2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3);
-        $retval = $this->object->submit_die_values($playerId1, $gameId, 1, array('V' => 6, 'X' => 10), array());
-        $this->assertEquals('Successfully set die sizes', $this->object->message);
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_die_values(
+            array(2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3),
+            $playerId1, $gameId, 1, array('V' => 6, 'X' => 10), array());
 
         // expected changes to game state
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
@@ -797,11 +793,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' set die sizes'));
 
         // load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
@@ -809,12 +801,9 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
         // this causes all specified dice to be rerolled with their real values:
         // p(20) s(20) (V) (X)   (20) (20) (20) (X)
-        $this->object = new BMInterface(TRUE);
-        $BM_RAND_VALS = array(2, 11, 3, 1, 5, 8, 12, 4);
-        $retval = $this->object->submit_die_values($playerId2, $gameId, 1, array('X' => 4), array());
-        $this->assertEquals('Successfully set die sizes', $this->object->message);
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_die_values(
+            array(2, 11, 3, 1, 5, 8, 12, 4),
+            $playerId2, $gameId, 1, array('X' => 4), array());
 
         // expected changes to game state
         $expData['gameState'] = 'START_TURN';
@@ -842,28 +831,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [p(20):2, s(20):11, (V=6):3, (X=10):1], ' . $username2 . ' rolled [(20):5, (20):8, (20):12, (X=4):4].'));
 
         // load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 03 - player 1 performs shadow attack
 
         // p(20) s(20) (V) (X)  vs.  (20) (20) (20) (X)
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(0, 1), array(1, 2)));
-        $BM_RAND_VALS = array(15);
-        $retval = $this->object->submit_turn(
-            $playerId1, $gameId, 1, $retval['timestamp'], $attack, 'Shadow', 0, 1, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(15),
             $username1 . ' performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(0, 1), array(1, 2)),
+            $playerId1, $gameId, 1, 'Shadow', 0, 1, '');
 
         // expected changes to game state
         $expData['activePlayerIdx'] = 1;
@@ -881,28 +860,18 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15'));
 
         // load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 04 - player 2 performs power attack; player 1 passes
 
         // p(20) s(20) (V) (X)  vs.  (20) (20) (X)
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(1, 0), array(0, 2)));
-        $BM_RAND_VALS = array(12);
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Power', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(12),
             $username2 . ' performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12. ' . $username1 . ' passed. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(1, 0), array(0, 2)),
+            $playerId2, $gameId, 1, 'Power', 1, 0, '');
 
         // expected changes to game state
         $expData['playerDataArray'][0]['roundScore'] = 15;
@@ -918,33 +887,22 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
 
         // load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
         // Move 05 - player 2 performs power attack; player 1 passes
 
         // p(20) s(20) (X)  vs.  (20) (20) (X)
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(1, 1), array(0, 2)));
-        $BM_RAND_VALS = array(13);
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Power', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(13),
             $username2 . ' performed Power attack using [(20):8] against [(X=10):1]; Defender (X=10) was captured; Attacker (20) rerolled 8 => 13. ' . $username1 . ' passed. ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(1, 1), array(0, 2)),
+            $playerId2, $gameId, 1, 'Power', 1, 0, '');
 
         // no new code coverage; load the data, but don't bother to test it
         $this->object = new BMInterface(TRUE);
         $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
 
 
         //////////////////// 
@@ -952,16 +910,11 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
         // p(20) s(20)  vs.  (20) (20) (X)
         // random values needed: 1 for reroll, 7 for end of turn reroll
-        $this->object = new BMInterface(TRUE);
-        $attack = $this->generate_valid_attack_array($retval, array(array(1, 0), array(0, 0)));
-        $BM_RAND_VALS = array(1, 2, 2, 2, 2, 2, 2, 2);
-        $retval = $this->object->submit_turn(
-            $playerId2, $gameId, 1, $retval['timestamp'], $attack, 'Power', 1, 0, '');
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(
+        $this->verify_submit_turn(
+            array(1, 2, 2, 2, 2, 2, 2, 2),
             $username2 . ' performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1. ' . $username1 . ' passed. ' . $username2 . ' passed. End of round: ' . $username1 . ' won round 1 (30 vs. 28). ',
-            $this->object->message);
-        $this->assertEquals(TRUE, $retval);
+            $retval, array(array(1, 0), array(0, 0)),
+            $playerId2, $gameId, 1, 'Power', 1, 0, '');
 
         // expected changes to game state
         $expData['roundNumber'] = 2;
@@ -1000,12 +953,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['gameActionLog']);
 
         // load the game and check its state
-        $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
         //////////////////// 
@@ -1013,12 +961,9 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
         // this causes all specified dice to be rerolled with their real values:
         // p(20) s(20) (V) (X)   (20) (20) (20) (X)
-        $this->object = new BMInterface(TRUE);
-        $BM_RAND_VALS = array(8, 6, 1, 1, 7, 2, 17, 2);
-        $retval = $this->object->submit_die_values($playerId2, $gameId, 2, array('X' => 7), array());
-        $this->assertEquals('Successfully set die sizes', $this->object->message);
-        $this->assertEquals(0, count($BM_RAND_VALS));
-        $this->assertEquals(TRUE, $retval);
+        $this->verify_submit_die_values(
+            array(8, 6, 1, 1, 7, 2, 17, 2),
+            $playerId2, $gameId, 2, array('X' => 7), array());
 
         // expected changes to game state
         $expData['gameState'] = 'START_TURN';
@@ -1049,11 +994,364 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         array_pop($expData['gameActionLog']);
 
         // load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+    }
+
+    /**
+     * @depends test_create_user
+     * @covers BMInterface
+     *
+     * In this scenario, a 1-round Haruspex mirror battle is played,
+     * letting us test a completed game, and a number of "continue
+     * previous game" and game chat scenarios.  Steps:
+     * * Create haruspex mirror battle game 1.
+     * *   test invalid game continuation of a game in progress
+     * *   game 1: p2 passes while chatting
+     * *   game 1: p1 power attacks while chatting and wins
+     * *   test various invalid game continuations
+     * * Create haruspex mirror battle game 2, continuing game 1.
+     * *   game 2: p1 passes
+     * *   game 2: p1 submits chat 
+     * *   game 2: p1 updates chat 
+     * *   game 2: p1 deletes chat 
+     * *   game 2: p2 power attacks and wins
+     * * Create haruspex mirror battle game 3, continuing game 2 (double-continuation).
+     * *   game 3: p1 passes while chatting (verify chat is editable)
+     */
+    public function test_interface_game_003() {
+
+        // arguments that won't change over the course of the test
+        $playerId1 = self::$userId3WithAutopass;
+        $playerId2 = self::$userId4WithAutopass;
+        $playerId3 = self::$userId1WithoutAutopass;
+        $username1 = self::$username3;
+        $username2 = self::$username4;
+        $logEntryLimit = 10;
+
+        //////////////////// 
+        // initial game setup
+
+        // Both dice are initially rolled:
+        // (99)  (99)
+        $gameId = $this->verify_create_game(
+            array(54, 42),
+            array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, 'a competitive and interesting game');
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 1, 'START_TURN');
+        $expData['description'] = 'a competitive and interesting game';
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerWithInitiativeIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Pass');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 49.5;
+        $expData['playerDataArray'][1]['roundScore'] = 49.5;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][1]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 54, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 42, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username2 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [(99):54], ' . $username2 . ' rolled [(99):42].'));
+
+        // load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+	// Verify that a continuation of this game while it is still in progress fails
         $this->object = new BMInterface(TRUE);
-        $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
-// FIXME: uncomment once #1225 is fixed
-//        $this->assertEquals('Loaded data for game ' . $gameId . '.', $this->object->message);
-        $cleanedRetval = $this->squash_game_data_timestamps($retval);
-        $this->assertEquals($expData, $cleanedRetval);
+        $tmpRetval = $this->object->create_game(array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, '', $gameId);
+        $this->assertEquals('Game create failed because the previous game has not been completed yet.', $this->object->message);
+        $this->assertEquals(NULL, $tmpRetval);
+
+
+        //////////////////// 
+        // Move 01 - player 2 passes
+
+        // (99)  vs  (99)
+        $this->verify_submit_turn(
+            array(),
+            $username2 . ' passed. ',
+            $retval, array(),
+            $playerId2, $gameId, 1, 'Pass', 1, 0, 'I think you\'ve got this one');
+
+        // expected changes as a result of the attack
+        $expData['activePlayerIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' passed'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => 'I think you\'ve got this one'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 02 - player 1 performs power attack; game ends
+
+        // (99)  vs  (99)
+        $this->verify_submit_turn(
+            array(10),
+            $username1 . ' performed Power attack using [(99):54] against [(99):42]; Defender (99) was captured; Attacker (99) rerolled 54 => 10. End of round: ' . $username1 . ' won round 1 (148.5 vs. 0). ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $playerId1, $gameId, 1, 'Power', 0, 1, 'Good game!');
+
+        // expected changes as a result of the attack
+        $expData['gameState'] = 'END_GAME';
+        $expData['activePlayerIdx'] = NULL;
+        $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 0;
+        $expData['playerDataArray'][1]['roundScore'] = 0;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['gameScoreArray']['W'] = 1;
+        $expData['playerDataArray'][1]['gameScoreArray']['L'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'] = array();
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(99):54] against [(99):42]; Defender (99) was captured; Attacker (99) rerolled 54 => 10'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'End of round: ' . $username1 . ' won round 1 (148.5 vs. 0)'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'Good game!'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+	// Game creation failures - make sure various invalid argumentsj
+	// that the public API will allow, are rejected with friendly messages
+
+        // same player appears in the game twice
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->create_game(array($playerId1, $playerId1), array('haruspex', 'haruspex'), 3);
+        $this->assertEquals('Game create failed because a player has been selected more than once.', $this->object->message);
+        $this->assertEquals(NULL, $retval);
+
+
+        //////////////////// 
+	// Verify that a continuation of this game with an invalid previous game fails
+        $this->object = new BMInterface(TRUE);
+        $tmpRetval = $this->object->create_game(array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, '', -3);
+
+
+        //////////////////// 
+	// Verify that a continuation of this game with different players fails
+        $this->object = new BMInterface(TRUE);
+        $tmpRetval = $this->object->create_game(array($playerId3, $playerId2), array('haruspex', 'haruspex'), 1, '', $gameId);
+        $this->assertEquals('Game create failed because the previous game does not contain the same players.', $this->object->message);
+
+
+        //////////////////// 
+        // Creation of continuation game
+
+        // Both dice are initially rolled:
+        // (99)  (99)
+        $oldGameId = $gameId;
+        $gameId = $this->verify_create_game(
+            array(29, 50),
+            array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, 'another competitive and interesting game', $oldGameId);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 1, 'START_TURN');
+        $expData['description'] = 'another competitive and interesting game';
+        $expData['previousGameId'] = $oldGameId;
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Pass');
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 49.5;
+        $expData['playerDataArray'][1]['roundScore'] = 49.5;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][1]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 29, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 50, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [(99):29], ' . $username2 . ' rolled [(99):50].'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => 'I think you\'ve got this one'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'Good game!'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $oldGameId . '][i]'));
+
+        // load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 01 (game 2) - player 1 passes
+
+        // (99)  vs  (99)
+        $this->verify_submit_turn(
+            array(),
+            $username1 . ' passed. ',
+            $retval, array(),
+            $playerId1, $gameId, 1, 'Pass', 0, 1, '');
+
+        // expected changes as a result of the attack
+        $expData['activePlayerIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 02 (game 2) - player 1 submits chat
+
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->submit_chat($playerId1, $gameId, NULL, 'There was something i meant to say');
+        $this->assertEquals('Added game message', $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes as a result
+        $expData['gameChatEditable'] = 'TIMESTAMP';
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'There was something i meant to say'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 03 (game 2) - player 1 updates chat
+
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->submit_chat($playerId1, $gameId, $retval['gameChatEditable'], '...but i forgot what it was');
+        $this->assertEquals('Updated previous game message', $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes as a result
+        $expData['gameChatLog'][0]['message'] = '...but i forgot what it was';
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 04 (game 2) - player 1 deletes chat
+
+        $this->object = new BMInterface(TRUE);
+        $retval = $this->object->submit_chat($playerId1, $gameId, $retval['gameChatEditable'], '');
+        $this->assertEquals('Deleted previous game message', $this->object->message);
+        $this->assertEquals(TRUE, $retval);
+
+        // expected changes as a result
+        $expData['gameChatEditable'] = FALSE;
+        array_shift($expData['gameChatLog']);
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 05 (game 2) - player 2 wins game without chatting
+
+        // (99)  vs  (99)
+        $this->verify_submit_turn(
+            array(11),
+            $username2 . ' performed Power attack using [(99):50] against [(99):29]; Defender (99) was captured; Attacker (99) rerolled 50 => 11. End of round: ' . $username2 . ' won round 1 (148.5 vs. 0). ',
+            $retval, array(array(1, 0), array(0, 0)),
+            $playerId2, $gameId, 1, 'Power', 1, 0, '');
+
+        // expected changes as a result of the attack
+        $expData['gameState'] = 'END_GAME';
+        $expData['activePlayerIdx'] = NULL;
+        $expData['validAttackTypeArray'] = array();
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 0;
+        $expData['playerDataArray'][1]['roundScore'] = 0;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['gameScoreArray']['L'] = 1;
+        $expData['playerDataArray'][1]['gameScoreArray']['W'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'] = array();
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Power attack using [(99):50] against [(99):29]; Defender (99) was captured; Attacker (99) rerolled 50 => 11'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => 'End of round: ' . $username2 . ' won round 1 (148.5 vs. 0)'));
+        // chat from previous game is no longer included in a closed continuation game
+        array_pop($expData['gameChatLog']);
+        array_pop($expData['gameChatLog']);
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Creation of another continuation game
+
+        // Both dice are initially rolled:
+        // (99)  (99)
+        $secondGameId = $gameId;
+        $gameId = $this->verify_create_game(
+            array(13, 64),
+            array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, 'this series is a nailbiter', $secondGameId);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 1, 'START_TURN');
+        $expData['description'] = 'this series is a nailbiter';
+        $expData['previousGameId'] = $secondGameId;
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Pass');
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 49.5;
+        $expData['playerDataArray'][1]['roundScore'] = 49.5;
+        $expData['playerDataArray'][0]['sideScore'] = 0;
+        $expData['playerDataArray'][1]['sideScore'] = 0;
+        $expData['playerDataArray'][0]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][1]['canStillWin'] = TRUE;
+        $expData['playerDataArray'][0]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'haruspex', 'recipe' => '(99)', 'artFilename' => 'haruspex.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 13, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 64, 'sides' => 99, 'skills' => array(), 'properties' => array(), 'recipe' => '(99)', 'description' => '99-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [(99):13], ' . $username2 . ' rolled [(99):64].'));
+        // This behavior may change depending on the resolution of #1170
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $oldGameId . '][i]'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => '[i]Continued from [game=' . $secondGameId . '][i]'));
+
+        // load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        //////////////////// 
+        // Move 01 (game 3) - player 1 passes
+
+        // (99)  vs  (99)
+        $this->verify_submit_turn(
+            array(),
+            $username1 . ' passed. ',
+            $retval, array(),
+            $playerId1, $gameId, 1, 'Pass', 0, 1, 'Who will win?  The suspense is killing me!');
+
+        // expected changes as a result of the attack
+        $expData['activePlayerIdx'] = 1;
+        $expData['gameChatEditable'] = 'TIMESTAMP';
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
+        array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'Who will win?  The suspense is killing me!'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
     }
 }
