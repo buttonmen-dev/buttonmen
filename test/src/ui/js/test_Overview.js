@@ -5,6 +5,8 @@ module("Overview", {
     // Back up any properties that we might decide to replace with mocks
     BMTestUtils.OverviewBackup = { };
     BMTestUtils.CopyAllMethods(Overview, BMTestUtils.OverviewBackup);
+    BMTestUtils.ApiBackup = { };
+    BMTestUtils.CopyAllMethods(Api, BMTestUtils.ApiBackup);
     BMTestUtils.LoginBackup = { };
     BMTestUtils.CopyAllMethods(Login, BMTestUtils.LoginBackup);
 
@@ -46,6 +48,7 @@ module("Overview", {
 
     // Restore any properties that we might have replaced with mocks
     BMTestUtils.CopyAllMethods(BMTestUtils.OverviewBackup, Overview);
+    BMTestUtils.CopyAllMethods(BMTestUtils.ApiBackup, Api);
     BMTestUtils.CopyAllMethods(BMTestUtils.LoginBackup, Login);
 
     // Fail if any other elements were added or removed
