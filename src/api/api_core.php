@@ -16,7 +16,7 @@ function login($username, $password) {
     require_once '../database/mysql.inc.php';
     $conn = conn();
 
-    $sql = 'SELECT id, name_ingame, password_hashed, status FROM player
+    $sql = 'SELECT id, name_ingame, password_hashed, status FROM player_view
             WHERE name_ingame = :username';
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $username));
@@ -32,7 +32,7 @@ function login($username, $password) {
         $status = $result['status'];
 
         // check if the password is correct and if the account is in active status
-        if (($password_hashed == crypt($password, $password_hashed) && ($status == 'active'))) {
+        if (($password_hashed == crypt($password, $password_hashed) && ($status == 'ACTIVE'))) {
 
             // if the user has too many active logins (allow 6), delete the oldest
             $sql = 'SELECT id FROM player_auth WHERE player_id = :id ORDER BY login_time';

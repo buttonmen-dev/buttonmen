@@ -169,7 +169,7 @@ History.getFilters = function(callback) {
     ], function() {
       var playerValues = { };
       $.each(Api.player.list, function(name, playerInfo) {
-        if (playerInfo.status == 'active') {
+        if (playerInfo.status == 'ACTIVE') {
           playerValues[name] = name;
         }
       });
@@ -655,12 +655,12 @@ History.buildResultsTableBody = function() {
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorA + ';',
     }).append(Env.buildProfileLink(game.playerNameA)));
-    gameRow.append($('<td>', {
-      'text': game.buttonNameA,
-    }));
-    gameRow.append($('<td>', {
-      'text': game.buttonNameB,
-    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(game.buttonNameA)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(game.buttonNameB)
+    ));
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorB + ';',
     }).append(Env.buildProfileLink(game.playerNameB)));

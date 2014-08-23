@@ -88,6 +88,19 @@ Buttons.showButton = function() {
     'text': (button.flavorText ? button.flavorText : 'No flavor text.'),
   }));
 
+  if (button.tags.length > 0) {
+    var tags = 'Tags: ';
+    $.each(button.tags, function(index, tag) {
+      tags += tag + ', ';
+    });
+    // Trim off the trailing ', '
+    tags = tags.replace(/(, )$/, '');
+    secondBox.append($('<p>', {
+      'class': 'tags',
+      'text': tags,
+    }));
+  }
+
   if (button.hasUnimplementedSkill) {
     mainDiv.append($('<p>', {
       'class': 'warning',

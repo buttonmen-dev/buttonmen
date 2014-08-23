@@ -133,6 +133,7 @@ test("test_Buttons.showButton", function(assert) {
         'dieSkills': [ ],
         'isTournamentLegal': true,
         'artFilename': 'avis.png',
+        'tags': [ ],
         'flavorText': null,
         'specialText': null,
       },
@@ -163,6 +164,7 @@ test("test_Buttons.showSet", function(assert) {
             'dieSkills': [ ],
             'isTournamentLegal': true,
             'artFilename': 'avis.png',
+            'tags': [ ],
           },
           'Kublai': {
             'buttonName': 'Kublai',
@@ -172,6 +174,7 @@ test("test_Buttons.showSet", function(assert) {
             'dieSkills': [ ],
             'isTournamentLegal': true,
             'artFilename': 'kublai.png',
+            'tags': [ ],
           },
         },
       },
@@ -234,6 +237,7 @@ test("test_Buttons.buildButtonBox", function(assert) {
     'dieSkills': [ ],
     'isTournamentLegal': true,
     'artFilename': 'avis.png',
+    'tags': [ ],
   };
 
   var buttonBox = Buttons.buildButtonBox(button);

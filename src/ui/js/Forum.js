@@ -137,11 +137,20 @@ Forum.showOverview = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Forum.parseFormPost({
-      'type': 'markForumRead',
-      'timestamp': Api.forum_overview.timestamp,
-    }, 'forum_overview', $(this), Forum.showOverview);
-    Api.getNextNewPostId(Login.addNewPostLink);
+    Forum.parseFormPost(
+      {
+        'type': 'markForumRead',
+        'timestamp': Api.forum_overview.timestamp,
+      },
+      'forum_overview',
+      $(this),
+      function() {
+        Api.getNextNewPostId(function() {
+          Login.addNewPostLink();
+          Forum.showOverview();
+        });
+      }
+    );
   });
 
   // Actually lay out the page
@@ -241,12 +250,21 @@ Forum.showBoard = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Forum.parseFormPost({
-      'type': 'markForumBoardRead',
-      'boardId': Api.forum_board.boardId,
-      'timestamp': Api.forum_board.timestamp,
-    }, 'forum_overview', $(this), Forum.showOverview);
-    Api.getNextNewPostId(Login.addNewPostLink);
+    Forum.parseFormPost(
+      {
+        'type': 'markForumBoardRead',
+        'boardId': Api.forum_board.boardId,
+        'timestamp': Api.forum_board.timestamp,
+      },
+      'forum_overview',
+      $(this),
+      function() {
+        Api.getNextNewPostId(function() {
+          Login.addNewPostLink();
+          Forum.showOverview();
+        });
+      }
+    );
   });
 
   // Actually lay out the page
@@ -334,13 +352,22 @@ Forum.showThread = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Forum.parseFormPost({
-      'type': 'markForumThreadRead',
-      'threadId': Api.forum_thread.threadId,
-      'boardId': Api.forum_thread.boardId,
-      'timestamp': Api.forum_thread.timestamp,
-    }, 'forum_board', $(this), Forum.showBoard);
-    Api.getNextNewPostId(Login.addNewPostLink);
+    Forum.parseFormPost(
+      {
+        'type': 'markForumThreadRead',
+        'threadId': Api.forum_thread.threadId,
+        'boardId': Api.forum_thread.boardId,
+        'timestamp': Api.forum_thread.timestamp,
+      },
+      'forum_board',
+      $(this),
+      function() {
+        Api.getNextNewPostId(function() {
+          Login.addNewPostLink();
+          Forum.showBoard();
+        });
+      }
+    );
   });
 
   // Actually lay out the page
@@ -348,6 +375,8 @@ Forum.showThread = function() {
 };
 
 Forum.arrangePage = function() {
+  Api.automatedApiCall = false;
+
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
