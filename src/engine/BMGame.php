@@ -122,8 +122,6 @@ class BMGame {
 
         $this->debug_message = 'ok';
 
-        $this->run_die_hooks($this->gameState);
-
         $funcName = 'do_next_step_'.
                     strtolower(BMGameState::as_string($this->gameState));
         $this->$funcName();
@@ -496,7 +494,7 @@ class BMGame {
         $this->initialise_swing_value_array_array();
         $this->set_option_values();
         $this->set_swing_values();
-        $this->roll_active_dice();
+        $this->roll_active_dice_needing_values();
     }
 
     protected function initialise_swing_value_array_array() {
@@ -576,7 +574,7 @@ class BMGame {
         }
     }
 
-    protected function roll_active_dice() {
+    protected function roll_active_dice_needing_values() {
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
                 if ($die instanceof BMDieSwing) {
@@ -593,8 +591,10 @@ class BMGame {
                     }
                 }
 
-                $this->activeDieArrayArray[$playerIdx][$dieIdx] =
-                    $die->make_play_die(FALSE);
+                if (empty($die->value)) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                        $die->make_play_die(FALSE);
+                }
             }
         }
     }
@@ -1240,7 +1240,44 @@ class BMGame {
     }
 
     protected function do_next_step_end_turn() {
+        $this->perform_end_of_turn_die_actions();
         $this->firingAmount = NULL;
+    }
+
+    protected function perform_end_of_turn_die_actions() {
+        $preRerollDieInfo = array();
+        $postRerollDieInfo = array();
+        $hasRerolled = FALSE;
+
+        foreach ($this->get__attackerAllDieArray() as $die) {
+            $preRerollDieInfo[] = $die->get_action_log_data();
+
+            $hasRerolled |= $die->run_hooks(
+                __FUNCTION__,
+                array(
+                    'die' => $die,
+                    'attackType' => $this->attack['attackType']
+                )
+            );
+
+            $postRerollDieInfo[] = $die->get_action_log_data();
+
+            if ($die->playerIdx === $this->attack['attackerPlayerIdx']) {
+                $die->inactive = '';
+            }
+            $die->hasAttacked = FALSE;
+        }
+
+        if ($hasRerolled) {
+            $this->log_action(
+                'ornery_reroll',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'preRerollDieInfo' => $preRerollDieInfo,
+                    'postRerollDieInfo' => $postRerollDieInfo,
+                )
+            );
+        }
     }
 
     protected function update_game_state_end_turn() {
@@ -1693,26 +1730,6 @@ class BMGame {
         }
 
         return TRUE;
-    }
-
-    protected function run_die_hooks($gameState, array $args = array()) {
-        $args['activePlayerIdx'] = $this->activePlayerIdx;
-
-        if (!empty($this->activeDieArrayArray)) {
-            foreach ($this->activeDieArrayArray as $activeDieArray) {
-                foreach ($activeDieArray as $activeDie) {
-                    $activeDie->run_hooks_at_game_state($gameState, $args);
-                }
-            }
-        }
-
-        if (!empty($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $capturedDieArray) {
-                foreach ($capturedDieArray as $capturedDie) {
-                    $capturedDie->run_hooks_at_game_state($gameState, $args);
-                }
-            }
-        }
     }
 
     public function add_die($die) {
