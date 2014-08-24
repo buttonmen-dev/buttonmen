@@ -31,9 +31,7 @@ Overview.MONITOR_TIMEOUT = 60;
 
 Overview.showLoggedInPage = function() {
   // Set up the callback for refreshing the page if there's no next game
-  Login.nextGameRefreshCallback = function() {
-    Overview.getOverview(Overview.showPage);
-  };
+  Login.nextGameRefreshCallback = Overview.showPreferredOverview;
 
   var mode = Env.getParameterByName('mode');
 
@@ -50,17 +48,7 @@ Overview.showLoggedInPage = function() {
     });
     break;
   case 'preference':
-    Api.getUserPrefsData(function() {
-      if (Api.user_prefs.automatically_monitor) {
-        Overview.monitorIsOn = true;
-        // If we're in monitor mode, run the monitor first
-        Overview.executeMonitor();
-      } else {
-        Overview.monitorIsOn = false;
-        // Get all needed information, then display overview page
-        Overview.getOverview(Overview.showPage);
-      }
-    });
+    Overview.showPreferredOverview();
     break;
   default:
     Overview.monitorIsOn = false;
@@ -75,6 +63,20 @@ Overview.showLoggedOutPage = function() {
   Overview.pageAddIntroText();
   // Actually lay out the page
   Login.arrangePage(Overview.page);
+};
+
+Overview.showPreferredOverview = function() {
+  Api.getUserPrefsData(function() {
+    if (Api.user_prefs.automatically_monitor) {
+      Overview.monitorIsOn = true;
+      // If we're in monitor mode, run the monitor first
+      Overview.executeMonitor();
+    } else {
+      Overview.monitorIsOn = false;
+      // Get all needed information, then display overview page
+      Overview.getOverview(Overview.showPage);
+    }
+  });
 };
 
 Overview.getOverview = function(callback) {
@@ -283,12 +285,12 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       }
     }
     gameRow.append(gameLinkTd);
-    gameRow.append($('<td>', {
-      'text': gameInfo.playerButtonName,
-    }));
-    gameRow.append($('<td>', {
-      'text': gameInfo.opponentButtonName,
-    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.playerButtonName)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.opponentButtonName)
+    ));
     gameRow.append($('<td>', {
       'style': 'background-color: ' + opponentColor,
     }).append(Env.buildProfileLink(gameInfo.opponentName)));
