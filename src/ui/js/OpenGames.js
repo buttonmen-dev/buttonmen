@@ -1,55 +1,39 @@
 // namespace for this "module"
 var OpenGames = {};
 
+OpenGames.bodyDivId = 'opengames_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * OpenGames.showOpenGamesPage() is the landing function.  Always call
+// * OpenGames.showLoggedInPage() is the landing function.  Always call
 //   this first. It sets up #opengames_page and calls OpenGames.getOpenGames()
 // * OpenGames.getOpenGames() calls the API, setting Api.button and
 //   Api.open_games. It calls OpenGames.showPage()
 // * OpenGames.showPage() uses the data returned by the API to build
 //   the contents of the page as OpenGames.page and calls
-//   OpenGames.arrangePage()
+//   Login.arrangePage()
 //
 //* OpenGames.joinOpenGame() is called whenever the user clicks on one of the
 //  Join Game buttons. It calls the API to join the game, setting
 //  Api.join_game_result if successful
 ////////////////////////////////////////////////////////////////////////
 
-OpenGames.showOpenGamesPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#opengames_page').length === 0) {
-    $('body').append($('<div>', {'id': 'opengames_page', }));
-  }
-
+OpenGames.showLoggedInPage = function() {
   // Get all needed information, then display Open Games page
   OpenGames.getOpenGames(OpenGames.showPage);
 };
 
 OpenGames.getOpenGames = function(callback) {
-  if (Login.logged_in) {
-    Env.callAsyncInParallel([
-      Api.getOpenGamesData,
-      { 'func': Api.getButtonData, 'args': [ null ] },
-    ], callback);
-  } else {
-    return callback();
-  }
+  Env.callAsyncInParallel([
+    Api.getOpenGamesData,
+    { 'func': Api.getButtonData, 'args': [ null ] },
+  ], callback);
 };
 
 OpenGames.showPage = function() {
   OpenGames.page = $('<div>');
 
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t join games because you are not logged in',
-    };
-  } else if (Api.open_games.load_status != 'ok') {
+  if (Api.open_games.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
@@ -112,16 +96,7 @@ OpenGames.showPage = function() {
   }
 
   // Actually layout the page
-  OpenGames.arrangePage();
-};
-
-OpenGames.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#opengames_page').empty();
-  $('#opengames_page').append(OpenGames.page);
+  Login.arrangePage(OpenGames.page);
 };
 
 OpenGames.joinOpenGame = function() {

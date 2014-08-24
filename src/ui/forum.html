@@ -23,7 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/Forum.js' ], function() {
-                Login.showLoginHeader(Forum.showForumPage);
+                Login.showLoginHeader(Forum);
             });
           });
         });

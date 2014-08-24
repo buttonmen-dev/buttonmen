@@ -17,6 +17,8 @@ module("Game", {
       'player': '#dd99dd',
       'opponent': '#ddffdd',
     };
+
+    Login.pageModule = { 'bodyDivId': 'game_page' };
   },
   'teardown': function(assert) {
 
@@ -39,7 +41,7 @@ module("Game", {
     delete Game.form;
     delete Game.color;
 
-    Api.automatedApiCall = false;
+    Login.pageModule = null;
     Game.activity = {};
 
     // Page elements
@@ -68,12 +70,12 @@ test("test_Game_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// Game.showGamePage() is correct for a showXPage function, namely
+// Game.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_Game.showGamePage", function(assert) {
+test("test_Game.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getCurrentGame = Game.getCurrentGame;
   var cached_showStatePage = Game.showStatePage;
@@ -88,10 +90,10 @@ test("test_Game.showGamePage", function(assert) {
     callback();
   }
 
-  Game.showGamePage();
+  Game.showLoggedInPage();
   var item = document.getElementById('game_page');
   assert.equal(item.nodeName, "DIV",
-        "#game_page is a div after showGamePage() is called");
+        "#game_page is a div after showLoggedInPage() is called");
   Game.getCurrentGame = cached_getCurrentGame;
   Game.showStatePage = cached_showStatePage;
 });
@@ -301,24 +303,6 @@ test("test_Game.showStatePage_turn_nonplayer", function(assert) {
   });
 });
 
-test("test_Game.arrangePage", function(assert) {
-  stop();
-  Api.automatedApiCall = true;
-  BMTestUtils.GameType = 'newgame';
-  Game.getCurrentGame(function() {
-    $('body').append($('<div>', {'id': 'game_page', }));
-    Game.page = $('<div>');
-    Game.page.append($('<p>', {'text': 'hi world', }));
-    Game.arrangePage();
-    var item = document.getElementById('game_page');
-    assert.equal(item.nodeName, "DIV",
-      "#game_page is a div after arrangePage() is called");
-    assert.ok(!Api.automatedApiCall,
-      'arrangePage should unset Api.automatedApiCall');
-    start();
-  });
-});
-
 test("test_Game.parseValidInitiativeActions", function(assert) {
   stop();
   BMTestUtils.GameType = 'newgame';
@@ -424,6 +408,7 @@ test("test_Game.actionSpecifyDiceActive", function(assert) {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_specify_table');
     assert.equal(item.nodeName, "TABLE",
       "#die_specify_table is a table after actionSpecifyDiceActive() is called");
@@ -442,6 +427,7 @@ test("test_Game.actionSpecifyDiceActive_option", function(assert) {
   BMTestUtils.GameType = 'option_active';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_specify_table');
     assert.equal(item.nodeName, "TABLE",
       "#die_specify_table is a table after actionSpecifyDiceActive() is called");
@@ -460,6 +446,7 @@ test("test_Game.actionSpecifyDiceInactive", function(assert) {
   BMTestUtils.GameType = 'swingset';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_specify_table');
     assert.equal(item, null, "#die_specify_table is NULL");
     assert.equal(Game.form, null, "Game.form is NULL");
@@ -472,6 +459,7 @@ test("test_Game.actionSpecifyDiceNonplayer", function(assert) {
   BMTestUtils.GameType = 'newgame_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceNonplayer();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_specify_table');
     assert.equal(item, null, "#die_specify_table is NULL");
     assert.equal(Game.form, null, "Game.form is NULL");
@@ -484,6 +472,7 @@ test("test_Game.actionChooseAuxiliaryDiceActive", function(assert) {
   BMTestUtils.GameType = 'chooseaux_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -494,6 +483,7 @@ test("test_Game.actionChooseAuxiliaryDiceInactive", function(assert) {
   BMTestUtils.GameType = 'chooseaux_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -504,6 +494,7 @@ test("test_Game.actionChooseAuxiliaryDiceNonplayer", function(assert) {
   BMTestUtils.GameType = 'chooseaux_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceNonplayer();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -514,6 +505,7 @@ test("test_Game.actionChooseReserveDiceActive", function(assert) {
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.ok(Game.form, "Game.form is set");
     start();
   });
@@ -524,6 +516,7 @@ test("test_Game.actionChooseReserveDiceInactive", function(assert) {
   BMTestUtils.GameType = 'reserve_inactive';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -534,6 +527,7 @@ test("test_Game.actionChooseReserveDiceNonplayer", function(assert) {
   BMTestUtils.GameType = 'reserve_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceNonplayer();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.equal(Game.form, null, "Game.form is NULL");
     start();
   });
@@ -544,6 +538,7 @@ test("test_Game.actionReactToInitiativeActive", function(assert) {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('init_react_3');
     assert.ok(item, "#init_react_3 select is set");
     $.each(item.childNodes, function(childid, child) {
@@ -566,6 +561,7 @@ test("test_Game.actionReactToInitiativeActive_prevvals", function(assert) {
   Game.activity.initiativeDieValueArray = [ 2, ];
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('init_react_3');
     assert.ok(item, "#init_react_3 select is set");
     $.each(item.childNodes, function(childid, child) {
@@ -586,6 +582,7 @@ test("test_Game.actionReactToInitiativeInactive", function(assert) {
   BMTestUtils.GameType = 'chance_inactive';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
     item = document.getElementById('init_react_1');
@@ -600,6 +597,7 @@ test("test_Game.actionReactToInitiativeNonplayer", function(assert) {
   BMTestUtils.GameType = 'chance_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeNonplayer();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
     item = document.getElementById('init_react_1');
@@ -614,6 +612,7 @@ test("test_Game.actionPlayTurnActive", function(assert) {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('playerIdx_0_dieIdx_0');
     assert.equal(item.innerHTML.match('selected'), null,
       'No attacking die is initially selected');
@@ -642,6 +641,7 @@ test("test_Game.actionAdjustFireDiceActive", function(assert) {
   BMTestUtils.GameType = 'fire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var htmlout = Game.page.html();
     assert.ok(htmlout.match('Turn down Fire dice by a total of 1'),
       'Page describes the necessary Fire die turndown');
@@ -665,6 +665,7 @@ test("test_Game.actionAdjustFireDiceInactive", function(assert) {
   BMTestUtils.GameType = 'fire_inactive';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
     item = document.getElementById('fire_adjust_0');
@@ -679,6 +680,7 @@ test("test_Game.actionAdjustFireDiceNonplayer", function(assert) {
   BMTestUtils.GameType = 'fire_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceNonplayer();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "page contains die recipe table");
     item = document.getElementById('fire_adjust_0');
@@ -703,6 +705,7 @@ test("test_Game.actionPlayTurnActive_prevvals", function(assert) {
 
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('playerIdx_0_dieIdx_0');
     assert.deepEqual(item.className, 'hide_focus die_container die_alive selected',
       'Previous attacking die selection is retained');
@@ -723,6 +726,7 @@ test("test_Game.actionPlayTurnInactive", function(assert) {
   Game.activity.chat = 'I had previously typed some text';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('attack_type_select');
     assert.equal(item, null, "#attack_type_select is not set");
     var item = document.getElementById('game_chat');
@@ -738,6 +742,7 @@ test("test_Game.actionPlayTurnNonplayer", function(assert) {
   BMTestUtils.GameType = 'turn_nonplayer';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnNonplayer();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = document.getElementById('attack_type_select');
     assert.equal(item, null, "#attack_type_select is not set");
     assert.equal(Game.form, null, "Game.form is NULL");
@@ -750,6 +755,7 @@ test("test_Game.actionShowFinishedGame", function(assert) {
   BMTestUtils.GameType = 'finished';
   Game.getCurrentGame(function() {
     Game.actionShowFinishedGame();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     assert.equal(Game.form, null, "Game.form is NULL");
     assert.equal(Game.logEntryLimit, undefined, "Log history is assumed to be full");
     start();
@@ -768,6 +774,7 @@ test("test_Game.formSpecifyDiceActive", function(assert) {
   BMTestUtils.GameType = 'newgame';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#swing_X').val('7');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
@@ -785,6 +792,7 @@ test("test_Game.formChooseAuxiliaryDiceActive", function(assert) {
   BMTestUtils.GameType = 'chooseaux_active';
   Game.getCurrentGame(function() {
     Game.actionChooseAuxiliaryDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#auxiliary_die_select').val('add');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
@@ -803,6 +811,7 @@ test("test_Game.formChooseReserveDiceActive", function(assert) {
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#reserve_select').val('add');
     $('#choose_reserve_5').prop('checked', true);
     $.ajaxSetup({ async: false });
@@ -822,6 +831,7 @@ test("test_Game.formChooseReserveDiceActive_decline", function(assert) {
   BMTestUtils.GameType = 'reserve_active';
   Game.getCurrentGame(function() {
     Game.actionChooseReserveDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#reserve_select').val('decline');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
@@ -840,6 +850,7 @@ test("test_Game.formReactToInitiativeActive", function(assert) {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#react_type_select').val('focus');
     $('#init_react_3').val('5');
     $.ajaxSetup({ async: false });
@@ -859,6 +870,7 @@ test("test_Game.formReactToInitiativeActive_decline_invalid", function(assert) {
   BMTestUtils.GameType = 'focus';
   Game.getCurrentGame(function() {
     Game.actionReactToInitiativeActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#react_type_select').val('decline');
     $('#init_react_3').val('5');
     $.ajaxSetup({ async: false });
@@ -878,6 +890,7 @@ test("test_Game.formAdjustFireDiceActive", function(assert) {
   BMTestUtils.GameType = 'fire_active';
   Game.getCurrentGame(function() {
     Game.actionAdjustFireDiceActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#fire_action_select').val('turndown');
     $('#fire_adjust_0').val('1');
     $.ajaxSetup({ async: false });
@@ -897,6 +910,7 @@ test("test_Game.formPlayTurnActive", function(assert) {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -913,6 +927,7 @@ test("test_Game.formPlayTurnActive_surrender_dice", function(assert) {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#playerIdx_1_dieIdx_0').click();
     $('#attack_type_select').val('Surrender');
     $.ajaxSetup({ async: false });
@@ -931,6 +946,7 @@ test("test_Game.formPlayTurnInactive", function(assert) {
   BMTestUtils.GameType = 'turn_inactive';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnInactive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#game_chat').val('hello world');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
@@ -964,6 +980,7 @@ test("test_Game.readCurrentGameActivity", function(assert) {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#playerIdx_1_dieIdx_0').click();
     $('#game_chat').val('hello world');
     Game.readCurrentGameActivity();
@@ -1149,7 +1166,7 @@ test("test_Game.dieRecipeTable", function(assert) {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable(false);
     Game.page.append(dietable);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "Document should contain die recipe table");
@@ -1171,7 +1188,7 @@ test("test_Game.dieRecipeTable_focus", function(assert) {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "Document should contain die recipe table");
@@ -1199,7 +1216,7 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable('react_to_initiative', true);
     Game.page.append(dietable);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('die_recipe_table');
     assert.ok(item, "Document should contain die recipe table");
@@ -1383,7 +1400,7 @@ test("test_Game.playerOpponentHeaderRow", function(assert) {
     var table = $('<table>');
     table.append(row);
     Game.page.append(table);
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     var item = document.getElementById('game_page');
     assert.ok(item.innerHTML.match('<th>'),
@@ -1471,7 +1488,7 @@ test("test_Game.dieBorderTogglePlayerHandler", function(assert) {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('player', true));
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
@@ -1499,7 +1516,7 @@ test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.page.append(Game.gamePlayerDice('opponent', true));
-    Game.arrangePage();
+    Login.arrangePage(Game.page, null, null);
 
     // test the toggle handler by seeing if a die becomes selected
     // and unselected on click
@@ -1587,6 +1604,7 @@ test("test_Game.dieFocusOutlineHandler", function(assert) {
   BMTestUtils.GameType = 'turn_active';
   Game.getCurrentGame(function() {
     Game.actionPlayTurnActive();
+    Login.arrangePage(Game.page, Game.form, '#game_action_button');
     var item = $('#playerIdx_0_dieIdx_0');
 
     var tabPress = jQuery.Event('keyup');

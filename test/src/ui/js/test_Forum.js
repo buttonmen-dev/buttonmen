@@ -12,6 +12,8 @@ module("Forum", {
     if (document.getElementById('forum_page') == null) {
       $('body').append($('<div>', {'id': 'forum_page', }));
     }
+
+    Login.pageModule = { 'bodyDivId': 'forum_page' };
   },
   'teardown': function(assert) {
 
@@ -34,7 +36,7 @@ module("Forum", {
     delete Forum.scrollTarget;
     delete Login.message;
 
-    Api.automatedApiCall = false;
+    Login.pageModule = null;
 
     // Page elements
     $('#forum_page').remove();
@@ -59,24 +61,21 @@ test("test_Forum_is_loaded", function(assert) {
   assert.ok(Forum, "The Forum namespace exists");
 });
 
-test("test_Forum.showForumPage", function(assert) {
-  expect(4); // tests plus teardown test
-  $('div#forum_page').remove();
+test("test_Forum.showLoggedInPage", function(assert) {
+  expect(3); // test plus 2 teardown tests
   Env.window.location.hash = '#!threadId=6';
   Forum.showPage = function(state) {
-    assert.equal($('div#forum_page').length, 1,
-      '#forum_page should exist after showForumPage() is called');
     assert.equal(state.threadId, 6,
       'History state should be set to match location hash');
   };
-  Forum.showForumPage();
+  Forum.showLoggedInPage();
 });
 
 test("test_Forum.showPage", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Forum.arrangePage = Forum.showBoard = Forum.showThread =
+  Forum.showBoard = Forum.showThread =
     function() {
       assert.ok(false, 'Forum.showPage() should call Forum.showOverview()');
       start();
@@ -92,7 +91,7 @@ test("test_Forum.showPage_board", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Forum.arrangePage = Forum.showOverview = Forum.showThread =
+  Forum.showOverview = Forum.showThread =
     function() {
       assert.ok(false, 'Forum.showPage() should call Forum.showBoard()');
       start();
@@ -108,7 +107,7 @@ test("test_Forum.showPage_thread", function(assert) {
   stop();
   expect(3); // tests plus teardown test
 
-  Forum.arrangePage = Forum.showOverview = Forum.showBoard =
+  Forum.showOverview = Forum.showBoard =
     function() {
       assert.ok(false, 'Forum.showPage() should call Forum.showThread()');
       start();
@@ -452,4 +451,3 @@ test("test_Forum.showError", function(assert) {
   Forum.showError();
   assert.equal($('#env_message').text(), 'Test error.', 'Error displayed');
 });
-

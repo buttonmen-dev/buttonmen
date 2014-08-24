@@ -1,39 +1,30 @@
 // namespace for this "module"
 var Buttons = {};
 
+Buttons.bodyDivId = 'buttons_page';
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Action flow through this page:
-// * Buttons.showButtonsPage() is the landing function.  Always call
-//   this first. It sets up #buttons_page and inspects the query string.
-//   Depending on what it finds there, it calls the API and sets either
-//   Api.button or Api.buttonSet. It then calls either Buttons.showButton(),
-//   Buttons.showSet() or Buttons.showSetList().
+// * Buttons.showLoggedInPage() is the landing function.  Always call
+//   this first. It inspects the query string. Depending on what it finds there,
+//   it calls the API and sets either Api.button or Api.buttonSet. It then calls
+//   either Buttons.showButton(), Buttons.showSet() or Buttons.showSetList().
 // * Buttons.showButton() uses the data returned by the API to build a page
-//   describing a single button, then calls Buttons.arragePage().
+//   describing a single button, then calls Login.arrangePage().
 // * Buttons.showSet() uses the data returned by the API to build a page
 //   describing a single button set with a list of all of its buttons, then
-//   calls Buttons.arragePage().
+//   calls Login.arrangePage().
 // * Buttons.showSetList() uses the data returned by the API to build a page
-//   describing a list of all button sets, then calls Buttons.arragePage().
-// * Buttons.arragePage() sets the contents of <div id="buttons_page">
-//   on the live page.
+//   describing a list of all button sets, then calls Login.arrangePage().
 ////////////////////////////////////////////////////////////////////////
 
-Buttons.showButtonsPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#buttons_page').length === 0) {
-    $('body').append($('<div>', { 'id': 'buttons_page', }));
-  }
-
+Buttons.showLoggedInPage = function() {
   // Figure out what we're here to display, get all needed information,
   // then display the page
   Buttons.buttonName = Env.getParameterByName('button');
   Buttons.setName = Env.getParameterByName('set');
+
   if (Buttons.buttonName) {
     Api.getButtonData(Buttons.buttonName, Buttons.showButton);
   } else if (Buttons.setName) {
@@ -54,7 +45,7 @@ Buttons.showButton = function() {
       };
     }
 
-    Buttons.arrangePage();
+    Login.arrangePage(Buttons.page);
     return;
   }
 
@@ -70,7 +61,7 @@ Buttons.showButton = function() {
       'text': 'Button not found.',
     };
 
-    Buttons.arrangePage();
+    Login.arrangePage(Buttons.page);
     return;
   }
 
@@ -160,7 +151,7 @@ Buttons.showButton = function() {
 
   Buttons.page.append(mainDiv);
 
-  Buttons.arrangePage();
+  Login.arrangePage(Buttons.page);
   return;
 };
 
@@ -175,7 +166,7 @@ Buttons.showSet = function() {
       };
     }
 
-    Buttons.arrangePage();
+    Login.arrangePage(Buttons.page);
     return;
   }
 
@@ -191,7 +182,7 @@ Buttons.showSet = function() {
       'text': 'Button set not found.',
     };
 
-    Buttons.arrangePage();
+    Login.arrangePage(Buttons.page);
     return;
   }
 
@@ -215,7 +206,7 @@ Buttons.showSet = function() {
 
   Buttons.page.append(mainDiv);
 
-  Buttons.arrangePage();
+  Login.arrangePage(Buttons.page);
 };
 
 Buttons.showSetList = function() {
@@ -229,7 +220,7 @@ Buttons.showSetList = function() {
       };
     }
 
-    Buttons.arrangePage();
+    Login.arrangePage(Buttons.page);
     return;
   }
 
@@ -268,7 +259,7 @@ Buttons.showSetList = function() {
 
   Buttons.page.append(mainDiv);
 
-  Buttons.arrangePage();
+  Login.arrangePage(Buttons.page);
 };
 
 Buttons.buildButtonBox = function(button) {
@@ -294,13 +285,4 @@ Buttons.buildButtonBox = function(button) {
     }));
   }
   return buttonBox;
-};
-
-Buttons.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#buttons_page').empty();
-  $('#buttons_page').append(Buttons.page);
 };
