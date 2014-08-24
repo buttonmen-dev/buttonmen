@@ -47,8 +47,6 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
     private static $username3;
     private static $username4;
 
-    private $debug;  // flag used for debugging
-
     // duplicate skill info in one place so we don't have to retype it
     private static $skillInfo = array(
         'Poison' => array(

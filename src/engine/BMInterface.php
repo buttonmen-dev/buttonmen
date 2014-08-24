@@ -27,8 +27,6 @@ class BMInterface {
     private static $conn = NULL;    // connection to database
 
     private $isTest;         // indicates if the interface is for testing
-    private $debug;          // flag used during debugging
-
 
     /**
      * Constructor
