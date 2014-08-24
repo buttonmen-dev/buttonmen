@@ -1,6 +1,11 @@
 module("Login", {
   'setup': function() {
     BMTestUtils.LoginPre = BMTestUtils.getAllElements();
+
+    // Create the login_header div so functions have something to modify
+    if (document.getElementById('login_header') == null) {
+      $('body').append($('<div>', {'id': 'login_header', }));
+    }
   },
   'teardown': function(assert) {
 
@@ -15,6 +20,24 @@ module("Login", {
     delete Api.forumNavigation;
     delete Env.window.location.href;
     delete Login.message;
+    delete Env.window.location.search;
+    delete Env.window.location.hash;
+    delete Env.history.state;
+
+    Api.automatedApiCall = false;
+
+    // Page elements
+    $('#login_header').remove();
+    $('#login_header').empty();
+    $('#header_separator').remove();
+
+    Login.pageModule = null;
+
+    // Page elements
+    $('#login_header').remove();
+    $('#login_header').empty();
+
+    BMTestUtils.deleteEnvMessage();
 
     // Fail if any other elements were added or removed
     BMTestUtils.LoginPost = BMTestUtils.getAllElements();
@@ -37,9 +60,89 @@ test("test_Login.showLoginHeader", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.showLoginHeader not implemented");
 });
 
-test("test_Login.layoutHeader", function(assert) {
-  assert.ok(true, "INCOMPLETE: Test of Login.layoutHeader not implemented");
+test("test_Login.showLoginHeader_auto", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Login.getLoginHeader = function() {
+    assert.ok(!Api.automatedApiCall,
+      'showLoginHeader should not set Api.automatedApiCall without auto=true');
+  };
+  Login.showLoginHeader();
+
+  Env.window.location.search = '?auto=true';
+  Login.getLoginHeader = function() {
+    assert.ok(Api.automatedApiCall,
+      'showLoginHeader should set Api.automatedApiCall when auto=true');
+  };
+  Login.showLoginHeader();
 });
+
+test("test_Login.arrangeHeader", function(assert) {
+  expect(5); // tests + 2 teardown
+
+  Login.message = 'Hello.';
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+      assert.ok(true, "Login callback should be called");
+    },
+  };
+
+  BMTestUtils.setupFakeLogin();
+  Login.arrangeHeader();
+  BMTestUtils.cleanupFakeLogin();
+
+  var bodyDiv = $('#' + Login.pageModule.bodyDivId);
+  assert.equal(bodyDiv.length, 1,
+    "Main page body div should be created");
+  bodyDiv.remove();
+  bodyDiv.empty();
+
+  assert.equal($('#env_message').length, 1,
+    "Env message div should be created");
+});
+
+test("test_Login.arrangePage", function(assert) {
+  expect(5); // tests + 2 teardown
+
+  Login.pageModule = { 'bodyDivId': 'test_page' };
+  $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
+
+  Env.setupEnvStub();
+  Env.message = {
+    'type': 'none',
+    'text': 'It\'s Howdy Doody time!',
+  };
+
+  var page = $('<div>', {
+    'class': 'testPageContents',
+    'text': 'Kilroy was here.',
+  });
+  var button = $('<input>', {
+    'type': 'button',
+    'id': 'testFormButton',
+  });
+  page.append(button);
+  var formFunction = function() {
+    assert.ok(true, 'Form should be activated on click.');
+  };
+  Login.arrangePage(page, formFunction, '#testFormButton');
+
+  var envMessage = $('#env_message');
+  assert.equal(envMessage.text(), Env.message.text,
+    'Env message should be displayed');
+  var testPageContents = $('#test_page div.testPageContents');
+  assert.equal(testPageContents.text(), page.text(),
+    'Page contents should exist on actual page.');
+  button.click();
+
+  if (Login.pageModule) {
+    $('#' + Login.pageModule.bodyDivId).remove();
+    $('#' + Login.pageModule.bodyDivId).empty();
+  }
+});
+
 
 test("test_Login.getLoginForm", function(assert) {
   assert.ok(true, "INCOMPLETE: Test of Login.getLoginForm not implemented");

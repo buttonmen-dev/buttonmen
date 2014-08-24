@@ -67,6 +67,27 @@ Env.getParameterByName = function(name) {
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
 
+Env.removeParameterByName = function(name) {
+  // If the query string is already empty, there's obviously nothing to do
+  if (!Env.window.location.search) { return; }
+
+  var newQueryString = '?';
+  var parameterChunks = Env.window.location.search.split(/[?&]/);
+  $.each(parameterChunks, function(index, chunk) {
+    if (chunk === '') { return; }
+    if (chunk.split('=')[0] == name) { return; }
+    newQueryString += chunk + '&';
+  });
+
+  // Trim off the trailing ? or &
+  newQueryString = newQueryString.replace(/[?&]$/, '');
+  var newUrl =
+    Env.window.location.origin + Env.window.location.pathname +
+    newQueryString + Env.window.location.hash;
+  // Replace the current URL without messing up the browser history
+  Env.history.replaceState(null, $(document).find('title').text(), newUrl);
+};
+
 // Make sure that the page body contains a div for displaying status
 // messages
 Env.setupEnvStub = function() {
@@ -421,6 +442,40 @@ Env.buildProfileLink = function(playerName, textOnly) {
     return $('<a>', {
       'href': url,
       'text': playerName,
+    });
+  }
+};
+
+// Utility function to link to a button page given a button name
+Env.buildButtonLink = function(buttonName, recipe, textOnly) {
+  var url = 'buttons.html?button=' + encodeURIComponent(buttonName);
+  if (textOnly) {
+    return url;
+  }
+  var link =
+    $('<a>', {
+      'href': url,
+      'text': buttonName,
+    });
+  if (recipe) {
+    link.attr('title', recipe);
+    link.append($('<span>', {
+      'class': 'info_icon',
+      'text': 'i',
+    }));
+  }
+  return link;
+};
+
+// Utility function to link to a button set page given a button set name
+Env.buildButtonSetLink = function(buttonSetName, textOnly) {
+  var url = 'buttons.html?set=' + encodeURIComponent(buttonSetName);
+  if (textOnly) {
+    return url;
+  } else {
+    return $('<a>', {
+      'href': url,
+      'text': buttonSetName,
     });
   }
 };

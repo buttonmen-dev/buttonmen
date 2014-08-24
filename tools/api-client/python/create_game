@@ -58,7 +58,7 @@ def lookup_other_players(b):
   players = []
   for player in sorted(player_info.keys()):
     if player == b.username: continue
-    if player_info[player]['status'] == 'active':
+    if player_info[player]['status'] == 'ACTIVE':
       players.append(player)
   return players
 

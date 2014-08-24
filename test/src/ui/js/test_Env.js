@@ -15,8 +15,12 @@ module("Env", {
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
 
+    delete Env.window.location.origin;
+    delete Env.window.location.pathname;
     delete Env.window.location.search;
     delete Env.window.location.hash;
+    delete Env.window.location.href;
+    delete Env.history.state;
 
     // Fail if any other elements were added or removed
     BMTestUtils.EnvPost = BMTestUtils.getAllElements();
@@ -32,8 +36,6 @@ test("test_Env_is_loaded", function(assert) {
   assert.ok(Env, "The Env namespace exists");
 });
 
-// Can't test this as written because we can't modify the real
-// location.search, and Env.getParameterByName won't accept a fake one
 test("test_Env.getParameterByName", function(assert) {
   expect(4); // number of tests plus 2 for the teardown test
 
@@ -45,6 +47,45 @@ test("test_Env.getParameterByName", function(assert) {
 
   var playerNameA = Env.getParameterByName('playerNameA');
   assert.equal(playerNameA, 'tester', 'Hashbang parameter is found');
+});
+
+test("test_Env.removeParameterByName", function(assert) {
+  Env.window.location.origin = 'http://buttonweavers.com';
+  Env.window.location.pathname = '/testpage.html';
+  Env.window.location.search = '?auto=true';
+  Env.window.location.hash = '';
+
+  Env.removeParameterByName('auto');
+  assert.equal(
+    Env.window.location.href,
+    'http://buttonweavers.com/testpage.html',
+    'Query string parameter should be removed from URL'
+  );
+
+  Env.window.location.origin = 'http://buttonweavers.com:4444';
+  Env.window.location.pathname = '/testpage.html';
+  Env.window.location.search = '?game=7&auto=true&sparrow=African';
+  Env.window.location.hash = '#!playerNameA=tester&buttonNameA=Avis'
+
+  Env.removeParameterByName('auto');
+  assert.equal(
+    Env.window.location.href,
+    'http://buttonweavers.com:4444/testpage.html' +
+      '?game=7&sparrow=African#!playerNameA=tester&buttonNameA=Avis',
+    'Query string parameter should be removed from URL'
+  );
+
+  Env.window.location.origin = 'http://buttonweavers.com';
+  Env.window.location.pathname = '/game.html';
+  Env.window.location.search = '?game=7';
+  Env.window.location.hash = ''
+
+  Env.removeParameterByName('auto');
+  assert.equal(
+    Env.window.location.href,
+    'http://buttonweavers.com/game.html?game=7',
+    'URL should be unchanged'
+  );
 });
 
 test("test_Env.setupEnvStub", function(assert) {
@@ -245,6 +286,32 @@ test("test_Env.buildProfileLink", function(assert) {
   var linktext = Env.buildProfileLink('tester', true);
   assert.equal(linktext, 'profile.html?player=tester',
     'Link text should point to profile page.');
+});
+
+test("test_Env.buildButtonLink", function(assert) {
+  var link = Env.buildButtonLink('tester');
+  assert.equal(link.attr('href'), 'buttons.html?button=tester',
+    'Link should point to button page.');
+
+  var link = Env.buildButtonLink('tester', '(1) (2) (3) (4) (5)');
+  assert.equal(link.attr('href'), 'buttons.html?button=tester',
+    'Link should point to button page.');
+  assert.equal(link.attr('title'), '(1) (2) (3) (4) (5)',
+    'Link should include recipe as tooltip.');
+
+  var linktext = Env.buildButtonLink('tester', null, true);
+  assert.equal(linktext, 'buttons.html?button=tester',
+    'Link text should point to button page.');
+});
+
+test("test_Env.buildButtonSetLink", function(assert) {
+  var link = Env.buildButtonSetLink('tester');
+  assert.equal(link.attr('href'), 'buttons.html?set=tester',
+    'Link should point to button page.');
+
+  var linktext = Env.buildButtonSetLink('tester', true);
+  assert.equal(linktext, 'buttons.html?set=tester',
+    'Link text should point to button page.');
 });
 
 test("test_Env.toggleSpoiler", function(assert) {

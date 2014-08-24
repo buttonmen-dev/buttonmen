@@ -22,7 +22,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/Buttons.js' ], function() {
-                Login.showLoginHeader(Buttons.showButtonsPage);
+                Login.showLoginHeader(Buttons);
             });
           });
         });

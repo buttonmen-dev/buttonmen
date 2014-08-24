@@ -25,11 +25,16 @@ class ApiResponder {
         'login',
     );
 
-    // constructor
-    // * For live invocation:
-    //   * start a session (and require api_core to get session functions)
-    // * For test invocation:
-    //   * don't start a session
+    /**
+     * Constructor
+     * For live invocation:
+     *   start a session (and require api_core to get session functions)
+     * For test invocation:
+     *   don't start a session
+     *
+     * @param ApiSpec $spec
+     * @param boolean $isTest
+     */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
         $this->isTest = $isTest;
@@ -596,16 +601,19 @@ class ApiResponder {
             // are syntactically reasonable
             $argcheck = $this->spec->verify_function_args($args);
             if ($argcheck['ok']) {
-
                 // As far as we can easily tell, it's safe to call
                 // the function.  Go ahead and create an interface
                 // object, invoke the function, and return the result
                 if ($check['functype'] == 'auth') {
+                    apache_note('BMUserID', $_SESSION['user_id']);
                     $interface = new BMInterface($this->isTest);
-                    $interface->update_last_access_time($_SESSION['user_id']);
+                    if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
+                        $interface->update_last_access_time($_SESSION['user_id']);
+                    }
                 } else {
                     $interface = new BMInterfaceNewuser($this->isTest);
                 }
+                apache_note('BMAPIMethod', $args['type']);
                 $data = $this->$check['funcname']($interface, $args);
 
                 $output = array(
@@ -642,5 +650,16 @@ class ApiResponder {
             header('Content-Type: application/json');
             echo json_encode($output);
         }
+    }
+}
+
+// This function exists when we're running under apache, but not when we're
+// running PHP unit tests, so we need to fake so things don't fail miserably.
+if (!function_exists('apache_note')) {
+    function apache_note($note_name, $note_value) {
+        if (strpos($note_name, 'BM') !== 0) {
+            throw new Exception('Note name should be prefixed with "BM"');
+        }
+        return $note_value;
     }
 }

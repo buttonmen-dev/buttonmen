@@ -44,12 +44,12 @@ test("test_Profile_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// Profile.showProfilePage() is correct for a showXPage function, namely
+// Profile.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_Profile.showProfilePage", function(assert) {
+test("test_Profile.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getProfile = Profile.getProfile;
   var cached_showStatePage = Profile.showPage;
@@ -64,10 +64,10 @@ test("test_Profile.showProfilePage", function(assert) {
     callback();
   }
 
-  Profile.showProfilePage();
+  Profile.showLoggedInPage();
   var item = document.getElementById('profile_page');
   assert.equal(item.nodeName, "DIV",
-        "#profile_page is a div after showProfilePage() is called");
+        "#profile_page is a div after showLoggedInPage() is called");
 
   Profile.getProfile = cached_getProfile;
   Profile.showPage = cached_showStatePage;
@@ -94,20 +94,6 @@ test("test_Profile.showPage", function(assert) {
     var htmlout = Profile.page.html();
     assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_Profile.arrangePage", function(assert) {
-  stop();
-  Env.window.location.search = '?player=tester';
-  Profile.getProfile(function() {
-    Profile.page = $('<div>');
-    Profile.page.append($('<p>', {'text': 'hi world', }));
-    Profile.arrangePage();
-    var item = document.getElementById('profile_page');
-    assert.equal(item.nodeName, "DIV",
-          "#profile_page is a div after arrangePage() is called");
     start();
   });
 });

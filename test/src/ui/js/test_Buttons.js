@@ -12,6 +12,8 @@ module("Buttons", {
     if (document.getElementById('buttons_page') == null) {
       $('body').append($('<div>', {'id': 'buttons_page', }));
     }
+
+    Login.pageModule = { 'bodyDivId': 'buttons_page' };
   },
   'teardown': function(assert) {
     // Do not ignore intermittent failures in this test --- you
@@ -28,6 +30,8 @@ module("Buttons", {
     delete Buttons.buttonName;
     delete Buttons.setName;
     delete Buttons.page;
+
+    Login.pageModule = null;
 
     // Page elements
     $('#buttons_page').remove();
@@ -52,7 +56,7 @@ test("test_Buttons_is_loaded", function(assert) {
   assert.ok(Buttons, "The Buttons namespace exists");
 });
 
-test("test_Buttons.showButtonsPage", function(assert) {
+test("test_Buttons.showLoggedInPage", function(assert) {
   expect(3); // Tests plus teardown 2 tests
 
   Api.getButtonSetData = function(passedSetName) {
@@ -64,10 +68,10 @@ test("test_Buttons.showButtonsPage", function(assert) {
     assert.ok(false, 'Api.getButtonData should not be invoked');
   }
 
-  Buttons.showButtonsPage();
+  Buttons.showLoggedInPage();
 });
 
-test("test_Buttons.showButtonsPage_set", function(assert) {
+test("test_Buttons.showLoggedInPage_set", function(assert) {
   expect(3); // Tests plus 2 teardown tests
 
   var expectedSetName = 'Soldiers';
@@ -82,10 +86,10 @@ test("test_Buttons.showButtonsPage_set", function(assert) {
     assert.ok(false, 'Api.getButtonData should not be invoked');
   }
 
-  Buttons.showButtonsPage();
+  Buttons.showLoggedInPage();
 });
 
-test("test_Buttons.showButtonsPage_button", function(assert) {
+test("test_Buttons.showLoggedInPage_button", function(assert) {
   expect(3); // Tests plus 2 teardown tests
 
   var expectedButtonName = 'Avis';
@@ -100,7 +104,7 @@ test("test_Buttons.showButtonsPage_button", function(assert) {
     assert.ok(false, 'Api.getButtonSetData should not be invoked');
   }
 
-  Buttons.showButtonsPage();
+  Buttons.showLoggedInPage();
 });
 
 test("test_Buttons.showButton", function(assert) {
@@ -133,6 +137,7 @@ test("test_Buttons.showButton", function(assert) {
         'dieSkills': [ ],
         'isTournamentLegal': true,
         'artFilename': 'avis.png',
+        'tags': [ ],
         'flavorText': null,
         'specialText': null,
       },
@@ -163,6 +168,7 @@ test("test_Buttons.showSet", function(assert) {
             'dieSkills': [ ],
             'isTournamentLegal': true,
             'artFilename': 'avis.png',
+            'tags': [ ],
           },
           'Kublai': {
             'buttonName': 'Kublai',
@@ -172,6 +178,7 @@ test("test_Buttons.showSet", function(assert) {
             'dieSkills': [ ],
             'isTournamentLegal': true,
             'artFilename': 'kublai.png',
+            'tags': [ ],
           },
         },
       },
@@ -234,6 +241,7 @@ test("test_Buttons.buildButtonBox", function(assert) {
     'dieSkills': [ ],
     'isTournamentLegal': true,
     'artFilename': 'avis.png',
+    'tags': [ ],
   };
 
   var buttonBox = Buttons.buildButtonBox(button);
@@ -244,13 +252,4 @@ test("test_Buttons.buildButtonBox", function(assert) {
   var name = buttonBox.find('.buttonName');
   assert.equal(name.text(), 'Avis',
     'Button box should contain the correct name');
-});
-
-test("test_Buttons.arrangePage", function(assert) {
-    Buttons.page = $('<div>');
-    Buttons.page.append($('<p>', {'text': 'hi world', }));
-    Buttons.arrangePage();
-    var pageElement = $('body #buttons_page p');
-    assert.equal(pageElement.text(), 'hi world',
-          "Page elements should exist in DOM after page is arranged");
 });

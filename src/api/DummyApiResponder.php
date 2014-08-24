@@ -17,11 +17,16 @@ class DummyApiResponder {
     // * TRUE:  this instance is being accessed locally by unit tests
     private $isTest;               // whether this invocation is for testing
 
-    // constructor
-    // * For live invocation:
-    //   * start a session (don't use api_core because dummy_responder has no backend)
-    // * For test invocation:
-    //   * don't start a session
+    /**
+     * Constructor
+     * For live invocation:
+     *   start a session (don't use api_core because dummy_responder has no backend)
+     * For test invocation:
+     *   don't start a session
+     *
+     * @param ApiSpec $spec
+     * @param boolean $isTest
+     */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
         $this->isTest = $isTest;
@@ -139,9 +144,9 @@ class DummyApiResponder {
             'gameId' => 21,
             'challengerId' => 2,
             'challengerName' => 'tester2',
-            'challengerButton' => 'Agatha',
+            'challengerButton' => 'Von Pinn',
             'challengerColor' => '#cccccc',
-            'victimButton' => 'Krosp',
+            'victimButton' => 'Apples',
             'targetWins' => 3,
         );
 
@@ -676,17 +681,17 @@ class DummyApiResponder {
             // Splitting these into separate methods makes the code less readable,
             // but jenkins demands it because otherwise this method would be a few
             // lines longer than he likes
-            $data[] = $this->loadButtonDataForAvis();
-            $data[] = $this->loadButtonDataForZeppo();
-            $data[] = $this->loadButtonDataForJellybean();
-            $data[] = $this->loadButtonDataForBuckGodot();
-            $data[] = $this->loadButtonDataForVonPinn();
-            $data[] = $this->loadButtonDataForCrab();
-            $data[] = $this->loadButtonDataForJohnKovalic();
-            $data[] = $this->loadButtonDataForKingArthur();
-            $data[] = $this->loadButtonDataForCammyNeko();
-            $data[] = $this->loadButtonDataForApples();
-            $data[] = $this->loadButtonDataForCactusJack();
+            $data[] = $this->loadButtonDataStandard();
+            $data[] = $this->loadButtonDataUnimplementedSkill();
+            $data[] = $this->loadButtonDataFourDice();
+            $data[] = $this->loadButtonDataTwinDice();
+            $data[] = $this->loadButtonDataTwinDiceWithDieSkill();
+            $data[] = $this->loadButtonDataFocus();
+            $data[] = $this->loadButtonDataChance();
+            $data[] = $this->loadButtonDataAuxiliary();
+            $data[] = $this->loadButtonDataReserve();
+            $data[] = $this->loadButtonDataOption();
+            $data[] = $this->loadButtonDataSwingOptionSkills();
         }
 
         return array($data, "Button data retrieved successfully.");
@@ -695,6 +700,7 @@ class DummyApiResponder {
     private function loadDetailedButtonDataForAvis() {
         // a button with no special skills
         return array(
+            'buttonId' => 264,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -718,14 +724,16 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
+            'tags' => array(),
             'flavorText' => NULL,
             'specialText' => NULL,
         );
     }
 
-    private function loadButtonDataForAvis() {
+    private function loadButtonDataStandard() {
         // a button with no special skills
         return array(
+            'buttonId' => 264,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -734,12 +742,14 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForZeppo() {
+    private function loadButtonDataUnimplementedSkill() {
         // a button with an unimplemented skill
         return array(
+            'buttonId' => 1,
             'buttonName' => "Zeppo",
             'recipe' => "(4) (12) (20) (X)!",
             'hasUnimplementedSkill' => TRUE,
@@ -748,12 +758,14 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'zeppo.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForJellybean() {
+    private function loadButtonDataFourDice() {
         // a button with four dice and some implemented skills
         return array(
+            'buttonId' => 58,
             'buttonName' => "Jellybean",
             'recipe' => "p(20) s(20) (V) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -762,12 +774,14 @@ class DummyApiResponder {
             'dieSkills' => array("Poison", "Shadow"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'jellybean.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForBuckGodot() {
+    private function loadButtonDataTwinDice() {
         // Buck Godot
         return array(
+            'buttonId' => 282,
             'buttonName' => "Buck Godot",
             'recipe' => "(6,6) (10) (12) (20) (W,W)",
             'hasUnimplementedSkill' => FALSE,
@@ -776,12 +790,14 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'buckgodot.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForVonPinn() {
+    private function loadButtonDataTwinDiceWithDieSkill() {
         // Von Pinn
         return array(
+            'buttonId' => 286,
             'buttonName' => "Von Pinn",
             'recipe' => "(4) p(6,6) (10) (20) (W)",
             'hasUnimplementedSkill' => FALSE,
@@ -790,12 +806,14 @@ class DummyApiResponder {
             'dieSkills' => array("Poison"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'vonpinn.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForCrab() {
+    private function loadButtonDataFocus() {
         // Crab: a button with focus dice
         return array(
+            'buttonId' => 200,
             'buttonName' => "Crab",
             'recipe' => "(8) (10) (12) f(20) f(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -804,12 +822,14 @@ class DummyApiResponder {
             'dieSkills' => array("Focus"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'crab.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForJohnKovalic() {
+    private function loadButtonDataChance() {
         // John Kovalic: a button with chance dice
         return array(
+            'buttonId' => 315,
             'buttonName' => "John Kovalic",
             'recipe' => "(6) c(6) (10) (12) c(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -818,12 +838,14 @@ class DummyApiResponder {
             'dieSkills' => array("Chance"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'johnkovalic.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForKingArthur() {
+    private function loadButtonDataAuxiliary() {
         // King Arthur: a button with an auxiliary die
         return array(
+            'buttonId' => 82,
             'buttonName' => "King Arthur",
             'recipe' => "(8) (8) (10) (20) (X) +(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -832,12 +854,14 @@ class DummyApiResponder {
             'dieSkills' => array("Auxiliary"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'kingarthur.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForCammyNeko() {
+    private function loadButtonDataReserve() {
         // Cammy Neko: a button with reserve dice
         return array(
+            'buttonId' => 140,
             'buttonName' => "Cammy Neko",
             'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
             'hasUnimplementedSkill' => FALSE,
@@ -846,12 +870,14 @@ class DummyApiResponder {
             'dieSkills' => array("Reserve"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'cammyneko.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForApples() {
+    private function loadButtonDataOption() {
         // Apples: a button with option dice
         return array(
+            'buttonId' => 10,
             'buttonName' => "Apples",
             'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
             'hasUnimplementedSkill' => FALSE,
@@ -860,12 +886,14 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'apples.png',
+            'tags' => array(),
         );
     }
 
-    private function loadButtonDataForCactusJack() {
+    private function loadButtonDataSwingOptionSkills() {
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
         return array(
+            'buttonId' => 414,
             'buttonName' => "CactusJack",
             'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
             'hasUnimplementedSkill' => FALSE,
@@ -874,6 +902,7 @@ class DummyApiResponder {
             'dieSkills' => array("Shadow", "Speed"),
             'isTournamentLegal' => FALSE,
             'artFilename' => 'BMdefaultRound.png',
+            'tags' => array(),
         );
     }
 
@@ -893,6 +922,7 @@ class DummyApiResponder {
                         'dieSkills' => array(),
                         'isTournamentLegal' => FALSE,
                         'artFilename' => 'bunnies.png',
+                        'tags' => array(),
                     ),
                     array(
                         'buttonName' => "Lab Rat",
@@ -903,6 +933,7 @@ class DummyApiResponder {
                         'dieSkills' => array(),
                         'isTournamentLegal' => FALSE,
                         'artFilename' => 'labrat.png',
+                        'tags' => array(),
                     ),
                 ),
                 'numberOfButtons' => 2,
@@ -1006,7 +1037,7 @@ class DummyApiResponder {
                                 'name_irl' => '',
                                 'email' => 'tester1@example.com',
                                 'is_email_public' => FALSE,
-                                'status' => 'active',
+                                'status' => 'ACTIVE',
                                 'dob_month' => 0,
                                 'dob_day' => 0,
                                 'gender' => '',
@@ -1070,11 +1101,11 @@ class DummyApiResponder {
 
         // three test players exist and are all active
         $data['nameArray'][] = 'tester1';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
         $data['nameArray'][] = 'tester2';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
         $data['nameArray'][] = 'tester3';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
 
         return array($data, "Names retrieved successfully.");
     }
@@ -1089,7 +1120,7 @@ class DummyApiResponder {
     }
 
     protected function get_interface_response_reactToAuxiliary() {
-        return array(TRUE, 'Auxiliary die chosen successfully');
+        return array(TRUE, 'Chose to add auxiliary die');
     }
 
     protected function get_interface_response_reactToReserve() {

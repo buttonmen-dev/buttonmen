@@ -20,6 +20,14 @@ class BMGameAction {
     private $actingPlayerId;
     private $params;
 
+    /**
+     * Constructor
+     *
+     * @param int $gameState
+     * @param string $actionType
+     * @param int $actingPlayerId
+     * @param array $params
+     */
     public function __construct(
         $gameState,
         $actionType,
@@ -104,34 +112,6 @@ class BMGameAction {
         return $message;
     }
 
-    protected function friendly_message_fire_turndown() {
-        $actingPlayerName = $this->outputPlayerIdNames[$this->actingPlayerId];
-        $fireRecipes = $this->params['fireRecipes'];
-        $oldValues = $this->params['oldValues'];
-        $newValues = $this->params['newValues'];
-
-        $message = $actingPlayerName . ' completed the attack by turning down fire dice: ';
-
-        $isFirstReducedFireDie = TRUE;
-        foreach ($fireRecipes as $dieIdx => $recipe) {
-            $oldValue = $oldValues[$dieIdx];
-            $newValue = $newValues[$dieIdx];
-            if ($oldValue == $newValue) {
-                continue;
-            }
-
-            if ($isFirstReducedFireDie) {
-                $isFirstReducedFireDie = FALSE;
-            } else {
-                $message .= ', ';
-            }
-
-            $message .= $recipe . ' from ' . $oldValue . ' to ' . $newValue;
-        }
-
-        return $message;
-    }
-
     protected function friendly_message_fire_cancel() {
         return $this->outputPlayerIdNames[$this->actingPlayerId] .
                ' chose to abandon this attack and start over';
@@ -141,6 +121,7 @@ class BMGameAction {
         $attackType = $this->params['attackType'];
         $preAttackDice = $this->params['preAttackDice'];
         $postAttackDice = $this->params['postAttackDice'];
+        $actingPlayerName = $this->outputPlayerIdNames[$this->actingPlayerId];
 
         // Check for any attack types in which the defender changes
         // in some way we want to report prior to being captured
@@ -152,25 +133,31 @@ class BMGameAction {
 
         // First, what type of attack was this?
         if ($attackType == 'Pass') {
-            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' passed';
+            return $actingPlayerName . ' passed';
         }
 
         if ($attackType == 'Surrender') {
-            return $this->outputPlayerIdNames[$this->actingPlayerId] . ' surrendered';
+            return $actingPlayerName . ' surrendered';
         }
 
-        $message = $this->outputPlayerIdNames[$this->actingPlayerId] . ' performed ' . $attackType . ' attack';
+        $message = '';
 
-        // Add the pre-attack status of all participating dice
-        $preAttackAttackers = array();
-        $preAttackDefenders = array();
-        foreach ($preAttackDice['attacker'] as $attackerInfo) {
-            $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+        if (empty($this->params['fireCache'])) {
+            $message .= $actingPlayerName . ' performed ' . $attackType . ' attack';
+
+            // Add the pre-attack status of all participating dice
+            $preAttackAttackers = array();
+            $preAttackDefenders = array();
+            foreach ($preAttackDice['attacker'] as $attackerInfo) {
+                $preAttackAttackers[] = $attackerInfo['recipeStatus'];
+            }
+            foreach ($preAttackDice['defender'] as $defenderInfo) {
+                $preAttackDefenders[] = $defenderInfo['recipeStatus'];
+            }
+            $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders) . '; ';
+        } else {
+            $message .= $this->fire_turndown_message($this->params['fireCache'], $actingPlayerName);
         }
-        foreach ($preAttackDice['defender'] as $defenderInfo) {
-            $preAttackDefenders[] = $defenderInfo['recipeStatus'];
-        }
-        $message .= $this->preAttackMessage($preAttackAttackers, $preAttackDefenders);
 
         $messageDefender = $this->messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly);
 
@@ -184,17 +171,40 @@ class BMGameAction {
             }
 
             $message .= $this->messageAttacker($preAttackDice, $midAttackDice);
-            $message .= $messageDefender;
+            $message .= '; ' . $messageDefender;
 
             // now deal with morphing after trip
             if (isset($postAttackDice['attacker'][0]['hasJustMorphed']) &&
                 ($postAttackDice['attacker'][0]['hasJustMorphed'])) {
-                $message .= $this->messageAttacker($midAttackDice, $postAttackDice);
+                $message .= '; ' . $this->messageAttacker($midAttackDice, $postAttackDice);
             }
         } else {
             $messageAttacker = $this->messageAttacker($preAttackDice, $postAttackDice);
-            $message .= $messageDefender.$messageAttacker;
+            $message .= $messageDefender . '; ' . $messageAttacker;
         }
+
+        return $message;
+    }
+
+    protected function fire_turndown_message($fireCache, $actingPlayerName) {
+        $fireRecipes = $fireCache['fireRecipes'];
+        $oldValues = $fireCache['oldValues'];
+        $newValues = $fireCache['newValues'];
+
+        $message = $actingPlayerName . ' turned down fire dice: ';
+        $messageArray = array();
+
+        foreach ($fireRecipes as $dieIdx => $recipe) {
+            $oldValue = $oldValues[$dieIdx];
+            $newValue = $newValues[$dieIdx];
+            if ($oldValue == $newValue) {
+                continue;
+            }
+
+            $messageArray[] = $recipe . ' from ' . $oldValue . ' to ' . $newValue;
+        }
+
+        $message .= implode(', ', $messageArray) . '; ';
 
         return $message;
     }
@@ -214,7 +224,7 @@ class BMGameAction {
     }
 
     protected function messageDefender($preAttackDice, $postAttackDice, $defenderRerollsEarly) {
-        $messageDefender = '';
+        $messageDefenderArray = array();
         // Report what happened to each defending die
         foreach ($preAttackDice['defender'] as $idx => $defenderInfo) {
             $postInfo = $postAttackDice['defender'][$idx];
@@ -236,14 +246,16 @@ class BMGameAction {
             } else {
                 $postEventsDefender[] = 'was not captured';
             }
-            $messageDefender .= '; Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
+            $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
+
+        $messageDefender = implode('; ', $messageDefenderArray);
 
         return $messageDefender;
     }
 
     protected function messageAttacker($preAttackDice, $postAttackDice) {
-        $messageAttacker = '';
+        $messageAttackerArray = array();
         // Report what happened to each attacking die
         foreach ($preAttackDice['attacker'] as $idx => $attackerInfo) {
             $postInfo = $postAttackDice['attacker'][$idx];
@@ -265,9 +277,12 @@ class BMGameAction {
                 $postEventsAttacker[] = 'does not reroll';
             }
             if (count($postEventsAttacker) > 0) {
-                $messageAttacker .= '; Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
+                $messageAttackerArray[] =
+                    'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
         }
+
+        $messageAttacker = implode('; ', $messageAttackerArray);
 
         return $messageAttacker;
     }
@@ -440,6 +455,12 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -449,6 +470,12 @@ class BMGameAction {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             default:
