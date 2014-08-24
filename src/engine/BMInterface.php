@@ -429,7 +429,7 @@ class BMInterface {
                 $buttonId = $this->get_button_id_from_name($buttonName);
                 if (!$buttonId) {
                     $this->message =
-                        'Failed to identfy player ' . $buttonName .
+                        'Failed to identfy button ' . $buttonName .
                         ' for player ' . $playerIndex . ': ' . $this->message;
                     return NULL;
                 }
@@ -3193,10 +3193,19 @@ class BMInterface {
     public function select_button(
         $playerId,
         $gameId,
-        $buttonName
+        array $buttonNames,
+        $isButtonRandom
     ) {
         try {
-            if (empty($buttonName)) {
+            if (count($buttonNames) == 0 && !$isButtonRandom) {
+                $this->message = 'Button selection failed because no button was specified';
+                return FALSE;
+            }
+
+            // Eventually we'll allow groups of buttons to be passed in (e.g.
+            // for random selections), but that's not supported yet
+            if (count($buttonNames) > 1) {
+                $this->message = 'Button selection failed because the player has multiple buttons.';
                 return FALSE;
             }
 
@@ -3214,7 +3223,7 @@ class BMInterface {
                 return FALSE;
             }
 
-            if ('__random' == $buttonName) {
+            if ($isButtonRandom) {
                 $query = 'UPDATE game_player_map SET is_button_random = 1 '.
                          'WHERE game_id = :game_id '.
                          'AND player_id = :player_id';
@@ -3224,16 +3233,20 @@ class BMInterface {
                 $statement->execute(array(':game_id'   => $gameId,
                                           ':player_id' => $playerId));
             } else {
-                $query = 'SELECT id FROM button '.
-                         'WHERE name = :button_name';
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':button_name' => $buttonName));
-                $fetchData = $statement->fetch();
-                if (FALSE === $fetchData) {
-                    $this->message = 'Button select failed because button name was not valid.';
-                    return FALSE;
+                $buttonIds = array();
+                foreach ($buttonNames as $buttonName) {
+                    //todo
+                    $query = 'SELECT id FROM button '.
+                             'WHERE name = :button_name';
+                    $statement = self::$conn->prepare($query);
+                    $statement->execute(array(':button_name' => $buttonName));
+                    $fetchData = $statement->fetch();
+                    if (FALSE === $fetchData) {
+                        $this->message = 'Button select failed because button name was not valid.';
+                        return FALSE;
+                    }
+                    $buttonIds[] = $fetchData[0];
                 }
-                $buttonId = $fetchData[0];
 
                 $query = 'UPDATE game_player_map SET button_id = :button_id '.
                          'WHERE game_id = :game_id '.
@@ -3243,7 +3256,8 @@ class BMInterface {
 
                 $statement->execute(array(':game_id'   => $gameId,
                                           ':player_id' => $playerId,
-                                          ':button_id' => $buttonId));
+                                            // We're not supporting multiple buttons yet
+                                          ':button_id' => $buttonIds[0]));
             }
 
             $query = 'UPDATE game SET start_time = FROM_UNIXTIME(:start_time) '.
