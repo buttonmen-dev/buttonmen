@@ -213,7 +213,7 @@ class BMInterfaceNewuser {
         $statement->execute(array(':playerId' => $playerId));
 
         // generate a new verification code and insert it into the table
-        $playerKey = md5(rand());
+        $playerKey = md5(mt_rand());
         if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
             $ipaddr = $_SERVER['REMOTE_ADDR'];
         } else {

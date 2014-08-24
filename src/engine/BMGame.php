@@ -632,7 +632,8 @@ class BMGame {
                     $actionLogInfo['tiedPlayerIds'][] = $this->playerIdArray[$playerIdx];
                 }
             }
-            $tempInitiativeIdx = array_rand($playersWithInit);
+            $randIdx = bm_rand(0, count($playersWithInit) - 1);
+            $tempInitiativeIdx = $playersWithInit[$randIdx];
         } else {
             $tempInitiativeIdx =
                 array_search(TRUE, $hasInitiativeArray, TRUE);
