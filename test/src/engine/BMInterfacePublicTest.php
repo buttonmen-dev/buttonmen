@@ -47,6 +47,8 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
     private static $username3;
     private static $username4;
 
+    private $debug;  // flag used for debugging
+
     // duplicate skill info in one place so we don't have to retype it
     private static $skillInfo = array(
         'Poison' => array(
@@ -430,12 +432,12 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 01 - specify option dice
 
-        // this should cause all 9 dice to be rerolled
+        // this should cause the one option die to be rerolled
         $this->verify_submit_die_values(
-            array(4, 6, 8, 12, 2, 1, 1, 1, 1),
+            array(2),
             $playerId1, $gameId, 1, array(), array(4 => 2));
 
         // expected changes to game state
@@ -469,7 +471,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 02 - player 2 captures player 1's option die
 
         // capture the option die - two attacking dice need to reroll
@@ -494,13 +496,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
             array('value' => 2, 'sides' => 2, 'properties' => array('WasJustCaptured'), 'recipe' => '(2/20)'),
         );
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Skill attack using [(20):1,(20):1] against [(2/20=2):2]; Defender (2/20=2) was captured; Attacker (20) rerolled 1 => 1; Attacker (20) rerolled 1 => 1'));
-        
+
 
         // now load the game and check its state
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 03 - player 1 captures player 2's first 20-sider
 
         // 4 6 8 12 vs 1 1 1 1
@@ -520,7 +522,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = 2.0;
         $expData['playerDataArray'][1]['sideScore'] = -2.0;
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 0, 1);
-        $expData['playerDataArray'][0]['capturedDieArray'][]= 
+        $expData['playerDataArray'][0]['capturedDieArray'][]=
             array('value' => 1, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
         $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 4'));
@@ -529,7 +531,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 04 - player 2 passes
 
         // 4 6 8 12 vs 1 1 1
@@ -555,7 +557,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 05 - player 1 captures player 2's first remaining (20)
 
         // 4 6 8 12 vs 1 1 1
@@ -577,7 +579,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 3;
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 0, 1);
-        $expData['playerDataArray'][0]['capturedDieArray'][]= 
+        $expData['playerDataArray'][0]['capturedDieArray'][]=
             array('value' => 1, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(4):4] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 4 => 3'));
 
@@ -585,7 +587,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 06 - player 2 passes
 
         // 4 6 8 12 vs 1 1
@@ -607,7 +609,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 07 - player 1 captures player 2's first remaining (20)
 
         // 4 6 8 12 vs 1 1
@@ -629,7 +631,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['canStillWin'] = FALSE;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 0, 1);
-        $expData['playerDataArray'][0]['capturedDieArray'][]= 
+        $expData['playerDataArray'][0]['capturedDieArray'][]=
             array('value' => 1, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Power attack using [(6):6] against [(20):1]; Defender (20) was captured; Attacker (6) rerolled 6 => 2'));
 
@@ -637,7 +639,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 08 - player 2 passes
 
         // 4 6 8 12 vs 1
@@ -659,7 +661,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 09 - player 1 captures player 2's last remaining (20)
 
         // 4 6 8 12 vs 1
@@ -742,13 +744,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $username2 = $retval['user_prefs']['name_ingame'];
         $logEntryLimit = 10;
 
-        //////////////////// 
+        ////////////////////
         // initial game setup
 
         // Non-swing dice are initially rolled, namely:
         // p(20) s(20)  (20) (20) (20)
         $gameId = $this->verify_create_game(
-            array(1, 1, 1, 1, 1),
+            array(2, 11, 5, 8, 12),
             array($playerId1, $playerId2), array('Jellybean', 'Dirgo'), 3);
 
         // Initial expected game data object
@@ -775,13 +777,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 01 - player 1 specifies swing dice
 
-        // this causes all specified dice to be rerolled twice with values that are never used:
-        // p(20) s(20) (V) (X)   (20) (20) (20)
+        // this causes all newly-specified swing dice to be rolled:
+        // (V) (X)
         $this->verify_submit_die_values(
-            array(2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3),
+            array(3, 1),
             $playerId1, $gameId, 1, array('V' => 6, 'X' => 10), array());
 
         // expected changes to game state
@@ -796,13 +798,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 02 - player 2 specifies swing dice
 
-        // this causes all specified dice to be rerolled with their real values:
-        // p(20) s(20) (V) (X)   (20) (20) (20) (X)
+        // this causes the newly-specified swing die to be rolled:
+        // (X)
         $this->verify_submit_die_values(
-            array(2, 11, 3, 1, 5, 8, 12, 4),
+            array(4),
             $playerId2, $gameId, 1, array('X' => 4), array());
 
         // expected changes to game state
@@ -834,7 +836,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 03 - player 1 performs shadow attack
 
         // p(20) s(20) (V) (X)  vs.  (20) (20) (20) (X)
@@ -854,7 +856,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['sideScore'] = -2.7;
         $expData['playerDataArray'][1]['sideScore'] = 2.7;
         $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 15;
-        $expData['playerDataArray'][0]['capturedDieArray'][]= 
+        $expData['playerDataArray'][0]['capturedDieArray'][]=
             array('value' => 12, 'sides' => 20, 'properties' => array('WasJustCaptured'), 'recipe' => '(20)');
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Shadow attack using [s(20):11] against [(20):12]; Defender (20) was captured; Attacker s(20) rerolled 11 => 15'));
@@ -863,7 +865,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 04 - player 2 performs power attack; player 1 passes
 
         // p(20) s(20) (V) (X)  vs.  (20) (20) (X)
@@ -880,7 +882,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['sideScore'] = 8.7;
         $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 12;
         $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
-        $expData['playerDataArray'][1]['capturedDieArray'][]= 
+        $expData['playerDataArray'][1]['capturedDieArray'][]=
             array('value' => 3, 'sides' => 6, 'properties' => array(), 'recipe' => '(V)');
         array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 1);
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Power attack using [(20):5] against [(V=6):3]; Defender (V=6) was captured; Attacker (20) rerolled 5 => 12'));
@@ -890,7 +892,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 05 - player 2 performs power attack; player 1 passes
 
         // p(20) s(20) (X)  vs.  (20) (20) (X)
@@ -905,13 +907,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->object->load_api_game_data($playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 06 - player 2 performs power attack; player 1 passes; player 2 passes; round ends
 
         // p(20) s(20)  vs.  (20) (20) (X)
         // random values needed: 1 for reroll, 7 for end of turn reroll
         $this->verify_submit_turn(
-            array(1, 2, 2, 2, 2, 2, 2, 2),
+            array(1, 8, 6, 1, 1, 7, 2, 17),
             $username2 . ' performed Power attack using [(20):12] against [p(20):2]; Defender p(20) was captured; Attacker (20) rerolled 12 => 1. ' . $username1 . ' passed. ' . $username2 . ' passed. End of round: ' . $username1 . ' won round 1 (30 vs. 28). ',
             $retval, array(array(1, 0), array(0, 0)),
             $playerId2, $gameId, 1, 'Power', 1, 0, '');
@@ -956,13 +958,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 07 - player 2 specifies swing dice
 
-        // this causes all specified dice to be rerolled with their real values:
-        // p(20) s(20) (V) (X)   (20) (20) (20) (X)
+        // this causes the swing die to be rolled:
+        // (X)
         $this->verify_submit_die_values(
-            array(8, 6, 1, 1, 7, 2, 17, 2),
+            array(2),
             $playerId2, $gameId, 2, array('X' => 7), array());
 
         // expected changes to game state
@@ -1011,9 +1013,9 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
      * *   test various invalid game continuations
      * * Create haruspex mirror battle game 2, continuing game 1.
      * *   game 2: p1 passes
-     * *   game 2: p1 submits chat 
-     * *   game 2: p1 updates chat 
-     * *   game 2: p1 deletes chat 
+     * *   game 2: p1 submits chat
+     * *   game 2: p1 updates chat
+     * *   game 2: p1 deletes chat
      * *   game 2: p2 power attacks and wins
      * * Create haruspex mirror battle game 3, continuing game 2 (double-continuation).
      * *   game 3: p1 passes while chatting (verify chat is editable)
@@ -1028,7 +1030,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $username2 = self::$username4;
         $logEntryLimit = 10;
 
-        //////////////////// 
+        ////////////////////
         // initial game setup
 
         // Both dice are initially rolled:
@@ -1064,7 +1066,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
 	// Verify that a continuation of this game while it is still in progress fails
         $this->object = new BMInterface(TRUE);
         $tmpRetval = $this->object->create_game(array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, '', $gameId);
@@ -1072,7 +1074,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(NULL, $tmpRetval);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 01 - player 2 passes
 
         // (99)  vs  (99)
@@ -1094,7 +1096,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 02 - player 1 performs power attack; game ends
 
         // (99)  vs  (99)
@@ -1125,7 +1127,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
 	// Game creation failures - make sure various invalid argumentsj
 	// that the public API will allow, are rejected with friendly messages
 
@@ -1136,20 +1138,20 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(NULL, $retval);
 
 
-        //////////////////// 
+        ////////////////////
 	// Verify that a continuation of this game with an invalid previous game fails
         $this->object = new BMInterface(TRUE);
         $tmpRetval = $this->object->create_game(array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, '', -3);
 
 
-        //////////////////// 
+        ////////////////////
 	// Verify that a continuation of this game with different players fails
         $this->object = new BMInterface(TRUE);
         $tmpRetval = $this->object->create_game(array($playerId3, $playerId2), array('haruspex', 'haruspex'), 1, '', $gameId);
         $this->assertEquals('Game create failed because the previous game does not contain the same players.', $this->object->message);
 
 
-        //////////////////// 
+        ////////////////////
         // Creation of continuation game
 
         // Both dice are initially rolled:
@@ -1190,7 +1192,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 01 (game 2) - player 1 passes
 
         // (99)  vs  (99)
@@ -1211,7 +1213,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 02 (game 2) - player 1 submits chat
 
         $this->object = new BMInterface(TRUE);
@@ -1227,7 +1229,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 03 (game 2) - player 1 updates chat
 
         $this->object = new BMInterface(TRUE);
@@ -1242,7 +1244,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 04 (game 2) - player 1 deletes chat
 
         $this->object = new BMInterface(TRUE);
@@ -1258,7 +1260,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 05 (game 2) - player 2 wins game without chatting
 
         // (99)  vs  (99)
@@ -1291,7 +1293,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Creation of another continuation game
 
         // Both dice are initially rolled:
@@ -1332,7 +1334,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
 
 
-        //////////////////// 
+        ////////////////////
         // Move 01 (game 3) - player 1 passes
 
         // (99)  vs  (99)

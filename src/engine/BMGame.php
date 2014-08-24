@@ -494,7 +494,7 @@ class BMGame {
         $this->initialise_swing_value_array_array();
         $this->set_option_values();
         $this->set_swing_values();
-        $this->roll_active_dice();
+        $this->roll_active_dice_needing_values();
     }
 
     protected function initialise_swing_value_array_array() {
@@ -574,7 +574,7 @@ class BMGame {
         }
     }
 
-    protected function roll_active_dice() {
+    protected function roll_active_dice_needing_values() {
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
                 if ($die instanceof BMDieSwing) {
@@ -591,8 +591,10 @@ class BMGame {
                     }
                 }
 
-                $this->activeDieArrayArray[$playerIdx][$dieIdx] =
-                    $die->make_play_die(FALSE);
+                if (empty($die->value)) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                        $die->make_play_die(FALSE);
+                }
             }
         }
     }
