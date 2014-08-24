@@ -12,8 +12,11 @@ class BMSkillMood extends BMSkill {
     public static $hooked_methods = array('pre_roll', 'add_skill');
 
     public static function pre_roll(&$args) {
-        if (!($args['die'] instanceof BMDie) ||
-            (TRUE !== $args['isTriggeredByAttack'])) {
+        if (!($args['die'] instanceof BMDie)) {
+            return FALSE;
+        }
+
+        if (empty($args['die']->value)) {
             return FALSE;
         }
 
