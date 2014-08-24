@@ -57,13 +57,13 @@ test("test_History_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// History.showHistoryPage() is correct for a showXPage function, namely
+// History.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_History.showHistoryPage", function(assert) {
-  expect(7);
+test("test_History.showLoggedInPage", function(assert) {
+  expect(6);
   var cached_getFilters = History.getFilters;
   var cached_getHistory = History.getHistory;
   var cached_showStatePage = History.showPage;
@@ -85,12 +85,7 @@ test("test_History.showHistoryPage", function(assert) {
     callback();
   }
 
-  // Remove #history_page so that showHistoryPage will have something to add
-  $('#history_page').remove();
-  History.showHistoryPage();
-  var item = document.getElementById('history_page');
-  assert.equal(item.nodeName, "DIV",
-        "#history_page is a div after showHistoryPage() is called");
+  History.showLoggedInPage();
 
   History.getFilters = cached_getFilters;
   History.getHistory = cached_getHistory;
@@ -146,29 +141,6 @@ test("test_History.showPage", function(assert) {
        "The created page should have nonzero contents");
   });
   $.ajaxSetup({ async: true });
-});
-
-test("test_History.arrangePage", function(assert) {
-  stop();
-  History.searchParameters = {
-    'sortColumn': 'lastMove',
-    'sortDirection': 'DESC',
-    'numberOfResults': '20',
-    'page': '1',
-    'playerNameA': 'tester',
-    'status': 'COMPLETE',
-  };
-  History.searchParameterInfo.playerNameA.source = { 'tester': { }, };
-
-  History.getHistory(function() {
-    History.page = $('<div>');
-    History.page.append($('<p>', {'text': 'hi world', }));
-    History.arrangePage();
-    var item = document.getElementById('history_page');
-    assert.equal(item.nodeName, "DIV",
-          "#overview_page is a div after arrangePage() is called");
-    start();
-  });
 });
 
 test("test_History.performManualSearch", function(assert) {

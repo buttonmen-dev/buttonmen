@@ -8,6 +8,21 @@
 // Include /buttonmen/src for now, so the individual unit tests can find the base classes
 set_include_path( "/etc/php5/deploy-includes:/buttonmen/src:" . ini_get( "include_path" ) );
 
+$BM_RAND_VALS = array();
+$BM_RAND_REQUIRE_OVERRIDE = FALSE;
+
+function bm_rand($min, $max) {
+    global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
+
+    if (count($BM_RAND_VALS) > 0) {
+        return array_shift($BM_RAND_VALS);
+    }
+    if ($BM_RAND_REQUIRE_OVERRIDE) {
+        throw new Exception("Called bm_rand() from a test requiring overrides, but BM_RAND_VALS is empty");
+    }
+    return mt_rand($min, $max);
+}
+
 // Unit tests use the same bootstrap file as the code itself
 require_once( "/buttonmen/src/lib/bootstrap.php" );
 

@@ -29,7 +29,8 @@ class BMSkillMood extends BMSkill {
 
         $swingRange = BMDieSwing::swing_range($die->swingType);
         $validSwingValueArray = static::valid_die_sizes($swingRange);
-        $newSwingValue = $validSwingValueArray[array_rand($validSwingValueArray)];
+        $randIdx = bm_rand(0, count($validSwingValueArray) - 1);
+        $newSwingValue = $validSwingValueArray[$randIdx];
 
         if ($die instanceof BMDieSwing) {
             $die->max = $newSwingValue;

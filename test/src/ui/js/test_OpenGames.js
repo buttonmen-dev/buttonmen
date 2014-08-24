@@ -45,12 +45,12 @@ test("test_OpenGames_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// OpenGames.showOpenGamesPage() is correct for a showXPage function, namely
+// OpenGames.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_OpenGames.showOpenGamesPage", function(assert) {
+test("test_OpenGames.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getOpenGames = OpenGames.getOpenGames;
   var cached_showStatePage = OpenGames.showPage;
@@ -65,10 +65,10 @@ test("test_OpenGames.showOpenGamesPage", function(assert) {
     callback();
   }
 
-  OpenGames.showOpenGamesPage();
+  OpenGames.showLoggedInPage();
   var item = document.getElementById('opengames_page');
   assert.equal(item.nodeName, "DIV",
-        "#opengames_page is a div after showOpenGamesPage() is called");
+        "#opengames_page is a div after showLoggedInPage() is called");
 
   OpenGames.getOpenGames = cached_getOpenGames;
   OpenGames.showPage = cached_showStatePage;
@@ -93,19 +93,6 @@ test("test_OpenGames.showPage", function(assert) {
     var htmlout = OpenGames.page.html();
     assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
-    start();
-  });
-});
-
-test("test_OpenGames.arrangePage", function(assert) {
-  stop();
-  OpenGames.getOpenGames(function() {
-    OpenGames.page = $('<div>');
-    OpenGames.page.append($('<p>', {'text': 'hi world', }));
-    OpenGames.arrangePage();
-    var item = document.getElementById('opengames_page');
-    assert.equal(item.nodeName, "DIV",
-          "#opengames_page is a div after arrangePage() is called");
     start();
   });
 });

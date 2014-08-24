@@ -1134,7 +1134,7 @@ class BMInterface {
                 $nButtons = count($allButtonData);
             }
 
-            $randIdx = rand(0, $nButtons - 1);
+            $randIdx = bm_rand(0, $nButtons - 1);
             $buttonId = $allButtonData[$randIdx]['buttonId'];
 
             $this->choose_button($game, $buttonId, $buttonIdx);
