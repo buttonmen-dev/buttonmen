@@ -816,8 +816,6 @@ Game.actionPlayTurnInactive = function() {
   }));
   chatdiv.append(chatform);
   Game.page.append(chatdiv);
-
-  Game.pageAddFooter(true);
 };
 
 Game.actionPlayTurnNonplayer = function() {

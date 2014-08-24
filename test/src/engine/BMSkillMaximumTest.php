@@ -36,8 +36,7 @@ class BMSkillMaximumTest extends PHPUnit_Framework_TestCase {
      */
     public function testPost_roll() {
         $die = BMDie::create(6);
-        $args = array('die' => $die,
-                      'isTriggeredByAttack' => TRUE);
+        $args = array('die' => $die);
         $this->assertTrue(BMSkillMaximum::post_roll($args));
         $this->assertEquals(6, $die->value);
     }

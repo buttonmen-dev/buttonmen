@@ -28,7 +28,6 @@ class BMInterface {
 
     private $isTest;         // indicates if the interface is for testing
 
-
     /**
      * Constructor
      *
@@ -3276,12 +3275,10 @@ class BMInterface {
             );
 
             $game->proceed_to_next_user_action();
-
             // check for successful swing value set
             if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
                 ($game->gameState > BMGameState::SPECIFY_DICE) ||
                 ($game->roundNumber > $roundNumber)) {
-
                 $this->save_game($game);
                 $this->message = 'Successfully set die sizes';
                 return TRUE;
