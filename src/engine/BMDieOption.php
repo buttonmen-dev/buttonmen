@@ -143,6 +143,12 @@ class BMDieOption extends BMDie {
         return $typesList;
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'max':

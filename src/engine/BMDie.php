@@ -181,7 +181,7 @@ class BMDie extends BMCanHaveSkill {
                                            'isTriggeredByAttack' => $isTriggeredByAttack));
 
         if ($this->doesReroll || !isset($this->value)) {
-            $this->value = mt_rand($this->min, $this->max);
+            $this->value = bm_rand($this->min, $this->max);
         }
 
         $this->run_hooks('post_roll', array('die' => $this,
@@ -660,6 +660,12 @@ class BMDie extends BMCanHaveSkill {
     }
 
     // utility methods
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -673,6 +679,12 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         $funcName = 'set__'.$property;
         if (method_exists($this, $funcName)) {
@@ -847,10 +859,22 @@ class BMDie extends BMCanHaveSkill {
         $this->flagList = $value;
     }
 
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __isset($property) {
         return isset($this->$property);
     }
 
+    /**
+     * Unset
+     *
+     * @param type $property
+     * @return boolean
+     */
     public function __unset($property) {
         if (isset($this->$property)) {
             unset($this->$property);
@@ -860,12 +884,23 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Convert to string.
+     *
+     * @return string
+     */
     public function __toString() {
         return $this->get_recipe();
     }
 
+    /**
+     * To be run after a BMDie object is cloned.
+     *
+     * Doesn't do anything for the base class, but subclasses will need to
+     * clone their subdice.
+     *
+     * @return BMDie
+     */
     public function __clone() {
-        // Doesn't do anything for the base class, but subclasses will
-        // need to clone their subdice.
     }
 }

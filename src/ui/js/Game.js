@@ -1754,7 +1754,7 @@ Game.pageAddSkillListFooter = function() {
     gameSkillDiv.append($('<span>', {
       'text': 'i',
       'title': skillDesc,
-      'class': 'skill_desc_i',
+      'class': 'info_icon',
     }));
     firstSkill = false;
   });
@@ -1781,7 +1781,7 @@ Game.pageAddNewGameLinkFooter = function() {
     Game.page.append($('<div>', {
       'text':
         'Challenge ' + Api.game.opponent.playerName +
-        ' to a rematch, preserving chat:',
+        ' to a another game, preserving chat:',
     }));
 
     linkDiv = $('<div>');
@@ -1897,10 +1897,12 @@ Game.pageAddLogFooter = function() {
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Api.game.actionLog, function(logindex, logentry) {
         var actionplayer;
-        if (logentry.message.indexOf(Api.game.player.playerName + ' ') === 0) {
+        if (logentry.player == Api.game.player.playerName) {
           actionplayer = 'player';
-        } else {
+        } else if (logentry.player == Api.game.opponent.playerName) {
           actionplayer = 'opponent';
+        } else {
+          actionplayer = 'noone';
         }
         var actionrow = $('<tr>');
         actionrow.append(
@@ -2283,8 +2285,9 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].gameScoreStr,
   });
   var buttonInfo = $('<div>', {
-    'text': 'Button: ' + Api.game[player].button.name,
+    'text': 'Button: '
   });
+  buttonInfo.append(Env.buildButtonLink(Api.game[player].button.name));
   var buttonRecipe = $('<div>', {
     'text': Api.game[player].button.recipe,
   });

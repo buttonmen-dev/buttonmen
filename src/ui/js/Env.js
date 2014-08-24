@@ -446,6 +446,40 @@ Env.buildProfileLink = function(playerName, textOnly) {
   }
 };
 
+// Utility function to link to a button page given a button name
+Env.buildButtonLink = function(buttonName, recipe, textOnly) {
+  var url = 'buttons.html?button=' + encodeURIComponent(buttonName);
+  if (textOnly) {
+    return url;
+  }
+  var link =
+    $('<a>', {
+      'href': url,
+      'text': buttonName,
+    });
+  if (recipe) {
+    link.attr('title', recipe);
+    link.append($('<span>', {
+      'class': 'info_icon',
+      'text': 'i',
+    }));
+  }
+  return link;
+};
+
+// Utility function to link to a button set page given a button set name
+Env.buildButtonSetLink = function(buttonSetName, textOnly) {
+  var url = 'buttons.html?set=' + encodeURIComponent(buttonSetName);
+  if (textOnly) {
+    return url;
+  } else {
+    return $('<a>', {
+      'href': url,
+      'text': buttonSetName,
+    });
+  }
+};
+
 // Reveal (or un-reveal) the contents of spoiler tags
 Env.toggleSpoiler = function() {
   $(this).toggleClass('chatExposedSpoiler');

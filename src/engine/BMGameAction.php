@@ -20,6 +20,14 @@ class BMGameAction {
     private $actingPlayerId;
     private $params;
 
+    /**
+     * Constructor
+     *
+     * @param int $gameState
+     * @param string $actionType
+     * @param int $actingPlayerId
+     * @param array $params
+     */
     public function __construct(
         $gameState,
         $actionType,
@@ -474,6 +482,12 @@ class BMGameAction {
         return $message;
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -483,6 +497,12 @@ class BMGameAction {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             default:

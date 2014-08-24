@@ -17,11 +17,16 @@ class DummyApiResponder {
     // * TRUE:  this instance is being accessed locally by unit tests
     private $isTest;               // whether this invocation is for testing
 
-    // constructor
-    // * For live invocation:
-    //   * start a session (don't use api_core because dummy_responder has no backend)
-    // * For test invocation:
-    //   * don't start a session
+    /**
+     * Constructor
+     * For live invocation:
+     *   start a session (don't use api_core because dummy_responder has no backend)
+     * For test invocation:
+     *   don't start a session
+     *
+     * @param ApiSpec $spec
+     * @param boolean $isTest
+     */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
         $this->isTest = $isTest;
@@ -139,9 +144,9 @@ class DummyApiResponder {
             'gameId' => 21,
             'challengerId' => 2,
             'challengerName' => 'tester2',
-            'challengerButton' => 'Agatha',
+            'challengerButton' => 'Von Pinn',
             'challengerColor' => '#cccccc',
-            'victimButton' => 'Krosp',
+            'victimButton' => 'Apples',
             'targetWins' => 3,
         );
 
@@ -719,6 +724,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
+            'tags' => array(),
             'flavorText' => NULL,
             'specialText' => NULL,
         );
@@ -736,6 +742,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'avis.png',
+            'tags' => array(),
         );
     }
 
@@ -751,6 +758,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'zeppo.png',
+            'tags' => array(),
         );
     }
 
@@ -766,6 +774,7 @@ class DummyApiResponder {
             'dieSkills' => array("Poison", "Shadow"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'jellybean.png',
+            'tags' => array(),
         );
     }
 
@@ -781,6 +790,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'buckgodot.png',
+            'tags' => array(),
         );
     }
 
@@ -796,6 +806,7 @@ class DummyApiResponder {
             'dieSkills' => array("Poison"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'vonpinn.png',
+            'tags' => array(),
         );
     }
 
@@ -811,6 +822,7 @@ class DummyApiResponder {
             'dieSkills' => array("Focus"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'crab.png',
+            'tags' => array(),
         );
     }
 
@@ -826,6 +838,7 @@ class DummyApiResponder {
             'dieSkills' => array("Chance"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'johnkovalic.png',
+            'tags' => array(),
         );
     }
 
@@ -841,6 +854,7 @@ class DummyApiResponder {
             'dieSkills' => array("Auxiliary"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'kingarthur.png',
+            'tags' => array(),
         );
     }
 
@@ -856,6 +870,7 @@ class DummyApiResponder {
             'dieSkills' => array("Reserve"),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'cammyneko.png',
+            'tags' => array(),
         );
     }
 
@@ -871,6 +886,7 @@ class DummyApiResponder {
             'dieSkills' => array(),
             'isTournamentLegal' => TRUE,
             'artFilename' => 'apples.png',
+            'tags' => array(),
         );
     }
 
@@ -886,6 +902,7 @@ class DummyApiResponder {
             'dieSkills' => array("Shadow", "Speed"),
             'isTournamentLegal' => FALSE,
             'artFilename' => 'BMdefaultRound.png',
+            'tags' => array(),
         );
     }
 
@@ -905,6 +922,7 @@ class DummyApiResponder {
                         'dieSkills' => array(),
                         'isTournamentLegal' => FALSE,
                         'artFilename' => 'bunnies.png',
+                        'tags' => array(),
                     ),
                     array(
                         'buttonName' => "Lab Rat",
@@ -915,6 +933,7 @@ class DummyApiResponder {
                         'dieSkills' => array(),
                         'isTournamentLegal' => FALSE,
                         'artFilename' => 'labrat.png',
+                        'tags' => array(),
                     ),
                 ),
                 'numberOfButtons' => 2,
@@ -1018,7 +1037,7 @@ class DummyApiResponder {
                                 'name_irl' => '',
                                 'email' => 'tester1@example.com',
                                 'is_email_public' => FALSE,
-                                'status' => 'active',
+                                'status' => 'ACTIVE',
                                 'dob_month' => 0,
                                 'dob_day' => 0,
                                 'gender' => '',
@@ -1082,11 +1101,11 @@ class DummyApiResponder {
 
         // three test players exist and are all active
         $data['nameArray'][] = 'tester1';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
         $data['nameArray'][] = 'tester2';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
         $data['nameArray'][] = 'tester3';
-        $data['statusArray'][] = 'active';
+        $data['statusArray'][] = 'ACTIVE';
 
         return array($data, "Names retrieved successfully.");
     }

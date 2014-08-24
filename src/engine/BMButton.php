@@ -166,8 +166,12 @@ class BMButton extends BMCanHaveSkill {
     }
 
     // utility methods
-    // to allow array elements to be set directly, change the __get to &__get
-    // to return the result by reference
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -179,6 +183,12 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'recipe':
@@ -222,10 +232,22 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __isset($property) {
         return isset($this->$property);
     }
 
+    /**
+     * Define behaviour of unset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __unset($property) {
         if (isset($this->$property)) {
             unset($this->$property);
