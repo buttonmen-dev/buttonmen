@@ -46,7 +46,7 @@ function login($username, $password) {
             }
 
             // create authorisation key
-            $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
+            $auth_key = crypt(substr(sha1(mt_rand()), 0, 10).$username);
 
             // write authorisation key to database
             $sql = 'INSERT INTO player_auth (player_id, auth_key) VALUES (:id, :auth_key)';
