@@ -2861,7 +2861,13 @@ class BMInterface {
 
     // Build the various different WHERE, ORDER BY and LIMIT clauses for the
     // different action and chat log SELECT queries
-    protected function build_game_log_query_restrictions(BMGame $game, $logEntryLimit, $isChat, $isCount, array &$sqlParameters) {
+    protected function build_game_log_query_restrictions(
+        BMGame $game,
+        $logEntryLimit,
+        $isChat,
+        $isCount,
+        array &$sqlParameters
+    ) {
         $restrictions = 'WHERE game_id = :game_id ';
         if ($isChat && $game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
             $restrictions .= 'OR game_id = :previous_game_id ';
@@ -2873,7 +2879,7 @@ class BMInterface {
         if (!is_null($logEntryLimit)) {
             $restrictions .= 'LIMIT :log_entry_limit ';
             $sqlParameters[':log_entry_limit'] = $logEntryLimit;
-         }
+        }
         return $restrictions;
     }
 
