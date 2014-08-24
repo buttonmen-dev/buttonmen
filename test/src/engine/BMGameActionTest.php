@@ -601,13 +601,35 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
                 array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:3', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => FALSE),
             ),
             'postRerollDieInfo' => array(
-                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):2',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
                 array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => TRUE),
                 array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 5, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:5', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => TRUE),
             )
         ));
         $this->assertEquals(
             "gameaction01's idle ornery dice rerolled at end of turn: o(5) rerolled 2 => 2; o(X)? rerolled 3 => 5",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_ornery_reroll()
+     */
+    public function test_friendly_message_ornery_no_reroll() {
+        $this->object = new BMGameAction(BMGameState::END_TURN, 'ornery_reroll', 1, array(
+            'preRerollDieInfo' => array(
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:3', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => FALSE),
+            ),
+            'postRerollDieInfo' => array(
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:3', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => FALSE),
+            )
+        ));
+        $this->assertEquals(
+            '',
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }
