@@ -58,6 +58,13 @@ Overview.showLoggedInPage = function() {
   }
 };
 
+Overview.showLoggedOutPage = function() {
+  Overview.page = $('<div>');
+  Overview.pageAddIntroText();
+  // Actually lay out the page
+  Login.arrangePage(Overview.page);
+};
+
 Overview.showPreferredOverview = function() {
   Api.getUserPrefsData(function() {
     if (Api.user_prefs.automatically_monitor) {
