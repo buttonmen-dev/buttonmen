@@ -295,11 +295,9 @@ class BMGameAction {
 
         if ($preInfo['max'] != $postInfo['max']) {
             $message = 'changed size from ' . $preInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
-        } elseif (
-            array_key_exists('forceReportDieSize', $preInfo) &&
-            $preInfo['forceReportDieSize'] &&
-            BMGameState::COMMIT_ATTACK == $this->gameState
-        ) {
+        } elseif (array_key_exists('forceReportDieSize', $preInfo) &&
+                  $preInfo['forceReportDieSize'] &&
+                  BMGameState::COMMIT_ATTACK == $this->gameState) {
             $message = 'remained the same size';
         }
 
