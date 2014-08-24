@@ -11,11 +11,11 @@
   "validAttackTypeArray": ["Power", "Skill"],
   "gameSkillsInfo": [],
   "gameActionLog": [
-    {"timestamp": 1387746541, "message": "tester2 performed Power attack using [(12): 1] against [(4): 1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"},
-    {"timestamp": 1387746536, "message": "tester1 performed Power attack using [(4): 2] against [(X): 1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"},
-    {"timestamp": 1387746232, "message": "tester2 performed Skill attack using [(4): 4, (X): 3] against [(10): 7]; Defender (10) was captured; Attacker (4) rerolled 4 => 4; Attacker (X) rerolled 3 => 1"},
-    {"timestamp": 1387746219, "message": "tester1 performed Power attack using [(4): 3] against [(10): 3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"},
-    {"timestamp": 1387746192, "message": "tester2 performed Skill attack using [(4): 1, (10): 5, (12): 5] against [(12): 11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1"}
+    {"timestamp": 1387746541, "player": "tester2", "message": "tester2 performed Power attack using [(12): 1] against [(4): 1]; Defender (4) was captured; Attacker (12) rerolled 1 => 5"},
+    {"timestamp": 1387746536, "player": "tester1", "message": "tester1 performed Power attack using [(4): 2] against [(X): 1]; Defender (X) was captured; Attacker (4) rerolled 2 => 1"},
+    {"timestamp": 1387746232, "player": "tester2", "message": "tester2 performed Skill attack using [(4): 4, (X): 3] against [(10): 7]; Defender (10) was captured; Attacker (4) rerolled 4 => 4; Attacker (X) rerolled 3 => 1"},
+    {"timestamp": 1387746219, "player": "tester1", "message": "tester1 performed Power attack using [(4): 3] against [(10): 3]; Defender (10) was captured; Attacker (4) rerolled 3 => 4"},
+    {"timestamp": 1387746192, "player": "tester2", "message": "tester2 performed Skill attack using [(4): 1, (10): 5, (12): 5] against [(12): 11]; Defender (12) was captured; Attacker (4) rerolled 1 => 4; Attacker (10) rerolled 5 => 3; Attacker (12) rerolled 5 => 1"}
   ],
   "gameChatLog": [
     {"timestamp": 1387746541, "player": "tester2", "message": "Hello!\n    Ceci n'est pas une <script>tag<\/script>."},

@@ -5,6 +5,8 @@ module("Overview", {
     // Back up any properties that we might decide to replace with mocks
     BMTestUtils.OverviewBackup = { };
     BMTestUtils.CopyAllMethods(Overview, BMTestUtils.OverviewBackup);
+    BMTestUtils.ApiBackup = { };
+    BMTestUtils.CopyAllMethods(Api, BMTestUtils.ApiBackup);
     BMTestUtils.LoginBackup = { };
     BMTestUtils.CopyAllMethods(Login, BMTestUtils.LoginBackup);
 
@@ -49,6 +51,7 @@ module("Overview", {
 
     // Restore any properties that we might have replaced with mocks
     BMTestUtils.CopyAllMethods(BMTestUtils.OverviewBackup, Overview);
+    BMTestUtils.CopyAllMethods(BMTestUtils.ApiBackup, Api);
     BMTestUtils.CopyAllMethods(BMTestUtils.LoginBackup, Login);
 
     // Fail if any other elements were added or removed
@@ -94,6 +97,47 @@ test("test_Overview.showLoggedInPage", function(assert) {
   Overview.showPage = cached_showStatePage;
 });
 
+test("test_Overview.showPreferredOverview", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Api.getUserPrefsData = function(callback) {
+    Api.user_prefs = { 'automatically_monitor': false };
+    callback();
+  };
+
+  Overview.executeMonitor = function() {
+    assert.ok(!Overview.monitorIsOn, 'Monitor should be off');
+    assert.ok(false, 'Monitor should not be executed');
+  };
+
+  Overview.getOverview = function() {
+    assert.ok(!Overview.monitorIsOn, 'Monitor should be off');
+    assert.ok(true, 'Overview should be displayed');
+  };
+
+  Overview.showPreferredOverview();
+});
+
+test("test_Overview.showPreferredOverview_monitor", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Api.getUserPrefsData = function(callback) {
+    Api.user_prefs = { 'automatically_monitor': true };
+    callback();
+  };
+
+  Overview.executeMonitor = function() {
+    assert.ok(Overview.monitorIsOn, 'Monitor should be on');
+    assert.ok(true, 'Monitor should be executed');
+  };
+
+  Overview.getOverview = function() {
+    assert.ok(Overview.monitorIsOn, 'Monitor should be on');
+    assert.ok(false, 'Overview should not be displayed yet');
+  };
+
+  Overview.showPreferredOverview();
+});
 
 test("test_Overview.getOverview", function(assert) {
   stop();

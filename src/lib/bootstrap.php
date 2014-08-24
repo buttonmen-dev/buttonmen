@@ -12,7 +12,7 @@ define('BW_PHP_ROOT', realpath(dirname(__DIR__)));
 
 /**
  * Take a class name and try and find the source file
- * 
+ *
  * Designed to be used with the spl_autoload_register() function
  * to capture calls for classes that don't exist
  *
@@ -37,6 +37,16 @@ function buttonweavers_autoload($name) {
         return true;
     }
 }
+
+/**
+ * Default behaviour of the random number generator, when not tweaked for unit testing
+ */
+if (!function_exists('bm_rand')) {
+    function bm_rand($min, $max) {
+        return mt_rand($min, $max);
+    }
+}
+
 
 // Register autoloader
 spl_autoload_register('buttonweavers_autoload');

@@ -218,9 +218,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           'style': 'font-style: italic;',
         }));
       } else {
-        gameRow.append($('<td>', {
-          'text': game.challengerButton,
-        }));
+        gameRow.append($('<td>').append(
+          Env.buildButtonLink(
+            game.challengerButton,
+            buttons[game.challengerButton].recipe
+          )
+        ));
       }
 
       if (game.victimButton == '__random') {
@@ -236,10 +239,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           'style': 'font-style: italic;',
         }));
       } else {
-        gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
-        }));
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       }
     } else {
       // Lay out rows for joinable games table
@@ -278,10 +283,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           }));
         });
       } else {
-        gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
-        }));
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       }
 
       if (game.challengerButton == '__random') {
@@ -290,9 +297,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           'style': 'font-style: italic;',
         }));
       } else {
-        gameRow.append($('<td>', {
-          'text': game.challengerButton,
-        }));
+        gameRow.append($('<td>').append(
+          Env.buildButtonLink(
+            game.challengerButton,
+            buttons[game.challengerButton].recipe
+          )
+        ));
       }
       gameRow.append($('<td>', {
         'style': 'background-color: ' + game.challengerColor + ';',

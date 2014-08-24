@@ -29,7 +29,11 @@ class BMInterface {
     private $isTest;         // indicates if the interface is for testing
 
 
-    // constructor
+    /**
+     * Constructor
+     *
+     * @param boolean $isTest
+     */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
@@ -58,7 +62,7 @@ class BMInterface {
                     'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
                     'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
                     'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
-                'FROM player p ' .
+                'FROM player_view p ' .
                     'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
                     'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
                 'WHERE p.id = :id';
@@ -2393,7 +2397,7 @@ class BMInterface {
             $parameters[':set_name'] = $setName;
         }
         $query .=
-            'ORDER BY v.set_id ASC, v.name ASC;';
+            'ORDER BY v.set_sort_order ASC, v.name ASC;';
 
         $statement = self::$conn->prepare($query);
         $statement->execute($parameters);
@@ -2446,7 +2450,9 @@ class BMInterface {
             'dieSkills' => $dieSkills,
             'isTournamentLegal' => ((int)$row['tourn_legal'] == 1),
             'artFilename' => $button->artFilename,
+            'tags' => $this->get_button_tags($row['name']),
         );
+
         // For efficiency's sake, there exist some pieces of information
         // which we include only in the case where only one button was
         // requested.
@@ -2460,6 +2466,36 @@ class BMInterface {
             }
         }
         return $currentButton;
+    }
+
+    private function get_button_tags($buttonName) {
+        $tags = array();
+
+        try {
+            $query =
+                'SELECT t.name ' .
+                'FROM button_tag_map btm ' .
+                    'INNER JOIN button b ON b.id = btm.button_id ' .
+                    'INNER JOIN tag t ON t.id = btm.tag_id ' .
+                'WHERE b.name = :button_name ' .
+                'ORDER BY t.name ASC;';
+            $statement = self::$conn->prepare($query);
+            $parameters = array(':button_name' => $buttonName);
+            $statement->execute($parameters);
+
+            while ($row = $statement->fetch()) {
+                $tags[] = $row['name'];
+            }
+        } catch (Exception $e) {
+            // If this fails, we should log the error, but we don't need to
+            // fail the whole request just on account of tags
+            error_log(
+                'Caught exception in BMInterface::get_button_tags for ' .
+                $buttonName . ': ' . $e->getMessage()
+            );
+        }
+
+        return $tags;
     }
 
     // Retrieves a list of button sets along with associated information,
@@ -2557,7 +2593,7 @@ class BMInterface {
 
     public function get_player_names_like($input = '') {
         try {
-            $query = 'SELECT name_ingame,status FROM player '.
+            $query = 'SELECT name_ingame, status FROM player_view '.
                      'WHERE name_ingame LIKE :input '.
                      'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);
@@ -2771,6 +2807,7 @@ class BMInterface {
                 if ($message) {
                     $logEntries[] = array(
                         'timestamp' => (int)$row['action_timestamp'],
+                        'player' => $this->get_player_name_from_id($gameAction->actingPlayerId),
                         'message' => $message,
                     );
                 }
@@ -2789,14 +2826,22 @@ class BMInterface {
 
     // Create a status message based on recent game actions
     protected function load_message_from_game_actions(BMGame $game) {
-        $this->message = '';
+        $message = '';
         $playerIdNames = $this->get_player_name_mapping($game);
         foreach ($game->actionLog as $gameAction) {
-            $this->message .= $gameAction->friendly_message(
+            $messagePart = $gameAction->friendly_message(
                 $playerIdNames,
                 $game->roundNumber,
                 $game->gameState
-            ) . '. ';
+            );
+
+            if (!empty($messagePart)) {
+                $message .= $messagePart . '. ';
+            }
+        }
+
+        if (!empty($message)) {
+            $this->message = $message;
         }
     }
 
@@ -3579,7 +3624,7 @@ class BMInterface {
                             'die' => $die->get_action_log_data(),
                         )
                     );
-                    $this->message = 'Auxiliary die chosen successfully';
+                    $this->message = 'Chose to add auxiliary die';
                     break;
                 case 'decline':
                     $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
@@ -4624,6 +4669,12 @@ class BMInterface {
         return $url;
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -4633,6 +4684,12 @@ class BMInterface {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'message':
