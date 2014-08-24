@@ -607,7 +607,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             )
         ));
         $this->assertEquals(
-            "gameaction01's idle ornery dice reroll at end of turn: o(5)? remained the same size; o(5)? rerolled 2 => 2; o(X)? changed size from 6 to 12 sides; o(X)? rerolled 3 => 5",
+            "gameaction01's idle ornery dice rerolled at end of turn: o(5)? remained the same size, rerolled 2 => 2; o(X)? changed size from 6 to 12 sides, rerolled 3 => 5",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }

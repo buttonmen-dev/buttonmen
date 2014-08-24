@@ -231,21 +231,20 @@ class BMGameAction {
             $postEventsDefender = array();
 
             if ($defenderRerollsEarly) {
-                if ($defenderInfo['doesReroll']) {
-                    $postEventsDefender[] = 'rerolled ' . $defenderInfo['value'] . ' => ' .  $postInfo['value'];
-                } else {
-                    $postEventsDefender[] = 'does not reroll';
-                }
+                $this->message_append(
+                    $postEventsDefender,
+                    $this->message_value_change($defenderInfo, $postInfo)
+                );
             }
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_recipe_change($defenderInfo, $postInfo)
+            );
+            $this->message_append(
+                $postEventsDefender,
+                $this->message_capture($postInfo)
+            );
 
-            if ($defenderInfo['recipe'] != $postInfo['recipe']) {
-                $postEventsDefender[] = 'recipe changed from ' . $defenderInfo['recipe'] . ' to ' . $postInfo['recipe'];
-            }
-            if ($postInfo['captured']) {
-                $postEventsDefender[] = 'was captured';
-            } else {
-                $postEventsDefender[] = 'was not captured';
-            }
             $messageDefenderArray[] = 'Defender ' . $defenderInfo['recipe'] . ' ' . implode(', ', $postEventsDefender);
         }
 
@@ -261,22 +260,20 @@ class BMGameAction {
             $postInfo = $postAttackDice['attacker'][$idx];
             $postEventsAttacker = array();
 
-            if ($attackerInfo['max'] != $postInfo['max']) {
-                $postEventsAttacker[] = 'changed size from ' . $attackerInfo['max'] . ' to ' .
-                                        $postInfo['max'] . ' sides';
-            } elseif (array_key_exists('forceReportDieSize', $attackerInfo) &&
-                      $attackerInfo['forceReportDieSize']) {
-                $postEventsAttacker[] = 'remained the same size';
-            }
-            if ($attackerInfo['recipe'] != $postInfo['recipe']) {
-                $postEventsAttacker[] = 'recipe changed from ' . $attackerInfo['recipe'] . ' to ' . $postInfo['recipe'];
-            }
-            if ($attackerInfo['doesReroll']) {
-                $postEventsAttacker[] = 'rerolled ' . $attackerInfo['value'] . ' => ' . $postInfo['value'];
-            } else {
-                $postEventsAttacker[] = 'does not reroll';
-            }
-            if (count($postEventsAttacker) > 0) {
+            $this->message_append(
+                $postEventsAttacker,
+                $this->message_size_change($attackerInfo, $postInfo)
+            );
+            $this->message_append(
+                $postEventsAttacker,
+                $this->message_recipe_change($attackerInfo, $postInfo)
+            );
+            $this->message_append(
+                $postEventsAttacker,
+                $this->message_value_change($attackerInfo, $postInfo)
+            );
+
+            if (!empty($postEventsAttacker)) {
                 $messageAttackerArray[] =
                     'Attacker ' . $attackerInfo['recipe'] . ' ' . implode(', ', $postEventsAttacker);
             }
@@ -285,6 +282,54 @@ class BMGameAction {
         $messageAttacker = implode('; ', $messageAttackerArray);
 
         return $messageAttacker;
+    }
+
+    protected function message_append(array &$messageArray, $messageIncrement) {
+        if (!empty($messageIncrement)) {
+            $messageArray[] = $messageIncrement;
+        }
+    }
+
+    protected function message_size_change($preInfo, $postInfo) {
+        $message = '';
+
+        if ($preInfo['max'] != $postInfo['max']) {
+            $message = 'changed size from ' . $preInfo['max'] . ' to ' . $postInfo['max'] . ' sides';
+        } elseif (array_key_exists('forceReportDieSize', $preInfo) && $preInfo['forceReportDieSize']) {
+            $message = 'remained the same size';
+        }
+
+        return $message;
+    }
+
+    protected function message_recipe_change($preInfo, $postInfo) {
+        $message = '';
+
+        if ($preInfo['recipe'] != $postInfo['recipe']) {
+            $message = 'recipe changed from ' . $preInfo['recipe'] . ' to ' . $postInfo['recipe'];
+        }
+
+        return $message;
+    }
+
+    protected function message_value_change($preInfo, $postInfo) {
+        if ($preInfo['doesReroll']) {
+            $message = 'rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
+        } else {
+            $message = 'does not reroll';
+        }
+
+        return $message;
+    }
+
+    protected function message_capture($postInfo) {
+        if ($postInfo['captured']) {
+            $message = 'was captured';
+        } else {
+            $message = 'was not captured';
+        }
+
+        return $message;
     }
 
     protected function friendly_message_choose_die_values() {
@@ -456,9 +501,6 @@ class BMGameAction {
     }
 
     protected function friendly_message_ornery_reroll() {
-        $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
-                   '\'s idle ornery dice reroll at end of turn: ';
-
         $messageArray = array();
         // Report what happened to each rerolling die
         foreach ($this->params['postRerollDieInfo'] as $idx => $postInfo) {
@@ -466,26 +508,35 @@ class BMGameAction {
                 continue;
             }
 
+            $dieMessageArray = array();
+
             $preInfo = $this->params['preRerollDieInfo'][$idx];
 
-            if ($postInfo['max'] != $preInfo['max']) {
-                $messageArray[] = $preInfo['recipe'] . ' changed size from ' . $preInfo['max'] . ' to ' .
-                                  $postInfo['max'] . ' sides';
-            } elseif (array_key_exists('forceReportDieSize', $preInfo) &&
-                      $preInfo['forceReportDieSize']) {
-                $messageArray[] = $preInfo['recipe'] . ' remained the same size';
-            }
+            $this->message_append(
+                $dieMessageArray,
+                $this->message_size_change($preInfo, $postInfo)
+            );
+            $this->message_append(
+                $dieMessageArray,
+                $this->message_recipe_change($preInfo, $postInfo)
+            );
+            $this->message_append(
+                $dieMessageArray,
+                $this->message_value_change($preInfo, $postInfo)
+            );
 
-            if ($preInfo['doesReroll']) {
-                $messageArray[] = $preInfo['recipe'] . ' rerolled ' . $preInfo['value'] . ' => ' . $postInfo['value'];
-            }
-
-            if ($postInfo['recipe'] != $preInfo['recipe']) {
-                $messageArray[] = 'recipe changed from ' . $preInfo['recipe'] . ' to ' . $postInfo['recipe'];
+            if (!empty($dieMessageArray)) {
+                $messageArray[] = $preInfo['recipe'] . ' ' . implode(', ', $dieMessageArray);
             }
         }
 
-        $message .= implode('; ', $messageArray);
+        if (empty($messageArray)) {
+            $message = '';
+        } else {
+            $message = $this->outputPlayerIdNames[$this->actingPlayerId] .
+                       '\'s idle ornery dice rerolled at end of turn: ' .
+                       implode('; ', $messageArray);
+        }
 
         return $message;
     }
