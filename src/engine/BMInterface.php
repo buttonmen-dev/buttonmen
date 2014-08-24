@@ -425,6 +425,7 @@ class BMInterface {
             }
 
             $playerInfo['buttonIds'] = array();
+            error_log(print_r($rawPlayerInfo, TRUE));
             foreach($rawPlayerInfo['buttonNames'] as $buttonName) {
                 $buttonId = $this->get_button_id_from_name($buttonName);
                 if (!$buttonId) {
@@ -2278,14 +2279,18 @@ class BMInterface {
                 );
 
                 if ((int)$row['challenger_random'] == 1) {
-                    $challengerButton = '__random';
+                    $challengerIsRandom  = NULL;
+                    $challengerIsRandom = TRUE;
                 } else {
                     $challengerButton = $row['challenger_button'];
+                    $challengerIsRandom = FALSE;
                 }
                 if ((int)$row['victim_random'] == 1) {
-                    $victimButton = '__random';
+                    $victimButton  = NULL;
+                    $victimIsRandom = TRUE;
                 } else {
                     $victimButton = $row['victim_button'];
+                    $victimIsRandom = FALSE;
                 }
 
                 $games[] = array(
@@ -2293,8 +2298,10 @@ class BMInterface {
                     'challengerId' => (int)$row['challenger_id'],
                     'challengerName' => $row['challenger_name'],
                     'challengerButton' => $challengerButton,
+                    'challengerIsRandom' => $challengerIsRandom,
                     'challengerColor' => $gameColors['playerB'],
                     'victimButton' => $victimButton,
+                    'victimIsRandom' => $victimIsRandom,
                     'targetWins' => (int)$row['target_wins'],
                     'description' => $row['description'],
                 );
@@ -3197,6 +3204,9 @@ class BMInterface {
         $isButtonRandom
     ) {
         try {
+            //TODO handle case where game was defined with random button for
+            // second player
+            // (how did this work before my refactor?)
             if (count($buttonNames) == 0 && !$isButtonRandom) {
                 $this->message = 'Button selection failed because no button was specified';
                 return FALSE;

@@ -109,6 +109,17 @@ OpenGames.joinOpenGame = function() {
   var buttonSelect = joinButton.closest('tr').find('td.victimButton select');
   var buttonName = buttonSelect.val();
 
+  var playerInfo = {
+    'buttonNames': [ ],
+    'isButtonRandom': false,
+  };
+  if (buttonName == '__random') {
+    playerInfo.isButtonRandom = true;
+  } else {
+    playerInfo.isButtonRandom = false;
+    playerInfo.buttonNames.push(buttonName);
+  }
+
   if (buttonSelect.length > 0 && !buttonName) {
     Env.message = {
       'type': 'error',
@@ -118,9 +129,9 @@ OpenGames.joinOpenGame = function() {
     return;
   }
 
-  Api.joinOpenGame(gameId, buttonName,
+  Api.joinOpenGame(gameId, playerInfo,
     function() {
-      OpenGames.displayJoinResult(joinButton, buttonSelect, gameId, buttonName);
+      OpenGames.displayJoinResult(joinButton, buttonSelect, gameId, playerInfo);
     },
     function() {
       OpenGames.displayJoinResult();
@@ -128,7 +139,7 @@ OpenGames.joinOpenGame = function() {
 };
 
 OpenGames.displayJoinResult = function(
-    joinButton, buttonSelect, gameId, buttonName) {
+    joinButton, buttonSelect, gameId, playerInfo) {
   // If an error occurred, display it
   if (joinButton === undefined) {
     if (Env.message === undefined || Env.message === null) {
@@ -150,13 +161,13 @@ OpenGames.displayJoinResult = function(
   if (buttonSelect !== undefined) {
     buttonSelect.hide();
     var buttonNameSpan;
-    if (buttonName == '__random') {
+    if (playerInfo.isButtonRandom) {
       buttonNameSpan = $('<span>', {
         'text': 'Random Button',
         'style': 'font-style: italic;',
       });
     } else {
-      buttonNameSpan = $('<span>', { 'text': buttonName, });
+      buttonNameSpan = $('<span>', { 'text': playerInfo.buttonName, });
     }
     buttonSelect.after(buttonNameSpan);
   }
@@ -212,7 +223,7 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         'class': 'gameAction',
         'text': 'Game ' + game.gameId,
       }));
-      if (game.challengerButton == '__random') {
+      if (game.challengerIsRandom) {
         gameRow.append($('<td>', {
           'text': 'Random Button',
           'style': 'font-style: italic;',
@@ -226,7 +237,7 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         ));
       }
 
-      if (game.victimButton == '__random') {
+      if (game.victimIsRandom) {
         gameRow.append($('<td>', {
           'text': 'Random Button',
           'class': 'victimButton',
@@ -258,7 +269,7 @@ OpenGames.buildGameTable = function(tableType, buttons) {
       gameActionTd.append(joinButton);
       joinButton.click(OpenGames.joinOpenGame);
 
-      if (game.victimButton == '__random') {
+      if (game.victimIsRandom) {
         gameRow.append($('<td>', {
           'text': 'Random Button',
           'class': 'victimButton',
@@ -291,7 +302,7 @@ OpenGames.buildGameTable = function(tableType, buttons) {
         ));
       }
 
-      if (game.challengerButton == '__random') {
+      if (game.challengerIsRandom) {
         gameRow.append($('<td>', {
           'text': 'Random Button',
           'style': 'font-style: italic;',

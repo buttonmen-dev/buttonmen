@@ -96,6 +96,12 @@ class ApiResponder {
 
     protected function get_interface_response_createGame($interface, $args) {
         $playerInfoArray = $args['playerInfoArray'];
+        // For some reason, empty buttonNames arrays seem to get lost during AJAX
+        foreach ($playerInfoArray as $index => $playerInfo) {
+            if (!isset($playerInfoArray[$index]['buttonNames'])) {
+                $playerInfoArray[$index]['buttonNames'] = array();
+            }
+        }
 
         $maxWins = $args['maxWins'];
 
@@ -131,11 +137,17 @@ class ApiResponder {
 
     protected function get_interface_response_joinOpenGame($interface, $args) {
         $success = $interface->join_open_game($_SESSION['user_id'], $args['gameId']);
+        // For some reason, empty buttonNames arrays seem to get lost during AJAX
+        if (isset($args['playerInfo']['buttonNames'])) {
+            $buttonNames = $args['playerInfo']['buttonNames'];
+        } else {
+            $buttonNames = array();
+        }
         if ($success && isset($args['playerInfo'])) {
             $success = $interface->select_button(
                 $_SESSION['user_id'],
                 (int)$args['gameId'],
-                $args['playerInfo']['buttonNames'],
+                $buttonNames,
                 ($args['playerInfo']['isButtonRandom'] == 'true')
             );
         }
