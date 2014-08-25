@@ -49,6 +49,16 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
     // duplicate skill info in one place so we don't have to retype it
     private static $skillInfo = array(
+        'Mood' => array(
+            'code' => '?',
+            'description' => 'These are a subcategory of Swing dice, whose size changes randomly when rerolled. At the very start of the game (and again after any round they lose, just as with normal Swing dice) the player sets the initial size of Mood Swing dice, but from then on whenever they are rolled their size is set randomly to any legal size for that Swing type.',
+            'interacts' => array(),
+        ),
+        'Ornery' => array(
+            'code' => 'o',
+            'description' => 'At the end of every turn, if the player does not pass, then the attacker\'s ornery dice reroll, even if they did not attack in that turn. Ornery dice do not reroll a second time if they attacked.',
+            'interacts' => array(),
+        ),
         'Poison' => array(
             'code' => 'p',
             'description' => 'These dice are worth negative points. If you keep a Poison Die of your own at the end of a round, subtract its full value from your score. If you capture a Poison Die from someone else, subtract half its value from your score.',
@@ -1350,6 +1360,270 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' passed'));
         array_unshift($expData['gameChatLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => 'Who will win?  The suspense is killing me!'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+    }
+
+    /**
+     * @depends test_create_user
+     * @covers BMInterface
+     *
+     * This scenario tests ornery mood swing dice at the BMInterface level
+     */
+    public function test_interface_game_004() {
+
+        // arguments that won't change over the course of the test
+        $playerId1 = self::$userId3WithAutopass;
+        $playerId2 = self::$userId4WithAutopass;
+        $username1 = self::$username3;
+        $username2 = self::$username4;
+        $logEntryLimit = 10;
+
+        ////////////////////
+        // initial game setup
+
+        // No dice are initially rolled, since they're all swing dice
+        $gameId = $this->verify_create_game(
+            array(),
+            array($playerId1, $playerId2), array('Skeeve', 'Skeeve'), 3);
+
+        // Initial expected game data object
+        $expData = $this->generate_init_expected_data_array($gameId, $playerId1, $playerId2, $username1, $username2, 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = array('Mood' => self::$skillInfo['Mood'], 'Ornery' => self::$skillInfo['Ornery']);
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Y' => array(1, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('V' => array(6, 12), 'W' => array(4, 12), 'X' => array(4, 20), 'Y' => array(1, 20), 'Z' => array(4, 30));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Skeeve', 'recipe' => 'o(V)? o(W)? o(X)? o(Y)? o(Z)?', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(V)?', 'description' => 'Ornery V Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(W)?', 'description' => 'Ornery W Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(X)?', 'description' => 'Ornery X Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(Y)?', 'description' => 'Ornery Y Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(Z)?', 'description' => 'Ornery Z Mood Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(V)?', 'description' => 'Ornery V Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(W)?', 'description' => 'Ornery W Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(X)?', 'description' => 'Ornery X Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(Y)?', 'description' => 'Ornery Y Mood Swing Die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Ornery', 'Mood'), 'properties' => array(), 'recipe' => 'o(Z)?', 'description' => 'Ornery Z Mood Swing Die'),
+        );
+
+        // load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        ////////////////////
+        // Move 01 - player 1 submits die values
+
+        // This should need 5 random values, for player 1's swing dice
+	// In fact, it rerolls each die with the random values, and
+	// then resizes *and* rerolls each die.
+        $this->verify_submit_die_values(
+            array(2, 2, 4, 1, 4),
+            $playerId1, $gameId, 1, array('V' => 6, 'W' => 4, 'X' => 4, 'Y' => 1, 'Z' => 4), array());
+
+        // expected changes as a result of the attack
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] .= ' (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] .= ' (with 4 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] .= ' (with 4 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] .= ' (with 1 side)';
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] .= ' (with 4 sides)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' set die sizes'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        ////////////////////
+        // Move 02 - player 2 submits die values
+
+        // This should need 10 random values, for each of p1 and p2's swing dice.
+	// In fact, it resizes and rerolls each of p1's dice, and
+	// then rerolls each of p2's dice, so it needs 15
+        $this->verify_submit_die_values(
+            array(9, 4, 9, 8, 1),
+            $playerId2, $gameId, 1, array('V' => 12, 'W' => 11, 'X' => 10, 'Y' => 9, 'Z' => 8), array());
+
+        // expected changes as a result of the attack
+        $expData['gameState'] = 'START_TURN';
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 9.5;
+        $expData['playerDataArray'][1]['roundScore'] = 25;
+        $expData['playerDataArray'][0]['sideScore'] = -10.3;
+        $expData['playerDataArray'][1]['sideScore'] = 10.3;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 12;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 11;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] .= ' (with 12 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] .= ' (with 11 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] .= ' (with 10 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] .= ' (with 9 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (with 8 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 1;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 1;
+        $expData['gameActionLog'][0]['message'] = $username1 . ' set swing values: V=6, W=4, X=4, Y=1, Z=4';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' set swing values: V=12, W=11, X=10, Y=9, Z=8'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => $username1 . ' won initiative for round 1. Initial die values: ' . $username1 . ' rolled [o(V=6)?:2, o(W=4)?:2, o(X=4)?:4, o(Y=1)?:1, o(Z=4)?:4], ' . $username2 .' rolled [o(V=12)?:9, o(W=11)?:4, o(X=10)?:9, o(Y=9)?:8, o(Z=8)?:1].'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        ////////////////////
+        // Move 03 - player 1 performs skill attack using 3 dice
+        // o(X)? attacks, goes to 16 sides (idx 5) and value 10
+        // o(Y)? attacks, goes to 6 sides (idx 3) and value 3
+        // o(Z)? attacks, goes to 12 sides (idx 4) and value 10
+        // o(V)? idle rerolls, goes to 12 sides (idx 3) and value 3
+        // o(W)? idle rerolls, goes to 4 sides (idx 0) and value 2
+        $this->verify_submit_turn(
+            array(5, 10, 3, 3, 4, 10, 3, 3, 0, 2),
+            $username1 . ' performed Skill attack using [o(X=4)?:4,o(Y=1)?:1,o(Z=4)?:4] against [o(X=10)?:9]; Defender o(X=10)? was captured; Attacker o(X=4)? changed size from 4 to 16 sides, recipe changed from o(X=4)? to o(X=16)?, rerolled 4 => 10; Attacker o(Y=1)? changed size from 1 to 6 sides, recipe changed from o(Y=1)? to o(Y=6)?, rerolled 1 => 3; Attacker o(Z=4)? changed size from 4 to 12 sides, recipe changed from o(Z=4)? to o(Z=12)?, rerolled 4 => 10. ' . $username1 . '\'s idle ornery dice rerolled at end of turn: o(V=6)? changed size from 6 to 12 sides, recipe changed from o(V=6)? to o(V=12)?, rerolled 2 => 3; o(W=4)? remained the same size, rerolled 2 => 2. ',
+            $retval, array(array(0, 2), array(0, 3), array(0, 4), array(1, 2)),
+            $playerId1, $gameId, 1, 'Skill', 0, 1, '');
+
+        // expected changes as a result of the attack
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 35;
+        $expData['playerDataArray'][1]['roundScore'] = 20;
+        $expData['playerDataArray'][0]['sideScore'] = 10.0;
+        $expData['playerDataArray'][1]['sideScore'] = -10.0;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 16;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 6;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = 'Ornery V Mood Swing Die (with 12 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = 'Ornery X Mood Swing Die (with 16 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = 'Ornery Y Mood Swing Die (with 6 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] = 'Ornery Z Mood Swing Die (with 12 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['capturedDieArray'][] =
+            array('value' => 9, 'sides' => '10', 'recipe' => 'o(X)?', 'properties' => array('WasJustCaptured'));
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Skill attack using [o(X=4)?:4,o(Y=1)?:1,o(Z=4)?:4] against [o(X=10)?:9]; Defender o(X=10)? was captured; Attacker o(X=4)? changed size from 4 to 16 sides, recipe changed from o(X=4)? to o(X=16)?, rerolled 4 => 10; Attacker o(Y=1)? changed size from 1 to 6 sides, recipe changed from o(Y=1)? to o(Y=6)?, rerolled 1 => 3; Attacker o(Z=4)? changed size from 4 to 12 sides, recipe changed from o(Z=4)? to o(Z=12)?, rerolled 4 => 10'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . '\'s idle ornery dice rerolled at end of turn: o(V=6)? changed size from 6 to 12 sides, recipe changed from o(V=6)? to o(V=12)?, rerolled 2 => 3; o(W=4)? remained the same size, rerolled 2 => 2'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        ////////////////////
+        // Move 04 - player 2 performs skill attack using 2 dice
+        // o(V)? attacks, goes to 10 sides (idx 2) and value 1
+        // o(Z)? attacks, goes to 30 sides (idx 7) and value 18
+        // o(W)? idle rerolls, goes to 8 sides (idx 2) and value 5
+        // o(Y)? idle rerolls, goes to 12 sides (idx 6) and value 3
+        $this->verify_submit_turn(
+            array(2, 1, 7, 18, 2, 5, 6, 3),
+            $username2 . ' performed Skill attack using [o(V=12)?:9,o(Z=8)?:1] against [o(X=16)?:10]; Defender o(X=16)? was captured; Attacker o(V=12)? changed size from 12 to 10 sides, recipe changed from o(V=12)? to o(V=10)?, rerolled 9 => 1; Attacker o(Z=8)? changed size from 8 to 30 sides, recipe changed from o(Z=8)? to o(Z=30)?, rerolled 1 => 18. ' . $username2 . '\'s idle ornery dice rerolled at end of turn: o(W=11)? changed size from 11 to 8 sides, recipe changed from o(W=11)? to o(W=8)?, rerolled 4 => 5; o(Y=9)? changed size from 9 to 12 sides, recipe changed from o(Y=9)? to o(Y=12)?, rerolled 8 => 3. ',
+            $retval, array(array(1, 0), array(1, 3), array(0, 2)),
+            $playerId2, $gameId, 1, 'Skill', 1, 0, '');
+
+        // expected changes as a result of the attack
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 27;
+        $expData['playerDataArray'][1]['roundScore'] = 46;
+        $expData['playerDataArray'][0]['sideScore'] = -12.7;
+        $expData['playerDataArray'][1]['sideScore'] = 12.7;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][0]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][0]['sides'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['sides'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['sides'] = 12;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['sides'] = 30;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = 'Ornery V Mood Swing Die (with 10 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][1]['description'] = 'Ornery W Mood Swing Die (with 8 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][2]['description'] = 'Ornery Y Mood Swing Die (with 12 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][3]['description'] = 'Ornery Z Mood Swing Die (with 30 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 1;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 3;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 18;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array('HasJustRerolledOrnery');
+        array_splice($expData['playerDataArray'][0]['activeDieArray'], 2, 1);
+        $expData['playerDataArray'][1]['capturedDieArray'][] =
+            array('value' => 10, 'sides' => '16', 'recipe' => 'o(X)?', 'properties' => array('WasJustCaptured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . ' performed Skill attack using [o(V=12)?:9,o(Z=8)?:1] against [o(X=16)?:10]; Defender o(X=16)? was captured; Attacker o(V=12)? changed size from 12 to 10 sides, recipe changed from o(V=12)? to o(V=10)?, rerolled 9 => 1; Attacker o(Z=8)? changed size from 8 to 30 sides, recipe changed from o(Z=8)? to o(Z=30)?, rerolled 1 => 18'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username2, 'message' => $username2 . '\'s idle ornery dice rerolled at end of turn: o(W=11)? changed size from 11 to 8 sides, recipe changed from o(W=11)? to o(W=8)?, rerolled 4 => 5; o(Y=9)? changed size from 9 to 12 sides, recipe changed from o(Y=9)? to o(Y=12)?, rerolled 8 => 3'));
+
+        // now load the game and check its state
+        $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
+
+
+        ////////////////////
+        // Move 05 - player 1 performs skill attack using all 4 dice
+        // o(V)? attacks, goes to 10 sides (idx 2) and value 2
+        // o(W)? attacks, goes to 12 sides (idx 4) and value 11
+        // o(Y)? attacks, goes to 10 sides (idx 5) and value 7
+        // o(Z)? attacks, goes to 8 sides (idx 2) and value 7
+        $this->verify_submit_turn(
+            array(2, 2, 4, 11, 5, 7, 2, 7),
+            $username1 . ' performed Skill attack using [o(V=12)?:3,o(W=4)?:2,o(Y=6)?:3,o(Z=12)?:10] against [o(Z=30)?:18]; Defender o(Z=30)? was captured; Attacker o(V=12)? changed size from 12 to 10 sides, recipe changed from o(V=12)? to o(V=10)?, rerolled 3 => 2; Attacker o(W=4)? changed size from 4 to 12 sides, recipe changed from o(W=4)? to o(W=12)?, rerolled 2 => 11; Attacker o(Y=6)? changed size from 6 to 10 sides, recipe changed from o(Y=6)? to o(Y=10)?, rerolled 3 => 7; Attacker o(Z=12)? changed size from 12 to 8 sides, recipe changed from o(Z=12)? to o(Z=8)?, rerolled 10 => 7. ',
+            $retval, array(array(0, 0), array(0, 1), array(0, 2), array(0, 3), array(1, 3)),
+            $playerId1, $gameId, 1, 'Skill', 0, 1, '');
+
+        // expected changes as a result of the attack
+        $expData['activePlayerIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['roundScore'] = 60;
+        $expData['playerDataArray'][1]['roundScore'] = 31;
+        $expData['playerDataArray'][0]['sideScore'] = 19.3;
+        $expData['playerDataArray'][1]['sideScore'] = -19.3;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['properties'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][2]['properties'] = array();
+        $expData['playerDataArray'][1]['capturedDieArray'][0]['properties'] = array();
+        $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['sides'] = 12;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['sides'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['sides'] = 8;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = 'Ornery V Mood Swing Die (with 10 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][1]['description'] = 'Ornery W Mood Swing Die (with 12 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][2]['description'] = 'Ornery Y Mood Swing Die (with 10 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][3]['description'] = 'Ornery Z Mood Swing Die (with 8 sides)';
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 11;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 7;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 7;
+        array_splice($expData['playerDataArray'][1]['activeDieArray'], 3, 1);
+        $expData['playerDataArray'][0]['capturedDieArray'][] =
+            array('value' => 18, 'sides' => '30', 'recipe' => 'o(Z)?', 'properties' => array('WasJustCaptured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => $username1, 'message' => $username1 . ' performed Skill attack using [o(V=12)?:3,o(W=4)?:2,o(Y=6)?:3,o(Z=12)?:10] against [o(Z=30)?:18]; Defender o(Z=30)? was captured; Attacker o(V=12)? changed size from 12 to 10 sides, recipe changed from o(V=12)? to o(V=10)?, rerolled 3 => 2; Attacker o(W=4)? changed size from 4 to 12 sides, recipe changed from o(W=4)? to o(W=12)?, rerolled 2 => 11; Attacker o(Y=6)? changed size from 6 to 10 sides, recipe changed from o(Y=6)? to o(Y=10)?, rerolled 3 => 7; Attacker o(Z=12)? changed size from 12 to 8 sides, recipe changed from o(Z=12)? to o(Z=8)?, rerolled 10 => 7'));
 
         // now load the game and check its state
         $retval = $this->verify_load_api_game_data($expData, $playerId1, $gameId, $logEntryLimit);
