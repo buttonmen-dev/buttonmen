@@ -97,6 +97,7 @@ Game.getCurrentGame = function(callbackfunc) {
 // Assemble and display the game portion of the page
 Game.showStatePage = function() {
   var includeFooter = true;
+  var isChatHidden = false;
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -157,6 +158,7 @@ Game.showStatePage = function() {
           Game.actionPlayTurnActive();
         } else {
           Game.actionPlayTurnInactive();
+          isChatHidden = true;
         }
       } else {
         Game.actionPlayTurnNonplayer();
@@ -193,7 +195,7 @@ Game.showStatePage = function() {
   }
 
   if (includeFooter) {
-    Game.pageAddFooter();
+    Game.pageAddFooter(isChatHidden);
   }
 
   // Now lay out the page
