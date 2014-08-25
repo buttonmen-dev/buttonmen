@@ -16,6 +16,7 @@ SkillName = {
   '?': 'Mood',
   'm': 'Morphing',
   'n': 'Null',
+  'o': 'Ornery',
   'p': 'Poison',
   'q': 'Queer',
   'r': 'Reserve',
