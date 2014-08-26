@@ -83,8 +83,8 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         }
         $this->object = NULL;
 
-	// Tests in this file should override randomization, so
-	// force overrides and reset the queue at the beginning of each test
+        // Tests in this file should override randomization, so
+        // force overrides and reset the queue at the beginning of each test
         global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
         $BM_RAND_VALS = array();
         $BM_RAND_REQUIRE_OVERRIDE = TRUE;
@@ -96,8 +96,8 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
      */
     protected function tearDown() {
 
-	// By default, tests use normal randomization, so always
-	// reset overrides and empty the queue between tests
+        // By default, tests use normal randomization, so always
+        // reset overrides and empty the queue between tests
         global $BM_RAND_VALS, $BM_RAND_REQUIRE_OVERRIDE;
         $BM_RAND_VALS = array();
         $BM_RAND_REQUIRE_OVERRIDE = FALSE;
@@ -261,8 +261,8 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
      * rolls, and makes standard assertions about its return value
      */
     protected function verify_submit_turn(
-	$postSubmitDieRolls, $expMessage, $prevRetval, $participatingDice,
-	$playerId, $gameId, $roundNum, $attackType, $attackerIdx, $defenderIdx, $chat
+        $postSubmitDieRolls, $expMessage, $prevRetval, $participatingDice,
+        $playerId, $gameId, $roundNum, $attackType, $attackerIdx, $defenderIdx, $chat
     ) {
         global $BM_RAND_VALS;
         $BM_RAND_VALS = $postSubmitDieRolls;
@@ -1075,7 +1075,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
 
         ////////////////////
-	// Verify that a continuation of this game while it is still in progress fails
+        // Verify that a continuation of this game while it is still in progress fails
         $this->object = new BMInterface(TRUE);
         $tmpRetval = $this->object->create_game(array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, '', $gameId);
         $this->assertEquals('Game create failed because the previous game has not been completed yet.', $this->object->message);
@@ -1136,8 +1136,8 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
 
         ////////////////////
-	// Game creation failures - make sure various invalid argumentsj
-	// that the public API will allow, are rejected with friendly messages
+        // Game creation failures - make sure various invalid argumentsj
+        // that the public API will allow, are rejected with friendly messages
 
         // same player appears in the game twice
         $this->object = new BMInterface(TRUE);
@@ -1147,13 +1147,13 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
 
 
         ////////////////////
-	// Verify that a continuation of this game with an invalid previous game fails
+        // Verify that a continuation of this game with an invalid previous game fails
         $this->object = new BMInterface(TRUE);
         $tmpRetval = $this->object->create_game(array($playerId1, $playerId2), array('haruspex', 'haruspex'), 1, '', -3);
 
 
         ////////////////////
-	// Verify that a continuation of this game with different players fails
+        // Verify that a continuation of this game with different players fails
         $this->object = new BMInterface(TRUE);
         $tmpRetval = $this->object->create_game(array($playerId3, $playerId2), array('haruspex', 'haruspex'), 1, '', $gameId);
         $this->assertEquals('Game create failed because the previous game does not contain the same players.', $this->object->message);
@@ -1417,9 +1417,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 01 - player 1 submits die values
 
-        // This should need 5 random values, for player 1's swing dice
-	// In fact, it rerolls each die with the random values, and
-	// then resizes *and* rerolls each die.
+        // This needs 5 random values, for player 1's swing dice
         $this->verify_submit_die_values(
             array(2, 2, 4, 1, 4),
             $playerId1, $gameId, 1, array('V' => 6, 'W' => 4, 'X' => 4, 'Y' => 1, 'Z' => 4), array());
@@ -1445,9 +1443,7 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 02 - player 2 submits die values
 
-        // This should need 10 random values, for each of p1 and p2's swing dice.
-	// In fact, it resizes and rerolls each of p1's dice, and
-	// then rerolls each of p2's dice, so it needs 15
+        // This needs 5 random values, for each of p2's swing dice
         $this->verify_submit_die_values(
             array(9, 4, 9, 8, 1),
             $playerId2, $gameId, 1, array('V' => 12, 'W' => 11, 'X' => 10, 'Y' => 9, 'Z' => 8), array());
