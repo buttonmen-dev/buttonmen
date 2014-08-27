@@ -7882,8 +7882,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame(535353, array(234, 567), array('', ''), 2);
         $this->assertEquals(BMGameState::START_GAME, $game->gameState);
         $this->assertEquals(2, $game->maxWins);
-        $game->buttonArray = array($button1, $button2);
 
+        $game->buttonArray = array($button1, NULL);
+        $this->assertEquals('Echo', $game->buttonArray[0]->name);
+        $this->assertEquals('', $game->buttonArray[0]->recipe);
+
+        $game->buttonArray = array($button1, $button2);
         $this->assertEquals('Echo', $game->buttonArray[0]->name);
         $this->assertEquals('p(4) (12) p(20) (20) (V)', $game->buttonArray[0]->recipe);
         $this->assertCount(5, $game->buttonArray[0]->dieArray);
