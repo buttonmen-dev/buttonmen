@@ -12,13 +12,16 @@ class BMBtnSkillEcho extends BMBtnSkill {
     public static $hooked_methods = array('load_buttons');
 
     public static function load_buttons(array $args) {
-        assert(array_key_exists('name', $args) &&
-                   array_key_exists('recipe', $args) &&
-                   array_key_exists('oppname', $args) &&
-                   array_key_exists('opprecipe', $args),
-               'load_buttons die hook is missing required input arguments');
+        if (!array_key_exists('name', $args) ||
+            !array_key_exists('recipe', $args) ||
+            !array_key_exists('oppname', $args) ||
+            !array_key_exists('opprecipe', $args)) {
+            throw new LogicException('load_buttons die hook is missing required input arguments');
+        }
 
-        assert(!empty($args['name']), 'Button name may not be empty.');
+        if (empty($args['name'])) {
+            throw new LogicException('Button name may not be empty.');
+        }
 
         // don't do any recipe copying until the opponent button exists
         if (empty($args['oppname'])) {
