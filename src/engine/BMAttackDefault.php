@@ -48,7 +48,7 @@ class BMAttackDefault extends BMAttack {
                 $this->validationMessage = 'There is no valid attack corresponding to the dice selected.';
                 return FALSE;
             default:
-                if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders)) {
+                if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders, $validAttackTypeArray)) {
                     $this->resolvedType = $validAttackTypeArray[0];
                     return TRUE;
                 }
@@ -58,7 +58,12 @@ class BMAttackDefault extends BMAttack {
         }
     }
 
-    protected function is_one_on_one_no_frills_attack($game, array $attackers, array $defenders) {
+    protected function is_one_on_one_no_frills_attack(
+        BMGame $game,
+        array $attackers,
+        array $defenders,
+        array $validAttackTypes
+    ) {
         if (1 != count($attackers)) {
             return FALSE;
         }
@@ -67,13 +72,29 @@ class BMAttackDefault extends BMAttack {
             return FALSE;
         }
 
+        // deal with skills with side effects
         if ($attackers[0]->has_skill('Doppelganger')) {
             return FALSE;
         }
 
-        foreach ($game->attackerAllDieArray as $die) {
-            if ($die->has_skill('Fire')) {
-                return FALSE;
+        // deal with attacks with side effects
+        if (in_array('Berserk', $validAttackTypes)) {
+            return FALSE;
+        }
+
+        if (in_array('Trip', $validAttackTypes)) {
+            return FALSE;
+        }
+
+        if (in_array('Power', $validAttackTypes)) {
+            foreach ($game->attackerAllDieArray as $die) {
+                if ($die === $attackers[0]) {
+                    continue;
+                }
+
+                if ($die->has_skill('Fire')) {
+                    return FALSE;
+                }
             }
         }
 
