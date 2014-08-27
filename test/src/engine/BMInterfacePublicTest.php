@@ -56,8 +56,10 @@ class BMInterfacePublicTest extends PHPUnit_Framework_TestCase {
         ),
         'Ornery' => array(
             'code' => 'o',
-            'description' => 'At the end of every turn, if the player does not pass, then the attacker\'s ornery dice reroll, even if they did not attack in that turn. Ornery dice do not reroll a second time if they attacked.',
-            'interacts' => array(),
+            'description' => 'Ornery dice reroll every time the player makes any attack - whether the Ornery dice participated in it or not. The only time they don\'t reroll is if the player passes, making no attack whatsoever.',
+            'interacts' => array(
+                'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
+            ),
         ),
         'Poison' => array(
             'code' => 'p',
