@@ -72,8 +72,11 @@ class BMAttackDefault extends BMAttack {
             return FALSE;
         }
 
+        $attacker = $attackers[0];
+        $defender = $defenders[0];
+
         // deal with skills with side effects
-        if ($attackers[0]->has_skill('Doppelganger')) {
+        if ($attacker->has_skill('Doppelganger') && in_array('Power', $validAttackTypes)) {
             return FALSE;
         }
 
@@ -86,19 +89,44 @@ class BMAttackDefault extends BMAttack {
             return FALSE;
         }
 
-        if (in_array('Power', $validAttackTypes)) {
-            foreach ($game->attackerAllDieArray as $die) {
-                if ($die === $attackers[0]) {
-                    continue;
-                }
-
-                if ($die->has_skill('Fire')) {
-                    return FALSE;
-                }
-            }
+        if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
+            return FALSE;
         }
 
         return TRUE;
+    }
+
+    protected function is_fire_assistance_possible(
+        BMGame $game,
+        BMDie $attacker,
+        BMDie $defender,
+        array $validAttackTypes
+    ) {
+        $fireTurndownAvailable = 0;
+
+        foreach ($game->attackerAllDieArray as $die) {
+            if ($die === $attacker) {
+                continue;
+            }
+
+            if ($die->has_skill('Fire')) {
+                $fireTurndownAvailable += $die->value - $die->min;
+            }
+        }
+
+        if ($fireTurndownAvailable > 0) {
+            // power attack with the possibility of fire assistance
+            if (in_array('Power', $validAttackTypes) && ($attacker->value < $attacker->max)) {
+                return TRUE;
+            }
+
+            // skill attack with the need for fire assistance
+            if (in_array('Skill', $validAttackTypes) && ($attacker->value < $defender->value)) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
     }
 
     public function type_for_log() {
