@@ -148,8 +148,49 @@ class BMInterface {
                 ($this->validate_player_dob($infoArray) &&
                 $this->validate_player_password_and_email($addlInfo, $playerId) &&
                 $this->validate_and_set_homepage($addlInfo['homepage'], $infoArray));
+
+            if (!$isValidData) {
+                return NULL;
+            }
+
+            if (isset($addlInfo['favorite_button'])) {
+                $infoArray['favorite_button_id'] =
+                    $this->get_button_id_from_name($addlInfo['favorite_button']);
+                if (!is_int($infoArray['favorite_button_id'])) {
+                    return FALSE;
+                }
+            } else {
+                $infoArray['favorite_button_id'] = NULL;
+            }
+            if (isset($addlInfo['favorite_buttonset'])) {
+                $infoArray['favorite_buttonset_id'] =
+                    $this->get_buttonset_id_from_name($addlInfo['favorite_buttonset']);
+                if (!is_int($infoArray['favorite_buttonset_id'])) {
+                    return FALSE;
+                }
+            } else {
+                $infoArray['favorite_buttonset_id'] = NULL;
+            }
+
+            if (isset($addlInfo['new_password'])) {
+                $infoArray['password_hashed'] = crypt($addlInfo['new_password']);
+            }
+
+            if (isset($addlInfo['new_email'])) {
+                $infoArray['email'] = $addlInfo['new_email'];
+            }
+
+            foreach ($infoArray as $infoType => $info) {
+                $query = 'UPDATE player '.
+                         "SET $infoType = :info ".
+                         'WHERE id = :player_id;';
+
+                $statement = self::$conn->prepare($query);
+                $statement->execute(array(':info' => $info,
+                                          ':player_id' => $playerId));
+            }
         } catch (Exception $e) {
-            $this->message = 'Player info set failed: ' . $e->getMessage();
+            $this->message = 'Player info update failed: ' . $e->getMessage();
             error_log(
                 'Caught exception in BMInterface::set_player_info: ' .
                 $e->getMessage()
@@ -157,50 +198,6 @@ class BMInterface {
             return NULL;
         }
 
-        if (!$isValidData) {
-            return NULL;
-        }
-
-        if (isset($addlInfo['favorite_button'])) {
-            $infoArray['favorite_button_id'] =
-                $this->get_button_id_from_name($addlInfo['favorite_button']);
-            if (!is_int($infoArray['favorite_button_id'])) {
-                return FALSE;
-            }
-        } else {
-            $infoArray['favorite_button_id'] = NULL;
-        }
-        if (isset($addlInfo['favorite_buttonset'])) {
-            $infoArray['favorite_buttonset_id'] =
-                $this->get_buttonset_id_from_name($addlInfo['favorite_buttonset']);
-            if (!is_int($infoArray['favorite_buttonset_id'])) {
-                return FALSE;
-            }
-        } else {
-            $infoArray['favorite_buttonset_id'] = NULL;
-        }
-
-        if (isset($addlInfo['new_password'])) {
-            $infoArray['password_hashed'] = crypt($addlInfo['new_password']);
-        }
-
-        if (isset($addlInfo['new_email'])) {
-            $infoArray['email'] = $addlInfo['new_email'];
-        }
-
-        foreach ($infoArray as $infoType => $info) {
-            $query = 'UPDATE player '.
-                     "SET $infoType = :info ".
-                     'WHERE id = :player_id;';
-
-            try {
-                $statement = self::$conn->prepare($query);
-                $statement->execute(array(':info' => $info,
-                                          ':player_id' => $playerId));
-            } catch (Exception $e) {
-                $this->message = 'Player info update failed: '.$e->getMessage();
-            }
-        }
         $this->message = "Player info updated successfully.";
         return array('playerId' => $playerId);
     }
