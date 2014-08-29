@@ -2585,7 +2585,7 @@ class BMInterface {
     protected function get_button_recipe_from_name($name) {
         $query = 'SELECT recipe FROM button_view '.
                  'WHERE name = :name';
-            try {
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':name' => $name));
 
