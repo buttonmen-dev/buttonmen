@@ -55,23 +55,19 @@ class BMInterface {
     // methods
 
     public function get_player_info($playerId) {
+        $query =
+            'SELECT p.*, b.name AS favorite_button, bs.name AS favorite_buttonset, ' .
+                'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
+                'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
+                'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
+            'FROM player_view p ' .
+                'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
+                'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
+            'WHERE p.id = :id';
         try {
-            $query =
-                'SELECT p.*, b.name AS favorite_button, bs.name AS favorite_buttonset, ' .
-                    'UNIX_TIMESTAMP(p.last_access_time) AS last_access_timestamp, ' .
-                    'UNIX_TIMESTAMP(p.last_action_time) AS last_action_timestamp, ' .
-                    'UNIX_TIMESTAMP(p.creation_time) AS creation_timestamp ' .
-                'FROM player_view p ' .
-                    'LEFT JOIN button b ON b.id = p.favorite_button_id ' .
-                    'LEFT JOIN buttonset bs ON bs.id = p.favorite_buttonset_id ' .
-                'WHERE p.id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetchAll();
-
-            if (0 == count($result)) {
-                return NULL;
-            }
         } catch (Exception $e) {
             if (isset($statement)) {
                 $errorData = $statement->errorInfo();
@@ -80,6 +76,10 @@ class BMInterface {
                 $this->message = 'Player info get failed: ' . $e->getMessage();
             }
             error_log($this->message);
+            return NULL;
+        }
+
+        if (0 == count($result)) {
             return NULL;
         }
 
@@ -143,10 +143,20 @@ class BMInterface {
         $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
         $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
 
-        $isValidData =
-            ($this->validate_player_dob($infoArray) &&
-            $this->validate_player_password_and_email($addlInfo, $playerId) &&
-            $this->validate_and_set_homepage($addlInfo['homepage'], $infoArray));
+        try {
+            $isValidData =
+                ($this->validate_player_dob($infoArray) &&
+                $this->validate_player_password_and_email($addlInfo, $playerId) &&
+                $this->validate_and_set_homepage($addlInfo['homepage'], $infoArray));
+        } catch (Exception $e) {
+            $this->message = 'Player info set failed: ' . $e->getMessage();
+            error_log(
+                'Caught exception in BMInterface::set_player_info: ' .
+                $e->getMessage()
+            );
+            return NULL;
+        }
+
         if (!$isValidData) {
             return NULL;
         }
@@ -179,11 +189,11 @@ class BMInterface {
         }
 
         foreach ($infoArray as $infoType => $info) {
-            try {
-                $query = 'UPDATE player '.
-                         "SET $infoType = :info ".
-                         'WHERE id = :player_id;';
+            $query = 'UPDATE player '.
+                     "SET $infoType = :info ".
+                     'WHERE id = :player_id;';
 
+            try {
                 $statement = self::$conn->prepare($query);
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
@@ -255,37 +265,46 @@ class BMInterface {
     }
 
     public function get_profile_info($profilePlayerName) {
-        $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
-        if (!is_int($profilePlayerId)) {
+        try {
+            $profilePlayerId = $this->get_player_id_from_name($profilePlayerName);
+            if (!is_int($profilePlayerId)) {
+                return NULL;
+            }
+            $playerInfoResults = $this->get_player_info($profilePlayerId);
+            $playerInfo = $playerInfoResults['user_prefs'];
+
+            $query =
+                'SELECT ' .
+                    'COUNT(*) AS number_of_games, ' .
+                    'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
+                'FROM game AS g ' .
+                    'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                    'INNER JOIN game_player_view AS v ' .
+                        'ON v.game_id = g.id AND v.player_id = :player_id ' .
+                'WHERE s.name = "COMPLETE" ' .
+                'GROUP BY v.n_rounds_won >= g.n_target_wins;';
+
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':player_id' => $profilePlayerId));
+
+            $nWins = 0;
+            $nLosses = 0;
+
+            while ($row = $statement->fetch()) {
+                if ((int)$row['win_or_loss'] == 1) {
+                    $nWins = (int)$row['number_of_games'];
+                }
+                if ((int)$row['win_or_loss'] == 0) {
+                    $nLosses = (int)$row['number_of_games'];
+                }
+            }
+        } catch (Exception $e) {
+            $this->message = 'Profile info get failed: ' . $e->getMessage();
+            error_log(
+                'Caught exception in BMInterface::get_profile_info: ' .
+                $e->getMessage()
+            );
             return NULL;
-        }
-        $playerInfoResults = $this->get_player_info($profilePlayerId);
-        $playerInfo = $playerInfoResults['user_prefs'];
-
-        $query =
-            'SELECT ' .
-                'COUNT(*) AS number_of_games, ' .
-                'v.n_rounds_won >= g.n_target_wins AS win_or_loss ' .
-            'FROM game AS g ' .
-                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
-                'INNER JOIN game_player_view AS v ' .
-                    'ON v.game_id = g.id AND v.player_id = :player_id ' .
-            'WHERE s.name = "COMPLETE" ' .
-            'GROUP BY v.n_rounds_won >= g.n_target_wins;';
-
-        $statement = self::$conn->prepare($query);
-        $statement->execute(array(':player_id' => $profilePlayerId));
-
-        $nWins = 0;
-        $nLosses = 0;
-
-        while ($row = $statement->fetch()) {
-            if ((int)$row['win_or_loss'] == 1) {
-                $nWins = (int)$row['number_of_games'];
-            }
-            if ((int)$row['win_or_loss'] == 0) {
-                $nLosses = (int)$row['number_of_games'];
-            }
         }
 
         // Just select the fields we want to expose publically
@@ -322,23 +341,23 @@ class BMInterface {
         $previousGameId = NULL,
         $currentPlayerId = NULL
     ) {
-        $isValidInfo =
-            $this->validate_game_info(
-                $playerIdArray,
-                $maxWins,
-                $currentPlayerId,
-                $previousGameId
-            );
-        if (!$isValidInfo) {
-            return NULL;
-        }
-
-        $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
-        if (is_null($buttonIdArray)) {
-            return NULL;
-        }
-
         try {
+            $isValidInfo =
+                $this->validate_game_info(
+                    $playerIdArray,
+                    $maxWins,
+                    $currentPlayerId,
+                    $previousGameId
+                );
+            if (!$isValidInfo) {
+                return NULL;
+            }
+
+            $buttonIdArray = $this->retrieve_button_ids($playerIdArray, $buttonNameArray);
+            if (is_null($buttonIdArray)) {
+                return NULL;
+            }
+
             $gameId = $this->insert_new_game($playerIdArray, $maxWins, $description, $previousGameId);
 
             foreach ($playerIdArray as $position => $playerId) {
@@ -377,26 +396,26 @@ class BMInterface {
         $description = '',
         $previousGameId = NULL
     ) {
+        // create basic game details
+        $query = 'INSERT INTO game '.
+                 '    (status_id, '.
+                 '     n_players, '.
+                 '     n_target_wins, '.
+                 '     n_recent_passes, '.
+                 '     creator_id, '.
+                 '     start_time, '.
+                 '     description, '.
+                 '     previous_game_id) '.
+                 'VALUES '.
+                 '    ((SELECT id FROM game_status WHERE name = :status), '.
+                 '     :n_players, '.
+                 '     :n_target_wins, '.
+                 '     :n_recent_passes, '.
+                 '     :creator_id, '.
+                 '     FROM_UNIXTIME(:start_time), '.
+                 '     :description, '.
+                 '     :previous_game_id)';
         try {
-            // create basic game details
-            $query = 'INSERT INTO game '.
-                     '    (status_id, '.
-                     '     n_players, '.
-                     '     n_target_wins, '.
-                     '     n_recent_passes, '.
-                     '     creator_id, '.
-                     '     start_time, '.
-                     '     description, '.
-                     '     previous_game_id) '.
-                     'VALUES '.
-                     '    ((SELECT id FROM game_status WHERE name = :status), '.
-                     '     :n_players, '.
-                     '     :n_target_wins, '.
-                     '     :n_recent_passes, '.
-                     '     :creator_id, '.
-                     '     FROM_UNIXTIME(:start_time), '.
-                     '     :description, '.
-                     '     :previous_game_id)';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':status'        => 'OPEN',
                                       ':n_players'     => count($playerIdArray),
@@ -526,13 +545,13 @@ class BMInterface {
             return TRUE;
         }
 
+        $query =
+            'SELECT pm.player_id, s.name AS status ' .
+            'FROM game g ' .
+                'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
+                'INNER JOIN game_status s ON s.id = g.status_id ' .
+            'WHERE g.id = :previous_game_id;';
         try {
-            $query =
-                'SELECT pm.player_id, s.name AS status ' .
-                'FROM game g ' .
-                    'INNER JOIN game_player_map pm ON pm.game_id = g.id ' .
-                    'INNER JOIN game_status s ON s.id = g.status_id ' .
-                'WHERE g.id = :previous_game_id;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':previous_game_id' => $previousGameId));
 
@@ -657,7 +676,6 @@ class BMInterface {
     }
 
     public function count_pending_games($playerId) {
-        try {
             $parameters = array(':player_id' => $playerId);
 
             $query =
@@ -667,19 +685,10 @@ class BMInterface {
                 'WHERE gpm.player_id = :player_id '.
                    'AND gpm.is_awaiting_action = 1 ';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
             $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Pending game count failed.';
-                error_log('Pending game count failed for player ' . $playerId);
-                return NULL;
-            } else {
-                $data = array();
-                $data['count'] = (int)$result[0];
-                $this->message = 'Pending game count succeeded.';
-                return $data;
-            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::count_pending_games: ' .
@@ -687,6 +696,17 @@ class BMInterface {
             );
             $this->message = 'Pending game count failed.';
             return NULL;
+        }
+
+        if (!$result) {
+            $this->message = 'Pending game count failed.';
+            error_log('Pending game count failed for player ' . $playerId);
+            return NULL;
+        } else {
+            $data = array();
+            $data['count'] = (int)$result[0];
+            $this->message = 'Pending game count succeeded.';
+            return $data;
         }
     }
 
@@ -1572,13 +1592,13 @@ class BMInterface {
     // Parse the search filters, converting them to standardized forms (such
     // as converting names to ID's), and validating them against the database
     protected function assemble_search_filters($searchParameters) {
+        $searchFilters = array();
+
+        if (isset($searchParameters['gameId'])) {
+            $searchFilters['gameId'] = (int)$searchParameters['gameId'];
+        }
+
         try {
-            $searchFilters = array();
-
-            if (isset($searchParameters['gameId'])) {
-                $searchFilters['gameId'] = (int)$searchParameters['gameId'];
-            }
-
             $arePlayerNamesValid = $this->set_playerNames($searchFilters, $searchParameters);
             if (!$arePlayerNamesValid) {
                 return NULL;
@@ -1680,37 +1700,28 @@ class BMInterface {
     // Parse out the additional options that affect how search results
     // are to be presented
     protected function assemble_search_options($searchParameters) {
-        try {
-            $searchOptions = array();
+        $searchOptions = array();
 
-            if (isset($searchParameters['sortColumn'])) {
-                $searchOptions['sortColumn'] = $searchParameters['sortColumn'];
-            }
-            if (isset($searchParameters['sortDirection'])) {
-                $searchOptions['sortDirection'] = $searchParameters['sortDirection'];
-            }
-            if (isset($searchParameters['numberOfResults'])) {
-                $numberOfResults = (int)$searchParameters['numberOfResults'];
-                if ($numberOfResults <= 1000) {
-                    $searchOptions['numberOfResults'] = $numberOfResults;
-                } else {
-                    $this->message = 'numberOfResults may not exceed 1000';
-                    return NULL;
-                }
-            }
-            if (isset($searchParameters['page'])) {
-                $searchOptions['page'] = (int)$searchParameters['page'];
-            }
-
-            return $searchOptions;
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::assemble_search_options: ' .
-                $e->getMessage()
-            );
-            $this->message = 'Game search failed.';
-            return NULL;
+        if (isset($searchParameters['sortColumn'])) {
+            $searchOptions['sortColumn'] = $searchParameters['sortColumn'];
         }
+        if (isset($searchParameters['sortDirection'])) {
+            $searchOptions['sortDirection'] = $searchParameters['sortDirection'];
+        }
+        if (isset($searchParameters['numberOfResults'])) {
+            $numberOfResults = (int)$searchParameters['numberOfResults'];
+            if ($numberOfResults <= 1000) {
+                $searchOptions['numberOfResults'] = $numberOfResults;
+            } else {
+                $this->message = 'numberOfResults may not exceed 1000';
+                return NULL;
+            }
+        }
+        if (isset($searchParameters['page'])) {
+            $searchOptions['page'] = (int)$searchParameters['page'];
+        }
+
+        return $searchOptions;
     }
 
     // Get all games matching the specified search parameters.
@@ -2270,34 +2281,26 @@ class BMInterface {
     }
 
     public function get_next_pending_game($playerId, $skippedGames) {
+        $parameters = array(':player_id' => $playerId);
+
+        $query = 'SELECT gpm.game_id '.
+                 'FROM game_player_map AS gpm '.
+                    'LEFT JOIN game AS g ON g.id = gpm.game_id '.
+                 'WHERE gpm.player_id = :player_id '.
+                    'AND gpm.is_awaiting_action = 1 ';
+        foreach ($skippedGames as $index => $skippedGameId) {
+            $parameterName = ':skipped_game_id_' . $index;
+            $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
+            $parameters[$parameterName] = $skippedGameId;
+        };
+        $query = $query .
+                 'ORDER BY g.last_action_time ASC '.
+                 'LIMIT 1';
+
         try {
-            $parameters = array(':player_id' => $playerId);
-
-            $query = 'SELECT gpm.game_id '.
-                     'FROM game_player_map AS gpm '.
-                        'LEFT JOIN game AS g ON g.id = gpm.game_id '.
-                     'WHERE gpm.player_id = :player_id '.
-                        'AND gpm.is_awaiting_action = 1 ';
-            foreach ($skippedGames as $index => $skippedGameId) {
-                $parameterName = ':skipped_game_id_' . $index;
-                $query = $query . 'AND gpm.game_id <> ' . $parameterName . ' ';
-                $parameters[$parameterName] = $skippedGameId;
-            };
-            $query = $query .
-                     'ORDER BY g.last_action_time ASC '.
-                     'LIMIT 1';
-
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
             $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Player has no pending games.';
-                return array('gameId' => NULL);
-            } else {
-                $gameId = ((int)$result[0]);
-                $this->message = 'Next game ID retrieved successfully.';
-                return array('gameId' => $gameId);
-            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_next_pending_game: ' .
@@ -2306,18 +2309,27 @@ class BMInterface {
             $this->message = 'Game ID get failed.';
             return NULL;
         }
+
+        if (!$result) {
+            $this->message = 'Player has no pending games.';
+            return array('gameId' => NULL);
+        } else {
+            $gameId = ((int)$result[0]);
+            $this->message = 'Next game ID retrieved successfully.';
+            return array('gameId' => $gameId);
+        }
     }
 
     public function get_active_players($numberOfPlayers) {
+        $query =
+            'SELECT ' .
+                'name_ingame, ' .
+                'UNIX_TIMESTAMP(last_access_time) AS last_access_timestamp ' .
+            'FROM player ' .
+            'WHERE UNIX_TIMESTAMP(last_access_time) > 0 ' .
+            'ORDER BY last_access_time DESC ' .
+            'LIMIT :number_of_players;';
         try {
-            $query =
-                'SELECT ' .
-                    'name_ingame, ' .
-                    'UNIX_TIMESTAMP(last_access_time) AS last_access_timestamp ' .
-                'FROM player ' .
-                'WHERE UNIX_TIMESTAMP(last_access_time) > 0 ' .
-                'ORDER BY last_access_time DESC ' .
-                'LIMIT :number_of_players;';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':number_of_players' => $numberOfPlayers));
 
@@ -2470,14 +2482,15 @@ class BMInterface {
     private function get_button_tags($buttonName) {
         $tags = array();
 
+        $query =
+            'SELECT t.name ' .
+            'FROM button_tag_map btm ' .
+                'INNER JOIN button b ON b.id = btm.button_id ' .
+                'INNER JOIN tag t ON t.id = btm.tag_id ' .
+            'WHERE b.name = :button_name ' .
+            'ORDER BY t.name ASC;';
+
         try {
-            $query =
-                'SELECT t.name ' .
-                'FROM button_tag_map btm ' .
-                    'INNER JOIN button b ON b.id = btm.button_id ' .
-                    'INNER JOIN tag t ON t.id = btm.tag_id ' .
-                'WHERE b.name = :button_name ' .
-                'ORDER BY t.name ASC;';
             $statement = self::$conn->prepare($query);
             $parameters = array(':button_name' => $buttonName);
             $statement->execute($parameters);
@@ -2504,16 +2517,16 @@ class BMInterface {
     // efficiency.
     // If $setName is not specified, it returns all sets.
     public function get_button_set_data($setName = NULL) {
+        $parameters = array();
+        $query =
+            'SELECT bs.name FROM buttonset bs ';
+        if ($setName !== NULL) {
+            $query .= 'WHERE bs.name = :set_name ';
+            $parameters[':set_name'] = $setName;
+        }
+        $query .=
+            'ORDER BY bs.name ASC;';
         try {
-            $parameters = array();
-            $query =
-                'SELECT bs.name FROM buttonset bs ';
-            if ($setName !== NULL) {
-                $query .= 'WHERE bs.name = :set_name ';
-                $parameters[':set_name'] = $setName;
-            }
-            $query .=
-                'ORDER BY bs.name ASC;';
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
 
@@ -2554,14 +2567,6 @@ class BMInterface {
 
                 $sets[] = $currentSet;
             }
-
-            if (count($sets) == 0) {
-                $this->message = 'Button set not found.';
-                return NULL;
-            }
-
-            $this->message = 'Button set data retrieved successfully.';
-            return $sets;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_button_set_data: ' .
@@ -2570,12 +2575,20 @@ class BMInterface {
             $this->message = 'Button set info get failed.';
             return NULL;
         }
+
+        if (count($sets) == 0) {
+            $this->message = 'Button set not found.';
+            return NULL;
+        }
+
+        $this->message = 'Button set data retrieved successfully.';
+        return $sets;
     }
 
     protected function get_button_recipe_from_name($name) {
-        try {
-            $query = 'SELECT recipe FROM button_view '.
-                     'WHERE name = :name';
+        $query = 'SELECT recipe FROM button_view '.
+                 'WHERE name = :name';
+            try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':name' => $name));
 
@@ -2591,10 +2604,10 @@ class BMInterface {
     }
 
     public function get_player_names_like($input = '') {
+        $query = 'SELECT name_ingame, status FROM player_view '.
+                 'WHERE name_ingame LIKE :input '.
+                 'ORDER BY name_ingame';
         try {
-            $query = 'SELECT name_ingame, status FROM player_view '.
-                     'WHERE name_ingame LIKE :input '.
-                     'ORDER BY name_ingame';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $input.'%'));
 
@@ -2617,19 +2630,12 @@ class BMInterface {
     }
 
     public function get_player_id_from_name($name) {
+        $query = 'SELECT id FROM player '.
+                 'WHERE name_ingame = :input';
         try {
-            $query = 'SELECT id FROM player '.
-                     'WHERE name_ingame = :input';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
             $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Player name does not exist.';
-                return('');
-            } else {
-                $this->message = 'Player ID retrieved successfully.';
-                return((int)$result[0]);
-            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_player_id_from_name: ' .
@@ -2637,31 +2643,40 @@ class BMInterface {
             );
             $this->message = 'Player ID get failed.';
         }
+
+        if (!$result) {
+            $this->message = 'Player name does not exist.';
+            return('');
+        } else {
+            $this->message = 'Player ID retrieved successfully.';
+            return((int)$result[0]);
+        }
     }
 
     protected function get_player_name_from_id($playerId) {
-        try {
-            if (is_null($playerId)) {
-                return('');
-            }
+        if (is_null($playerId)) {
+            return('');
+        }
 
-            $query = 'SELECT name_ingame FROM player '.
-                     'WHERE id = :id';
+        $query = 'SELECT name_ingame FROM player '.
+                 'WHERE id = :id';
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Player ID does not exist.';
-                return('');
-            } else {
-                return($result[0]);
-            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_player_name_from_id: ' .
                 $e->getMessage()
             );
             $this->message = 'Player name get failed.';
+        }
+
+        if (!$result) {
+            $this->message = 'Player ID does not exist.';
+            return('');
+        } else {
+            return($result[0]);
         }
     }
 
@@ -2674,19 +2689,13 @@ class BMInterface {
     }
 
     protected function get_button_id_from_name($name) {
+
+        $query = 'SELECT id FROM button '.
+                 'WHERE name = :input';
         try {
-            $query = 'SELECT id FROM button '.
-                     'WHERE name = :input';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
             $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Button name does not exist.';
-                return('');
-            } else {
-                $this->message = 'Button ID retrieved successfully.';
-                return((int)$result[0]);
-            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_button_id_from_name: " .
@@ -2694,27 +2703,36 @@ class BMInterface {
             );
             $this->message = 'Button ID get failed.';
         }
+
+        if (!$result) {
+            $this->message = 'Button name does not exist.';
+            return('');
+        } else {
+            $this->message = 'Button ID retrieved successfully.';
+            return((int)$result[0]);
+        }
     }
 
     protected function get_buttonset_id_from_name($name) {
+        $query = 'SELECT id FROM buttonset '.
+                 'WHERE name = :input';
         try {
-            $query = 'SELECT id FROM buttonset '.
-                     'WHERE name = :input';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
             $result = $statement->fetch();
-            if (!$result) {
-                $this->message = 'Buttonset name does not exist.';
-                return('');
-            } else {
-                return((int)$result[0]);
-            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_buttonset_id_from_name: " .
                 $e->getMessage()
             );
             $this->message = 'Buttonset ID get failed.';
+        }
+
+        if (!$result) {
+            $this->message = 'Buttonset name does not exist.';
+            return('');
+        } else {
+            return((int)$result[0]);
         }
     }
 
@@ -2775,15 +2793,15 @@ class BMInterface {
     }
 
     protected function load_game_action_log(BMGame $game, $logEntryLimit) {
-        try {
-            $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
-                     'game_state,action_type,acting_player,message ' .
-                     'FROM game_action_log ' .
-                     'WHERE game_id = :game_id ORDER BY id DESC';
-            if (!is_null($logEntryLimit)) {
-                $query = $query . ' LIMIT ' . $logEntryLimit;
-            }
+        $query = 'SELECT UNIX_TIMESTAMP(action_time) AS action_timestamp, ' .
+                 'game_state,action_type,acting_player,message ' .
+                 'FROM game_action_log ' .
+                 'WHERE game_id = :game_id ORDER BY id DESC';
+        if (!is_null($logEntryLimit)) {
+            $query = $query . ' LIMIT ' . $logEntryLimit;
+        }
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':game_id' => $game->gameId));
             $logEntries = array();
@@ -2898,25 +2916,25 @@ class BMInterface {
     }
 
     protected function load_game_chat_log(BMGame $game, $logEntryLimit) {
-        try {
-            $sqlParameters = array(':game_id' => $game->gameId);
-            $query =
-                'SELECT ' .
-                    'UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
-                    'chatting_player, ' .
-                    'message ' .
-                'FROM game_chat_log ' .
-                'WHERE game_id = :game_id ';
-            if ($game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
-                $query .= 'OR game_id = :previous_game_id ';
-                $sqlParameters[':previous_game_id'] = $game->previousGameId;
-            }
-            $query .= 'ORDER BY id DESC ' ;
-            if (!is_null($logEntryLimit)) {
-                $query .= 'LIMIT :log_entry_limit';
-                $sqlParameters[':log_entry_limit'] = $logEntryLimit;
-            }
+        $sqlParameters = array(':game_id' => $game->gameId);
+        $query =
+            'SELECT ' .
+                'UNIX_TIMESTAMP(chat_time) AS chat_timestamp, ' .
+                'chatting_player, ' .
+                'message ' .
+            'FROM game_chat_log ' .
+            'WHERE game_id = :game_id ';
+        if ($game->gameState != BMGameState::END_GAME && !is_null($game->previousGameId)) {
+            $query .= 'OR game_id = :previous_game_id ';
+            $sqlParameters[':previous_game_id'] = $game->previousGameId;
+        }
+        $query .= 'ORDER BY id DESC ' ;
+        if (!is_null($logEntryLimit)) {
+            $query .= 'LIMIT :log_entry_limit';
+            $sqlParameters[':log_entry_limit'] = $logEntryLimit;
+        }
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute($sqlParameters);
             $chatEntries = array();
@@ -2927,7 +2945,6 @@ class BMInterface {
                     'message' => $row['message'],
                 );
             }
-            return $chatEntries;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_game_chat_log: ' .
@@ -2936,6 +2953,8 @@ class BMInterface {
             $this->message = 'Internal error while reading chat entries';
             return NULL;
         }
+
+        return $chatEntries;
     }
 
    // Can the active player edit the most recent chat entry in this game?
@@ -3152,11 +3171,11 @@ class BMInterface {
         $gameId,
         $buttonName
     ) {
-        try {
-            if (empty($buttonName)) {
-                return FALSE;
-            }
+        if (empty($buttonName)) {
+            return FALSE;
+        }
 
+        try {
             $game = $this->load_game($gameId);
 
             $playerIdx = array_search($playerId, $game->playerIdArray);
@@ -3914,15 +3933,15 @@ class BMInterface {
     }
 
     public function dismiss_game($playerId, $gameId) {
-        try {
-            $query =
-                'SELECT s.name AS "status", m.was_game_dismissed ' .
-                'FROM game AS g ' .
-                'INNER JOIN game_status AS s ON s.id = g.status_id ' .
-                    'LEFT JOIN game_player_map AS m ' .
-                    'ON m.game_id = g.id AND m.player_id = :player_id ' .
-                'WHERE g.id = :game_id';
+        $query =
+            'SELECT s.name AS "status", m.was_game_dismissed ' .
+            'FROM game AS g ' .
+            'INNER JOIN game_status AS s ON s.id = g.status_id ' .
+                'LEFT JOIN game_player_map AS m ' .
+                'ON m.game_id = g.id AND m.player_id = :player_id ' .
+            'WHERE g.id = :game_id';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':player_id' => $playerId,
@@ -3957,9 +3976,6 @@ class BMInterface {
                 ':player_id' => $playerId,
                 ':game_id' => $gameId,
             ));
-
-            $this->message = 'Dismissing game succeeded';
-            return TRUE;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::dismiss_game: ' .
@@ -3968,6 +3984,9 @@ class BMInterface {
             $this->message = 'Internal error while dismissing a game';
             return FALSE;
         }
+
+        $this->message = 'Dismissing game succeeded';
+        return TRUE;
     }
 
     ////////////////////////////////////////////////////////////
@@ -3975,29 +3994,29 @@ class BMInterface {
 
     // Retrieves an overview of all of the boards available on the forum
     public function load_forum_overview($currentPlayerId) {
+        $results = array();
+
+        // Get the list of all boards, identifying the first new post on each
+        $query =
+            'SELECT ' .
+                'b_plus.*, ' .
+                'COUNT(t.id) AS number_of_threads, ' .
+                'first_new_post.thread_id AS first_new_post_thread_id ' .
+            'FROM ' .
+                '(SELECT ' .
+                    'b.*, ' .
+                    '(SELECT v.id FROM forum_player_post_view AS v ' .
+                    'WHERE v.board_id = b.id AND v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
+                    'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id ' .
+                'FROM forum_board AS b) AS b_plus ' .
+                'LEFT JOIN forum_thread AS t ' .
+                    'ON t.board_id = b_plus.id AND t.deleted = 0 ' .
+                'LEFT JOIN forum_post AS first_new_post ' .
+                    'ON first_new_post.id = b_plus.first_new_post_id ' .
+            'GROUP BY b_plus.id ' .
+            'ORDER BY b_plus.sort_order ASC;';
+
         try {
-            $results = array();
-
-            // Get the list of all boards, identifying the first new post on each
-            $query =
-                'SELECT ' .
-                    'b_plus.*, ' .
-                    'COUNT(t.id) AS number_of_threads, ' .
-                    'first_new_post.thread_id AS first_new_post_thread_id ' .
-                'FROM ' .
-                    '(SELECT ' .
-                        'b.*, ' .
-                        '(SELECT v.id FROM forum_player_post_view AS v ' .
-                        'WHERE v.board_id = b.id AND v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
-                        'ORDER BY v.creation_time ASC LIMIT 1) AS first_new_post_id ' .
-                    'FROM forum_board AS b) AS b_plus ' .
-                    'LEFT JOIN forum_thread AS t ' .
-                        'ON t.board_id = b_plus.id AND t.deleted = 0 ' .
-                    'LEFT JOIN forum_post AS first_new_post ' .
-                        'ON first_new_post.id = b_plus.first_new_post_id ' .
-                'GROUP BY b_plus.id ' .
-                'ORDER BY b_plus.sort_order ASC;';
-
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':current_player_id' => $currentPlayerId));
 
@@ -4014,14 +4033,6 @@ class BMInterface {
                     'firstNewPostThreadId' => (int)$row['first_new_post_thread_id'],
                 );
             }
-
-            $results['boards'] = $boards;
-            $results['timestamp'] = strtotime('now');
-
-            if ($results) {
-                $this->message = 'Forum overview loading succeeded';
-            }
-            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_forum_overview: ' .
@@ -4030,20 +4041,28 @@ class BMInterface {
             $this->message = 'Forum overview loading failed';
             return NULL;
         }
+
+        $results['boards'] = $boards;
+        $results['timestamp'] = strtotime('now');
+
+        if ($results) {
+            $this->message = 'Forum overview loading succeeded';
+        }
+        return $results;
     }
 
     // Retrieves an overview of a specific forum board, plus information on all
     // the threads on that board
     public function load_forum_board($currentPlayerId, $boardId) {
+        $results = array();
+
+        // Get the details about the board itself
+        $query =
+            'SELECT b.* ' .
+            'FROM forum_board AS b ' .
+            'WHERE b.id = :board_id';
+
         try {
-            $results = array();
-
-            // Get the details about the board itself
-            $query =
-                'SELECT b.* ' .
-                'FROM forum_board AS b ' .
-                'WHERE b.id = :board_id';
-
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':board_id' => $boardId));
 
@@ -4115,14 +4134,6 @@ class BMInterface {
                     'firstNewPostId' => (int)$row['first_new_post_id'],
                 );
             }
-
-            $results['threads'] = $threads;
-            $results['timestamp'] = strtotime('now');
-
-            if ($results) {
-                $this->message = 'Forum board loading succeeded';
-            }
-            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_forum_board: ' .
@@ -4130,14 +4141,22 @@ class BMInterface {
             );
             return NULL;
         }
+
+        $results['threads'] = $threads;
+        $results['timestamp'] = strtotime('now');
+
+        if ($results) {
+            $this->message = 'Forum board loading succeeded';
+        }
+        return $results;
     }
 
     // Retrieves an overview of a specific forum thread, plus information on
     // the posts in that thread
     public function load_forum_thread($currentPlayerId, $threadId, $currentPostId) {
-        try {
-            $results = array();
+        $results = array();
 
+        try {
             $playerColors = $this->load_player_colors($currentPlayerId);
 
             // Get the details about the thread itself
@@ -4219,35 +4238,21 @@ class BMInterface {
 
     // Load the ID's of the next new post and its thread
     public function get_next_new_post($currentPlayerId) {
+        $results = array();
+
+        // Get the list of all boards, identifying the first new post on each
+        $query =
+            'SELECT v.id, v.thread_id ' .
+            'FROM forum_player_post_view AS v ' .
+            'WHERE v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
+            'ORDER BY v.creation_time ASC ' .
+            'LIMIT 1;';
+
         try {
-            $results = array();
-
-            // Get the list of all boards, identifying the first new post on each
-            $query =
-                'SELECT v.id, v.thread_id ' .
-                'FROM forum_player_post_view AS v ' .
-                'WHERE v.reader_player_id = :current_player_id AND v.is_new = 1 ' .
-                'ORDER BY v.creation_time ASC ' .
-                'LIMIT 1;';
-
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':current_player_id' => $currentPlayerId));
 
             $fetchResult = $statement->fetchAll();
-            if (count($fetchResult) != 1) {
-                $results['nextNewPostId'] = NULL;
-                $results['nextNewPostThreadId'] = NULL;
-                $this->message = 'No new forum posts';
-                return $results;
-            }
-
-            $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
-            $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
-
-            if ($results) {
-                $this->message = 'Checked new forum posts successfully';
-            }
-            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_next_new_post: ' .
@@ -4256,14 +4261,29 @@ class BMInterface {
             $this->message = 'New forum post check failed';
             return NULL;
         }
+
+        if (count($fetchResult) != 1) {
+            $results['nextNewPostId'] = NULL;
+            $results['nextNewPostThreadId'] = NULL;
+            $this->message = 'No new forum posts';
+            return $results;
+        }
+
+        $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
+        $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
+
+        if ($results) {
+            $this->message = 'Checked new forum posts successfully';
+        }
+        return $results;
     }
 
     // Indicates that the reader has finished reading all of the posts on every
     // board which they care to read
     public function mark_forum_read($currentPlayerId, $timestamp) {
-        try {
-            $query = 'SELECT b.id FROM forum_board AS b;';
+        $query = 'SELECT b.id FROM forum_board AS b;';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute();
 
@@ -4291,14 +4311,14 @@ class BMInterface {
     // Indicates that the reader has finished reading all of the posts on this
     // board which they care to read
     public function mark_forum_board_read($currentPlayerId, $boardId, $timestamp, $suppressResults = FALSE) {
-        try {
-            $query =
-                'INSERT INTO forum_board_player_map ' .
-                    '(board_id, player_id, read_time) ' .
-                'VALUES ' .
-                    '(:board_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
-                'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
+        $query =
+            'INSERT INTO forum_board_player_map ' .
+                '(board_id, player_id, read_time) ' .
+            'VALUES ' .
+                '(:board_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
+            'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':board_id' => $boardId,
@@ -4325,13 +4345,13 @@ class BMInterface {
     // Indicates that the reader has finished reading all of the posts in this
     // thread which they care to read
     public function mark_forum_thread_read($currentPlayerId, $threadId, $boardId, $timestamp) {
-        try {
-            $query =
-                'INSERT INTO forum_thread_player_map ' .
-                    '(thread_id, player_id, read_time) ' .
-                'VALUES (:thread_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
-                'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
+        $query =
+            'INSERT INTO forum_thread_player_map ' .
+                '(thread_id, player_id, read_time) ' .
+            'VALUES (:thread_id, :current_player_id, FROM_UNIXTIME(:timestamp_insert)) ' .
+            'ON DUPLICATE KEY UPDATE read_time = FROM_UNIXTIME(:timestamp_update);';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':thread_id' => $threadId,
@@ -4353,11 +4373,11 @@ class BMInterface {
 
     // Adds a new thread to the specified board
     public function create_forum_thread($currentPlayerId, $boardId, $title, $body) {
-        try {
-            $query =
-                'INSERT INTO forum_thread (board_id, title, deleted) ' .
-                'VALUES (:board_id, :title, 0);';
+        $query =
+            'INSERT INTO forum_thread (board_id, title, deleted) ' .
+            'VALUES (:board_id, :title, 0);';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':board_id' => $boardId,
@@ -4395,13 +4415,13 @@ class BMInterface {
 
     // Adds a new post to the specified thread
     public function create_forum_post($currentPlayerId, $threadId, $body) {
-        try {
-            $query =
-                'INSERT INTO forum_post ' .
-                    '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
-                'VALUES ' .
-                    '(:thread_id, :current_player_id, NOW(), NOW(), :body, 0);';
+        $query =
+            'INSERT INTO forum_post ' .
+                '(thread_id, poster_player_id, creation_time, last_update_time, body, deleted) ' .
+            'VALUES ' .
+                '(:thread_id, :current_player_id, NOW(), NOW(), :body, 0);';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(
                 ':thread_id' => $threadId,
@@ -4415,11 +4435,6 @@ class BMInterface {
             $postId = (int)$fetchData[0];
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
-
-            if ($results) {
-                $this->message = 'Forum post created successfully';
-            }
-            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::create_forum_post: ' .
@@ -4427,16 +4442,21 @@ class BMInterface {
             );
             return NULL;
         }
+
+        if ($results) {
+            $this->message = 'Forum post created successfully';
+        }
+        return $results;
     }
 
     // Changes the body of the specified post
     public function edit_forum_post($currentPlayerId, $postId, $body) {
-        try {
-            $query =
-                'SELECT p.poster_player_id, p.deleted, p.thread_id ' .
-                'FROM forum_post p ' .
-                'WHERE p.id = :post_id;';
+        $query =
+            'SELECT p.poster_player_id, p.deleted, p.thread_id ' .
+            'FROM forum_post p ' .
+            'WHERE p.id = :post_id;';
 
+        try {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':post_id' => $postId));
 
@@ -4467,11 +4487,6 @@ class BMInterface {
             ));
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
-
-            if ($results) {
-                $this->message = 'Forum post edited successfully';
-            }
-            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::edit_forum_post: ' .
@@ -4479,14 +4494,19 @@ class BMInterface {
             );
             return NULL;
         }
+
+        if ($results) {
+            $this->message = 'Forum post edited successfully';
+        }
+        return $results;
     }
 
     // End of Forum-related methods
     ////////////////////////////////////////////////////////////
 
     public function update_last_action_time($playerId, $gameId = NULL) {
+        $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
         try {
-            $query = 'UPDATE player SET last_action_time = now() WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
 
@@ -4511,8 +4531,8 @@ class BMInterface {
     }
 
     public function update_last_access_time($playerId) {
+        $query = 'UPDATE player SET last_access_time = now() WHERE id = :id';
         try {
-            $query = 'UPDATE player SET last_access_time = now() WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
         } catch (Exception $e) {
@@ -4525,17 +4545,11 @@ class BMInterface {
     }
 
     protected function get_config($conf_key) {
+        $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
         try {
-            $query = 'SELECT conf_value FROM config WHERE conf_key = :conf_key';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':conf_key' => $conf_key));
             $fetchResult = $statement->fetchAll();
-
-            if (count($fetchResult) != 1) {
-                error_log('Wrong number of config values with key ' . $conf_key);
-                return NULL;
-            }
-            return $fetchResult[0]['conf_value'];
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_config: ' .
@@ -4543,6 +4557,12 @@ class BMInterface {
             );
             return NULL;
         }
+
+        if (count($fetchResult) != 1) {
+            error_log('Wrong number of config values with key ' . $conf_key);
+            return NULL;
+        }
+        return $fetchResult[0]['conf_value'];
     }
 
     // Calculates the difference between two (unix-style) timespans and formats
