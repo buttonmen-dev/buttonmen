@@ -48,7 +48,7 @@ class BMAttackDefault extends BMAttack {
                 $this->validationMessage = 'There is no valid attack corresponding to the dice selected.';
                 return FALSE;
             default:
-                if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders)) {
+                if ($this->is_one_on_one_no_frills_attack($game, $attackers, $defenders, $validAttackTypeArray)) {
                     $this->resolvedType = $validAttackTypeArray[0];
                     return TRUE;
                 }
@@ -58,7 +58,12 @@ class BMAttackDefault extends BMAttack {
         }
     }
 
-    protected function is_one_on_one_no_frills_attack($game, array $attackers, array $defenders) {
+    protected function is_one_on_one_no_frills_attack(
+        BMGame $game,
+        array $attackers,
+        array $defenders,
+        array $validAttackTypes
+    ) {
         if (1 != count($attackers)) {
             return FALSE;
         }
@@ -67,17 +72,61 @@ class BMAttackDefault extends BMAttack {
             return FALSE;
         }
 
-        if ($attackers[0]->has_skill('Doppelganger')) {
+        $attacker = $attackers[0];
+        $defender = $defenders[0];
+
+        // deal with skills with side effects
+        if ($attacker->has_skill('Doppelganger') && in_array('Power', $validAttackTypes)) {
             return FALSE;
         }
 
-        foreach ($game->attackerAllDieArray as $die) {
-            if ($die->has_skill('Fire')) {
-                return FALSE;
-            }
+        // deal with attacks with side effects
+        if (in_array('Berserk', $validAttackTypes)) {
+            return FALSE;
+        }
+
+        if (in_array('Trip', $validAttackTypes)) {
+            return FALSE;
+        }
+
+        if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
+            return FALSE;
         }
 
         return TRUE;
+    }
+
+    protected function is_fire_assistance_possible(
+        BMGame $game,
+        BMDie $attacker,
+        BMDie $defender,
+        array $validAttackTypes
+    ) {
+        $fireTurndownAvailable = 0;
+
+        foreach ($game->attackerAllDieArray as $die) {
+            if ($die === $attacker) {
+                continue;
+            }
+
+            if ($die->has_skill('Fire')) {
+                $fireTurndownAvailable += $die->value - $die->min;
+            }
+        }
+
+        if ($fireTurndownAvailable > 0) {
+            // power attack with the possibility of fire assistance
+            if (in_array('Power', $validAttackTypes) && ($attacker->value < $attacker->max)) {
+                return TRUE;
+            }
+
+            // skill attack with the need for fire assistance
+            if (in_array('Skill', $validAttackTypes) && ($attacker->value < $defender->value)) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
     }
 
     public function type_for_log() {

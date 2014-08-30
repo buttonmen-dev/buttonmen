@@ -48,13 +48,15 @@ class BMSkillOrnery extends BMSkill {
     }
 
     protected static function get_description() {
-        return 'At the end of every turn, if the player does not pass, ' .
-               'then the attacker\'s ornery dice reroll, even if they ' .
-               'did not attack in that turn. Ornery dice do not reroll a ' .
-               'second time if they attacked.';
+        return 'Ornery dice reroll every time the player makes any attack - ' .
+               'whether the Ornery dice participated in it or not. The only time ' .
+               'they don\'t reroll is if the player passes, making no attack whatsoever.';
     }
 
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Mad' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
+            'Mood' => 'Dice with both Ornery and Mood Swing have their sizes randomized during ornery rerolls',
+        );
     }
 }
