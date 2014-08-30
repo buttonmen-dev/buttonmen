@@ -2586,7 +2586,7 @@ class BMInterface {
         $query = 'SELECT recipe FROM button_view '.
                  'WHERE name = :name';
         try {
-            $statement = ssubmit_elf::$conn->prepare($query);
+            $statement = self::$conn->prepare($query);
             $statement->execute(array(':name' => $name));
 
             $row = $statement->fetch();
