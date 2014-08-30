@@ -153,6 +153,48 @@ class BMAttackDefaultTest extends PHPUnit_Framework_TestCase {
         $die1 = new BMDie;
         $die1->init(6);
         $die1->value = 6;
+        $die1->add_skill('Trip');
+
+        $die2 = clone $die1;
+
+        $this->object->add_die($die1);
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+        $game->attack = array(0, 1, array(0), array(0), 'Default');
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackDefault::validate_attack
+     * @covers BMAttackDefault::is_one_on_one_no_frills_attack
+     */
+    public function testValidate_attack_one_on_one_with_berserk() {
+        $game = new BMGame;
+        $game->activePlayerIdx = 0;
+
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+        $die1->add_skill('Berserk');
+
+        $die2 = clone $die1;
+
+        $this->object->add_die($die1);
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+        $game->attack = array(0, 1, array(0), array(0), 'Default');
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackDefault::validate_attack
+     * @covers BMAttackDefault::is_one_on_one_no_frills_attack
+     */
+    public function testValidate_attack_one_on_one_with_doppelganger_and_power_is_possible() {
+        $game = new BMGame;
+        $game->activePlayerIdx = 0;
+
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
         $die1->add_skill('Doppelganger');
 
         $die2 = clone $die1;
@@ -161,6 +203,28 @@ class BMAttackDefaultTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($die1), array($die2));
         $game->attack = array(0, 1, array(0), array(0), 'Default');
         $this->assertFalse($this->object->validate_attack($game, array($die1), array($die2)));
+    }
+
+    /**
+     * @covers BMAttackDefault::validate_attack
+     * @covers BMAttackDefault::is_one_on_one_no_frills_attack
+     */
+    public function testValidate_attack_one_on_one_with_doppelganger_and_power_is_not_possible() {
+        $game = new BMGame;
+        $game->activePlayerIdx = 0;
+
+        $die1 = new BMDie;
+        $die1->init(6);
+        $die1->value = 6;
+        $die1->add_skill('Doppelganger');
+        $die1->add_skill('Shadow');
+
+        $die2 = clone $die1;
+
+        $this->object->add_die($die1);
+        $game->activeDieArrayArray = array(array($die1), array($die2));
+        $game->attack = array(0, 1, array(0), array(0), 'Default');
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die2)));
     }
 
     /**
@@ -181,6 +245,59 @@ class BMAttackDefaultTest extends PHPUnit_Framework_TestCase {
         $die2->add_skill('Fire');
 
         $die3 = clone $die1;
+
+        $this->object->add_die($die1);
+        $game->activeDieArrayArray = array(array($die1, $die2), array($die3));
+        $game->attack = array(0, 1, array(0), array(0), 'Default');
+        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die3)));
+    }
+
+    /**
+     * @covers BMAttackDefault::validate_attack
+     * @covers BMAttackDefault::is_one_on_one_no_frills_attack
+     */
+    public function testValidate_attack_one_on_one_equal_values_with_fire_and_shadow() {
+        $game = new BMGame;
+        $game->activePlayerIdx = 0;
+
+        $die1 = new BMDie;
+        $die1->init(8);
+        $die1->value = 6;
+        $die1->add_skill('Shadow');
+
+        $die2 = new BMDie;
+        $die2->init(4);
+        $die2->value = 4;
+        $die2->add_skill('Fire');
+
+        $die3 = clone $die1;
+
+        $this->object->add_die($die1);
+        $game->activeDieArrayArray = array(array($die1, $die2), array($die3));
+        $game->attack = array(0, 1, array(0), array(0), 'Default');
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die3)));
+    }
+
+    /**
+     * @covers BMAttackDefault::validate_attack
+     * @covers BMAttackDefault::is_one_on_one_no_frills_attack
+     */
+    public function testValidate_attack_one_on_one_unequal_values_with_fire_and_shadow() {
+        $game = new BMGame;
+        $game->activePlayerIdx = 0;
+
+        $die1 = new BMDie;
+        $die1->init(8);
+        $die1->value = 6;
+        $die1->add_skill('Shadow');
+
+        $die2 = new BMDie;
+        $die2->init(4);
+        $die2->value = 4;
+        $die2->add_skill('Fire');
+
+        $die3 = clone $die1;
+        $die3->value = 7;
 
         $this->object->add_die($die1);
         $game->activeDieArrayArray = array(array($die1, $die2), array($die3));
