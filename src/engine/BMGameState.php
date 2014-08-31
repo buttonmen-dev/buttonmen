@@ -12,6 +12,7 @@ class BMGameState {
     // pre-game
     const START_GAME = 10;
     const APPLY_HANDICAPS = 12;
+    const CHOOSE_JOIN_GAME = 13;
 
     // pre-round
     const LOAD_DICE_INTO_BUTTONS = 15;

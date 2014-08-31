@@ -215,6 +215,14 @@ class BMGame {
         }
     }
 
+    protected function do_next_step_choose_join_game() {
+
+    }
+
+    protected function update_game_state_choose_join_game() {
+        
+    }
+
     protected function do_next_step_load_dice_into_buttons() {
         // james: this is currently carried out either by manually setting
         // $this->buttonArray, or by BMInterface
