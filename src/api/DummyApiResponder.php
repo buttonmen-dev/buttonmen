@@ -700,7 +700,7 @@ class DummyApiResponder {
     private function loadDetailedButtonDataForAvis() {
         // a button with no special skills
         return array(
-            'buttonId' => 264,
+            'buttonId' => 268,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -733,7 +733,7 @@ class DummyApiResponder {
     private function loadButtonDataStandard() {
         // a button with no special skills
         return array(
-            'buttonId' => 264,
+            'buttonId' => 268,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
