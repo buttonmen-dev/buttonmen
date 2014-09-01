@@ -91,32 +91,13 @@ test("test_Login.getLoginHeader", function(assert) {
 test("test_Login.getFooter", function(assert) {
   expect(5); // tests + 2 teardown
 
-  Login.getBody = function() {
-    assert.ok(true, "Login.getBody should be called by Login.getFooter()");
-  };
-
-  Login.getFooter();
-
-  assert.ok(Login.footer.text().match('Cheapass Games'),
-    'Footer should contain copyright notice');
-  assert.ok(Login.footer.text().match('help@buttonweavers.com'),
-    'Footer should contain contact info');
-});
-
-test("test_Login.getBody", function(assert) {
-  expect(3); // tests + 2 teardown
-
-  Login.arrangePage = function() {
-    assert.ok(false,
-      "Login.arrangePage() should not be directly called when logged in");
-  };
-
+  Login.message = 'Hello.';
   Login.pageModule = {
     'bodyDivId': 'test_page',
     'showLoggedInPage':
       function() {
-        assert.ok(true, "Login callback should be called");
-      },
+      assert.ok(true, "Login callback should be called");
+    },
   };
 
   BMTestUtils.setupFakeLogin();
@@ -124,8 +105,11 @@ test("test_Login.getBody", function(assert) {
   BMTestUtils.cleanupFakeLogin();
 });
 
-test("test_Login.getBody_loggedOut", function(assert) {
-  expect(3); // tests + 2 teardown
+  var bodyDiv = $('#' + Login.pageModule.bodyDivId);
+  assert.equal(bodyDiv.length, 1,
+    "Main page body div should be created");
+  bodyDiv.remove();
+  bodyDiv.empty();
 
   Login.arrangePage = function() {
     assert.ok(true,
@@ -144,7 +128,10 @@ test("test_Login.getBody_loggedOut", function(assert) {
 });
 
 test("test_Login.arrangePage", function(assert) {
-  expect(8); // tests + 2 teardown
+  expect(5); // tests + 2 teardown
+
+  Login.pageModule = { 'bodyDivId': 'test_page' };
+  $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
 
   Env.message = {
     'type': 'none',
@@ -214,8 +201,10 @@ test("test_Login.arrangeBody", function(assert) {
     'Page contents should exist on actual page.');
   button.click();
 
-  $('#test_page').empty();
-  $('#test_page').remove();
+  if (Login.pageModule) {
+    $('#' + Login.pageModule.bodyDivId).remove();
+    $('#' + Login.pageModule.bodyDivId).empty();
+  }
 });
 
 test("test_Login.arrangeFooter", function(assert) {
