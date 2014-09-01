@@ -270,18 +270,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $this->verify_mandatory_args_required(
             'createGame',
             array(
-                'playerInfoArray' => array(
-                    array(
-                        'playerName' => 'responder003',
-                        'buttonNames' => array('Avis'),
-                        'isButtonRandom' => 'false',
-                    ),
-                    array(
-                        'playerName' => 'responder004',
-                        'buttonNames' => array('Avis'),
-                        'isButtonRandom' => 'false',
-                    ),
-                ),
+                'playerInfoArray' => array(array('responder003', 'Avis'),
+                                           array('responder004', 'Avis')),
                 'maxWins' => '3',
             )
         );
@@ -289,26 +279,15 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Make sure a button name with a backtick is rejected
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Av`is'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Av`is')),
             'maxWins' => '3',
         );
-
         $retval = $this->object->process_request($args);
         $this->assertEquals(
             array(
                 'data' => NULL,
-                'message' => 'Argument (playerInfoArray) to function createGame is invalid',
+                'message' => 'Game create failed because a button name was not valid.',
                 'status' => 'failed',
             ),
             $retval,
@@ -318,18 +297,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Make sure that the first player in a game is the current logged in player
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder001',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder001', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -346,18 +315,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -436,20 +395,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $createGameArgs = array(
             'type' => 'createGame',
             'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => '',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
+                array('responder004', 'Avis'),
+                array('', 'Avis')
             ),
             'maxWins' => '3',
         );
-
         $createGameResult = $this->object->process_request($createGameArgs);
         $gameId = $createGameResult['data']['gameId'];
 
@@ -751,18 +701,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -816,18 +756,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create an open game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => '',
-                    'buttonNames' => array(),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('', '')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -986,18 +916,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Avis'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Avis'),
+                                       array('responder004', 'Avis')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -1029,18 +949,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create a game so we have the ID to load
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Apples'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Apples'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Apples'),
+                                       array('responder004', 'Apples')),
             'maxWins' => '3',
         );
         $retval = $this->object->process_request($args);
@@ -1114,18 +1024,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
 	// state, and the other player has initiative
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('Crab'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('Crab'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'Crab'),
+                                       array('responder004', 'Crab')),
             'maxWins' => '3',
         );
 
@@ -1190,18 +1090,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // create and complete a game so we have the ID to dismiss
         $args = array(
             'type' => 'createGame',
-            'playerInfoArray' => array(
-                array(
-                    'playerName' => 'responder003',
-                    'buttonNames' => array('haruspex'),
-                    'isButtonRandom' => 'false',
-                ),
-                array(
-                    'playerName' => 'responder004',
-                    'buttonNames' => array('haruspex'),
-                    'isButtonRandom' => 'false',
-                ),
-            ),
+            'playerInfoArray' => array(array('responder003', 'haruspex'),
+                                       array('responder004', 'haruspex')),
             'maxWins' => '1',
         );
         $loggedInPlayerIdx = 0;

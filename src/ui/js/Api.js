@@ -566,13 +566,13 @@ var Api = (function () {
     return true;
   };
 
-  my.joinOpenGame = function(gameId, playerInfo, callback, failCallback) {
+  my.joinOpenGame = function(gameId, buttonName, callback, failCallback) {
     var parameters = {
       'type': 'joinOpenGame',
       'gameId': gameId,
     };
-    if (playerInfo !== undefined && playerInfo !== null) {
-      parameters.playerInfo = playerInfo;
+    if (buttonName !== undefined && buttonName !== null) {
+      parameters.buttonName = buttonName;
     }
 
     my.apiParsePost(
