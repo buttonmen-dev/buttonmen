@@ -1,28 +1,19 @@
 // namespace for this "module"
 var Profile = {};
 
+Profile.bodyDivId = 'profile_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Profile.showProfilePage() is the landing function. Always call
+// * Profile.showLoggedInPage() is the landing function. Always call
 // this first. It sets up #profile_page and calls Profile.getProfile()
 // * Profile.getProfile() calls the API, setting Api.profile_info. It calls
 //   Profile.showPage()
 // * Profile.showPage() uses the data returned by the API to build
-//   the contents of the page as Profile.page and calls Profile.arrangePage()
-// * Profile.arrangePage() sets the contents of <div id="profile_page"> on the
-//   live page
+//   the contents of the page as Profile.page and calls Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
-Profile.showProfilePage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#profile_page').length === 0) {
-    $('body').append($('<div>', {'id': 'profile_page', }));
-  }
-
+Profile.showLoggedInPage = function() {
   // Get all needed information, then display Profile page
   Profile.getProfile(Profile.showPage);
 };
@@ -30,22 +21,13 @@ Profile.showProfilePage = function() {
 Profile.getProfile = function(callback) {
   var playerName = Env.getParameterByName('player');
 
-  if (Login.logged_in) {
-    Api.loadProfileInfo(playerName, callback);
-  } else {
-    return callback();
-  }
+  Api.loadProfileInfo(playerName, callback);
 };
 
 Profile.showPage = function() {
   Profile.page = $('<div>');
 
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t view player profile because you are not logged in',
-    };
-  } else if (Api.profile_info.load_status != 'ok') {
+  if (Api.profile_info.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
@@ -57,16 +39,7 @@ Profile.showPage = function() {
   }
 
   // Actually layout the page
-  Profile.arrangePage();
-};
-
-Profile.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#profile_page').empty();
-  $('#profile_page').append(Profile.page);
+  Login.arrangePage(Profile.page);
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -129,11 +102,39 @@ Profile.buildProfileTable = function() {
       Api.profile_info.name_ingame + '&status=COMPLETE',
   }));
 
+  var favoriteButtonLink = null;
+  if (Api.profile_info.favorite_button) {
+    favoriteButtonLink = Env.buildButtonLink(Api.profile_info.favorite_button);
+  }
+  var favoriteButtonSetLink = null;
+  if (Api.profile_info.favorite_buttonset) {
+    favoriteButtonSetLink =
+      Env.buildButtonSetLink(Api.profile_info.favorite_buttonset);
+  }
+
   var commentHolder = null;
   if (Api.profile_info.comment) {
     commentHolder = $('<span>');
     var cookedComment = Env.prepareRawTextForDisplay(Api.profile_info.comment);
     commentHolder.append(cookedComment);
+  }
+
+  var homepageLink = null;
+  if (Api.profile_info.homepage) {
+    var homepageUrl = Env.validateUrl(Api.profile_info.homepage);
+    if (homepageUrl) {
+      homepageLink = $('<a>', {
+        'text': homepageUrl,
+        'href': homepageUrl,
+        'target': '_blank',
+      });
+    } else {
+      homepageLink = $('<a>', {
+        'text': 'INVALID URL',
+        'href': 'javascript:alert("Homepage URL was invalid")',
+        'target': '_blank',
+      });
+    }
   }
 
   var solipsismAlternatives = [
@@ -193,12 +194,14 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
   tbody.append(Profile.buildProfileTableRow('Favorite button',
-    Api.profile_info.favorite_button, 'undecided', true));
+    favoriteButtonLink, 'undecided', true));
   tbody.append(Profile.buildProfileTableRow('Favorite button set',
-    Api.profile_info.favorite_buttonset, 'unselected', true));
+    favoriteButtonSetLink, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
     challengeLinkHolder, solipsismNotification, false));
+  tbody.append(Profile.buildProfileTableRow('Homepage',
+    homepageLink, 'homeless', false));
   tbody.append(Profile.buildProfileTableRow('Comment',
     commentHolder, 'none', false));
 
@@ -254,3 +257,4 @@ Profile.buildProfileTableRow = function(
   }
   return tr;
 };
+

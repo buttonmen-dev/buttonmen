@@ -1,11 +1,22 @@
 <?php
+/**
+ * BMSkillMood: Code specific to the mood die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the mood die skill
+ */
 class BMSkillMood extends BMSkill {
     public static $hooked_methods = array('pre_roll', 'add_skill');
 
     public static function pre_roll(&$args) {
-        if (!($args['die'] instanceof BMDie) ||
-            (TRUE !== $args['isTriggeredByAttack'])) {
+        if (!($args['die'] instanceof BMDie)) {
+            return FALSE;
+        }
+
+        if (empty($args['die']->value)) {
             return FALSE;
         }
 
@@ -18,7 +29,8 @@ class BMSkillMood extends BMSkill {
 
         $swingRange = BMDieSwing::swing_range($die->swingType);
         $validSwingValueArray = static::valid_die_sizes($swingRange);
-        $newSwingValue = $validSwingValueArray[array_rand($validSwingValueArray)];
+        $randIdx = bm_rand(0, count($validSwingValueArray) - 1);
+        $newSwingValue = $validSwingValueArray[$randIdx];
 
         if ($die instanceof BMDieSwing) {
             $die->max = $newSwingValue;

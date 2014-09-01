@@ -427,6 +427,15 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($assistVals);
         $this->assertEquals(1, count($assistVals));
         $this->assertEquals(0, $assistVals[0]);
+
+        // test that two identical Fire dice do not conflict when one is in the attack and
+        // the other one isn't
+        $att2 = clone $this->object;
+        $assistVals = $this->object->assist_values($att, array($att2), array($defDie));
+        $this->assertNotEmpty($assistVals);
+        $this->assertEquals(2, count($assistVals));
+        $this->assertEquals(-1, $assistVals[0]);
+        $this->assertEquals(1, $assistVals[1]);
     }
 
     /**
@@ -611,48 +620,6 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
         $this->assertEquals(4, $dice[0]->max);
         $this->assertEquals(3, $dice[1]->max);
-    }
-
-    /*
-     * @covers BMDie::run_hooks_at_game_state
-     */
-
-    public function testRun_hooks_at_game_state() {
-        $this->object->playerIdx = 0;
-
-        $this->assertEquals("", $this->object->inactive);
-        $this->assertFalse($this->object->hasAttacked);
-
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
-
-        $this->assertEquals("", $this->object->inactive);
-        $this->assertFalse($this->object->hasAttacked);
-
-        $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
-        $this->assertFalse($this->object->hasAttacked);
-
-        $this->hasAttacked = TRUE;
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 1));
-        $this->assertFalse($this->object->hasAttacked);
-
-        $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 1));
-        $this->assertNotEquals("", $this->object->inactive);
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
-        $this->assertEquals("", $this->object->inactive);
-
-        $this->hasAttacked = TRUE;
-        $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 1));
-        $this->assertFalse($this->object->hasAttacked);
-        $this->assertNotEquals("", $this->object->inactive);
-
-        $this->hasAttacked = TRUE;
-        $this->object->inactive = "Yes";
-        $this->object->run_hooks_at_game_state(BMGameState::END_TURN, array('activePlayerIdx' => 0));
-        $this->assertFalse($this->object->hasAttacked);
-        $this->assertEquals("", $this->object->inactive);
     }
 
     /*

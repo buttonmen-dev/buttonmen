@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackSurrender: Code specific to surrender attacks
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to surrender attacks
+ */
 class BMAttackSurrender extends BMAttackPass {
     public $type = "Surrender";
 

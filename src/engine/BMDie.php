@@ -1,9 +1,13 @@
 <?php
-
-/*
+/**
  * BMDie: the fundamental unit of game mechanics
  *
- * @author: Julian Lighton
+ * @author: Julian
+ */
+
+/**
+ * This class contains all the logic to do with dice, including instantiating, activating,
+ * rolling, capturing, describing, as well as die flags
  *
  * @property-read int    $min                   Minimum die value
  * @property-read int    $max                   Maximum die value
@@ -21,7 +25,6 @@
  * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
  */
-
 class BMDie extends BMCanHaveSkill {
     // properties
 
@@ -108,7 +111,7 @@ class BMDie extends BMCanHaveSkill {
                 $die = BMDieTwin::create($twinArray, $skills);
             } elseif ('C' == $recipe) {
 //                $die = BMDieWildcard::create($recipe, $skills);
-                throw new Exception("Wildcard skill not implemented");
+                throw new BMUnimplementedDieException("Wildcard skill not implemented");
             } elseif (is_numeric($recipe) && ($recipe == (int)$recipe)) {
                 // Integers are normal dice
                 $die = BMDie::create((int)$recipe, $skills);
@@ -178,10 +181,11 @@ class BMDie extends BMCanHaveSkill {
                                            'isTriggeredByAttack' => $isTriggeredByAttack));
 
         if ($this->doesReroll || !isset($this->value)) {
-            $this->value = mt_rand($this->min, $this->max);
+            $this->value = bm_rand($this->min, $this->max);
         }
 
-        //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
+        $this->run_hooks('post_roll', array('die' => $this,
+                                            'isTriggeredByAttack' => $isTriggeredByAttack));
     }
 
     public function attack_list() {
@@ -283,11 +287,10 @@ class BMDie extends BMCanHaveSkill {
     // It does not assume that the values are positive, even though
     // they must be at the moment.
     public function assist_values($type, array $attackers) {
-
         $vals = array(0);
 
         // Attackers can't help their own attack
-        if (FALSE !== array_search($this, $attackers)) {
+        if (FALSE !== array_search($this, $attackers, TRUE)) {
             return $vals;
         }
 
@@ -470,22 +473,6 @@ class BMDie extends BMCanHaveSkill {
         return $dice;
     }
 
-    public function run_hooks_at_game_state($gameState, $args) {
-        switch ($gameState) {
-            case BMGameState::END_TURN:
-                if ($this->playerIdx === $args['activePlayerIdx']) {
-                    $this->inactive = "";
-                }
-                $this->hasAttacked = FALSE;
-                break;
-            default:
-                // do nothing special
-        }
-
-        $this->run_hooks(__FUNCTION__, array('activePlayerIdx' =>
-                                             $args['activePlayerIdx']));
-    }
-
     public function get_recipe($addMaxvals = FALSE) {
         $recipe = '';
         foreach ($this->skillList as $skill) {
@@ -587,11 +574,12 @@ class BMDie extends BMCanHaveSkill {
             'forceReportDieSize' => $this->forceReportDieSize(),
             'valueAfterTripAttack' => $valueAfterTripAttack,
             'hasJustMorphed' => $this->has_flag('HasJustMorphed'),
+            'hasJustRerolledOrnery' => $this->has_flag('HasJustRerolledOrnery'),
         ));
     }
 
     public function forceReportDieSize() {
-        return($this->has_skill('Mood') || $this->has_skill('Mad'));
+        return ($this->has_skill('Mood') || $this->has_skill('Mad'));
     }
 
     public function cast_as_BMDie() {
@@ -662,11 +650,22 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    public function getDieTypes() {
+        $typesList = array();
+        return $typesList;
+    }
+
     public static function standard_die_sizes() {
         return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
     }
 
     // utility methods
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -680,6 +679,12 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         $funcName = 'set__'.$property;
         if (method_exists($this, $funcName)) {
@@ -854,10 +859,22 @@ class BMDie extends BMCanHaveSkill {
         $this->flagList = $value;
     }
 
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __isset($property) {
         return isset($this->$property);
     }
 
+    /**
+     * Unset
+     *
+     * @param type $property
+     * @return boolean
+     */
     public function __unset($property) {
         if (isset($this->$property)) {
             unset($this->$property);
@@ -867,12 +884,23 @@ class BMDie extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Convert to string.
+     *
+     * @return string
+     */
     public function __toString() {
         return $this->get_recipe();
     }
 
+    /**
+     * To be run after a BMDie object is cloned.
+     *
+     * Doesn't do anything for the base class, but subclasses will need to
+     * clone their subdice.
+     *
+     * @return BMDie
+     */
     public function __clone() {
-        // Doesn't do anything for the base class, but subclasses will
-        // need to clone their subdice.
     }
 }

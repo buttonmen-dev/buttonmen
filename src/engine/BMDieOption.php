@@ -1,15 +1,17 @@
 <?php
-
 /**
- * BMDieOption: option die
+ * BMDieOption: Code specific to option dice
  *
  * @author james
+ */
+
+/**
+ * This class contains all the logic to do with requesting and setting option values
  *
  * @property      array $optionValueArray  Possible option values
  * @property-read bool  $needsOptionValue  Flag indicating whether an option value is still needed
  * @property-read bool  $valueRequested    Flag indicating whether an option request has been sent to the parent
  */
-
 class BMDieOption extends BMDie {
     protected $optionValueArray;
     protected $needsOptionValue;
@@ -126,6 +128,27 @@ class BMDieOption extends BMDie {
         return TRUE;
     }
 
+    public function getDieTypes() {
+        $typesList = array();
+        $typesList['Option'] = array(
+            'code' => '/',
+            'description' =>
+                'Option Dice are represented as two numbers with a slash ' .
+                'between them, resembling a fraction. They function like ' .
+                'Swing Dice and can be changed at any time a Swing Die could ' .
+                'be changed. However, Option Dice are restricted to only two ' .
+                'values. For example, a 4/10 Option Die can be only a 4 or a ' .
+                '10.',
+        );
+        return $typesList;
+    }
+
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'max':

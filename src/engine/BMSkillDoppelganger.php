@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillDoppelganger: Code specific to the doppelganger die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the doppelganger die skill
+ */
 class BMSkillDoppelganger extends BMSkillMorphing {
     public static $hooked_methods = array('capture');
 

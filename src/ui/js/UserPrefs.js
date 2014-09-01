@@ -1,11 +1,14 @@
 // namespace for this "module"
 var UserPrefs = {};
 
+UserPrefs.bodyDivId = 'userprefs_page';
+
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.MIN_IMAGE_SIZE = 80;
 UserPrefs.MAX_IMAGE_SIZE = 200;
 UserPrefs.GENDER_MAX_LENGTH = 100;
+UserPrefs.HOMEPAGE_MAX_LENGTH = 100;
 UserPrefs.COMMENT_MAX_LENGTH = 255;
 UserPrefs.DEFAULT_COLORS = {
   'player_color': '#dd99dd',
@@ -17,43 +20,23 @@ UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * UserPrefs.showUserPrefsPage() is the landing function.  Always call
+// * UserPrefs.showLoggedInPage() is the landing function.  Always call
 //   this first
 // * UserPrefs.assemblePage(), which calls one of a number of functions
 //   UserPrefs.action<SomeAction>()
 // * each UserPrefs.action<SomeAction>() function must set UserPrefs.page and
-//   UserPrefs.form, then call UserPrefs.arrangePage()
-// * UserPrefs.arrangePage() sets the contents of <div id="userprefs_page">
-//   on the live page
+//   UserPrefs.form, then call Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-UserPrefs.showUserPrefsPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#userprefs_page').length === 0) {
-    $('body').append($('<div>', {'id': 'userprefs_page' }));
-  }
-
-  // Only allow logged-in users to view and change preferences
-  if (Login.logged_in) {
-    Env.callAsyncInParallel(
-      [
-        Api.getButtonData,
-        Api.getUserPrefsData,
-      ], UserPrefs.assemblePage);
-  } else {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t view/set preferences because you are not logged in',
-    };
-    UserPrefs.actionFailed();
-  }
+UserPrefs.showLoggedInPage = function() {
+  Env.callAsyncInParallel(
+    [
+      { 'func': Api.getButtonData, 'args': [ null ] },
+      Api.getUserPrefsData,
+    ], UserPrefs.assemblePage);
 };
 
 // Assemble and display the userprefs portion of the page
@@ -68,26 +51,11 @@ UserPrefs.assemblePage = function() {
   }
 };
 
-// Actually lay out the page
-UserPrefs.arrangePage = function() {
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#userprefs_page').empty();
-  $('#userprefs_page').append(UserPrefs.page);
-
-  if (UserPrefs.form) {
-    $('#userprefs_action_button').click(UserPrefs.form);
-  }
-};
-
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by UserPrefs.js.
 // Each function should start by populating UserPrefs.page and
-// UserPrefs.form and end by invoking UserPrefs.arrangePage();
+// UserPrefs.form and end by invoking Login.arrangePage();
 
 UserPrefs.actionFailed = function() {
 
@@ -99,7 +67,7 @@ UserPrefs.actionFailed = function() {
   // will tell the user what happened
 
   // Lay out the page
-  UserPrefs.arrangePage();
+  Login.arrangePage(UserPrefs.page, UserPrefs.form, '#userprefs_action_button');
 };
 
 UserPrefs.actionSetPrefs = function() {
@@ -187,6 +155,12 @@ UserPrefs.actionSetPrefs = function() {
       'type': 'select',
       'value': Api.user_prefs.favorite_buttonset,
       'source': buttonSets,
+    },
+    'homepage': {
+      'text': 'Homepage',
+      'type': 'text',
+      'value': Api.user_prefs.homepage,
+      'length': UserPrefs.HOMEPAGE_MAX_LENGTH,
     },
     'comment': {
       'text': 'Comment',
@@ -360,7 +334,7 @@ UserPrefs.actionSetPrefs = function() {
   UserPrefs.form = UserPrefs.formSetPrefs;
 
   // Lay out the page
-  UserPrefs.arrangePage();
+  Login.arrangePage(UserPrefs.page, UserPrefs.form, '#userprefs_action_button');
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -382,6 +356,7 @@ UserPrefs.formSetPrefs = function() {
   var favorite_button = $('#userprefs_favorite_button').val();
   var favorite_buttonset = $('#userprefs_favorite_buttonset').val();
   var image_size = $('#userprefs_image_size').val();
+  var homepage = $('#userprefs_homepage').val();
   var comment = $('#userprefs_comment').val();
   var autopass = $('#userprefs_autopass').prop('checked');
   var monitor_redirects_to_game =
@@ -486,6 +461,7 @@ UserPrefs.formSetPrefs = function() {
       'favorite_buttonset': favorite_buttonset,
       'image_size': image_size,
       'uses_gravatar': uses_gravatar,
+      'homepage': homepage,
       'comment': comment,
       'autopass': autopass,
       'monitor_redirects_to_game': monitor_redirects_to_game,
@@ -503,9 +479,9 @@ UserPrefs.formSetPrefs = function() {
       'ok': { 'type': 'fixed', 'text': 'User details set successfully.', },
       'notok': { 'type': 'server', }
     },
-    'userprefs_action_button',
-    UserPrefs.showUserPrefsPage,
-    UserPrefs.showUserPrefsPage
+    '#userprefs_action_button',
+    UserPrefs.showLoggedInPage,
+    UserPrefs.showLoggedInPage
   );
 };
 

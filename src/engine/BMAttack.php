@@ -1,9 +1,12 @@
 <?php
-
 /**
  * BMAttack: attack validation and committal code
  *
  * @author Julian
+ */
+
+/**
+ * This class is the parent class for all attack types
  */
 abstract class BMAttack {
     protected static $instance = array();
@@ -21,8 +24,12 @@ abstract class BMAttack {
     // Dice that effect or affect this attack
     protected $validDice = array();
 
+    /**
+     * Constructor
+     *
+     * This is private, thus disabled, since this is a Singleton.
+     */
     private function __construct() {
-        // You can't instantiate me; I'm a Singleton!
     }
 
     public static function get_instance($type = NULL) {
@@ -40,6 +47,11 @@ abstract class BMAttack {
             static::$instance[$class] = new $class;
         }
         static::$instance[$class]->validDice = array();
+
+        if (!empty(static::$instance[$class]->resolvedType)) {
+            static::$instance[$class]->resolvedType = '';
+        }
+
         return static::$instance[$class];
     }
 
@@ -62,10 +74,34 @@ abstract class BMAttack {
             }
         }
 
-        // james: deliberately ignore Surrender attacks here, so that it
-        //        does not appear in the list of attack types
+        uksort($allAttackTypesArray, 'BMAttack::display_cmp');
+
+        // james: deliberately ignore Default and Surrender attacks here,
+        //        so that they do not appear in the list of attack types
 
         return $allAttackTypesArray;
+    }
+
+    protected static function display_cmp($str1, $str2) {
+        if ($str1 == $str2) {
+            return 0;
+        }
+
+        // force Power attacks to be displayed first
+        if ('Power' == $str1) {
+            return -1;
+        } elseif ('Power' == $str2) {
+            return 1;
+        }
+
+        // force Skill attacks to be displayed first, except for Power
+        if ('Skill' == $str1) {
+            return -1;
+        } elseif ('Skill' == $str2) {
+            return 1;
+        }
+
+        return strcasecmp($str1, $str2);
     }
 
     public function add_die(BMDie $die) {
@@ -225,6 +261,14 @@ abstract class BMAttack {
         return TRUE;
     }
 
+    public function resolve_default_attack(&$game) {
+        if ('Default' == $game->attack['attackType'] &&
+            !empty($this->resolvedType)) {
+            $attack = $game->attack;
+            $attack['attackType'] = $this->resolvedType;
+            $game->attack = $attack;
+        }
+    }
 
     protected function process_captured_dice($game, array $defenders) {
         // james: currently only defenders, but could conceivably also include attackers
@@ -351,6 +395,16 @@ abstract class BMAttack {
         return $firingMaxima;
     }
 
+    public function type_for_log() {
+        return $this->type;
+    }
+
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -360,6 +414,12 @@ abstract class BMAttack {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         throw new LogicException(
             "BMAttack->$property cannot be set (attempting to set value $value)."
@@ -368,5 +428,15 @@ abstract class BMAttack {
 //            default:
 //                $this->$property = $value;
 //        }
+    }
+
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
+    public function __isset($property) {
+        return isset($this->$property);
     }
 }

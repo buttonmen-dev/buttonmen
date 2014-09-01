@@ -2,12 +2,12 @@
 /**
  * BMFlagIsAttacker: Used to signal that a die is an attacker
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**
- * This class is a flag that signals that a die is an attacker.
- * It stores the attack type.
+ *  This class is a flag that signals that a die is an attacker.
+ *  It stores the attack type.
  */
 class BMFlagIsAttacker extends BMFlag {
 
@@ -18,6 +18,11 @@ class BMFlagIsAttacker extends BMFlag {
         return $this->attackType;
     }
 
+    /**
+     * Constructor
+     *
+     * @param string $attackType
+     */
     public function __construct($attackType) {
         $this->attackType = NULL;
         if (isset($attackType)) {
@@ -25,6 +30,11 @@ class BMFlagIsAttacker extends BMFlag {
         }
     }
 
+    /**
+     * Convert to string.
+     *
+     * @return string
+     */
     public function __toString() {
         $string = $this->type();
         if (!empty($this->attackType)) {

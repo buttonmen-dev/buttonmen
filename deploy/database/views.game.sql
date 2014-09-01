@@ -17,6 +17,7 @@ AS SELECT
     m.is_player_hidden,
     m.last_action_time,
     m.was_game_dismissed,
+    m.is_button_random,
     p.name_ingame AS player_name,
     p.autopass,
     b.name AS button_name,

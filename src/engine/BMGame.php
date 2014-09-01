@@ -1,9 +1,12 @@
 <?php
-
 /**
  * BMGame: current status of a game
  *
  * @author james
+ */
+
+/**
+ * This class contains all the logic to do with games, specified at each game state
  *
  * @property      int   $gameId                  Game ID number in the database
  * @property      array $playerIdArray           Array of player IDs
@@ -38,6 +41,8 @@
  * @property-read int   $firingAmount            Amount of firing that has been set by the attacker
  * @property      array $actionLog               Game actions taken by this BMGame instance
  * @property      array $chat                    A chat message submitted by the active player
+ * @property      string $description;           Description provided when the game was created
+ * @property      int   $previousGameId;         The game whose chat is being continued with this game
  * @property-read string $message                Message to be passed to the GUI
  * @property      array $swingRequestArrayArray  Swing requests for all players
  * @property      array $swingValueArrayArray    Swing values for all players
@@ -46,12 +51,12 @@
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
+ * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
  *
  * @SuppressWarnings(PMD.TooManyFields)
  * @SuppressWarnings(PMD.TooManyMethods)
  * @SuppressWarnings(PMD.UnusedPrivateField)
  */
-
 class BMGame {
     // properties -- all accessible, but written as private to enable the use of
     //               getters and setters
@@ -88,6 +93,8 @@ class BMGame {
     private $firingAmount;          // amount of firing that has been submitted
     private $actionLog;             // game actions taken by this BMGame instance
     private $chat;                  // chat message submitted by the active player with an attack
+    private $description;           // description provided when the game was created
+    private $previousGameId;        // the game whose chat is being continued with this game
     private $message;               // message to be passed to the GUI
 
     private $forceRoundResult;      // boolean array whether each player has won the round
@@ -100,7 +107,11 @@ class BMGame {
     public $prevOptValueArrayArray;
 
     public $lastActionTimeArray;
+    public $isButtonChoiceRandom;   // used by the database to record whether the choice of the
+                                    // button was random or not
+    public $hasPlayerDismissedGameArray;
 
+    private $fireCache;             // internal cache of fire info, used for logging
     private $debug;
 
     // methods
@@ -110,8 +121,6 @@ class BMGame {
         }
 
         $this->debug_message = 'ok';
-
-        $this->run_die_hooks($this->gameState);
 
         $funcName = 'do_next_step_'.
                     strtolower(BMGameState::as_string($this->gameState));
@@ -485,7 +494,7 @@ class BMGame {
         $this->initialise_swing_value_array_array();
         $this->set_option_values();
         $this->set_swing_values();
-        $this->roll_active_dice();
+        $this->roll_active_dice_needing_values();
     }
 
     protected function initialise_swing_value_array_array() {
@@ -565,7 +574,7 @@ class BMGame {
         }
     }
 
-    protected function roll_active_dice() {
+    protected function roll_active_dice_needing_values() {
         foreach ($this->activeDieArrayArray as $playerIdx => $activeDieArray) {
             foreach ($activeDieArray as $dieIdx => $die) {
                 if ($die instanceof BMDieSwing) {
@@ -582,8 +591,10 @@ class BMGame {
                     }
                 }
 
-                $this->activeDieArrayArray[$playerIdx][$dieIdx] =
-                    $die->make_play_die(FALSE);
+                if (empty($die->value)) {
+                    $this->activeDieArrayArray[$playerIdx][$dieIdx] =
+                        $die->make_play_die(FALSE);
+                }
             }
         }
     }
@@ -621,7 +632,8 @@ class BMGame {
                     $actionLogInfo['tiedPlayerIds'][] = $this->playerIdArray[$playerIdx];
                 }
             }
-            $tempInitiativeIdx = array_rand($playersWithInit);
+            $randIdx = bm_rand(0, count($playersWithInit) - 1);
+            $tempInitiativeIdx = $playersWithInit[$randIdx];
         } else {
             $tempInitiativeIdx =
                 array_search(TRUE, $hasInitiativeArray, TRUE);
@@ -865,6 +877,11 @@ class BMGame {
             return FALSE;
         }
 
+        if ('Default' == $this->attack['attackType']) {
+            $attack->resolve_default_attack($this);
+            $attack = BMAttack::get_instance($this->attack['attackType']);
+        }
+
         return array('attack' => $attack,
                      'attAttackDieArray' => $attAttackDieArray,
                      'defAttackDieArray' => $defAttackDieArray);
@@ -1098,14 +1115,10 @@ class BMGame {
         $this->firingAmount = $firingAmount;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
 
-        $this->log_action(
-            'fire_turndown',
-            $this->playerIdArray[$this->attackerPlayerIdx],
-            array(
-                'fireRecipes' => $fireRecipes,
-                'oldValues' => $oldValues,
-                'newValues' => $newValues,
-            )
+        $this->fireCache = array(
+            'fireRecipes' => $fireRecipes,
+            'oldValues' => $oldValues,
+            'newValues' => $newValues,
         );
 
         $this->message = 'Successfully turned down fire dice.';
@@ -1117,6 +1130,17 @@ class BMGame {
         $this->gameState = BMGameState::START_TURN;
         $this->waitingOnActionArray = array_fill(0, $this->nPlayers, FALSE);
         $this->waitingOnActionArray[$this->activePlayerIdx] = TRUE;
+
+        foreach ($this->activeDieArrayArray as $activeDieArray) {
+            if (empty($activeDieArray)) {
+                continue;
+            }
+
+            foreach ($activeDieArray as $die) {
+                $die->remove_flag('IsAttacker');
+                $die->remove_flag('IsAttackTarget');
+            }
+        }
 
         $this->log_action(
             'fire_cancel',
@@ -1153,13 +1177,21 @@ class BMGame {
             $attAttackDieArray,
             $defAttackDieArray
         );
+
+        if (empty($this->fireCache)) {
+            $fireCache = NULL;
+        } else {
+            $fireCache = $this->fireCache;
+        }
+
         $this->log_action(
             'attack',
             $this->playerIdArray[$this->attackerPlayerIdx],
             array(
-                'attackType' => $attack->type,
+                'attackType' => $attack->type_for_log(),
                 'preAttackDice' => $preAttackDice,
                 'postAttackDice' => $postAttackDice,
+                'fireCache' => $fireCache,
             )
         );
 
@@ -1203,11 +1235,49 @@ class BMGame {
             }
         }
 
+        unset($this->fireCache);
         $this->gameState = BMGameState::END_TURN;
     }
 
     protected function do_next_step_end_turn() {
+        $this->perform_end_of_turn_die_actions();
         $this->firingAmount = NULL;
+    }
+
+    protected function perform_end_of_turn_die_actions() {
+        $preRerollDieInfo = array();
+        $postRerollDieInfo = array();
+        $hasRerolled = FALSE;
+
+        foreach ($this->get__attackerAllDieArray() as $die) {
+            $preRerollDieInfo[] = $die->get_action_log_data();
+
+            $hasRerolled |= $die->run_hooks(
+                __FUNCTION__,
+                array(
+                    'die' => $die,
+                    'attackType' => $this->attack['attackType']
+                )
+            );
+
+            $postRerollDieInfo[] = $die->get_action_log_data();
+
+            if ($die->playerIdx === $this->attack['attackerPlayerIdx']) {
+                $die->inactive = '';
+            }
+            $die->hasAttacked = FALSE;
+        }
+
+        if ($hasRerolled) {
+            $this->log_action(
+                'ornery_reroll',
+                $this->playerIdArray[$this->attackerPlayerIdx],
+                array(
+                    'preRerollDieInfo' => $preRerollDieInfo,
+                    'postRerollDieInfo' => $postRerollDieInfo,
+                )
+            );
+        }
     }
 
     protected function update_game_state_end_turn() {
@@ -1662,26 +1732,6 @@ class BMGame {
         return TRUE;
     }
 
-    protected function run_die_hooks($gameState, array $args = array()) {
-        $args['activePlayerIdx'] = $this->activePlayerIdx;
-
-        if (!empty($this->activeDieArrayArray)) {
-            foreach ($this->activeDieArrayArray as $activeDieArray) {
-                foreach ($activeDieArray as $activeDie) {
-                    $activeDie->run_hooks_at_game_state($gameState, $args);
-                }
-            }
-        }
-
-        if (!empty($this->capturedDieArrayArray)) {
-            foreach ($this->capturedDieArrayArray as $capturedDieArray) {
-                foreach ($capturedDieArray as $capturedDie) {
-                    $capturedDie->run_hooks_at_game_state($gameState, $args);
-                }
-            }
-        }
-    }
-
     public function add_die($die) {
         if (!isset($this->activeDieArrayArray)) {
             throw new LogicException(
@@ -1868,6 +1918,8 @@ class BMGame {
 
         $validAttackTypeArray = array();
 
+        $attackCache = $this->attack;
+
         // find out if there are any possible attacks with any combination of
         // the attacker's and defender's dice
         foreach ($attackTypeArray as $idx => $attackType) {
@@ -1887,14 +1939,14 @@ class BMGame {
             }
         }
 
-        $this->attack = NULL;
+        $this->attack = $attackCache;
 
         if (empty($validAttackTypeArray)) {
             $validAttackTypeArray['Pass'] = 'Pass';
         }
 
-        // james: deliberately ignore Surrender attacks here, so that it
-        //        does not appear in the list of attack types
+        // james: deliberately ignore Default and Surrender attacks here,
+        //        so that they do not appear in the list of attack types
 
         return $validAttackTypeArray;
     }
@@ -1935,6 +1987,14 @@ class BMGame {
     }
 
     // utility methods
+    /**
+     * Constructor
+     *
+     * @param integer $gameID
+     * @param array $playerIdArray
+     * @param array $buttonRecipeArray
+     * @param integer $maxWins
+     */
     public function __construct(
         $gameID = 0,
         array $playerIdArray = array(NULL, NULL),
@@ -1965,13 +2025,24 @@ class BMGame {
         $this->actionLog = array();
     }
 
-    // After a round has ended, get the number of the round which just ended
-    // This is simpler than the logic in get__roundNumber(), because
-    // the behavior is the same in both the endgame and during-game cases
+    /**
+     * Round number of previous round
+     *
+     * After a round has ended, get the number of the round which just ended
+     * This is simpler than the logic in get__roundNumber(), because
+     * the behavior is the same in both the endgame and during-game cases
+     *
+     * @return int
+     */
     private function get_prevRoundNumber() {
         return array_sum($this->gameScoreArrayArray[0]);
     }
 
+    /**
+     * Array of relative side scores
+     *
+     * @return array
+     */
     private function get_sideScoreArray() {
         $roundScoreArray = $this->get__roundScoreArray();
 
@@ -2006,8 +2077,14 @@ class BMGame {
         $this->chat = array('playerIdx' => $playerIdx, 'chat' => $chat);
     }
 
-    // get log-relevant data about the dice involved in an attack
-    private function get_action_log_data($attackerDice, $defenderDice) {
+    /**
+     * Get log-relevant data about the dice involved in an attack
+     *
+     * @param array $attackerDice
+     * @param array $defenderDice
+     * @return array
+     */
+    protected function get_action_log_data($attackerDice, $defenderDice) {
         $attackData = array(
             'attacker' => array(),
             'defender' => array(),
@@ -2021,8 +2098,12 @@ class BMGame {
         return $attackData;
     }
 
-    // to allow array elements to be set directly, change the __get to &__get
-    // to return the result by reference
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         $funcName = 'get__'.$property;
         if (method_exists($this, $funcName)) {
@@ -2032,6 +2113,11 @@ class BMGame {
         }
     }
 
+    /**
+     * Attacker player index
+     *
+     * @return null|int
+     */
     protected function get__attackerPlayerIdx() {
         if (!isset($this->attack)) {
             return NULL;
@@ -2039,6 +2125,11 @@ class BMGame {
         return $this->attack['attackerPlayerIdx'];
     }
 
+    /**
+     * Defender player index
+     *
+     * @return null|int
+     */
     protected function get__defenderPlayerIdx() {
         if (!isset($this->attack)) {
             return NULL;
@@ -2046,6 +2137,11 @@ class BMGame {
         return $this->attack['defenderPlayerIdx'];
     }
 
+    /**
+     * Array of all active dice of the attacker
+     *
+     * @return null|array
+     */
     protected function get__attackerAllDieArray() {
         if (!isset($this->attack) ||
             !isset($this->activeDieArrayArray)) {
@@ -2054,6 +2150,11 @@ class BMGame {
         return $this->activeDieArrayArray[$this->attack['attackerPlayerIdx']];
     }
 
+    /**
+     * Array of all active dice of the defender
+     *
+     * @return null|array
+     */
     protected function get__defenderAllDieArray() {
         if (!isset($this->attack) ||
             !isset($this->activeDieArrayArray)) {
@@ -2062,6 +2163,11 @@ class BMGame {
         return $this->activeDieArrayArray[$this->attack['defenderPlayerIdx']];
     }
 
+    /**
+     * Array of attacking dice of the attacker
+     *
+     * @return null|array
+     */
     protected function get__attackerAttackDieArray() {
         if (!isset($this->attack) ||
             !isset($this->activeDieArrayArray)) {
@@ -2076,6 +2182,11 @@ class BMGame {
         return $attAttackDieArray;
     }
 
+    /**
+     * Array of target dice of the defender
+     *
+     * @return null|array
+     */
     protected function get__defenderAttackDieArray() {
         if (!isset($this->attack)) {
             return NULL;
@@ -2089,6 +2200,11 @@ class BMGame {
         return $defAttackDieArray;
     }
 
+    /**
+     * Current round number
+     *
+     * @return int
+     */
     protected function get__roundNumber() {
         $roundNumber = array_sum($this->gameScoreArrayArray[0]) + 1;
 
@@ -2100,7 +2216,12 @@ class BMGame {
         return $roundNumber;
     }
 
-    private function get__roundScoreArray() {
+    /**
+     * Current round score
+     *
+     * @return array
+     */
+    protected function get__roundScoreArray() {
         if ($this->gameState <= BMGameState::SPECIFY_DICE) {
             return array_fill(0, $this->nPlayers, NULL);
         }
@@ -2131,6 +2252,12 @@ class BMGame {
         return $roundScoreArray;
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         $funcName = 'set__'.$property;
         if (method_exists($this, $funcName)) {
@@ -2140,12 +2267,20 @@ class BMGame {
         }
     }
 
+    /**
+     * Prevent setting the number of players in the game
+     */
     protected function set__nPlayers() {
         throw new LogicException(
             'nPlayers is derived from BMGame->playerIdArray'
         );
     }
 
+    /**
+     * Allow setting the turn number in the round
+     *
+     * @param int $value
+     */
     protected function set__turnNumberInRound($value) {
         if (FALSE ===
             filter_var(
@@ -2160,6 +2295,11 @@ class BMGame {
         $this->turnNumberInRound = $value;
     }
 
+    /**
+     * Allow setting the game ID
+     *
+     * @param int $value
+     */
     protected function set__gameId($value) {
         if (FALSE ===
             filter_var(
@@ -2174,6 +2314,11 @@ class BMGame {
         $this->gameId = (int)$value;
     }
 
+    /**
+     * Allow setting the player ID array
+     *
+     * @param array $value
+     */
     protected function set__playerIdArray($value) {
         if (!is_array($value) ||
             count($value) !== count($this->playerIdArray)) {
@@ -2189,6 +2334,11 @@ class BMGame {
         $this->playerIdArray = $value;
     }
 
+    /**
+     * Allow setting the active player index
+     *
+     * @param int $value
+     */
     protected function set__activePlayerIdx($value) {
         // require a valid index
         if (FALSE ===
@@ -2206,6 +2356,11 @@ class BMGame {
         $this->activePlayerIdx = (int)$value;
     }
 
+    /**
+     * Allow setting the index of the player with initiative
+     *
+     * @param int $value
+     */
     protected function set__playerWithInitiativeIdx($value) {
         // require a valid index
         if (FALSE ===
@@ -2223,6 +2378,11 @@ class BMGame {
         $this->playerWithInitiativeIdx = (int)$value;
     }
 
+    /**
+     * Allow setting the button array
+     *
+     * @param array $value
+     */
     protected function set__buttonArray($value) {
         $this->validateButtonArray($value);
 
@@ -2276,6 +2436,11 @@ class BMGame {
         }
     }
 
+    /**
+     * Allow setting the array of arrays of active dice
+     *
+     * @param array $value
+     */
     protected function set__activeDieArrayArray($value) {
         if (!is_array($value)) {
             throw new InvalidArgumentException(
@@ -2299,6 +2464,11 @@ class BMGame {
         $this->activeDieArrayArray = $value;
     }
 
+    /**
+     * Allow setting the attack
+     *
+     * @param array $value
+     */
     protected function set__attack($value) {
         $value = array_values($value);
         $this->validateAttackFormat($value);
@@ -2368,18 +2538,29 @@ class BMGame {
         }
     }
 
+    /**
+     * Prevent setting the attacker's attack dice
+     */
     protected function set__attackerAttackDieArray() {
         throw new LogicException(
             'BMGame->attackerAttackDieArray is derived from BMGame->attack.'
         );
     }
 
+    /**
+     * Prevent setting the defender's target dice
+     */
     protected function set__defenderAttackDieArray() {
         throw new LogicException(
             'BMGame->defenderAttackDieArray is derived from BMGame->attack.'
         );
     }
 
+    /**
+     * Allow setting the number of recent consecutive passes
+     *
+     * @param type $value
+     */
     protected function set__nRecentPasses($value) {
         if (FALSE ===
             filter_var(
@@ -2395,6 +2576,11 @@ class BMGame {
         $this->nRecentPasses = $value;
     }
 
+    /**
+     * Allow setting the array of arrays of captured dice
+     *
+     * @param array $value
+     */
     protected function set__capturedDieArrayArray($value) {
         if (!is_array($value)) {
             throw new InvalidArgumentException(
@@ -2418,18 +2604,29 @@ class BMGame {
         $this->capturedDieArrayArray = $value;
     }
 
+    /**
+     * Prevent setting of the round number
+     */
     protected function set__roundNumber() {
         throw new LogicException(
             'BMGame->roundNumber is derived automatically from BMGame.'
         );
     }
 
+    /**
+     * Prevent setting of the round score
+     */
     protected function set__roundScoreArray() {
         throw new LogicException(
             'BMGame->roundScoreArray is derived automatically from BMGame.'
         );
     }
 
+    /**
+     * Allow setting the array of arrays of game scores
+     *
+     * @param type $value
+     */
     protected function set__gameScoreArrayArray($value) {
         $value = array_values($value);
         if (!is_array($value) ||
@@ -2462,6 +2659,11 @@ class BMGame {
         $this->gameScoreArrayArray = $tempArray;
     }
 
+    /**
+     * Allow setting the maximum number of wins
+     *
+     * @param type $value
+     */
     protected function set__maxWins($value) {
         if (FALSE ===
             filter_var(
@@ -2476,11 +2678,21 @@ class BMGame {
         $this->maxWins = (int)$value;
     }
 
+    /**
+     * Allow setting the game state
+     *
+     * @param int $value
+     */
     protected function set__gameState($value) {
         BMGameState::validate_game_state($value);
         $this->gameState = (int)$value;
     }
 
+    /**
+     * Allow setting the array of which players are being waited upon
+     *
+     * @param type $value
+     */
     protected function set__waitingOnActionArray($value) {
         if (!is_array($value) ||
             count($value) !== count($this->playerIdArray)) {
@@ -2498,6 +2710,11 @@ class BMGame {
         $this->waitingOnActionArray = $value;
     }
 
+    /**
+     * Allow setting the array of whether autopass is allowed
+     *
+     * @param type $value
+     */
     protected function set__autopassArray($value) {
         if (!is_array($value) ||
             count($value) !== count($this->playerIdArray)) {
@@ -2515,12 +2732,20 @@ class BMGame {
         $this->autopassArray = $value;
     }
 
+    /**
+     * Prevent setting the firing amount
+     */
     protected function set__firingAmount() {
         throw new LogicException(
             'firingAmount is set exclusively via BMGame->turn_down_fire_dice().'
         );
     }
 
+    /**
+     * Allow the round result to be forced explicitly
+     *
+     * @param array $value
+     */
     protected function set__forceRoundResult($value) {
         if (!is_array($value)) {
             throw new InvalidArgumentException('Input must be an array.');
@@ -2540,10 +2765,22 @@ class BMGame {
         $this->forceRoundResult = $value;
     }
 
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __isset($property) {
         return isset($this->$property);
     }
 
+    /**
+     * Define behaviour of unset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __unset($property) {
         if (isset($this->$property)) {
             unset($this->$property);
@@ -2551,6 +2788,21 @@ class BMGame {
         } else {
             return FALSE;
         }
+    }
+
+    // Sets an individual entry in an array that's stored in a property on this
+    // object, because "$game->$property[$key] = $value;" is illegal.
+    //
+    // shadowshade suggests
+    // indicating awkward code
+    // with verse from the East
+    public function setArrayPropEntry($property, $key, $value) {
+        $array = $this->$property;
+        if (!is_array($array)) {
+            throw new InvalidArgumentException("$property does not refer to an array");
+        }
+        $array[$key] = $value;
+        $this->__set($property, $array);
     }
 
     public function getJsonData($requestingPlayerId) {
@@ -2563,6 +2815,8 @@ class BMGame {
             'playerWithInitiativeIdx'    => $this->playerWithInitiativeIdx,
             'roundNumber'                => $this->get__roundNumber(),
             'maxWins'                    => $this->maxWins,
+            'description'                => $this->description,
+            'previousGameId'             => $this->previousGameId,
             'validAttackTypeArray'       => $this->get_validAttackTypeArray(),
             'gameSkillsInfo'             => $this->get_gameSkillsInfo(),
             'playerDataArray'            => $this->get_playerDataArray($requestingPlayerIdx),
@@ -2570,6 +2824,12 @@ class BMGame {
         return $dataArray;
     }
 
+    /**
+     * Array of player data
+     *
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
     protected function get_playerDataArray($requestingPlayerIdx) {
         $playerDataArray = array();
 
@@ -2593,6 +2853,7 @@ class BMGame {
                 'sideScore'           => $sideScoreArray[$playerIdx],
                 'gameScoreArray'      => $this->gameScoreArrayArray[$playerIdx],
                 'lastActionTime'      => $this->lastActionTimeArray[$playerIdx],
+                'hasDismissedGame'    => $this->hasPlayerDismissedGameArray[$playerIdx],
                 'canStillWin'         => $canStillWinArray[$playerIdx],
             );
 
@@ -2617,6 +2878,12 @@ class BMGame {
         return $activeDieArrayArray;
     }
 
+    /**
+     * Array of button info
+     *
+     * @param int $playerIdx
+     * @return array
+     */
     protected function get_buttonInfo($playerIdx) {
         $buttonInfo = array(
             'name' => '',
@@ -2634,6 +2901,13 @@ class BMGame {
         return $buttonInfo;
     }
 
+    /**
+     * Array of information about active dice
+     *
+     * @param int $playerIdx
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
     protected function get_activeDieArray($playerIdx, $requestingPlayerIdx) {
         // this should be refactored to duplicate less effort, but
         // right now e.g. nulling of die values is done across all
@@ -2660,6 +2934,12 @@ class BMGame {
         return $activeDieArray;
     }
 
+    /**
+     * Array of info about captured dice
+     *
+     * @param int $playerIdx
+     * @return array
+     */
     protected function get_capturedDieArray($playerIdx) {
         $capturedDieArray = array();
         if (isset($this->capturedDieArrayArray)) {
@@ -2675,6 +2955,12 @@ class BMGame {
         return $capturedDieArray;
     }
 
+    /**
+     * Array of arrays of die values
+     *
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
     protected function get_valueArrayArray($requestingPlayerIdx) {
         $valueArrayArray = array_fill(0, $this->nPlayers, array());
         $swingValsSpecified = TRUE;
@@ -2710,6 +2996,12 @@ class BMGame {
         return $valueArrayArray;
     }
 
+    /**
+     * Array of arrays of die sides
+     *
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
     protected function get_sidesArrayArray($requestingPlayerIdx) {
         $sidesArrayArray = array_fill(0, $this->nPlayers, array());
 
@@ -2747,6 +3039,11 @@ class BMGame {
         return $sidesArrayArray;
     }
 
+    /**
+     * Array of arrays of die skills
+     *
+     * @return array
+     */
     protected function get_dieSkillsArrayArray() {
         $dieSkillsArrayArray = array();
 
@@ -2770,6 +3067,11 @@ class BMGame {
         return $dieSkillsArrayArray;
     }
 
+    /**
+     * Array of arrays of die properties
+     *
+     * @return array
+     */
     protected function get_diePropsArrayArray() {
         $diePropsArrayArray = array();
 
@@ -2800,6 +3102,11 @@ class BMGame {
         return $diePropsArrayArray;
     }
 
+    /**
+     * Array of arrays of die recipes
+     *
+     * @return array
+     */
     protected function get_dieRecipeArrayArray() {
         $dieRecipeArrayArray = array_fill(0, $this->nPlayers, array());
 
@@ -2814,6 +3121,12 @@ class BMGame {
         return $dieRecipeArrayArray;
     }
 
+    /**
+     * Array of arrays of die descriptions
+     *
+     * @param int $requestingPlayerIdx
+     * @return array
+     */
     protected function get_dieDescriptionArrayArray($requestingPlayerIdx) {
         $dieDescArrayArray = array();
 
@@ -2853,6 +3166,12 @@ class BMGame {
         return $dieDescArrayArray;
     }
 
+    /**
+     * Array of captured die properties
+     *
+     * @param BMDie $die
+     * @return array
+     */
     protected function get_capturedDieProps($die) {
         $capturedDieProps = array();
         if (!empty($die->flagList)) {
@@ -2863,8 +3182,14 @@ class BMGame {
         return $capturedDieProps;
     }
 
+    /**
+     * Array of swing requests
+     *
+     * @param int $playerIdx
+     * @return array
+     */
     protected function get_swingRequestArray($playerIdx) {
-        $swingRequestArray= array();
+        $swingRequestArray = array();
 
         if (isset($this->activeDieArrayArray) &&
             isset($this->swingRequestArrayArray[$playerIdx])) {
@@ -2888,6 +3213,12 @@ class BMGame {
         return $swingRequestArray;
     }
 
+    /**
+     * Array of option requests
+     *
+     * @param int $playerIdx
+     * @return array
+     */
     protected function get_optRequestArray($playerIdx) {
         if (is_null($this->optRequestArrayArray)) {
             $optRequestArray = array();
@@ -2898,6 +3229,12 @@ class BMGame {
         return $optRequestArray;
     }
 
+    /**
+     * Array of previous choice of swing values
+     *
+     * @param int $playerIdx
+     * @return array
+     */
     protected function get_prevSwingValueArray($playerIdx) {
         if (empty($this->prevSwingValueArrayArray)) {
             $prevSwingValueArray = array();
@@ -2908,6 +3245,12 @@ class BMGame {
         return $prevSwingValueArray;
     }
 
+    /**
+     * Array of previous choice of option values
+     *
+     * @param type $playerIdx
+     * @return type
+     */
     protected function get_prevOptValueArray($playerIdx) {
         if (empty($this->prevOptValueArrayArray)) {
             $prevOptValueArray = array();
@@ -2918,6 +3261,11 @@ class BMGame {
         return $prevOptValueArray;
     }
 
+    /**
+     * Array of valid attack types
+     *
+     * @return array
+     */
     protected function get_validAttackTypeArray() {
         // If it's someone's turn to attack, report the valid attack
         // types as part of the game data
@@ -2927,10 +3275,14 @@ class BMGame {
             $validAttackTypeArray = array();
         }
 
-        sort($validAttackTypeArray);
         return $validAttackTypeArray;
     }
 
+    /**
+     * Were the swing or option values reset?
+     *
+     * @return boolean
+     */
     protected function wereSwingOrOptionValuesReset() {
         // james: need to also consider the case of many multiple draws in a row
         foreach ($this->gameScoreArrayArray as $gameScoreArray) {
@@ -2976,6 +3328,11 @@ class BMGame {
         return $gameSkillsInfo;
     }
 
+    /**
+     * Array of whether each player can still win
+     *
+     * @return array
+     */
     protected function get_canStillWinArray() {
         $canStillWinArray = array_fill(0, $this->nPlayers, NULL);
 

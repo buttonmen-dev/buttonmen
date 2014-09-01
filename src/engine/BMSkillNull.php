@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillNull: Code specific to the null die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the null die skill
+ */
 class BMSkillNull extends BMSkill {
     public static $hooked_methods = array("score_value", "capture");
 

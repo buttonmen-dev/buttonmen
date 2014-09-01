@@ -1,4 +1,11 @@
 DROP TABLE IF EXISTS player;
+DROP TABLE IF EXISTS player_status;
+
+CREATE TABLE player_status (
+    id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(20) NOT NULL
+);
+
 CREATE TABLE player (
     id                  SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     name_ingame         VARCHAR(25) UNIQUE NOT NULL,
@@ -6,7 +13,7 @@ CREATE TABLE player (
     name_irl            VARCHAR(40) NOT NULL,
     email               VARCHAR(254),
     is_email_public     BOOLEAN DEFAULT 0 NOT NULL,
-    status              ENUM('active', 'unverified', 'disabled'),
+    status_id           TINYINT UNSIGNED NOT NULL,
     dob_month           INT DEFAULT 0 NOT NULL,
     dob_day             INT DEFAULT 0 NOT NULL,
     gender              VARCHAR(100) DEFAULT '' NOT NULL,
@@ -18,6 +25,7 @@ CREATE TABLE player (
     image_size          SMALLINT,
     uses_gravatar       BOOLEAN DEFAULT 0 NOT NULL,
     comment             VARCHAR(255),
+    homepage            VARCHAR(100),
     favorite_button_id      SMALLINT UNSIGNED,
     favorite_buttonset_id   SMALLINT UNSIGNED,
     player_color        VARCHAR(7),
@@ -32,7 +40,8 @@ CREATE TABLE player (
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
     INDEX (name_ingame),
     FOREIGN KEY (favorite_button_id) REFERENCES button(id),
-    FOREIGN KEY (favorite_buttonset_id) REFERENCES buttonset(id)
+    FOREIGN KEY (favorite_buttonset_id) REFERENCES buttonset(id),
+    FOREIGN KEY (status_id) REFERENCES player_status(id)
 );
 
 DROP TABLE IF EXISTS player_auth;

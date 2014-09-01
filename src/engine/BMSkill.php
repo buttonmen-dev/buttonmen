@@ -2,13 +2,21 @@
 /**
  * BMSkill: Used to modify the operation of BMDie
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**
  * This class is the parent class for all die skills
  */
 class BMSkill {
+
+    /**
+     * An array containing the names of functions run by
+     * BMCanHaveSkill->run_hooks()
+     *
+     * @var array
+     */
+    public static $hooked_methods = array();
 
     /**
      * Convert a string of skill abbreviations into an array of BMSkills
@@ -35,7 +43,7 @@ class BMSkill {
      * Determine if there is an unimplemented skill in a skill recipe string
      *
      * @param string $skillString
-     * @return boolean
+     * @return bool
      */
     public static function unimplemented_skill_in_string($skillString) {
         if ('' === $skillString) {
@@ -106,9 +114,11 @@ class BMSkill {
                      'Focus'        => 'f',
                      'Konstant'     => 'k',
                      'Mad'          => '&',
+                     'Maximum'      => 'M',
                      'Mood'         => '?',
                      'Morphing'     => 'm',
                      'Null'         => 'n',
+                     'Ornery'       => 'o',
                      'Poison'       => 'p',
                      'Queer'        => 'q',
                      'Reserve'      => 'r',
@@ -135,6 +145,7 @@ class BMSkill {
                      'Speed',
                      'Trip',
                      // standard attack types
+                     'Default',
                      'Power',
                      'Skill',
                      'Pass',
@@ -155,7 +166,7 @@ class BMSkill {
      *
      * @param BMSkill $skill1
      * @param BMSkill $skill2
-     * @return integer
+     * @return int
      */
     public static function skill_order_comparator($skill1, $skill2) {
         $skill1Pos = array_search($skill1, self::skill_order_array());
@@ -199,6 +210,7 @@ class BMSkill {
                      'BMSkillTrip',
                      'BMSkillStinger',
                      'BMSkillStealth',
+                     'BMSkillOrnery',
                      'BMSkillMood',
                      'BMSkillMad',
                      'BMSkillDoppelganger',
@@ -206,14 +218,15 @@ class BMSkill {
                      'BMSkillPoison',
                      'BMSkillNull',
                      'BMSkillKonstant',
-                     'BMSkillMorphing');
+                     'BMSkillMorphing',
+                     'BMSkillMaximum');
         // fires last
     }
 
     /**
      * Determine if a skill abbreviation should appear before the die recipe
      *
-     * @return boolean
+     * @return bool
      */
     public static function do_print_skill_preceding() {
         return TRUE;
@@ -270,7 +283,7 @@ class BMSkill {
     /**
      * Does this skill prevent the determination of whether a player can win?
      *
-     * @return boolean
+     * @return bool
      */
     public static function prevents_win_determination() {
         return FALSE;

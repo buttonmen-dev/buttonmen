@@ -67,6 +67,27 @@ Env.getParameterByName = function(name) {
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 };
 
+Env.removeParameterByName = function(name) {
+  // If the query string is already empty, there's obviously nothing to do
+  if (!Env.window.location.search) { return; }
+
+  var newQueryString = '?';
+  var parameterChunks = Env.window.location.search.split(/[?&]/);
+  $.each(parameterChunks, function(index, chunk) {
+    if (chunk === '') { return; }
+    if (chunk.split('=')[0] == name) { return; }
+    newQueryString += chunk + '&';
+  });
+
+  // Trim off the trailing ? or &
+  newQueryString = newQueryString.replace(/[?&]$/, '');
+  var newUrl =
+    Env.window.location.origin + Env.window.location.pathname +
+    newQueryString + Env.window.location.hash;
+  // Replace the current URL without messing up the browser history
+  Env.history.replaceState(null, $(document).find('title').text(), newUrl);
+};
+
 // Make sure that the page body contains a div for displaying status
 // messages
 Env.setupEnvStub = function() {
@@ -108,13 +129,6 @@ Env.formatTimestamp = function(timestamp, format) {
     format = 'datetime';
   }
 
-  // Most pages don't use moment, so we don't always load it in the HTML
-  if (typeof moment === 'undefined') {
-    $.ajaxSetup({ async: false, });
-    $.getScript('js/extern/moment.js');
-    $.ajaxSetup({ async: true, });
-  }
-
   var datetime = moment.unix(timestamp);
   if (!datetime.isValid()) {
     return null;
@@ -145,13 +159,6 @@ Env.parseDateTime = function(input, format) {
 
   if (!format) {
     format = 'datetime';
-  }
-
-  // Most pages don't use moment, so we don't always load it in the HTML
-  if (typeof moment === 'undefined') {
-    $.ajaxSetup({ async: false, });
-    $.getScript('js/extern/moment.js');
-    $.ajaxSetup({ async: true, });
   }
 
   var datetime;
@@ -439,6 +446,40 @@ Env.buildProfileLink = function(playerName, textOnly) {
   }
 };
 
+// Utility function to link to a button page given a button name
+Env.buildButtonLink = function(buttonName, recipe, textOnly) {
+  var url = 'buttons.html?button=' + encodeURIComponent(buttonName);
+  if (textOnly) {
+    return url;
+  }
+  var link =
+    $('<a>', {
+      'href': url,
+      'text': buttonName,
+    });
+  if (recipe) {
+    link.attr('title', recipe);
+    link.append($('<span>', {
+      'class': 'info_icon',
+      'text': 'i',
+    }));
+  }
+  return link;
+};
+
+// Utility function to link to a button set page given a button set name
+Env.buildButtonSetLink = function(buttonSetName, textOnly) {
+  var url = 'buttons.html?set=' + encodeURIComponent(buttonSetName);
+  if (textOnly) {
+    return url;
+  } else {
+    return $('<a>', {
+      'href': url,
+      'text': buttonSetName,
+    });
+  }
+};
+
 // Reveal (or un-reveal) the contents of spoiler tags
 Env.toggleSpoiler = function() {
   $(this).toggleClass('chatExposedSpoiler');
@@ -498,4 +539,28 @@ Env.callAsyncInParallel = function(functions, finalCallback) {
 
     functionDetails.func.apply(this, functionDetails.args);
   });
+};
+
+// Takes a URL that was entered by a user and returns a version of it that's
+// safe to insert into an anchor tag (or returns NULL if we can't sensibly do
+// that).
+// Based in part on advice from http://stackoverflow.com/questions/205923
+Env.validateUrl = function(url) {
+  // First, check for and reject anything with inappropriate characters
+  // (We can expand this list later if it becomes necessary)
+  if (!url.match(/^[-A-Za-z0-9+&@#/%?=~_!:,.\(\)]+$/)) {
+    return null;
+  }
+
+  // Then ensure that it begins with http:// or https://
+  if (url.toLowerCase().indexOf('http://') !== 0 &&
+      url.toLowerCase().indexOf('https://') !== 0) {
+    url = 'http://' + url;
+  }
+
+  // This should create a relatively safe URL. It does not verify that it's a
+  // *valid* URL, but if it is invalid, this should at least render it impotent.
+  // This also doesn't verify that the URL points to a safe page, but that is
+  // outside of the scope of this function.
+  return url;
 };

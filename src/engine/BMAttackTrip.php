@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackTrip: Code specific to trip attacks
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to trip attacks
+ */
 class BMAttackTrip extends BMAttack {
     public $type = 'Trip';
 

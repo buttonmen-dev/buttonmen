@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillSlow: Code specific to the slow die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the slow die skill
+ */
 class BMSkillSlow extends BMSkill {
     public static $hooked_methods = array('initiative_value');
 

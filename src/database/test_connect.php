@@ -15,6 +15,9 @@
 
 <body>
     <?php
+    /**
+     * test connection to the database
+     */
         $name = 'Bauer';
         require_once('mysql.inc.php');
         $conn = conn();

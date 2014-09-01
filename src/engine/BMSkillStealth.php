@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillStealth: Code specific to the stealth die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the stealth die skill
+ */
 class BMSkillStealth extends BMSkill {
     public static $hooked_methods = array('attack_list');
 
