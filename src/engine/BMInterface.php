@@ -2278,7 +2278,7 @@ class BMInterface {
                 );
 
                 if ((int)$row['challenger_random'] == 1) {
-                    $challengerIsRandom  = NULL;
+                    $challengerButton  = NULL;
                     $challengerIsRandom = TRUE;
                 } else {
                     $challengerButton = $row['challenger_button'];
@@ -3203,9 +3203,26 @@ class BMInterface {
         $isButtonRandom
     ) {
         try {
-            //TODO handle case where game was defined with random button for
-            // second player
-            // (how did this work before my refactor?)
+            // First, verify whether or not the user is even *allowed* to
+            // select their button
+            $query =
+                'SELECT gpm.button_id, gpm.is_button_random ' .
+                'FROM game_player_map gpm ' .
+                'WHERE gpm.game_id = :game_id AND gpm.player_id = :player_id;';
+            $statement = self::$conn->prepare($query);
+            $statement->execute(array(':game_id' => $gameId, ':player_id' => $playerId));
+            $fetchData = $statement->fetch();
+            if (FALSE === $fetchData) {
+                $this->message = 'Button select failed because player/game combination not valid.';
+                return FALSE;
+            }
+            $selectedButtonId = $fetchData['button_id'];
+            if ($selectedButtonId !== NULL) {
+                // If a button has already been selected, we don't need to do anything here
+                return TRUE;
+            }
+            $isButtonRandom |= ($fetchData['button_id'] == 1);
+
             if (count($buttonNames) == 0 && !$isButtonRandom) {
                 $this->message = 'Button selection failed because no button was specified';
                 return FALSE;
@@ -3244,7 +3261,6 @@ class BMInterface {
             } else {
                 $buttonIds = array();
                 foreach ($buttonNames as $buttonName) {
-                    //todo
                     $query = 'SELECT id FROM button '.
                              'WHERE name = :button_name';
                     $statement = self::$conn->prepare($query);

@@ -618,28 +618,36 @@ test("test_Api.parseOpenGames", function(assert) {
 
 test("test_Api.joinOpenGame", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  var playerInfo = {
+    'buttonNames': [ 'Avis' ],
+    'isButtonRandom': false,
+  };
+  Api.joinOpenGame(21, playerInfo,
     function() {
       assert.equal(Api.join_game_result.load_status, 'ok',
         'Successfully retrieved open games');
       start();
     },
     function() {
-      assert.ok(false, 'Retrieving game data should succeed');
+      assert.ok(false, 'Joining an open game should succeed');
       start();
     });
 });
 
 test("test_Api.parseJoinGameResult", function(assert) {
   stop();
-  Api.joinOpenGame(21, 'Avis',
+  var playerInfo = {
+    'buttonNames': [ 'Avis' ],
+    'isButtonRandom': false,
+  };
+  Api.joinOpenGame(21, playerInfo,
     function() {
       assert.equal(Api.join_game_result.success, true,
         "Successfully parsed join game result");
       start();
     },
     function() {
-      assert.ok(false, 'Retrieving game data should succeed');
+      assert.ok(false, 'Joining an open game should succeed');
       start();
     });
 });

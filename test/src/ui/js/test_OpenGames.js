@@ -160,7 +160,11 @@ test("test_OpenGames.displayJoinResult", function(assert) {
   var buttonSelect = $('<select>');
   victimButtonTd.append(buttonSelect);
 
-  OpenGames.displayJoinResult(joinButton, buttonSelect, gameId, 'Avis');
+  var playerInfo = {
+    'buttonNames': [ 'Avis' ],
+    'isButtonRandom': false,
+  };
+  OpenGames.displayJoinResult(joinButton, buttonSelect, gameId, playerInfo);
 
   var buttonSpan = victimButtonTd.find('span');
   assert.ok(buttonSpan.length > 0, "button name is displayed");

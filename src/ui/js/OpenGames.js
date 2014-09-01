@@ -167,7 +167,9 @@ OpenGames.displayJoinResult = function(
         'style': 'font-style: italic;',
       });
     } else {
-      buttonNameSpan = $('<span>', { 'text': playerInfo.buttonName, });
+      // For the time being, we'll assume that if it wasn't random, they just
+      // picked one button
+      buttonNameSpan = $('<span>', { 'text': playerInfo.buttonNames[0], });
     }
     buttonSelect.after(buttonNameSpan);
   }
