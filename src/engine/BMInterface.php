@@ -425,7 +425,6 @@ class BMInterface {
             }
 
             $playerInfo['buttonIds'] = array();
-            error_log(print_r($rawPlayerInfo, TRUE));
             foreach($rawPlayerInfo['buttonNames'] as $buttonName) {
                 $buttonId = $this->get_button_id_from_name($buttonName);
                 if (!$buttonId) {
