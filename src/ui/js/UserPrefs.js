@@ -1,6 +1,8 @@
 // namespace for this "module"
 var UserPrefs = {};
 
+UserPrefs.bodyDivId = 'userprefs_page';
+
 UserPrefs.NAME_IRL_MAX_LENGTH = 40;
 UserPrefs.EMAIL_MAX_LENGTH = 254;
 UserPrefs.MIN_IMAGE_SIZE = 80;
@@ -18,7 +20,7 @@ UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * UserPrefs.showUserPrefsPage() is the landing function.  Always call
+// * UserPrefs.showLoggedInPage() is the landing function.  Always call
 //   this first
 // * UserPrefs.assemblePage(), which calls one of a number of functions
 //   UserPrefs.action<SomeAction>()
@@ -29,7 +31,7 @@ UserPrefs.ALTERNATE_GENDER_OPTION = 'It\'s complicated';
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-UserPrefs.showUserPrefsPage = function() {
+UserPrefs.showLoggedInPage = function() {
   Env.callAsyncInParallel(
     [
       { 'func': Api.getButtonData, 'args': [ null ] },
@@ -478,8 +480,8 @@ UserPrefs.formSetPrefs = function() {
       'notok': { 'type': 'server', }
     },
     '#userprefs_action_button',
-    UserPrefs.showUserPrefsPage,
-    UserPrefs.showUserPrefsPage
+    UserPrefs.showLoggedInPage,
+    UserPrefs.showLoggedInPage
   );
 };
 

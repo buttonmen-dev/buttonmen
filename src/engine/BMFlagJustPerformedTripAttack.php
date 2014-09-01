@@ -19,6 +19,11 @@ class BMFlagJustPerformedTripAttack extends BMFlag {
         return $this->postAttackValue;
     }
 
+    /**
+     * Constructor
+     *
+     * @param int $dieValue
+     */
     public function __construct($dieValue) {
         $this->postAttackValue = NULL;
         if (isset($dieValue)) {
@@ -26,6 +31,11 @@ class BMFlagJustPerformedTripAttack extends BMFlag {
         }
     }
 
+    /**
+     * Convert to string.
+     *
+     * @return string
+     */
     public function __toString() {
         $string = $this->type();
         if (is_integer($this->postAttackValue)) {

@@ -23,8 +23,7 @@ should run when served either as text/html or application/xhtml+xml.
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/ActivePlayers.js' ], function() {
-                Login.bodyDivId = 'activeplayers_page';
-                Login.showLoginHeader(ActivePlayers.showActivePlayersPage);
+                Login.showLoginHeader(ActivePlayers);
             });
           });
         });

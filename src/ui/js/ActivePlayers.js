@@ -1,27 +1,24 @@
 // namespace for this "module"
 var ActivePlayers = {};
 
+ActivePlayers.bodyDivId = 'activeplayers_page';
+
 ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS = 50;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * ActivePlayers.showActivePlayersPage() is the landing function. Always call
-//   this first. It sets up #activeplayers_page and calls
-//   ActivePlayers.getActivePlayers()
-// * ActivePlayers.getActivePlayers() calls the API, setting Api.active_players.
-//   It calls ActivePlayers.showPage()
+// * ActivePlayers.showLoggedInPage() is the landing function. Always call
+//   this first. It calls the API, setting Api.active_players, and then
+//   calls ActivePlayers.showPage()
 // * ActivePlayers.showPage() uses the data returned by the API to build
 //   the contents of the page as ActivePlayers.page and calls
 //   Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
-ActivePlayers.showActivePlayersPage = function() {
+ActivePlayers.showLoggedInPage = function() {
   // Get all needed information, then display Active Players page
-  ActivePlayers.getActivePlayers(ActivePlayers.showPage);
-};
-
-ActivePlayers.getActivePlayers = function(callback) {
-  Api.getActivePlayers(ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS, callback);
+  Api.getActivePlayers(ActivePlayers.NUMBER_OF_ACTIVE_PLAYERS,
+    ActivePlayers.showPage);
 };
 
 ActivePlayers.showPage = function() {

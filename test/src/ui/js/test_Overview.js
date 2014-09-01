@@ -5,6 +5,8 @@ module("Overview", {
     // Back up any properties that we might decide to replace with mocks
     BMTestUtils.OverviewBackup = { };
     BMTestUtils.CopyAllMethods(Overview, BMTestUtils.OverviewBackup);
+    BMTestUtils.ApiBackup = { };
+    BMTestUtils.CopyAllMethods(Api, BMTestUtils.ApiBackup);
     BMTestUtils.LoginBackup = { };
     BMTestUtils.CopyAllMethods(Login, BMTestUtils.LoginBackup);
 
@@ -15,7 +17,7 @@ module("Overview", {
       $('body').append($('<div>', {'id': 'overview_page', }));
     }
 
-    Login.bodyDivId = 'overview_page';
+    Login.pageModule = { 'bodyDivId': 'overview_page' };
   },
   'teardown': function(assert) {
 
@@ -37,7 +39,7 @@ module("Overview", {
     delete Env.window.location.href;
 
     Api.automatedApiCall = false;
-    Login.bodyDivId = null;
+    Login.pageModule = null;
     Login.nextGameRefreshCallback = false;
 
     // Page elements
@@ -52,6 +54,7 @@ module("Overview", {
 
     // Restore any properties that we might have replaced with mocks
     BMTestUtils.CopyAllMethods(BMTestUtils.OverviewBackup, Overview);
+    BMTestUtils.CopyAllMethods(BMTestUtils.ApiBackup, Api);
     BMTestUtils.CopyAllMethods(BMTestUtils.LoginBackup, Login);
 
     // Fail if any other elements were added or removed
@@ -68,12 +71,12 @@ test("test_Overview_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// Overview.showOverviewPage() is correct for a showXPage function, namely
+// Overview.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_Overview.showOverviewPage", function(assert) {
+test("test_Overview.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getOverview = Overview.getOverview;
   var cached_showStatePage = Overview.showPage;
@@ -88,15 +91,56 @@ test("test_Overview.showOverviewPage", function(assert) {
     callback();
   }
 
-  Overview.showOverviewPage();
+  Overview.showLoggedInPage();
   var item = document.getElementById('overview_page');
   assert.equal(item.nodeName, "DIV",
-        "#overview_page is a div after showOverviewPage() is called");
+        "#overview_page is a div after showLoggedInPage() is called");
 
   Overview.getOverview = cached_getOverview;
   Overview.showPage = cached_showStatePage;
 });
 
+test("test_Overview.showPreferredOverview", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Api.getUserPrefsData = function(callback) {
+    Api.user_prefs = { 'automatically_monitor': false };
+    callback();
+  };
+
+  Overview.executeMonitor = function() {
+    assert.ok(!Overview.monitorIsOn, 'Monitor should be off');
+    assert.ok(false, 'Monitor should not be executed');
+  };
+
+  Overview.getOverview = function() {
+    assert.ok(!Overview.monitorIsOn, 'Monitor should be off');
+    assert.ok(true, 'Overview should be displayed');
+  };
+
+  Overview.showPreferredOverview();
+});
+
+test("test_Overview.showPreferredOverview_monitor", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Api.getUserPrefsData = function(callback) {
+    Api.user_prefs = { 'automatically_monitor': true };
+    callback();
+  };
+
+  Overview.executeMonitor = function() {
+    assert.ok(Overview.monitorIsOn, 'Monitor should be on');
+    assert.ok(true, 'Monitor should be executed');
+  };
+
+  Overview.getOverview = function() {
+    assert.ok(Overview.monitorIsOn, 'Monitor should be on');
+    assert.ok(false, 'Overview should not be displayed yet');
+  };
+
+  Overview.showPreferredOverview();
+});
 
 test("test_Overview.getOverview", function(assert) {
   stop();
@@ -107,22 +151,17 @@ test("test_Overview.getOverview", function(assert) {
   });
 });
 
-test("test_Overview.getOverview_logged_out", function(assert) {
-  stop();
-
+test("test_Overview.showLoggedOutPage", function(assert) {
   // Undo the fake login data
   Login.player = null;
   Login.logged_in = false;
 
-  Overview.getOverview(function() {
-    Overview.showPage();
-    assert.equal(Env.message, undefined,
-          "No Env.message when logged out");
-    var item = document.getElementById('overview_page');
-    assert.ok(item.innerHTML.match('Welcome to Button Men'),
-          "#overview_page contains some welcoming text");
-    start();
-  });
+  Overview.showLoggedOutPage();
+  assert.equal(Env.message, undefined,
+        "No Env.message when logged out");
+  var item = document.getElementById('overview_page');
+  assert.ok(item.innerHTML.match('Welcome to Button Men'),
+        "#overview_page contains some welcoming text");
 });
 
 test("test_Overview.showPage", function(assert) {
@@ -221,11 +260,11 @@ test("test_Overview.pageAddIntroText", function(assert) {
 test("test_Overview.formDismissGame", function(assert) {
   stop();
   expect(3);
-  // Temporarily back up Overview.showOverviewPage and replace it with
+  // Temporarily back up Overview.showLoggedInPage and replace it with
   // a mocked version for testing
-  var showOverviewPage = Overview.showOverviewPage;
-  Overview.showOverviewPage = function() {
-    Overview.showOverviewPage = showOverviewPage;
+  var showLoggedInPage = Overview.showLoggedInPage;
+  Overview.showLoggedInPage = function() {
+    Overview.showLoggedInPage = showLoggedInPage;
     assert.equal(Env.message.text, 'Successfully dismissed game',
       'Dismiss game should succeed');
     start();

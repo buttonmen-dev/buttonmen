@@ -3,6 +3,8 @@ var Forum = {
   'scrollTarget': undefined,
 };
 
+Forum.bodyDivId = 'forum_page';
+
 Forum.OPEN_STAR = '&#9734;';
 Forum.SOLID_STAR = '&#9733;';
 
@@ -17,7 +19,7 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Forum.showForumPage() is the landing function. Always call
+// * Forum.showLoggedInPage() is the landing function. Always call
 //   this first. It sets up #forum_page and reads the URL to find out
 //   the current board, thread and/or post, which it sets in Env.history.state.
 //   It also binds Forum.showPage() to the page event that triggers on the
@@ -53,7 +55,7 @@ Forum.SCROLL_ANIMATION_MILLISECONDS = 200;
 ////////////////////////////////////////////////////////////////////////
 // These functions are part of the main action flow to load the page
 
-Forum.showForumPage = function() {
+Forum.showLoggedInPage = function() {
   $(window).bind('popstate', Forum.showPage);
 
   var state = {
@@ -120,11 +122,20 @@ Forum.showOverview = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Forum.parseFormPost({
-      'type': 'markForumRead',
-      'timestamp': Api.forum_overview.timestamp,
-    }, 'forum_overview', $(this), Forum.showOverview);
-    Api.getNextNewPostId(Login.addNewPostLink);
+    Forum.parseFormPost(
+      {
+        'type': 'markForumRead',
+        'timestamp': Api.forum_overview.timestamp,
+      },
+      'forum_overview',
+      $(this),
+      function() {
+        Api.getNextNewPostId(function() {
+          Login.addNewPostLink();
+          Forum.showOverview();
+        });
+      }
+    );
   });
 
   // Actually lay out the page
@@ -224,12 +235,21 @@ Forum.showBoard = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Forum.parseFormPost({
-      'type': 'markForumBoardRead',
-      'boardId': Api.forum_board.boardId,
-      'timestamp': Api.forum_board.timestamp,
-    }, 'forum_overview', $(this), Forum.showOverview);
-    Api.getNextNewPostId(Login.addNewPostLink);
+    Forum.parseFormPost(
+      {
+        'type': 'markForumBoardRead',
+        'boardId': Api.forum_board.boardId,
+        'timestamp': Api.forum_board.timestamp,
+      },
+      'forum_overview',
+      $(this),
+      function() {
+        Api.getNextNewPostId(function() {
+          Login.addNewPostLink();
+          Forum.showOverview();
+        });
+      }
+    );
   });
 
   // Actually lay out the page
@@ -317,13 +337,22 @@ Forum.showThread = function() {
   });
   markReadTd.append(markReadButton);
   markReadButton.click(function() {
-    Forum.parseFormPost({
-      'type': 'markForumThreadRead',
-      'threadId': Api.forum_thread.threadId,
-      'boardId': Api.forum_thread.boardId,
-      'timestamp': Api.forum_thread.timestamp,
-    }, 'forum_board', $(this), Forum.showBoard);
-    Api.getNextNewPostId(Login.addNewPostLink);
+    Forum.parseFormPost(
+      {
+        'type': 'markForumThreadRead',
+        'threadId': Api.forum_thread.threadId,
+        'boardId': Api.forum_thread.boardId,
+        'timestamp': Api.forum_thread.timestamp,
+      },
+      'forum_board',
+      $(this),
+      function() {
+        Api.getNextNewPostId(function() {
+          Login.addNewPostLink();
+          Forum.showBoard();
+        });
+      }
+    );
   });
 
   // Actually lay out the page

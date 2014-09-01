@@ -23,9 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/Overview.js' ], function() {
-                Login.pageRequiresLogin = false;
-                Login.bodyDivId = 'overview_page';
-                Login.showLoginHeader(Overview.showOverviewPage);
+                Login.showLoginHeader(Overview);
             });
           });
         });

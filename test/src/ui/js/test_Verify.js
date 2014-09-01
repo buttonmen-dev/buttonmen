@@ -48,12 +48,12 @@ test("test_Verify_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// Verify.showVerifyPage() is correct for a showXPage function,
+// Verify.showLoggedInPage() is correct for a showXPage function,
 // namely that it calls an API getter with a showStatePage function
 // as a callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_Verify.showVerifyPage", function(assert) {
+test("test_Verify.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getVerifyParams = Verify.getVerifyParams;
   var cached_showStatePage = Verify.showStatePage;
@@ -68,12 +68,19 @@ test("test_Verify.showVerifyPage", function(assert) {
     callback();
   }
 
-  Verify.showVerifyPage();
+  Verify.showLoggedInPage();
   var item = document.getElementById('verify_page');
   assert.equal(item.nodeName, "DIV",
-        "#verify_page is a div after showVerifyPage() is called");
+        "#verify_page is a div after showLoggedInPage() is called");
   Verify.getVerifyParams = cached_getVerifyParams;
   Verify.showStatePage = cached_showStatePage;
+});
+
+// At this point, Verify.showLoggedOutPage is a pointer to
+// Verify.showLoggedInPage
+test("test_Verify.showLoggedOutPage", function(assert) {
+  assert.equal(Verify.showLoggedOutPage, Verify.showLoggedInPage,
+    "Verify.showLoggedOutPage and Verify.showLoggedInPage should be the same");
 });
 
 test("test_Verify.getVerifyParams", function(assert) {

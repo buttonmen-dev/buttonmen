@@ -1,9 +1,11 @@
 // namespace for this "module"
 var Profile = {};
 
+Profile.bodyDivId = 'profile_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Profile.showProfilePage() is the landing function. Always call
+// * Profile.showLoggedInPage() is the landing function. Always call
 // this first. It sets up #profile_page and calls Profile.getProfile()
 // * Profile.getProfile() calls the API, setting Api.profile_info. It calls
 //   Profile.showPage()
@@ -11,7 +13,7 @@ var Profile = {};
 //   the contents of the page as Profile.page and calls Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
-Profile.showProfilePage = function() {
+Profile.showLoggedInPage = function() {
   // Get all needed information, then display Profile page
   Profile.getProfile(Profile.showPage);
 };
@@ -100,6 +102,16 @@ Profile.buildProfileTable = function() {
       Api.profile_info.name_ingame + '&status=COMPLETE',
   }));
 
+  var favoriteButtonLink = null;
+  if (Api.profile_info.favorite_button) {
+    favoriteButtonLink = Env.buildButtonLink(Api.profile_info.favorite_button);
+  }
+  var favoriteButtonSetLink = null;
+  if (Api.profile_info.favorite_buttonset) {
+    favoriteButtonSetLink =
+      Env.buildButtonSetLink(Api.profile_info.favorite_buttonset);
+  }
+
   var commentHolder = null;
   if (Api.profile_info.comment) {
     commentHolder = $('<span>');
@@ -182,9 +194,9 @@ Profile.buildProfileTable = function() {
   tbody.append(Profile.buildProfileTableRow('Games', gamesLinksHolder, '',
     true));
   tbody.append(Profile.buildProfileTableRow('Favorite button',
-    Api.profile_info.favorite_button, 'undecided', true));
+    favoriteButtonLink, 'undecided', true));
   tbody.append(Profile.buildProfileTableRow('Favorite button set',
-    Api.profile_info.favorite_buttonset, 'unselected', true));
+    favoriteButtonSetLink, 'unselected', true));
   tbody.append(Profile.buildProfileTableRow(
     'Challenge ' + Api.profile_info.name_ingame + ' to a game',
     challengeLinkHolder, solipsismNotification, false));

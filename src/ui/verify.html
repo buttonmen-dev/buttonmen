@@ -23,9 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Verify.js' ], function() {
-                Login.pageRequiresLogin = false;
-                Login.bodyDivId = 'verify_page';
-                Login.showLoginHeader(Verify.showVerifyPage);
+                Login.showLoginHeader(Verify);
             });
           });
         });

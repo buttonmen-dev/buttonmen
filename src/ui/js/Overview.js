@@ -1,6 +1,8 @@
 // namespace for this "module"
 var Overview = {};
 
+Overview.bodyDivId = 'overview_page';
+
 // We only need one game state for this module, so just reproduce the
 // setting here rather than importing Game.js
 Overview.GAME_STATE_END_GAME = 60;
@@ -9,10 +11,12 @@ Overview.MONITOR_TIMEOUT = 60;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Overview.showOverviewPage() is the landing function.  Always call
-//   this first. This will either call Login.goToNextPendingGame,
+// * Overview.showLoggedInPage() is the landing function.  Always call this
+//   first when logged in. This will either call Login.goToNextPendingGame,
 //   Overview.executeMonitor() or Overview.getOverview() and
 //   Overview.showPage() (depending on the "mode" parameter).
+// * Overview.showLoggedInPage() is the landing function.  Always call this
+//   first when logged out. This calls Overview.pageAddIntroText()
 // * Overview.getOverview() asks the API for information about the
 //   player's overview status (currently, the lists of active and completed
 //   games, and potentially the user's preferences).
@@ -25,16 +29,12 @@ Overview.MONITOR_TIMEOUT = 60;
 // logically somewhat simpler than e.g. Game.js.
 ////////////////////////////////////////////////////////////////////////
 
-Overview.showOverviewPage = function() {
+Overview.showLoggedInPage = function() {
   // Set up the callback for refreshing the page if there's no next game
-  Login.nextGameRefreshCallback = function() {
-    Overview.getOverview(Overview.showPage);
-  };
+  Login.nextGameRefreshCallback = Overview.showPreferredOverview;
 
-  var mode = 'default';
-  if (Login.logged_in) {
-    mode = Env.getParameterByName('mode');
-  }
+  var mode = Env.getParameterByName('mode');
+
   switch (mode) {
   case 'nextGame':
     // Try to go to the next game
@@ -48,17 +48,7 @@ Overview.showOverviewPage = function() {
     });
     break;
   case 'preference':
-    Api.getUserPrefsData(function() {
-      if (Api.user_prefs.automatically_monitor) {
-        Overview.monitorIsOn = true;
-        // If we're in monitor mode, run the monitor first
-        Overview.executeMonitor();
-      } else {
-        Overview.monitorIsOn = false;
-        // Get all needed information, then display overview page
-        Overview.getOverview(Overview.showPage);
-      }
-    });
+    Overview.showPreferredOverview();
     break;
   default:
     Overview.monitorIsOn = false;
@@ -68,56 +58,69 @@ Overview.showOverviewPage = function() {
   }
 };
 
+Overview.showLoggedOutPage = function() {
+  Overview.page = $('<div>');
+  Overview.pageAddIntroText();
+  // Actually lay out the page
+  Login.arrangePage(Overview.page);
+};
+
+Overview.showPreferredOverview = function() {
+  Api.getUserPrefsData(function() {
+    if (Api.user_prefs.automatically_monitor) {
+      Overview.monitorIsOn = true;
+      // If we're in monitor mode, run the monitor first
+      Overview.executeMonitor();
+    } else {
+      Overview.monitorIsOn = false;
+      // Get all needed information, then display overview page
+      Overview.getOverview(Overview.showPage);
+    }
+  });
+};
+
 Overview.getOverview = function(callback) {
-  if (Login.logged_in) {
-    Env.callAsyncInParallel([
-      Api.getActiveGamesData,
-      Api.getCompletedGamesData,
-    ], callback);
-  } else {
-    return callback();
-  }
+  Env.callAsyncInParallel([
+    Api.getActiveGamesData,
+    Api.getCompletedGamesData,
+  ], callback);
 };
 
 Overview.showPage = function() {
   Overview.page = $('<div>');
 
-  if (Login.logged_in === true) {
-    Overview.pageAddNewgameLink();
+  Overview.pageAddNewgameLink();
 
-    if (Overview.monitorIsOn) {
-      Overview.page.append($('<h2>', {
-        'text': '* Monitor Active *',
-        'class': 'monitorMessage',
-      }));
-      // Convert milliseconds (javascript-style) to seconds (unix-style)
-      var currentTimestamp = new Date().getTime() / 1000;
-      Overview.page.append($('<div>', {
-        'text': 'Last refresh: ' + Env.formatTimestamp(currentTimestamp),
-        'class': 'monitorTimestamp',
-      }));
-      Overview.page.append($('<div>').append($('<a>', {
-        'text': 'Disable Monitor',
-        'href': Env.ui_root,
-      })));
+  if (Overview.monitorIsOn) {
+    Overview.page.append($('<h2>', {
+      'text': '* Monitor Active *',
+      'class': 'monitorMessage',
+    }));
+    // Convert milliseconds (javascript-style) to seconds (unix-style)
+    var currentTimestamp = new Date().getTime() / 1000;
+    Overview.page.append($('<div>', {
+      'text': 'Last refresh: ' + Env.formatTimestamp(currentTimestamp),
+      'class': 'monitorTimestamp',
+    }));
+    Overview.page.append($('<div>').append($('<a>', {
+      'text': 'Disable Monitor',
+      'href': Env.ui_root,
+    })));
 
-      // Times 1000 because setTimeout expects milliseconds
-      setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
-    }
-
-    if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
-      Env.message = {
-        'type': 'none',
-        'text': 'You have no games',
-      };
-    } else {
-      Overview.pageAddGameTables();
-    }
-  } else {
-    Overview.pageAddIntroText();
+    // Times 1000 because setTimeout expects milliseconds
+    setTimeout(Overview.executeMonitor, Overview.MONITOR_TIMEOUT * 1000);
   }
 
-  // Actually layout the page
+  if ((Api.active_games.nGames === 0) && (Api.completed_games.nGames === 0)) {
+    Env.message = {
+      'type': 'none',
+      'text': 'You have no games',
+    };
+  } else {
+    Overview.pageAddGameTables();
+  }
+
+  // Actually lay out the page
   Login.arrangePage(Overview.page);
 };
 
@@ -282,12 +285,12 @@ Overview.pageAddGameTable = function(gameType, sectionHeader) {
       }
     }
     gameRow.append(gameLinkTd);
-    gameRow.append($('<td>', {
-      'text': gameInfo.playerButtonName,
-    }));
-    gameRow.append($('<td>', {
-      'text': gameInfo.opponentButtonName,
-    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.playerButtonName)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(gameInfo.opponentButtonName)
+    ));
     gameRow.append($('<td>', {
       'style': 'background-color: ' + opponentColor,
     }).append(Env.buildProfileLink(gameInfo.opponentName)));
@@ -428,8 +431,8 @@ Overview.formDismissGame = function(e) {
     'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
     'notok': { 'type': 'server' },
   };
-  Api.apiFormPost(args, messages, $(this), Overview.showOverviewPage,
-    Overview.showOverviewPage);
+  Api.apiFormPost(args, messages, $(this), Overview.showLoggedInPage,
+    Overview.showLoggedInPage);
 };
 
 // Redirect to the next new forum post if there is one

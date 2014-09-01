@@ -2,11 +2,17 @@
 var Verify = {
 };
 
-Verify.showVerifyPage = function() {
+Verify.bodyDivId = 'verify_page';
+
+Verify.showLoggedInPage = function() {
   // Find the verification parameters and submit them to the server,
   // then display the result
   Verify.getVerifyParams(Verify.showStatePage);
 };
+
+// Verify basically behaves roughly the same way regardless of whether or not
+// you're logged in
+Verify.showLoggedOutPage = Verify.showLoggedInPage;
 
 Verify.getVerifyParams = function(callbackfunc) {
   var playerId = Env.getParameterByName('id');
@@ -53,7 +59,7 @@ Verify.showStatePage = function() {
 Verify.setVerifyUserSuccessMessage = function(message) {
   var indexLink = $('<a>', {
     'href': 'index.html',
-    'text': 'Go back to the homepage, login, and start beating people up',
+    'text': 'Go back to the homepage, log in, and start beating people up',
   });
   var userPar = $('<p>', {'text': message + ' ', });
   userPar.append($('<br>'));

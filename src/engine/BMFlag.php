@@ -42,6 +42,11 @@ abstract class BMFlag {
         return NULL;
     }
 
+    /**
+     * Convert to string.
+     *
+     * @return string
+     */
     public function __toString() {
         return $this->type();
     }

@@ -25,11 +25,16 @@ class ApiResponder {
         'login',
     );
 
-    // constructor
-    // * For live invocation:
-    //   * start a session (and require api_core to get session functions)
-    // * For test invocation:
-    //   * don't start a session
+    /**
+     * Constructor
+     * For live invocation:
+     *   start a session (and require api_core to get session functions)
+     * For test invocation:
+     *   don't start a session
+     *
+     * @param ApiSpec $spec
+     * @param boolean $isTest
+     */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
         $this->isTest = $isTest;

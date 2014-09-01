@@ -27,14 +27,14 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_construct() {
         $attackStr = "performed Power attack using [(X):1] against [(4):1]; Defender (4) was captured; Attacker (X) rerolled 1 => 2";
-        $this->object = new BMGameAction(40, 'attack', 1, $attackStr);
-        $this->assertEquals($this->object->gameState, 40);
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, $attackStr);
+        $this->assertEquals($this->object->gameState, BMGameState::START_TURN);
         $this->assertEquals($this->object->actionType, 'attack');
         $this->assertEquals($this->object->actingPlayerId, 1);
         $this->assertEquals($this->object->params, $attackStr);
 
         try {
-            $this->object = new BMGameAction(40, 'attack', 1, array());
+            $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array());
             $this->fail('BMGameAction should not accept empty params array');
         }
         catch (Exception $expected) {
@@ -46,7 +46,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_friendly_message() {
         $attackStr = "performed Power attack using [(X):1] against [(4):1]; Defender (4) was captured; Attacker (X) rerolled 1 => 2";
-        $this->object = new BMGameAction(40, 'attack', 1, $attackStr);
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, $attackStr);
         $this->assertEquals(
             "gameaction01 performed Power attack using [(X):1] against [(4):1]; Defender (4) was captured; Attacker (X) rerolled 1 => 2",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -57,7 +57,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_end_draw()
      */
     public function test_friendly_message_end_draw() {
-        $this->object = new BMGameAction(50, 'end_draw', 0, array('roundNumber' => 2, 'roundScoreArray' => array(23, 23)));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_draw', 0, array('roundNumber' => 2, 'roundScoreArray' => array(23, 23)));
         $this->assertEquals(
             "Round 2 ended in a draw (23 vs. 23)",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -68,13 +68,13 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_end_winner()
      */
     public function test_friendly_message_end_winner() {
-        $this->object = new BMGameAction(50, 'end_winner', 2, array('roundNumber' => 1, 'roundScoreArray' => array(24, 43), 'resultForced' => NULL));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 1, 'roundScoreArray' => array(24, 43), 'resultForced' => NULL));
         $this->assertEquals(
             "End of round: gameaction02 won round 1 (43 vs. 24)",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
 
-        $this->object = new BMGameAction(50, 'end_winner', 2, array('roundNumber' => 2, 'roundScoreArray' => array(25, 23), 'resultForced' => array(FALSE, TRUE)));
+        $this->object = new BMGameAction(BMGameState::END_ROUND, 'end_winner', 2, array('roundNumber' => 2, 'roundScoreArray' => array(25, 23), 'resultForced' => array(FALSE, TRUE)));
         $this->assertEquals(
             "End of round: gameaction02 won round 2 because opponent surrendered",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -85,7 +85,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_needs_firing()
      */
     public function test_friendly_message_needs_firing() {
-        $this->object = new BMGameAction(40, 'needs_firing', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'needs_firing', 1, array(
             'attackType' => 'Power',
             'attackDice' => array(
                 'attacker' => array(
@@ -106,7 +106,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_fire_cancel()
      */
     public function test_friendly_message_fire_cancel() {
-        $this->object = new BMGameAction(40, 'fire_cancel', 1, array('action' => 'cancel'));
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'fire_cancel', 1, array('action' => 'cancel'));
         $this->assertEquals(
             "gameaction01 chose to abandon this attack and start over",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -117,7 +117,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_power() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Power',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -146,7 +146,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_skill() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Skill',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -179,7 +179,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_speed() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Speed',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -212,7 +212,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_power_after_fire_turndown() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Power',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -248,7 +248,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_power_mood_swing() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Power',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -277,7 +277,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_surrender() {
-        $this->object = new BMGameAction(40, 'attack', 2, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 2, array(
             'attackType' => 'Surrender',
             'preAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
             'postAttackDice' => array( 'attacker' => array(), 'defender' => array(), ),
@@ -292,7 +292,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_trip() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Trip',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -325,7 +325,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * sure changes to friendly_message_attack() don't break those entries
      */
     public function test_friendly_message_attack_backwards_compatible() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Trip',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -354,7 +354,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_morphing() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Power',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -383,7 +383,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_attack()
      */
     public function test_friendly_message_attack_trip_morph() {
-        $this->object = new BMGameAction(40, 'attack', 1, array(
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
             'attackType' => 'Trip',
             'preAttackDice' => array(
                 'attacker' => array(
@@ -413,25 +413,25 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      */
     public function test_friendly_message_choose_die_values() {
         $this->object = new BMGameAction(
-            24, 'choose_die_values', 1,
+            BMGameState::SPECIFY_DICE, 'choose_die_values', 1,
             array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13), 'optionValues' => array()));
         $this->assertEquals(
             "gameaction01 set swing values: X=5, Y=13",
-            $this->object->friendly_message($this->playerIdNames, 2, 24)
+            $this->object->friendly_message($this->playerIdNames, 2, BMGameState::SPECIFY_DICE)
         );
         $this->assertEquals(
             "gameaction01 set die sizes",
-            $this->object->friendly_message($this->playerIdNames, 1, 24)
+            $this->object->friendly_message($this->playerIdNames, 1, BMGameState::SPECIFY_DICE)
         );
 
-        $this->object = new BMGameAction(24, 'choose_die_values', 1, array('roundNumber' => 1, 'swingValues' => array(), 'optionValues' => array('(3/6)' => 3, 'z(4/7)' => 7)));
+        $this->object = new BMGameAction(BMGameState::SPECIFY_DICE, 'choose_die_values', 1, array('roundNumber' => 1, 'swingValues' => array(), 'optionValues' => array('(3/6)' => 3, 'z(4/7)' => 7)));
         $this->assertEquals(
             "gameaction01 set option dice: (3/6=3), z(4/7=7)",
-            $this->object->friendly_message($this->playerIdNames, 2, 24)
+            $this->object->friendly_message($this->playerIdNames, 2, BMGameState::SPECIFY_DICE)
         );
         $this->assertEquals(
             "gameaction01 set die sizes",
-            $this->object->friendly_message($this->playerIdNames, 1, 24)
+            $this->object->friendly_message($this->playerIdNames, 1, BMGameState::SPECIFY_DICE)
         );
     }
 
@@ -439,14 +439,14 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_choose_swing()
      */
     public function test_friendly_message_choose_swing() {
-        $this->object = new BMGameAction(24, 'choose_swing', 1, array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13)));
+        $this->object = new BMGameAction(BMGameState::SPECIFY_DICE, 'choose_swing', 1, array('roundNumber' => 1, 'swingValues' => array('X' => 5, 'Y' => 13)));
         $this->assertEquals(
             "gameaction01 set swing values: X=5, Y=13",
-            $this->object->friendly_message($this->playerIdNames, 2, 24)
+            $this->object->friendly_message($this->playerIdNames, 2, BMGameState::SPECIFY_DICE)
         );
         $this->assertEquals(
             "gameaction01 set swing values",
-            $this->object->friendly_message($this->playerIdNames, 1, 24)
+            $this->object->friendly_message($this->playerIdNames, 1, BMGameState::SPECIFY_DICE)
         );
     }
 
@@ -454,7 +454,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_reroll_chance()
      */
     public function test_friendly_message_reroll_chance() {
-        $this->object = new BMGameAction(27, 'reroll_chance', 2, array(
+        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'reroll_chance', 2, array(
             'preReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):4'),
             'postReroll' => array('recipe' => 'c(20)', 'min' => 1, 'max' => 20, 'value' => 11, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'c(20):11'),
             'gainedInitiative' => FALSE,
@@ -469,7 +469,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_turndown_focus()
      */
     public function test_friendly_message_turndown_focus() {
-        $this->object = new BMGameAction(27, 'turndown_focus', 1, array(
+        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'turndown_focus', 1, array(
             'preTurndown' => array(array('recipe' => 'f(20)', 'min' => 1, 'max' => 20, 'value' => 4, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'f(20):4')),
             'postTurndown' => array(array('recipe' => 'f(20)', 'min' => 1, 'max' => 20, 'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'f(20):2')),
             'gainedInitiative' => FALSE,
@@ -484,7 +484,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_init_decline()
      */
     public function test_friendly_message_init_decline() {
-        $this->object = new BMGameAction(27, 'init_decline', 2, array('initDecline' => TRUE));
+        $this->object = new BMGameAction(BMGameState::REACT_TO_INITIATIVE, 'init_decline', 2, array('initDecline' => TRUE));
         $this->assertEquals(
             "gameaction02 chose not to try to gain initiative using chance or focus dice",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -495,7 +495,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_add_reserve()
      */
     public function test_friendly_message_add_reserve() {
-        $this->object = new BMGameAction(22, 'add_reserve', 2, array(
+        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'add_reserve', 2, array(
             'die' => array('recipe' => 'r(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'r(6):')
         ));
         $this->assertEquals(
@@ -508,7 +508,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_reserve()
      */
     public function test_friendly_message_decline_reserve() {
-        $this->object = new BMGameAction(22, 'decline_reserve', 2, array('declineReserve' => TRUE));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_RESERVE_DICE, 'decline_reserve', 2, array('declineReserve' => TRUE));
         $this->assertEquals(
             "gameaction02 chose not to add a reserve die",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -519,15 +519,15 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_add_auxiliary()
      */
     public function test_friendly_message_add_auxiliary() {
-        $this->object = new BMGameAction(20, 'add_auxiliary', 2, array('roundNumber' => 1,
+        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'add_auxiliary', 2, array('roundNumber' => 1,
             'die' => array('recipe' => '+(6)', 'min' => 1, 'max' => 6, 'value' => NULL, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '+(6):')));
         $this->assertEquals(
             "gameaction02 chose to use auxiliary die +(6) in this game",
-            $this->object->friendly_message($this->playerIdNames, 2, 20)
+            $this->object->friendly_message($this->playerIdNames, 2, BMGameState::CHOOSE_AUXILIARY_DICE)
         );
         $this->assertEquals(
             "",
-            $this->object->friendly_message($this->playerIdNames, 1, 20)
+            $this->object->friendly_message($this->playerIdNames, 1, BMGameState::CHOOSE_AUXILIARY_DICE)
         );
     }
 
@@ -535,7 +535,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
      * @covers BMGameAction::friendly_message_decline_auxiliary()
      */
     public function test_friendly_message_decline_auxiliary() {
-        $this->object = new BMGameAction(20, 'decline_auxiliary', 2, array('declineAuxiliary' => TRUE));
+        $this->object = new BMGameAction(BMGameState::CHOOSE_AUXILIARY_DICE, 'decline_auxiliary', 2, array('declineAuxiliary' => TRUE));
         $this->assertEquals(
             "gameaction02 chose not to use auxiliary dice in this game: neither player will get an auxiliary die",
                 $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -567,7 +567,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
             'initiativeWinnerId' => 1,
         );
 
-        $this->object = new BMGameAction(26, 'determine_initiative', 0, $testParams);
+        $this->object = new BMGameAction(BMGameState::DETERMINE_INITIATIVE, 'determine_initiative', 0, $testParams);
         $this->assertEquals(
             "gameaction01 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2].",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -575,7 +575,7 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
 
         $testParams['playerData']['1']['slowButton'] = true;
         $testParams['initiativeWinnerId'] = 2;
-        $this->object = new BMGameAction(26, 'determine_initiative', 0, $testParams);
+        $this->object = new BMGameAction(BMGameState::DETERMINE_INITIATIVE, 'determine_initiative', 0, $testParams);
         $this->assertEquals(
             "gameaction02 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2]. gameaction01's button has the \"slow\" button special, and cannot win initiative normally.",
             $this->object->friendly_message($this->playerIdNames, 0, 0)
@@ -583,9 +583,53 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
 
         $testParams['playerData']['2']['slowButton'] = true;
         $testParams['tiedPlayerIds'] = array(1, 2);
-        $this->object = new BMGameAction(26, 'determine_initiative', 0, $testParams);
+        $this->object = new BMGameAction(BMGameState::DETERMINE_INITIATIVE, 'determine_initiative', 0, $testParams);
         $this->assertEquals(
             "gameaction02 won initiative for round 1. Initial die values: gameaction01 rolled [(6):3, (10):1], gameaction02 rolled [(6):2, (10):2]. Both buttons have the \"slow\" button special, and cannot win initiative normally. Initiative was determined by a coin flip.",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_ornery_reroll()
+     */
+    public function test_friendly_message_ornery_reroll() {
+        $this->object = new BMGameAction(BMGameState::END_TURN, 'ornery_reroll', 1, array(
+            'preRerollDieInfo' => array(
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:3', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => FALSE),
+            ),
+            'postRerollDieInfo' => array(
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => TRUE),
+                array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 5, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:5', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => TRUE),
+            )
+        ));
+        $this->assertEquals(
+            "gameaction01's idle ornery dice rerolled at end of turn: o(5) rerolled 2 => 2; o(X)? remained the same size, rerolled 3 => 5",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
+     * @covers BMGameAction::friendly_message_ornery_reroll()
+     */
+    public function test_friendly_message_ornery_no_reroll() {
+        $this->object = new BMGameAction(BMGameState::END_TURN, 'ornery_reroll', 1, array(
+            'preRerollDieInfo' => array(
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:3', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => FALSE),
+            ),
+            'postRerollDieInfo' => array(
+                array('recipe' => '(4)',   'min' => 1, 'max' => 4,  'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(4):1',   'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(5)',  'min' => 1, 'max' => 5,  'value' => 2, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(5):2',  'forceReportDieSize' => FALSE, 'hasJustRerolledOrnery' => FALSE),
+                array('recipe' => 'o(X)?', 'min' => 1, 'max' => 6,  'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 'o(X)?:3', 'forceReportDieSize' => TRUE,  'hasJustRerolledOrnery' => FALSE),
+            )
+        ));
+        $this->assertEquals(
+            '',
             $this->object->friendly_message($this->playerIdNames, 0, 0)
         );
     }

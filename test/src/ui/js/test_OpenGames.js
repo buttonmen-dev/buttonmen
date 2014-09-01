@@ -48,12 +48,12 @@ test("test_OpenGames_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// OpenGames.showOpenGamesPage() is correct for a showXPage function, namely
+// OpenGames.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_OpenGames.showOpenGamesPage", function(assert) {
+test("test_OpenGames.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getOpenGames = OpenGames.getOpenGames;
   var cached_showStatePage = OpenGames.showPage;
@@ -68,10 +68,10 @@ test("test_OpenGames.showOpenGamesPage", function(assert) {
     callback();
   }
 
-  OpenGames.showOpenGamesPage();
+  OpenGames.showLoggedInPage();
   var item = document.getElementById('opengames_page');
   assert.equal(item.nodeName, "DIV",
-        "#opengames_page is a div after showOpenGamesPage() is called");
+        "#opengames_page is a div after showLoggedInPage() is called");
 
   OpenGames.getOpenGames = cached_getOpenGames;
   OpenGames.showPage = cached_showStatePage;
@@ -105,6 +105,14 @@ test("test_OpenGames.buildGameTable", function(assert) {
   var buttons = {
     'Avis': {
       'recipe': 'Avis: (4) (4) (10) (12) (X)',
+      'greyed': false,
+    },
+    'Apples': {
+      'recipe': 'Apples: (8) (8) (2/12) (8/16) (20/24)',
+      'greyed': false,
+    },
+    'Von Pinn': {
+      'recipe': 'Von Pinn: (4) p(6,6) (10) (20) (W)',
       'greyed': false,
     },
   };

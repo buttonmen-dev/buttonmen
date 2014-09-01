@@ -13,7 +13,7 @@ module("Forum", {
       $('body').append($('<div>', {'id': 'forum_page', }));
     }
 
-    Login.bodyDivId = 'forum_page';
+    Login.pageModule = { 'bodyDivId': 'forum_page' };
   },
   'teardown': function(assert) {
 
@@ -36,7 +36,7 @@ module("Forum", {
     delete Forum.scrollTarget;
     delete Login.message;
 
-    Login.bodyDivId = null;
+    Login.pageModule = null;
 
     // Page elements
     $('#forum_page').remove();
@@ -64,14 +64,14 @@ test("test_Forum_is_loaded", function(assert) {
   assert.ok(Forum, "The Forum namespace exists");
 });
 
-test("test_Forum.showForumPage", function(assert) {
+test("test_Forum.showLoggedInPage", function(assert) {
   expect(3); // test plus 2 teardown tests
   Env.window.location.hash = '#!threadId=6';
   Forum.showPage = function(state) {
     assert.equal(state.threadId, 6,
       'History state should be set to match location hash');
   };
-  Forum.showForumPage();
+  Forum.showLoggedInPage();
 });
 
 test("test_Forum.showPage", function(assert) {

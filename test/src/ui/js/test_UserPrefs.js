@@ -8,7 +8,7 @@ module("UserPrefs", {
       $('body').append($('<div>', {'id': 'userprefs_page', }));
     }
 
-    Login.bodyDivId = 'userprefs_page';
+    Login.pageModule = { 'bodyDivId': 'userprefs_page' };
   },
   'teardown': function(assert) {
 
@@ -26,7 +26,7 @@ module("UserPrefs", {
     delete UserPrefs.page;
     delete UserPrefs.form;
 
-    Login.bodyDivId = null;
+    Login.pageModule = null;
 
     // Page elements
     $('#userprefs_page').remove();
@@ -54,12 +54,12 @@ test("test_UserPrefs_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// UserPrefs.showUserPrefsPage() is correct for a showXPage function, namely
+// UserPrefs.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_UserPrefs.showUserPrefsPage", function(assert) {
+test("test_UserPrefs.showLoggedInPage", function(assert) {
   expect(5);
   var cached_getter = Env.callAsyncInParallel;
   var cached_showStatePage = UserPrefs.assemblePage;
@@ -74,10 +74,10 @@ test("test_UserPrefs.showUserPrefsPage", function(assert) {
     callback();
   }
 
-  UserPrefs.showUserPrefsPage();
+  UserPrefs.showLoggedInPage();
   var item = document.getElementById('userprefs_page');
   assert.equal(item.nodeName, "DIV",
-        "#userprefs_page is a div after showUserPrefsPage() is called");
+        "#userprefs_page is a div after showLoggedInPage() is called");
 
   Env.callAsyncInParallel = cached_getter;
   UserPrefs.assemblePage = cached_showStatePage;

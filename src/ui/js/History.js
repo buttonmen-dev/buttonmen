@@ -1,6 +1,8 @@
 // namespace for this "module"
 var History = {};
 
+History.bodyDivId = 'history_page';
+
 // These are the parameters that we need to pass to the API. Having this
 // information about them here helps to read them from the page, write them to
 // the URL, build the table columns for them, etc.
@@ -107,7 +109,7 @@ History.searchParameterInfo = {
 
 ////////////////////////////////////////////////////////////////////////
 // Primary flow through this page:
-// * History.showHistoryPage() is the landing function. Always call
+// * History.showLoggedInPage() is the landing function. Always call
 //   this first. On the initial page load, it sets History.searchParameters
 //   based on the hashbang of the incoming URL, then calls History.getHistory().
 // * History.getFilters() gets data from the API to populate the filters
@@ -128,7 +130,7 @@ History.searchParameterInfo = {
 //   history state associated with the new URL and calls History.getHistory()
 ////////////////////////////////////////////////////////////////////////
 
-History.showHistoryPage = function() {
+History.showLoggedInPage = function() {
   // When the user hits the back button to retrace their path through the
   // hashbang URL's, load the search results that belong to that "page"
   $(window).bind('popstate', History.performAutomaticSearch);
@@ -157,7 +159,7 @@ History.getFilters = function(callback) {
     ], function() {
       var playerValues = { };
       $.each(Api.player.list, function(name, playerInfo) {
-        if (playerInfo.status == 'active') {
+        if (playerInfo.status == 'ACTIVE') {
           playerValues[name] = name;
         }
       });
@@ -624,12 +626,12 @@ History.buildResultsTableBody = function() {
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorA + ';',
     }).append(Env.buildProfileLink(game.playerNameA)));
-    gameRow.append($('<td>', {
-      'text': game.buttonNameA,
-    }));
-    gameRow.append($('<td>', {
-      'text': game.buttonNameB,
-    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(game.buttonNameA)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(game.buttonNameB)
+    ));
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorB + ';',
     }).append(Env.buildProfileLink(game.playerNameB)));

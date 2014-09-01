@@ -60,12 +60,12 @@ test("test_History_is_loaded", function(assert) {
 });
 
 // The purpose of this test is to demonstrate that the flow of
-// History.showHistoryPage() is correct for a showXPage function, namely
+// History.showLoggedInPage() is correct for a showXPage function, namely
 // that it calls an API getter with a showStatePage function as a
 // callback.
 //
 // Accomplish this by mocking the invoked functions
-test("test_History.showHistoryPage", function(assert) {
+test("test_History.showLoggedInPage", function(assert) {
   expect(6);
   var cached_getFilters = History.getFilters;
   var cached_getHistory = History.getHistory;
@@ -88,7 +88,7 @@ test("test_History.showHistoryPage", function(assert) {
     callback();
   }
 
-  History.showHistoryPage();
+  History.showLoggedInPage();
 
   History.getFilters = cached_getFilters;
   History.getHistory = cached_getHistory;
@@ -250,9 +250,9 @@ test("test_History.buildResultsTableBody", function(assert) {
 
   History.getHistory(function() {
     var tbody = History.buildResultsTableBody();
-    var htmlout = tbody.html();
-    assert.ok(htmlout.match('<td>Avis</td>'),
-      'Table body contains game information.');
+    var avisCell = tbody.find('td:contains("Avis")');
+    assert.ok(avisCell.length > 0, 'Table body contains game information.');
+
     start();
   });
 });

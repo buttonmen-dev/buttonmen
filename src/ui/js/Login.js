@@ -13,15 +13,38 @@ Login.STATUS_ACTION_FAILED    = 3;
 // This is used to refresh the Overview page if there's no next game
 Login.nextGameRefreshCallback = false;
 
-// Most pages shouldn't be viewable if you're not logged in
-Login.pageRequiresLogin = true;
+// Which module is responsible for loading the main part of the page
+Login.pageModule = null;
 
-// The ID of the div for the main body of the page
-Login.bodyDivId = null;
+////////////////////////////////////////////////////////////////////////
+//
+// Action flow through every page:
+// * Login.showLoginHeader() is the landing function. Always call this first. It
+//   sets which module this page will be using (Overview, Game, History, etc.),
+//   then calls Login.getLoginHeader()
+// * Login.getLoginHeader() calls the API to see if the user is logged in and
+//   constructs an appropriate header based on that. It then calls
+//   Login.getFooter().
+// * Login.getFooter() constructs the footer. Then it calls Login.getBody().
+// * Login.getBody(), depending on A) whether or not the user is logged in and
+//   B) whether or not the page module provides its own logged-out page,
+//   either calls showLoggedInPage() or showLoggedOutPage() on the module
+//   (each of which is expected to finish by calling Login.arrangePage())
+//   *or* sets up a message that the user needs to log in and then calls
+//   Login.arragePage() itself.
+// * Login.arragePage() calls Login.arrangeHeader(), Login.arrangeBody() and
+//   Login.arrangeFooter() to display everything that was constructed in the
+//   previous three steps.
+//
+////////////////////////////////////////////////////////////////////////
 
-Login.showLoginHeader = function(callbackfunc) {
-  // Save the callback function
-  Login.callback = callbackfunc;
+// pageModule is the module that's responsible for loading the main part of the
+// page, such as Overview or Game. It needs to have a bodyDivId property and
+// a showLoggedInPage() method, and if it should be viewable when logged out,
+// a showLoggedOutPage() method as well.
+Login.showLoginHeader = function(pageModule) {
+  // Note which module we're using for this page
+  Login.pageModule = pageModule;
 
   // Check if this was an automatic redirect from the Monitor
   Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
@@ -37,7 +60,7 @@ Login.showLoginHeader = function(callbackfunc) {
   }
 
   // Find the current login header contents and display them followed by
-  // the specified callback routine
+  // the main body of the page (via the current page module)
   Login.getLoginHeader();
 };
 
@@ -110,9 +133,14 @@ Login.getFooter = function() {
   }));
   contact.append(' or by e-mailing us at help@buttonweavers.com.');
 
-  if (Login.logged_in || !Login.pageRequiresLogin) {
-    // Whatever method this is set to is required to call Login.arrangePage()
-    Login.callback();
+  Login.getBody();
+};
+
+Login.getBody = function() {
+  if (Login.logged_in) {
+    return Login.pageModule.showLoggedInPage();
+  } else if (Login.pageModule.showLoggedOutPage) {
+    Login.pageModule.showLoggedOutPage();
   } else {
     Env.message = {
       'type': 'error',
@@ -122,26 +150,22 @@ Login.getFooter = function() {
   }
 };
 
-Login.arrangePage = function(page, form, buttonSelector) {
+Login.arrangePage = function(page, form, submitSelector) {
   // Now that the player is being given control, we're no longer automated
   Api.automatedApiCall = false;
 
   Login.arrangeHeader();
 
+  // Set up necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  Login.arrangeBody(page, form, submitSelector);
+
+  Login.arrangeFooter();
+
   // If there is a message from a current or previous invocation of this
   // page, display it now
   Env.showStatusMessage();
-
-  if (Login.bodyDivId) {
-    $('#' + Login.bodyDivId).empty();
-    $('#' + Login.bodyDivId).append(page);
-  }
-
-  if (form && buttonSelector) {
-    $(buttonSelector).click(form);
-  }
-
-  Login.arrangeFooter();
 };
 
 Login.arrangeHeader = function() {
@@ -152,18 +176,31 @@ Login.arrangeHeader = function() {
     $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
+};
 
-  // Set up necessary elements for displaying status messages
-  Env.setupEnvStub();
-
+Login.arrangeBody = function(page, form, submitSelector) {
   // Make sure the div element that we will need exists in the page body
-  if (Login.bodyDivId) {
-    if ($('#' + Login.bodyDivId).length === 0) {
-      $('body').append($('<div>', {
-        'id': Login.bodyDivId,
-        'class': 'mainBody',
-      }));
-    }
+  if (!Login.pageModule || !Login.pageModule.bodyDivId) {
+    Env.message = {
+      'type': 'error',
+      'text':
+        'This page failed to load. Your browser may have cached an outdated ' +
+        'version of it. Try reloading the page, and if that doesn\'t work, ' +
+        'please drop us a line at help@buttonweavers.com or file a bug ' +
+        'report. Sorry for the inconvenience.',
+    };
+    return;
+  }
+
+  if ($('#' + Login.pageModule.bodyDivId).length === 0) {
+    $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
+  }
+
+  $('#' + Login.pageModule.bodyDivId).empty();
+  $('#' + Login.pageModule.bodyDivId).append(page);
+
+  if (form && submitSelector) {
+    $(submitSelector).click(form);
   }
 };
 
@@ -187,7 +224,7 @@ Login.getLoginForm = function() {
 
 ////////////////////////////////////////////////////////////////////////
 // One function for each possible logged in state
-// The function should setup a header and a form
+// The function should set up a header and a form
 
 Login.stateLoggedIn = function(welcomeText) {
   Login.message = $('<p>');
@@ -332,13 +369,13 @@ Login.postToResponder = function(responder_args) {
       if (responder_args.type == 'logout') {
         Env.window.location.href = Env.ui_root;
       } else {
-        Login.showLoginHeader(Login.callback);
+        Login.showLoginHeader(Login.pageModule);
       }
     }
   ).fail(
     function() {
       Login.status_type = Login.STATUS_ACTION_FAILED;
-      Login.showLoginHeader(Login.callback);
+      Login.showLoginHeader(Login.pageModule);
     }
   );
 };

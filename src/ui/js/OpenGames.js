@@ -1,9 +1,11 @@
 // namespace for this "module"
 var OpenGames = {};
 
+OpenGames.bodyDivId = 'opengames_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * OpenGames.showOpenGamesPage() is the landing function.  Always call
+// * OpenGames.showLoggedInPage() is the landing function.  Always call
 //   this first. It sets up #opengames_page and calls OpenGames.getOpenGames()
 // * OpenGames.getOpenGames() calls the API, setting Api.button and
 //   Api.open_games. It calls OpenGames.showPage()
@@ -16,7 +18,7 @@ var OpenGames = {};
 //  Api.join_game_result if successful
 ////////////////////////////////////////////////////////////////////////
 
-OpenGames.showOpenGamesPage = function() {
+OpenGames.showLoggedInPage = function() {
   // Get all needed information, then display Open Games page
   OpenGames.getOpenGames(OpenGames.showPage);
 };
@@ -216,9 +218,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           'style': 'font-style: italic;',
         }));
       } else {
-        gameRow.append($('<td>', {
-          'text': game.challengerButton,
-        }));
+        gameRow.append($('<td>').append(
+          Env.buildButtonLink(
+            game.challengerButton,
+            buttons[game.challengerButton].recipe
+          )
+        ));
       }
 
       if (game.victimButton == '__random') {
@@ -234,10 +239,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           'style': 'font-style: italic;',
         }));
       } else {
-        gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
-        }));
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       }
     } else {
       // Lay out rows for joinable games table
@@ -276,10 +283,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           }));
         });
       } else {
-        gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
-        }));
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       }
 
       if (game.challengerButton == '__random') {
@@ -288,9 +297,12 @@ OpenGames.buildGameTable = function(tableType, buttons) {
           'style': 'font-style: italic;',
         }));
       } else {
-        gameRow.append($('<td>', {
-          'text': game.challengerButton,
-        }));
+        gameRow.append($('<td>').append(
+          Env.buildButtonLink(
+            game.challengerButton,
+            buttons[game.challengerButton].recipe
+          )
+        ));
       }
       gameRow.append($('<td>', {
         'style': 'background-color: ' + game.challengerColor + ';',
