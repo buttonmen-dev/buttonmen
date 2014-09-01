@@ -877,7 +877,7 @@ class DummyApiResponder {
     private function loadButtonDataOption() {
         // Apples: a button with option dice
         return array(
-            'buttonId' => 14,
+            'buttonId' => 10,
             'buttonName' => "Apples",
             'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
             'hasUnimplementedSkill' => FALSE,
