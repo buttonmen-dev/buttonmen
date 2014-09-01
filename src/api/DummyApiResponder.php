@@ -765,7 +765,7 @@ class DummyApiResponder {
     private function loadButtonDataFourDice() {
         // a button with four dice and some implemented skills
         return array(
-            'buttonId' => 58,
+            'buttonId' => 62,
             'buttonName' => "Jellybean",
             'recipe' => "p(20) s(20) (V) (X)",
             'hasUnimplementedSkill' => FALSE,
