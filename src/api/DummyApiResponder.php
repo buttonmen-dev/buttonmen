@@ -797,7 +797,7 @@ class DummyApiResponder {
     private function loadButtonDataTwinDiceWithDieSkill() {
         // Von Pinn
         return array(
-            'buttonId' => 286,
+            'buttonId' => 290,
             'buttonName' => "Von Pinn",
             'recipe' => "(4) p(6,6) (10) (20) (W)",
             'hasUnimplementedSkill' => FALSE,
