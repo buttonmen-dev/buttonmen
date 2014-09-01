@@ -781,7 +781,7 @@ class DummyApiResponder {
     private function loadButtonDataTwinDice() {
         // Buck Godot
         return array(
-            'buttonId' => 282,
+            'buttonId' => 286,
             'buttonName' => "Buck Godot",
             'recipe' => "(6,6) (10) (12) (20) (W,W)",
             'hasUnimplementedSkill' => FALSE,
