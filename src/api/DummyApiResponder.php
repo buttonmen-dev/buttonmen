@@ -813,7 +813,7 @@ class DummyApiResponder {
     private function loadButtonDataFocus() {
         // Crab: a button with focus dice
         return array(
-            'buttonId' => 200,
+            'buttonId' => 204,
             'buttonName' => "Crab",
             'recipe' => "(8) (10) (12) f(20) f(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -829,7 +829,7 @@ class DummyApiResponder {
     private function loadButtonDataChance() {
         // John Kovalic: a button with chance dice
         return array(
-            'buttonId' => 315,
+            'buttonId' => 319,
             'buttonName' => "John Kovalic",
             'recipe' => "(6) c(6) (10) (12) c(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -845,7 +845,7 @@ class DummyApiResponder {
     private function loadButtonDataAuxiliary() {
         // King Arthur: a button with an auxiliary die
         return array(
-            'buttonId' => 82,
+            'buttonId' => 86,
             'buttonName' => "King Arthur",
             'recipe' => "(8) (8) (10) (20) (X) +(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -861,7 +861,7 @@ class DummyApiResponder {
     private function loadButtonDataReserve() {
         // Cammy Neko: a button with reserve dice
         return array(
-            'buttonId' => 140,
+            'buttonId' => 144,
             'buttonName' => "Cammy Neko",
             'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
             'hasUnimplementedSkill' => FALSE,
@@ -877,7 +877,7 @@ class DummyApiResponder {
     private function loadButtonDataOption() {
         // Apples: a button with option dice
         return array(
-            'buttonId' => 10,
+            'buttonId' => 14,
             'buttonName' => "Apples",
             'recipe' => "(8) (8) (2/12) (8/16) (20/24)",
             'hasUnimplementedSkill' => FALSE,
@@ -893,7 +893,7 @@ class DummyApiResponder {
     private function loadButtonDataSwingOptionSkills() {
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
         return array(
-            'buttonId' => 414,
+            'buttonId' => 418,
             'buttonName' => "CactusJack",
             'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
             'hasUnimplementedSkill' => FALSE,
