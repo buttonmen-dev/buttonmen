@@ -64,32 +64,6 @@ Login.showLoginHeader = function(pageModule) {
   // Note which module we're using for this page
   Login.pageModule = pageModule;
 
-  var copyright = $('<div>');
-  Login.footer.append(copyright);
-  copyright.append(
-    'Button Men is copyright 1999, 2014 James Ernest and Cheapass Games: ');
-  copyright.append($('<a>', {
-    'href': 'http://www.cheapass.com',
-    'text': 'www.cheapass.com',
-  }));
-  copyright.append(' and ');
-  copyright.append($('<a>', {
-    'href': 'http://www.beatpeopleup.com',
-    'text': 'www.beatpeopleup.com',
-  }));
-  copyright.append(', and is used with permission.');
-
-  var contact = $('<div>');
-  Login.footer.append(contact);
-  contact.append(
-    'If you find anything broken or hard to use, or if you have any ' +
-    'questions, please get in touch, either by opening a ticket at ');
-  contact.append($('<a>', {
-    'href': 'https://github.com/buttonmen-dev/buttonmen/issues/new',
-    'text': 'the buttonweavers issue tracker',
-  }));
-  contact.append(' or by e-mailing us at help@buttonweavers.com.');
-
   Login.getBody();
 };
 
