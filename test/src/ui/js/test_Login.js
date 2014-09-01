@@ -39,7 +39,7 @@ module("Login", {
     $('#footer').remove();
     $('#footer').empty();
 
-    Login.bodyDivId = null;
+    Login.pageModule = null;
 
     // Page elements
     $('#login_header').remove();
@@ -91,17 +91,11 @@ test("test_Login.getLoginHeader", function(assert) {
 test("test_Login.getFooter", function(assert) {
   expect(5); // tests + 2 teardown
 
-  Login.callback = function() {
-    assert.ok(true, "Login callback should be called when logged in");
+  Login.getBody = function() {
+    assert.ok(true, "Login.getBody should be called by Login.getFooter()");
   };
 
-  Login.arrangePage = function() {
-    assert.ok(false, "Login.arrangePage() should not be called when logged in");
-  };
-
-  BMTestUtils.setupFakeLogin();
   Login.getFooter();
-  BMTestUtils.cleanupFakeLogin();
 
   assert.ok(Login.footer.text().match('Cheapass Games'),
     'Footer should contain copyright notice');
@@ -109,31 +103,97 @@ test("test_Login.getFooter", function(assert) {
     'Footer should contain contact info');
 });
 
-test("test_Login.getFooter_loggedOut", function(assert) {
+test("test_Login.getBody", function(assert) {
   expect(3); // tests + 2 teardown
 
-  Login.callback = function() {
-    assert.ok(false, "Login callback should not be called when logged out");
+  Login.arrangePage = function() {
+    assert.ok(false,
+      "Login.arrangePage() should not be directly called when logged in");
   };
+
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+        assert.ok(true, "Login callback should be called");
+      },
+  };
+
+  BMTestUtils.setupFakeLogin();
+  Login.getBody();
+  BMTestUtils.cleanupFakeLogin();
+});
+
+test("test_Login.getBody_loggedOut", function(assert) {
+  expect(3); // tests + 2 teardown
 
   Login.arrangePage = function() {
-    assert.ok(true, "Login.arrangePage() should be called when logged out");
+    assert.ok(true,
+      "Login.arrangePage() should be directly called when logged out");
   };
 
-  Login.getFooter();
+  Login.pageModule = {
+    'bodyDivId': 'test_page',
+    'showLoggedInPage':
+      function() {
+        assert.ok(true, "Login callback should not be called when logged out");
+      },
+  };
+
+  Login.getBody();
 });
 
 test("test_Login.arrangePage", function(assert) {
-  expect(5); // tests + 2 teardown
+  expect(8); // tests + 2 teardown
 
-  Login.bodyDivId = 'test_page';
-  $('body').append($('<div>', {'id': Login.bodyDivId, }));
-
-  Env.setupEnvStub();
   Env.message = {
     'type': 'none',
     'text': 'It\'s Howdy Doody time!',
   };
+
+  var expectedPage = "page value";
+  var expectedForm = "form value";
+  var expectedSubmitSelector = "submitSelector value";
+
+  Login.arrangeHeader = function() {
+    assert.ok(true, "Login.arrangeHeader should be called");
+  };
+
+  Login.arrangeBody = function(actualPage, actualForm, actualSubmitSelector) {
+    assert.equal(actualPage, expectedPage,
+      "Login.arrangeBody should be called with the correct page");
+    assert.equal(actualForm, expectedForm,
+      "Login.arrangeBody should be called with the correct form");
+    assert.equal(actualSubmitSelector, expectedSubmitSelector,
+      "Login.arrangeBody should be called with the correct submitSelector");
+  };
+
+  Login.arrangeFooter = function() {
+    assert.ok(true, "Login.arrangeFooter should be called");
+  };
+
+  Login.arrangePage(expectedPage, expectedForm, expectedSubmitSelector);
+
+  var envMessage = $('#env_message');
+  assert.equal(envMessage.text(), Env.message.text,
+    'Env message should be displayed');
+});
+
+test("test_Login.arrangeHeader", function(assert) {
+  expect(3); // tests + 2 teardown
+
+  Login.message = 'Hello.';
+
+  Login.arrangeHeader();
+
+  assert.equal($('#login_header').text(), Login.message,
+    'Login message should be displayed');
+});
+
+test("test_Login.arrangeBody", function(assert) {
+  expect(4); // tests + 2 teardown
+
+  Login.pageModule = { 'bodyDivId': 'test_page' };
 
   var page = $('<div>', {
     'class': 'testPageContents',
@@ -147,36 +207,15 @@ test("test_Login.arrangePage", function(assert) {
   var formFunction = function() {
     assert.ok(true, 'Form should be activated on click.');
   };
-  Login.arrangePage(page, formFunction, '#testFormButton');
+  Login.arrangeBody(page, formFunction, '#testFormButton');
 
-  var envMessage = $('#env_message');
-  assert.equal(envMessage.text(), Env.message.text,
-    'Env message should be displayed');
   var testPageContents = $('#test_page div.testPageContents');
   assert.equal(testPageContents.text(), page.text(),
     'Page contents should exist on actual page.');
   button.click();
 
-  $('#' + Login.bodyDivId).remove();
-  $('#' + Login.bodyDivId).empty();
-});
-
-test("test_Login.arrangeHeader", function(assert) {
-  expect(4); // tests + 2 teardown
-
-  Login.message = 'Hello.';
-  Login.bodyDivId = 'test_page';
-
-  Login.arrangeHeader();
-
-  var bodyDiv = $('#' + Login.bodyDivId);
-  assert.equal(bodyDiv.length, 1,
-    "Main page body div should be created");
-  bodyDiv.remove();
-  bodyDiv.empty();
-
-  assert.equal($('#env_message').length, 1,
-    "Env message div should be created");
+  $('#test_page').empty();
+  $('#test_page').remove();
 });
 
 test("test_Login.arrangeFooter", function(assert) {
