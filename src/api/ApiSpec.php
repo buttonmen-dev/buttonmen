@@ -1,10 +1,14 @@
 <?php
-
 /**
  * ApiSpec: specification of public API functions and args
  *
  * @author chaos
  *
+ */
+
+/**
+ * This class specifies the public API functions and what sort
+ * of arguments are mandatory and optional
  */
 class ApiSpec {
     // constants
@@ -12,6 +16,21 @@ class ApiSpec {
     const FORUM_BODY_MAX_LENGTH = 16000;
     const FORUM_TITLE_MAX_LENGTH = 100;
     const GENDER_MAX_LENGTH = 100;
+    const GAME_DESCRIPTION_MAX_LENGTH = 255;
+
+    // These are API methods that might get called automatically, e.g. via the
+    // monitor
+    private $automatableApiCalls = array(
+        'loadNextPendingGame',
+        'loadNextNewPost',
+        'loadActiveGames',
+        'loadCompletedGames',
+        'loadPlayerInfo',
+        'loadForumThread',
+        'countPendingGames',
+        'loadGameData',
+        'loadPlayerName',
+    );
 
     // expected arguments for every API function:
     // * mandatory: argument which must be present
@@ -130,7 +149,13 @@ class ApiSpec {
                 ),
                 'maxWins' => 'number',
             ),
-            'permitted' => array(),
+            'permitted' => array(
+                'description' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => self::GAME_DESCRIPTION_MAX_LENGTH,
+                ),
+                'previousGameId' => 'number',
+            ),
         ),
         'dismissGame' => array(
             'mandatory' => array(
@@ -228,9 +253,18 @@ class ApiSpec {
                 ),
             ),
         ),
-        'loadButtonNames' => array(
+        'loadButtonData' => array(
             'mandatory' => array(),
-            'permitted' => array(),
+            'permitted' => array(
+                'buttonName' => 'button',
+                'buttonSet' => 'string',
+            ),
+        ),
+        'loadButtonSetData' => array(
+            'mandatory' => array(),
+            'permitted' => array(
+                'buttonSet' => 'string',
+            ),
         ),
         'loadCompletedGames' => array(
             'mandatory' => array(),
@@ -467,6 +501,10 @@ class ApiSpec {
                     'maxlength' => self::GENDER_MAX_LENGTH,
                 ),
                 'comment' => 'string',
+                'homepage' => array(
+                    'arg_type' => 'string',
+                    'maxlength' => 100,
+                ),
                 'autopass' => 'boolean',
                 'monitor_redirects_to_game' => 'boolean',
                 'monitor_redirects_to_forum' => 'boolean',
@@ -568,11 +606,17 @@ class ApiSpec {
                 if ($argname == 'type') {
                     continue;
                 }
-                if (array_key_exists($argname, $argsExpected['mandatory'])) {
-                    $expectedType = $argsExpected['mandatory'][$argname];
-                } elseif (array_key_exists($argname, $argsExpected['permitted'])) {
-                    $expectedType = $argsExpected['permitted'][$argname];
-                } else {
+                if ($argname == 'automatedApiCall') {
+                    if ($args[$argname] == 'true' && !in_array($args['type'], $this->automatableApiCalls)) {
+                        return array(
+                            'ok' => FALSE,
+                            'message' => $args['type'] . ' can\'t be treated as an automated API call',
+                        );
+                    }
+                    continue;
+                }
+                $expectedType = $this->determineExpectedType($argname, $argsExpected);
+                if (!$expectedType) {
                     return array(
                         'ok' => FALSE,
                         'message' => 'Unexpected argument provided to function ' . $args['type'],
@@ -587,13 +631,12 @@ class ApiSpec {
                 }
             }
 
-            foreach (array_keys($argsExpected['mandatory']) as $argrequired) {
-                if (!(array_key_exists($argrequired, $args))) {
-                    return array(
-                        'ok' => FALSE,
-                        'message' => "Missing mandatory argument $argrequired for function " . $args['type'],
-                    );
-                }
+            $missingArg = $this->find_missing_mandatory_arguments($argsExpected, $args);
+            if ($missingArg) {
+                return array(
+                    'ok' => FALSE,
+                    'message' => "Missing mandatory argument $missingArg for function " . $args['type'],
+                );
             }
             return array('ok' => TRUE);
         } else {
@@ -601,6 +644,25 @@ class ApiSpec {
                 'ok' => FALSE,
                 'message' => 'Specified API function does not exist',
             );
+        }
+    }
+
+    private function determineExpectedType($argName, $argsExpected) {
+        if (array_key_exists($argName, $argsExpected['mandatory'])) {
+            return $argsExpected['mandatory'][$argName];
+        }
+        if (array_key_exists($argName, $argsExpected['permitted'])) {
+            return $argsExpected['permitted'][$argName];
+        }
+        return NULL;
+    }
+
+    // Returns the missing argument name if one is missing or NULL if all are present
+    private function find_missing_mandatory_arguments($argsExpected, $args) {
+        foreach (array_keys($argsExpected['mandatory']) as $argRequired) {
+            if (!(array_key_exists($argRequired, $args))) {
+                return $argRequired;
+            }
         }
     }
 

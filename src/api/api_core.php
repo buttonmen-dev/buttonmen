@@ -1,9 +1,22 @@
 <?php
+/**
+ * api_core: functions handling login, authorisation, and logout
+ *
+ * @author james
+ */
+
+/**
+ * Start session based on username and password
+ *
+ * @param string $username
+ * @param string $password
+ * @return bool
+ */
 function login($username, $password) {
     require_once '../database/mysql.inc.php';
     $conn = conn();
 
-    $sql = 'SELECT id, name_ingame, password_hashed, status FROM player
+    $sql = 'SELECT id, name_ingame, password_hashed, status FROM player_view
             WHERE name_ingame = :username';
     $query = $conn->prepare($sql);
     $query->execute(array(':username' => $username));
@@ -19,7 +32,7 @@ function login($username, $password) {
         $status = $result['status'];
 
         // check if the password is correct and if the account is in active status
-        if (($password_hashed == crypt($password, $password_hashed) && ($status == 'active'))) {
+        if (($password_hashed == crypt($password, $password_hashed) && ($status == 'ACTIVE'))) {
 
             // if the user has too many active logins (allow 6), delete the oldest
             $sql = 'SELECT id FROM player_auth WHERE player_id = :id ORDER BY login_time';
@@ -33,7 +46,7 @@ function login($username, $password) {
             }
 
             // create authorisation key
-            $auth_key = crypt(substr(sha1(rand()), 0, 10).$username);
+            $auth_key = crypt(substr(sha1(mt_rand()), 0, 10).$username);
 
             // write authorisation key to database
             $sql = 'INSERT INTO player_auth (player_id, auth_key) VALUES (:id, :auth_key)';
@@ -55,8 +68,12 @@ function login($username, $password) {
     return $returnValue;
 }
 
-// If the user is logged in, make sure a valid session exists.
-// Otherwise, return false.
+/**
+ * If the user is logged in, make sure a valid session exists.
+ * Otherwise, return false.
+ *
+ * @return bool
+ */
 function auth_session_exists() {
 
     // there's an existing session, nothing to do
@@ -94,6 +111,11 @@ function auth_session_exists() {
     return FALSE;
 }
 
+/**
+ * Destroy currently running session, based on cookie parameters
+ *
+ * @return void
+ */
 function logout() {
     if (array_key_exists('auth_userid', $_COOKIE) &&
         array_key_exists('auth_key', $_COOKIE) &&
@@ -129,7 +151,5 @@ function logout() {
 
         session_destroy();
         session_write_close();
-    } else {
-        return NULL;
     }
 }

@@ -2,7 +2,7 @@
 /**
  * BMFlagJustPerformedTripAttack: Used to signal that a die has just trip attacked
  *
- * @author: James Ong
+ * @author: james
  */
 
 /**
@@ -19,6 +19,11 @@ class BMFlagJustPerformedTripAttack extends BMFlag {
         return $this->postAttackValue;
     }
 
+    /**
+     * Constructor
+     *
+     * @param int $dieValue
+     */
     public function __construct($dieValue) {
         $this->postAttackValue = NULL;
         if (isset($dieValue)) {
@@ -26,9 +31,13 @@ class BMFlagJustPerformedTripAttack extends BMFlag {
         }
     }
 
+    /**
+     * Convert to string.
+     *
+     * @return string
+     */
     public function __toString() {
-        $name = get_class($this);
-        $string = str_replace('BMFlag', '', $name);
+        $string = $this->type();
         if (is_integer($this->postAttackValue)) {
             $string .= '__' . $this->postAttackValue;
         }

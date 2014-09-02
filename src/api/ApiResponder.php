@@ -1,5 +1,14 @@
 <?php
+/**
+ * ApiResponder: defines how UI arguments are passed to BMInterface
+ *
+ * @author chaos
+ */
 
+/**
+ * This class specifies the link between the public API functions and
+ * BMInterface
+ */
 class ApiResponder {
 
     // properties
@@ -16,11 +25,16 @@ class ApiResponder {
         'login',
     );
 
-    // constructor
-    // * For live invocation:
-    //   * start a session (and require api_core to get session functions)
-    // * For test invocation:
-    //   * don't start a session
+    /**
+     * Constructor
+     * For live invocation:
+     *   start a session (and require api_core to get session functions)
+     * For test invocation:
+     *   don't start a session
+     *
+     * @param ApiSpec $spec
+     * @param boolean $isTest
+     */
     public function __construct(ApiSpec $spec, $isTest = FALSE) {
         $this->spec = $spec;
         $this->isTest = $isTest;
@@ -107,10 +121,23 @@ class ApiResponder {
 
         $maxWins = $args['maxWins'];
 
+        if (isset($args['description'])) {
+            $description = $args['description'];
+        } else {
+            $description = '';
+        }
+        if (isset($args['previousGameId'])) {
+            $previousGameId = $args['previousGameId'];
+        } else {
+            $previousGameId = NULL;
+        }
+
         $retval = $interface->create_game(
             $playerIdArray,
             $buttonNameArray,
             $maxWins,
+            $description,
+            $previousGameId,
             (int)$_SESSION['user_id']
         );
 
@@ -189,8 +216,27 @@ class ApiResponder {
         return $interface->get_active_players((int)$args['numberOfPlayers']);
     }
 
-    protected function get_interface_response_loadButtonNames($interface) {
-        return $interface->get_all_button_names();
+    protected function get_interface_response_loadButtonData($interface, $args) {
+        if (isset($args['buttonName'])) {
+            $buttonName = $args['buttonName'];
+        } else {
+            $buttonName = NULL;
+        }
+        if (isset($args['buttonSet'])) {
+            $buttonSet = $args['buttonSet'];
+        } else {
+            $buttonSet = NULL;
+        }
+        return $interface->get_button_data($buttonName, $buttonSet);
+    }
+
+    protected function get_interface_response_loadButtonSetData($interface, $args) {
+        if (isset($args['buttonSet'])) {
+            $buttonSet = $args['buttonSet'];
+        } else {
+            $buttonSet = NULL;
+        }
+        return $interface->get_button_set_data($buttonSet);
     }
 
     protected function get_interface_response_loadGameData($interface, $args) {
@@ -244,6 +290,7 @@ class ApiResponder {
         $addlInfo = array();
         $addlInfo['dob_month'] = (int)$args['dob_month'];
         $addlInfo['dob_day'] = (int)$args['dob_day'];
+        $addlInfo['homepage'] = $args['homepage'];
 
         if (isset($args['favorite_button'])) {
             $addlInfo['favorite_button'] = $args['favorite_button'];
@@ -354,6 +401,30 @@ class ApiResponder {
             $args['dieValueArray'] = NULL;
         }
         $retval = $interface->react_to_initiative(
+            $_SESSION['user_id'],
+            $args['game'],
+            $args['roundNumber'],
+            $args['timestamp'],
+            $args['action'],
+            $args['dieIdxArray'],
+            $args['dieValueArray']
+        );
+
+        if ($retval) {
+            $interface->update_last_action_time($_SESSION['user_id'], $args['game']);
+        }
+
+        return $retval;
+    }
+
+    protected function get_interface_response_adjustFire($interface, $args) {
+        if (!(array_key_exists('dieIdxArray', $args))) {
+            $args['dieIdxArray'] = NULL;
+        }
+        if (!(array_key_exists('dieValueArray', $args))) {
+            $args['dieValueArray'] = NULL;
+        }
+        $retval = $interface->adjust_fire(
             $_SESSION['user_id'],
             $args['game'],
             $args['roundNumber'],
@@ -530,16 +601,19 @@ class ApiResponder {
             // are syntactically reasonable
             $argcheck = $this->spec->verify_function_args($args);
             if ($argcheck['ok']) {
-
                 // As far as we can easily tell, it's safe to call
                 // the function.  Go ahead and create an interface
                 // object, invoke the function, and return the result
                 if ($check['functype'] == 'auth') {
+                    apache_note('BMUserID', $_SESSION['user_id']);
                     $interface = new BMInterface($this->isTest);
-                    $interface->update_last_access_time($_SESSION['user_id']);
+                    if (!isset($args['automatedApiCall']) || $args['automatedApiCall'] != 'true') {
+                        $interface->update_last_access_time($_SESSION['user_id']);
+                    }
                 } else {
                     $interface = new BMInterfaceNewuser($this->isTest);
                 }
+                apache_note('BMAPIMethod', $args['type']);
                 $data = $this->$check['funcname']($interface, $args);
 
                 $output = array(
@@ -576,5 +650,16 @@ class ApiResponder {
             header('Content-Type: application/json');
             echo json_encode($output);
         }
+    }
+}
+
+// This function exists when we're running under apache, but not when we're
+// running PHP unit tests, so we need to fake so things don't fail miserably.
+if (!function_exists('apache_note')) {
+    function apache_note($note_name, $note_value) {
+        if (strpos($note_name, 'BM') !== 0) {
+            throw new Exception('Note name should be prefixed with "BM"');
+        }
+        return $note_value;
     }
 }

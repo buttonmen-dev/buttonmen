@@ -59,26 +59,33 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $die1->init(4);
 
         $attackArray = BMAttack::possible_attack_types(array($die1));
-        $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(2, count($attackArray));
-        $this->assertTrue(in_array('Power', $attackArray));
-        $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertEquals(array('Power' => 'Power',
+                                  'Skill' => 'Skill'),
+                            $attackArray);
 
         $die2 = new BMDie;
         $die2->init(5);
         $die2->add_skill('Shadow');
         $attackArray = BMAttack::possible_attack_types(array($die2));
-        $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(2, count($attackArray));
-        $this->assertTrue(in_array('Shadow', $attackArray));
-        $this->assertTrue(in_array('Skill', $attackArray));
+        $this->assertEquals(array('Skill' => 'Skill',
+                                  'Shadow' => 'Shadow'),
+                            $attackArray);
 
-        $attackArray = BMAttack::possible_attack_types(array($die1, $die2));
-        $this->assertTrue(is_array($attackArray));
-        $this->assertEquals(3, count($attackArray));
-        $this->assertTrue(in_array('Power', $attackArray));
-        $this->assertTrue(in_array('Shadow', $attackArray));
-        $this->assertTrue(in_array('Skill', $attackArray));
+        $attackArray = BMAttack::possible_attack_types(array($die2, $die1));
+        $this->assertEquals(array('Power' => 'Power',
+                                  'Skill' => 'Skill',
+                                  'Shadow' => 'Shadow'),
+                            $attackArray);
+
+        $die3 = new BMDie;
+        $die3->init(6);
+        $die3->add_skill('Berserk');
+        $attackArray = BMAttack::possible_attack_types(array($die3, $die2, $die1));
+        $this->assertEquals(array('Power' => 'Power',
+                                  'Skill' => 'Skill',
+                                  'Berserk' => 'Berserk',
+                                  'Shadow' => 'Shadow'),
+                            $attackArray);
     }
 
     /**
@@ -138,6 +145,8 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
      */
     public function testHelp_bounds()
     {
+        $firingMaxima = array(100);
+
         $nohelp = array(0);
         $smallhelp = array(1, 2, 3);
         $bighelp = array(1, 2, 3, 4, 5, 6);
@@ -147,7 +156,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         // no help
         $helpvals = array();
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(0, $bounds[0]);
@@ -156,7 +165,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         // help, but not helpful
         $helpvals = array($nohelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(0, $bounds[0]);
@@ -165,7 +174,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         // lots of lack of help
         $helpvals = array($nohelp, $nohelp, $nohelp, $nohelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(0, $bounds[0]);
@@ -174,7 +183,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         // various one-die scenarios
         $helpvals = array($smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -182,7 +191,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($bighelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -191,7 +200,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-4, $bounds[0]);
@@ -200,7 +209,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($widehelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-2, $bounds[0]);
@@ -210,7 +219,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -218,7 +227,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $bighelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -228,7 +237,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($nohelp, $smallhelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -236,7 +245,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $nohelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -244,7 +253,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $smallhelp, $nohelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(1, $bounds[0]);
@@ -254,7 +263,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-8, $bounds[0]);
@@ -262,7 +271,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $nohelp, $neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-8, $bounds[0]);
@@ -270,7 +279,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($nohelp, $neghelp, $neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-8, $bounds[0]);
@@ -278,7 +287,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $neghelp, $nohelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-8, $bounds[0]);
@@ -286,7 +295,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $neghelp, $neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-12, $bounds[0]);
@@ -297,7 +306,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         // mix pos and heg
         $helpvals = array($smallhelp, $neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-4, $bounds[0]);
@@ -305,7 +314,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-4, $bounds[0]);
@@ -313,7 +322,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $neghelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-4, $bounds[0]);
@@ -321,7 +330,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $smallhelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-4, $bounds[0]);
@@ -329,7 +338,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $smallhelp, $neghelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-4, $bounds[0]);
@@ -339,7 +348,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($smallhelp, $widehelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-2, $bounds[0]);
@@ -347,7 +356,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($neghelp, $widehelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-6, $bounds[0]);
@@ -356,7 +365,7 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($bighelp, $neghelp, $widehelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-6, $bounds[0]);
@@ -364,23 +373,11 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
 
         $helpvals = array($widehelp, $nohelp, $neghelp, $widehelp, $smallhelp);
 
-        $bounds = $this->object->help_bounds($helpvals);
+        $bounds = $this->object->help_bounds($helpvals, $firingMaxima);
 
         $this->assertEquals(2, count($bounds));
         $this->assertEquals(-8, $bounds[0]);
         $this->assertEquals(7, $bounds[1]);
-    }
-
-    /**
-     * @covers BMAttack::collect_contributions
-     * @todo   Implement testCollect_contributions().
-     */
-    public function testCollect_contributions()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
     }
 
     /**

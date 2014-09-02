@@ -23,7 +23,7 @@
         $(document).ready(function() {
           $.getScript('js/Loader.js', function() {
             Loader.loadScripts([ 'js/OpenGames.js' ], function() {
-                Login.showLoginHeader(OpenGames.showOpenGamesPage);
+                Login.showLoginHeader(OpenGames);
             });
           });
         });

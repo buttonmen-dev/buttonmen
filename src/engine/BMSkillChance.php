@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillChance: Code specific to the chance die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the chance die skill
+ */
 class BMSkillChance extends BMSkill {
     public static $hooked_methods = array("react_to_initiative");
 

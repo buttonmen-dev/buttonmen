@@ -31,16 +31,20 @@ class BMSkillMadTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDieSwing', $die);
 
         $die->set_swingValue(array('X' => 6));
-        $args = array('die' => $die,
-                      'isTriggeredByAttack' => TRUE);
+        $args = array('die' => $die);
+        // check that no resizing occurs when the die has no value
+        $this->assertFalse(BMSkillMad::pre_roll($args));
+        $this->assertEquals(6, $die->max);
+        $die->value = 2;
+        // check that resizing can occur when the die has a value
         $this->assertTrue(BMSkillMad::pre_roll($args));
 
         $nRep = 100;
         $maxArray = array_fill(1, $nRep, 0);
         for ($idx = 1; $idx <= $nRep; $idx++) {
             $die->set_swingValue(array('X' => 6));
-            $args = array('die' => $die,
-                          'isTriggeredByAttack' => TRUE);
+            $die->value = 2;
+            $args = array('die' => $die);
             BMSkillMad::pre_roll($args);
             $maxArray[$idx] = $die->max;
         }
@@ -64,8 +68,14 @@ class BMSkillMadTest extends PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('BMDieSwing', $die->dice[1]);
 
         $die->set_swingValue(array('X' => 6));
-        $args = array('die' => $die,
-                      'isTriggeredByAttack' => TRUE);
+        $args = array('die' => $die);
+        // check that no resizing occurs when the die has no value
+        $this->assertFalse(BMSkillMad::pre_roll($args));
+        $this->assertEquals(12, $die->max);
+        $die->dice[0]->value = 1;
+        $die->dice[1]->value = 1;
+        $die->value = 2;
+        // check that resizing can occur when the die has a value
         $this->assertTrue(BMSkillMad::pre_roll($args));
         $this->assertEquals($die->dice[0]->max, $die->dice[1]->max);
 
@@ -73,8 +83,10 @@ class BMSkillMadTest extends PHPUnit_Framework_TestCase {
         $maxArray = array_fill(1, $nRep, 0);
         for ($idx = 1; $idx <= $nRep; $idx++) {
             $die->set_swingValue(array('V' => 6));
-            $args = array('die' => $die,
-                          'isTriggeredByAttack' => TRUE);
+            $die->dice[0]->value = 1;
+            $die->dice[1]->value = 1;
+            $die->value = 2;
+            $args = array('die' => $die);
             BMSkillMad::pre_roll($args);
             $maxArray[$idx] = $die->max;
         }

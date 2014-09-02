@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillPoison: Code specific to the poison die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the poison die skill
+ */
 class BMSkillPoison extends BMSkill {
     public static $hooked_methods = array("score_value");
 

@@ -4,13 +4,16 @@
  * BMInterfaceNewuser: new user interface between GUI and BMGame
  *
  * @author chaos
+ */
+
+/**
+ * This class should contain all interface functions which may be
+ * accessed by an unauthenticated user.  Its response format and
+ * database usage should mirror that of BMInterface.
  *
  * @property-read string $message                Message intended for GUI
  * @property-read DateTime $timestamp            Timestamp of last game action
  *
- * This class should contain all interface functions which may be
- * accessed by an unauthenticated user.  Its response format and
- * database usage should mirror that of BMInterface
  *
  */
 class BMInterfaceNewuser {
@@ -25,7 +28,11 @@ class BMInterfaceNewuser {
 
     private $isTest;         // indicates if the interface is for testing
 
-    // constructor
+    /**
+     * Constructor
+     *
+     * @param boolean $isTest
+     */
     public function __construct($isTest = FALSE) {
         if (!is_bool($isTest)) {
             throw new InvalidArgumentException('isTest must be boolean.');
@@ -98,13 +105,19 @@ class BMInterfaceNewuser {
             }
 
             // create user
-            $query = 'INSERT INTO player (name_ingame, password_hashed, email, status)
-                      VALUES (:username, :password, :email, :status)';
+            $query =
+                'INSERT INTO player (name_ingame, password_hashed, email, status_id) ' .
+                'VALUES (' .
+                    ':username, ' .
+                    ':password, ' .
+                    ':email, ' .
+                    '(SELECT ps.id FROM player_status ps WHERE ps.name = :status)' .
+                ');';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':username' => $username,
                                       ':password' => crypt($password),
                                       ':email' => $email,
-                                      ':status' => 'unverified'));
+                                      ':status' => 'UNVERIFIED'));
 
             // select the player ID to make sure insert succeeded
             $query = 'SELECT id,email FROM player WHERE name_ingame = :name';
@@ -125,7 +138,9 @@ class BMInterfaceNewuser {
 
             $this->message = 'User ' . $username . ' created successfully.  ' .
                              'A verification code has been e-mailed to ' . $playerEmail . '.  ' .
-                             'Follow the link in that message to start beating people up!';
+                             'Follow the link in that message to start beating people up! ' .
+                             '(Note: If you don\'t see the email shortly, be sure to check ' .
+                             'your spam folder.)';
 
             return $result;
         } catch (Exception $e) {
@@ -138,7 +153,7 @@ class BMInterfaceNewuser {
     public function verify_user($playerId, $playerKey) {
         try {
             // Check for a user with this id
-            $query = 'SELECT name_ingame,status FROM player WHERE id = :id';
+            $query = 'SELECT name_ingame, status FROM player_view WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $fetchResult = $statement->fetchAll();
@@ -150,7 +165,7 @@ class BMInterfaceNewuser {
             }
             $username = $fetchResult[0]['name_ingame'];
             $status = $fetchResult[0]['status'];
-            if ($status != 'unverified') {
+            if ($status != 'UNVERIFIED') {
                 $this->message = 'User with ID ' . $playerId . ' is not waiting to be verified';
                 return NULL;
             }
@@ -175,7 +190,7 @@ class BMInterfaceNewuser {
 
             // Everything checked out okay.  Activate the account
             $query = 'UPDATE player ' .
-                     'SET status="active" ' .
+                     'SET status_id = (SELECT ps.id FROM player_status ps WHERE ps.name = "ACTIVE") ' .
                      'WHERE id = :id';
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
@@ -198,7 +213,7 @@ class BMInterfaceNewuser {
         $statement->execute(array(':playerId' => $playerId));
 
         // generate a new verification code and insert it into the table
-        $playerKey = md5(rand());
+        $playerKey = md5(mt_rand());
         if (isset($_SERVER) && array_key_exists('REMOTE_ADDR', $_SERVER)) {
             $ipaddr = $_SERVER['REMOTE_ADDR'];
         } else {
@@ -216,6 +231,12 @@ class BMInterfaceNewuser {
         $email->send_verification_link($playerId, $username, $playerKey);
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -225,6 +246,12 @@ class BMInterfaceNewuser {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'message':

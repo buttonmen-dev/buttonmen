@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillAuxiliary: Code specific to the auxiliary die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the auxiliary die skill
+ */
 class BMSkillAuxiliary extends BMSkill {
     public static $hooked_methods = array('doesSkipSwingRequest');
 

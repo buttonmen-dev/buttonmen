@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMAttackPower: code specific to power attacks
+ *
+ * @author Julian
+ */
 
+/**
+ * This class contains code specific to power attacks
+ */
 class BMAttackPower extends BMAttack {
     public $type = 'Power';
 
@@ -9,7 +17,7 @@ class BMAttackPower extends BMAttack {
         return $this->search_onevone($game, $this->validDice, $targets);
     }
 
-    public function validate_attack($game, array $attackers, array $defenders) {
+    public function validate_attack($game, array $attackers, array $defenders, $helpValue = NULL) {
         $this->validationMessage = '';
 
         if (1 != count($attackers)) {
@@ -32,26 +40,41 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
-        $helpers = $this->collect_helpers($game, $attackers, $defenders);
-
-        $bounds = $this->help_bounds($helpers);
+        if (is_null($helpValue)) {
+            $bounds = $this->help_bounds(
+                $this->collect_helpers($game, $attackers, $defenders),
+                $this->collect_firing_maxima($attackers)
+            );
+        } else {
+            $bounds = array($helpValue, $helpValue);
+        }
 
         $att = $attackers[0];
         $def = $defenders[0];
 
         foreach ($att->attack_values($this->type) as $aVal) {
-            $isValLargeEnough = $aVal + $bounds[1] >= $def->defense_value($this->type);
-            $isValidAttacker = $att->is_valid_attacker($this->type, $attackers);
-            $isValidTarget = $def->is_valid_target($this->type, $defenders);
-
-            if (!$isValLargeEnough) {
-                $this->validationMessage = 'Attacking die value must be at least as large as target die value.';
-            } elseif (!$isValidAttacker) {
-                $this->validationMessage = 'Invalid attacking die';
-            } elseif (!$isValidTarget) {
-                $this->validationMessage = 'Invalid target die';
+            $validationArray = array();
+            // james: 'isDieLargeEnough' is required for the case of fired-up dice
+            $validationArray['isDieLargeEnough'] =
+                $att->max >= $def->defense_value($this->type);
+            $validationArray['isValLargeEnough'] =
+                $aVal + $bounds[1] >= $def->defense_value($this->type);
+            // james: 'isIncreasedValueValid' is required for the case of fired-up dice
+            if ($helpValue) {
+                $validationArray['isIncreasedValueValid'] =
+                    ($aVal + $helpValue <= $att->max);
             } else {
-                $this->validationMessage = '';
+                $validationArray['isIncreasedValueValid'] = TRUE;
+            }
+            $validationArray['isValidAttacker'] =
+                $att->is_valid_attacker($this->type, $attackers);
+            $validationArray['isValidTarget'] =
+                $def->is_valid_target($this->type, $defenders);
+
+            $this->validationMessage =
+                $this->get_validation_message($validationArray, $helpValue);
+
+            if (empty($this->validationMessage)) {
                 return TRUE;
             }
         }
@@ -71,6 +94,7 @@ class BMAttackPower extends BMAttack {
         $att = $attArray[0];
         $def = $defArray[0];
 
+        // attacker skills
         if ($att->has_skill('Shadow')) {
             $this->validationMessage = 'Shadow dice cannot perform power attacks.';
             return FALSE;
@@ -86,16 +110,56 @@ class BMAttackPower extends BMAttack {
             return FALSE;
         }
 
+        if ($att->has_skill('Fire')) {
+            $this->validationMessage = 'Fire dice cannot perform power attacks.';
+            return FALSE;
+        }
+
         if ($att->has_skill('Queer') && (1 == $att->value % 2)) {
             $this->validationMessage = 'Odd queer dice cannot perform power attacks.';
             return FALSE;
         }
 
+        // defender skills
         if ($def->has_Skill('Stealth')) {
             $this->validationMessage = 'Stealth dice cannot be attacked by power attacks.';
             return FALSE;
         }
 
         return TRUE;
+    }
+
+    protected function get_validation_message($validationArray, $helpValue) {
+        if (!$validationArray['isDieLargeEnough']) {
+            return 'Attacking die size must be at least as large as target die value';
+        }
+
+        if (!$validationArray['isValLargeEnough']) {
+            if ($helpValue) {
+                return 'Fire dice not turned down enough.';
+            } else {
+                return 'Attacking die value must be at least as large as target die value';
+            }
+        }
+
+        if (!$validationArray['isIncreasedValueValid']) {
+            if (1 == $helpValue) {
+                $helpValueUnit = 'point';
+            } else {
+                $helpValueUnit = 'points';
+            }
+            return 'Attacker cannot be fired up by ' .
+                   $helpValue . ' ' . $helpValueUnit . '.';
+        }
+
+        if (!$validationArray['isValidAttacker']) {
+            return 'Invalid attacking die';
+        }
+
+        if (!$validationArray['isValidTarget']) {
+            return 'Invalid target die';
+        }
+
+        return '';
     }
 }

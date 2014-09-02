@@ -13,6 +13,9 @@ Login.STATUS_ACTION_FAILED    = 3;
 // This is used to refresh the Overview page if there's no next game
 Login.nextGameRefreshCallback = false;
 
+// Which module is responsible for loading the main part of the page
+Login.pageModule = null;
+
 // If not logged in, display an option to login
 // If logged in, set an element, #player_name
 Login.getLoginHeader = function() {
@@ -47,27 +50,38 @@ Login.getLoginHeader = function() {
       } else {
         Login.stateLoggedIn(welcomeText);
       }
-      return Login.layoutHeader();
+      return Login.arrangeHeader();
     }
   );
 };
 
-Login.showLoginHeader = function(callbackfunc) {
-  // Save the callback function
-  Login.callback = callbackfunc;
+// pageModule is the module that's responsible for loading the main part of the
+// page, such as Overview or Game. It needs to have a bodyDivId property and
+// a showLoggedInPage() method, and if it should be viewable when logged out,
+// a showLoggedOutPage() method as well.
+Login.showLoginHeader = function(pageModule) {
+  // Note which module we're using for this page
+  Login.pageModule = pageModule;
+
+  // Check if this was an automatic redirect from the Monitor
+  Api.automatedApiCall = (Env.getParameterByName('auto') == 'true');
+  // Perform appendectomy (so a reload won't still register as automated)
+  if (Api.automatedApiCall) {
+    Env.removeParameterByName('auto');
+  }
 
   // Make sure div elements that we will need exist in the page body
   if ($('#login_header').length === 0) {
     $('body').append($('<div>', {'id': 'login_header', }));
-    $('body').append($('<hr>'));
+    $('body').append($('<hr>', { 'id': 'header_separator', }));
   }
 
   // Find the current login header contents and display them followed by
-  // the specified callback routine
+  // the main body of the page (via the current page module)
   Login.getLoginHeader();
 };
 
-Login.layoutHeader = function() {
+Login.arrangeHeader = function() {
   $('#login_header').empty();
   $('#login_header').append(Login.message);
 
@@ -75,7 +89,59 @@ Login.layoutHeader = function() {
     $('#login_name').focus();
     $('#login_action_button').click(Login.form);
   }
-  return Login.callback();
+
+  // Set up necessary elements for displaying status messages
+  Env.setupEnvStub();
+
+  // Make sure the div element that we will need exists in the page body
+  if (Login.pageModule && Login.pageModule.bodyDivId) {
+    if ($('#' + Login.pageModule.bodyDivId).length === 0) {
+      $('body').append($('<div>', {'id': Login.pageModule.bodyDivId, }));
+    }
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text':
+        'This page failed to load. Your browser may have cached an outdated ' +
+        'version of it. Try reloading the page, and if that doesn\'t work, ' +
+        'please drop us a line at help@buttonweavers.com or file a bug ' +
+        'report. Sorry for the inconvenience.',
+    };
+    // If we can't create the main section of the page, then jump straight to
+    // rendering what little we have and then bail out
+    Login.arrangePage();
+    return;
+  }
+
+  if (Login.logged_in) {
+    return Login.pageModule.showLoggedInPage();
+  } else if (Login.pageModule.showLoggedOutPage) {
+    Login.pageModule.showLoggedOutPage();
+  } else {
+    Env.message = {
+      'type': 'error',
+      'text': 'You must be logged in in order to view this page.',
+    };
+    Env.showStatusMessage();
+  }
+};
+
+Login.arrangePage = function(page, form, submitSelector) {
+  // Now that the player is being given control, we're no longer automated
+  Api.automatedApiCall = false;
+
+  // If there is a message from a current or previous invocation of this
+  // page, display it now
+  Env.showStatusMessage();
+
+  if (Login.pageModule && Login.pageModule.bodyDivId) {
+    $('#' + Login.pageModule.bodyDivId).empty();
+    $('#' + Login.pageModule.bodyDivId).append(page);
+  }
+
+  if (form && submitSelector) {
+    $(submitSelector).click(form);
+  }
 };
 
 // Get an empty form of the Login type
@@ -172,6 +238,7 @@ Login.addMainNavbar = function() {
     'Preferences': 'prefs.html',
     'Profile': Env.buildProfileLink(Login.player, true),
     'History': 'history.html',
+    'Buttons': 'buttons.html',
     'Who\'s online': 'active_players.html',
     'Forum': 'forum.html',
     'Next game': Env.ui_root + 'index.html?mode=nextGame',
@@ -233,13 +300,13 @@ Login.postToResponder = function(responder_args) {
       if (responder_args.type == 'logout') {
         Env.window.location.href = Env.ui_root;
       } else {
-        Login.showLoginHeader(Login.callback);
+        Login.showLoginHeader(Login.pageModule);
       }
     }
   ).fail(
     function() {
       Login.status_type = Login.STATUS_ACTION_FAILED;
-      Login.showLoginHeader(Login.callback);
+      Login.showLoginHeader(Login.pageModule);
     }
   );
 };
@@ -274,11 +341,17 @@ Login.formLogin = function() {
 
 // Redirect to the player's next pending game if there is one
 Login.goToNextPendingGame = function() {
+  // If we're making this call automatically for the monitor, keep track of that
+  var appendix = '';
+  if (Api.automatedApiCall) {
+    appendix = '&auto=true';
+  }
+
   if (Api.gameNavigation.load_status == 'ok') {
     if (Api.gameNavigation.nextGameId !== null &&
         $.isNumeric(Api.gameNavigation.nextGameId)) {
       Env.window.location.href =
-        'game.html?game=' + Api.gameNavigation.nextGameId;
+        'game.html?game=' + Api.gameNavigation.nextGameId + appendix;
     } else {
       // If there are no active games, and we're on the Overview page, tell
       // the user so and refresh the list of games
@@ -290,7 +363,7 @@ Login.goToNextPendingGame = function() {
         Login.nextGameRefreshCallback();
       } else {
         // If we're not on the Overview page, send them there
-        Env.window.location.href = '/ui/index.html?mode=preference';
+        Env.window.location.href = '/ui/index.html?mode=preference' + appendix;
       }
     }
   } else {

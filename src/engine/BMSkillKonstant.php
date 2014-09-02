@@ -1,5 +1,13 @@
 <?php
+/**
+ * BMSkillKonstant: Code specific to the konstant die skill
+ *
+ * @author james
+ */
 
+/**
+ * This class contains code specific to the konstant die skill
+ */
 class BMSkillKonstant extends BMSkill {
     public static $hooked_methods = array('attack_list',
                                           'add_skill',

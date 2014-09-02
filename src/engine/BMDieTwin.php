@@ -1,5 +1,15 @@
 <?php
+/**
+ * BMDieTwin: Code specific to twin dice
+ *
+ * @author james
+ */
 
+/**
+ * This class contains all the logic to do with instantiating twin dice
+ *
+ * @property      array $dice         Array of two dice that make up the twin die
+ */
 class BMDieTwin extends BMDie {
     public $dice;
 
@@ -204,5 +214,23 @@ class BMDieTwin extends BMDie {
             $this->min += $die->min;
             $this->max += $die->max;
         }
+    }
+
+    public function getDieTypes() {
+        $typesList = array();
+        $typesList['Twin'] = array(
+            'code' => ',',
+            'description' =>
+                'Twin Dice appear as two numbers with a comma between them ' .
+                'and are played as two dice that add together. For example, ' .
+                'a twin 8 is represented as (8,8) and treated as a single ' .
+                'die. The two 8\'s are rolled as one, captured as one, and ' .
+                'scored as one die worth 16 points. Twin Dice may contain ' .
+                'either standard dice or Swing Dice.',
+        );
+        foreach ($this->dice as $subDie) {
+            $typesList += $subDie->getDieTypes();
+        }
+        return $typesList;
     }
 }

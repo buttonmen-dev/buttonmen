@@ -1,54 +1,39 @@
 // namespace for this "module"
 var OpenGames = {};
 
+OpenGames.bodyDivId = 'opengames_page';
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * OpenGames.showOpenGamesPage() is the landing function.  Always call
+// * OpenGames.showLoggedInPage() is the landing function.  Always call
 //   this first. It sets up #opengames_page and calls OpenGames.getOpenGames()
 // * OpenGames.getOpenGames() calls the API, setting Api.button and
 //   Api.open_games. It calls OpenGames.showPage()
 // * OpenGames.showPage() uses the data returned by the API to build
 //   the contents of the page as OpenGames.page and calls
-//   OpenGames.arrangePage()
+//   Login.arrangePage()
 //
 //* OpenGames.joinOpenGame() is called whenever the user clicks on one of the
 //  Join Game buttons. It calls the API to join the game, setting
 //  Api.join_game_result if successful
 ////////////////////////////////////////////////////////////////////////
 
-OpenGames.showOpenGamesPage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#opengames_page').length === 0) {
-    $('body').append($('<div>', {'id': 'opengames_page', }));
-  }
-
+OpenGames.showLoggedInPage = function() {
   // Get all needed information, then display Open Games page
   OpenGames.getOpenGames(OpenGames.showPage);
 };
 
 OpenGames.getOpenGames = function(callback) {
-  if (Login.logged_in) {
-    Api.getOpenGamesData(function() {
-      Api.getButtonData(callback);
-    });
-  } else {
-    return callback();
-  }
+  Env.callAsyncInParallel([
+    Api.getOpenGamesData,
+    { 'func': Api.getButtonData, 'args': [ null ] },
+  ], callback);
 };
 
 OpenGames.showPage = function() {
   OpenGames.page = $('<div>');
 
-  if (!Login.logged_in) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Can\'t join games because you are not logged in',
-    };
-  } else if (Api.open_games.load_status != 'ok') {
+  if (Api.open_games.load_status != 'ok') {
     if (Env.message === undefined || Env.message === null) {
       Env.message = {
         'type': 'error',
@@ -61,7 +46,12 @@ OpenGames.showPage = function() {
       'text': 'There are no open games.',
     };
   } else {
-    var buttons = { };
+    var buttons = {
+      '__random': {
+          'recipe': 'Random button',
+          'greyed': false,
+        },
+      };
     var anyUnimplementedButtons = false;
 
     $.each(Api.button.list, function(button, buttoninfo) {
@@ -106,16 +96,7 @@ OpenGames.showPage = function() {
   }
 
   // Actually layout the page
-  OpenGames.arrangePage();
-};
-
-OpenGames.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#opengames_page').empty();
-  $('#opengames_page').append(OpenGames.page);
+  Login.arrangePage(OpenGames.page);
 };
 
 OpenGames.joinOpenGame = function() {
@@ -168,7 +149,16 @@ OpenGames.displayJoinResult = function(
 
   if (buttonSelect !== undefined) {
     buttonSelect.hide();
-    buttonSelect.after($('<span>', { 'text': buttonName, }));
+    var buttonNameSpan;
+    if (buttonName == '__random') {
+      buttonNameSpan = $('<span>', {
+        'text': 'Random Button',
+        'style': 'font-style: italic;',
+      });
+    } else {
+      buttonNameSpan = $('<span>', { 'text': buttonName, });
+    }
+    buttonSelect.after(buttonNameSpan);
   }
 };
 
@@ -217,29 +207,47 @@ OpenGames.buildGameTable = function(tableType, buttons) {
     tbody.append(gameRow);
 
     if (tableType == 'yours') {
-      // Layout rows for your open games table
+      // Lay out rows for your open games table
       gameRow.append($('<td>', {
         'class': 'gameAction',
         'text': 'Game ' + game.gameId,
       }));
-      gameRow.append($('<td>', {
-        'text': game.challengerButton,
-      }));
-
-      if (game.victimButton !== null) {
+      if (game.challengerButton == '__random') {
         gameRow.append($('<td>', {
-          'text': game.victimButton,
-          'class': 'victimButton',
+          'text': 'Random Button',
+          'style': 'font-style: italic;',
         }));
       } else {
+        gameRow.append($('<td>').append(
+          Env.buildButtonLink(
+            game.challengerButton,
+            buttons[game.challengerButton].recipe
+          )
+        ));
+      }
+
+      if (game.victimButton == '__random') {
+        gameRow.append($('<td>', {
+          'text': 'Random Button',
+          'class': 'victimButton',
+          'style': 'font-style: italic;',
+        }));
+      } else if (game.victimButton === null) {
         gameRow.append($('<td>', {
           'text': 'Any Button',
           'class': 'victimButton',
           'style': 'font-style: italic;',
         }));
+      } else {
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       }
     } else {
-      // Layout rows for joinable games table
+      // Lay out rows for joinable games table
       var gameActionTd = $('<td>', { 'class': 'gameAction', });
       gameRow.append(gameActionTd);
       var joinButton = $('<button>', {
@@ -250,12 +258,13 @@ OpenGames.buildGameTable = function(tableType, buttons) {
       gameActionTd.append(joinButton);
       joinButton.click(OpenGames.joinOpenGame);
 
-      if (game.victimButton !== null) {
+      if (game.victimButton == '__random') {
         gameRow.append($('<td>', {
-          'text': game.victimButton,
+          'text': 'Random Button',
           'class': 'victimButton',
+          'style': 'font-style: italic;',
         }));
-      } else {
+      } else if (game.victimButton === null) {
         var victimButtonTd = $('<td>', { 'class': 'victimButton', });
         gameRow.append(victimButtonTd);
         var buttonSelect = $('<select>');
@@ -273,11 +282,28 @@ OpenGames.buildGameTable = function(tableType, buttons) {
             'class': (buttonInfo.greyed ? 'greyed' : ''),
           }));
         });
+      } else {
+        gameRow.append($('<td>', { 'class': 'victimButton' }).append(
+          Env.buildButtonLink(
+            game.victimButton,
+            buttons[game.victimButton].recipe
+          )
+        ));
       }
 
-      gameRow.append($('<td>', {
-        'text': game.challengerButton,
-      }));
+      if (game.challengerButton == '__random') {
+        gameRow.append($('<td>', {
+          'text': 'Random Button',
+          'style': 'font-style: italic;',
+        }));
+      } else {
+        gameRow.append($('<td>').append(
+          Env.buildButtonLink(
+            game.challengerButton,
+            buttons[game.challengerButton].recipe
+          )
+        ));
+      }
       gameRow.append($('<td>', {
         'style': 'background-color: ' + game.challengerColor + ';',
       }).append(Env.buildProfileLink(game.challengerName)));
@@ -286,6 +312,17 @@ OpenGames.buildGameTable = function(tableType, buttons) {
     gameRow.append($('<td>', {
       'text': game.targetWins,
     }));
+
+    if (game.description) {
+      var descRow = $('<tr>');
+      tbody.append(descRow);
+      var descTd = $('<td>', {
+        'class': 'gameDescDisplay',
+        'colspan': (tableType == 'yours' ? 4 : 5),
+        'text': game.description,
+      });
+      descRow.append(descTd);
+    }
   });
 
   if (anyRows) {
