@@ -44,6 +44,7 @@ class BMGameState {
     public static function all_game_state_strings() {
         return array('START_GAME',
                      'APPLY_HANDICAPS',
+                     'CHOOSE_JOIN_GAME',
                      'CHOOSE_AUXILIARY_DICE',
                      'CHOOSE_RESERVE_DICE',
                      'LOAD_DICE_INTO_BUTTONS',

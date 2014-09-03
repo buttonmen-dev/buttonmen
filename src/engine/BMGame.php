@@ -210,7 +210,7 @@ class BMGame {
             if ($nWins >= $this->maxWins) {
                 $this->gameState = BMGameState::END_GAME;
             } else {
-                $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+                $this->gameState = BMGameState::CHOOSE_JOIN_GAME;
             }
         }
     }
@@ -220,7 +220,7 @@ class BMGame {
     }
 
     protected function update_game_state_choose_join_game() {
-        
+        $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
     protected function do_next_step_load_dice_into_buttons() {
