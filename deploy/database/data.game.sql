@@ -21,8 +21,8 @@ INSERT INTO game_status (name) VALUES
 ('OPEN'),
 ('ACTIVE'),
 ('COMPLETE'),
-('PROPOSED'),
-('REJECTED');
+('REJECTED'),
+('BROKEN');
 
 DELETE FROM die_status;
 INSERT INTO die_status (name) VALUES
