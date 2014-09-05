@@ -60,6 +60,7 @@ INSERT INTO buttonset (name, sort_order) VALUES
 ('Space Girlz', 5300),
 ('Bridge and Tunnel', 5400),
 ('2005 Rare Promo', 5500),
+('Big Top', 5550),
 ('High School Drama!', 5600),
 ('Unexploded Cow', 5700),
 ('ZOECon', 5800),
@@ -175,6 +176,13 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Bunnies',     '(1) (1) (1) (1) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese")),
 ('Lab Rat',     '(2) (2) (2) (2) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese"));
+
+#BIGTOP (APE games - Cassandra) 
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Firebreather',       '(4) F(6) F(6) (12) (S)',          0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
+('Monkeys',            'z(6) z(6) z(6) z(10) z(T)',       0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
+('Ringmaster',         'f(6) f(6) f(8) f(8) (12)',        0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
+('Stumbling Clowns',   '(8) t(8) (10) t(10) (X)',         0, 0, (SELECT id FROM buttonset WHERE name="Big Top"));
 
 # BRAWL (Cheapass Games)              INTRODUCES Speed(z) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -934,4 +942,5 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Zomulgustar', 't(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?', 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Zophiel',         'k(1) (6) z(8,8) H(12) (Y)?',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Zotmeister',      'd(1) d(1) d(2,2) d(8,8) rd(1) rd(26,26)',    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics"));
+
 
