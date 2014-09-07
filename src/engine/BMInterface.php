@@ -710,10 +710,6 @@ class BMInterface {
 
             $this->recreate_optRequestArrayArray($game);
 
-            if (!isset($game->swingRequestArrayArray)) {
-                $game->swingValueArrayArray = NULL;
-            }
-
             $this->message = $this->message."Loaded data for game $gameId.";
 
             return $game;

@@ -641,7 +641,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check swing details
         $this->assertFalse(isset($game->swingRequestArrayArray));
-        $this->assertFalse(isset($game->swingValueArrayArray));
+        $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
 
         // check round info
         $this->assertEquals(1, $game->roundNumber);
@@ -710,7 +710,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check swing details
         $this->assertFalse(isset($game->swingRequestArrayArray));
-        $this->assertFalse(isset($game->swingValueArrayArray));
+        $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
 
         // check round info
         $this->assertEquals(1, $game->roundNumber);
@@ -779,7 +779,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // check swing details
         $this->assertFalse(isset($game->swingRequestArrayArray));
-        $this->assertFalse(isset($game->swingValueArrayArray));
+        $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
 
         // check round info
         $this->assertEquals(1, $game->roundNumber);
@@ -1356,7 +1356,7 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
         $game = self::load_game($gameId);
 
         $this->assertEquals(BMGameState::END_GAME, $game->gameState);
-        $this->assertNull($game->swingValueArrayArray);
+        $this->assertEquals(array(array(), array()), $game->swingValueArrayArray);
         $this->assertEquals(array(array('W' => 0, 'L' => 1, 'D' => 0),
                                   array('W' => 1, 'L' => 0, 'D' => 0)),
                             $game->gameScoreArrayArray);
@@ -3304,6 +3304,130 @@ class BMInterfaceTest extends PHPUnit_Framework_TestCase {
 
         // 4 6 8 12 vs 1
         $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(1, $game->activeDieArrayArray[1]);
+        $game->attack = array(1, 0, array(), array(), 'Pass');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        // we should now be at the point where the bug triggers, at end of round
+        $this->assertEquals(2, $game->roundNumber);
+        $this->assertEquals(array(array('W' => 1, 'L' => 0, 'D' => 0),
+                                  array('W' => 0, 'L' => 1, 'D' => 0)),
+                            $game->gameScoreArrayArray);
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+    }
+
+    /**
+     * @depends test_create_user
+     *
+     * @coversNothing
+     */
+    public function test_swing_reset_bug() {
+        $retval = $this->object->create_game(array(self::$userId1WithoutAutopass,
+                                                   self::$userId2WithoutAutopass),
+                                                   array('Mau', 'Wiseman'), 4);
+        $gameId = $retval['gameId'];
+        $game = self::load_game($gameId);
+
+        // check buttons
+        $this->assertEquals('Mau', $game->buttonArray[0]->name);
+        $this->assertEquals('(6) (6) (8) (12) m(X)', $game->buttonArray[0]->recipe);
+        $this->assertEquals('Wiseman', $game->buttonArray[1]->name);
+        $this->assertEquals('(20) (20) (20) (20)', $game->buttonArray[1]->recipe);
+
+        // specify swing die
+        $this->assertEquals(array(TRUE, FALSE), $game->waitingOnActionArray);
+        $this->assertEquals(BMGameState::SPECIFY_DICE, $game->gameState);
+        $game->swingValueArrayArray = array(array('X' => 7), array());
+
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+
+        // artificially set player 2 as winning initiative
+        $game->playerWithInitiativeIdx = 1;
+        $game->activePlayerIdx = 1;
+        $game->waitingOnActionArray = array(FALSE, TRUE);
+        // artificially set die values
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 2;
+        $dieArrayArray[0][1]->value = 6;
+        $dieArrayArray[0][2]->value = 8;
+        $dieArrayArray[0][3]->value = 12;
+        $dieArrayArray[0][4]->value = 2;
+        $dieArrayArray[1][0]->value = 1;
+        $dieArrayArray[1][1]->value = 1;
+        $dieArrayArray[1][2]->value = 1;
+        $dieArrayArray[1][3]->value = 1;
+
+        // capture a normal die
+        $game->attack = array(1, 0, array(0, 1), array(0), 'Skill');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        // artificially set die value of rolled die
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[1][0]->value = 1;
+        $dieArrayArray[1][1]->value = 1;
+
+        // now morph the swing die from a m(X=7) to a m(20)
+        // 6 8 12 2 vs 1 1 1 1
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(4, $game->activeDieArrayArray[1]);
+        $game->attack = array(0, 1, array(3), array(0), 'Power');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        // artificially set die value of rolled die
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][3]->value = 1;
+
+        // now capture the morphed die
+        // 6 8 12 1 vs 1 1 1
+        $this->assertCount(4, $game->activeDieArrayArray[0]);
+        $this->assertCount(3, $game->activeDieArrayArray[1]);
+        $game->attack = array(1, 0, array(0), array(3), 'Power');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        // artificially set die value of rolled die
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[1][0]->value = 1;
+
+        // now have player 1 win the round
+        // 6 8 12 vs 1 1 1
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertCount(3, $game->activeDieArrayArray[1]);
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        // artificially set die value of rolled die
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 6;
+
+        // 6 8 12 vs 1 1
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
+        $this->assertCount(2, $game->activeDieArrayArray[1]);
+        $game->attack = array(1, 0, array(), array(), 'Pass');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        $game->attack = array(0, 1, array(0), array(0), 'Power');
+        self::save_game($game);
+        $game = self::load_game($game->gameId);
+
+        // artificially set die value of rolled die
+        $dieArrayArray = $game->activeDieArrayArray;
+        $dieArrayArray[0][0]->value = 6;
+
+        // 6 8 12 vs 1
+        $this->assertCount(3, $game->activeDieArrayArray[0]);
         $this->assertCount(1, $game->activeDieArrayArray[1]);
         $game->attack = array(1, 0, array(), array(), 'Pass');
         self::save_game($game);
