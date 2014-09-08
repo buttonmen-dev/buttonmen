@@ -68,6 +68,62 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetchAll();
+
+            if (0 == count($result)) {
+                return NULL;
+            }
+
+            $infoArray = $result[0];
+
+            $last_action_time = (int)$infoArray['last_action_timestamp'];
+            if ($last_action_time == 0) {
+                $last_action_time = NULL;
+            }
+
+            $last_access_time = (int)$infoArray['last_access_timestamp'];
+            if ($last_access_time == 0) {
+                $last_access_time = NULL;
+            }
+
+            $image_size = NULL;
+            if ($infoArray['image_size'] != NULL) {
+                $image_size = (int)$infoArray['image_size'];
+            }
+
+            // set the values we want to actually return
+            $playerInfoArray = array(
+                'id' => (int)$infoArray['id'],
+                'name_ingame' => $infoArray['name_ingame'],
+                'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
+                'email' => $infoArray['email'],
+                'is_email_public' => (bool)$infoArray['is_email_public'],
+                'status' => $infoArray['status'],
+                'dob_month' => (int)$infoArray['dob_month'],
+                'dob_day' => (int)$infoArray['dob_day'],
+                'gender' => $infoArray['gender'],
+                'image_size' => $image_size,
+                'autopass' => (bool)$infoArray['autopass'],
+                'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
+                'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
+                'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
+                'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
+                'comment' => $infoArray['comment'],
+                'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
+                'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
+                'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
+                'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
+                'homepage' => $infoArray['homepage'],
+                'favorite_button' => $infoArray['favorite_button'],
+                'favorite_buttonset' => $infoArray['favorite_buttonset'],
+                'last_action_time' => $last_action_time,
+                'last_access_time' => $last_access_time,
+                'creation_time' => (int)$infoArray['creation_timestamp'],
+                'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
+                'n_games_won' => (int)$infoArray['n_games_won'],
+                'n_games_lost' => (int)$infoArray['n_games_lost'],
+            );
+
+            return array('user_prefs' => $playerInfoArray);
         } catch (Exception $e) {
             if (isset($statement)) {
                 $errorData = $statement->errorInfo();
@@ -78,72 +134,16 @@ class BMInterface {
             error_log($this->message);
             return NULL;
         }
-
-        if (0 == count($result)) {
-            return NULL;
-        }
-
-        $infoArray = $result[0];
-
-        $last_action_time = (int)$infoArray['last_action_timestamp'];
-        if ($last_action_time == 0) {
-            $last_action_time = NULL;
-        }
-
-        $last_access_time = (int)$infoArray['last_access_timestamp'];
-        if ($last_access_time == 0) {
-            $last_access_time = NULL;
-        }
-
-        $image_size = NULL;
-        if ($infoArray['image_size'] != NULL) {
-            $image_size = (int)$infoArray['image_size'];
-        }
-
-        // set the values we want to actually return
-        $playerInfoArray = array(
-            'id' => (int)$infoArray['id'],
-            'name_ingame' => $infoArray['name_ingame'],
-            'name_irl' => $infoArray['name_irl'] ?: $infoArray['name_ingame'],
-            'email' => $infoArray['email'],
-            'is_email_public' => (bool)$infoArray['is_email_public'],
-            'status' => $infoArray['status'],
-            'dob_month' => (int)$infoArray['dob_month'],
-            'dob_day' => (int)$infoArray['dob_day'],
-            'gender' => $infoArray['gender'],
-            'image_size' => $image_size,
-            'autopass' => (bool)$infoArray['autopass'],
-            'uses_gravatar' => (bool)$infoArray['uses_gravatar'],
-            'monitor_redirects_to_game' => (bool)$infoArray['monitor_redirects_to_game'],
-            'monitor_redirects_to_forum' => (bool)$infoArray['monitor_redirects_to_forum'],
-            'automatically_monitor' => (bool)$infoArray['automatically_monitor'],
-            'comment' => $infoArray['comment'],
-            'player_color' => $infoArray['player_color'] ?: self::DEFAULT_PLAYER_COLOR,
-            'opponent_color' => $infoArray['opponent_color'] ?: self::DEFAULT_OPPONENT_COLOR,
-            'neutral_color_a' => $infoArray['neutral_color_a'] ?: self::DEFAULT_NEUTRAL_COLOR_A,
-            'neutral_color_b' => $infoArray['neutral_color_b'] ?: self::DEFAULT_NEUTRAL_COLOR_B,
-            'homepage' => $infoArray['homepage'],
-            'favorite_button' => $infoArray['favorite_button'],
-            'favorite_buttonset' => $infoArray['favorite_buttonset'],
-            'last_action_time' => $last_action_time,
-            'last_access_time' => $last_access_time,
-            'creation_time' => (int)$infoArray['creation_timestamp'],
-            'fanatic_button_id' => (int)$infoArray['fanatic_button_id'],
-            'n_games_won' => (int)$infoArray['n_games_won'],
-            'n_games_lost' => (int)$infoArray['n_games_lost'],
-        );
-
-        return array('user_prefs' => $playerInfoArray);
     }
 
     public function set_player_info($playerId, array $infoArray, array $addlInfo) {
-        // mysql treats bools as one-bit integers
-        $infoArray['autopass'] = (int)($infoArray['autopass']);
-        $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
-        $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
-        $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
-
         try {
+            // mysql treats bools as one-bit integers
+            $infoArray['autopass'] = (int)($infoArray['autopass']);
+            $infoArray['monitor_redirects_to_game'] = (int)($infoArray['monitor_redirects_to_game']);
+            $infoArray['monitor_redirects_to_forum'] = (int)($infoArray['monitor_redirects_to_forum']);
+            $infoArray['automatically_monitor'] = (int)($infoArray['automatically_monitor']);
+
             $isValidData =
                 ($this->validate_player_dob($infoArray) &&
                 $this->validate_player_password_and_email($addlInfo, $playerId) &&
@@ -189,6 +189,10 @@ class BMInterface {
                 $statement->execute(array(':info' => $info,
                                           ':player_id' => $playerId));
             }
+
+
+            $this->message = "Player info updated successfully.";
+            return array('playerId' => $playerId);
         } catch (Exception $e) {
             $this->message = 'Player info update failed: ' . $e->getMessage();
             error_log(
@@ -197,9 +201,6 @@ class BMInterface {
             );
             return NULL;
         }
-
-        $this->message = "Player info updated successfully.";
-        return array('playerId' => $playerId);
     }
 
     protected function validate_player_dob(array $infoArray) {
@@ -295,6 +296,31 @@ class BMInterface {
                     $nLosses = (int)$row['number_of_games'];
                 }
             }
+
+            // Just select the fields we want to expose publically
+            $profileInfoArray = array(
+                'id' => $playerInfo['id'],
+                'name_ingame' => $playerInfo['name_ingame'],
+                'name_irl' => $playerInfo['name_irl'],
+                'email' => ($playerInfo['is_email_public'] == 1 ? $playerInfo['email'] : NULL),
+                'email_hash' => md5(strtolower(trim($playerInfo['email']))),
+                'dob_month' => (int)$playerInfo['dob_month'],
+                'dob_day' => (int)$playerInfo['dob_day'],
+                'gender' => $playerInfo['gender'],
+                'image_size' => $playerInfo['image_size'],
+                'uses_gravatar' => $playerInfo['uses_gravatar'],
+                'comment' => $playerInfo['comment'],
+                'homepage' => $playerInfo['homepage'],
+                'favorite_button' => $playerInfo['favorite_button'],
+                'favorite_buttonset' => $playerInfo['favorite_buttonset'],
+                'last_access_time' => $playerInfo['last_access_time'],
+                'creation_time' => $playerInfo['creation_time'],
+                'fanatic_button_id' => $playerInfo['fanatic_button_id'],
+                'n_games_won' => $nWins,
+                'n_games_lost' => $nLosses,
+            );
+
+            return array('profile_info' => $profileInfoArray);
         } catch (Exception $e) {
             $this->message = 'Profile info get failed: ' . $e->getMessage();
             error_log(
@@ -303,31 +329,6 @@ class BMInterface {
             );
             return NULL;
         }
-
-        // Just select the fields we want to expose publically
-        $profileInfoArray = array(
-            'id' => $playerInfo['id'],
-            'name_ingame' => $playerInfo['name_ingame'],
-            'name_irl' => $playerInfo['name_irl'],
-            'email' => ($playerInfo['is_email_public'] == 1 ? $playerInfo['email'] : NULL),
-            'email_hash' => md5(strtolower(trim($playerInfo['email']))),
-            'dob_month' => (int)$playerInfo['dob_month'],
-            'dob_day' => (int)$playerInfo['dob_day'],
-            'gender' => $playerInfo['gender'],
-            'image_size' => $playerInfo['image_size'],
-            'uses_gravatar' => $playerInfo['uses_gravatar'],
-            'comment' => $playerInfo['comment'],
-            'homepage' => $playerInfo['homepage'],
-            'favorite_button' => $playerInfo['favorite_button'],
-            'favorite_buttonset' => $playerInfo['favorite_buttonset'],
-            'last_access_time' => $playerInfo['last_access_time'],
-            'creation_time' => $playerInfo['creation_time'],
-            'fanatic_button_id' => $playerInfo['fanatic_button_id'],
-            'n_games_won' => $nWins,
-            'n_games_lost' => $nLosses,
-        );
-
-        return array('profile_info' => $profileInfoArray);
     }
 
     public function create_game(
@@ -673,19 +674,30 @@ class BMInterface {
     }
 
     public function count_pending_games($playerId) {
-            $parameters = array(':player_id' => $playerId);
-
-            $query =
-                'SELECT COUNT(*) '.
-                'FROM game_player_map AS gpm '.
-                   'LEFT JOIN game AS g ON g.id = gpm.game_id '.
-                'WHERE gpm.player_id = :player_id '.
-                   'AND gpm.is_awaiting_action = 1 ';
+        $query =
+            'SELECT COUNT(*) '.
+            'FROM game_player_map AS gpm '.
+               'LEFT JOIN game AS g ON g.id = gpm.game_id '.
+            'WHERE gpm.player_id = :player_id '.
+               'AND gpm.is_awaiting_action = 1 ';
 
         try {
+            $parameters = array(':player_id' => $playerId);
+
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
             $result = $statement->fetch();
+
+            if (!$result) {
+                $this->message = 'Pending game count failed.';
+                error_log('Pending game count failed for player ' . $playerId);
+                return NULL;
+            } else {
+                $data = array();
+                $data['count'] = (int)$result[0];
+                $this->message = 'Pending game count succeeded.';
+                return $data;
+            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::count_pending_games: ' .
@@ -693,17 +705,6 @@ class BMInterface {
             );
             $this->message = 'Pending game count failed.';
             return NULL;
-        }
-
-        if (!$result) {
-            $this->message = 'Pending game count failed.';
-            error_log('Pending game count failed for player ' . $playerId);
-            return NULL;
-        } else {
-            $data = array();
-            $data['count'] = (int)$result[0];
-            $this->message = 'Pending game count succeeded.';
-            return $data;
         }
     }
 
@@ -2298,6 +2299,15 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute($parameters);
             $result = $statement->fetch();
+
+            if (!$result) {
+                $this->message = 'Player has no pending games.';
+                return array('gameId' => NULL);
+            } else {
+                $gameId = ((int)$result[0]);
+                $this->message = 'Next game ID retrieved successfully.';
+                return array('gameId' => $gameId);
+            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_next_pending_game: ' .
@@ -2305,15 +2315,6 @@ class BMInterface {
             );
             $this->message = 'Game ID get failed.';
             return NULL;
-        }
-
-        if (!$result) {
-            $this->message = 'Player has no pending games.';
-            return array('gameId' => NULL);
-        } else {
-            $gameId = ((int)$result[0]);
-            $this->message = 'Next game ID retrieved successfully.';
-            return array('gameId' => $gameId);
         }
     }
 
@@ -2633,20 +2634,20 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
             $result = $statement->fetch();
+
+            if (!$result) {
+                $this->message = 'Player name does not exist.';
+                return('');
+            } else {
+                $this->message = 'Player ID retrieved successfully.';
+                return((int)$result[0]);
+            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_player_id_from_name: ' .
                 $e->getMessage()
             );
             $this->message = 'Player ID get failed.';
-        }
-
-        if (!$result) {
-            $this->message = 'Player name does not exist.';
-            return('');
-        } else {
-            $this->message = 'Player ID retrieved successfully.';
-            return((int)$result[0]);
         }
     }
 
@@ -2661,19 +2662,19 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':id' => $playerId));
             $result = $statement->fetch();
+
+            if (!$result) {
+                $this->message = 'Player ID does not exist.';
+                return('');
+            } else {
+                return($result[0]);
+            }
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_player_name_from_id: ' .
                 $e->getMessage()
             );
             $this->message = 'Player name get failed.';
-        }
-
-        if (!$result) {
-            $this->message = 'Player ID does not exist.';
-            return('');
-        } else {
-            return($result[0]);
         }
     }
 
@@ -2693,20 +2694,20 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
             $result = $statement->fetch();
+
+            if (!$result) {
+                $this->message = 'Button name does not exist.';
+                return('');
+            } else {
+                $this->message = 'Button ID retrieved successfully.';
+                return((int)$result[0]);
+            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_button_id_from_name: " .
                 $e->getMessage()
             );
             $this->message = 'Button ID get failed.';
-        }
-
-        if (!$result) {
-            $this->message = 'Button name does not exist.';
-            return('');
-        } else {
-            $this->message = 'Button ID retrieved successfully.';
-            return((int)$result[0]);
         }
     }
 
@@ -2717,19 +2718,19 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':input' => $name));
             $result = $statement->fetch();
+
+            if (!$result) {
+                $this->message = 'Buttonset name does not exist.';
+                return('');
+            } else {
+                return((int)$result[0]);
+            }
         } catch (Exception $e) {
             error_log(
                 "Caught exception in BMInterface::get_buttonset_id_from_name: " .
                 $e->getMessage()
             );
             $this->message = 'Buttonset ID get failed.';
-        }
-
-        if (!$result) {
-            $this->message = 'Buttonset name does not exist.';
-            return('');
-        } else {
-            return((int)$result[0]);
         }
     }
 
@@ -2942,6 +2943,8 @@ class BMInterface {
                     'message' => $row['message'],
                 );
             }
+
+            return $chatEntries;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_game_chat_log: ' .
@@ -2950,8 +2953,6 @@ class BMInterface {
             $this->message = 'Internal error while reading chat entries';
             return NULL;
         }
-
-        return $chatEntries;
     }
 
    // Can the active player edit the most recent chat entry in this game?
@@ -4030,6 +4031,14 @@ class BMInterface {
                     'firstNewPostThreadId' => (int)$row['first_new_post_thread_id'],
                 );
             }
+
+            $results['boards'] = $boards;
+            $results['timestamp'] = strtotime('now');
+
+            if ($results) {
+                $this->message = 'Forum overview loading succeeded';
+            }
+            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_forum_overview: ' .
@@ -4038,14 +4047,6 @@ class BMInterface {
             $this->message = 'Forum overview loading failed';
             return NULL;
         }
-
-        $results['boards'] = $boards;
-        $results['timestamp'] = strtotime('now');
-
-        if ($results) {
-            $this->message = 'Forum overview loading succeeded';
-        }
-        return $results;
     }
 
     // Retrieves an overview of a specific forum board, plus information on all
@@ -4131,6 +4132,14 @@ class BMInterface {
                     'firstNewPostId' => (int)$row['first_new_post_id'],
                 );
             }
+
+            $results['threads'] = $threads;
+            $results['timestamp'] = strtotime('now');
+
+            if ($results) {
+                $this->message = 'Forum board loading succeeded';
+            }
+            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::load_forum_board: ' .
@@ -4138,14 +4147,6 @@ class BMInterface {
             );
             return NULL;
         }
-
-        $results['threads'] = $threads;
-        $results['timestamp'] = strtotime('now');
-
-        if ($results) {
-            $this->message = 'Forum board loading succeeded';
-        }
-        return $results;
     }
 
     // Retrieves an overview of a specific forum thread, plus information on
@@ -4250,6 +4251,21 @@ class BMInterface {
             $statement->execute(array(':current_player_id' => $currentPlayerId));
 
             $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) != 1) {
+                $results['nextNewPostId'] = NULL;
+                $results['nextNewPostThreadId'] = NULL;
+                $this->message = 'No new forum posts';
+                return $results;
+            }
+
+            $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
+            $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
+
+            if ($results) {
+                $this->message = 'Checked new forum posts successfully';
+            }
+            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_next_new_post: ' .
@@ -4258,21 +4274,6 @@ class BMInterface {
             $this->message = 'New forum post check failed';
             return NULL;
         }
-
-        if (count($fetchResult) != 1) {
-            $results['nextNewPostId'] = NULL;
-            $results['nextNewPostThreadId'] = NULL;
-            $this->message = 'No new forum posts';
-            return $results;
-        }
-
-        $results['nextNewPostId'] = (int)$fetchResult[0]['id'];
-        $results['nextNewPostThreadId'] = (int)$fetchResult[0]['thread_id'];
-
-        if ($results) {
-            $this->message = 'Checked new forum posts successfully';
-        }
-        return $results;
     }
 
     // Indicates that the reader has finished reading all of the posts on every
@@ -4432,6 +4433,11 @@ class BMInterface {
             $postId = (int)$fetchData[0];
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
+
+            if ($results) {
+                $this->message = 'Forum post created successfully';
+            }
+            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::create_forum_post: ' .
@@ -4439,11 +4445,6 @@ class BMInterface {
             );
             return NULL;
         }
-
-        if ($results) {
-            $this->message = 'Forum post created successfully';
-        }
-        return $results;
     }
 
     // Changes the body of the specified post
@@ -4484,6 +4485,11 @@ class BMInterface {
             ));
 
             $results = $this->load_forum_thread($currentPlayerId, $threadId, $postId);
+
+            if ($results) {
+                $this->message = 'Forum post edited successfully';
+            }
+            return $results;
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::edit_forum_post: ' .
@@ -4491,11 +4497,6 @@ class BMInterface {
             );
             return NULL;
         }
-
-        if ($results) {
-            $this->message = 'Forum post edited successfully';
-        }
-        return $results;
     }
 
     // End of Forum-related methods
@@ -4547,6 +4548,12 @@ class BMInterface {
             $statement = self::$conn->prepare($query);
             $statement->execute(array(':conf_key' => $conf_key));
             $fetchResult = $statement->fetchAll();
+
+            if (count($fetchResult) != 1) {
+                error_log('Wrong number of config values with key ' . $conf_key);
+                return NULL;
+            }
+            return $fetchResult[0]['conf_value'];
         } catch (Exception $e) {
             error_log(
                 'Caught exception in BMInterface::get_config: ' .
@@ -4554,12 +4561,6 @@ class BMInterface {
             );
             return NULL;
         }
-
-        if (count($fetchResult) != 1) {
-            error_log('Wrong number of config values with key ' . $conf_key);
-            return NULL;
-        }
-        return $fetchResult[0]['conf_value'];
     }
 
     // Calculates the difference between two (unix-style) timespans and formats
