@@ -110,7 +110,7 @@ class BMGame {
     public $lastActionTimeArray;
     public $isButtonChoiceRandom;   // used by the database to record whether the choice of the
                                     // button was random or not
-    public $hasPlayerAcceptedGame;  // used by the database to record whether each player has
+    public $hasPlayerAcceptedGameArray;  // used by the database to record whether each player has
                                     // accepted this game
     public $hasPlayerDismissedGameArray;
 
