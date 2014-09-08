@@ -12,6 +12,7 @@ class BMGameState {
     // pre-game
     const START_GAME = 10;
     const APPLY_HANDICAPS = 12;
+    const CHOOSE_JOIN_GAME = 13;
 
     // pre-round
     const LOAD_DICE_INTO_BUTTONS = 15;
@@ -43,6 +44,7 @@ class BMGameState {
     public static function all_game_state_strings() {
         return array('START_GAME',
                      'APPLY_HANDICAPS',
+                     'CHOOSE_JOIN_GAME',
                      'CHOOSE_AUXILIARY_DICE',
                      'CHOOSE_RESERVE_DICE',
                      'LOAD_DICE_INTO_BUTTONS',

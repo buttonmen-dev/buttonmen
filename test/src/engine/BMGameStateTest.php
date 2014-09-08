@@ -9,6 +9,8 @@ class BMGameStateTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(BMGameState::START_GAME <
                           BMGameState::APPLY_HANDICAPS);
         $this->assertTrue(BMGameState::APPLY_HANDICAPS <
+                          BMGameState::CHOOSE_JOIN_GAME);
+        $this->assertTrue(BMGameState::CHOOSE_JOIN_GAME <
                           BMGameState::LOAD_DICE_INTO_BUTTONS);
         $this->assertTrue(BMGameState::LOAD_DICE_INTO_BUTTONS <
                           BMGameState::ADD_AVAILABLE_DICE_TO_GAME);
