@@ -2,7 +2,7 @@
 
 DROP TABLE IF EXISTS buttonset;
 CREATE TABLE buttonset (
-    id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id          SMALLINT UNSIGNED PRIMARY KEY,
     # 'Chicagoland Games Enclave' has 27 characters
     name        VARCHAR(40) NOT NULL,
     # We may as well sort sets without a sort order to the end
@@ -11,7 +11,7 @@ CREATE TABLE buttonset (
 
 DROP TABLE IF EXISTS button;
 CREATE TABLE button (
-    id          SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id          SMALLINT UNSIGNED PRIMARY KEY,
     # 'The Fictitious Alan Clark' has 25 characters
     name        VARCHAR(40) UNIQUE NOT NULL,
     # 'Gryphon' has a recipe of:
@@ -27,7 +27,7 @@ CREATE TABLE button (
 
 DROP TABLE IF EXISTS tag;
 CREATE TABLE tag (
-    id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id SMALLINT UNSIGNED PRIMARY KEY,
     name VARCHAR(50) NOT NULL
 );
 
