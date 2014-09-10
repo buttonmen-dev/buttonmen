@@ -2002,7 +2002,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // 4 6 8 12 vs 1
         $this->verify_api_submitTurn(
             array(4, 1, 1, 1, 1, 2, 15, 16, 17, 18),
-            'responder001' . ' performed Power attack using [(4):3] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 3 => 4. End of round: ' . 'responder001' . ' won round 1 (95 vs. 2). ' . 'responder001' . ' won initiative for round 2. Initial die values: ' . 'responder001' . ' rolled [(4):1, (6):1, (8):1, (12):1, (2/20=2):2], ' . 'responder002' . ' rolled [(20):15, (20):16, (20):17, (20):18].. ',
+            'responder001' . ' performed Power attack using [(4):3] against [(20):1]; Defender (20) was captured; Attacker (4) rerolled 3 => 4. End of round: ' . 'responder001' . ' won round 1 (95 vs. 2). ' . 'responder001' . ' won initiative for round 2. Initial die values: ' . 'responder001' . ' rolled [(4):1, (6):1, (8):1, (12):1, (2/20=2):2], ' . 'responder002' . ' rolled [(20):15, (20):16, (20):17, (20):18]. ',
             $retval, array(array(0, 0), array(1, 0)),
             $gameId, 1, 'Power', 0, 1, '');
 
@@ -3436,7 +3436,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // need 1 for attacker's reroll, and should be 9 for next round
         $this->verify_api_submitTurn(
             array(5, 2, 3, 2, 9, 2, 11, 20, 7, 3),
-            'responder003 performed Power attack using [(6):6] against [(20):5]; Defender (20) was captured; Attacker (6) rerolled 6 => 5. End of round: responder003 won round 1 (93 vs. 26). responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):2, (6):3, (8):2, (12):9, m(X=4):2], responder004 rolled [(20):11, (20):20, (20):7, (20):3].. ',
+            'responder003 performed Power attack using [(6):6] against [(20):5]; Defender (20) was captured; Attacker (6) rerolled 6 => 5. End of round: responder003 won round 1 (93 vs. 26). responder003 won initiative for round 2. Initial die values: responder003 rolled [(6):2, (6):3, (8):2, (12):9, m(X=4):2], responder004 rolled [(20):11, (20):20, (20):7, (20):3]. ',
             $retval, array(array(0, 0), array(1, 0)),
             $gameId, 1, 'Power', 0, 1, '');
 

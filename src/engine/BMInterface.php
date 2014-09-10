@@ -2831,7 +2831,11 @@ class BMInterface {
             );
 
             if (!empty($messagePart)) {
-                $message .= $messagePart . '. ';
+                if ('.' == substr($messagePart, -1)) {
+                    $message .= $messagePart . ' ';
+                } else {
+                    $message .= $messagePart . '. ';
+                }
             }
         }
 
