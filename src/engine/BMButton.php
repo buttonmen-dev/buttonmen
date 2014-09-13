@@ -138,7 +138,7 @@ class BMButton extends BMCanHaveSkill {
     public function update_button_recipe() {
         $recipe = '';
 
-        $playerIdx = array_search($this, $this->ownerObject->buttonArray);
+        $playerIdx = array_search($this, $this->ownerObject->buttonArray, TRUE);
         if (FALSE === $playerIdx) {
             return;
         }
