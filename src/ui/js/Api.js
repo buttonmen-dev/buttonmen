@@ -6,9 +6,10 @@ var Api = (function () {
   var my = {};
 
   // Valid email match
-  // Note: this should match the regex in ApiSpec->verify_argument_of_type_email()
+  // Note: this should match the regex in
+  //       ApiSpec->verify_argument_of_type_email()
   my.VALID_EMAIL_REGEX = /^[A-Za-z0-9\._+-]+@[A-Za-z0-9\.-]+$/;
-  
+
   // Array of the names of the months, indexed from 1-12 (plus a bonus Month 0!)
   my.MONTH_NAMES = [
     'Month',
