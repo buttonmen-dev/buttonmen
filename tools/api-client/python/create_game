@@ -98,7 +98,7 @@ def create_random_game(opponent, b, players=False, usebuttons=False):
   if not players:
     players = lookup_other_players(b)
   if not opponent in players:
-    raise ValueError, "Opponent %s is not known on site"
+    raise ValueError, "Opponent %s is not known on site" % opponent
   buttons = b.wrap_load_button_names()
   while True:
     if usebuttons:

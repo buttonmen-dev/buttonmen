@@ -93,7 +93,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->gameScoreArrayArray = array(array(0, 0, 0),array(0, 0, 0));
         $this->object->maxWins = 3;
         $this->object->update_game_state();
-        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS,
+        $this->assertEquals(BMGameState::CHOOSE_JOIN_GAME,
                             $this->object->gameState);
 
         $this->object->playerIdArray = array('12345', '54321');
@@ -102,6 +102,38 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->object->maxWins = 3;
         $this->object->update_game_state();
         $this->assertEquals(BMGameState::END_GAME, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::do_next_step_choose_join_game
+     */
+    public function test_do_next_step_choose_join_game_unspecified_acceptance() {
+        $this->object->gameState = BMGameState::CHOOSE_JOIN_GAME;
+
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::do_next_step_choose_join_game
+     */
+    public function test_do_next_step_choose_join_game_all_accepted() {
+        $this->object->gameState = BMGameState::CHOOSE_JOIN_GAME;
+        $this->object->hasPlayerAcceptedGameArray = array(TRUE, TRUE);
+
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::LOAD_DICE_INTO_BUTTONS, $this->object->gameState);
+    }
+
+    /**
+     * @covers BMGame::do_next_step_choose_join_game
+     */
+    public function test_do_next_step_choose_join_game_unaccepted() {
+        $this->object->gameState = BMGameState::CHOOSE_JOIN_GAME;
+        $this->object->hasPlayerAcceptedGameArray = array(TRUE, FALSE);
+
+        $this->object->update_game_state();
+        $this->assertEquals(BMGameState::CHOOSE_JOIN_GAME, $this->object->gameState);
     }
 
     /**

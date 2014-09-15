@@ -228,7 +228,7 @@ abstract class BMAttack {
         $activeDiceNew = array();
         foreach ($attackers as $attIdx => &$att) {
             $playerIdx = $att->playerIdx;
-            $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx]);
+            $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx], TRUE);
 
             $newDie = $att->capture($this->type, $attackers, $defenders);
 
