@@ -53,7 +53,6 @@ class BMAttackDefault extends BMAttack {
                     return TRUE;
                 }
 
-                $this->validationMessage = 'Default attack is ambiguous.';
                 return FALSE;
         }
     }
@@ -64,11 +63,16 @@ class BMAttackDefault extends BMAttack {
         array $defenders,
         array $validAttackTypes
     ) {
+        $messageRoot = 'Default attack is ambiguous. ';
+        $messageAttackTypes = implode(', ', $validAttackTypes);
+
         if (1 != count($attackers)) {
+            $this->validationMessage = $messageRoot . $messageAttackTypes;
             return FALSE;
         }
 
         if (1 != count($defenders)) {
+            $this->validationMessage = $messageRoot . $messageAttackTypes;
             return FALSE;
         }
 
@@ -77,19 +81,27 @@ class BMAttackDefault extends BMAttack {
 
         // deal with skills with side effects
         if ($attacker->has_skill('Doppelganger') && in_array('Power', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'Doppelganger only triggers on a Power attack.';
             return FALSE;
         }
 
         // deal with attacks with side effects
         if (in_array('Berserk', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'It is not clear whether you want to perform a berserk attack or not.';
             return FALSE;
         }
 
         if (in_array('Trip', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'It is not clear whether you want to perform a trip attack or not.';
             return FALSE;
         }
 
         if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'It is not clear whether you want to fire your attacking die or not.';
             return FALSE;
         }
 
