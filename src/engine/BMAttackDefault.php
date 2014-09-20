@@ -64,7 +64,8 @@ class BMAttackDefault extends BMAttack {
         array $validAttackTypes
     ) {
         $messageRoot = 'Default attack is ambiguous. ';
-        $messageAttackTypes = 'Possible attack types: ' . implode(', ', $validAttackTypes);
+        $messageAttackTypes = 'Possible attack types: ' .
+            implode(', ', $validAttackTypes) . '.';
 
         if (1 != count($attackers)) {
             $this->validationMessage = $messageRoot . $messageAttackTypes;
