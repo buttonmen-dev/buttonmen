@@ -216,7 +216,6 @@ abstract class BMAttack {
         // set attack defaults
         foreach ($attackers as &$att) {
             $att->hasAttacked = TRUE;
-            $att->roll(TRUE);
         }
 
         foreach ($defenders as &$def) {
@@ -241,9 +240,13 @@ abstract class BMAttack {
             }
         }
 
-
         foreach ($defenders as &$def) {
             $def->be_captured($this->type, $attackers, $defenders);
+        }
+
+        // reroll all (possibly changed) attacking dice
+        foreach ($attackers as &$att) {
+            $att->roll(TRUE);
         }
 
         if (isset($activeDiceNew)) {

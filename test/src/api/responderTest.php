@@ -3274,9 +3274,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 02 - responder003 performed Skill attack using [(8):7,m(X=4):4] against [(20):11]
         //   [(6):3, (6):6, (8):7, (12):2, m(X=4):4] => [(20):11, (20):5, (20):8, (20):6]
-        // Need an extra unused roll value because morphing die rolls twice (i consider this a bug, but it's an open question)
         $this->verify_api_submitTurn(
-            array(4, 15, 8),
+            array(4, 8),
             'responder003 performed Skill attack using [(8):7,m(X=4):4] against [(20):11]; Defender (20) was captured; Attacker (8) rerolled 7 => 4; Attacker m(X=4) changed size from 4 to 20 sides, recipe changed from m(X=4) to m(20), rerolled 4 => 8. ',
             $retval, array(array(0, 2), array(0, 4), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
@@ -3374,10 +3373,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         ////////////////////
         // Move 06 - responder003 performed Skill attack using [(8):4,m(20):8] against [(20):12]
-        // again, there's an extra die roll because of the morph
         //   [(6):6, (8):4, m(20):8] => [(20):12, (20):6]
         $this->verify_api_submitTurn(
-            array(3, 1, 11),
+            array(3, 11),
             'responder003 performed Skill attack using [(8):4,m(20):8] against [(20):12]; Defender (20) was captured; Attacker (8) rerolled 4 => 3; Attacker m(20) rerolled 8 => 11. ',
             $retval, array(array(0, 1), array(0, 2), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
@@ -3603,10 +3601,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 - responder004 performed Skill attack using [wm(1):1,wm(2):2,wm(4):1] against [(6):4]
         // [(6):4, (6):2, (8):8, (12):6, m(X=4):4] <= [wm(1):1, wm(2):2, wm(4):1, m(8):8]
-        // since the dice are morphing, an extra roll is needed for each
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(1, 1, 1, 5, 2, 6),
+            array(5, 2, 6),
             'responder004 performed Skill attack using [wm(1):1,wm(2):2,wm(4):1] against [(6):4]; Defender (6) was captured; Attacker wm(1) changed size from 1 to 6 sides, recipe changed from wm(1) to wm(6), rerolled 1 => 5; Attacker wm(2) changed size from 2 to 6 sides, recipe changed from wm(2) to wm(6), rerolled 2 => 2; Attacker wm(4) changed size from 4 to 6 sides, recipe changed from wm(4) to wm(6), rerolled 1 => 6. ',
             $retval, array(array(0, 0), array(1, 0), array(1, 1), array(1, 2)),
             $gameId, 1, 'Skill', 1, 0, '');
@@ -3678,11 +3675,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 05 - responder004 performed Skill attack using [wm(6):2,wm(6):6] against [(12):8]
         // [(6):5, (8):8, (12):8, m(X=4):4] <= [wm(6):5, wm(6):2, wm(6):6]
-        // Bug #1306 is triggered when the intermediate rolls of the two dice with the same recipe are identical
-        // If you change the 5, 5 in the array below to two non-identical numbers, the bug won't be triggered
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(5, 5, 8, 2),
+            array(8, 2),
             'responder004 performed Skill attack using [wm(6):2,wm(6):6] against [(12):8]; Defender (12) was captured; Attacker wm(6) changed size from 6 to 12 sides, recipe changed from wm(6) to wm(12), rerolled 2 => 8; Attacker wm(6) changed size from 6 to 12 sides, recipe changed from wm(6) to wm(12), rerolled 6 => 2. ',
             $retval, array(array(0, 2), array(1, 1), array(1, 2)),
             $gameId, 1, 'Skill', 1, 0, '');
