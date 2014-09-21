@@ -250,13 +250,7 @@ abstract class BMAttack {
         }
 
         if (isset($activeDiceNew)) {
-            $activeDiceCopy = $game->activeDieArrayArray;
-            foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
-                foreach ($activeDieArray as $dieIdx => $newDie) {
-                    $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
-                }
-            }
-            $game->activeDieArrayArray = $activeDiceCopy;
+            $this->assign_new_active_dice($game, $activeDiceNew);
         }
 
         $this->process_captured_dice($game, $defenders);
@@ -282,6 +276,15 @@ abstract class BMAttack {
         }
     }
 
+    protected function assign_new_active_dice($game, array $activeDiceNew) {
+        $activeDiceCopy = $game->activeDieArrayArray;
+        foreach ($activeDiceNew as $playerIdx => $activeDieArray) {
+            foreach ($activeDieArray as $dieIdx => $newDie) {
+                $activeDiceCopy[$playerIdx][$dieIdx] = $newDie;
+            }
+        }
+        $game->activeDieArrayArray = $activeDiceCopy;
+    }
 
     // methods to find that there is a valid attack
     //
