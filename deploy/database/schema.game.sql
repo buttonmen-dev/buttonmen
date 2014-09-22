@@ -44,7 +44,9 @@ CREATE TABLE game_player_map (
     handicap           TINYINT UNSIGNED DEFAULT 0,
     is_player_hidden   BOOLEAN DEFAULT FALSE,
     last_action_time   TIMESTAMP DEFAULT 0,
-    was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL
+    was_game_dismissed BOOLEAN DEFAULT FALSE NOT NULL,
+    is_button_random   BOOLEAN DEFAULT FALSE NOT NULL,
+    has_player_accepted BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 DROP TABLE IF EXISTS game_swing_map;

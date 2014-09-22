@@ -53,12 +53,12 @@ def random_array_element(array):
   index = int(random.random() * len(array))
   return array[index]
 
-def lookup_other_players(b): 
+def lookup_other_players(b):
   player_info = b.wrap_load_player_names()
   players = []
   for player in sorted(player_info.keys()):
     if player == b.username: continue
-    if player_info[player]['status'] == 'active':
+    if player_info[player]['status'] == 'ACTIVE':
       players.append(player)
   return players
 
@@ -72,10 +72,10 @@ def get_buttons_with_skills(buttons, skills):
       reqskills.append(skill[:1].upper() + skill[1:].lower())
   for button in sorted(buttons.keys()):
     info = buttons[button]
-    if info['unimplemented']: continue
+    if info['hasUnimplementedSkill']: continue
     hasskills = True
     for skill in reqskills:
-      if not skill in info['skills']:
+      if not skill in info['dieSkills']:
         hasskills = False
     if hasskills:
       skillbuttons.append(button)
@@ -84,7 +84,7 @@ def get_buttons_with_skills(buttons, skills):
 def random_implemented_button(buttons):
   return random_array_element(
     [button for button in buttons.keys() \
-     if not buttons[button]['unimplemented']])
+     if not buttons[button]['hasUnimplementedSkill']])
 
 def create_games(b, buttons, opponents):
   for opponent in opponents:
@@ -98,7 +98,7 @@ def create_random_game(opponent, b, players=False, usebuttons=False):
   if not players:
     players = lookup_other_players(b)
   if not opponent in players:
-    raise ValueError, "Opponent %s is not known on site"
+    raise ValueError, "Opponent %s is not known on site" % opponent
   buttons = b.wrap_load_button_names()
   while True:
     if usebuttons:

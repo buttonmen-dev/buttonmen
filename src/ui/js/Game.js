@@ -3,6 +3,8 @@ var Game = {
   'activity': {},
 };
 
+Game.bodyDivId = 'game_page';
+
 // Game states must match those reported by the API
 Game.GAME_STATE_START_GAME = 'START_GAME';
 Game.GAME_STATE_APPLY_HANDICAPS = 'APPLY_HANDICAPS';
@@ -31,31 +33,20 @@ Game.GAME_CHAT_MAX_LENGTH = 500;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Game.showGamePage() is the landing function.  Always call this first
+// * Game.showLoggedInPage() is the landing function.  Always call this first
 // * Game.getCurrentGame() asks the API for information about the
 //   requested game.  It clobbers Api.game.  If successful, it calls
 // * Game.showStatePage() determines what action to take next based on
 //   the received data from getCurrentGame().  It calls one of several
-//   functions, Game.action<SomeAction>()
+//   functions, Game.action<SomeAction>(), and then calls Login.arrangePage()
 // * each Game.action<SomeAction>() function must set Game.page and
-//   Game.form, then call Game.arrangePage()
-// * Game.arrangePage() sets the contents of <div id="game_page"> on the
-//   live page
+//   Game.form
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-Game.showGamePage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#game_page').length === 0) {
-    $('body').append($('<div>', {'id': 'game_page', }));
-  }
-
+Game.showLoggedInPage = function() {
   if (Game.logEntryLimit && Env.getCookieCompactMode()) {
     Game.logEntryLimit = 5;
   }
@@ -69,13 +60,13 @@ Game.showGamePage = function() {
 // clear all activity variables set by the previous invocation
 Game.redrawGamePageSuccess = function() {
   Game.activity = {};
-  Game.showGamePage();
+  Game.showLoggedInPage();
 };
 
 // Redraw the page after a previous action failed: to do this,
 // retain activity variables where it makes sense to do so
 Game.redrawGamePageFailure = function() {
-  Game.showGamePage();
+  Game.showLoggedInPage();
 };
 
 // the current game should be provided as a GET parameter to the page
@@ -95,13 +86,6 @@ Game.getCurrentGame = function(callbackfunc) {
     };
     return callbackfunc();
   }
-  if (Login.logged_in === false) {
-    Env.message = {
-      'type': 'error',
-      'text': 'Not logged in.  Nothing to do.'
-    };
-    return callbackfunc();
-  }
 
   Env.callAsyncInParallel(
     [
@@ -112,6 +96,8 @@ Game.getCurrentGame = function(callbackfunc) {
 
 // Assemble and display the game portion of the page
 Game.showStatePage = function() {
+  var includeFooter = true;
+  var isChatHidden = false;
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -172,6 +158,7 @@ Game.showStatePage = function() {
           Game.actionPlayTurnActive();
         } else {
           Game.actionPlayTurnInactive();
+          isChatHidden = true;
         }
       } else {
         Game.actionPlayTurnNonplayer();
@@ -192,37 +179,27 @@ Game.showStatePage = function() {
       Game.page =
         $('<p>', {'text': 'The game hasn\'t started yet.', });
       Game.form = null;
-      Game.arrangePage();
+      includeFooter = false;
     } else {
       Game.page =
         $('<p>', {'text': 'Can\'t figure out what action to take next', });
       Game.form = null;
-      Game.arrangePage();
+      includeFooter = false;
     }
   } else {
-
     // Game retrieval failed, so just layout the page with no contents
     // and whatever message was received while trying to load the game
     Game.page = null;
     Game.form = null;
-    Game.arrangePage();
-  }
-};
-
-Game.arrangePage = function() {
-  if ($('#game_page').length === 0) {
-    throw('Internal error: #game_page not defined in arrangePage()');
+    includeFooter = false;
   }
 
-  $('#game_page').empty();
-  $('#game_page').append(Game.page);
-
-  // If a game form is specified, activate the game form on mouse click.
-  // (The form will automatically be invoked when the player presses
-  // the return key as well.)
-  if (Game.form) {
-    $('#game_action_button').click(Game.form);
+  if (includeFooter) {
+    Game.pageAddFooter(isChatHidden);
   }
+
+  // Now lay out the page
+  Login.arrangePage(Game.page, Game.form, '#game_action_button');
 };
 
 /////
@@ -416,10 +393,6 @@ Game.actionSpecifyDiceActive = function() {
 
   // Add the die table to the page
   Game.page.append(dietable);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionSpecifyDiceInactive = function() {
@@ -432,11 +405,6 @@ Game.actionSpecifyDiceInactive = function() {
 
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionSpecifyDiceNonplayer = function() {
@@ -454,11 +422,6 @@ Game.actionSpecifyDiceNonplayer = function() {
   var dietable = Game.dieRecipeTable(false);
   Game.page.append(dietable);
   Game.page.append($('<br>'));
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceActive = function() {
@@ -513,10 +476,6 @@ Game.actionChooseAuxiliaryDiceActive = function() {
 
   // Add the form to the page
   Game.page.append(auxform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceInactive = function() {
@@ -537,11 +496,6 @@ Game.actionChooseAuxiliaryDiceInactive = function() {
 
   Game.page.append($('<p>', {'text':
     'Please wait for your opponent to decide whether to use auxiliary dice' }));
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionChooseAuxiliaryDiceNonplayer = function() {
@@ -559,11 +513,6 @@ Game.actionChooseAuxiliaryDiceNonplayer = function() {
   var dietable = Game.dieRecipeTable(false, false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceActive = function() {
@@ -616,10 +565,6 @@ Game.actionChooseReserveDiceActive = function() {
 
   // Add the form to the page
   Game.page.append(reserveform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceInactive = function() {
@@ -640,11 +585,6 @@ Game.actionChooseReserveDiceInactive = function() {
 
   Game.page.append($('<p>', {'text':
     'Please wait for your opponent to decide whether to add reserve dice' }));
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionChooseReserveDiceNonplayer = function() {
@@ -663,10 +603,6 @@ Game.actionChooseReserveDiceNonplayer = function() {
 
   // Add the table to the page
   Game.page.append(dietable);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeActive = function() {
@@ -731,10 +667,6 @@ Game.actionReactToInitiativeActive = function() {
 
   // Add the form to the page
   Game.page.append(reactform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeInactive = function() {
@@ -750,11 +682,6 @@ Game.actionReactToInitiativeInactive = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionReactToInitiativeNonplayer = function() {
@@ -772,11 +699,6 @@ Game.actionReactToInitiativeNonplayer = function() {
   var dietable = Game.dieRecipeTable('react_to_initiative', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionPlayTurnActive = function() {
@@ -865,11 +787,6 @@ Game.actionPlayTurnActive = function() {
   }));
   attackdiv.append(attackform);
   Game.page.append(attackdiv);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionPlayTurnInactive = function() {
@@ -901,11 +818,6 @@ Game.actionPlayTurnInactive = function() {
   }));
   chatdiv.append(chatform);
   Game.page.append(chatdiv);
-
-  Game.pageAddFooter(true);
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionPlayTurnNonplayer = function() {
@@ -925,10 +837,6 @@ Game.actionPlayTurnNonplayer = function() {
 
   Game.page.append($('<br>'));
   Game.pageAddDieBattleTable(false);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionAdjustFireDiceActive = function() {
@@ -1006,10 +914,6 @@ Game.actionAdjustFireDiceActive = function() {
 
   // Add the form to the page
   Game.page.append(fireform);
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionAdjustFireDiceInactive = function() {
@@ -1025,11 +929,6 @@ Game.actionAdjustFireDiceInactive = function() {
   var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionAdjustFireDiceNonplayer = function() {
@@ -1047,11 +946,6 @@ Game.actionAdjustFireDiceNonplayer = function() {
   var dietable = Game.dieRecipeTable('adjust_fire_dice', false);
 
   Game.page.append(dietable);
-
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 Game.actionShowFinishedGame = function() {
@@ -1076,10 +970,6 @@ Game.actionShowFinishedGame = function() {
   dieEndgameTable.append(dieEndgameTr);
   Game.page.append(dieEndgameTable);
   Game.logEntryLimit = undefined;
-  Game.pageAddFooter();
-
-  // Now layout the page
-  Game.arrangePage();
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1124,16 +1014,16 @@ Game.formSpecifyDiceActive = function() {
       { 'ok': { 'type': 'fixed', 'text': 'Successfully set swing values', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      '#game_action_button',
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': 'Some swing values missing or nonnumeric',
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1151,16 +1041,16 @@ Game.formChooseAuxiliaryDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      '#game_action_button',
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': 'Could not parse decision to use or not use auxiliary dice',
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1208,16 +1098,16 @@ Game.formChooseReserveDiceActive = function() {
       { 'ok': { 'type': 'server', },
         'notok': {'type': 'server', },
       },
-      'game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      '#game_action_button',
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': inputError,
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1330,16 +1220,16 @@ Game.formReactToInitiativeActive = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      '#game_action_button',
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': error,
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1431,16 +1321,16 @@ Game.formAdjustFireDiceActive = function() {
         'ok': { 'type': 'server', },
         'notok': { 'type': 'server', },
       },
-      'game_action_button',
-      Game.showGamePage,
-      Game.showGamePage
+      '#game_action_button',
+      Game.showLoggedInPage,
+      Game.showLoggedInPage
     );
   } else {
     Env.message = {
       'type': 'error',
       'text': error,
     };
-    Game.showGamePage();
+    Game.showLoggedInPage();
   }
 };
 
@@ -1495,7 +1385,7 @@ Game.formPlayTurnActive = function() {
       timestamp: Api.game.timestamp,
     },
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
   );
@@ -1519,9 +1409,29 @@ Game.formPlayTurnInactive = function() {
   Api.apiFormPost(
     formargs,
     { 'ok': { 'type': 'server', }, 'notok': { 'type': 'server', }, },
-    'game_action_button',
+    '#game_action_button',
     Game.redrawGamePageSuccess,
     Game.redrawGamePageFailure
+  );
+};
+
+// "Form" for dismissing a game after it's completed
+Game.formDismissGame = function(e) {
+  e.preventDefault();
+  var args = { 'type': 'dismissGame', 'gameId': $(this).attr('data-gameId'), };
+  var messages = {
+    'ok': { 'type': 'fixed', 'text': 'Successfully dismissed game', },
+    'notok': { 'type': 'server' },
+  };
+  Api.apiFormPost(
+    args,
+    messages,
+    $(this),
+    function() {
+      window.location.href = Env.ui_root;
+      return false;
+    },
+    Game.showLoggedInPage
   );
 };
 
@@ -1554,7 +1464,7 @@ Game.readCurrentGameActivity = function() {
 Game.showFullLogHistory = function() {
   Game.readCurrentGameActivity();
   Game.logEntryLimit = undefined;
-  Game.showGamePage();
+  Game.showLoggedInPage();
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -1612,6 +1522,20 @@ Game.pageAddGameHeader = function(action_desc) {
 
   Game.page.append($('<br>'));
 
+  if (Api.game.isParticipant && !Api.game.player.hasDismissedGame &&
+      Api.game.gameState == Game.GAME_STATE_END_GAME) {
+    var dismissDiv = $('<div>');
+    Game.page.append(dismissDiv);
+    var dismissLink = $('<a>', {
+      'text': '[Dismiss Game]',
+      'href': '#',
+      'data-gameId': Api.game.gameId,
+    });
+    dismissLink.click(Game.formDismissGame);
+    dismissDiv.append(dismissLink);
+    Game.page.append($('<br>'));
+  }
+
   if (Api.game.gameState == Game.GAME_STATE_START_TURN &&
       Api.game.isParticipant && Api.game.player.waitingOnAction &&
       Api.game.player.canStillWin === false) {
@@ -1630,6 +1554,10 @@ Game.pageAddGameHeader = function(action_desc) {
 
 // Display common page footer data
 Game.pageAddFooter = function(isChatHidden) {
+  if (!Game.page) {
+    return;
+  }
+
   Game.pageAddGameNavigationFooter();
   Game.pageAddUnhideChatButton(isChatHidden);
   Game.pageAddSkillListFooter();
@@ -1719,7 +1647,7 @@ Game.pageAddSkillListFooter = function() {
     gameSkillDiv.append($('<span>', {
       'text': 'i',
       'title': skillDesc,
-      'class': 'skill_desc_i',
+      'class': 'info_icon',
     }));
     firstSkill = false;
   });
@@ -1746,7 +1674,7 @@ Game.pageAddNewGameLinkFooter = function() {
     Game.page.append($('<div>', {
       'text':
         'Challenge ' + Api.game.opponent.playerName +
-        ' to a rematch, preserving chat:',
+        ' to a another game, preserving chat:',
     }));
 
     linkDiv = $('<div>');
@@ -1862,10 +1790,12 @@ Game.pageAddLogFooter = function() {
       var actiontable = $('<table>', {'border': 'on', });
       $.each(Api.game.actionLog, function(logindex, logentry) {
         var actionplayer;
-        if (logentry.message.indexOf(Api.game.player.playerName + ' ') === 0) {
+        if (logentry.player == Api.game.player.playerName) {
           actionplayer = 'player';
-        } else {
+        } else if (logentry.player == Api.game.opponent.playerName) {
           actionplayer = 'opponent';
+        } else {
+          actionplayer = 'noone';
         }
         var actionrow = $('<tr>');
         actionrow.append(
@@ -2148,22 +2078,27 @@ Game.dieTableEntry = function(i, activeDieArray) {
     };
     if ((die.properties.indexOf('dizzy') >= 0) &&
         (die.skills.indexOf('Focus') >= 0)) {
-      dieopts.class = 'recipe_greyed';
-      dieopts.title += '. (This die is dizzy because it has been turned ' +
-        'down.  If the owner wins initiative, this die can\'t be used in ' +
-        'their first attack.)';
+      dieopts['class'] = 'recipe_greyed';
+      if (Api.game.gameState == Game.GAME_STATE_REACT_TO_INITIATIVE) {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. If the owner wins initiative, this die can\'t be used in ' +
+          'their first attack.)';
+      } else {
+        dieopts.title += '. (This die is dizzy because it has been turned ' +
+          'down. It can\'t be used during this attack.)';
+      }
     } else if ((die.properties.indexOf('disabled') >= 0) &&
                (die.skills.indexOf('Chance') >= 0)) {
-      dieopts.class = 'recipe_greyed';
+      dieopts['class'] = 'recipe_greyed';
       dieopts.title += '. (This chance die cannot be rerolled again ' +
         'during this round, because the player has already rerolled a ' +
         'chance die)';
     } else if (die.properties.indexOf('IsAttacker') >= 0) {
-      dieopts.class = 'recipe_inuse';
+      dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is an attacker in the attack which ' +
         'is currently in progress.)';
     } else if (die.properties.indexOf('IsAttackTarget') >= 0) {
-      dieopts.class = 'recipe_inuse';
+      dieopts['class'] = 'recipe_inuse';
       dieopts.title += '. (This die is a target of the attack which ' +
         'is currently in progress.)';
     }
@@ -2243,8 +2178,9 @@ Game.buttonImageDisplay = function(player) {
     'text': Api.game[player].gameScoreStr,
   });
   var buttonInfo = $('<div>', {
-    'text': 'Button: ' + Api.game[player].button.name,
+    'text': 'Button: '
   });
+  buttonInfo.append(Env.buildButtonLink(Api.game[player].button.name));
   var buttonRecipe = $('<div>', {
     'text': Api.game[player].button.recipe,
   });
@@ -2386,13 +2322,14 @@ Game.gamePlayerDice = function(player, player_active) {
       if (('dieSelectStatus' in Game.activity) &&
           (dieIndex in Game.activity.dieSelectStatus) &&
           (Game.activity.dieSelectStatus[dieIndex])) {
-        containerDivOpts.class = 'hide_focus die_container die_alive selected';
+        containerDivOpts['class'] =
+          'hide_focus die_container die_alive selected';
       } else {
-        containerDivOpts.class =
+        containerDivOpts['class'] =
           'hide_focus die_container die_alive unselected_' + player;
         borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
       }
-      divOpts.class = 'die_img';
+      divOpts['class'] = 'die_img';
       dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);
@@ -2414,13 +2351,13 @@ Game.gamePlayerDice = function(player, player_active) {
       Game.dieFocusOutlineHandler(dieContainerDiv);
     } else {
       borderDivOpts.style = 'border: 2px solid ' + Game.color[player];
-      divOpts.class = 'die_img die_greyed';
+      divOpts['class'] = 'die_img die_greyed';
       if (player_active) {
         containerDivOpts.title +=
           '. (This die is dizzy because it was turned ' +
           'down.  It can\'t be used during this attack.)';
       }
-      containerDivOpts.class = 'die_container die_alive';
+      containerDivOpts['class'] = 'die_container die_alive';
       dieContainerDiv = $('<div>', containerDivOpts);
       dieBorderDiv = $('<div>', borderDivOpts);
       dieDiv = $('<div>', divOpts);

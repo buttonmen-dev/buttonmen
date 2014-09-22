@@ -191,4 +191,24 @@ class BMDieSwing extends BMDie {
 
         return $valid;
     }
+
+    public function getDieTypes() {
+        $typesList = array();
+        $typesList[$this->swingType . ' Swing'] = array(
+            'code' => $this->swingType,
+            'swingMin' => $this->swingMin,
+            'swingMax' => $this->swingMax,
+            'description' =>
+                $this->swingType . ' Swing Dice can be any die between ' .
+                $this->swingMin . ' and ' . $this->swingMax . '. Swing Dice ' .
+                'are allowed to be any integral size between their upper and ' .
+                'lower limit, including both ends, and including nonstandard ' .
+                'die sizes like 17 or 9. Each player chooses his or her ' .
+                'Swing Die in secret at the beginning of the match, and ' .
+                'thereafter the loser of each round may change their Swing ' .
+                'Die between rounds. If a character has any two Swing Dice ' .
+                'of the same letter, they must always be the same size.',
+        );
+        return $typesList;
+    }
 }

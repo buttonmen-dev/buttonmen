@@ -6,7 +6,9 @@ var Api = (function () {
   var my = {};
 
   // Valid email match
-  my.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+  // Note: this should match the regex in
+  //       ApiSpec->verify_argument_of_type_email()
+  my.VALID_EMAIL_REGEX = /^[A-Za-z0-9\._+-]+@[A-Za-z0-9\.-]+$/;
 
   // Array of the names of the months, indexed from 1-12 (plus a bonus Month 0!)
   my.MONTH_NAMES = [
@@ -24,6 +26,8 @@ var Api = (function () {
     'November',
     'December',
   ];
+
+  my.automatedApiCall = false;
 
   // private methods and variables should be defined separately
   var activity = {};
@@ -58,6 +62,7 @@ var Api = (function () {
     my[apikey] = {
       'load_status': 'failed',
     };
+    args.automatedApiCall = my.automatedApiCall;
     $.post(
       Env.api_location,
       args,
@@ -186,9 +191,12 @@ var Api = (function () {
   ////////////////////////////////////////////////////////////////////////
   // Load and parse a list of buttons
 
-  my.getButtonData = function(callbackfunc) {
+  my.getButtonData = function(buttonName, callbackfunc) {
     my.apiParsePost(
-      {'type': 'loadButtonNames', },
+      {
+        'type': 'loadButtonData',
+        'buttonName': (buttonName ? buttonName : undefined),
+      },
       'button',
       my.parseButtonData,
       callbackfunc,
@@ -198,23 +206,41 @@ var Api = (function () {
 
   my.parseButtonData = function(data) {
     my.button.list = {};
-    if ((!($.isArray(data.buttonNameArray))) ||
-        (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray))) ||
-        (!($.isArray(data.buttonSetArray))) ||
-        (!($.isArray(data.dieSkillsArray))) ||
-        (!($.isArray(data.isTournamentLegalArray)))) {
+    if (!$.isArray(data)) {
       return false;
     }
     var i = 0;
-    while (i < data.buttonNameArray.length) {
-      my.button.list[data.buttonNameArray[i]] = {
-        'recipe': data.recipeArray[i],
-        'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
-        'buttonSet': data.buttonSetArray[i],
-        'dieSkills': data.dieSkillsArray[i],
-        'isTournamentLegal': data.isTournamentLegalArray[i],
-      };
+    while (i < data.length) {
+      my.button.list[data[i].buttonName] = data[i];
+      i++;
+    }
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse a list of button sets
+
+  my.getButtonSetData = function(buttonSet, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadButtonSetData',
+        'buttonSet': (buttonSet ? buttonSet : undefined),
+      },
+      'buttonSet',
+      my.parseButtonSetData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseButtonSetData = function(data) {
+    my.buttonSet.list = {};
+    if (!$.isArray(data)) {
+      return false;
+    }
+    var i = 0;
+    while (i < data.length) {
+      my.buttonSet.list[data[i].setName] = data[i];
       i++;
     }
     return true;
@@ -479,10 +505,7 @@ var Api = (function () {
 
   my.disableSubmitButton = function(button) {
     if (button) {
-      if (!(button instanceof jQuery)) {
-        button = $('#' + button);
-      }
-      button.attr('disabled', 'disabled');
+      $(button).attr('disabled', 'disabled');
     }
   };
 

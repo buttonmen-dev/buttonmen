@@ -24,8 +24,12 @@ abstract class BMAttack {
     // Dice that effect or affect this attack
     protected $validDice = array();
 
+    /**
+     * Constructor
+     *
+     * This is private, thus disabled, since this is a Singleton.
+     */
     private function __construct() {
-        // You can't instantiate me; I'm a Singleton!
     }
 
     public static function get_instance($type = NULL) {
@@ -224,7 +228,7 @@ abstract class BMAttack {
         $activeDiceNew = array();
         foreach ($attackers as $attIdx => &$att) {
             $playerIdx = $att->playerIdx;
-            $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx]);
+            $dieIdx = array_search($att, $game->activeDieArrayArray[$playerIdx], TRUE);
 
             $newDie = $att->capture($this->type, $attackers, $defenders);
 
@@ -395,6 +399,12 @@ abstract class BMAttack {
         return $this->type;
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -404,6 +414,12 @@ abstract class BMAttack {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         throw new LogicException(
             "BMAttack->$property cannot be set (attempting to set value $value)."
@@ -414,6 +430,12 @@ abstract class BMAttack {
 //        }
     }
 
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __isset($property) {
         return isset($this->$property);
     }

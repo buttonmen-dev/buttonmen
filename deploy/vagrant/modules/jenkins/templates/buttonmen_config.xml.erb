@@ -512,6 +512,7 @@
     </hudson.plugins.violations.ViolationsPublisher>
   </publishers>
   <buildWrappers>
+    <hudson.plugins.timestamper.TimestamperBuildWrapper plugin="timestamper"/>
     <org.jenkinsci.plugins.buildnamesetter.BuildNameSetter plugin="build-name-setter">
       <template>${GIT_BRANCH}#${BUILD_NUMBER}</template>
     </org.jenkinsci.plugins.buildnamesetter.BuildNameSetter>

@@ -7,7 +7,7 @@
 
 /**
  * This class contains all logic needed to construct any e-mail message.
- * 
+ *
  * Note that there are no generic message construction or sending
  * functions, intentionally.  Keep all the syntax needed to construct
  * any e-mail message inside this class, so we can keep it all in sync.
@@ -95,6 +95,12 @@ class BMEmail {
         }
     }
 
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -104,6 +110,12 @@ class BMEmail {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             default:

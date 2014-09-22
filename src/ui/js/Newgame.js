@@ -3,12 +3,14 @@ var Newgame = {
   'activity': {},
 };
 
+Newgame.bodyDivId = 'newgame_page';
+
 // Maximum number of characters permitted in the game description
 Newgame.GAME_DESCRIPTION_MAX_LENGTH = 255;
 
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
-// * Newgame.showNewgamePage() is the landing function.  Always call
+// * Newgame.showLoggedInPage() is the landing function.  Always call
 //   this first
 // * Newgame.getNewgameOptions() asks the API for information about players
 //   and buttons to be used when creating the game.  It clobbers
@@ -17,19 +19,13 @@ Newgame.GAME_DESCRIPTION_MAX_LENGTH = 255;
 //   the received data from getNewgameOptions().  It calls one of several
 //   functions, Newgame.action<SomeAction>()
 // * each Newgame.action<SomeAction>() function must set Newgame.page and
-//   Newgame.form, then call Newgame.arrangePage()
-// * Newgame.arrangePage() sets the contents of <div id="newgame_page">
-//   on the live page
+//   Newgame.form, then call Login.arrangePage()
 ////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////
 // GENERIC FUNCTIONS: these do not depend on the action being taken
 
-Newgame.showNewgamePage = function() {
-
-  // Setup necessary elements for displaying status messages
-  Env.setupEnvStub();
-
+Newgame.showLoggedInPage = function() {
   if (!Newgame.activity.opponentName) {
     Newgame.activity.opponentName = Env.getParameterByName('opponent');
   }
@@ -41,14 +37,11 @@ Newgame.showNewgamePage = function() {
   }
   if (!Newgame.activity.previousGameId) {
     Newgame.activity.previousGameId = Env.getParameterByName('previousGameId');
+    // We apparently don't want it to remain visible in the URL
+    Env.removeParameterByName('previousGameId');
   }
   if (!Newgame.activity.nRounds) {
     Newgame.activity.nRounds = Env.getParameterByName('maxWins');
-  }
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#newgame_page').length === 0) {
-    $('body').append($('<div>', {'id': 'newgame_page', }));
   }
 
   // Get all needed information, then display newgame page
@@ -56,16 +49,11 @@ Newgame.showNewgamePage = function() {
 };
 
 Newgame.getNewgameData = function(callback) {
-  if (Login.logged_in) {
-    Env.callAsyncInParallel(
-      [
-        Api.getButtonData,
-        Api.getPlayerData,
-      ], callback);
-  } else {
-    // The player needs to be logged in for anything good to happen here
-    Newgame.actionLoggedOut();
-  }
+  Env.callAsyncInParallel(
+    [
+      { 'func': Api.getButtonData, 'args': [ null ] },
+      Api.getPlayerData,
+    ], callback);
 };
 
 // This function is called after Api.player has been loaded with new data
@@ -77,26 +65,11 @@ Newgame.showPage = function() {
   }
 };
 
-// Actually lay out the page
-Newgame.arrangePage = function() {
-
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#newgame_page').empty();
-  $('#newgame_page').append(Newgame.page);
-
-  if (Newgame.form) {
-    $('#newgame_action_button').click(Newgame.form);
-  }
-};
-
 ////////////////////////////////////////////////////////////////////////
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newgame.js.
 // Each function should start by populating Newgame.page and Newgame.form
-// ane end by invoking Newgame.arrangePage();
+// ane end by invoking Login.arrangePage();
 
 Newgame.actionLoggedOut = function() {
 
@@ -108,7 +81,7 @@ Newgame.actionLoggedOut = function() {
   Newgame.addLoggedOutPage();
 
   // Lay out the page
-  Newgame.arrangePage();
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
 };
 
 Newgame.actionInternalErrorPage = function() {
@@ -121,7 +94,7 @@ Newgame.actionInternalErrorPage = function() {
   Newgame.addInternalErrorPage();
 
   // Lay out the page
-  Newgame.arrangePage();
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
 };
 
 Newgame.actionCreateGame = function() {
@@ -158,7 +131,7 @@ Newgame.actionCreateGame = function() {
   var playerNames = {};
   for (var playerName in Api.player.list) {
     if ((playerName != Login.player) &&
-        (Api.player.list[playerName].status == 'active')) {
+        (Api.player.list[playerName].status == 'ACTIVE')) {
       playerNames[playerName] = playerName;
     }
   }
@@ -170,7 +143,7 @@ Newgame.actionCreateGame = function() {
                          null, Newgame.activity.opponentName, 'Anybody'));
 
   // Round selection
-  if (!('nRounds' in Newgame.activity)) {
+  if (!('nRounds' in Newgame.activity) || !Newgame.activity.nRounds) {
     Newgame.activity.nRounds = '3';
   }
   miscOptionsTable.append(
@@ -313,7 +286,7 @@ Newgame.actionCreateGame = function() {
   Newgame.form = Newgame.formCreateGame;
 
   // Lay out the page
-  Newgame.arrangePage();
+  Login.arrangePage(Newgame.page, Newgame.form, '#newgame_action_button');
 };
 
 
@@ -352,7 +325,7 @@ Newgame.formCreateGame = function() {
       'type': 'error',
       'text': errorMessage,
     };
-    Newgame.showNewgamePage();
+    Newgame.showLoggedInPage();
   } else {
     // create an array with one element for each player/button combination
     var playerInfoArray = [];
@@ -380,7 +353,7 @@ Newgame.formCreateGame = function() {
     // failure so the player can correct selections, on success in
     // case the player wants to create another similar game.
     // Therefore, it's fine to pass the form post the same function
-    // (showNewgamePage) for both success and failure conditions.
+    // (showLoggedInPage) for both success and failure conditions.
     Api.apiFormPost(
       args,
       {
@@ -390,9 +363,9 @@ Newgame.formCreateGame = function() {
         },
         'notok': { 'type': 'server', },
       },
-      'newgame_action_button',
-      Newgame.showNewgamePage,
-      Newgame.showNewgamePage
+      '#newgame_action_button',
+      Newgame.showLoggedInPage,
+      Newgame.showLoggedInPage
     );
   }
 };
@@ -590,7 +563,9 @@ Newgame.updateButtonList = function(player, limitid) {
     });
   }
 
-  Newgame.activity.buttonList[player] = {};
+  Newgame.activity.buttonList[player] = {
+    '__random': 'Random button',
+  };
   var choiceid;
   var hasSkill;
   $.each(Api.button.list, function(button, buttoninfo) {

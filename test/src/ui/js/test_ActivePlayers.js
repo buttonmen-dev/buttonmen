@@ -9,7 +9,12 @@
       $('body').append($('<div>', {'id': 'activeplayers_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -26,64 +31,75 @@
 
     // Fail if any other elements were added or removed
     BMTestUtils.ActivePlayersPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.ActivePlayersPost, BMTestUtils.ActivePlayersPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the ActivePlayers module has been loaded
-test("test_ActivePlayers_is_loaded", function() {
-  ok(ActivePlayers, "The ActivePlayers namespace exists");
+test("test_ActivePlayers_is_loaded", function(assert) {
+  assert.ok(ActivePlayers, "The ActivePlayers namespace exists");
 });
 
-test("test_ActivePlayers.showActivePlayersPage", function() {
-  $.ajaxSetup({ async: false });
-  ActivePlayers.showActivePlayersPage();
+// The purpose of this test is to demonstrate that the flow of
+// ActivePlayers.showLoggedInPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
+test("test_ActivePlayers.showLoggedInPage", function(assert) {
+  expect(5);
+  var cached_getActivePlayers = Api.getActivePlayers;
+  var cached_showStatePage = ActivePlayers.showPage;
+  var getActivePlayersCalled = false;
+  ActivePlayers.showPage = function() {
+    assert.ok(getActivePlayersCalled, "ActivePlayers.getActivePlayers is called before ActivePlayers.showPage");
+  }
+  Api.getActivePlayers = function(number, callback) {
+    getActivePlayersCalled = true;
+    assert.equal(callback, ActivePlayers.showPage,
+      "ActivePlayers.getActivePlayers is called with ActivePlayers.showPage as an argument");
+    callback();
+  }
+
+  ActivePlayers.showLoggedInPage();
   var item = document.getElementById('activeplayers_page');
-  equal(item.nodeName, "DIV",
-        "#activeplayers_page is a div after showActivePlayersPage() is called");
-  $.ajaxSetup({ async: true });
+  assert.equal(item.nodeName, "DIV",
+        "#activeplayers_page is a div after showLoggedInPage() is called");
+  Api.getActivePlayers = cached_getActivePlayers;
+  ActivePlayers.showPage = cached_showStatePage;
 });
 
-asyncTest("test_ActivePlayers.getActivePlayers", function() {
-  ActivePlayers.getActivePlayers(function() {
-    ok(Api.active_players, "ActivePlayers info parsed from server");
+test("test_ActivePlayers.getActivePlayers", function(assert) {
+  stop();
+  Api.getActivePlayers(50, function() {
+    assert.ok(Api.active_players, "ActivePlayers info parsed from server");
     if (Api.active_players) {
-      equal(Api.active_players.load_status, 'ok',
+      assert.equal(Api.active_players.load_status, 'ok',
         "ActivePlayers info parsed successfully from server");
     }
     start();
   });
 });
 
-asyncTest("test_ActivePlayers.showPage", function() {
-  ActivePlayers.getActivePlayers(function() {
+test("test_ActivePlayers.showPage", function(assert) {
+  stop();
+  Api.getActivePlayers(50, function() {
     ActivePlayers.showPage();
     var htmlout = ActivePlayers.page.html();
-    ok(htmlout.length > 0,
+    assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
     start();
   });
 });
 
-asyncTest("test_ActivePlayers.arrangePage", function() {
-  ActivePlayers.getActivePlayers(function() {
-    ActivePlayers.page = $('<div>');
-    ActivePlayers.page.append($('<p>', {'text': 'hi world', }));
-    ActivePlayers.arrangePage();
-    var item = document.getElementById('activeplayers_page');
-    equal(item.nodeName, "DIV",
-          "#activeplayers_page is a div after arrangePage() is called");
-    start();
-  });
-});
-
-asyncTest("test_ActivePlayers.buildPlayersTable", function() {
-  ActivePlayers.getActivePlayers(function() {
+test("test_ActivePlayers.buildPlayersTable", function(assert) {
+  stop();
+  Api.getActivePlayers(50, function() {
     var table = ActivePlayers.buildPlayersTable();
     var htmlout = table.html();
-    ok(htmlout.match('12 minutes'), "Players table content was generated");
+    assert.ok(htmlout.match('12 minutes'), "Players table content was generated");
     start();
   });
 });

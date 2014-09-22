@@ -24,6 +24,7 @@ class BMButton extends BMCanHaveSkill {
     protected $artFilename;
     protected $dieArray;
     protected $dieSkills;
+    protected $dieTypes;
     protected $ownerObject;
     protected $playerIdx;
     protected $hasUnimplementedSkill;
@@ -42,6 +43,7 @@ class BMButton extends BMCanHaveSkill {
         $this->recipe = $recipe;
         $this->dieArray = array();
         $this->dieSkills = array();
+        $this->dieTypes = array();
         $this->hasUnimplementedSkill = FALSE;
         $this->hasAlteredRecipe = $isRecipeAltered;
 
@@ -54,7 +56,17 @@ class BMButton extends BMCanHaveSkill {
 
         // set die sides and skills, one die at a time
         foreach ($dieRecipeArray as $dieRecipe) {
-            $die = BMDie::create_from_recipe($dieRecipe);
+            try {
+                $die = BMDie::create_from_recipe($dieRecipe);
+            } catch (BMUnimplementedDieException $e) {
+                $this->hasUnimplementedSkill = TRUE;
+                continue;
+            } catch (Exception $e) {
+                error_log('Error loading die ' . $dieRecipe . ' for ' . $name);
+                error_log(print_r($e, TRUE));
+                $this->hasUnimplementedSkill = TRUE;
+                continue;
+            }
             if (isset($this->ownerObject)) {
                 $die->ownerObject = $this->ownerObject;
                 $die->playerIdx = $this->playerIdx;
@@ -68,6 +80,7 @@ class BMButton extends BMCanHaveSkill {
                     $this->hasUnimplementedSkill = TRUE;
                 }
                 $this->dieSkills += $die->skillList;
+                $this->dieTypes += $die->getDieTypes();
             }
         }
     }
@@ -125,7 +138,7 @@ class BMButton extends BMCanHaveSkill {
     public function update_button_recipe() {
         $recipe = '';
 
-        $playerIdx = array_search($this, $this->ownerObject->buttonArray);
+        $playerIdx = array_search($this, $this->ownerObject->buttonArray, TRUE);
         if (FALSE === $playerIdx) {
             return;
         }
@@ -153,8 +166,12 @@ class BMButton extends BMCanHaveSkill {
     }
 
     // utility methods
-    // to allow array elements to be set directly, change the __get to &__get
-    // to return the result by reference
+    /**
+     * Getter
+     *
+     * @param string $property
+     * @return mixed
+     */
     public function __get($property) {
         if (property_exists($this, $property)) {
             switch ($property) {
@@ -166,6 +183,12 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Setter
+     *
+     * @param string $property
+     * @param mixed $value
+     */
     public function __set($property, $value) {
         switch ($property) {
             case 'recipe':
@@ -209,10 +232,22 @@ class BMButton extends BMCanHaveSkill {
         }
     }
 
+    /**
+     * Define behaviour of isset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __isset($property) {
         return isset($this->$property);
     }
 
+    /**
+     * Define behaviour of unset()
+     *
+     * @param string $property
+     * @return boolean
+     */
     public function __unset($property) {
         if (isset($this->$property)) {
             unset($this->$property);

@@ -9,7 +9,12 @@ module("OpenGames", {
       $('body').append($('<div>', {'id': 'opengames_page', }));
     }
   },
-  'teardown': function() {
+  'teardown': function(assert) {
+
+    // Do not ignore intermittent failures in this test --- you
+    // risk breaking the entire suite in hard-to-debug ways
+    assert.equal(jQuery.active, 0,
+      "All test functions MUST complete jQuery activity before exiting");
 
     // Delete all elements we expect this module to create
 
@@ -28,75 +33,95 @@ module("OpenGames", {
 
     // Fail if any other elements were added or removed
     BMTestUtils.OpenGamesPost = BMTestUtils.getAllElements();
-    deepEqual(
+    assert.deepEqual(
       BMTestUtils.OpenGamesPost, BMTestUtils.OpenGamesPre,
       "After testing, the page should have no unexpected element changes");
   }
 });
 
 // pre-flight test of whether the OpenGames module has been loaded
-test("test_OpenGames_is_loaded", function() {
-  ok(OpenGames, "The OpenGames namespace exists");
+test("test_OpenGames_is_loaded", function(assert) {
+  assert.ok(OpenGames, "The OpenGames namespace exists");
 });
 
-test("test_OpenGames.showOpenGamesPage", function() {
-  $.ajaxSetup({ async: false });
-  OpenGames.showOpenGamesPage();
+// The purpose of this test is to demonstrate that the flow of
+// OpenGames.showLoggedInPage() is correct for a showXPage function, namely
+// that it calls an API getter with a showStatePage function as a
+// callback.
+//
+// Accomplish this by mocking the invoked functions
+test("test_OpenGames.showLoggedInPage", function(assert) {
+  expect(5);
+  var cached_getOpenGames = OpenGames.getOpenGames;
+  var cached_showStatePage = OpenGames.showPage;
+  var getOpenGamesCalled = false;
+  OpenGames.showPage = function() {
+    assert.ok(getOpenGamesCalled, "OpenGames.getOpenGames is called before OpenGames.showPage");
+  }
+  OpenGames.getOpenGames = function(callback) {
+    getOpenGamesCalled = true;
+    assert.equal(callback, OpenGames.showPage,
+      "OpenGames.getOpenGames is called with OpenGames.showPage as an argument");
+    callback();
+  }
+
+  OpenGames.showLoggedInPage();
   var item = document.getElementById('opengames_page');
-  equal(item.nodeName, "DIV",
-        "#opengames_page is a div after showOpenGamesPage() is called");
-  $.ajaxSetup({ async: true });
+  assert.equal(item.nodeName, "DIV",
+        "#opengames_page is a div after showLoggedInPage() is called");
+
+  OpenGames.getOpenGames = cached_getOpenGames;
+  OpenGames.showPage = cached_showStatePage;
 });
 
-asyncTest("test_OpenGames.getOpenGames", function() {
+test("test_OpenGames.getOpenGames", function(assert) {
+  stop();
   OpenGames.getOpenGames(function() {
-    ok(Api.open_games, "open games are parsed from server");
+    assert.ok(Api.open_games, "open games are parsed from server");
     if (Api.open_games) {
-      equal(Api.open_games.load_status, 'ok',
+      assert.equal(Api.open_games.load_status, 'ok',
         "open games are parsed successfully from server");
     }
     start();
   });
 });
 
-asyncTest("test_OpenGames.showPage", function() {
+test("test_OpenGames.showPage", function(assert) {
+  stop();
   OpenGames.getOpenGames(function() {
     OpenGames.showPage();
     var htmlout = OpenGames.page.html();
-    ok(htmlout.length > 0,
+    assert.ok(htmlout.length > 0,
        "The created page should have nonzero contents");
     start();
   });
 });
 
-asyncTest("test_OpenGames.arrangePage", function() {
-  OpenGames.getOpenGames(function() {
-    OpenGames.page = $('<div>');
-    OpenGames.page.append($('<p>', {'text': 'hi world', }));
-    OpenGames.arrangePage();
-    var item = document.getElementById('opengames_page');
-    equal(item.nodeName, "DIV",
-          "#opengames_page is a div after arrangePage() is called");
-    start();
-  });
-});
-
-asyncTest("test_OpenGames.buildGameTable", function() {
+test("test_OpenGames.buildGameTable", function(assert) {
+  stop();
   var buttons = {
     'Avis': {
       'recipe': 'Avis: (4) (4) (10) (12) (X)',
       'greyed': false,
     },
+    'Apples': {
+      'recipe': 'Apples: (8) (8) (2/12) (8/16) (20/24)',
+      'greyed': false,
+    },
+    'Von Pinn': {
+      'recipe': 'Von Pinn: (4) p(6,6) (10) (20) (W)',
+      'greyed': false,
+    },
   };
   Api.getOpenGamesData(function() {
     var table = OpenGames.buildGameTable('joinable', buttons);
-    ok(table.find('td.gameAction').length > 0,
+    assert.ok(table.find('td.gameAction').length > 0,
       "Table rows were generated");
     start();
   });
 });
 
-test("test_OpenGames.joinOpenGame", function() {
+test("test_OpenGames.joinOpenGame", function(assert) {
   var gameId = 21;
 
   var gameRow = $('<tr>');
@@ -117,10 +142,10 @@ test("test_OpenGames.joinOpenGame", function() {
   $.ajaxSetup({ async: true });
 
   var gameLink = gameActionTd.find('a');
-  ok(gameLink.length > 0, "link to game was created");
+  assert.ok(gameLink.length > 0, "link to game was created");
 });
 
-test("test_OpenGames.displayJoinResult", function() {
+test("test_OpenGames.displayJoinResult", function(assert) {
   var gameId = 21;
 
   var gameActionTd = $('<td>');
@@ -138,6 +163,6 @@ test("test_OpenGames.displayJoinResult", function() {
   OpenGames.displayJoinResult(joinButton, buttonSelect, gameId, 'Avis');
 
   var buttonSpan = victimButtonTd.find('span');
-  ok(buttonSpan.length > 0, "button name is displayed");
-  equal(buttonSpan.text(), 'Avis', "correct button name is displayed");
+  assert.ok(buttonSpan.length > 0, "button name is displayed");
+  assert.equal(buttonSpan.text(), 'Avis', "correct button name is displayed");
 });

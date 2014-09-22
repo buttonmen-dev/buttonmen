@@ -1,6 +1,8 @@
 // namespace for this "module"
 var History = {};
 
+History.bodyDivId = 'history_page';
+
 // These are the parameters that we need to pass to the API. Having this
 // information about them here helps to read them from the page, write them to
 // the URL, build the table columns for them, etc.
@@ -107,7 +109,7 @@ History.searchParameterInfo = {
 
 ////////////////////////////////////////////////////////////////////////
 // Primary flow through this page:
-// * History.showHistoryPage() is the landing function. Always call
+// * History.showLoggedInPage() is the landing function. Always call
 //   this first. On the initial page load, it sets History.searchParameters
 //   based on the hashbang of the incoming URL, then calls History.getHistory().
 // * History.getFilters() gets data from the API to populate the filters
@@ -116,9 +118,7 @@ History.searchParameterInfo = {
 //   collection and causing Api.game_history to be set. It then calls
 //   History.showPage()
 // * History.showPage() uses the data returned by the API to build the contents
-//   of the page as History.page and calls History.arrangePage()
-// * History.arrangePage() sets the contents of <div id="history_page">
-//   on the live page
+//   of the page as History.page and calls Login.arrangePage()
 //
 // Events:
 // * History.performManualSearch() is called whenever the search button, a
@@ -130,20 +130,10 @@ History.searchParameterInfo = {
 //   history state associated with the new URL and calls History.getHistory()
 ////////////////////////////////////////////////////////////////////////
 
-History.showHistoryPage = function() {
-  // Setup necessary elements for displaying status messages
-  if ($('#env_message').length === 0) {
-    Env.setupEnvStub();
-  }
-
+History.showLoggedInPage = function() {
   // When the user hits the back button to retrace their path through the
   // hashbang URL's, load the search results that belong to that "page"
   $(window).bind('popstate', History.performAutomaticSearch);
-
-  // Make sure the div element that we will need exists in the page body
-  if ($('#history_page').length === 0) {
-    $('body').append($('<div>', {'id': 'history_page', }));
-  }
 
   History.readSearchParametersFromUrl();
   if (History.searchParameters !== undefined) {
@@ -165,11 +155,11 @@ History.getFilters = function(callback) {
   Env.callAsyncInParallel(
     [
       Api.getPlayerData,
-      Api.getButtonData,
+      { 'func': Api.getButtonData, 'args': [ null ] },
     ], function() {
       var playerValues = { };
       $.each(Api.player.list, function(name, playerInfo) {
-        if (playerInfo.status == 'active') {
+        if (playerInfo.status == 'ACTIVE') {
           playerValues[name] = name;
         }
       });
@@ -188,52 +178,42 @@ History.getFilters = function(callback) {
 };
 
 History.getHistory = function(callback) {
-  // Make sure the user is logged in before trying to hit the API
-  if (Login.logged_in !== true) {
+  // Validate the search parameters that are supposed to be derived from set
+  // lists of values (like player names).
+  var validationError = '';
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (History.searchParameters[name] !== undefined &&
+      info.source !== undefined) {
+      if (info.source[History.searchParameters[name]] === undefined) {
+        validationError += name + ' is not recognized. ';
+      }
+    }
+  });
+
+  if (validationError) {
     Env.message = {
       'type': 'error',
-      'text': 'You must be logged in in order to view game history.',
+      'text': validationError,
     };
     History.page = $('<div>');
-    History.arrangePage();
-  } else {
-    // Validate the search parameters that are supposed to be derived from set
-    // lists of values (like player names).
-    var validationError = '';
-    $.each(History.searchParameterInfo, function(name, info) {
-      if (History.searchParameters[name] !== undefined &&
-        info.source !== undefined) {
-        if (info.source[History.searchParameters[name]] === undefined) {
-          validationError += name + ' is not recognized. ';
-        }
-      }
-    });
-
-    if (validationError) {
-      Env.message = {
-        'type': 'error',
-        'text': validationError,
-      };
-      History.page = $('<div>');
-      History.arrangePage();
-      return;
-    }
-
-    $('#searchButton').attr('disabled', 'disabled');
-
-    // For the required fields, set the default values
-    $.each(History.searchParameterInfo, function(name, info) {
-      if (info.defaultValue !== undefined &&
-        History.searchParameters[name] === undefined) {
-        History.searchParameters[name] = info.defaultValue;
-      }
-    });
-
-    Api.searchGameHistory(
-      History.searchParameters,
-      callback
-    );
+    Login.arrangePage(History.page);
+    return;
   }
+
+  $('#searchButton').attr('disabled', 'disabled');
+
+  // For the required fields, set the default values
+  $.each(History.searchParameterInfo, function(name, info) {
+    if (info.defaultValue !== undefined &&
+      History.searchParameters[name] === undefined) {
+      History.searchParameters[name] = info.defaultValue;
+    }
+  });
+
+  Api.searchGameHistory(
+    History.searchParameters,
+    callback
+  );
 };
 
 History.showPage = function() {
@@ -243,7 +223,7 @@ History.showPage = function() {
     Api.game_history.load_status != 'ok') {
     // An error has occurred, and we've presumably already registered the
     // error message, so we should just display it.
-    History.arrangePage();
+    Login.arrangePage(History.page);
     return;
   }
 
@@ -265,16 +245,7 @@ History.showPage = function() {
   }
 
   // Actually lay out the page
-  History.arrangePage();
-};
-
-History.arrangePage = function() {
-  // If there is a message from a current or previous invocation of this
-  // page, display it now
-  Env.showStatusMessage();
-
-  $('#history_page').empty();
-  $('#history_page').append(History.page);
+  Login.arrangePage(History.page);
 };
 
 History.performManualSearch = function() {
@@ -655,12 +626,12 @@ History.buildResultsTableBody = function() {
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorA + ';',
     }).append(Env.buildProfileLink(game.playerNameA)));
-    gameRow.append($('<td>', {
-      'text': game.buttonNameA,
-    }));
-    gameRow.append($('<td>', {
-      'text': game.buttonNameB,
-    }));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(game.buttonNameA)
+    ));
+    gameRow.append($('<td>').append(
+      Env.buildButtonLink(game.buttonNameB)
+    ));
     gameRow.append($('<td>', {
       'style': 'background-color: ' + game.colorB + ';',
     }).append(Env.buildProfileLink(game.playerNameB)));

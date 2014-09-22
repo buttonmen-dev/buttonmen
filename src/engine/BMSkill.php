@@ -118,6 +118,7 @@ class BMSkill {
                      'Mood'         => '?',
                      'Morphing'     => 'm',
                      'Null'         => 'n',
+                     'Ornery'       => 'o',
                      'Poison'       => 'p',
                      'Queer'        => 'q',
                      'Reserve'      => 'r',
@@ -165,7 +166,7 @@ class BMSkill {
      *
      * @param BMSkill $skill1
      * @param BMSkill $skill2
-     * @return integer
+     * @return int
      */
     public static function skill_order_comparator($skill1, $skill2) {
         $skill1Pos = array_search($skill1, self::skill_order_array());
@@ -209,6 +210,7 @@ class BMSkill {
                      'BMSkillTrip',
                      'BMSkillStinger',
                      'BMSkillStealth',
+                     'BMSkillOrnery',
                      'BMSkillMood',
                      'BMSkillMad',
                      'BMSkillDoppelganger',

@@ -20,13 +20,13 @@
     </noscript>
     <script src="js/extern/jquery-1.9.0.min.js"></script>
     <script>
-$(document).ready(function() {
-  $.getScript('js/Loader.js', function() {
-    Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Newgame.js' ], function() {
-        Login.showLoginHeader(Newgame.showNewgamePage);
-    });
-  });
-});
+        $(document).ready(function() {
+          $.getScript('js/Loader.js', function() {
+            Loader.loadScripts([ 'js/extern/jquery-ui.min.js', 'js/Newgame.js' ], function() {
+                Login.showLoginHeader(Newgame);
+            });
+          });
+        });
     </script>
 </body>
 

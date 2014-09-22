@@ -324,7 +324,7 @@ span.skill_desc {
     cursor: default;
 }
 
-span.skill_desc_i {
+span.info_icon {
     color: white;
     background: #000080;
     border-radius: 50%;
@@ -442,6 +442,10 @@ table.activePlayerList th.idleness {
 .gameDescDisplay {
     font-style: italic;
     size: 0.8em;
+}
+
+.warning {
+    color: red;
 }
 
 /* Game lists (Overview, Game History) */
@@ -806,3 +810,83 @@ div.forum div.splitRight {
 }
 
 /* END: BB Code */
+
+#buttons_page div.setBox {
+    display: inline-block;
+    width: 250px;
+    margin: 10px;
+    padding: 10px;
+    vertical-align: top;
+}
+
+#buttons_page div.setBox a.buttonSetLink {
+    font-size: 1.2em;
+}
+
+#buttons_page div.singleButton {
+    width: 800px;
+    margin: auto;
+}
+
+#buttons_page div.returnLink {
+    margin: 50px;
+}
+
+#buttons_page div.buttonBox {
+    width: 250px;
+    margin: 10px;
+    padding: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#buttons_page .unimplemented {
+    background: #dddddd;
+}
+
+#buttons_page div.singleButton div.buttonBox {
+    width: 300px;
+}
+
+#buttons_page div.secondaryDetails {
+    width: 350px;
+    margin: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+#buttons_page p.flavorText {
+    font-style: italic;
+}
+
+#buttons_page p.tags {
+    margin-top: 40px;
+}
+
+#buttons_page div.singleButton div.buttonName {
+    font-weight: bold;
+    font-size: 2em;
+}
+
+#buttons_page table.skills th {
+    white-space: nowrap;
+    text-align: right;
+}
+
+#buttons_page table.skills td {
+    text-align: left;
+}
+
+#buttons_page table.skills th, #buttons_page table.skills td {
+    padding-top: 0;
+    padding-bottom: 0;
+    vertical-align: top;
+}
+
+#buttons_page table.skills p {
+    margin-top: 0;
+}
+
+#buttons_page table.skills p.interaction {
+    font-style: italic;
+}

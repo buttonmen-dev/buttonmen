@@ -19,6 +19,7 @@
   "gameActionLog": [
     {
       "timestamp": 1387746541,
+      "player": "tester1",
       "message": "tester1 performed Skill attack using [F(6):5,(6):5] against [(12):11], and needs to turn down Fire dice in order to complete this attack"
     }
   ],
@@ -51,6 +52,7 @@
       "sideScore": 0,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null
     },
     {
@@ -78,6 +80,7 @@
       "sideScore": 0,
       "gameScoreArray": {"W": 0, "L": 0, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null
     }
   ],

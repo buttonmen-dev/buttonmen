@@ -16,6 +16,7 @@ SkillName = {
   '?': 'Mood',
   'm': 'Morphing',
   'n': 'Null',
+  'o': 'Ornery',
   'p': 'Poison',
   'q': 'Queer',
   'r': 'Reserve',
@@ -39,14 +40,8 @@ class BMClientParser(bmapi.BMClient):
       raise ValueError, "Failed to get button data, got: %s" % retval
     data = retval.data
     buttons = {}
-    for i in range(len(data['buttonNameArray'])):
-      buttons[data['buttonNameArray'][i]] = {
-        'buttonSet': data['buttonSetArray'][i],
-        'recipe': data['recipeArray'][i],
-        'unimplemented': data['hasUnimplementedSkillArray'][i],
-        'tourn_legal': data['isTournamentLegalArray'][i],
-        'skills': data['dieSkillsArray'][i],
-      }
+    for i in range(len(data)):
+      buttons[data[i]['buttonName']] = data[i]
     return buttons
 
   def wrap_load_player_names(self):
@@ -88,7 +83,7 @@ class BMClientParser(bmapi.BMClient):
       raise ValueError, "Failed to call loadCompletedGames, got: " + retval
     return self._wrap_game_list_data(retval.data)
 
-  def wrap_create_game(self, pbutton, obutton=None, opponent=None):
+  def wrap_create_game(self, pbutton, obutton='', opponent=''):
     retval = self.create_game(pbutton, obutton, opponent)
     if not retval.status == 'ok':
       raise ValueError, "Failed to call createGame, got: " + retval

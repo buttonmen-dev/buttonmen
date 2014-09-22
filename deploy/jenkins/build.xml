@@ -7,16 +7,12 @@
  <property name="source_engine" value="./src/engine"/>
 
  <target name="clean" description="Clean up and create artifact directories">
-  <delete dir="${basedir}/build/api"/>
-  <delete dir="${basedir}/build/code-browser"/>
-  <delete dir="${basedir}/build/coverage"/>
-  <delete dir="${basedir}/build/js-coverage"/>
-  <delete dir="${basedir}/build/logs"/>
-  <delete dir="${basedir}/build/pdepend"/>
+  <delete dir="${basedir}/build"/>
   <delete>
     <fileset dir="${basedir}/tools/api-client/python/lib" includes="**/*.pyc"/>
   </delete>
 
+  <mkdir dir="${basedir}/build"/>
   <mkdir dir="${basedir}/build/api"/>
   <mkdir dir="${basedir}/build/code-browser"/>
   <mkdir dir="${basedir}/build/js-coverage"/>
@@ -44,7 +40,7 @@
 
  <target name="phpunit" description="Run unit tests using PHPUnit and generates junit.xml and clover.xml" depends="testdb">
   <exec executable="phpunit" failonerror="true">
-    <arg line="--bootstrap ./src/lib/bootstrap.php
+    <arg line="--bootstrap ./deploy/jenkins/phpunit_bootstrap.php
                --log-junit build/logs/junit.xml
                --coverage-clover build/logs/clover.xml
                test/" />
@@ -187,5 +183,5 @@
   <antcall target="jstest-jenkins-report"/>
  </target>
 
- <target name="build" depends="clean,newline-audit,php-audit,js-audit,jstest,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpcb,phpunit"/>
+ <target name="build" depends="clean,newline-audit,php-audit,js-audit,jstest,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpunit,phpcb"/>
 </project>

@@ -13,22 +13,27 @@
   "gameActionLog": [
     {
       "timestamp": 1387500762,
+      "player": "",
       "message": "End of round:  tester1 won round 5 (46 vs 30)"
     },
     {
       "timestamp": 1387500762,
+      "player": "tester1",
       "message": "tester1 performed Power attack using [(X): 7] against [(4): 2]; Defender (4) was captured; Attacker (X) rerolled 7 => 4"
     },
     {
       "timestamp": 1387500756,
+      "player": "tester2",
       "message": "tester2 passed"
     },
     {
       "timestamp": 1387500753,
+      "player": "tester1",
       "message": "tester1 performed Power attack using [(X): 14] against [(10): 4]; Defender (10) was captured; Attacker (X) rerolled 14 => 7"
     },
     {
       "timestamp": 1387500749,
+      "player": "tester2",
       "message": "tester2 performed Power attack using [(10): 10] against [(4): 4]; Defender (4) was captured; Attacker (10) rerolled 10 => 4"
     }
   ],
@@ -65,6 +70,7 @@
       "sideScore": null,
       "gameScoreArray": {"W": 3, "L": 2, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null,
       "playerColor": "#dd99dd"
     },
@@ -87,6 +93,7 @@
       "sideScore": null,
       "gameScoreArray": {"W": 2, "L": 3, "D": 0},
       "lastActionTime": 0,
+      "hasDismissedGame": false,
       "canStillWin": null,
       "playerColor": "#ddffdd"
     }
