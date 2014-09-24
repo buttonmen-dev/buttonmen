@@ -39,9 +39,12 @@ CREATE TABLE player (
     n_games_won         SMALLINT UNSIGNED DEFAULT 0,
     n_games_lost        SMALLINT UNSIGNED DEFAULT 0,
     INDEX (name_ingame),
-    FOREIGN KEY (favorite_button_id) REFERENCES button(id),
-    FOREIGN KEY (favorite_buttonset_id) REFERENCES buttonset(id),
-    FOREIGN KEY (status_id) REFERENCES player_status(id)
+    CONSTRAINT fk_fav_button_id  
+      FOREIGN KEY  (favorite_button_id)    REFERENCES button(id),
+    CONSTRAINT fk_fav_set_id  
+      FOREIGN KEY  (favorite_buttonset_id) REFERENCES buttonset(id),
+    CONSTRAINT fk_player_status_id  
+      FOREIGN KEY  (status_id)             REFERENCES player_status(id)
 );
 
 DROP TABLE IF EXISTS player_auth;
