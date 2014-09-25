@@ -244,7 +244,8 @@ abstract class BMAttack {
             $def->be_captured($this->type, $attackers, $defenders);
         }
 
-        // reroll all (possibly changed) attacking dice
+        // reroll all (possibly changed) attacking dice except
+        // trip dice that have already rerolled
         foreach ($attackers as &$att) {
             $att->roll(TRUE);
         }

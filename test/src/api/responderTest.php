@@ -3828,9 +3828,8 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 - responder003 performed Trip attack using [t(4):1] against [t(10):10] (and it was unsuccessful)
         // [t(1):1, (2):1, t(4):1, (6):6, (Y=1):1] => [(8):5, t(8):8, (10):10, t(10):10, (X=11):10]
-        // first roll value is an intermediate roll for the attacker
         $this->verify_api_submitTurn(
-            array(3, 1, 4),
+            array(1, 4),
             'responder003 performed Trip attack using [t(4):1] against [t(10):10]; Attacker t(4) rerolled 1 => 1; Defender t(10) rerolled 10 => 4, was not captured. ',
             $retval, array(array(0, 2), array(1, 3)),
             $gameId, 1, 'Trip', 0, 1, '');
@@ -3842,8 +3841,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
         $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('JustPerformedTripAttack');
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
-        // bug #1328 - this flag shouldn't be set in this case, since this die was not captured and is still active
-        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array('WasJustCaptured');
+        $expData['playerDataArray'][1]['activeDieArray'][3]['properties'] = array();
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [t(4):1] against [t(10):10]; Attacker t(4) rerolled 1 => 1; Defender t(10) rerolled 10 => 4, was not captured'));
 
         // now load the game and check its state
@@ -3853,11 +3851,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 04 - responder004 performed Trip attack using [t(10):4] against [(6):6] (and it was successful)
         // [t(1):1, (2):1, t(4):1, (6):6, (Y=1):1] <= [(8):5, t(8):8, (10):10, t(10):10, (X=11):10]
-        // first roll value is an intermediate roll for the attacker - i intentionally set it
-        // lower than the defender's reroll value to make sure it is not actually used in determining trip attack success.
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
-            array(1, 10, 2),
+            array(10, 2),
             'responder004 performed Trip attack using [t(10):4] against [(6):6]; Attacker t(10) rerolled 4 => 10; Defender (6) rerolled 6 => 2, was captured. ',
             $retval, array(array(0, 3), array(1, 3)),
             $gameId, 1, 'Trip', 1, 0, '');
