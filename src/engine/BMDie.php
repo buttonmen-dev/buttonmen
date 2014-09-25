@@ -180,8 +180,8 @@ class BMDie extends BMCanHaveSkill {
         $this->run_hooks('pre_roll', array('die' => $this,
                                            'isTriggeredByAttack' => $isTriggeredByAttack));
 
-        if (($this->doesReroll || !isset($this->value)) &&
-            !$this->has_flag('JustPerformedTripAttack')) {
+        if (!isset($this->value) ||
+            ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
             $this->value = bm_rand($this->min, $this->max);
         }
 
