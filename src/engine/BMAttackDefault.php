@@ -83,26 +83,26 @@ class BMAttackDefault extends BMAttack {
         // deal with skills with side effects
         if ($attacker->has_skill('Doppelganger') && in_array('Power', $validAttackTypes)) {
             $this->validationMessage = $messageRoot .
-                'Doppelganger only triggers on a Power attack.';
+                'A power attack will trigger the Doppelganger skill, while other attack types will not.';
             return FALSE;
         }
 
         // deal with attacks with side effects
         if (in_array('Berserk', $validAttackTypes)) {
             $this->validationMessage = $messageRoot .
-                'It is not clear whether you want to perform a berserk attack or not.';
+                'A berserk attack will trigger the berserk skill, while other attack types will not.';
             return FALSE;
         }
 
         if (in_array('Trip', $validAttackTypes)) {
             $this->validationMessage = $messageRoot .
-                'It is not clear whether you want to perform a trip attack or not.';
+                'It is not clear whether or not you want to perform a trip attack.';
             return FALSE;
         }
 
         if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
             $this->validationMessage = $messageRoot .
-                'It is not clear whether you want to fire your attacking die or not.';
+                'It is not clear whether or not you want to fire your attacking die.';
             return FALSE;
         }
 
