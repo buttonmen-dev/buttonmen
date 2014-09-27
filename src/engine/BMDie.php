@@ -474,6 +474,16 @@ class BMDie extends BMCanHaveSkill {
         return $dice;
     }
 
+    // shrink() is intended to be used for weak dice
+    public function shrink() {
+
+    }
+
+    // grow() is intended to be used for mighty dice
+    public function grow() {
+
+    }
+
     public function get_recipe($addMaxvals = FALSE) {
         $recipe = '';
         foreach ($this->skillList as $skill) {
