@@ -47,6 +47,9 @@ class BMSkillTrip extends BMSkill {
         $defender->roll(TRUE);
 
         $defender->captured = ($defender->value <= $attacker->value);
+        if (!$defender->captured) {
+            $defender->remove_flag('WasJustCaptured');
+        }
     }
 
     protected static function get_description() {
