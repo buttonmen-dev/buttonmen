@@ -14,22 +14,23 @@ class BMAttackBerserk extends BMAttackSpeed {
 
         $att = $attArray[0];
 
-        $returnVal = TRUE;
-
         if (!$att->has_skill('Berserk')) {
-            $returnVal = FALSE;
+            $this->validationMessage = 'Dice without berserk cannot perform berserk attacks.';
+            return FALSE;
         }
 
         if ($att->has_skill('Stealth')) {
-            $returnVal = FALSE;
+            $this->validationMessage = 'Stealth dice cannot perform berserk attacks.';
+            return FALSE;
         }
 
         foreach ($defArray as $def) {
             if ($def->has_skill('Stealth')) {
-                $returnVal = FALSE;
+                $this->validationMessage = 'Stealth dice cannot be attacked by berserk attacks.';
+                return FALSE;
             }
         }
 
-        return $returnVal;
+        return TRUE;
     }
 }

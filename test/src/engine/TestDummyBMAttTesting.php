@@ -45,5 +45,3 @@ class TestDummyBMAttTesting extends BMAttack {
         return TRUE;
     }
 }
-
-?>

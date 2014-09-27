@@ -384,18 +384,18 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @covers BMAttack::has_disabled_attackers
+     * @covers BMAttack::has_dizzy_attackers
      */
-    public function testHas_disabled_attackers()
+    public function testHas_dizzy_attackers()
     {
         $att = BMAttack::get_instance('Power');
         $die1 = new BMDie;
         $die2 = new BMDie;
-        $die2->disabled = TRUE;
-        $this->assertFalse($att->has_disabled_attackers(array($die1)));
-        $this->assertTrue($att->has_disabled_attackers(array($die2)));
-        $this->assertTrue($att->has_disabled_attackers(array($die1, $die2)));
-        $this->assertTrue($att->has_disabled_attackers(array($die2, $die1)));
+        $die2->dizzy = TRUE;
+        $this->assertFalse($att->has_dizzy_attackers(array($die1)));
+        $this->assertTrue($att->has_dizzy_attackers(array($die2)));
+        $this->assertTrue($att->has_dizzy_attackers(array($die1, $die2)));
+        $this->assertTrue($att->has_dizzy_attackers(array($die2, $die1)));
     }
 
     /**
@@ -1106,5 +1106,3 @@ class BMAttackTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, $help[1][1]);
     }
 }
-
-?>

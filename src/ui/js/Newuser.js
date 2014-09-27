@@ -4,14 +4,19 @@ var Newuser = {};
 // Valid username match
 Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 
+// Input field limits
+Newuser.USERNAME_MAX_LENGTH = 25;
+Newuser.EMAIL_MAX_LENGTH = 254;
+
+
 ////////////////////////////////////////////////////////////////////////
 // Action flow through this page:
 // * Newuser.showNewuserPage() is the landing function.  Always call
 //   this first.  It calls one of a couple of functions,
 //   Newuser.action<SomeAction>()
 // * each Newuser.action<SomeAction>() function must set Newuser.page and
-//   Newuser.form, then call Newuser.layoutPage()
-// * Newuser.layoutPage() sets the contents of <div id="newuser_page">
+//   Newuser.form, then call Newuser.arrangePage()
+// * Newuser.arrangePage() sets the contents of <div id="newuser_page">
 //   on the live page
 ////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +26,6 @@ Newuser.VALID_USERNAME_REGEX = /^[A-Za-z0-9_]+$/;
 Newuser.showNewuserPage = function() {
 
   // Setup necessary elements for displaying status messages
-  $.getScript('js/Env.js');
   Env.setupEnvStub();
 
   // Make sure the div element that we will need exists in the page body
@@ -29,8 +33,12 @@ Newuser.showNewuserPage = function() {
     $('body').append($('<div>', {'id': 'newuser_page', }));
   }
 
-  // Don't allow logged-in users to create new accounts
-  if (Login.logged_in === true) {
+  if (Newuser.justCreatedAccount === true) {
+    // Don't re-display the form if they've already created an account
+    Newuser.page = $('<div>');
+    Newuser.arrangePage();
+  } else if (Login.logged_in === true) {
+    // Don't allow logged-in users to create new accounts
     Newuser.actionLoggedIn();
   } else {
     Newuser.actionCreateUser();
@@ -38,7 +46,7 @@ Newuser.showNewuserPage = function() {
 };
 
 // Actually lay out the page
-Newuser.layoutPage = function() {
+Newuser.arrangePage = function() {
 
   // If there is a message from a current or previous invocation of this
   // page, display it now
@@ -56,7 +64,7 @@ Newuser.layoutPage = function() {
 // This section contains one page for each type of next action used for
 // flow through the page being laid out by Newuser.js.
 // Each function should start by populating Newuser.page and Newuser.form
-// ane end by invoking Newuser.layoutPage();
+// ane end by invoking Newuser.arrangePage();
 
 Newuser.actionLoggedIn = function() {
 
@@ -68,7 +76,7 @@ Newuser.actionLoggedIn = function() {
   Newuser.addLoggedInPage();
 
   // Lay out the page
-  Newuser.layoutPage();
+  Newuser.arrangePage();
 };
 
 Newuser.actionCreateUser = function() {
@@ -82,6 +90,14 @@ Newuser.actionCreateUser = function() {
     'class': 'title2',
     'text': 'Create a new user account',
   }));
+  var warningpar = $('<p>');
+  warningpar.append($('<i>', {
+    'text': 'Warning: reusing passwords between websites is risky ' +
+            'in general, and you should definitely avoid it here.  We\'re ' +
+            'a free game site, and we\'re in alpha release.  Please do NOT ' +
+            'reuse a valuable account password for your Button Men account.'
+  }));
+  creatediv.append(warningpar);
   var createform = $('<form>', {
     'id': 'newuser_action_form',
     'action': 'javascript:void(0);',
@@ -94,6 +110,7 @@ Newuser.actionCreateUser = function() {
     'username': {
       'text': 'Username',
       'type': 'text',
+      'maxlength': Newuser.USERNAME_MAX_LENGTH,
     },
     'password': {
       'text': 'Password',
@@ -103,16 +120,30 @@ Newuser.actionCreateUser = function() {
       'text': 'Password (again)',
       'type': 'password',
     },
+    'email': {
+      'text': 'E-mail address',
+      'type': 'text',
+      'maxlength': Newuser.EMAIL_MAX_LENGTH,
+    },
+    'email_confirm': {
+      'text': 'E-mail address (again)',
+      'type': 'text',
+      'maxlength': Newuser.EMAIL_MAX_LENGTH,
+    },
   };
 
   $.each(entries, function(entryid, entryinfo) {
     var entryrow = $('<tr>');
-    entryrow.append($('<td>', { 'text': entryinfo.text + ':', }));
+    entryrow.append($('<td>', {
+      'class': 'left',
+      'text': entryinfo.text + ':',
+    }));
     var entryinput = $('<td>');
     entryinput.append($('<input>', {
       'type': entryinfo.type,
       'name': entryid,
       'id': 'newuser_' + entryid,
+      'maxlength': entryinfo.maxlength,
     }));
     entryrow.append(entryinput);
     createtable.append(entryrow);
@@ -133,7 +164,7 @@ Newuser.actionCreateUser = function() {
   Newuser.form = Newuser.formCreateUser;
 
   // Lay out the page
-  Newuser.layoutPage();
+  Newuser.arrangePage();
 };
 
 
@@ -142,6 +173,10 @@ Newuser.actionCreateUser = function() {
 
 Newuser.formCreateUser = function() {
   var username = $('#newuser_username').val();
+  var password = $('#newuser_password').val();
+  var password_confirm = $('#newuser_password_confirm').val();
+  var email = $('#newuser_email').val();
+  var email_confirm = $('#newuser_email_confirm').val();
 
   if (username.length === 0) {
     Env.message = {
@@ -157,55 +192,64 @@ Newuser.formCreateUser = function() {
     };
     Newuser.showNewuserPage();
 
+  } else if (!(email.match(Api.VALID_EMAIL_REGEX))) {
+    Env.message = {
+      'type': 'error',
+      'text': 'A valid email address is required',
+    };
+    Newuser.showNewuserPage();
+
+  } else if (password.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to set a password',
+    };
+    Newuser.showNewuserPage();
+  } else if (password != password_confirm) {
+    Env.message = {
+      'type': 'error',
+      'text': 'Passwords do not match',
+    };
+    Newuser.showNewuserPage();
+  } else if (email.length === 0) {
+    Env.message = {
+      'type': 'error',
+      'text': 'You need to provide an e-mail address',
+    };
+    Newuser.showNewuserPage();
+  } else if (email != email_confirm) {
+    Env.message = {
+      'type': 'error',
+      'text': 'E-mail addresses do not match',
+    };
+    Newuser.showNewuserPage();
   } else {
-    var password = $('#newuser_password').val();
-    var password_confirm = $('#newuser_password_confirm').val();
-    if (password.length === 0) {
-      Env.message = {
-        'type': 'error',
-        'text': 'You need to set a password',
-      };
-      Newuser.showNewuserPage();
-    } else if (password != password_confirm) {
-      Env.message = {
-        'type': 'error',
-        'text': 'Passwords do not match',
-      };
-      Newuser.showNewuserPage();
-    } else {
-      Api.apiFormPost(
+    Api.apiFormPost(
+      {
+        type: 'createUser',
+        username: username,
+        password: password,
+        email: email,
+      },
+      { 'ok':
         {
-          type: 'createUser',
-          username: username,
-          password: password,
+          'type': 'function',
+          'msgfunc': Newuser.setCreateUserSuccessMessage,
         },
-        { 'ok':
-          {
-            'type': 'function',
-            'msgfunc': Newuser.setCreateUserSuccessMessage,
-          },
-          'notok': { 'type': 'server', },
-        },
-        'newuser_action_button',
-        Newuser.showNewuserPage,
-        Newuser.showNewuserPage
-      );
-    }
+        'notok': { 'type': 'server', },
+      },
+      'newuser_action_button',
+      Newuser.showNewuserPage,
+      Newuser.showNewuserPage
+    );
   }
 };
 
 Newuser.setCreateUserSuccessMessage = function(message) {
-  var indexLink = $('<a>', {
-    'href': 'index.html',
-    'text': 'Go back to the homepage, login, and start beating people up',
-  });
-  var userPar = $('<p>', {'text': message + ' ', });
-  userPar.append($('<br>'));
-  userPar.append(indexLink);
+  Newuser.justCreatedAccount = true;
   Env.message = {
     'type': 'success',
-    'text': '',
-    'obj': userPar,
+    'text': message,
   };
 };
 

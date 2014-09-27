@@ -1,21 +1,15 @@
 <?php
 
-class BMAttackSurrender extends BMAttack {
+class BMAttackSurrender extends BMAttackPass {
     public $type = "Surrender";
 
-    public function find_attack($game) {
-        return $this->validate_attack(
-            $game,
-            $this->validDice,
-            $game->defenderAttackDieArray
-        );
-    }
-
     public function validate_attack($game, array $attackers, array $defenders) {
-        return (empty($attackers) && empty($defenders));
-    }
+        $isValid = parent::validate_attack($game, $attackers, $defenders);
 
-    protected function are_skills_compatible(array $attArray, array $defArray) {
-        return TRUE;
+        if (!$isValid) {
+            $this->validationMessage = 'Please deselect all dice before surrendering.';
+        }
+
+        return $isValid;
     }
 }

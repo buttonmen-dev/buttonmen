@@ -1,7 +1,7 @@
 <?php
 
 /**
- * BMAttack: attack validation and commital code.
+ * BMAttack: attack validation and committal code
  *
  * @author Julian
  */
@@ -15,6 +15,8 @@ abstract class BMAttack {
     public $sideEffect = FALSE;
 
     public $type;
+
+    public $validationMessage = '';
 
     // Dice that effect or affect this attack
     protected $validDice = array();
@@ -143,10 +145,11 @@ abstract class BMAttack {
 
     abstract protected function are_skills_compatible(array $attArray, array $defArray);
 
-    // check if any of the attackers is disabled
-    public function has_disabled_attackers(array $attackers) {
+    // check if any of the attackers is dizzy
+    public function has_dizzy_attackers(array $attackers) {
         foreach ($attackers as $attacker) {
-            if ($attacker->disabled) {
+            if ($attacker->dizzy) {
+                $this->validationMessage = 'Dizzy dice cannot be used as attacking dice.';
                 return TRUE;
             }
         }
@@ -168,14 +171,10 @@ abstract class BMAttack {
 //        }
 
         if ('Surrender' == $game->attack['attackType']) {
-            // this logic is only designed for two players
-            $gameScoreArrayArray = $game->gameScoreArrayArray;
-            $gameScoreArrayArray[$game->attackerPlayerIdx]['L']++;
-            $gameScoreArrayArray[$game->defenderPlayerIdx]['W']++;
-            $game->gameScoreArrayArray = $gameScoreArrayArray;
-            $game->reset_play_state();
-            $game->gameState = BMGameState::END_ROUND;
-
+            $game->waitingOnActionArray = array_fill(0, $game->nPlayers, FALSE);
+            $winnerArray = array_fill(0, $game->nPlayers, FALSE);
+            $winnerArray[$game->attack['defenderPlayerIdx']] = TRUE;
+            $game->forceRoundResult = $winnerArray;
             return TRUE;
         }
 
@@ -193,6 +192,7 @@ abstract class BMAttack {
 
         foreach ($defenders as &$def) {
             $def->captured = TRUE;
+            $def->add_flag('WasJustCaptured');
         }
 
         // allow attack type to modify default behaviour
@@ -227,15 +227,19 @@ abstract class BMAttack {
             $game->activeDieArrayArray = $activeDiceCopy;
         }
 
-        // process captured dice
+        $this->process_captured_dice($game, $defenders);
+
+        return TRUE;
+    }
+
+
+    protected function process_captured_dice($game, array $defenders) {
         // james: currently only defenders, but could conceivably also include attackers
         foreach ($defenders as &$def) {
             if ($def->captured) {
                 $game->capture_die($def);
             }
         }
-
-        return TRUE;
     }
 
 

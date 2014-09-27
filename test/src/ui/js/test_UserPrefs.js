@@ -20,6 +20,8 @@ module("UserPrefs", {
     // Page elements
     $('#userprefs_page').remove();
     $('#userprefs_page').empty();
+    // Controls added to the page by the color picker library we use
+    $('.sp-container').remove();
 
     BMTestUtils.deleteEnvMessage();
     BMTestUtils.cleanupFakeLogin();
@@ -46,23 +48,25 @@ asyncTest("test_UserPrefs.showUserPrefsPage", function() {
 });
 
 asyncTest("test_UserPrefs.assemblePage", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.assemblePage();
-    var htmlout = UserPrefs.page.html();
-    ok(htmlout.length > 0,
-       "The created page should have nonzero contents");
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.assemblePage();
+      var htmlout = UserPrefs.page.html();
+      ok(htmlout.length > 0,
+         "The created page should have nonzero contents");
+      start();
+    });
   });
 });
 
-asyncTest("test_UserPrefs.layoutPage", function() {
+asyncTest("test_UserPrefs.arrangePage", function() {
   Api.getUserPrefsData(function() {
     UserPrefs.page = $('<div>');
     UserPrefs.page.append($('<p>', {'text': 'hi world', }));
-    UserPrefs.layoutPage();
+    UserPrefs.arrangePage();
     var item = document.getElementById('userprefs_page');
     equal(item.nodeName, "DIV",
-          "#userprefs_page is a div after layoutPage() is called");
+          "#userprefs_page is a div after arrangePage() is called");
     start();
   });
 });
@@ -73,12 +77,14 @@ test("test_UserPrefs.actionFailed", function() {
 });
 
 asyncTest("test_UserPrefs.actionSetPrefs", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.actionSetPrefs();
-    var autopass_checked = $('#userprefs_autopass').prop('checked');
-    ok(autopass_checked,
-       "The autopass button should be checked in the prefs table");
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.actionSetPrefs();
+      var autopass_checked = $('#userprefs_autopass').prop('checked');
+      ok(autopass_checked,
+         "The autopass button should be checked in the prefs table");
+      start();
+    });
   });
 });
 
@@ -89,15 +95,34 @@ asyncTest("test_UserPrefs.actionSetPrefs", function() {
 // AJAX while we test that, to make sure the test sees the return
 // from the POST.
 asyncTest("test_UserPrefs.formSetPrefs", function() {
-  Api.getUserPrefsData(function() {
-    UserPrefs.actionSetPrefs();
-    $.ajaxSetup({ async: false });
-    $('#userprefs_action_button').trigger('click');
-    deepEqual(
-      Env.message,
-      {"type": "success", "text": "User details set successfully."},
-      "User preferences save succeeded");
-    $.ajaxSetup({ async: true });
-    start();
+  Api.getButtonData(function() {
+    Api.getUserPrefsData(function() {
+      UserPrefs.actionSetPrefs();
+      $.ajaxSetup({ async: false });
+      $('#userprefs_action_button').trigger('click');
+      deepEqual(
+        Env.message,
+        {"type": "success", "text": "User details set successfully."},
+        "User preferences save succeeded");
+      $.ajaxSetup({ async: true });
+      start();
+    });
   });
+});
+
+test("test_UserPrefs.appendToPreferencesTable", function() {
+  var table = $('<table>');
+  var prefs = {
+    'testing' : {
+      'text': 'Testing',
+      'type': 'checkbox',
+      'checked': true,
+    },
+  };
+
+  UserPrefs.appendToPreferencesTable(table, 'Test Preferences',
+    'These are not real. There is no spoon.', prefs);
+  var checkbox = table.find('input#userprefs_testing');
+
+  ok(checkbox.val(), 'User preference control created and populated');
 });

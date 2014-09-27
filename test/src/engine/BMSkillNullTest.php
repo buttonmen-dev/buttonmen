@@ -2,7 +2,7 @@
 
 class BMSkillNullTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillValue
+     * @var BMSkillNull
      */
     protected $object;
 
@@ -111,5 +111,3 @@ class BMSkillNullTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(0, 3), $game->roundScoreArray);
     }
 }
-
-?>

@@ -164,7 +164,7 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
             $this->object->init($swing);
 
             $this->object->ownerObject = $game;
-            $this->object->activate('player');
+            $this->object->activate();
             $newDie = $game->dice[$dieIdx][1];
 
             $this->assertFalse($newDie === $this->object);
@@ -173,7 +173,6 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
             $this->assertEquals($newDie, $game->swingrequest[0]);
             $this->assertEquals($swing, $game->swingrequest[1]);
         }
-
     }
 
     /**
@@ -182,16 +181,20 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      */
 
     public function testIntegrationActivate () {
-        $button = new BMButton;
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array(), array());
         foreach (str_split('RSTUVWXYZ') as $swing) {
             $this->object->init($swing);
-            $this->object->ownerObject = $button;
-// james           $this->object->activate(0);
+            $this->object->ownerObject = $game;
+            $this->object->playerIdx = 1;
+            $this->object->originalPlayerIdx = 1;
+            $this->object->activate();
 
-// james           $this->assertTrue($game->swingrequest[0] === $newDie);
-//            $this->assertEquals($game->swingrequest[1], $swing);
+            $this->assertTrue(array_key_exists($swing, $game->swingRequestArrayArray[1]));
+            $this->assertTrue($game->swingRequestArrayArray[1][$swing][0] instanceof BMDieSwing);
+            $this->assertEquals($swing, $game->swingRequestArrayArray[1][$swing][0]->swingType);
+            $this->assertFalse($this->object === $game->swingRequestArrayArray[1][$swing][0]);
         }
-
     }
 
     /**
@@ -373,21 +376,16 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      * @coversNothing
      */
     public function testInterfaceRoll() {
-
         // testing whether it calls the appropriate methods in BMGame
-
         $this->object->init('X');
-        $this->object->ownerObject = new BMGame;
+        $game = new BMGame;
+        $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
 
         // needs a value, hasn't requested one. Should call
-        // request_swing_values before calling require_values
-        try {
-            $this->object->roll(FALSE);
-            $this->fail('dummy require_values not called.');
-        } catch (Exception $e) {
-        }
-
-//        $this->assertNotEmpty($game->swingrequest);
+        // request_swing_values
+        $this->object->roll(FALSE);
+        $this->assertNotEmpty($game->swingRequestArrayArray[1]);
 
         // Once activated, it should have requested a value, but still
         // needs one.
@@ -398,18 +396,12 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $game = new BMGame;
         $game->activeDieArrayArray = array(array(), array());
         $this->object->ownerObject = $game;
+        $this->object->playerIdx = 1;
 
-        $this->object->activate(0);
-
+        $this->object->activate();
         $this->assertNotNull($game->swingRequestArrayArray);
-//        $game->swingRequestArrayArray = array(array(), array();
+        $this->assertCount(1, $game->swingRequestArrayArray[1]['X']);
 
-        try {
-            $game->activeDieArrayArray[0][0]->roll(FALSE);
-            $this->fail('dummy require_values not called.');
-        } catch (Exception $e) {
-        }
-        $this->assertEmpty($game->swingrequest);
 
         // And if the swing value is set, it won't call require_values
         $this->object->init('X');
@@ -422,18 +414,16 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $this->object->activate();
 
         $this->assertNotNull($game->swingRequestArrayArray);
-        $game->swingrequest = array();
+        $this->assertCount(1, $game->swingRequestArrayArray[0]['X']);
 
         $game->activeDieArrayArray[0][0]->set_swingValue(array('X' => '15'));
+
+        $this->assertEquals(15, $game->activeDieArrayArray[0][0]->swingValue);
 
         // it hasn't rolled yet
         $this->assertFalse(is_numeric($game->activeDieArrayArray[0][0]->value));
 
-        try {
-            $game->activeDieArrayArray[0][0]->roll(FALSE);
-            $this->fail('dummy require_values was called.');
-        } catch (Exception $e) {
-        }
+        $game->activeDieArrayArray[0][0]->roll(FALSE);
 
         // Does it roll?
         $this->assertTrue(is_numeric($game->activeDieArrayArray[0][0]->value));
@@ -527,30 +517,44 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieSwing::describe
      */
     public function testDescribe() {
-        $this->object->init('X');
-        $this->assertEquals('X Swing Die', $this->object->describe(TRUE));
-        $this->assertEquals('X Swing Die', $this->object->describe(FALSE));
+        $this->object->init('Y');
+        $this->assertEquals('Y Swing Die', $this->object->describe(TRUE));
+        $this->assertEquals('Y Swing Die', $this->object->describe(FALSE));
 
-        $this->object->set_swingValue(array('X' => 5));
-        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(TRUE));
-        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
+        $this->object->set_swingValue(array('Y' => 1));
+        $this->assertEquals('Y Swing Die (with 1 side)', $this->object->describe(TRUE));
+        $this->assertEquals('Y Swing Die (with 1 side)', $this->object->describe(FALSE));
+
+        $this->object->set_swingValue(array('Y' => 5));
+        $this->assertEquals('Y Swing Die (with 5 sides)', $this->object->describe(TRUE));
+        $this->assertEquals('Y Swing Die (with 5 sides)', $this->object->describe(FALSE));
 
         $this->object->roll();
         $value = $this->object->value;
         $this->assertEquals(
-            "X Swing Die (with 5 sides) showing {$value}",
+            "Y Swing Die (with 5 sides) showing {$value}",
             $this->object->describe(TRUE)
         );
-        $this->assertEquals('X Swing Die (with 5 sides)', $this->object->describe(FALSE));
+        $this->assertEquals('Y Swing Die (with 5 sides)', $this->object->describe(FALSE));
 
         $this->object->add_skill('Poison');
         $this->object->add_skill('Shadow');
         $this->assertEquals(
-            "Poison Shadow X Swing Die (with 5 sides) showing {$value}",
+            "Poison Shadow Y Swing Die (with 5 sides) showing {$value}",
             $this->object->describe(TRUE)
         );
         $this->assertEquals(
-            'Poison Shadow X Swing Die (with 5 sides)',
+            'Poison Shadow Y Swing Die (with 5 sides)',
+            $this->object->describe(FALSE)
+        );
+
+        $this->object->add_skill('Mood');
+        $this->assertEquals(
+            "Poison Shadow Y Mood Swing Die (with 5 sides) showing {$value}",
+            $this->object->describe(TRUE)
+        );
+        $this->assertEquals(
+            'Poison Shadow Y Mood Swing Die (with 5 sides)',
             $this->object->describe(FALSE)
         );
     }
@@ -571,15 +575,18 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
         $die2->init('V', array('Shadow'));
         $this->assertEquals('s(V)', $die2->get_recipe());
 
-        $die3 = new BMDie;
+        $die3 = new BMDieSwing;
         $die3->init('S', array('Poison', 'Shadow'));
         $this->assertEquals('ps(S)', $die3->get_recipe());
 
-        $die4 = new BMDie;
+        $die4 = new BMDieSwing;
         $die4->init('R', array('Shadow', 'Poison'));
         $this->assertEquals('sp(R)', $die4->get_recipe());
+
+        $die5 = new BMDieSwing;
+        $die5->init('X', array());
+        $this->assertEquals('(X)', $die5->get_recipe(TRUE));
+        $die5->max = '9';
+        $this->assertEquals('(X=9)', $die5->get_recipe(TRUE));
     }
-
 }
-
-?>

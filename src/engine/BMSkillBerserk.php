@@ -62,6 +62,29 @@ class BMSkillBerserk extends BMSkill {
         $newAttackDie = $splitDieArray[0];
         $newAttackDie->roll(TRUE);
         $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
+        $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
+    }
+
+    protected static function get_description() {
+        return 'These dice cannot participate in Skill Attacks; ' .
+               'instead they can make a Berserk Attack. These work exactly ' .
+               'like Speed Attacks - one Berserk Die can capture any number ' .
+               'of dice which add up exactly to its value. Once a Berserk ' .
+               'Die performs a Berserk Attack, it is replaced with a ' .
+               'non-berserk die with half the number of sides it previously ' .
+               'had, rounding up. It also loses any Swing/Mood Swing/Mad Swing ' .
+               'characteristics it may have had.';
+    }
+
+    protected static function get_interaction_descriptions() {
+        return array(
+            'Speed' => 'Dice with both Berserk and Speed skills may ' .
+                       'choose to make either kind of attack',
+        );
+    }
+
+    public static function prevents_win_determination() {
+        return TRUE;
     }
 }

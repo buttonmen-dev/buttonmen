@@ -10,15 +10,25 @@ class BMAttackTrip extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (count($attackers) != 1 || count($defenders) != 1) {
+        $this->validationMessage = '';
+
+        if (count($attackers) != 1) {
+            $this->validationMessage = 'There must be exactly one attacking die for a trip attack.';
             return FALSE;
         }
 
-        if ($this->has_disabled_attackers($attackers)) {
+        if (count($defenders) != 1) {
+            $this->validationMessage = 'There must be exactly one target die for a trip attack.';
+            return FALSE;
+        }
+
+        if ($this->has_dizzy_attackers($attackers)) {
+            // validation message set within $this->has_dizzy_attackers()
             return FALSE;
         }
 
         if (!$this->are_skills_compatible($attackers, $defenders)) {
+            // validation message set within $this->are_skills_compatible()
             return FALSE;
         }
 
@@ -45,14 +55,17 @@ class BMAttackTrip extends BMAttack {
         $def = $defArray[0];
 
         if ($att->has_skill('Stealth')) {
+            $this->validationMessage = 'Stealth dice cannot perform trip attacks.';
             $returnVal = FALSE;
         }
 
         if (!$att->has_skill('Trip')) {
+            $this->validationMessage = 'Dice without trip cannot perform trip attacks.';
             $returnVal = FALSE;
         }
 
         if ($def->has_skill('Stealth')) {
+            $this->validationMessage = 'Stealth dice cannot be the target of trip attacks.';
             $returnVal = FALSE;
         }
 

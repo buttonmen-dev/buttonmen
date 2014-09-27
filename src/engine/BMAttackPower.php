@@ -10,13 +10,25 @@ class BMAttackPower extends BMAttack {
     }
 
     public function validate_attack($game, array $attackers, array $defenders) {
-        if (1 != count($attackers) ||
-            1 != count($defenders) ||
-            $this->has_disabled_attackers($attackers)) {
+        $this->validationMessage = '';
+
+        if (1 != count($attackers)) {
+            $this->validationMessage = 'There must be exactly one attacking die for a power attack.';
+            return FALSE;
+        }
+
+        if (1 != count($defenders)) {
+            $this->validationMessage = 'There must be exactly one target die for a power attack.';
+            return FALSE;
+        }
+
+        if ($this->has_dizzy_attackers($attackers)) {
+            // validation message set within $this->has_dizzy_attackers()
             return FALSE;
         }
 
         if (!$this->are_skills_compatible($attackers, $defenders)) {
+            // validation message set within $this->are_skills_compatible()
             return FALSE;
         }
 
@@ -32,9 +44,14 @@ class BMAttackPower extends BMAttack {
             $isValidAttacker = $att->is_valid_attacker($this->type, $attackers);
             $isValidTarget = $def->is_valid_target($this->type, $defenders);
 
-            $isValidAttack = $isValLargeEnough && $isValidAttacker && $isValidTarget;
-
-            if ($isValidAttack) {
+            if (!$isValLargeEnough) {
+                $this->validationMessage = 'Attacking die value must be at least as large as target die value.';
+            } elseif (!$isValidAttacker) {
+                $this->validationMessage = 'Invalid attacking die';
+            } elseif (!$isValidTarget) {
+                $this->validationMessage = 'Invalid target die';
+            } else {
+                $this->validationMessage = '';
                 return TRUE;
             }
         }
@@ -54,20 +71,31 @@ class BMAttackPower extends BMAttack {
         $att = $attArray[0];
         $def = $defArray[0];
 
-        $returnVal = TRUE;
+        if ($att->has_skill('Shadow')) {
+            $this->validationMessage = 'Shadow dice cannot perform power attacks.';
+            return FALSE;
+        }
 
-        if ($att->has_skill('Shadow') ||
-            $att->has_skill('Konstant') ||
-            $att->has_skill('Stealth') ||
-            ($att->has_skill('Queer') && (1 == $att->value % 2))
-        ) {
-            $returnVal = FALSE;
+        if ($att->has_skill('Konstant')) {
+            $this->validationMessage = 'Konstant dice cannot perform power attacks.';
+            return FALSE;
+        }
+
+        if ($att->has_skill('Stealth')) {
+            $this->validationMessage = 'Stealth dice cannot perform power attacks.';
+            return FALSE;
+        }
+
+        if ($att->has_skill('Queer') && (1 == $att->value % 2)) {
+            $this->validationMessage = 'Odd queer dice cannot perform power attacks.';
+            return FALSE;
         }
 
         if ($def->has_Skill('Stealth')) {
-            $returnVal = FALSE;
+            $this->validationMessage = 'Stealth dice cannot be attacked by power attacks.';
+            return FALSE;
         }
 
-        return $returnVal;
+        return TRUE;
     }
 }

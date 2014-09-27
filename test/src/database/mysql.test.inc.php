@@ -18,6 +18,12 @@
 
         try {
             $conn = new PDO("mysql:host=$host;port=$port;dbname=$name", $user, $pass);
+
+            // don't use PDO emulation for prepare statements, have
+            // MySQL prepare statements natively
+            $conn->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE);
+
+            // SQL errors should throw catchable exceptions
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
             // Make sure auto_increment_increment is 1

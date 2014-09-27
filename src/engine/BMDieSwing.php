@@ -2,7 +2,7 @@
 
 class BMDieSwing extends BMDie {
     public $swingType;
-    public $swingValue;
+    public $swingValue;  // this is ALWAYS the value chosen by the player
     public $swingMax;
     public $swingMin;
     protected $needsSwingValue = TRUE;
@@ -70,43 +70,36 @@ class BMDieSwing extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
-        // The clone is the one going into the game, so it's the one
-        // that needs a swing value to be set.
-        $this->ownerObject->request_swing_values(
-            $newDie,
-            $newDie->swingType,
-            $newDie->playerIdx
-        );
-        $newDie->valueRequested = TRUE;
+        if (!$this->doesSkipSwingRequest) {
+            // The clone is the one going into the game, so it's the one
+            // that needs a swing value to be set.
+            $this->ownerObject->request_swing_values(
+                $newDie,
+                $newDie->swingType,
+                $newDie->playerIdx
+            );
+            $newDie->valueRequested = TRUE;
+        }
 
         $this->ownerObject->add_die($newDie);
     }
 
-    public function make_play_die() {
-        // Get swing value from the game before cloning, so it's saved
-        // from round to round.
-        if ($this->needsSwingValue) {
-            $this->ownerObject->require_values();
-        }
-
-        return parent::make_play_die();
-    }
-
-    public function roll($successfulAttack = FALSE) {
+    public function roll($isTriggeredByAttack = FALSE) {
         if ($this->needsSwingValue) {
             if (!$this->valueRequested) {
-                $this->ownerObject->request_swing_values($this, $this->swingType);
+                $this->ownerObject->request_swing_values(
+                    $this,
+                    $this->swingType,
+                    $this->playerIdx
+                );
                 $this->valueRequested = TRUE;
             }
-            $this->ownerObject->require_values();
+        } else {
+            parent::roll($isTriggeredByAttack);
         }
-
-        parent::roll($successfulAttack);
     }
 
-// Print long description
+    // Print long description
     public function describe($isValueRequired = FALSE) {
         if (!is_bool($isValueRequired)) {
             throw new InvalidArgumentException('isValueRequired must be boolean');
@@ -115,13 +108,26 @@ class BMDieSwing extends BMDie {
         $skillStr = '';
         if (count($this->skillList) > 0) {
             foreach (array_keys($this->skillList) as $skill) {
-                $skillStr .= "$skill ";
+                if (('Mood' != $skill) && ('Mad' != $skill)) {
+                    $skillStr .= "$skill ";
+                }
             }
+        }
+
+        $moodStr = '';
+        if ($this->has_skill('Mad')) {
+            $moodStr = ' Mad';
+        } elseif ($this->has_skill('Mood')) {
+            $moodStr = ' Mood';
         }
 
         $sideStr = '';
         if (isset($this->max)) {
-            $sideStr = " (with {$this->max} sides)";
+            $sideStr = " (with {$this->max} side";
+            if ($this->max != 1) {
+                $sideStr .= 's';
+            }
+            $sideStr .= ')';
         }
 
         $valueStr = '';
@@ -129,7 +135,7 @@ class BMDieSwing extends BMDie {
             $valueStr = " showing {$this->value}";
         }
 
-        $result = "{$skillStr}{$this->swingType} Swing Die{$sideStr}{$valueStr}";
+        $result = "{$skillStr}{$this->swingType}{$moodStr} Swing Die{$sideStr}{$valueStr}";
 
         return $result;
     }

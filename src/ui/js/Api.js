@@ -5,6 +5,26 @@ var Api = (function () {
   // all public methods and variables should be defined under 'my'
   var my = {};
 
+  // Valid email match
+  my.VALID_EMAIL_REGEX = /^[A-Za-z0-9_+-]+@[A-Za-z0-9\.-]+$/;
+
+  // Array of the names of the months, indexed from 1-12 (plus a bonus Month 0!)
+  my.MONTH_NAMES = [
+    'Month',
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
   // private methods and variables should be defined separately
   var activity = {};
 
@@ -21,7 +41,7 @@ var Api = (function () {
   //   and populate Api.x in whatever way is desired
   // * call the requested callback function no matter what happened with
   //   the data load
-  // 
+  //
   // Notes:
   // * these routines may assume that the login header has already been
   //   loaded, and therefore that the contents of Login.logged_in and
@@ -50,7 +70,7 @@ var Api = (function () {
           };
           return failcallback();
         } else if (rs.status == 'ok') {
-          if (parser(rs.data)) {
+          if (parser(rs.data, apikey)) {
             my[apikey].load_status = 'ok';
             return callback();
           } else {
@@ -81,8 +101,9 @@ var Api = (function () {
     );
   };
 
-  my.apiFormPost = function(args, messages, submitid, callback, failcallback) {
-    my.disableSubmitButton(submitid);
+  my.apiFormPost = function(
+      args, messages, submitButton, callback, failcallback) {
+    my.disableSubmitButton(submitButton);
     $.post(
       Env.api_location,
       args,
@@ -120,6 +141,8 @@ var Api = (function () {
               'type': 'error',
               'text': rs.message,
             };
+          } else if (messages.notok.type == 'function') {
+            messages.notok.msgfunc(rs.message);
           }
           return failcallback();
         }
@@ -133,6 +156,31 @@ var Api = (function () {
         return failcallback();
       }
     );
+  };
+
+  my.parseGenericData = function(data, apiKey) {
+    $.each(data, function(key, value) {
+      my[apiKey][key] = value;
+    });
+    return true;
+  };
+
+  // Verifies that the API data loaded correctly and displays the page with
+  // an error message otherwise.
+  my.verifyApiData = function(apiKey, arrangePageCallback) {
+    if (Api[apiKey] !== undefined && Api[apiKey].load_status == 'ok') {
+      return true;
+    }
+
+    if (Env.message === undefined || Env.message === null) {
+      Env.message = {
+        'type': 'error',
+        'text': 'Internal error: Could not load ' + apiKey +
+                'data from server',
+      };
+    }
+    arrangePageCallback();
+    return false;
   };
 
   ////////////////////////////////////////////////////////////////////////
@@ -152,7 +200,10 @@ var Api = (function () {
     my.button.list = {};
     if ((!($.isArray(data.buttonNameArray))) ||
         (!($.isArray(data.recipeArray))) ||
-        (!($.isArray(data.hasUnimplementedSkillArray)))) {
+        (!($.isArray(data.hasUnimplementedSkillArray))) ||
+        (!($.isArray(data.buttonSetArray))) ||
+        (!($.isArray(data.dieSkillsArray))) ||
+        (!($.isArray(data.isTournamentLegalArray)))) {
       return false;
     }
     var i = 0;
@@ -160,6 +211,9 @@ var Api = (function () {
       my.button.list[data.buttonNameArray[i]] = {
         'recipe': data.recipeArray[i],
         'hasUnimplementedSkill': data.hasUnimplementedSkillArray[i],
+        'buttonSet': data.buttonSetArray[i],
+        'dieSkills': data.dieSkillsArray[i],
+        'isTournamentLegal': data.isTournamentLegalArray[i],
       };
       i++;
     }
@@ -179,8 +233,7 @@ var Api = (function () {
     );
   };
 
-  // Right now, we only get a list of names, but make a dict in case
-  // there's more data available later
+  // Make a dict of player names and status values
   my.parsePlayerData = function(data) {
     my.player.list = {};
     if (!($.isArray(data.nameArray))) {
@@ -189,6 +242,7 @@ var Api = (function () {
     var i = 0;
     while (i < data.nameArray.length) {
       my.player.list[data.nameArray[i]] = {
+        'status': data.statusArray[i],
       };
       i++;
     }
@@ -231,6 +285,9 @@ var Api = (function () {
         'maxWins': data.nTargetWinsArray[i],
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
+        'inactivity': data.inactivityArray[i],
+        'playerColor': data.playerColorArray[i],
+        'opponentColor': data.opponentColorArray[i],
       };
       if (gameInfo.isAwaitingAction == '1') {
         my.active_games.games.awaitingPlayer.push(gameInfo);
@@ -275,6 +332,9 @@ var Api = (function () {
         'maxWins': data.nTargetWinsArray[i],
         'gameState': data.gameStateArray[i],
         'status': data.statusArray[i],
+        'inactivity': data.inactivityArray[i],
+        'playerColor': data.playerColorArray[i],
+        'opponentColor': data.opponentColorArray[i],
       };
       my.completed_games.games.push(gameInfo);
       i += 1;
@@ -293,14 +353,16 @@ var Api = (function () {
   };
 
   my.parseUserPrefsData = function(data) {
-    my.user_prefs.autopass = data.autopass;
+    $.each(data.user_prefs, function(key, value) {
+      my.user_prefs[key] = value;
+    });
     return true;
   };
 
-  my.getGameData = function(game, callback) {
+  my.getGameData = function(game, logEntryLimit, callback) {
     activity.gameId = game;
     Api.apiParsePost(
-      { type: 'loadGameData', game: game, },
+      { type: 'loadGameData', game: game, logEntryLimit: logEntryLimit },
       'game',
       my.parseGameData,
       callback,
@@ -319,19 +381,21 @@ var Api = (function () {
   my.parseGameData = function(data) {
 
     // Store some initial high-level game elements
-    my.game.gameData = data.gameData;
+    my.game.gameId = data.gameId;
+    my.game.gameState = data.gameState;
+    my.game.roundNumber = data.roundNumber;
+    my.game.maxWins = data.maxWins;
+    my.game.validAttackTypeArray = data.validAttackTypeArray;
+    my.game.gameSkillsInfo = data.gameSkillsInfo;
+
     my.game.timestamp = data.timestamp;
     my.game.actionLog = data.gameActionLog;
     my.game.chatLog = data.gameChatLog;
+    my.game.chatEditable = data.gameChatEditable;
 
-    // Do some sanity-checking of the gameData object we have
+    // Do some sanity-checking of the data we have
 
-    // This is not the same as rs.status --- it's a second status
-    // value within the gameData object
-    if (my.game.gameData.status != 'ok') {
-      return false;
-    }
-    if (activity.gameId != my.game.gameData.data.gameId) {
+    if (activity.gameId != my.game.gameId) {
       return false;
     }
 
@@ -340,13 +404,6 @@ var Api = (function () {
     } else {
       my.game.isParticipant = false;
     }
-
-    // Parse some top-level items from gameData
-    my.game.gameId =  my.game.gameData.data.gameId;
-    my.game.roundNumber = my.game.gameData.data.roundNumber;
-    my.game.maxWins = my.game.gameData.data.maxWins;
-    my.game.gameState = my.game.gameData.data.gameState;
-    my.game.validAttackTypeArray = my.game.gameData.data.validAttackTypeArray;
 
     if (my.game.isParticipant) {
       my.game.playerIdx = data.currentPlayerIdx;
@@ -357,13 +414,17 @@ var Api = (function () {
     }
 
     my.game.player = my.parseGamePlayerData(
-                       my.game.playerIdx, data.playerNameArray);
+                       data.playerDataArray[my.game.playerIdx],
+                       my.game.playerIdx);
     my.game.opponent = my.parseGamePlayerData(
-                         my.game.opponentIdx, data.playerNameArray);
+                         data.playerDataArray[my.game.opponentIdx],
+                         my.game.opponentIdx);
 
     // Parse game WLT text into a string for convenience
     my.game.player.gameScoreStr = my.playerWLTText('player');
     my.game.opponent.gameScoreStr = my.playerWLTText('opponent');
+
+    my.game.pendingGameCount = data.pendingGameCount;
 
     return true;
   };
@@ -371,61 +432,33 @@ var Api = (function () {
   // Given a player index, parse all data out of the appropriate arrays,
   // and return it.  This function can be used for either the logged-in
   // player or the opponent.
-  my.parseGamePlayerData = function(playerIdx, playerNameArray) {
-    var data = {
-      'playerId': my.game.gameData.data.playerIdArray[playerIdx],
-      'playerName': playerNameArray[playerIdx],
-      'buttonName': my.game.gameData.data.buttonNameArray[playerIdx],
-      'buttonRecipe': my.game.gameData.data.buttonRecipeArray[playerIdx],
-      'waitingOnAction':
-        my.game.gameData.data.waitingOnActionArray[playerIdx],
-      'roundScore': my.game.gameData.data.roundScoreArray[playerIdx],
-      'gameScoreDict':
-        my.game.gameData.data.gameScoreArrayArray[playerIdx],
-      'nDie': my.game.gameData.data.nDieArray[playerIdx],
-      'valueArray': my.game.gameData.data.valueArrayArray[playerIdx],
-      'sidesArray': my.game.gameData.data.sidesArrayArray[playerIdx],
-      'dieRecipeArray':
-        my.game.gameData.data.dieRecipeArrayArray[playerIdx],
-      'dieSkillsArray':
-        my.game.gameData.data.dieSkillsArrayArray[playerIdx],
-      'diePropertiesArray':
-        my.game.gameData.data.diePropertiesArrayArray[playerIdx],
-      'dieDescriptionArray':
-        my.game.gameData.data.dieDescriptionArrayArray[playerIdx],
+  my.parseGamePlayerData = function(playerData, playerIdx) {
+    var data = playerData;
 
-       // N.B. These arrays describe the other player's dice which this
-       // player has captured
-      'nCapturedDie': my.game.gameData.data.nCapturedDieArray[playerIdx],
-      'capturedValueArray':
-        my.game.gameData.data.capturedValueArrayArray[playerIdx],
-      'capturedSidesArray':
-        my.game.gameData.data.capturedSidesArrayArray[playerIdx],
-      'capturedRecipeArray':
-        my.game.gameData.data.capturedRecipeArrayArray[playerIdx],
+    // modify the API-provided swing request array to ensure that
+    // it is always a dict, and to tag the range values as "min"/"max"
+    var modSwingRequestArray = {};
+    $.each(playerData.swingRequestArray, function(letter, range) {
+      modSwingRequestArray[letter] = {
+        'min': parseInt(range[0], 10),
+        'max': parseInt(range[1], 10)
+      };
+    });
+    data.swingRequestArray = modSwingRequestArray;
 
-      'swingRequestArray': {},
-    };
-
-    $.each(
-      my.game.gameData.data.swingRequestArrayArray[playerIdx],
-      function(letter, range) {
-        data.swingRequestArray[letter] = {
-          'min': parseInt(range[0], 10),
-          'max': parseInt(range[1], 10)
-        };
-      }
-    );
+    // store buttonName as a top-level variable for convenience
+    // in assembling game tables
+    data.buttonName = playerData.button.name;
 
     // activePlayerIdx may be either player or may be null
-    if (my.game.gameData.data.activePlayerIdx == playerIdx) {
+    if (my.game.activePlayerIdx == playerIdx) {
       data.isActive = true;
     } else {
       data.isActive = false;
     }
 
     // playerWithInitiativeIdx may be either player or may be null
-    if (my.game.gameData.data.playerWithInitiativeIdx == playerIdx) {
+    if (my.game.playerWithInitiativeIdx == playerIdx) {
       data.hasInitiative = true;
     } else {
       data.hasInitiative = false;
@@ -435,15 +468,215 @@ var Api = (function () {
   };
 
   my.playerWLTText = function(player) {
-    var text = 'W/L/T: ' + Api.game[player].gameScoreDict.W +
-               '/' + Api.game[player].gameScoreDict.L +
-               '/' + Api.game[player].gameScoreDict.D +
+    var text = 'W/L/T: ' + Api.game[player].gameScoreArray.W +
+               '/' + Api.game[player].gameScoreArray.L +
+               '/' + Api.game[player].gameScoreArray.D +
                ' (' + Api.game.maxWins + ')';
     return text;
   };
 
-  my.disableSubmitButton = function(button_id) {
-    $('#' + button_id).attr('disabled', 'disabled');
+  my.disableSubmitButton = function(button) {
+    if (button) {
+      if (!(button instanceof jQuery)) {
+        button = $('#' + button);
+      }
+      button.attr('disabled', 'disabled');
+    }
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the ID of the player's next pending game
+
+  my.getNextGameId = function(callbackfunc) {
+    var currentGameId;
+    if (Api.game !== undefined &&
+        Api.game.isParticipant && Api.game.player.waitingOnAction) {
+      // If you're viewing a game where it's your turn, pass the ID along as
+      // being skipped
+      currentGameId = Api.game.gameId;
+    }
+
+    my.apiParsePost(
+      {
+        'type': 'loadNextPendingGame',
+        'currentGameId': currentGameId,
+      },
+      'gameNavigation',
+      my.parseNextGameId,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseNextGameId = function(data) {
+    if (data.gameId !== null && !$.isNumeric(data.gameId)) {
+      return false;
+    }
+    my.gameNavigation.nextGameId = data.gameId;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load the ID's of the next new post and its thread
+
+  my.getNextNewPostId = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadNextNewPost', },
+      'forumNavigation',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.getOpenGamesData = function(callbackfunc) {
+    my.apiParsePost( { 'type': 'loadOpenGames', },
+      'open_games',
+      my.parseOpenGames,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseOpenGames = function(data) {
+    my.open_games.games = data.games;
+    return true;
+  };
+
+  my.joinOpenGame = function(gameId, buttonName, callback, failCallback) {
+    var parameters = {
+      'type': 'joinOpenGame',
+      'gameId': gameId,
+    };
+    if (buttonName !== undefined && buttonName !== null) {
+      parameters.buttonName = buttonName;
+    }
+
+    my.apiParsePost(
+      parameters,
+      'join_game_result',
+      my.parseJoinGameResult,
+      callback,
+      failCallback
+    );
+  };
+
+  my.parseJoinGameResult = function(data) {
+    my.join_game_result.success = data;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////
+  // Forum-related methods
+
+  my.loadForumOverview = function(callbackfunc) {
+    my.apiParsePost(
+      { 'type': 'loadForumOverview', },
+      'forum_overview',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumBoard = function(boardId, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadForumBoard',
+        'boardId': boardId,
+      },
+      'forum_board',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.loadForumThread = function(threadId, currentPostId, callbackfunc) {
+    if (!currentPostId) {
+      currentPostId = undefined;
+    }
+    my.apiParsePost(
+      {
+        'type': 'loadForumThread',
+        'threadId': threadId,
+        'currentPostId': currentPostId,
+      },
+      'forum_thread',
+      my.parseGenericData,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  // End of Forum-related methods
+  ////////////////////////////////////////////////////////////
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the list of recently-active players
+
+  my.getActivePlayers = function(numberOfPlayers, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadActivePlayers',
+        'numberOfPlayers': numberOfPlayers,
+      },
+      'active_players',
+      my.parseActivePlayers,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseActivePlayers = function(data) {
+    my.active_players.players = data.players;
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Load and parse the profile info for the specified player
+
+  my.loadProfileInfo = function(playerName, callbackfunc) {
+    my.apiParsePost(
+      {
+        'type': 'loadProfileInfo',
+        'playerName': playerName,
+      },
+      'profile_info',
+      my.parseProfileInfo,
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseProfileInfo = function(data) {
+    $.each(data.profile_info, function(key, value) {
+      my.profile_info[key] = value;
+    });
+    return true;
+  };
+
+  ////////////////////////////////////////////////////////////////////////
+  // Search historic games and parse the result
+
+  my.searchGameHistory = function(searchParameters, callbackfunc) {
+    searchParameters.type = 'searchGameHistory';
+
+    my.apiParsePost(
+      searchParameters,
+      'game_history',
+      my.parseSearchResults,
+
+      callbackfunc,
+      callbackfunc
+    );
+  };
+
+  my.parseSearchResults = function(data) {
+    my.game_history.games = data.games;
+    my.game_history.summary = data.summary;
+
+    return true;
   };
 
   return my;

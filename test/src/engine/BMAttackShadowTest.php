@@ -70,5 +70,3 @@ class BMAttackShadowTest extends PHPUnit_Framework_TestCase {
         // james: still need a test targeting a non-valid target, e.g., a stealth die
     }
 }
-
-?>

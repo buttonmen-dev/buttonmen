@@ -1,0 +1,74 @@
+{
+  "gameId": 1,
+  "gameState": "SPECIFY_DICE",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": null,
+  "playerWithInitiativeIdx": null,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "validAttackTypeArray": [],
+  "gameSkillsInfo": [],
+  "gameActionLog": [],
+  "gameChatLog": [],
+  "gameChatEditable": false,
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "playerName": "tester1",
+      "button": {
+        "name": "Avis",
+        "recipe": "(4) (4) (10) (12) (X)",
+        "artFilename": "avis.png"
+      },
+      "activeDieArray": [
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": null, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null,
+      "playerColor": "#dd99dd"
+    },
+    {
+      "playerId": 2,
+      "playerName": "tester2",
+      "button": {
+        "name": "Avis",
+        "recipe": "(4) (4) (10) (12) (X)",
+        "artFilename": "avis.png"
+      },
+      "activeDieArray": [
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 4, "skills": [], "properties": [], "recipe": "(4)", "description": "4-sided die" },
+        { "value": null, "sides": 10, "skills": [], "properties": [], "recipe": "(10)", "description": "10-sided die" },
+        { "value": null, "sides": 12, "skills": [], "properties": [], "recipe": "(12)", "description": "12-sided die" },
+        { "value": null, "sides": null, "skills": [], "properties": [], "recipe": "(X)", "description": "X Swing Die" }
+      ],
+      "capturedDieArray": [],
+      "swingRequestArray": {"X": [4, 20]},
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": null,
+      "sideScore": null,
+      "gameScoreArray": {"W": 0, "L": 0, "D": 0},
+      "lastActionTime": 0,
+      "canStillWin": null,
+      "playerColor": "#ddffdd"
+    }
+  ],
+  "timestamp": 1403216852,
+  "pendingGameCount": 0
+}

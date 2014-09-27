@@ -38,5 +38,3 @@ class BMSkillPoisonTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-20, $die->get_scoreValueTimesTen());
     }
 }
-
-?>

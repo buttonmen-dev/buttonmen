@@ -1,11 +1,10 @@
 <?php
 
 class TestDummyBMSkillRollCatcher extends BMSkill {
-    public static $hooked_methods = array("roll");
+    public static $hooked_methods = array("pre_roll");
 
-    public static function roll($args) {
+    public static function pre_roll($args) {
         throw new Exception("roll called");
     }
 }
 
-?>

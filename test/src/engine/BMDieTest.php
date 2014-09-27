@@ -33,158 +33,8 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         return $method;
     }
 
-    /*
-     * @covers BMDie::add_skill
-     */
-
-    public function testAdd_skill() {
-        // Check that the skill list is indeed empty
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-
-        $this->assertEmpty($sl, "Skill list not initially empty.");
-        $this->assertFalse(array_key_exists("test", $hl), "Hook list not initially empty.");
-
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $this->assertNotEmpty($sl, "Skill list should not be empty.");
-        $this->assertEquals(count($sl), 1, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertEquals($sl["Testing"], "TestDummyBMSkillTesting", "Incorrect stored classname for 'Testing'");
-
-        // Proper maintenance of the hook lists
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-
-        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-
-        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-
-
-
-        // Another skill
-
-        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $this->assertNotEmpty($sl, "Skill list should not be empty.");
-        $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-        $this->assertEquals($sl["Testing2"], "TestDummyBMSkillTesting2", "Incorrect stored classname for 'Testing2'");
-
-
-        // Redundancy
-
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $sl = PHPUnit_Framework_Assert::readAttribute($this->object, "skillList");
-        $this->assertEquals(count($sl), 2, "Skill list contains more than it should.");
-        $this->assertArrayHasKey('Testing', $sl, "Skill list doesn't contain 'Testing'");
-        $this->assertArrayHasKey('Testing2', $sl, "Skill list doesn't contain 'Testing2'");
-
-        // Proper maintenance of the hook lists
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-
-        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-        $this->assertContains("TestDummyBMSkillTesting2", $hl["test"], "Hook list missing 'Testing2' hook.");
-
-        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-        $this->assertEquals(2, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-    }
-
-    /**
-     * @covers BMDie::has_skill
-     *
-     * @depends testAdd_skill
-     */
-    public function testHas_skill() {
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-        $this->assertTrue($this->object->has_skill("Testing"));
-        $this->assertTrue($this->object->has_skill("Testing2"));
-        $this->assertFalse($this->object->has_skill("Testing3"));
-    }
-
-    /**
-     * @covers BMDie::remove_skill
-     *
-     * @depends testAdd_skill
-     * @depends testHas_skill
-     */
-    public function testRemove_skill() {
-
-        // simple
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->assertTrue($this->object->remove_skill("Testing"));
-        $this->assertFalse($this->object->has_skill("Testing"));
-
-        // multiple skills
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->object->add_skill("Testing2", "TestDummyBMSkillTesting2");
-        $this->assertTrue($this->object->remove_skill("Testing"));
-        $this->assertFalse($this->object->has_skill("Testing"));
-        $this->assertTrue($this->object->has_skill("Testing2"));
-
-        // fail to remove non-existent skills
-        $this->object->add_skill("Testing", "TestDummyBMSkillTesting");
-        $this->assertFalse($this->object->remove_skill("Testing3"));
-        $this->assertTrue($this->object->has_skill("Testing"));
-        $this->assertTrue($this->object->has_skill("Testing2"));
-
-        // examine the hook list for proper editing
-        $this->assertTrue($this->object->remove_skill("Testing2"));
-        $this->assertTrue($this->object->has_skill("Testing"));
-        $this->assertFalse($this->object->has_skill("Testing2"));
-
-        $hl = PHPUnit_Framework_Assert::readAttribute($this->object, "hookList");
-        $this->assertArrayHasKey("test", $hl, "Hook list missing test hooks.");
-
-        $this->assertContains("TestDummyBMSkillTesting", $hl["test"], "Hook list missing 'Testing' hook.");
-        $this->assertNotContains("TestDummyBMSkillTesting2", $hl["test"], "Hook list _not_ missing 'Testing2' hook.");
-
-        $this->assertEquals(1, count($hl), "Hook list contains something extra.");
-        $this->assertEquals(1, count($hl["test"]), "Hook list for function 'test' contains something extra.");
-    }
-
-    /**
-     * @covers BMDie::run_hooks
-     *
-     * @depends testAdd_skill
-     * @depends testHas_skill
-     * @depends testRemove_skill
-     */
-    public function testRun_hooks() {
-        $die = new TestDummyBMDieTesting;
-
-        $die->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $die->test();
-
-        $this->assertEquals("testing", $die->testvar);
-
-        $die->remove_skill("Testing");
-        $die->add_skill("Testing2", "TestDummyBMSkillTesting2");
-
-        $die->test();
-        $this->assertEquals("still testing", $die->testvar);
-
-        $die->add_skill("Testing", "TestDummyBMSkillTesting");
-
-        $die->test();
-        // order in which hooks run is not guaranteed
-        $this->assertRegExp('/testingstill testing|still testingtesting/', $die->testvar);
-    }
-
     /**
      * @covers BMDie::init
-     *
-     * @depends testAdd_skill
-     * @depends testHas_skill
-     * @depends testRemove_skill
      */
     public function testInit() {
         $this->object->init(6, array("TestDummyBMSkillTesting" => "Testing"));
@@ -473,6 +323,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testAttack_list
      */
     public function testAttack_values() {
+        $this->object->init(15);
         $this->object->value = 7;
 
         foreach ($this->object->attack_list() as $att) {
@@ -828,6 +679,64 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $die4 = new BMDie;
         $die4->init(25, array('Shadow', 'Poison'));
         $this->assertEquals('sp(25)', $die4->get_recipe());
+
+        $die5 = new BMDie;
+        $die5->init(51, array());
+        $this->assertEquals('(51)', $die5->get_recipe(TRUE));
+    }
+
+    /*
+     * @covers BMDie::has_flag
+     */
+    public function testHas_flag() {
+        $this->assertFalse($this->object->has_flag('flag'));
+    }
+
+    /*
+     * @covers BMDie::add_flag
+     */
+    public function testAdd_flag() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::remove_flag
+     */
+    public function testRemove_flag() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
+
+        $this->object->remove_flag('WasJustCaptured');
+        $this->assertFalse($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::remove_all_flags
+     */
+    public function testRemove_all_flags() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->object->remove_all_flags();
+        $this->assertFalse($this->object->has_flag('WasJustCaptured'));
+    }
+
+    /*
+     * @covers BMDie::flags_as_string
+     */
+    public function testFlags_as_string() {
+        $this->object->add_flag('WasJustCaptured');
+        $this->assertEquals('WasJustCaptured', $this->object->flags_as_string());
+    }
+
+    /*
+     * @covers BMDie::load_flags_from_string
+     */
+    public function testLoad_flags_from_string() {
+        $this->object->load_flags_from_string('WasJustCaptured');
+        $this->assertTrue($this->object->has_flag('WasJustCaptured'));
     }
 
     public function test__get() {
@@ -857,5 +766,3 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
 }
-
-?>

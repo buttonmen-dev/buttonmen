@@ -127,7 +127,7 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         // Fun with helpers!
         $die1->value = 3;
         $die2->value = 6;
-        $die3->value = 9;
+        $die3->value = 5;
         $die4->value = 6;
         $die5->value = 1;
         $die5->add_skill("AVTesting", "TestDummyBMSkillAVTesting");
@@ -275,10 +275,10 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
         $die2 = BMDie::create(6);
         $die2->value = 2;
 
-        $die3 = BMDie::create(6);
+        $die3 = BMDie::create(20);
         $die3->value = 4;
 
-        $die4 = BMDie::create(6);
+        $die4 = BMDie::create(20);
         $die4->value = 5;
 
         $sk->reset();
@@ -407,5 +407,3 @@ class BMAttackSkillTest extends PHPUnit_Framework_TestCase {
 
     }
 }
-
-?>

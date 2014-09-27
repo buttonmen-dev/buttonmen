@@ -1,5 +1,6 @@
 DELETE FROM buttonset;
 INSERT INTO buttonset (name) VALUES
+# Official Sets (in order of release)
 ('Soldiers'),
 ('The Big Cheese'),
 ('Sanctum'),
@@ -14,18 +15,16 @@ INSERT INTO buttonset (name) VALUES
 ('Buttonlords'),
 ('Studio Foglio'),
 ('Sailor Moon 1'),
+('ButtonBroccoli'),
 ('Freaks'),
 ('Balticon 34'),
-('ButtonBroccoli'),
+('2000 ShoreCon'),
 ('Las Vegas'),
 ('Fantasy'),
-('Renaissance'),
 ('Save The Ogres'),
-('Yoyodyne'),
 ('Presidential'),
 ('Majesty'),
 ('Wonderland'),
-('2000 ShoreCon'),
 ('Fairies'),
 ('Dork Victory'),
 ('Japanese Beetle'),
@@ -35,23 +34,33 @@ INSERT INTO buttonset (name) VALUES
 ('Bruno'),
 ('Tenchi Muyo!'),
 ('Sluggy Freelance'),
+('Everything to Gain'),
+('Yoyodyne'),
 ('Samurai'),
 ('SydCon 10'),
 ('Demicon the 13th'),
+('SFR'),
+('Chicagoland Gamers Conclave'),
 ('Diceland'),
+('Renaissance'),
 ('2002 Anime Expo'),
 ('2002 Origins'),
 ('Bar Mitzvah'),
-('Button Brains'),
-('Chicagoland Gamers Conclave'),
 ('2003 Rare-Promos'),
-('SFR'),
+('Button Brains'),
+('Fightball'),
+('Nodwick'),
 ('2004 Origins'),
+('Geekz'),
+('Kubla Con'),
 ('Space Girlz'),
 ('Bridge and Tunnel'),
 ('2005 Rare Promo'),
-# fan sets, vanity sets, sets made for the old site (?)
-('Geekz'),
+('High School Drama!'),
+('Unexploded Cow'),
+('ZOECon'),
+
+# Button Men Online sets - virtual fan and vanity sets
 ('Iron Chef'),
 ('7 deadly sins'),
 ('Chicago Crew'),
@@ -59,25 +68,21 @@ INSERT INTO buttonset (name) VALUES
 ('Free Radicals'),
 ('Hodge Podge'),
 ('Victorian Horror'),
+('Cowboy Bebop'),
+('50 States'),
 
-# official (?) ButtonMen sets not on old site
-('Everything to Gain'),
+# Unofficial Sets - fan and vanity sets
+('Japanese Beetle (unofficial)'),
+('Blademasters'),
+('Order of the Dolls'),
+('Blademasters: The Second Shot'),
+('Blademasters: Third Attack'),
 ('Gaming Guardians'),
-('Fightball'),
-('Nodwick'),
-('High School Drama!'),
-('Unexploded Cow'),
-# unofficial ButtonMen sets not on old site
-#('Japanese Beetle (unofficial)'),
-#('Blademasters'),
-#('Blademasters: The Second Shot'),
-#('Blademasters 3'),
-#('Order of the Dolls'),
+('MegaTokyo'),
 
-#('50 States'),
-
-#
+# Fanatics
 ('Classic Fanatics');
+
 
 DELETE FROM button;
 
@@ -98,8 +103,9 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # 2000 RARE-PROMO
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-# Gordo from ButtonMen Poster 1999 (Cheapass Games)
-('Gordo',               'u(V) u(W) u(X) u(Y) u(Z)',           0, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
+# Gordo from Button Men Poster 1999 (Cheapass Games)
+# None of Gordo's dice can be the same size
+('Gordo',               '(V) (W) (X) (Y) (Z)',                1, 0, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # Me am ORK! from Orc! (Green Ronin)
 ('Me am ORK!',           '(8) (8) (8) p(8) (X)',              0, 1, (SELECT id FROM buttonset WHERE name="2000 Rare / Promo")),
 # Rikachu Origins 2000 (Origins)
@@ -142,7 +148,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Rold Rage',              '(6) (6) G(6) G(6) G(6)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 # not included in the original site - assumed not TL
 # ('Killer Christmas Tree',  '(6) Z(6) (10) Z(12) (X)',                        0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
-('Billy Shakespear',       '(15) (64) (16) (16)',                            0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
+('Billy Shakespeare',      '(15) (64) (16) (16)',                            0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Drew\'s Truck',          '(5) (10) (15) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Igor(p)',                '(8) (8) z(12) (20) (X)',                         0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins")),
 ('Mike Young',             '(X) (X) (Y) (Y)',                                0, 0, (SELECT id FROM buttonset WHERE name="2004 Origins"));
@@ -200,7 +206,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Giant never goes first
 ('Giant',       '(20) (20) (20) (20) (20) (20)',       1, 1, (SELECT id FROM buttonset WHERE name="BROM")),
 # Echo does not have it's own recipe - it copies the recipe of the opposing button
-('Echo',        'none',                                1, 1, (SELECT id FROM buttonset WHERE name="BROM"));
+('Echo',        '',                                    1, 1, (SELECT id FROM buttonset WHERE name="BROM"));
 
 # BRIDGE AND TUNNEL (Bridge and Tunnel Software)  INTRODUCES Reboud(=) dice (not implemented); poison(p); shadow(s); option
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -306,17 +312,20 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 
 # FIGHTBALL (Cheapass Games) NOTE: special die selection rules - choose 5 dice out of all available (not implemented)
 # ASSUMED ALL TO BE TL
-#INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-#('Brie',      '(4) (6) (8) (10) (12) (12) (20)',       0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Domino',    '(4) (4) (8) (8) (8) (10) (12)',         0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Echo(p)',   '(4) (6) (6) (6) (12) (12) (12) (20)',   0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Georgia',   '(6) (6) (8) (8) (12) (20) (20)',        0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Gordo(p)',  '(4) (6) (6) (8) (8) (10) (20)',         0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Mel',       '(4) (4) (8) (10) (10) (20) (20)',       0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Pavel',     '(6) (10) (10) (12) (12) (20) (20)',     0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Rocq',      '(6) (10) (10) (12) (20) (20) (20)',     0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Skinny',    '(4) (4) (4) (6) (8) (8) (10)',          0, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
-#('Tex',       '(4) (4) (6) (8) (10) (10) (12) (12)',   0, 1, (SELECT id FROM buttonset WHERE name="Fightball"));
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Brie',              '(4) (6) (8) (10) (12) (12) (20)',         1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Domino',            '(4) (4) (8) (8) (8) (10) (12)',           1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Echo(Fightball)',   '(4) (6) (6) (6) (12) (12) (12) (20)',     1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Georgia',           '(6) (6) (8) (8) (12) (20) (20)',          1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Gordo(Fightball)',  '(4) (6) (6) (8) (8) (10) (20)',           1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Mel',               '(4) (4) (8) (10) (10) (20) (20)',         1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Pavel',             '(6) (10) (10) (12) (12) (20) (20)',       1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Rocq',              '(6) (10) (10) (12) (20) (20) (20)',       1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Skinny',            '(4) (4) (4) (6) (8) (8) (10)',            1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Tex',               '(4) (4) (6) (8) (10) (10) (12) (12)',     1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+# Pepper and Zal are from the BM Trading Cards
+('Pepper',            '(6) (10) (10) (10) (12) (12) (12) (16)',  1, 1, (SELECT id FROM buttonset WHERE name="Fightball")),
+('Zal',               '(4) (6) (6) (16) (16) (20) (20)',         1, 1, (SELECT id FROM buttonset WHERE name="Fightball"));
 
 # FREAKS (Cheapass Games)              INTRODUCES Queer(q) dice; Poison(p); Shadow(s); Speed(z)
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -325,35 +334,12 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Simon',       'q(4) q(6) q(12) q(20) q(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks")),
 ('Werner',      '(8) (10) (10) (12) pzs(V)!',     0, 1, (SELECT id FROM buttonset WHERE name="Freaks"));
 
-# GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded(M), Evil(E)
+# GEEKZ                                                        SKILLS Poison; Shadow; Reserve; Twin
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('Dream Wyrm',      'T(8) (20) (20) (20,8) (U)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('EDG',             'I(6) I(8) I(10) 20 (X)',                     0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Randarch',        'M(6) M(6) (10) (10) (X)',                    0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Scarlet Jester',  'n(4) E(10) n(12) E(20) E(20)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
-('Shane Hensley',   'E(6) E(6) E(6) E(6) E(6) E(6)',              0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians"));
-
-# HIGH SCHOOL DRAMA!  (Shifting Skies)     INTRODUCES Sideboard(S) dice
-# ASSUMED ALL TO BE TL
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('cheerleader',    '(4) (4) (6) (8) (12) S(10)',      0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('dumb blonde',    '(6) (6) (8) (10) (12) S(20)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('meathead',       '(8) (10) (12) (20) (20) S(6)',    0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('tennis star',    '(4) (6) (10) (12) (20) S(8)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('1337 h4Xx0r',    '(4) (4) (12) (12) (20) S(6)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('game master',    '(8) (8) (10) (12) (20) S(20)',    0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('emo boy',        '(4) (8) (8) (10) (20) S(12)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
-('goth chick',     '(6) (6) (6) (10) (20) S(4)',      0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!"));
-
-# The Japanese Beetle! (The Japanese Beetle)
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-# The Flying Squirrel cannot make skill attacks
-('The Flying Squirrel', 'z(6) z(12) z(12) z(20)',             1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle")),
-# The Japanese Beetle: Skill attacks do not work on Japanese Beetle
-('The Japanese Beetle', '(6) (8) (12) (X)',                   1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle"));
+('Caine',         'ps(4) ps(4) s(20) s(20) s(X)',                     0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
+('Cammy Neko',    '(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)',    0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
+('Sailor Man',    '(4,4) (8) (20) (12,12) r(10,10) r(6,6) r(8)',      0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
+('Xylene',        's(6) s(8) s(10) s(X) s(Y)',                        0, 1, (SELECT id FROM buttonset WHERE name="Geekz"));
 
 # GUARDIANS OF ORDER sets include Sailor Moon 1, Sailor Moon 2, and Tenchi Muyo!
 #     INTRODUCES Iconic Abilities which are button specials that only work against other Guardians of Order buttons.
@@ -405,16 +391,36 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Ryo-Ohki',            '(4) (4) (4) (12) r(10) r(12) r(20) r(30)',      1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
 ('Washu',               '(4) (6) (12) (X) r(6) r(8) r(10) r(20)',        1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
 ('Dr. Clay',            '(6) (10) (10) (10) r(4) r(4) r(12) r(12)',      1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
-('Sasami',             '(4) (4) (6) (8) r(12) r(12) r(20) r(20)',        1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!"));
-# Zero works just like Echo - it doesn't have it's own recipe, but instead copies its important
-# ('Zero',             'none',                                            1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
+('Sasami',              '(4) (4) (6) (8) r(12) r(12) r(20) r(20)',       1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!")),
+# Zero works just like Echo - it doesn't have it's own recipe, but instead copies its opponent's
+('Zero',                '',                                              1, 0, (SELECT id FROM buttonset WHERE name="Tenchi Muyo!"));
+
+# HIGH SCHOOL DRAMA!  (Shifting Skies)     INTRODUCES Sideboard(S) dice
+# ASSUMED ALL TO BE TL
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('cheerleader',    '(4) (4) (6) (8) (12) S(10)',      0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('dumb blonde',    '(6) (6) (8) (10) (12) S(20)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('meathead',       '(8) (10) (12) (20) (20) S(6)',    0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('tennis star',    '(4) (6) (10) (12) (20) S(8)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('1337 h4Xx0r',    '(4) (4) (12) (12) (20) S(6)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('game master',    '(8) (8) (10) (12) (20) S(20)',    0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('emo boy',        '(4) (8) (8) (10) (20) S(12)',     0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!")),
+('goth chick',     '(6) (6) (6) (10) (20) S(4)',      0, 1, (SELECT id FROM buttonset WHERE name="High School Drama!"));
 
 # HOWLING WOLF (Howling Wolf Studios)              INTRODUCES Stealth(d) Dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Howling Wolf',        'd(4) (8) (12) (20) d(20)',           0, 1, (SELECT id FROM buttonset WHERE name="Howling Wolf")),
 ('White Tiger',         '(6) d(6) (10) (12) d(12)',           0, 1, (SELECT id FROM buttonset WHERE name="Howling Wolf"));
 
+# The Japanese Beetle! (The Japanese Beetle)
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+# The Flying Squirrel cannot make skill attacks
+('The Flying Squirrel', 'z(6) z(12) z(12) z(20)',             1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle")),
+# The Japanese Beetle: Skill attacks do not work on Japanese Beetle
+('The Japanese Beetle', '(6) (8) (12) (X)',                   1, 1, (SELECT id FROM buttonset WHERE name="Japanese Beetle"));
+
 # LAS VEGAS                                INTRODUCES Wildcard(C) AND Pai Gow(:); Option; Twin; Turbo
+# Frankie aka Professor, Lola aka Showgirl, Sly aka  Pit Boss, Crypto aka Magician
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Frankie',       '(2,3) (3,4) (4,5) (10) (T)!',      0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 ('Lola',          '(6) (6) (8) (T) (U)',              0, 0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
@@ -428,13 +434,13 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # SHAMROCK: The d13s score as normal d13s, but are represented by a d12 for which a 7 counts as a 13
 ('Shamrock',      '(2) (7/13) (7/13) (7/13) (7/13)',  1,  0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
 ('PaiGow',        '(6) :(8) :(8) (10) (12)',          0,  0, (SELECT id FROM buttonset WHERE name="Las Vegas")),
-# The Magican can use one of the following once per round, and cannot use any of them twice until he has used all four:
+# Crypto can use one of the following once per round, and cannot use any of them twice until he has used all four:
 # * Rabbit from hat: Extra d1.
 # * Prestidigitation: Change any die to a Trip die.
 # * Bisect with Saw: Change any die (own or opponent's) to half of its originally-rolled value on the opening roll.
 # * Vanishing Act: First die captured by opponent is scored as zero points.
 # * Mind Reading: Opponent must state all sizes of all option and/or swing dice.
-('Magician',      '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas"));
+('Crypto',        '(6) (8) (10) (12) (T)',            1, 0, (SELECT id FROM buttonset WHERE name="Las Vegas"));
 
 # LEGEND OF THE FIVE RINGS (Wizards of the Coast)  INTRODUCES Focus(f) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -476,7 +482,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Spencer',   '(8) (8) (12) m(20) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Metamorphers")),
 ('Talus',     '(4) m(12) (20) (20) (X)',     0, 1, (SELECT id FROM buttonset WHERE name="Metamorphers"));
 
-# NODWICK (4th Blade)                     INTRODUCES Armor(A) dice 
+# NODWICK (4th Blade)                     INTRODUCES Armor(A) dice
 # ASSUMED ALL TO BE NON-TL
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Artax',            'A(4) (8) (8) (12) (X)',        0, 0, (SELECT id FROM buttonset WHERE name="Nodwick")),
@@ -543,7 +549,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Kiki',        '(3/20) (4) (8/12) (10) (10/20)',     0, 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 ('Riff',        '(4/20) (6) (6/8) (10/12) (20)',      0, 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
 ('Torg',        '(6) (6/20) (8) (10/12) (12/20)',     0, 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance")),
-('Zoë',         '(4/12) (6/10) (8) (10/20) (12/20)',  0, 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance"));
+('Zoe',         '(4/12) (6/10) (8) (10/20) (12/20)',  0, 1, (SELECT id FROM buttonset WHERE name="Sluggy Freelance"));
 
 # SOLDIERS (Cheapass Games) NOTE: original Buttonmen set, no special die skills
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -595,23 +601,14 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 # UNEXPLODED COW (Cheapass Games)   INTRODUCES Boom(b) Dice AND Mad Swing(&) Dice
 # ASSUMED ALL TO BE TL
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('George',     '(4) (6) b(6) b(20) (&)',       0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Violette',   '(8) (8)  b(10) b(12) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Elsie',      '(4) b(4) (10) b(12) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Kasper',     '(6) b(8) (12) b(20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Montague',   'b(4) b(10) (12) (20) (&)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
-('Neville',    ' b(4) (8) b(8) (20) (&)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('George',     '(4) (6) b(6) b(20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Violette',   '(8) (8) b(10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Elsie',      '(4) b(4) (10) b(12) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Kasper',     '(6) b(8) (12) b(20) &(Y)',     0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Montague',   'b(4) b(10) (12) (20) &(Y)',    0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
+('Neville',    'b(4) (8) b(8) (20) &(Y)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Thaddeus',   '(10) (14) (14) (18) (X)',      0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow")),
 ('Buckley',    '(4) (4) (18) (X) (X)',         0, 1, (SELECT id FROM buttonset WHERE name="Unexploded Cow"));
-
-# WONDERLAND                                        SKILLS Null; Option; Poison; Queer; Stinger; Turbo; Twin
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('Alice',             '(6) (8) (8) (10) (1/30)!',          0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('Mad Hatter',        'q(6) q(6) q(10) q(20) q(X)',        0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('Queen Of Hearts',   '(6) (8) p(16) (20) (X)',            0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('The Jabberwock',    '(20) (20) (30) ng(30) (U)',         0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('Tweedledum+dee',    '(2,2) (4,4) (6,6) (10,10) (T,T)',   0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
-('White Rabbit',      '(4) (6) (8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Wonderland"));
 
 # VAMPYRES (Cheapass Games)            INTRODUCES Shadow(s) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -622,6 +619,15 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('McGinty',     '(4) s(10) (12) (12) (X)',       0, 1, (SELECT id FROM buttonset WHERE name="Vampyres")),
 ('Tiffany',     '(4) s(8) (8) (10) s(X)',        0, 1, (SELECT id FROM buttonset WHERE name="Vampyres"));
 
+# WONDERLAND                                        SKILLS Null; Option; Poison; Queer; Stinger; Turbo; Twin
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Alice',             '(6) (8) (8) (10) (1/30)!',          0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('Mad Hatter',        'q(6) q(6) q(10) q(20) q(X)',        0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('Queen Of Hearts',   '(6) (8) p(16) (20) (X)',            0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('The Jabberwock',    '(20) (20) (30) ng(30) (U)',         0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('Tweedledum+dee',    '(2,2) (4,4) (6,6) (10,10) (T,T)',   0, 0, (SELECT id FROM buttonset WHERE name="Wonderland")),
+('White Rabbit',      '(4) (6) (8) (12) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Wonderland"));
+
 # YOYODYNE (Fuzzface)                   INTRODUCES Chance(c) dice
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('FuzzFace',      '(4) (8) (10) c(10) c(12)',    0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
@@ -629,15 +635,8 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Pikathulhu',    '(6) c(6) (10) (12) c(X)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne")),
 ('Ulthar',        '(4) (8) (10) c(10) c(T)',     0, 1, (SELECT id FROM buttonset WHERE name="Yoyodyne"));
 
-#########
-# I haven't found any info regarding the rest of these sets, and suspect many to fan / vanity sets
-
-# GEEKZ                                                        SKILLS Poison; Shadow; Reserve; Twin
-INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
-('Caine',         'ps(4) ps(4) s(20) s(20) s(X)',                     0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
-('Cammy Neko',    '(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)',    0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
-('Sailor Man',    '(4,4) (8) (20) (12,12) r(10,10) r(6,6) r(8)',      0, 1, (SELECT id FROM buttonset WHERE name="Geekz")),
-('Xylene',        's(6) s(8) s(10) s(X) s(Y)',                        0, 1, (SELECT id FROM buttonset WHERE name="Geekz"));
+###############################################
+##### SETS MADE FOR BUTTONMEN ONLINE OR DESIGNED BY ITS PLAYERS
 
 # IRON CHEF                                                   SKILLS Option
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
@@ -648,7 +647,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Iron Chef Japanese',    '(9/17) (17) (17) (21) (29)',              0, 0, (SELECT id FROM buttonset WHERE name="Iron Chef"));
 
 # BUTTONMEN.DHS.ORG: the following sets make use of die types designed specifically for the old buttonmen online
-# 7 DEADLY SINS                                  SKILLS Doppleganger; Mighty; Morphing; Option; Posion; Queer; Rage; Speed; Turbo
+# 7 DEADLY SINS                                  SKILLS Doppelganger; Mighty; Morphing; Option; Posion; Queer; Rage; Speed; Turbo
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Anger',        '(10) (10) (10) (12/20) (20/30)!',     0, 0, (SELECT id FROM buttonset WHERE name="7 deadly sins")),
 ('Envy',         'D(4) D(6) D(10) D(12) D(X)',          0, 0, (SELECT id FROM buttonset WHERE name="7 deadly sins")),
@@ -675,7 +674,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Pestilence',    '(4) pH(6) (12) (20) (S)',            0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen")),
 ('War',           'z(4) (6) z(10) B(20) (W,W)!',        0, 0, (SELECT id FROM buttonset WHERE name="Four Horsemen"));
 
-# FREE RADICALS                                SKILLS Doppleganger; Ornery
+# FREE RADICALS                                SKILLS Doppelganger; Ornery
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('CynCyn',       '(6) D(10) (20) D(X) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="Free Radicals")),
 ('Loren',        '(4) (6) Do(6) D(20) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="Free Radicals")),
@@ -685,7 +684,7 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Tony',         'D(6) (8) (10) (12) D(X)',           0, 0, (SELECT id FROM buttonset WHERE name="Free Radicals"));
 
 # HODGE PODGE             SKILLS Chance; Chaotic; Focus; Mood Swing; Option; Ornery; Reserve; Slow; Twin
-#       SKILLS Berserk; Doppleganger; Fire; Jolt; Konstant; Maximum; Mighty; Rage; Shadow; Speed; Stealth; Time and Space; Trip
+#       SKILLS Berserk; Doppelganger; Fire; Jolt; Konstant; Maximum; Mighty; Rage; Shadow; Speed; Stealth; Time and Space; Trip
 INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('BabyBM',              '(7) o(8,8) (11) (21) HG(V)',                0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
 ('Bull',                '(6) (8) (12) (X) (X)',                      0, 0, (SELECT id FROM buttonset WHERE name="Hodge Podge")),
@@ -721,6 +720,33 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Frankenstein\'s Monster',  '(10/16) (16/20) o(20/30) {G,B}(30)',    0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
 ('Invisible Man',            'n(4) d(6) d(10) ng(10) d(20)',          0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror")),
 ('Wolfman',                  '(6) p(10) (12) z(16) (X)',              0, 0, (SELECT id FROM buttonset WHERE name="Victorian Horror"));
+
+
+###############################################
+##### UNOFFICIAL SETS - FAN AND VANITY SETS
+
+# GAMING GUARDIANS (XIG Games) Dice Skills unique to this set: Teleport(T), Insult(I), Deception(~), Specialty, Loaded(M), Evil(E)
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('Dream Wyrm',      'T(8) (20) (20) (20,8) (U)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('EDG',             'I(6) I(8) I(10) (20) (X)',                   0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Graveyard Greg',  '(6) (8) {I,M,p,s,z,t}(10) {I,M,p,s,z,t}(10) (X)',  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Memento-Mori',    '(6) (10) (10) ~(12) ~(20)',                  0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Radical',         'T(4) (20) (12,12) (20,8) (Z)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Randarch',        'M(6) M(6) (10) (10) (X)',                    0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Scarlet Jester',  'n(4) E(10) n(12) E(20) E(20)',               0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians")),
+('Shane Hensley',   'E(6) E(6) E(6) E(6) E(6) E(6)',              0, 0, (SELECT id FROM buttonset WHERE name="Gaming Guardians"));
+
+# JAPANESE BEETLE (unofficial)                 INTRODUCES Dodge(_)
+# unlicensed fan set designed by Bayani Caes long before official JB set was created
+INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
+('The Japanese Beetle(u)',  '(6) (12) (12) _(V) (X)',     0, 0, (SELECT id FROM buttonset WHERE name="Japanese Beetle (unofficial)")),
+('The Flying Squirrel(u)',  '(4) (6) (12) (20) (X)',      0, 0, (SELECT id FROM buttonset WHERE name="Japanese Beetle (unofficial)")),
+('Joe McCarthy',            '(10) (12) (12) (20) (X)',    0, 0, (SELECT id FROM buttonset WHERE name="Japanese Beetle (unofficial)")),
+('Kremlina',                '(6) (8) (10) (12) (X)',      0, 0, (SELECT id FROM buttonset WHERE name="Japanese Beetle (unofficial)")),
+('Max Factor',              '(6) (8) (12) (X) (X)',       0, 0, (SELECT id FROM buttonset WHERE name="Japanese Beetle (unofficial)")),
+('Frenchman',               '(8) (10) (10) (12) (X)',     0, 0, (SELECT id FROM buttonset WHERE name="Japanese Beetle (unofficial)"));
+
+
 
 ################################################
 #####   C L A S S I C    F A N A T I C S   #####
@@ -904,3 +930,4 @@ INSERT INTO button (name, recipe, btn_special, tourn_legal, set_id) VALUES
 ('Zomulgustar', 't(4) p(5/23)! t(9) t(13) rdD(1) rsz(1) r^(1,1) rBqn(Z)?', 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Zophiel',         'k(1) (6) z(8,8) H(12) (Y)?',                 0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics")),
 ('Zotmeister',      'd(1) d(1) d(2,2) d(8,8) rd(1) rd(26,26)',    0, 0, (SELECT id FROM buttonset WHERE name="Classic Fanatics"));
+

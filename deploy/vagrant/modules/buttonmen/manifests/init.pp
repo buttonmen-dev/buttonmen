@@ -23,6 +23,11 @@ class buttonmen::server {
       content => template("buttonmen/create_databases.erb"),
       mode => 0555;
 
+    "/usr/local/bin/backup_buttonmen_database":
+      ensure => file,
+      content => template("buttonmen/backup_database.erb"),
+      mode => 0555;
+
     "/usr/local/bin/run_buttonmen_tests":
       ensure => file,
       content => template("buttonmen/run_buttonmen_tests.erb"),
@@ -36,6 +41,11 @@ class buttonmen::server {
     "/usr/local/etc/buttonmen_phpunit.php":
       ensure => file,
       content => template("buttonmen/phpunit.php.erb");
+
+    "/srv/backup":
+      ensure => directory,
+      group => "adm",
+      mode => 0750;
   }
 
   exec {
@@ -51,6 +61,26 @@ class buttonmen::server {
       command => "/usr/local/bin/create_buttonmen_databases",
       require => [ Package["mysql-server"],
                    Exec["buttonmen_src_rsync"] ];
+  }
+
+  # After updating source code, override the Config.js site type
+  # for the dev site
+  case $puppet_hostname {
+    "dev.buttonweavers.com": {
+      exec {
+        "buttonmen_update_config_sitetype":
+          command =>
+            "/bin/sed -i -e '/^Config.siteType =/s/production/development/' /var/www/ui/js/Config.js",
+          require => Exec["buttonmen_src_rsync"];
+      }
+    }
+  }
+
+  cron {
+    "buttonmen_backup_database":
+      command => "/usr/local/bin/backup_buttonmen_database",
+      minute => "1",
+      hour => "0";
   }
 }
 

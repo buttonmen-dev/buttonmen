@@ -310,5 +310,3 @@ class BMAttackPowerTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($this->object->find_attack($game));
     }
 }
-
-?>

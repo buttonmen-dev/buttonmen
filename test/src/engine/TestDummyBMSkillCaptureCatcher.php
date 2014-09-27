@@ -12,5 +12,3 @@ class TestDummyBMSkillCaptureCatcher extends BMSkill {
     }
 
 }
-
-?>
