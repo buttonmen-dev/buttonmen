@@ -128,7 +128,8 @@ class BMSkill {
                      'Stealth'      => 'd',
                      'Stinger'      => 'g',
                      'Trip'         => 't',
-                     'Value'        => 'v');
+                     'Value'        => 'v',
+                     'Weak'         => 'h');
     }
 
     /**
@@ -219,6 +220,7 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillKonstant',
                      'BMSkillMorphing',
+                     'BMSkillWeak',
                      'BMSkillMaximum');
         // fires last
     }
