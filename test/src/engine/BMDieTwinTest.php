@@ -455,14 +455,22 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($splitDice[0] === $splitDice[1]);
         $this->assertTrue($this->object === $splitDice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[0]->dice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[0]->dice[1]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[1]->dice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[1]->dice[1]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[0]->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[0]->dice[1]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[1]->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[1]->dice[1]);
+        $this->assertEquals('X', $splitDice[0]->dice[0]->swingType);
+        $this->assertEquals('X', $splitDice[0]->dice[1]->swingType);
+        $this->assertEquals('X', $splitDice[1]->dice[0]->swingType);
+        $this->assertEquals('X', $splitDice[1]->dice[1]->swingType);
         $this->assertEquals(3, $splitDice[0]->dice[0]->max);
+        $this->assertEquals(5, $splitDice[0]->dice[0]->swingValue);
         $this->assertEquals(3, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(5, $splitDice[0]->dice[1]->swingValue);
         $this->assertEquals(2, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(5, $splitDice[1]->dice[0]->swingValue);
         $this->assertEquals(2, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(5, $splitDice[1]->dice[1]->swingValue);
         $this->assertEquals(2, $splitDice[0]->min);
         $this->assertEquals(6, $splitDice[0]->max);
         $this->assertEquals(2, $splitDice[1]->min);

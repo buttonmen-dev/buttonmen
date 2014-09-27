@@ -105,16 +105,6 @@ class BMDieOption extends BMDie {
         return $result;
     }
 
-    public function split() {
-        $normalDie = new BMDie();
-        // note: init requires an array without string keys
-        $normalDie->init($this->max, array_keys($this->skillList));
-        $normalDie->ownerObject = $this->ownerObject;
-        $normalDie->playerIdx = $this->playerIdx;
-        $normalDie->originalPlayerIdx = $this->originalPlayerIdx;
-        return $normalDie->split();
-    }
-
     public function set_optionValue($optionValue) {
         if (FALSE === array_search($optionValue, $this->optionValueArray)) {
             return FALSE;

@@ -187,15 +187,17 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieOption::split
      */
     public function testSplit() {
-        $this->object->init(array(4,6));
-        $this->object->max = $this->object->swingValue = 6;
+        $this->object->init(array(4, 6));
+        $this->object->max = 6;
 
         $dice = $this->object->split();
 
-        $this->assertFalse($this->object === $dice[0]);
+        $this->assertTrue($this->object === $dice[0]);
         $this->assertFalse($this->object === $dice[1]);
-        $this->assertFalse($dice[0] instanceof BMDieOption);
-        $this->assertFalse($dice[1] instanceof BMDieOption);
+        $this->assertTrue($dice[0] instanceof BMDieOption);
+        $this->assertEquals(array(4, 6), $dice[0]->optionValueArray);
+        $this->assertTrue($dice[1] instanceof BMDieOption);
+        $this->assertEquals(array(4, 6), $dice[0]->optionValueArray);
 
         $this->assertEquals($dice[0]->max, 3);
         $this->assertEquals($dice[1]->max, 3);

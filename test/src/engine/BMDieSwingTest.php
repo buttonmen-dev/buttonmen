@@ -211,28 +211,43 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
 
         $dice = $this->object->split();
 
-        $this->assertFalse($this->object === $dice[0]);
+        $this->assertTrue($this->object === $dice[0]);
         $this->assertFalse($this->object === $dice[1]);
-        $this->assertFalse($dice[0] instanceof BMDieSwing);
-        $this->assertFalse($dice[1] instanceof BMDieSwing);
-
-        $this->assertEquals($dice[0]->max, 10);
-        $this->assertEquals($dice[1]->max, 10);
+        $this->assertTrue($dice[0] instanceof BMDieSwing);
+        $this->assertTrue($dice[1] instanceof BMDieSwing);
+        $this->assertEquals('X', $dice[0]->swingType);
+        $this->assertEquals('X', $dice[1]->swingType);
+        $this->assertEquals(10, $dice[0]->max);
+        $this->assertEquals(20, $dice[0]->swingValue);
+        $this->assertEquals(10, $dice[1]->max);
+        $this->assertEquals(20, $dice[1]->swingValue);
 
         // split again
         $dice = $dice[0]->split();
-        $this->assertEquals($dice[0]->max, 5);
-        $this->assertEquals($dice[1]->max, 5);
+        $this->assertEquals('X', $dice[0]->swingType);
+        $this->assertEquals('X', $dice[1]->swingType);
+        $this->assertEquals(5, $dice[0]->max);
+        $this->assertEquals(20, $dice[0]->swingValue);
+        $this->assertEquals(5, $dice[1]->max);
+        $this->assertEquals(20, $dice[1]->swingValue);
 
         // and again
         $dice = $dice[0]->split();
-        $this->assertEquals($dice[0]->max, 3);
-        $this->assertEquals($dice[1]->max, 2);
+        $this->assertEquals('X', $dice[0]->swingType);
+        $this->assertEquals('X', $dice[1]->swingType);
+        $this->assertEquals(3, $dice[0]->max);
+        $this->assertEquals(20, $dice[0]->swingValue);
+        $this->assertEquals(2, $dice[1]->max);
+        $this->assertEquals(20, $dice[1]->swingValue);
 
         // keep going
         $dice = $dice[0]->split();
-        $this->assertEquals($dice[0]->max, 2);
-        $this->assertEquals($dice[1]->max, 1);
+        $this->assertEquals('X', $dice[0]->swingType);
+        $this->assertEquals('X', $dice[1]->swingType);
+        $this->assertEquals(2, $dice[0]->max);
+        $this->assertEquals(20, $dice[0]->swingValue);
+        $this->assertEquals(1, $dice[1]->max);
+        $this->assertEquals(20, $dice[1]->swingValue);
     }
 
     /**

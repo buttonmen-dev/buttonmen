@@ -5766,7 +5766,9 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
 
         $skillList = $game->activeDieArrayArray[1][2]->skillList;
         $this->assertArrayNotHasKey('Berserk', $skillList);
-        $this->assertNotInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
+        $this->assertInstanceOf('BMDieSwing', $game->activeDieArrayArray[1][2]);
+        $this->assertEquals('V', $game->activeDieArrayArray[1][2]->swingType);
+        $this->assertEquals(11, $game->activeDieArrayArray[1][2]->swingValue);
         $this->assertEquals(6, $game->activeDieArrayArray[1][2]->max);
         $this->assertTrue(isset($game->activeDieArrayArray[1][2]->value));
 
@@ -8460,7 +8462,7 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('attacker', $game->actionLog[2]->params['postAttackDice']);
         $this->assertCount(1, $game->actionLog[2]->params['postAttackDice']['attacker']);
         $this->assertEquals(10, $game->actionLog[2]->params['postAttackDice']['attacker'][0]['max']);
-        $this->assertEquals('(10)', $game->actionLog[2]->params['postAttackDice']['attacker'][0]['recipe']);
+        $this->assertEquals('(Y=10)', $game->actionLog[2]->params['postAttackDice']['attacker'][0]['recipe']);
         $this->assertLessThanOrEqual(10, $game->actionLog[2]->params['postAttackDice']['attacker'][0]['value']);
         $this->assertGreaterThanOrEqual(1, $game->actionLog[2]->params['postAttackDice']['attacker'][0]['value']);
 
