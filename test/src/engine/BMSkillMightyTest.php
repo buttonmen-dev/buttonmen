@@ -1,8 +1,8 @@
 <?php
 
-class BMSkillWeakTest extends PHPUnit_Framework_TestCase {
+class BMSkillMightyTest extends PHPUnit_Framework_TestCase {
     /**
-     * @var BMSkillWeak
+     * @var BMSkillMighty
      */
     protected $object;
 
@@ -12,7 +12,7 @@ class BMSkillWeakTest extends PHPUnit_Framework_TestCase {
      */
     protected function setUp()
     {
-        $this->object = new BMSkillWeak;
+        $this->object = new BMSkillMighty;
     }
 
     /**
@@ -30,7 +30,7 @@ class BMSkillWeakTest extends PHPUnit_Framework_TestCase {
         $args = array('die' => $die);
         $this->object->pre_roll($args);
 
-        $this->assertEquals(6, $die->max);
+        $this->assertEquals(8, $die->max);
     }
 }
 

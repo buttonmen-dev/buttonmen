@@ -115,6 +115,7 @@ class BMSkill {
                      'Konstant'     => 'k',
                      'Mad'          => '&',
                      'Maximum'      => 'M',
+                     'Mighty'       => 'H',
                      'Mood'         => '?',
                      'Morphing'     => 'm',
                      'Null'         => 'n',
@@ -221,6 +222,7 @@ class BMSkill {
                      'BMSkillKonstant',
                      'BMSkillMorphing',
                      'BMSkillWeak',
+                     'BMSkillMighty',
                      'BMSkillMaximum');
         // fires last
     }
