@@ -16,6 +16,11 @@ class BMSkillMorphing extends BMSkill {
             return;
         }
 
+        $oldAtt = $args['caller'];
+        if ($oldAtt->has_flag('JustPerformedUnsuccessfulAttack')) {
+            return;
+        }
+
         $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
         $att->copy_skills_from_die($args['caller']);
 

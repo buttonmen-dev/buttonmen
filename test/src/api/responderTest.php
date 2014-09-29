@@ -3839,7 +3839,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['validAttackTypeArray'] = array('Power', 'Trip');
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
-        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('JustPerformedTripAttack');
+        $expData['playerDataArray'][0]['activeDieArray'][2]['properties'] = array('JustPerformedTripAttack', 'JustPerformedUnsuccessfulAttack');
         $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 4;
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [t(4):1] against [t(10):10]; Attacker t(4) rerolled 1 => 1; Defender t(10) rerolled 10 => 4, was not captured'));
 
