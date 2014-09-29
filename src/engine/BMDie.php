@@ -476,12 +476,28 @@ class BMDie extends BMCanHaveSkill {
 
     // shrink() is intended to be used for weak dice
     public function shrink() {
+        $dieSizes = self::standard_die_sizes();
+        rsort($dieSizes);
 
+        foreach ($dieSizes as $size) {
+            if ($size < $this->max) {
+                $this->max = $size;
+                return;
+            }
+        }
     }
 
     // grow() is intended to be used for mighty dice
     public function grow() {
-
+        $dieSizes = self::standard_die_sizes();
+        sort($dieSizes);
+        
+        foreach ($dieSizes as $size) {
+            if ($size > $this->max) {
+                $this->max = $size;
+                return;
+            }
+        }
     }
 
     public function get_recipe($addMaxvals = FALSE) {

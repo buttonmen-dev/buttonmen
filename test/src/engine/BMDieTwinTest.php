@@ -478,6 +478,64 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDieTwin::shrink
+     */
+    public function testShrink() {
+        $die = $this->object;
+        $die->init(array(99, 99));
+        $die->shrink();
+        $this->assertEquals(2*30, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*20, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*16, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*12, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*10, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*8, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*6, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*4, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*2, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*1, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*1, $die->max);
+    }
+
+    /*
+     * @covers BMDieTwin::grow
+     */
+    public function testGrow() {
+        $die = $this->object;
+        $die->init(array(1, 1));
+        $die->grow();
+        $this->assertEquals(2*2, $die->max);
+        $die->grow();
+        $this->assertEquals(2*4, $die->max);
+        $die->grow();
+        $this->assertEquals(2*6, $die->max);
+        $die->grow();
+        $this->assertEquals(2*8, $die->max);
+        $die->grow();
+        $this->assertEquals(2*10, $die->max);
+        $die->grow();
+        $this->assertEquals(2*12, $die->max);
+        $die->grow();
+        $this->assertEquals(2*16, $die->max);
+        $die->grow();
+        $this->assertEquals(2*20, $die->max);
+        $die->grow();
+        $this->assertEquals(2*30, $die->max);
+        $die->grow();
+        $this->assertEquals(2*30, $die->max);
+    }
+
+    /*
      * @covers BMDie::get_recipe
      */
     public function testGet_recipe() {

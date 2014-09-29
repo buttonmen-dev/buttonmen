@@ -575,6 +575,77 @@ class BMDieSwingTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDieSwing::shrink
+     */
+    public function testShrink() {
+        $die = $this->object;
+        $die->init('Z');
+        $die->set_swingValue(array('Z' => 30));
+        $die->shrink();
+        $this->assertTrue($die instanceof BMDieSwing);
+        $this->assertEquals('Z', $die->swingType);
+        $this->assertEquals(30, $die->swingValue);
+        $this->assertEquals(20, $die->max);
+        $die->shrink();
+        $this->assertEquals(16, $die->max);
+        $die->shrink();
+        $this->assertEquals(12, $die->max);
+        $die->shrink();
+        $this->assertEquals(10, $die->max);
+        $die->shrink();
+        $this->assertEquals(8, $die->max);
+        $die->shrink();
+        $this->assertEquals(6, $die->max);
+        $die->shrink();
+        $this->assertEquals(4, $die->max);
+        $die->shrink();
+        $this->assertEquals(2, $die->max);
+        $die->shrink();
+        $this->assertEquals(1, $die->max);
+        $die->shrink();
+        $this->assertTrue($die instanceof BMDieSwing);
+        $this->assertEquals('Z', $die->swingType);
+        $this->assertEquals(30, $die->swingValue);
+        $this->assertEquals(1, $die->max);
+    }
+
+    /*
+     * @covers BMDieSwing::grow
+     */
+    public function testGrow() {
+        $die = $this->object;
+        $die->init('Y');
+        $die->set_swingValue(array('Y' => 1));
+        $die->grow();
+        $this->assertTrue($die instanceof BMDieSwing);
+        $this->assertEquals('Y', $die->swingType);
+        $this->assertEquals(1, $die->swingValue);
+        $this->assertEquals(2, $die->max);
+        $die->grow();
+        $this->assertEquals(4, $die->max);
+        $die->grow();
+        $this->assertEquals(6, $die->max);
+        $die->grow();
+        $this->assertEquals(8, $die->max);
+        $die->grow();
+        $this->assertEquals(10, $die->max);
+        $die->grow();
+        $this->assertEquals(12, $die->max);
+        $die->grow();
+        $this->assertEquals(16, $die->max);
+        $die->grow();
+        $this->assertEquals(20, $die->max);
+        $die->grow();
+        $this->assertEquals(30, $die->max);
+        $die->grow();
+        $this->assertTrue($die instanceof BMDieSwing);
+        $this->assertEquals('Y', $die->swingType);
+        $this->assertEquals(1, $die->swingValue);
+        $this->assertEquals(30, $die->max);
+    }
+
+
+    /*
      * @covers BMDie::get_recipe
      */
     public function testGet_recipe() {
