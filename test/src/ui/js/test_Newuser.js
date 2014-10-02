@@ -80,8 +80,8 @@ test("test_Newuser.formCreateUser", function(assert) {
   $('#newuser_username').val('tester5');
   $('#newuser_password').val('testpass');
   $('#newuser_password_confirm').val('testpass');
-  $('#newuser_email').val('tester5@example.com');
-  $('#newuser_email_confirm').val('tester5@example.com');
+  $('#newuser_email').val('tester5.test@example.com');
+  $('#newuser_email_confirm').val('tester5.test@example.com');
   $.ajaxSetup({ async: false });
   $('#newuser_action_button').trigger('click');
   $.ajaxSetup({ async: true });

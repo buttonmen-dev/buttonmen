@@ -68,7 +68,6 @@ class BMSkillBerserk extends BMSkill {
         // force removal of swing, twin die, and option status
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
-        $newAttackDie->roll(TRUE);
         $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
