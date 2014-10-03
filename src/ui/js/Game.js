@@ -2213,44 +2213,56 @@ Game.buttonImageDisplay = function(player) {
 // Return a brief mid-game status listing for the requested player
 Game.gamePlayerStatus = function(player, reversed, game_active) {
 
-  // Status div for entire section
-  var statusDiv = $('<div>', {
-    'class': 'status_' + player,
-  });
-
-  // Game score
-  var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
-
-  var capturedDiceDiv;
-  if (game_active) {
-
-    // Round score, only applicable in active games
-    gameScoreDiv.append(Game.SPACE_BULLET);
-    var sideScoreStr = Api.game[player].sideScore;
-    if (sideScoreStr > 0) {
-      sideScoreStr = '+' + sideScoreStr;
-    }
-    gameScoreDiv.append($('<b>', {
-      'text':
-        'Score: ' + Api.game[player].roundScore + ' (' +
-        sideScoreStr + ' sides)',
-    }));
-
-    // Dice captured this round, only applicable in active games
-    var capturedDieText;
-    if (Api.game[player].capturedDieArray.length > 0) {
-      var capturedDieDescs = [];
-      $.each(Api.game[player].capturedDieArray, function(i, die) {
-        capturedDieDescs.push(Game.dieRecipeText(die.recipe, die.sides));
-      });
-      capturedDieText = capturedDieDescs.join(', ');
-    } else {
-      capturedDieText = 'none';
-    }
-    capturedDiceDiv = $('<div>');
-    capturedDiceDiv.append($('<span>', {
-      'text': 'Dice captured: ' + capturedDieText,
-    }));
+  console.log('test pos 0');
+//
+//  // Status div for entire section
+//  var statusDiv = $('<div>', {
+//    'class': 'status_' + player,
+//  });
+//
+//  console.log('test pos 1');
+//
+//  // Game score
+//  var gameScoreDiv = $('<div>', { 'html': Api.game[player].gameScoreStr, });
+//
+//  var capturedDiceDiv;
+//  if (game_active) {
+//
+//    // Round score, only applicable in active games
+//    gameScoreDiv.append(Game.SPACE_BULLET);
+//    var sideScoreStr = Api.game[player].sideScore;
+//    if (sideScoreStr > 0) {
+//      sideScoreStr = '+' + sideScoreStr;
+//    }
+//    gameScoreDiv.append($('<b>', {
+//      'text':
+//        'Score: ' + Api.game[player].roundScore + ' (' +
+//        sideScoreStr + ' sides)',
+//    }));
+//
+//    // Dice captured this round, only applicable in active games
+//    var capturedDieText;
+//    if (Api.game[player].capturedDieArray.length > 0) {
+//      var capturedDieDescs = [];
+//      var dieRecipeText;
+//      var dieValueText;
+//      $.each(Api.game[player].capturedDieArray, function(i, die) {
+//        dieRecipeText = Game.dieRecipeText(die.recipe, die.sides);
+//        if (die.properties.indexOf('ForceDisplayValue') >= 0) {
+//          dieValueText = ':' + die.value;
+//        } else {
+//          dieValueText = '';
+//        }
+//        capturedDieDescs.push(dieRecipeText + dieValueText);
+//      });
+//      capturedDieText = capturedDieDescs.join(', ');
+//    } else {
+//      capturedDieText = 'none';
+//    }
+//    capturedDiceDiv = $('<div>');
+//    capturedDiceDiv.append($('<span>', {
+//      'text': 'Dice captured: ' + capturedDieText,
+//    }));
   }
 
   // Order the elements depending on the "reversed" flag
