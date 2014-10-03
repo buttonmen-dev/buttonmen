@@ -1302,6 +1302,22 @@ test("test_Game.gamePlayerStatus", function(assert) {
   });
 });
 
+test("test_Game.gamePlayerStatusWithValue", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'value';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerStatus('player', false, true));
+    var htmlout = Game.page.html();
+    assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
+    assert.ok(htmlout.match('Dice captured'),
+      "game player status should report captured dice");
+    assert.ok(htmlout.match('v(20):6'),
+      "status should report that player captured an v(20) showing a value of 6");
+    start();
+  });
+});
+
 test("test_Game.gamePlayerDice", function(assert) {
   stop();
   BMTestUtils.GameType = 'turn_active';
