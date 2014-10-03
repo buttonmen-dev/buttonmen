@@ -2240,8 +2240,16 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     var capturedDieText;
     if (Api.game[player].capturedDieArray.length > 0) {
       var capturedDieDescs = [];
+      var dieRecipeText;
+      var dieValueText;
       $.each(Api.game[player].capturedDieArray, function(i, die) {
-        capturedDieDescs.push(Game.dieRecipeText(die.recipe, die.sides));
+        dieRecipeText = Game.dieRecipeText(die.recipe, die.sides);
+        if (die.properties.indexOf('ForceDisplayValue') >= 0) {
+          dieValueText = ':' + die.value;
+        } else {
+          dieValueText = '';
+        }
+        capturedDieDescs.push(dieRecipeText + dieValueText);
       });
       capturedDieText = capturedDieDescs.join(', ');
     } else {
