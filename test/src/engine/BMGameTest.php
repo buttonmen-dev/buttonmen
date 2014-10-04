@@ -7473,6 +7473,52 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
     /**
      * @coversNothing
      */
+    public function test_morph_on_unsuccessful_trip_bug() {
+        while (1) {
+            // load buttons
+            $button1 = new BMButton;
+            $button1->load('(1) (1) mt(1)', 'MorphingTrip');
+
+            $button2 = new BMButton;
+            $button2->load('(99) (99)', 'BigDice');
+
+            $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+            $this->assertEquals(BMGameState::START_GAME, $game->gameState);
+            $this->assertEquals(2, $game->maxWins);
+            $game->buttonArray = array($button1, $button2);
+            $game->waitingOnActionArray = array(FALSE, FALSE);
+            $game->proceed_to_next_user_action();
+
+            $this->assertEquals(BMGameState::START_TURN, $game->gameState);
+            $this->assertEquals(0, $game->playerWithInitiativeIdx);
+
+            // player 1 performs valid trip attack with trip morphing die
+            $game->attack = array(0,        // attackerPlayerIdx
+                                  1,        // defenderPlayerIdx
+                                  array(2), // attackerAttackDieIdxArray
+                                  array(0), // defenderAttackDieIdxArray
+                                  'Trip');  // attackType
+
+            $game->proceed_to_next_user_action();
+
+            if (1 == count($game->activeDieArrayArray[1])) {
+                // either there was a successful trip attack, which should have triggered morphing
+                $this->assertEquals(1, count($game->capturedDieArrayArray[0]));
+                $this->assertEquals(1, $game->capturedDieArrayArray[0][0]->value);
+                $this->assertEquals(99, $game->activeDieArrayArray[0][2]->max);
+            } else {
+                // or there was an unsuccessful trip attack, which shouldn't have triggered morphing
+                $this->assertEquals(0, count($game->capturedDieArrayArray[0]));
+                $this->assertGreaterThan(1, $game->activeDieArrayArray[1][0]->value);
+                $this->assertEquals(1, $game->activeDieArrayArray[0][2]->max);
+                break;
+            }
+        }
+    }
+
+    /**
+     * @coversNothing
+     */
     public function test_doppelganger_round() {
         // load buttons
         $button1 = new BMButton;
