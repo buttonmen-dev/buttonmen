@@ -4051,10 +4051,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 04 - responder003 performed Trip attack using [tm(6):4] against [(8):6] (successfully)
         // [tm(6):1, f(8):8, sF(20):7] => [(4):1, (8):7, (8):6, (12):9, z(20):17]
-        // bug: the second die roll is used for both the defender's trip reroll and the attacker's post-morphing reroll
         $this->verify_api_submitTurn(
-            array(6, 5),
-            'responder003 performed Trip attack using [tm(6):1] against [(8):6]; Attacker tm(6) rerolled 1 => 6; Defender (8) rerolled 6 => 5, was captured; Attacker tm(6) changed size from 6 to 8 sides, recipe changed from tm(6) to tm(8), rerolled 6 => 5. ',
+            array(6, 5, 3),
+            'responder003 performed Trip attack using [tm(6):1] against [(8):6]; Attacker tm(6) rerolled 1 => 6; Defender (8) rerolled 6 => 5, was captured; Attacker tm(6) changed size from 6 to 8 sides, recipe changed from tm(6) to tm(8), rerolled 6 => 3. ',
             $retval, array(array(0, 0), array(1, 2)),
             $gameId, 1, 'Trip', 0, 1, '');
 
@@ -4070,12 +4069,12 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['capturedDieArray'][1]['properties'] = array();
         array_splice($expData['playerDataArray'][1]['activeDieArray'], 2, 1);
         $expData['playerDataArray'][0]['capturedDieArray'][] = array('value' => 5, 'sides' => 8, 'properties' => array('WasJustCaptured'), 'recipe' => '(8)');
-        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 5;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 3;
         $expData['playerDataArray'][0]['activeDieArray'][0]['sides'] = 8;
         $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = 'tm(8)';
         $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = 'Trip Morphing 8-sided die';
         $expData['playerDataArray'][0]['activeDieArray'][0]['properties'] = array('JustPerformedTripAttack', 'HasJustMorphed');
-        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tm(6):1] against [(8):6]; Attacker tm(6) rerolled 1 => 6; Defender (8) rerolled 6 => 5, was captured; Attacker tm(6) changed size from 6 to 8 sides, recipe changed from tm(6) to tm(8), rerolled 6 => 5'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [tm(6):1] against [(8):6]; Attacker tm(6) rerolled 1 => 6; Defender (8) rerolled 6 => 5, was captured; Attacker tm(6) changed size from 6 to 8 sides, recipe changed from tm(6) to tm(8), rerolled 6 => 3'));
 
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
