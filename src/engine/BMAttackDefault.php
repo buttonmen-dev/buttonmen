@@ -106,7 +106,7 @@ class BMAttackDefault extends BMAttack {
             if ((2 == count($validAttackTypes)) &&
                 in_array('Power', $validAttackTypes) &&
                 in_array('Skill', $validAttackTypes)) {
-                $validAttackTypes = array('Power');
+                assert('Power' == $validAttackTypes[0]);
                 return TRUE;
             }
 
