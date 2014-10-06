@@ -61,7 +61,7 @@ class BMAttackDefault extends BMAttack {
         BMGame $game,
         array $attackers,
         array $defenders,
-        array &$validAttackTypes
+        array $validAttackTypes
     ) {
         $messageRoot = 'Default attack is ambiguous. ';
         $messageAttackTypes = 'Possible attack types: ' .
