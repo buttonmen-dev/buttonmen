@@ -17,13 +17,19 @@ class BMSkillWeak extends BMSkill {
     }
 
     protected static function get_description() {
-        return 'When a Weak Die rerolls for any reason, it becomes smaller. ' .
-               'A 31+ sided die shrinks to a 30 sided die, then down to a ' .
-               '20, 16, 12, 10, 8, 6, 4, 2, and finally a 1 sided die.';
+        return 'When a Weak Die rerolls for any reason, ' .
+               'it first shrinks from its current size to the ' .
+               'next larger size in the list of "standard" ' .
+               'die sizes (1, 2, 4, 6, 8, 10, 12, 16, 20, 30).';
     }
 
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Berserk' => 'Dice with both Berserk and Weak skills will first ' .
+                         'halve in size, and then shrink',
+            'Fire' => 'Dice with both Fire and Weak skills do not shrink ' .
+                      'when firing, only when actually rolling',
+        );
     }
 
     public static function prevents_win_determination() {

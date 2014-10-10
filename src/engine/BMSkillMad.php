@@ -46,6 +46,8 @@ class BMSkillMad extends BMSkillMood {
     }
 
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Ornery' => 'Dice with both Ornery and Mad Swing have their sizes randomized during ornery rerolls',
+        );
     }
 }
