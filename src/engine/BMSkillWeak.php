@@ -35,4 +35,5 @@ class BMSkillWeak extends BMSkill {
     public static function prevents_win_determination() {
         return TRUE;
     }
+    
 }
