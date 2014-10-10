@@ -262,7 +262,7 @@ class BMDie extends BMCanHaveSkill {
     }
 
     // Return die's initiative value.
-    // 0 means it doesn't count for initiative.
+    // Negative means it doesn't count for initiative.
     // "?" means it's a chance die.
 
     public function initiative_value() {

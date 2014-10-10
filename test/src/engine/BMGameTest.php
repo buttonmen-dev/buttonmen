@@ -9610,4 +9610,39 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(3, $game->capturedDieArrayArray[0]);
         $this->assertCount(1, $game->capturedDieArrayArray[1]);
     }
+
+    public function test_Dead_Guy() {
+        // load buttons
+        $button1 = new BMButton;
+        $button1->load('(1)', 'TestButton1');
+        $this->assertEquals('(1)', $button1->recipe);
+        // check dice in $button1->dieArray are correct
+        $this->assertCount(1, $button1->dieArray);
+        $this->assertEquals(1, $button1->dieArray[0]->max);
+
+        $button2 = new BMButton;
+        $button2->load('(0) (0) (0) (0) (0)', 'Dead Guy');
+        $this->assertEquals('(0) (0) (0) (0) (0)', $button2->recipe);
+        // check dice in $button2->dieArray are correct
+        $this->assertCount(5, $button2->dieArray);
+        $this->assertEquals(0, $button2->dieArray[0]->min);
+        $this->assertEquals(0, $button2->dieArray[1]->min);
+        $this->assertEquals(0, $button2->dieArray[2]->min);
+        $this->assertEquals(0, $button2->dieArray[3]->min);
+        $this->assertEquals(0, $button2->dieArray[4]->min);
+        $this->assertEquals(0, $button2->dieArray[0]->max);
+        $this->assertEquals(0, $button2->dieArray[1]->max);
+        $this->assertEquals(0, $button2->dieArray[2]->max);
+        $this->assertEquals(0, $button2->dieArray[3]->max);
+        $this->assertEquals(0, $button2->dieArray[4]->max);
+
+        // load game
+        $game = new BMGame(535353, array(234, 567), array('', ''), 2);
+        $game->buttonArray = array($button1, $button2);
+        $game->waitingOnActionArray = array(FALSE, FALSE);
+        $game->proceed_to_next_user_action();
+
+        $this->assertEquals(1, $game->playerWithInitiativeIdx);
+        $this->assertEquals(array(FALSE, TRUE), $game->waitingOnActionArray);
+    }
 }

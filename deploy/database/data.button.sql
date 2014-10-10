@@ -177,7 +177,7 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (35, 'Bunnies',     '(1) (1) (1) (1) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese")),
 (36, 'Lab Rat',     '(2) (2) (2) (2) (X)',           0, 0, (SELECT id FROM buttonset WHERE name="The Big Cheese"));
 
-#BIGTOP (APE games - Cassandra) 
+#BIGTOP (APE games - Cassandra)
 INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 (568, 'Firebreather',       '(4) F(6) F(6) (12) (S)',          0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
 (569, 'Monkeys',            'z(6) z(6) z(6) z(10) z(T)',       0, 0, (SELECT id FROM buttonset WHERE name="Big Top")),
@@ -319,8 +319,8 @@ INSERT INTO button (id, name, recipe, btn_special, tourn_legal, set_id) VALUES
 # Socrates may use one of his dice and one of his opponents for a two-dice skill attack
 (121, 'Socrates',    '(4) (10) (12) (Y)',                  1, 1, (SELECT id FROM buttonset WHERE name="Fantasy")),
 # When Nightmare loses a round he may change his opponent's variable dice.
-(122, 'Nightmare',   '(4) (8) (10) (20) (20)',             1, 1, (SELECT id FROM buttonset WHERE name="Fantasy"));
-# ('Dead Guy',        '(0) (0) (0) (0) (0)',                0, 0, (SELECT id FROM buttonset WHERE name="Fantasy")),
+(122, 'Nightmare',   '(4) (8) (10) (20) (20)',             1, 1, (SELECT id FROM buttonset WHERE name="Fantasy")),
+(572, 'Dead Guy',    '(0) (0) (0) (0) (0)',                0, 0, (SELECT id FROM buttonset WHERE name="Fantasy"));
 
 # FIGHTBALL (Cheapass Games) NOTE: special die selection rules - choose 5 dice out of all available (not implemented)
 # ASSUMED ALL TO BE TL
