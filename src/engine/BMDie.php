@@ -476,7 +476,7 @@ class BMDie extends BMCanHaveSkill {
 
     // shrink() is intended to be used for weak dice
     public function shrink() {
-        $dieSizes = self::standard_die_sizes();
+        $dieSizes = self::grow_shrink_die_sizes();
         rsort($dieSizes);
 
         foreach ($dieSizes as $size) {
@@ -489,9 +489,9 @@ class BMDie extends BMCanHaveSkill {
 
     // grow() is intended to be used for mighty dice
     public function grow() {
-        $dieSizes = self::standard_die_sizes();
+        $dieSizes = self::grow_shrink_die_sizes();
         sort($dieSizes);
-        
+
         foreach ($dieSizes as $size) {
             if ($size > $this->max) {
                 $this->max = $size;
@@ -682,7 +682,13 @@ class BMDie extends BMCanHaveSkill {
         return $typesList;
     }
 
+    // these are used for mood swing
     public static function standard_die_sizes() {
+        return array(1, 2, 4, 6, 8, 10, 12, 20, 30);
+    }
+
+    // these are used for Mighty and Weak
+    public static function grow_shrink_die_sizes() {
         return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
     }
 
