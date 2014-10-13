@@ -1,0 +1,62 @@
+add_skill
+  Konstant
+  Mad
+  Mood
+  Null
+  Value
+pre_roll
+  Mood
+post_roll
+  Maximum
+attack_list
+  Berserk
+  Fire
+  Konstant
+  Queer
+  Shadow
+  Speed
+  Stealth
+  Trip
+attack_values
+  Konstant
+  Stinger
+score_value
+  Null
+  Poison
+  Value
+initiative_value
+  Slow
+  Stinger
+  Trip
+assist_values
+  Fire
+capture
+  Berserk
+  Doppelganger
+  Morphing
+  Null
+  Poison
+  Radioactive
+  Shadow
+  Speed
+  Stealth
+  Trip
+  Value
+be_captured
+  Radioactive
+split
+  Berserk
+doesSkipSwingRequest
+  Auxiliary
+  Reserve
+react_to_initiative
+  Chance
+  Focus
+perform_end_of_turn_die_actions
+  Ornery
+is_button_slow
+  BtnSkillGiant
+load_buttons
+  BtnSkillEcho
+hit_table
+  Konstant
