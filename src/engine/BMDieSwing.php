@@ -178,9 +178,6 @@ class BMDieSwing extends BMDie {
             return FALSE;
         }
 
-        $this->run_hooks(__FUNCTION__, array('isValid'   => &$valid,
-                                             'swingList' => $swingList));
-
         if ($valid) {
             $this->swingValue = $sides;
             $this->needsSwingValue = FALSE;
