@@ -58,8 +58,6 @@ class BMDieTwin extends BMDie {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         foreach ($this->dice as $die) {
             if ($die instanceof BMDieSwing) {
                 $this->ownerObject->request_swing_values(

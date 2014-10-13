@@ -163,8 +163,6 @@ class BMDie extends BMCanHaveSkill {
     public function activate() {
         $newDie = clone $this;
 
-        $this->run_hooks(__FUNCTION__, array('die' => $newDie));
-
         $this->ownerObject->add_die($newDie);
     }
 

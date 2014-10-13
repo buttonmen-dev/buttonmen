@@ -1907,7 +1907,7 @@ class BMGame {
 
     protected static function is_button_slow($button) {
         $hookResult = $button->run_hooks(
-            'is_button_slow',
+            __FUNCTION__,
             array('name' => $button->name)
         );
 
