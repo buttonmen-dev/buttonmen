@@ -30,5 +30,13 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
     {
 
     }
+
+    /**
+     * @covers BMSkillRadioactive::be_captured
+     */
+    public function testBe_captured()
+    {
+
+    }
 }
 

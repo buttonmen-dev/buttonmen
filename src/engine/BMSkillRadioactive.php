@@ -19,10 +19,6 @@ class BMSkillRadioactive extends BMSkill {
 
     }
 
-    public static function incompatible_attack_types($args = NULL) {
-        return array();
-    }
-
     protected static function get_description() {
         return '';
     }
@@ -31,9 +27,5 @@ class BMSkillRadioactive extends BMSkill {
         return array(
 
         );
-    }
-
-    public static function prevents_win_determination() {
-        return TRUE;
     }
 }
