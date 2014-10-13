@@ -353,10 +353,6 @@ class BMDie extends BMCanHaveSkill {
             $valid = FALSE;
         }
 
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'die' => $this,
-                                             'isValid' => &$valid));
-
         return $valid;
     }
 
@@ -380,11 +376,6 @@ class BMDie extends BMCanHaveSkill {
         if (!$found) {
             $valid = FALSE;
         }
-
-
-        $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                             'die' => $this,
-                                             'isValid' => &$valid));
 
         return $valid;
     }
