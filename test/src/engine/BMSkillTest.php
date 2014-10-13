@@ -26,15 +26,6 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
             BMSkill::skill_order_comparator('BMSkillPoison',
                                             'BMSkillPoison'));
 
-        // check that the comparator works in the correct direction
-        $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppelganger',
-                                            'BMSkillNull'));
-
-        $this->assertEquals(1,
-            BMSkill::skill_order_comparator('BMSkillNull',
-                                            'BMSkillDoppelganger'));
-
         // check that unknown skills are applied last
         $this->assertEquals(1,
             BMSkill::skill_order_comparator('Test',
@@ -43,33 +34,168 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillDoppelganger',
                                             'Test'));
+    }
 
-        // check specific orderings of skills
+    public function test_attack_list_order() {
+        // skills that set attack types must come before skills that
+        // unset attack types
+        //
+        // skills that only set attack types:
+        //   Speed, Trip
+        //
+        // Queer sets Power or Skill, unsets Power or Skill
+        //
+        // Shadow sets Skill, unsets Power
+        //
+        // Berserk sets Berserk, unsets Skill
+        //
+        // skills that only unset attack types:
+        //   Fire, Konstant, Stealth
+
+        // Speed
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillDoppelganger',
-                                            'BMSkillValue'));
-
-        // stealth must come after all others that set attack types,
-        // so that it can override them all
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillQueer'));
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillShadow',
-                                            'BMSkillStealth'));
-
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillShadow'));
         $this->assertEquals(-1,
-            BMSkill::skill_order_comparator('BMSkillQueer',
-                                            'BMSkillStealth'));
-
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillBerserk'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillKonstant'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillSpeed',
                                             'BMSkillStealth'));
 
+        // Trip
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillQueer'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillShadow'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillBerserk'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillKonstant'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillStealth'));
+
+        // Queer
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillBerserk'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillKonstant'));
+
+        // current behaviour is that queer shadow dice cannot ever perform
+        // power attacks, thus resolve Queer before Shadow
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillShadow'));
+
+        // Shadow
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillKonstant'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillStealth'));
+
+        // Berserk
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBerserk',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBerserk',
+                                            'BMSkillKonstant'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillBerserk',
                                             'BMSkillStealth'));
 
+        // Fire
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillFire'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBerserk',
+                                            'BMSkillFire'));
+
+        // Konstant
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillKonstant'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillTrip',
+                                            'BMSkillKonstant'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillKonstant'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillKonstant'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBerserk',
+                                            'BMSkillKonstant'));
+
+        // Stealth
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillSpeed',
+                                            'BMSkillStealth'));
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillTrip',
                                             'BMSkillStealth'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillQueer',
+                                            'BMSkillStealth'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillShadow',
+                                            'BMSkillStealth'));
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillBerserk',
+                                            'BMSkillStealth'));
+    }
+
+    public function test_attack_values_order() {
+        // Konstant has to fire late, since it takes all possible
+        // attack values and then allows also the negative of them
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillStinger',
+                                            'BMSkillKonstant'));
+    }
+
+    public function test_capture_order() {
+        // morphing occurs before radioactive
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillMorphing',
+                                            'BMSkillRadioactive'));
     }
 
     public function test_describe() {

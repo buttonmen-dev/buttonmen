@@ -35,11 +35,7 @@ capture
   Doppelganger
   Morphing
   Null
-  Poison
   Radioactive
-  Shadow
-  Speed
-  Stealth
   Trip
   Value
 be_captured
