@@ -323,13 +323,6 @@ class BMDie extends BMCanHaveSkill {
             }
         }
 
-        // Hooks are where the die gets adjusted if need be.
-        if ($valid) {
-            $this->run_hooks(__FUNCTION__, array('attackType' => $type,
-                                                 'attackers' => $attackers,
-                                                 'defenders' => $defenders,
-                                                 'amount' => $amount));
-        }
         return $valid;
 
     }
