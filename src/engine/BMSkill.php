@@ -121,6 +121,7 @@ class BMSkill {
                      'Ornery'       => 'o',
                      'Poison'       => 'p',
                      'Queer'        => 'q',
+                     'Radioactive'  => '%',
                      'Reserve'      => 'r',
                      'Shadow'       => 's',
                      'Slow'         => 'w',
@@ -219,6 +220,7 @@ class BMSkill {
                      'BMSkillNull',
                      'BMSkillKonstant',
                      'BMSkillMorphing',
+                     'BMSkillRadioactive',
                      'BMSkillMaximum');
         // fires last
     }
