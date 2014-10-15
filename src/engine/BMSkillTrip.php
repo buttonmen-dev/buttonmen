@@ -49,6 +49,7 @@ class BMSkillTrip extends BMSkill {
         $defender->captured = ($defender->value <= $attacker->value);
         if (!$defender->captured) {
             $defender->remove_flag('WasJustCaptured');
+            $attacker->add_flag('JustPerformedUnsuccessfulAttack');
         }
     }
 

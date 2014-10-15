@@ -101,6 +101,15 @@ class BMAttackDefault extends BMAttack {
         }
 
         if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
+            // deal with the case where the only possibilities are power and skill, and
+            // then choose power, since this allows both exact firing and overfiring
+            if ((2 == count($validAttackTypes)) &&
+                in_array('Power', $validAttackTypes) &&
+                in_array('Skill', $validAttackTypes)) {
+                assert('Power' == $validAttackTypes[0]);
+                return TRUE;
+            }
+
             $this->validationMessage = $messageRoot .
                 'It is not clear whether or not you want to fire your attacking die.';
             return FALSE;
