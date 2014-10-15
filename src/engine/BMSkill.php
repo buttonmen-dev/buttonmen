@@ -214,13 +214,16 @@ class BMSkill {
                      'BMSkillOrnery',
                      'BMSkillMood',
                      'BMSkillMad',
-                     'BMSkillDoppelganger',
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
                      'BMSkillKonstant',
                      'BMSkillMorphing',
                      'BMSkillRadioactive',
+// james: reactivate weak and mighty when they are implemented
+//                     'BMSkillWeak',
+//                     'BMSkillMighty',
+                     'BMSkillDoppelganger',
                      'BMSkillMaximum');
         // fires last
     }
