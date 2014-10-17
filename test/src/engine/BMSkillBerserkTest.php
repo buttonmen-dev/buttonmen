@@ -112,6 +112,7 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($newDie === $att);
 
         $this->assertEquals(9, $newDie->max);
+        $this->assertFalse(isset($newDie->value));
         $this->assertFalse($newDie->has_skill('Berserk'));
         $this->assertTrue($att === $newDie);
 

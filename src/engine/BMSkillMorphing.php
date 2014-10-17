@@ -16,15 +16,33 @@ class BMSkillMorphing extends BMSkill {
             return;
         }
 
-        $oldAtt = $args['caller'];
-        if ($oldAtt->has_flag('JustPerformedUnsuccessfulAttack')) {
+        $attacker = $args['caller'];
+        if ($attacker->has_flag('JustPerformedUnsuccessfulAttack')) {
             return;
         }
 
-        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
-        $att->copy_skills_from_die($args['caller']);
+        $game = $attacker->ownerObject;
+        $activeDieArrayArray = $game->activeDieArrayArray;
+        $attackerPlayerIdx = $game->attack['attackerPlayerIdx'];
+        $activeDieIdx = array_search(
+            $attacker,
+            $activeDieArrayArray[$attackerPlayerIdx],
+            TRUE
+        );
+        assert(FALSE !== $activeDieIdx);
+        $attackerDieIdx = array_search(
+            $attacker,
+            $args['attackers'],
+            TRUE
+        );
+        assert(FALSE !== $attackerDieIdx);
 
-        return $att;
+        $newAttackDie = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
+        $newAttackDie->copy_skills_from_die($args['caller']);
+
+        $activeDieArrayArray[$attackerPlayerIdx][$activeDieIdx] = $newAttackDie;
+        $args['attackers'][$attackerDieIdx] = $newAttackDie;
+        $game->activeDieArrayArray = $activeDieArrayArray;
     }
 
     protected static function are_dice_in_attack_valid($args) {

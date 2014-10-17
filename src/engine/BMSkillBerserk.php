@@ -64,7 +64,6 @@ class BMSkillBerserk extends BMSkill {
         );
         assert(FALSE !== $dieIdx);
 
-        // james: which other skills need to be lost after a Berserk attack?
         $attacker->remove_skill('Berserk');
 
         // halve number of sides

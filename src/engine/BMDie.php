@@ -380,26 +380,18 @@ class BMDie extends BMCanHaveSkill {
         return $valid;
     }
 
-    public function capture($type, array $attackers, array $defenders) {
-        $result = $this->run_hooks(__FUNCTION__, array('type' => $type,
-                                                       'attackers' => $attackers,
-                                                       'defenders' => $defenders,
-                                                       'caller' => $this));
-
-        if (isset($result)) {
-            if (array_key_exists('BMSkillMorphing', $result)) {
-                return $result['BMSkillMorphing'];
-            } elseif (array_key_exists('BMSkillDoppelganger', $result)) {
-                return $result['BMSkillDoppelganger'];
-            }
-        }
+    public function capture($type, array &$attackers, array &$defenders) {
+        $this->run_hooks(__FUNCTION__, array('type' => $type,
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders,
+                                             'caller' => $this));
     }
 
 
     public function be_captured($type, array &$attackers, array &$defenders) {
         $this->run_hooks(__FUNCTION__, array('type' => $type,
-                                             'attackers' => $attackers,
-                                             'defenders' => $defenders));
+                                             'attackers' => &$attackers,
+                                             'defenders' => &$defenders));
     }
 
 // Print long description
@@ -436,10 +428,9 @@ class BMDie extends BMCanHaveSkill {
 // automatically pick up the need to reroll. (It is possible there is
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
-//
-// constant needs to hook this method to fix the die's value. Very
-// little else will.
+
     public function split() {
+        unset($this->value);
         $newdie = clone $this;
 
         if ($newdie->max > 1) {
