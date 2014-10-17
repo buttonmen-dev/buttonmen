@@ -54,7 +54,61 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($a);
         $this->assertContains('Berserk', $a);
         $this->assertEquals(2, count($a));
+    }
 
+    /**
+     * @covers BMSkillBerserk::capture
+     */
+    public function testCapture_invalid_args() {
+        $att = BMDie::create(17);
+        $att->add_skill('Berserk');
+
+        // test invalid arguments fail gracefully
+        BMSkillBerserk::capture($att);
+
+        BMSkillBerserk::capture(array($att));
+
+        BMSkillBerserk::capture(array('type' => 'Power'));
+
+        BMSkillBerserk::capture(array('type' => 'Berserk'));
+
+        try {
+            BMSkillBerserk::capture(array(
+                'type' => 'Berserk',
+                'attackers' => array($att, $att)
+            ));
+            $this->fail('Berserk attacks should fail with more than one attacker.');
+        } catch (LogicException $e) {
+            // expected failure
+        }
+    }
+
+    /**
+     * @covers BMSkillBerserk::capture
+     */
+    public function testCapture_valid_args() {
+        $att = BMDie::create(17);
+        $att->add_skill('Berserk');
+        $att->value = 9;
+        $def = BMDie::create(8);
+
+        $game = new BMGame;
+        $game->activeDieArrayArray = array(array($att), array($def));
+        $game->attack = array(0, 1, array(0), array(0), 'Berserk');
+        $att->ownerObject = $game;
+        $def->ownerObject = $game;
+        $parArray = array('type' => 'Berserk',
+                          'attackers' => array($att),
+                          'defenders' => array($def),
+                          'caller' => $att);
+        BMSkillBerserk::capture($parArray);
+
+        $newDie = $game->activeDieArrayArray[0][0];
+        $this->assertTrue($newDie === $att);
+
+        $this->assertEquals(9, $newDie->max);
+        $this->assertFalse($newDie->has_skill('Berserk'));
+        $this->assertTrue($att === $newDie);
     }
 }
 

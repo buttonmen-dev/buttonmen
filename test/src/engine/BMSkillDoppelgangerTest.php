@@ -27,7 +27,6 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
      * @covers BMSkillDoppelganger::capture
      */
     public function testCapture_power_normal() {
-        // normal morphing die capturing normal die
         $att = BMDie::create(6);
         $att->add_skill('Doppelganger');
         $att->add_skill('Trip');
@@ -50,7 +49,6 @@ class BMSkillDoppelgangerTest extends PHPUnit_Framework_TestCase {
      * @covers BMSkillDoppelganger::capture
      */
     public function testCapture_skill_normal() {
-        // normal morphing die capturing normal die
         $att = BMDie::create(6);
         $att->add_skill('Doppelganger');
         $att->add_skill('Trip');

@@ -48,7 +48,9 @@ class BMSkillBerserk extends BMSkill {
             return;
         }
 
-        assert(1 == count($args['attackers']));
+        if (1 != count($args['attackers'])) {
+            throw new LogicException('There should only be one attacker when applying Berserk.');
+        }
 
         $attacker = $args['attackers'][0];
         $game = $attacker->ownerObject;
@@ -65,7 +67,7 @@ class BMSkillBerserk extends BMSkill {
         // james: which other skills need to be lost after a Berserk attack?
         $attacker->remove_skill('Berserk');
 
-        // force removal of swing, twin die, and option status
+        // halve number of sides
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
         $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
