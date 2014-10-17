@@ -214,9 +214,6 @@ class BMSkill {
                      'BMSkillOrnery',
                      'BMSkillMood',
                      'BMSkillMad',
-                     'BMSkillValue',
-                     'BMSkillPoison',
-                     'BMSkillNull',
                      'BMSkillKonstant',
                      'BMSkillMorphing',
                      'BMSkillRadioactive',
@@ -224,6 +221,9 @@ class BMSkill {
 //                     'BMSkillWeak',
 //                     'BMSkillMighty',
                      'BMSkillDoppelganger',
+                     'BMSkillValue',
+                     'BMSkillPoison',
+                     'BMSkillNull',
                      'BMSkillMaximum');
         // fires last
     }

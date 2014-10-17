@@ -192,6 +192,16 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
     }
 
     public function test_capture_order() {
+        // doppelganger occurs before null
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
+                                            'BMSkillNull'));
+
+        // doppelganger occurs before value
+        $this->assertEquals(-1,
+            BMSkill::skill_order_comparator('BMSkillDoppelganger',
+                                            'BMSkillValue'));
+
         // berserk occurs before radioactive
         $this->assertEquals(-1,
             BMSkill::skill_order_comparator('BMSkillBerserk',
@@ -209,7 +219,7 @@ class BMSkillTest extends PHPUnit_Framework_TestCase {
 
 // james: these tests need to be reactivated when Mighty and Weak have been
 //        implemented
-//        
+//
 //        // radioactive occurs before mighty
 //        $this->assertEquals(-1,
 //            BMSkill::skill_order_comparator('BMSkillRadioactive',
