@@ -16,6 +16,7 @@
  * @property-read int    $firingMax             Maximum amount that the die can be fired up
  * @property      BMGame/BMButton $ownerObject  Game or button that owns the die
  * @property      int    $playerIdx             Index of player that currently owns the die
+ * @property-read int    $activeDieIdx          Index of die in activeDieArrayArray
  * @property      int    $originalPlayerIdx     Index of player that originally owned the die
  * @property      bool   $doesReroll            Can the die reroll?
  * @property      bool   $captured              Has the die has been captured?
@@ -38,6 +39,7 @@ class BMDie extends BMCanHaveSkill {
 // references back to the owner
     protected $ownerObject;
     protected $playerIdx;
+    protected $activeDieIdx;
     protected $originalPlayerIdx;
 
     protected $doesReroll = TRUE;
@@ -527,6 +529,32 @@ class BMDie extends BMCanHaveSkill {
         return ($this->max - $this->value);
     }
 
+    /** function that returns the die index in activeDieArray of the owning player
+     *
+     * @return mixed Index of die in activeDieArray of the owning player
+     */
+    protected function get_activeDieIdx() {
+        $owner = $this->ownerObject;
+
+        if (!isset($owner) || !($owner instanceof BMGame)) {
+            return NULL;
+        }
+
+        $activeDieArrayArray = $owner->activeDieArrayArray;
+
+        $dieIdx = array_search(
+            $this,
+            $activeDieArrayArray[$this->playerIdx],
+            TRUE
+        );
+
+        if (FALSE === $dieIdx) {
+            return NULL;
+        }
+
+        return $dieIdx;
+    }
+
     // Return all information about a die which is useful when
     // constructing an action log entry, in the form of an array.
     // This function exists so that BMGame can easily compare the
@@ -647,6 +675,8 @@ class BMDie extends BMCanHaveSkill {
                     return $this->get_recipe();
                 case 'firingMax':
                     return $this->get_firingMax();
+                case 'activeDieIdx':
+                    return $this->get_activeDieIdx();
                 default:
                     return $this->$property;
             }
@@ -743,6 +773,12 @@ class BMDie extends BMCanHaveSkill {
             );
         }
         $this->playerIdx = $value;
+    }
+
+    protected function set__activeDieIdx() {
+        throw new LogicException(
+            'Die index is derived automatically.'
+        );
     }
 
     protected function set__originalPlayerIdx($value) {

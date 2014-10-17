@@ -534,6 +534,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $attDie->ownerObject = $game;
+        $attDie->playerIdx = 0;
         $defDie->ownerObject = $game;
 
         $attackers = array($attDie);

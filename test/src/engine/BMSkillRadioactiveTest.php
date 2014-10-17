@@ -68,6 +68,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
         $game->attack = array(0, 1, array(1), array(0), 'Power');
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
         $parArray = array('type' => 'Power',
                           'attackers' => array($att),
@@ -112,6 +113,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
         $game->attack = array(0, 1, array(1), array(0), 'Power');
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
         $parArray = array('type' => 'Power',
                           'attackers' => array($att),
@@ -192,6 +194,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
         $game->attack = array(0, 1, array(1), array(0), 'Power');
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
         $parArray = array('type' => 'Power',
                           'attackers' => array($att),
@@ -237,6 +240,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
         $game->attack = array(0, 1, array(1), array(0), 'Power');
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
         $parArray = array('type' => 'Power',
                           'attackers' => array($att),
@@ -290,6 +294,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($dieLeft, $att, $dieRight), array($def));
         $game->attack = array(0, 1, array(1), array(0), 'Power');
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
         $parArray = array('type' => 'Power',
                           'attackers' => array($att),

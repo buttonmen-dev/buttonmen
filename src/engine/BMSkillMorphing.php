@@ -23,13 +23,7 @@ class BMSkillMorphing extends BMSkill {
 
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $attackerPlayerIdx = $game->attack['attackerPlayerIdx'];
-        $activeDieIdx = array_search(
-            $attacker,
-            $activeDieArrayArray[$attackerPlayerIdx],
-            TRUE
-        );
-        assert(FALSE !== $activeDieIdx);
+
         $attackerDieIdx = array_search(
             $attacker,
             $args['attackers'],
@@ -40,7 +34,7 @@ class BMSkillMorphing extends BMSkill {
         $newAttackDie = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
         $newAttackDie->copy_skills_from_die($args['caller']);
 
-        $activeDieArrayArray[$attackerPlayerIdx][$activeDieIdx] = $newAttackDie;
+        $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][$attackerDieIdx] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
     }

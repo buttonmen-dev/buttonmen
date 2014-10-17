@@ -39,6 +39,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
 
         $parArray = array('type' => 'Power',
@@ -71,6 +72,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $att1->ownerObject = $game;
+        $att1->playerIdx = 0;
         $def1->ownerObject = $game;
 
         $parArray = array('type' => 'Power',
@@ -102,6 +104,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $att2->ownerObject = $game;
+        $att2->playerIdx = 0;
         $def2->ownerObject = $game;
 
         $parArray = array('type' => 'Power',
@@ -139,6 +142,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $att1->ownerObject = $game;
+        $att1->playerIdx = 0;
         $def1->ownerObject = $game;
 
         $parArray = array('type' => 'Power',
@@ -168,6 +172,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $att2->ownerObject = $game;
+        $att2->playerIdx = 0;
         $def2->ownerObject = $game;
 
         $parArray = array('type' => 'Power',
@@ -197,6 +202,7 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $game->attack = array(0, 1, array(0), array(0), 'Power');
 
         $att3->ownerObject = $game;
+        $att3->playerIdx = 0;
         $def3->ownerObject = $game;
 
         $parArray = array('type' => 'Power',

@@ -55,21 +55,13 @@ class BMSkillBerserk extends BMSkill {
         $attacker = $args['attackers'][0];
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $attackerPlayerIdx = $game->attack['attackerPlayerIdx'];
-
-        $dieIdx = array_search(
-            $attacker,
-            $activeDieArrayArray[$attackerPlayerIdx],
-            TRUE
-        );
-        assert(FALSE !== $dieIdx);
 
         $attacker->remove_skill('Berserk');
 
         // halve number of sides
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
-        $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
+        $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
     }

@@ -23,17 +23,10 @@ class BMSkillDoppelganger extends BMSkillMorphing {
         $attacker = $args['caller'];
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;
-        $attackerPlayerIdx = $game->attack['attackerPlayerIdx'];
-        $dieIdx = array_search(
-            $attacker,
-            $activeDieArrayArray[$attackerPlayerIdx],
-            TRUE
-        );
-        assert(FALSE !== $dieIdx);
 
         $newAttackDie = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
 
-        $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
+        $activeDieArrayArray[$attacker->playerIdx][$attacker->activeDieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
     }

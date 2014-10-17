@@ -101,6 +101,7 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $game->activeDieArrayArray = array(array($att), array($def));
         $game->attack = array(0, 1, array(0), array(0), 'Berserk');
         $att->ownerObject = $game;
+        $att->playerIdx = 0;
         $def->ownerObject = $game;
         $parArray = array('type' => 'Berserk',
                           'attackers' => array($att),
