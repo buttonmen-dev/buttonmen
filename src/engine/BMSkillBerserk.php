@@ -31,7 +31,7 @@ class BMSkillBerserk extends BMSkill {
         return array('Skill');
     }
 
-    public static function capture($args) {
+    public static function capture(&$args) {
         if (!is_array($args)) {
             return;
         }

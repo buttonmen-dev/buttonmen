@@ -64,19 +64,24 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $att->add_skill('Berserk');
 
         // test invalid arguments fail gracefully
-        BMSkillBerserk::capture($att);
+        $args = $att;
+        BMSkillBerserk::capture($args);
 
-        BMSkillBerserk::capture(array($att));
+        $args = array($att);
+        BMSkillBerserk::capture($args);
 
-        BMSkillBerserk::capture(array('type' => 'Power'));
+        $args = array('type' => 'Power');
+        BMSkillBerserk::capture($args);
 
-        BMSkillBerserk::capture(array('type' => 'Berserk'));
+        $args = array('type' => 'Berserk');
+        BMSkillBerserk::capture($args);
 
         try {
-            BMSkillBerserk::capture(array(
+            $args = array(
                 'type' => 'Berserk',
                 'attackers' => array($att, $att)
-            ));
+            );
+            BMSkillBerserk::capture($args);
             $this->fail('Berserk attacks should fail with more than one attacker.');
         } catch (LogicException $e) {
             // expected failure
@@ -109,6 +114,8 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(9, $newDie->max);
         $this->assertFalse($newDie->has_skill('Berserk'));
         $this->assertTrue($att === $newDie);
+
+        $this->assertTrue($newDie === $parArray['attackers'][0]);
     }
 }
 
