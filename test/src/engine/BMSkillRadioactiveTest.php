@@ -52,6 +52,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMSkillRadioactive::capture
+     * @covers BMSkillRadioactive::radioactive_split
      */
     public function testCapture_valid_args() {
         $dieLeft = BMDie::create(6);
@@ -93,6 +94,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMSkillRadioactive::capture
+     * @covers BMSkillRadioactive::radioactive_split
      */
     public function testCapture_mood_swing() {
         $dieLeft = BMDie::create(6);
@@ -144,6 +146,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
     /**
      * @covers BMSkillRadioactive::be_captured
+     * @covers BMSkillRadioactive::radioactive_split
      */
     public function testBe_captured()
     {

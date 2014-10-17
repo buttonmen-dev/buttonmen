@@ -12,6 +12,14 @@ class BMSkillRadioactive extends BMSkill {
     public static $hooked_methods = array('capture', 'be_captured');
 
     public static function capture(&$args) {
+        self::radioactive_split($args);
+    }
+
+    public static function be_captured(&$args) {
+        self::radioactive_split($args);
+    }
+
+    protected static function radioactive_split(&$args) {
         if (!is_array($args)) {
             return;
         }
@@ -68,12 +76,6 @@ class BMSkillRadioactive extends BMSkill {
         );
 
         $game->activeDieArrayArray = $activeDieArrayArray;
-    }
-
-    public static function be_captured($args) {
-        if (!is_array($args)) {
-            return;
-        }
     }
 
     protected static function get_description() {
