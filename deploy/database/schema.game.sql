@@ -98,9 +98,9 @@ CREATE TABLE die (
     game_id            MEDIUMINT UNSIGNED NOT NULL,
     status_id          TINYINT UNSIGNED NOT NULL,
     recipe             VARCHAR(20) NOT NULL,
-    actual_max         TINYINT UNSIGNED,
     position           TINYINT UNSIGNED NOT NULL,
     value              SMALLINT,
+    actual_max         TINYINT UNSIGNED,
     flags              VARCHAR(253)
 );
 
