@@ -1,5 +1,5 @@
 {
-  "gameId":1,
+  "gameId":25,
   "gameState":"START_TURN",
   "currentPlayerIdx":0,
   "activePlayerIdx":0,
@@ -30,7 +30,7 @@
         { "value":17, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" }
       ],
       "capturedDieArray":[
-        { "value":14, "sides":20, "recipe":"v(20)", "properties":["ForceDisplayValue"] }
+        { "value":6, "sides":20, "recipe":"v(20)", "properties":["ForceDisplayValue"] }
       ],
       "swingRequestArray":[],
       "optRequestArray":[],

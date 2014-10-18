@@ -1312,7 +1312,8 @@ test("test_Game.gamePlayerStatusWithValue", function(assert) {
     assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
     assert.ok(htmlout.match('Dice captured'),
       "game player status should report captured dice");
-    assert.ok(htmlout.match('v(20):6'),
+    console.log(htmlout);
+    assert.ok(htmlout.match(/v\(20\):6/),
       "status should report that player captured an v(20) showing a value of 6");
     start();
   });

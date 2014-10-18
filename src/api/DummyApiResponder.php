@@ -1016,10 +1016,11 @@ class DummyApiResponder {
         //  18: game in "choose reserve" state in which active player is not a participant
         //  19: game in which active player can choose option die values
         //  20: game in which active player can turn down fire dice
+        //  25: game in which value dice are present
 
         $data = NULL;
 
-        if ($args['game'] <= 24) {
+        if ($args['game'] <= 25) {
             $data = $this->load_json_data_from_file(
                 'loadGameData',
                 $args['game'] . '.json'
