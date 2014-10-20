@@ -16,7 +16,7 @@ class BMSkillValue extends BMSkill {
         assert(array_key_exists('die', $args));
 
         $die = $args['die'];
-        $die->add_flag('ForceDisplayValue');
+        $die->add_flag('ValueRelevantToScore');
     }
 
     public static function remove_skill($args) {
@@ -26,7 +26,7 @@ class BMSkillValue extends BMSkill {
         // Value die skill, thus when value is removed, the flag should also be
         // removed
         $die = $args['die'];
-        $die->remove_flag('ForceDisplayValue');
+        $die->remove_flag('ValueRelevantToScore');
     }
 
     public static function score_value($args) {

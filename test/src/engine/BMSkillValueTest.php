@@ -29,10 +29,10 @@ class BMSkillValueTest extends PHPUnit_Framework_TestCase {
      */
     public function testAdd_and_remove_skill() {
         $die = BMDie::create(4);
-        $this->assertFalse($die->has_flag('ForceDisplayValue'));
+        $this->assertFalse($die->has_flag('ValueRelevantToScore'));
 
         $die->add_skill('Value');
-        $this->assertTrue($die->has_flag('ForceDisplayValue'));
+        $this->assertTrue($die->has_flag('ValueRelevantToScore'));
     }
 
     /**

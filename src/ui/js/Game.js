@@ -2244,7 +2244,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
       var dieValueText;
       $.each(Api.game[player].capturedDieArray, function(i, die) {
         dieRecipeText = Game.dieRecipeText(die.recipe, die.sides);
-        if (die.properties.indexOf('ForceDisplayValue') >= 0) {
+        if (die.properties.indexOf('ValueRelevantToScore') >= 0) {
           dieValueText = ':' + die.value;
         } else {
           dieValueText = '';

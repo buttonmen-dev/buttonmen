@@ -25,12 +25,12 @@
         "artFilename":"miser.png"
       },
       "activeDieArray":[
-        { "value":19, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" },
-        { "value":3, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" },
-        { "value":17, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" }
+        { "value":19, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" },
+        { "value":3, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" },
+        { "value":17, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" }
       ],
       "capturedDieArray":[
-        { "value":6, "sides":20, "recipe":"v(20)", "properties":["ForceDisplayValue"] }
+        { "value":6, "sides":20, "recipe":"v(20)", "properties":["ValueRelevantToScore"] }
       ],
       "swingRequestArray":[],
       "optRequestArray":[],
@@ -54,14 +54,14 @@
         "artFilename":"miser.png"
       },
       "activeDieArray":[
-        { "value":16, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" },
-        { "value":8, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" },
-        { "value":6, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" },
-        { "value":6, "sides":20, "skills":["Value"], "properties":["ForceDisplayValue"], "recipe":"v(20)", "description":"Value 20-sided die" }
+        { "value":16, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" },
+        { "value":8, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" },
+        { "value":6, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" },
+        { "value":6, "sides":20, "skills":["Value"], "properties":["ValueRelevantToScore"], "recipe":"v(20)", "description":"Value 20-sided die" }
       ],
       "capturedDieArray":[
-        { "value":11, "sides":20, "recipe":"v(20)", "properties":["ForceDisplayValue"] },
-        { "value":6, "sides":20, "recipe":"v(20)", "properties":["ForceDisplayValue","WasJustCaptured"] }
+        { "value":11, "sides":20, "recipe":"v(20)", "properties":["ValueRelevantToScore"] },
+        { "value":6, "sides":20, "recipe":"v(20)", "properties":["ValueRelevantToScore","WasJustCaptured"] }
       ],
       "swingRequestArray":[],
       "optRequestArray":[],
