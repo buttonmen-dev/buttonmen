@@ -1022,7 +1022,7 @@ class DummyApiResponder {
             }
 
             // Return data for all tests
-            $data['gameId'] = $args['game'];
+            $data['gameId'] = (int) $args['game'];
             return array($data, "Loaded data for game " . $args['game']);
         }
         return array(NULL, "Game does not exist.");
