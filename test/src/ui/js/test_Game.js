@@ -1428,21 +1428,21 @@ test("test_Game.playerOpponentHeaderRow", function(assert) {
 });
 
 test("test_Game.dieRecipeText", function(assert) {
-  var text = Game.dieRecipeText("p(4)", "4");
+  var text = Game.dieRecipeText({'recipe': 'p(4)', 'skills': ['Poison', ], 'sides': 4,});
   assert.equal(text, "p(4)", "text for non-swing die with skills should be correct");
 
-  text = Game.dieRecipeText("zs(X)", "7");
+  text = Game.dieRecipeText({'recipe': 'zs(X)', 'skills': ['Speed', 'Shadow',], 'sides': 7,});
   assert.equal(text, "zs(X=7)",
     "text for swing die with skills should be correct");
 
-  text = Game.dieRecipeText("(W)", null);
+  text = Game.dieRecipeText({'recipe': '(W)', 'skills': [],});
   assert.equal(text, "(W)",
     "text for swing die with unknown value should be correct");
 
-  text = Game.dieRecipeText("(6,6)", "12");
+  text = Game.dieRecipeText({'recipe': '(6,6)', 'skills': [], 'sides': 12,});
   assert.equal(text, "(6,6)", "text for non-swing option die should be correct");
 
-  text = Game.dieRecipeText("(W,W)", "14");
+  text = Game.dieRecipeText({'recipe': '(W,W)', 'skills': [], 'sides': 14,});
   assert.equal(text, "(W,W=7)", "text for swing option die should be correct");
 });
 
