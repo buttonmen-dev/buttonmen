@@ -1002,10 +1002,10 @@ class DummyApiResponder {
         $data = NULL;
 
         if (is_numeric($args['game'])) {
-          $data = $this->load_json_data_from_file(
-            'loadGameData',
-            $args['game'] . '.json'
-          );
+            $data = $this->load_json_data_from_file(
+                'loadGameData',
+                $args['game'] . '.json'
+            );
         }
 
         if ($data) {
