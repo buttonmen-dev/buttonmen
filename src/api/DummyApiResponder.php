@@ -1001,7 +1001,7 @@ class DummyApiResponder {
 
         $data = NULL;
 
-        if ($args['game'] <= 24) {
+        if (is_numeric($args['game'])) {
             $data = $this->load_json_data_from_file(
                 'loadGameData',
                 $args['game'] . '.json'
@@ -1009,15 +1009,20 @@ class DummyApiResponder {
         }
 
         if ($data) {
-            if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
-                $data['gameActionLog'] =
-                    array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
-                $data['gameChatLog'] =
-                    array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
+            // Variables to set for older handcrafted tests only
+            if ($args['game'] < 100) {
+                if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
+                    $data['gameActionLog'] =
+                        array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
+                    $data['gameChatLog'] =
+                        array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
+                }
+                $timestamp = strtotime('now');
+                $data['timestamp'] = $timestamp;
             }
 
-            $timestamp = strtotime('now');
-            $data['timestamp'] = $timestamp;
+            // Return data for all tests
+            $data['gameId'] = (int) $args['game'];
             return array($data, "Loaded data for game " . $args['game']);
         }
         return array(NULL, "Game does not exist.");
