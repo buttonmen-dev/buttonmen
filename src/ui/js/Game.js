@@ -2244,12 +2244,13 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
       var doesRecipeNeedValue;
 
       $.each(Api.game[player].capturedDieArray, function(i, die) {
-        doesRecipeNeedValue = (die.properties.indexOf('ValueRelevantToScore') >= 0);
-        dieRecipeText =  Game.dieRecipeText(
-            die.recipe,
-            die.sides,
-            die.value,
-            doesRecipeNeedValue
+        doesRecipeNeedValue =
+          (die.properties.indexOf('ValueRelevantToScore') >= 0);
+        dieRecipeText = Game.dieRecipeText(
+          die.recipe,
+          die.sides,
+          die.value,
+          doesRecipeNeedValue
         );
         capturedDieDescs.push(dieRecipeText);
       });
@@ -2529,7 +2530,7 @@ Game.dieRecipeText = function(recipe, sides, value, doesRecipeNeedValue) {
   }
 
   if (doesRecipeNeedValue) {
-      dieRecipeText += ':' + value;
+    dieRecipeText += ':' + value;
   }
 
   return dieRecipeText;
