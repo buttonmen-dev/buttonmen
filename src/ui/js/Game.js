@@ -2489,9 +2489,6 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // or option dice in the recipe, so we need to specify the current
 // number of sides
 Game.dieRecipeText = function(die) {
-  console.log('test1');
-  console.log(die);
-
   var dieRecipeText = die.recipe;
   if (die.sides) {
     var lparen = die.recipe.indexOf('(');
@@ -2512,9 +2509,6 @@ Game.dieRecipeText = function(die) {
           swingcount += 1;
         }
       }
-
-      console.log(sidesum);
-      console.log(die.sides);
 
       if (sidesum != die.sides) {
         dieRecipeText = dieRecipeText.replace(
