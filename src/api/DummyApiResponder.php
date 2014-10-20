@@ -1012,10 +1012,10 @@ class DummyApiResponder {
             // Variables to set for older handcrafted tests only
             if ($args['game'] < 100) {
                 if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
-                  $data['gameActionLog'] =
-                    array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
-                  $data['gameChatLog'] =
-                    array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
+                    $data['gameActionLog'] =
+                        array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
+                    $data['gameChatLog'] =
+                        array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
                 }
                 $timestamp = strtotime('now');
                 $data['timestamp'] = $timestamp;
