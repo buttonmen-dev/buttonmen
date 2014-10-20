@@ -2241,15 +2241,17 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     if (Api.game[player].capturedDieArray.length > 0) {
       var capturedDieDescs = [];
       var dieRecipeText;
-      var dieValueText;
+      var doesRecipeNeedValue;
+
       $.each(Api.game[player].capturedDieArray, function(i, die) {
-        dieRecipeText = Game.dieRecipeText(die.recipe, die.sides);
-        if (die.properties.indexOf('ValueRelevantToScore') >= 0) {
-          dieValueText = ':' + die.value;
-        } else {
-          dieValueText = '';
-        }
-        capturedDieDescs.push(dieRecipeText + dieValueText);
+        doesRecipeNeedValue = (die.properties.indexOf('ValueRelevantToScore') >= 0);
+        dieRecipeText =  Game.dieRecipeText(
+            die.recipe,
+            die.sides,
+            die.value,
+            doesRecipeNeedValue
+        );
+        capturedDieDescs.push(dieRecipeText);
       });
       capturedDieText = capturedDieDescs.join(', ');
     } else {
@@ -2498,7 +2500,7 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // If the recipe doesn't contain (sides), assume there are swing
 // or option dice in the recipe, so we need to specify the current
 // number of sides
-Game.dieRecipeText = function(recipe, sides) {
+Game.dieRecipeText = function(recipe, sides, value, doesRecipeNeedValue) {
   var dieRecipeText = recipe;
   if (sides) {
     var lparen = recipe.indexOf('(');
@@ -2525,6 +2527,11 @@ Game.dieRecipeText = function(recipe, sides) {
       }
     }
   }
+
+  if (doesRecipeNeedValue) {
+      dieRecipeText += ':' + value;
+  }
+
   return dieRecipeText;
 };
 
