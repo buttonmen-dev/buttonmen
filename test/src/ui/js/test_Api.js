@@ -60,7 +60,7 @@ test("test_Api.parseApiPost_automatedApiCall", function(assert) {
   Api.automatedApiCall = true;
 
   // Api.getGameData calls Api.parseApiPost
-  Api.getGameData(1, 10, function() {
+  Api.getGameData(101, 10, function() {
     assert.equal(Api.game.load_status, 'ok',
       'getGameData should be a valid automated API call');
     start();
@@ -348,9 +348,9 @@ test("test_Api.parseUserPrefsData", function(assert) {
 
 test("test_Api.getGameData", function(assert) {
   stop();
-  Game.game = '1';
+  Game.game = '101';
   Api.getGameData(Game.game, 10, function() {
-    assert.equal(Api.game.gameId, '1', "parseGameData() parsed gameId from API data");
+    assert.equal(Api.game.gameId, '101', "parseGameData() parsed gameId from API data");
     assert.equal(Api.game.isParticipant, true, "parseGameData() set isParticipant based on API data");
     assert.equal(Api.game.playerIdx, 0, "parseGameData() set playerIdx based on API data");
     assert.equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx based on API data");
@@ -363,9 +363,9 @@ test("test_Api.getGameData", function(assert) {
 
 test("test_Api.getGameData_nonplayer", function(assert) {
   stop();
-  Game.game = '10';
+  Game.game = '102';
   Api.getGameData(Game.game, 10, function() {
-    assert.equal(Api.game.gameId, '10',
+    assert.equal(Api.game.gameId, '102',
           "parseGameData() set gameId for nonparticipant");
     delete Game.game;
     start();
