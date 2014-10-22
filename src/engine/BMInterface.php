@@ -2739,16 +2739,23 @@ class BMInterface {
 
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
-            ($postedTimestamp == $this->timestamp);
+            ($postedTimestamp == $this->timestamp) ||
+            ($postedTimestamp == ($this->timestamp + 1));
         $doesRoundNumberAgree =
             ('ignore' === $roundNumber) ||
             ($roundNumber == $game->roundNumber);
         $doesGameStateAgree = $expectedGameState == $game->gameState;
 
-        $this->message = 'Game state is not current';
-        return ($doesTimeStampAgree &&
-                $doesRoundNumberAgree &&
-                $doesGameStateAgree);
+        $isGameStateCurrent =
+            $doesTimeStampAgree &&
+            $doesRoundNumberAgree &&
+            $doesGameStateAgree;
+
+        if (!$isGameStateCurrent) {
+            $this->message = 'Game state is not current';
+        }
+
+        return $isGameStateCurrent;
     }
 
     // Enter recent game actions into the action log

@@ -140,17 +140,9 @@ class BMDieOption extends BMDie {
      * @param mixed $value
      */
     public function __set($property, $value) {
-        switch ($property) {
-            case 'max':
-                if (in_array($value, $this->optionValueArray) ||
-                    is_null($value)) {
-                    $this->$property = $value;
-                } else {
-                    throw new LogicException('Chosen option value is invalid.');
-                }
-                break;
-            default:
+//        switch ($property) {
+//            default:
                 parent::__set($property, $value);
-        }
+//        }
     }
 }
