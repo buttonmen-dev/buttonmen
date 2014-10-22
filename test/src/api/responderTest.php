@@ -6170,10 +6170,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
         $expData['activePlayerIdx'] = 0;
         $expData['validAttackTypeArray'] = array('Power', 'Skill');
-        $expData['playerDataArray'][0]['roundScore'] = 24.0;
-        $expData['playerDataArray'][1]['roundScore'] = 43.5;
-        $expData['playerDataArray'][0]['sideScore'] = -13.0;
-        $expData['playerDataArray'][1]['sideScore'] = 13.0;
+        $expData['playerDataArray'][0]['roundScore'] = 25.5;
+        $expData['playerDataArray'][1]['roundScore'] = 39.0;
+        $expData['playerDataArray'][0]['sideScore'] = -9.0;
+        $expData['playerDataArray'][1]['sideScore'] = 9.0;
         array_splice($expData['playerDataArray'][0]['activeDieArray'], 1, 1);
         $expData['playerDataArray'][1]['capturedDieArray'][] = array('value' => 5, 'sides' => 12, 'properties' => array('WasJustCaptured'), 'recipe' => 'H(12)');
         $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 1;
