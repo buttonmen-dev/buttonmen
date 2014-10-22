@@ -6181,6 +6181,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][1]['activeDieArray'][4]['description'] = 'Weak X Swing Die (with 6 sides)';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 performed Power attack using [h(X=7):5] against [H(12):5]; Defender H(12) was captured; Attacker h(X=7) changed size from 7 to 6 sides, recipe changed from h(X=7) to h(X=6), rerolled 5 => 1')); // BUG C: defender should be H(12)
 
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
         ////////////////////
         // Move 03 - responder003 performed Power attack using [H(1,10):9] against [(10):4]

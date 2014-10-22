@@ -2739,8 +2739,7 @@ class BMInterface {
 
         $doesTimeStampAgree =
             ('ignore' === $postedTimestamp) ||
-            ($postedTimestamp == $this->timestamp) ||
-            ($postedTimestamp == ($this->timestamp + 1));
+            ($postedTimestamp == $this->timestamp);
         $doesRoundNumberAgree =
             ('ignore' === $roundNumber) ||
             ($roundNumber == $game->roundNumber);
