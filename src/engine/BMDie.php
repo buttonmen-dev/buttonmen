@@ -455,9 +455,11 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
 //
-// constant needs to hook this method to fix the die's value. Very
+// konstant needs to hook this method to fix the die's value. Very
 // little else will.
     public function split() {
+        // james: the die value must remain so that mighty/weak trigger correctly afterwards
+
         $newdie = clone $this;
 
         if ($newdie->max > 1) {

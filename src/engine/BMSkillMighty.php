@@ -13,7 +13,9 @@ class BMSkillMighty extends BMSkill {
 
     public static function pre_roll($args) {
         $die = $args['die'];
-        $die->grow();
+        if (isset($die->value)) {
+            $die->grow();
+        }
     }
 
     protected static function get_description() {

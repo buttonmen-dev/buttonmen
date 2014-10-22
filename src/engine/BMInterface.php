@@ -1550,7 +1550,8 @@ class BMInterface {
         $actualMax = NULL;
 
         if ($activeDie->forceReportDieSize() ||
-            ($activeDie instanceof BMDieOption)) {
+            ($activeDie instanceof BMDieOption) ||
+            ($activeDie instanceof BMDieSwing)) {
             $actualMax = $activeDie->max;
         }
 

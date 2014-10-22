@@ -29,7 +29,11 @@ class BMSkillMightyTest extends PHPUnit_Framework_TestCase {
         $die->init(7);
         $args = array('die' => $die);
         $this->object->pre_roll($args);
-
+        $this->assertEquals(7, $die->max);
+        
+        $die->value = 2;
+        $args = array('die' => $die);
+        $this->object->pre_roll($args);
         $this->assertEquals(8, $die->max);
     }
 }

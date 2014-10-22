@@ -13,7 +13,9 @@ class BMSkillWeak extends BMSkill {
 
     public static function pre_roll($args) {
         $die = $args['die'];
-        $die->shrink();
+        if (isset($die->value)) {
+            $die->shrink();
+        }
     }
 
     protected static function get_description() {
