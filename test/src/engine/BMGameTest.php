@@ -4440,32 +4440,52 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(6, $button1->dieArray[2]->max);
         $this->assertEquals(8, $button1->dieArray[3]->max);
         $this->assertEquals(10, $button1->dieArray[4]->max);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($button1->dieArray[0]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[0]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[0]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[0]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[0]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($button1->dieArray[1]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[1]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[1]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[1]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[1]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($button1->dieArray[2]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[2]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[2]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[2]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[2]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($button1->dieArray[3]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[3]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[3]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[3]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[3]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($button1->dieArray[4]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[4]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[4]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $button1->dieArray[4]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
@@ -4551,32 +4571,52 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
 
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($game->activeDieArrayArray[0][0]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][0]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][0]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][0]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][0]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($game->activeDieArrayArray[0][1]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][1]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][1]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][1]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][1]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($game->activeDieArrayArray[0][2]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][2]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][2]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][2]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][2]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($game->activeDieArrayArray[0][3]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][3]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][3]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][3]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][3]->hookList['capture']);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($game->activeDieArrayArray[0][4]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][4]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][4]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->activeDieArrayArray[0][4]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
@@ -4625,8 +4665,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertCount(0, $game->capturedDieArrayArray[1]);
         $this->assertEquals(20, $game->capturedDieArrayArray[0][0]->max);
         $this->assertEquals(6, $game->capturedDieArrayArray[0][0]->value);
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('add_skill', 'remove_skill', 'score_value', 'capture'),
                             array_keys($game->capturedDieArrayArray[0][0]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->capturedDieArrayArray[0][0]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->capturedDieArrayArray[0][0]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillValue'),
                             $game->capturedDieArrayArray[0][0]->hookList['score_value']);
         $this->assertEquals(array('BMSkillValue'),
@@ -7531,8 +7575,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(10, $button1->dieArray[2]->max);
         $this->assertEquals(12, $button1->dieArray[3]->max);
         $this->assertFalse(isset($button1->dieArray[4]->max));
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('score_value', 'capture', 'add_skill', 'remove_skill'),
                             array_keys($button1->dieArray[3]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[3]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $button1->dieArray[3]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillNull', 'BMSkillValue'),
                             $button1->dieArray[3]->hookList['score_value']);
         $this->assertEquals(array('BMSkillNull', 'BMSkillValue', 'BMSkillDoppelganger'),
@@ -7621,8 +7669,12 @@ class BMGameTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($game->activeDieArrayArray[1][3]->value);
         $this->assertNotNull($game->activeDieArrayArray[1][4]->value);
 
-        $this->assertEquals(array('score_value', 'capture'),
+        $this->assertEquals(array('score_value', 'capture', 'add_skill', 'remove_skill'),
                             array_keys($game->activeDieArrayArray[0][3]->hookList));
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][3]->hookList['add_skill']);
+        $this->assertEquals(array('BMSkillValue'),
+                            $game->activeDieArrayArray[0][3]->hookList['remove_skill']);
         $this->assertEquals(array('BMSkillNull', 'BMSkillValue'),
                             $game->activeDieArrayArray[0][3]->hookList['score_value']);
         $this->assertEquals(array('BMSkillNull', 'BMSkillValue', 'BMSkillDoppelganger'),
