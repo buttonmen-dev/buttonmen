@@ -65,6 +65,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $die = BMDie::create(6, array());
 
         $this->assertInstanceOf('BMDie', $die);
+        $this->assertEquals(1, $die->min);
         $this->assertEquals(6, $die->max);
 
         try {
@@ -84,12 +85,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         }
 
-        try {
-            $die = BMDie::create(0, array());
-            $this->fail('Creating out-of-range die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
-
-        }
+        $die = BMDie::create(0, array());
+        $this->assertInstanceOf('BMDie', $die);
+        $this->assertEquals(0, $die->min);
+        $this->assertEquals(0, $die->max);
 
         try {
             $die = BMDie::create(100, array());
