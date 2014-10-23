@@ -2071,7 +2071,7 @@ Game.dieRecipeTable = function(table_action, active) {
 Game.dieTableEntry = function(i, activeDieArray) {
   if (i < activeDieArray.length) {
     var die = activeDieArray[i];
-    var dieval = Game.dieRecipeText(die.recipe, die.sides);
+    var dieval = Game.dieRecipeText(die);
     var dieopts = {
       'text': dieval,
       'title': die.description,
@@ -2240,8 +2240,9 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
     var capturedDieText;
     if (Api.game[player].capturedDieArray.length > 0) {
       var capturedDieDescs = [];
+
       $.each(Api.game[player].capturedDieArray, function(i, die) {
-        capturedDieDescs.push(Game.dieRecipeText(die.recipe, die.sides));
+        capturedDieDescs.push(Game.dieRecipeText(die));
       });
       capturedDieText = capturedDieDescs.join(', ');
     } else {
@@ -2286,8 +2287,6 @@ Game.gamePlayerDice = function(player, player_active) {
   var dieRecipeDiv;
   var dieContainerDiv;
   var dieBorderDiv;
-
-  var dieRecipeText;
 
   for (var i = 0; i < Api.game[player].activeDieArray.length; i++) {
     var die = Api.game[player].activeDieArray[i];
@@ -2367,11 +2366,10 @@ Game.gamePlayerDice = function(player, player_active) {
       'text': die.value,
     }));
 
-    dieRecipeText = Game.dieRecipeText(die.recipe, die.sides);
     dieRecipeDiv = $('<div>');
     dieRecipeDiv.append($('<span>', {
       'class': 'die_recipe_' + player,
-      'text': dieRecipeText,
+      'text': Game.dieRecipeText(die),
     }));
 
     dieBorderDiv.append(dieDiv);
@@ -2409,7 +2407,7 @@ Game.gamePlayerDice = function(player, player_active) {
       dieRecipeDiv = $('<div>');
       dieRecipeDiv.append($('<span>', {
         'class': 'die_recipe_' + player,
-        'text': Game.dieRecipeText(die.recipe, die.sides),
+        'text': Game.dieRecipeText(die),
       }));
 
       dieBorderDiv.append(dieDiv);
@@ -2490,15 +2488,15 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // If the recipe doesn't contain (sides), assume there are swing
 // or option dice in the recipe, so we need to specify the current
 // number of sides
-Game.dieRecipeText = function(recipe, sides) {
-  var dieRecipeText = recipe;
-  if (sides) {
-    var lparen = recipe.indexOf('(');
-    var rparen = recipe.indexOf(')');
-    var recipeSideString = recipe.substring(lparen + 1, rparen);
+Game.dieRecipeText = function(die) {
+  var dieRecipeText = die.recipe;
+  if (die.sides) {
+    var lparen = die.recipe.indexOf('(');
+    var rparen = die.recipe.indexOf(')');
+    var recipeSideString = die.recipe.substring(lparen + 1, rparen);
     var recipeSideOptionStrings = recipeSideString.split('/');
     if (recipeSideOptionStrings.length > 1) {
-      dieRecipeText = dieRecipeText.replace(')', '=' + sides + ')');
+      dieRecipeText = dieRecipeText.replace(')', '=' + die.sides + ')');
     } else {
       var recipeSideTwinStrings = recipeSideString.split(',');
       var sidesum = 0;
@@ -2511,12 +2509,20 @@ Game.dieRecipeText = function(recipe, sides) {
           swingcount += 1;
         }
       }
-      if (sidesum != sides) {
+
+      if (sidesum != die.sides) {
         dieRecipeText = dieRecipeText.replace(
-                          ')', '=' + (sides/swingcount) + ')');
+                          ')', '=' + (die.sides/swingcount) + ')');
       }
     }
   }
+
+  if (('properties' in die) &&
+      ('indexOf' in die.properties) &&
+      (die.properties.indexOf('ValueRelevantToScore') >= 0)) {
+    dieRecipeText += ':' + die.value;
+  }
+
   return dieRecipeText;
 };
 
