@@ -594,7 +594,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
      * @depends testRoll
      */
     public function testSplit() {
-        // 1-siders split into two 1-siders
+        // 1-siders split into a 1-sider and a 0-sider
         $this->object->init(1, array());
         $this->object->roll(FALSE);
 
@@ -602,8 +602,9 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($dice[0] === $dice[1]);
         $this->assertTrue($this->object === $dice[0]);
-        $this->assertEquals($dice[0]->max, $dice[1]->max);
+        $this->assertNotEquals($dice[0]->max, $dice[1]->max);
         $this->assertEquals(1, $dice[0]->max);
+        $this->assertEquals(0, $dice[1]->max);
 
         // even-sided split
         $this->object->init(12, array());

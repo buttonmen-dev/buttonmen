@@ -407,12 +407,12 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($splitDice[0] === $splitDice[1]);
         $this->assertEquals(1, $splitDice[0]->dice[0]->max);
         $this->assertEquals(1, $splitDice[0]->dice[1]->max);
-        $this->assertEquals(1, $splitDice[1]->dice[0]->max);
-        $this->assertEquals(1, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(0, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(0, $splitDice[1]->dice[1]->max);
         $this->assertEquals(2, $splitDice[0]->min);
         $this->assertEquals(2, $splitDice[0]->max);
-        $this->assertEquals(2, $splitDice[1]->min);
-        $this->assertEquals(2, $splitDice[1]->max);
+        $this->assertEquals(0, $splitDice[1]->min);
+        $this->assertEquals(0, $splitDice[1]->max);
 
         // even-sided split
         $this->object->init(array(12, 16), array());

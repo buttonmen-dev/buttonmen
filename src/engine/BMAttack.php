@@ -225,7 +225,7 @@ abstract class BMAttack {
 
         // allow attack type to modify default behaviour
         $activeDiceNew = array();
-        foreach ($attackers as $attIdx => &$att) {
+        foreach ($attackers as &$att) {
             $att->capture($this->type, $attackers, $defenders);
         }
 

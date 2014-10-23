@@ -25,7 +25,9 @@
  * @property      string $inactive              Why may this die not attack?
  * @property      bool   $unavailable           Is the die a warrior die that has not yet joined?
  * @property-read array  $flagList              Array designed to contain various BMFlags
- */
+ *
+ * @SuppressWarnings(PMD.TooManyFields)
+ *  */
 class BMDie extends BMCanHaveSkill {
     // properties
 
@@ -343,7 +345,6 @@ class BMDie extends BMCanHaveSkill {
             $valid = FALSE;
         }
 
-
         // Are we actually among the attackers?
         $found = FALSE;
 
@@ -444,6 +445,14 @@ class BMDie extends BMCanHaveSkill {
         $newdie->max = $newdie->max / 2;
         $this->max -= $newdie->max;
 //        }
+
+        if (0 == $this->max) {
+            $this->min = 0;
+        }
+
+        if (0 == $newdie->max) {
+            $newdie->min = 0;
+        }
 
         $dice = array($this, $newdie);
 
