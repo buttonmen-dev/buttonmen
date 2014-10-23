@@ -1550,7 +1550,8 @@ class BMInterface {
         $actualMax = NULL;
 
         if ($activeDie->forceReportDieSize() ||
-            ($activeDie instanceof BMDieOption)) {
+            ($activeDie instanceof BMDieOption) ||
+            ($activeDie instanceof BMDieSwing)) {
             $actualMax = $activeDie->max;
         }
 
@@ -2744,10 +2745,16 @@ class BMInterface {
             ($roundNumber == $game->roundNumber);
         $doesGameStateAgree = $expectedGameState == $game->gameState;
 
-        $this->message = 'Game state is not current';
-        return ($doesTimeStampAgree &&
-                $doesRoundNumberAgree &&
-                $doesGameStateAgree);
+        $isGameStateCurrent =
+            $doesTimeStampAgree &&
+            $doesRoundNumberAgree &&
+            $doesGameStateAgree;
+
+        if (!$isGameStateCurrent) {
+            $this->message = 'Game state is not current';
+        }
+
+        return $isGameStateCurrent;
     }
 
     // Enter recent game actions into the action log

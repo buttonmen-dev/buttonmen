@@ -115,6 +115,7 @@ class BMSkill {
                      'Konstant'     => 'k',
                      'Mad'          => '&',
                      'Maximum'      => 'M',
+                     'Mighty'       => 'H',
                      'Mood'         => '?',
                      'Morphing'     => 'm',
                      'Null'         => 'n',
@@ -129,7 +130,8 @@ class BMSkill {
                      'Stealth'      => 'd',
                      'Stinger'      => 'g',
                      'Trip'         => 't',
-                     'Value'        => 'v');
+                     'Value'        => 'v',
+                     'Weak'         => 'h');
     }
 
     /**
@@ -217,13 +219,14 @@ class BMSkill {
                      'BMSkillKonstant',
                      'BMSkillMorphing',
                      'BMSkillRadioactive',
-// james: reactivate weak and mighty when they are implemented
-//                     'BMSkillWeak',
-//                     'BMSkillMighty',
+                     'BMSkillWeak',
+                     'BMSkillMighty',
                      'BMSkillDoppelganger',
                      'BMSkillValue',
                      'BMSkillPoison',
                      'BMSkillNull',
+                     'BMSkillKonstant',
+                     'BMSkillMorphing',
                      'BMSkillMaximum');
         // fires last
     }
