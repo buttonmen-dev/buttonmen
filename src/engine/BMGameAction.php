@@ -301,10 +301,11 @@ class BMGameAction {
         assert(1 == count($preAttackAttackers));
         assert(2 == count($postAttackAttackers));
 
-        $message = 'Attacker ' . $preAttackAttackers[0]['recipe'] . ' split into ' .
+        $message = 'Attacker ' .
+                   $preAttackAttackers[0]['recipe'] . ' showing ' . $preAttackAttackers[0]['value'] . ' split into ' .
                    $postAttackAttackers[0]['recipe'] . ' showing ' . $postAttackAttackers[0]['value'] . ' and ' .
                    $postAttackAttackers[1]['recipe'] . ' showing ' . $postAttackAttackers[1]['value'];
-            
+
         return $message;
     }
 
