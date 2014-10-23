@@ -292,7 +292,7 @@ class DummyApiResponder {
             'opponentColorArray' => array(),
         );
 
-        for ($gameIdx = 1; $gameIdx <= 24; $gameIdx++) {
+        for ($gameIdx = 1; $gameIdx <= 25; $gameIdx++) {
             $funcname = 'add_active_game_data_'.$gameIdx;
             $this->$funcname($data);
         }
@@ -604,6 +604,24 @@ class DummyApiResponder {
 
     protected function add_active_game_data_24() {
         // tester1 is not a participant in fake game 24
+    }
+
+    protected function add_active_game_data_25(&$data) {
+        $data['gameIdArray'][] = 25;
+        $data['opponentIdArray'][] = 1;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Miser";
+        $data['opponentButtonNameArray'][] = "Miser";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
+        $data['gameStateArray'][] = "START_TURN";
+        $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "5 minutes";
+        $data['playerColorArray'][] = "#dd99dd";
+        $data['opponentColorArray'][] = "#ddffdd";
     }
 
     protected function get_interface_response_loadCompletedGames() {
@@ -998,6 +1016,7 @@ class DummyApiResponder {
         //  18: game in "choose reserve" state in which active player is not a participant
         //  19: game in which active player can choose option die values
         //  20: game in which active player can turn down fire dice
+        //  25: game in which value dice are present
 
         $data = NULL;
 

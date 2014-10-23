@@ -117,6 +117,7 @@ BMTestUtils.overrideGetParameterByName = function() {
       if (BMTestUtils.GameType == 'fire_active') { return '22'; }
       if (BMTestUtils.GameType == 'fire_inactive') { return '23'; }
       if (BMTestUtils.GameType == 'fire_nonplayer') { return '24'; }
+      if (BMTestUtils.GameType == 'value') { return '25'; }
     }
 
     // always return the userid associated with tester1 in the fake data

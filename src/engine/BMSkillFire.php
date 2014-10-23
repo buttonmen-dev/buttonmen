@@ -68,4 +68,13 @@ class BMSkillFire extends BMSkill {
                'lower than 1 or higher than 10. Also, Fire Dice cannot assist other '.
                'dice in making attacks other than normal Skill and Power Attacks.';
     }
+
+    protected static function get_interaction_descriptions() {
+        return array(
+            'Mighty' => 'Dice with both Fire and Mighty skills do not grow ' .
+                      'when firing, only when actually rolling',
+            'Weak' => 'Dice with both Fire and Weak skills do not shrink ' .
+                      'when firing, only when actually rolling',
+        );
+    }
 }

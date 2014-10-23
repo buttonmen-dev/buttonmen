@@ -623,6 +623,64 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
     }
 
     /*
+     * @covers BMDie::shrink
+     */
+    public function testShrink() {
+        $die = $this->object;
+        $die->init(99);
+        $die->shrink();
+        $this->assertEquals(30, $die->max);
+        $die->shrink();
+        $this->assertEquals(20, $die->max);
+        $die->shrink();
+        $this->assertEquals(16, $die->max);
+        $die->shrink();
+        $this->assertEquals(12, $die->max);
+        $die->shrink();
+        $this->assertEquals(10, $die->max);
+        $die->shrink();
+        $this->assertEquals(8, $die->max);
+        $die->shrink();
+        $this->assertEquals(6, $die->max);
+        $die->shrink();
+        $this->assertEquals(4, $die->max);
+        $die->shrink();
+        $this->assertEquals(2, $die->max);
+        $die->shrink();
+        $this->assertEquals(1, $die->max);
+        $die->shrink();
+        $this->assertEquals(1, $die->max);
+    }
+
+    /*
+     * @covers BMDie::grow
+     */
+    public function testGrow() {
+        $die = $this->object;
+        $die->init(1);
+        $die->grow();
+        $this->assertEquals(2, $die->max);
+        $die->grow();
+        $this->assertEquals(4, $die->max);
+        $die->grow();
+        $this->assertEquals(6, $die->max);
+        $die->grow();
+        $this->assertEquals(8, $die->max);
+        $die->grow();
+        $this->assertEquals(10, $die->max);
+        $die->grow();
+        $this->assertEquals(12, $die->max);
+        $die->grow();
+        $this->assertEquals(16, $die->max);
+        $die->grow();
+        $this->assertEquals(20, $die->max);
+        $die->grow();
+        $this->assertEquals(30, $die->max);
+        $die->grow();
+        $this->assertEquals(30, $die->max);
+    }
+
+    /*
      * @covers BMDie::get_recipe
      */
 
