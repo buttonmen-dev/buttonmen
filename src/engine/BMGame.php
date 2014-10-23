@@ -1826,7 +1826,7 @@ class BMGame {
                 $actionLogDieInfo = $tempDie->get_action_log_data();
                 // update initiative arrays if die counts for initiative
                 $tempInitiative = $tempDie->initiative_value();
-                if ($tempInitiative > 0) {
+                if ($tempInitiative >= 0) {
                     $initiativeArrayArray[$playerIdx][] = $tempInitiative;
                     $actionLogDieInfo['included'] = TRUE;
                 } else {

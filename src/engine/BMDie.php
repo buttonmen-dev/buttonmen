@@ -63,9 +63,6 @@ class BMDie extends BMCanHaveSkill {
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
 
-// This needs to be fixed to work properly within PHP's magic method semantics
-//
-// will need an init_from_db method, too (eventually)
     // Hackish: the caller can specify each skill as either a plain
     // value, "skill", or a key/value pair "ClassName" => "skill",
     // where the key is the class name which implements that skill.
@@ -73,8 +70,13 @@ class BMDie extends BMCanHaveSkill {
     // testing), and should never be used for the default BMSkill<skill>
     // set of skills.
     public function init($sides, array $skills = NULL) {
-        $this->min = 1;
-        $this->max = $sides;
+        if (0 == $sides) {
+            $this->min = 0;
+            $this->max = 0;
+        } else {
+            $this->min = 1;
+            $this->max = $sides;
+        }
 
         $this->add_multiple_skills($skills);
     }
@@ -143,7 +145,7 @@ class BMDie extends BMCanHaveSkill {
 
     public static function create($size, array $skills = NULL) {
         if (!is_numeric($size) || ($size != (int)$size) ||
-            $size < 1 || $size > 99) {
+            $size < 0 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
         }
 
@@ -260,7 +262,7 @@ class BMDie extends BMCanHaveSkill {
     }
 
     // Return die's initiative value.
-    // 0 means it doesn't count for initiative.
+    // Negative means it doesn't count for initiative.
     // "?" means it's a chance die.
 
     public function initiative_value() {
