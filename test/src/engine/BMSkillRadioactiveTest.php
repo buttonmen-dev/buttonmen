@@ -123,7 +123,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertTrue($dieLeft === $game->activeDieArrayArray[0][0]);
-        $this->assertFalse($att === $game->activeDieArrayArray[0][1]);
+        $this->assertTrue($att === $game->activeDieArrayArray[0][1]);
         $this->assertTrue($dieRight === $game->activeDieArrayArray[0][3]);
 
         $this->assertEquals(6, $game->activeDieArrayArray[0][0]->max);
@@ -136,8 +136,8 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($game->activeDieArrayArray[0][1] instanceof BMDie);
         $this->assertTrue($game->activeDieArrayArray[0][2] instanceof BMDie);
-        $this->assertFalse($game->activeDieArrayArray[0][1] instanceof BMDieSwing);
-        $this->assertFalse($game->activeDieArrayArray[0][2] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[0][1] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[0][2] instanceof BMDieSwing);
 
         $this->assertFalse($game->activeDieArrayArray[0][1]->has_skill('Mood'));
         $this->assertFalse($game->activeDieArrayArray[0][2]->has_skill('Mood'));
@@ -250,7 +250,7 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
         $this->assertCount(4, $game->activeDieArrayArray[0]);
         $this->assertTrue($dieLeft === $game->activeDieArrayArray[0][0]);
-        $this->assertFalse($att === $game->activeDieArrayArray[0][1]);
+        $this->assertTrue($att === $game->activeDieArrayArray[0][1]);
         $this->assertTrue($dieRight === $game->activeDieArrayArray[0][3]);
 
         $this->assertEquals(6, $game->activeDieArrayArray[0][0]->max);
@@ -263,8 +263,8 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($game->activeDieArrayArray[0][1] instanceof BMDie);
         $this->assertTrue($game->activeDieArrayArray[0][2] instanceof BMDie);
-        $this->assertFalse($game->activeDieArrayArray[0][1] instanceof BMDieSwing);
-        $this->assertFalse($game->activeDieArrayArray[0][2] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[0][1] instanceof BMDieSwing);
+        $this->assertTrue($game->activeDieArrayArray[0][2] instanceof BMDieSwing);
 
         $this->assertFalse($game->activeDieArrayArray[0][1]->has_skill('Mood'));
         $this->assertFalse($game->activeDieArrayArray[0][2]->has_skill('Mood'));
@@ -313,8 +313,8 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(8, $game->activeDieArrayArray[0][2]->max);
         $this->assertEquals(30, $game->activeDieArrayArray[0][3]->max);
 
-        $this->assertFalse(isset($game->activeDieArrayArray[0][1]->value));
-        $this->assertFalse(isset($game->activeDieArrayArray[0][2]->value));
+        $this->assertEquals(9, $game->activeDieArrayArray[0][1]->value);
+        $this->assertEquals(9, $game->activeDieArrayArray[0][2]->value);
 
         $this->assertFalse($game->activeDieArrayArray[0][1]->has_skill('Radioactive'));
         $this->assertFalse($game->activeDieArrayArray[0][2]->has_skill('Radioactive'));

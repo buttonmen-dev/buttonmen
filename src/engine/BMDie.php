@@ -436,12 +436,14 @@ class BMDie extends BMCanHaveSkill {
         // james: the die value must remain so that mighty/weak trigger correctly afterwards
         $newdie = clone $this;
 
-        if ($newdie->max > 1) {
-            $remainder = $newdie->max % 2;
-            $newdie->max -= $remainder;
-            $newdie->max = $newdie->max / 2;
-            $this->max -= $newdie->max;
-        }
+        // james: reinstate the commented condition if we want a 1-sider to split into
+        //        two 1-siders
+//        if ($newdie->max > 1) {
+        $remainder = $newdie->max % 2;
+        $newdie->max -= $remainder;
+        $newdie->max = $newdie->max / 2;
+        $this->max -= $newdie->max;
+//        }
 
         $dice = array($this, $newdie);
 
