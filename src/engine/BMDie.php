@@ -455,9 +455,11 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
 //
-// constant needs to hook this method to fix the die's value. Very
+// konstant needs to hook this method to fix the die's value. Very
 // little else will.
     public function split() {
+        // james: the die value must remain so that mighty/weak trigger correctly afterwards
+
         $newdie = clone $this;
 
         if ($newdie->max > 1) {
@@ -472,6 +474,32 @@ class BMDie extends BMCanHaveSkill {
         $this->run_hooks(__FUNCTION__, array('dice' => &$dice));
 
         return $dice;
+    }
+
+    // shrink() is intended to be used for weak dice
+    public function shrink() {
+        $dieSizes = self::grow_shrink_die_sizes();
+        rsort($dieSizes);
+
+        foreach ($dieSizes as $size) {
+            if ($size < $this->max) {
+                $this->max = $size;
+                return;
+            }
+        }
+    }
+
+    // grow() is intended to be used for mighty dice
+    public function grow() {
+        $dieSizes = self::grow_shrink_die_sizes();
+        sort($dieSizes);
+
+        foreach ($dieSizes as $size) {
+            if ($size > $this->max) {
+                $this->max = $size;
+                return;
+            }
+        }
     }
 
     public function get_recipe($addMaxvals = FALSE) {
@@ -656,7 +684,13 @@ class BMDie extends BMCanHaveSkill {
         return $typesList;
     }
 
+    // these are used for mood swing
     public static function standard_die_sizes() {
+        return array(1, 2, 4, 6, 8, 10, 12, 20, 30);
+    }
+
+    // these are used for Mighty and Weak
+    public static function grow_shrink_die_sizes() {
         return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
     }
 

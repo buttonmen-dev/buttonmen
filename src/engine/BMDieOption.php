@@ -105,16 +105,6 @@ class BMDieOption extends BMDie {
         return $result;
     }
 
-    public function split() {
-        $normalDie = new BMDie();
-        // note: init requires an array without string keys
-        $normalDie->init($this->max, array_keys($this->skillList));
-        $normalDie->ownerObject = $this->ownerObject;
-        $normalDie->playerIdx = $this->playerIdx;
-        $normalDie->originalPlayerIdx = $this->originalPlayerIdx;
-        return $normalDie->split();
-    }
-
     public function set_optionValue($optionValue) {
         if (FALSE === array_search($optionValue, $this->optionValueArray)) {
             return FALSE;
@@ -150,17 +140,9 @@ class BMDieOption extends BMDie {
      * @param mixed $value
      */
     public function __set($property, $value) {
-        switch ($property) {
-            case 'max':
-                if (in_array($value, $this->optionValueArray) ||
-                    is_null($value)) {
-                    $this->$property = $value;
-                } else {
-                    throw new LogicException('Chosen option value is invalid.');
-                }
-                break;
-            default:
+//        switch ($property) {
+//            default:
                 parent::__set($property, $value);
-        }
+//        }
     }
 }

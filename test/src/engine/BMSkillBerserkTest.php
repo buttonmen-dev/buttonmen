@@ -54,7 +54,6 @@ class BMSkillBerserkTest extends PHPUnit_Framework_TestCase {
         $this->assertNotEmpty($a);
         $this->assertContains('Berserk', $a);
         $this->assertEquals(2, count($a));
-
     }
 }
 

@@ -187,15 +187,17 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
      * @covers BMDieOption::split
      */
     public function testSplit() {
-        $this->object->init(array(4,6));
-        $this->object->max = $this->object->swingValue = 6;
+        $this->object->init(array(4, 6));
+        $this->object->max = 6;
 
         $dice = $this->object->split();
 
-        $this->assertFalse($this->object === $dice[0]);
+        $this->assertTrue($this->object === $dice[0]);
         $this->assertFalse($this->object === $dice[1]);
-        $this->assertFalse($dice[0] instanceof BMDieOption);
-        $this->assertFalse($dice[1] instanceof BMDieOption);
+        $this->assertTrue($dice[0] instanceof BMDieOption);
+        $this->assertEquals(array(4, 6), $dice[0]->optionValueArray);
+        $this->assertTrue($dice[1] instanceof BMDieOption);
+        $this->assertEquals(array(4, 6), $dice[0]->optionValueArray);
 
         $this->assertEquals($dice[0]->max, 3);
         $this->assertEquals($dice[1]->max, 3);
@@ -430,6 +432,74 @@ class BMDieOptionTest extends PHPUnit_Framework_TestCase {
             'Poison Shadow Option Die (with 8 sides)',
             $this->object->describe(FALSE)
         );
+    }
+
+    /*
+     * @covers BMDieOption::shrink
+     */
+    public function testShrink() {
+        $die = $this->object;
+        $die->init(array(1, 99));
+        $die->set_optionValue(99);
+        $die->shrink();
+        $this->assertTrue($die instanceof BMDieOption);
+        $this->assertEquals(array(1, 99), $die->optionValueArray);
+        $this->assertEquals(30, $die->max);
+        $die->shrink();
+        $this->assertEquals(20, $die->max);
+        $die->shrink();
+        $this->assertEquals(16, $die->max);
+        $die->shrink();
+        $this->assertEquals(12, $die->max);
+        $die->shrink();
+        $this->assertEquals(10, $die->max);
+        $die->shrink();
+        $this->assertEquals(8, $die->max);
+        $die->shrink();
+        $this->assertEquals(6, $die->max);
+        $die->shrink();
+        $this->assertEquals(4, $die->max);
+        $die->shrink();
+        $this->assertEquals(2, $die->max);
+        $die->shrink();
+        $this->assertEquals(1, $die->max);
+        $die->shrink();
+        $this->assertTrue($die instanceof BMDieOption);
+        $this->assertEquals(array(1, 99), $die->optionValueArray);
+        $this->assertEquals(1, $die->max);
+    }
+
+    /*
+     * @covers BMDieSwing::grow
+     */
+    public function testGrow() {
+        $die = $this->object;
+        $die->init(array(1, 99));
+        $die->set_optionValue(1);
+        $die->grow();
+        $this->assertTrue($die instanceof BMDieOption);
+        $this->assertEquals(array(1, 99), $die->optionValueArray);
+        $this->assertEquals(2, $die->max);
+        $die->grow();
+        $this->assertEquals(4, $die->max);
+        $die->grow();
+        $this->assertEquals(6, $die->max);
+        $die->grow();
+        $this->assertEquals(8, $die->max);
+        $die->grow();
+        $this->assertEquals(10, $die->max);
+        $die->grow();
+        $this->assertEquals(12, $die->max);
+        $die->grow();
+        $this->assertEquals(16, $die->max);
+        $die->grow();
+        $this->assertEquals(20, $die->max);
+        $die->grow();
+        $this->assertEquals(30, $die->max);
+        $die->grow();
+        $this->assertTrue($die instanceof BMDieOption);
+        $this->assertEquals(array(1, 99), $die->optionValueArray);
+        $this->assertEquals(30, $die->max);
     }
 
     /*
