@@ -88,6 +88,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice cannot participate in Skill Attacks; instead they can make a Berserk Attack. These work exactly like Speed Attacks - one Berserk Die can capture any number of dice which add up exactly to its value. Once a Berserk Die performs a Berserk Attack, it is replaced with a non-berserk die with half the number of sides it previously had, rounding up. It also loses any Swing/Mood Swing/Mad Swing characteristics it may have had.',
                 'interacts' => array(),
             ),
+            'Doppelganger' => array(
+                'code' => 'D',
+                'description' => 'When a Doppelganger Die performs a Power Attack on another die, the Doppelganger Die becomes an exact copy of the die it captured. The newly copied die is then rerolled, and has all the abilities of the captured die. For instance, if a Doppelganger Die copies a Turbo Swing Die, then it may change its size as per the rules of Turbo Swing Dice. Usually a Doppelganger Die will lose its Doppelganger ability when it copies another die, unless that die is itself a Doppelganger Die.',
+                'interacts' => array(),
+            ),
             'Fire' => array(
                 'code' => 'F',
                 'description' => 'Fire Dice cannot make Power Attacks. Instead, they can assist other Dice in making Skill and Power Attacks. Before making a Skill or Power Attack, you may increase the value showing on any of the attacking dice, and decrease the values showing on one or more of your Fire Dice by the same amount. For example, if you wish to increase the value of an attacking die by 5 points, you can take 5 points away from one or more of your Fire Dice. Turn the Fire Dice to show the adjusted values, and then make the attack as normal. Dice can never be increased or decreased outside their normal range, i.e., a 10-sided die can never show a number lower than 1 or higher than 10. Also, Fire Dice cannot assist other dice in making attacks other than normal Skill and Power Attacks.',
@@ -6210,5 +6215,125 @@ class responderTest extends PHPUnit_Framework_TestCase {
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [H(1,10):9] against [(10):4]; Defender (10) was captured; Attacker H(1,10) changed size from 11 to 14 sides, recipe changed from H(1,10) to H(2,12), rerolled 9 => 14'));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test reproduces an internal error bug affecting Doppelganger dice attacking Twin dice
+     * 0. Start a game with responder003 playing Envy and responder004 playing The James Beast
+     * 1. responder003 set swing values: X=4
+     * 2. c2 set swing values: W=4
+     *    c1 won initiative for round 1. Initial die values: c1 rolled [D(4):2, D(6):5, D(10):10, D(12):9, D(X=4):3], c2 rolled [(4):4, (8,8):15, (10,10):10, (12):9, (W=4,W=4):5].
+     * 3. responder003 performed Power attack using [D(10):10] against [(10,10):10]. ...
+     */
+    public function test_interface_game_014() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        // 4 of Envy's dice, and 4 of The James Beast's (6, since 2 are twin), reroll
+        $gameId = $this->verify_api_createGame(
+            array(2, 5, 10, 9, 4, 8, 7, 5, 5, 9),
+            'responder003', 'responder004', 'Envy', 'The James Beast', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Doppelganger'));
+        $expData['playerDataArray'][0]['swingRequestArray'] = array('X' => array(4, 20));
+        $expData['playerDataArray'][1]['swingRequestArray'] = array('W' => array(4, 12));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Envy', 'recipe' => 'D(4) D(6) D(10) D(12) D(X)', 'artFilename' => 'envy.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'The James Beast', 'recipe' => '(4) (8,8) (10,10) (12) (W,W)', 'artFilename' => 'thejamesbeast.png');
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 4, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(4)', 'description' => 'Doppelganger 4-sided die'),
+            array('value' => NULL, 'sides' => 6, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(6)', 'description' => 'Doppelganger 6-sided die'),
+            array('value' => NULL, 'sides' => 10, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(10)', 'description' => 'Doppelganger 10-sided die'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(12)', 'description' => 'Doppelganger 12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array('Doppelganger'), 'properties' => array(), 'recipe' => 'D(X)', 'description' => 'Doppelganger X Swing Die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => NULL, 'sides' => 4, 'skills' => array(), 'properties' => array(), 'recipe' => '(4)', 'description' => '4-sided die'),
+            array('value' => NULL, 'sides' => 16, 'skills' => array(), 'properties' => array(), 'recipe' => '(8,8)', 'description' => 'Twin Die (both with 8 sides)'),
+            array('value' => NULL, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(10,10)', 'description' => 'Twin Die (both with 10 sides)'),
+            array('value' => NULL, 'sides' => 12, 'skills' => array(), 'properties' => array(), 'recipe' => '(12)', 'description' => '12-sided die'),
+            array('value' => NULL, 'sides' => NULL, 'skills' => array(), 'properties' => array(), 'recipe' => '(W,W)', 'description' => 'Twin W Swing Die'),
+        );
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder003 set swing values: X=4
+        $this->verify_api_submitDieValues(
+            array(3),
+            $gameId, 1, array('X' => 4), NULL);
+
+        // no new code coverage; load the data, but don't bother to test it
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10, FALSE);
+
+
+        ////////////////////
+        // Move 02 - responder004 set swing values: W=4
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitDieValues(
+            array(1, 4),
+            $gameId, 1, array('W' => 4), NULL);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $expData['gameState'] = 'START_TURN';
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['activePlayerIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['playerDataArray'][0]['roundScore'] = 18;
+        $expData['playerDataArray'][1]['roundScore'] = 30;
+        $expData['playerDataArray'][0]['sideScore'] = -8.0;
+        $expData['playerDataArray'][1]['sideScore'] = 8.0;
+        $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['canStillWin'] = NULL;
+        $expData['playerDataArray'][1]['canStillWin'] = NULL;
+        $expData['playerDataArray'][0]['activeDieArray'][0]['value'] = 2;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['value'] = 5;
+        $expData['playerDataArray'][0]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][0]['activeDieArray'][3]['value'] = 9;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 3;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['sides'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['description'] .= ' (with 4 sides)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 4;
+        $expData['playerDataArray'][1]['activeDieArray'][1]['value'] = 15;
+        $expData['playerDataArray'][1]['activeDieArray'][2]['value'] = 10;
+        $expData['playerDataArray'][1]['activeDieArray'][3]['value'] = 9;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['value'] = 5;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['sides'] = 8;
+        $expData['playerDataArray'][1]['activeDieArray'][4]['description'] .= ' (both with 4 sides)';
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 set swing values: X=4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder004', 'message' => 'responder004 set swing values: W=4'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [D(4):2, D(6):5, D(10):10, D(12):9, D(X=4):3], responder004 rolled [(4):4, (8,8):15, (10,10):10, (12):9, (W=4,W=4):5].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 03 - responder003 performed Power attack using [D(10):10] against [(10,10):10]
+        // [D(4):2, D(6):5, D(10):10, D(12):9, D(X=4):3] => [(4):4, (8,8):15, (10,10):10, (12):9, (W=4,W=4):5]
+
+        // for code coverage, verify that a Default attack would be rejected here for being ambiguous
+        $this->verify_api_submitTurn_failure(
+            array(),
+            'Default attack is ambiguous. A power attack will trigger the Doppelganger skill, while other attack types will not.',
+            $retval, array(array(0, 2), array(1, 2)),
+            $gameId, 1, 'Default', 0, 1, '');
+
+        // this triggers the bug.  eventually, it should roll two dice
+        $this->verify_api_submitTurn(
+            array(),
+            'responder003 performed Power attack using [D(10):10] against [(10,10):10]',
+            $retval, array(array(0, 2), array(1, 2)),
+            $gameId, 1, 'Power', 0, 1, '');
+
     }
 }
