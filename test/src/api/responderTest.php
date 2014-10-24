@@ -6220,7 +6220,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     /**
      * @depends test_request_savePlayerInfo
      *
-     * This test reproduces an internal error bug affecting Doppelganger dice attacking Twin dice
+     * This test reproduced an internal error bug affecting Doppelganger dice attacking Twin dice
      * 0. Start a game with responder003 playing Envy and responder004 playing The James Beast
      * 1. responder003 set swing values: X=4
      * 2. c2 set swing values: W=4
@@ -6328,10 +6328,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 2), array(1, 2)),
             $gameId, 1, 'Default', 0, 1, '');
 
-        // this triggers the bug.  eventually, it should roll two dice
+        // this now works correctly, requiring two dice to be rolled
         $this->verify_api_submitTurn(
-            array(),
-            'responder003 performed Power attack using [D(10):10] against [(10,10):10]',
+            array(2, 3),
+            'responder003 performed Power attack using [D(10):10] against [(10,10):10]; Defender (10,10) was captured; Attacker D(10) changed size from 10 to 20 sides, recipe changed from D(10) to (10,10), rerolled 10 => 5. ',
             $retval, array(array(0, 2), array(1, 2)),
             $gameId, 1, 'Power', 0, 1, '');
 
