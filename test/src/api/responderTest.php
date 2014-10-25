@@ -88,6 +88,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'description' => 'These dice cannot participate in Skill Attacks; instead they can make a Berserk Attack. These work exactly like Speed Attacks - one Berserk Die can capture any number of dice which add up exactly to its value. Once a Berserk Die performs a Berserk Attack, it is replaced with a non-berserk die with half the number of sides it previously had, rounding up. It also loses any Swing/Mood Swing/Mad Swing characteristics it may have had.',
                 'interacts' => array(),
             ),
+            'Chance' => array(
+                'code' => 'c',
+                'description' => 'If you do not have the initiative at the start of a round you may re-roll one of your Chance Dice. If this results in you gaining the initiative, your opponent may re-roll one of their Chance Dice. This can continue with each player re-rolling Chance Dice, even re-rolling the same die, until one person fails to gain the initiative or lets their opponent go first. Re-rolling Chance Dice is not only a way to gain the initiative; it can also be useful in protecting your larger dice, or otherwise improving your starting roll. Unlike Focus Dice, Chance Dice can be immediately re-used in an attack even if you do gain the initiative with them.',
+                'interacts' => array(),
+            ),
             'Fire' => array(
                 'code' => 'F',
                 'description' => 'Fire Dice cannot make Power Attacks. Instead, they can assist other Dice in making Skill and Power Attacks. Before making a Skill or Power Attack, you may increase the value showing on any of the attacking dice, and decrease the values showing on one or more of your Fire Dice by the same amount. For example, if you wish to increase the value of an attacking die by 5 points, you can take 5 points away from one or more of your Fire Dice. Turn the Fire Dice to show the adjusted values, and then make the attack as normal. Dice can never be increased or decreased outside their normal range, i.e., a 10-sided die can never show a number lower than 1 or higher than 10. Also, Fire Dice cannot assist other dice in making attacks other than normal Skill and Power Attacks.',
@@ -139,7 +144,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             'Queer' => array(
                 'code' => 'q',
                 'description' => 'These dice behave like normal dice when they show an even number, and like Shadow Dice when they show an odd number.',
-                'interacts' => array(),
+                'interacts' => array(
+                    'Trip' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
+                ),
             ),
             'Reserve' => array(
                 'code' => 'r',
@@ -175,6 +182,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
                 'code' => 't',
                 'description' => 'These dice can also make Trip Attacks. To make a Trip Attack, choose any one opposing die as the Target. Roll both the Trip Die and the Target, then compare the numbers they show. If the Trip Die now shows an equal or greater number than the Target, the Target is captured. Otherwise, the attack merely has the effect of re-rolling both dice. A Trip Attack is illegal if it has no chance of capturing (this is possible in the case of a Trip-1 attacking a Twin Die). IMPORTANT: Trip Dice do not count for determining who goes first.',
                 'interacts' => array(
+                    'Queer' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                     'Shadow' => 'Dice with both Shadow and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                 ),
             ),
@@ -6208,6 +6216,92 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $expData['playerDataArray'][0]['activeDieArray'][0]['recipe'] = 'H(2,12)';
         $expData['playerDataArray'][0]['activeDieArray'][0]['description'] = 'Mighty Twin Die (with 2 and 12 sides)';
         array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Power attack using [H(1,10):9] against [(10):4]; Defender (10) was captured; Attacker H(1,10) changed size from 11 to 14 sides, recipe changed from H(1,10) to H(2,12), rerolled 9 => 14'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+    }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test reproduces a bug in which null trip dice cause their targets to become null on unsuccessful trip attack.
+     *
+     * 0. Start a game with responder003 playing wranklepig and responder004 playing Wiseman
+     *    responder003 won initiative for round 1. Initial die values: responder003 rolled [pB(17):9, Fo(13):12, q(11):2, gc(7):2, nt(5):3], responder004 rolled [(20):9, (20):13, (20):20, (20):15]. responder003 has dice which are not counted for initiative due to die skills: [gc(7), nt(5)].
+     * 1. responder003 performed Trip attack using [nt(5):3] against [(20):9]; Attacker nt(5) rerolled 3 => 4; Defender (20) rerolled 9 => 18, recipe changed from (20) to n(20), was not captured
+     *    responder003's idle ornery dice rerolled at end of turn: Fo(13) rerolled 12 => 12
+     */
+    public function test_interface_game_013() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        ////////////////////
+        // initial game setup
+        // 5 of wranklepig's dice, and 4 of Wiseman's, are initially rolled
+        $gameId = $this->verify_api_createGame(
+            array(9, 12, 2, 2, 3, 9, 13, 20, 15),
+            'responder003', 'responder004', 'wranklepig', 'Wiseman', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Berserk', 'Chance', 'Fire', 'Null', 'Ornery', 'Poison', 'Queer', 'Stinger', 'Trip'));
+        $expData['activePlayerIdx'] = 0;
+        $expData['playerWithInitiativeIdx'] = 0;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill', 'Berserk', 'Trip');
+        $expData['playerDataArray'][0]['button'] = array('name' => 'wranklepig', 'recipe' => 'pB(17) Fo(13) q(11) gc(7) nt(5)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Wiseman', 'recipe' => '(20) (20) (20) (20)', 'artFilename' => 'wiseman.png');
+        $expData['playerDataArray'][1]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = -1.5;
+        $expData['playerDataArray'][1]['roundScore'] = 40;
+        $expData['playerDataArray'][0]['sideScore'] = -27.7;
+        $expData['playerDataArray'][1]['sideScore'] = 27.7;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 9, 'sides' => 17, 'skills' => array('Poison', 'Berserk'), 'properties' => array(), 'recipe' => 'pB(17)', 'description' => 'Poison Berserk 17-sided die'),
+            array('value' => 12, 'sides' => 13, 'skills' => array('Fire', 'Ornery'), 'properties' => array(), 'recipe' => 'Fo(13)', 'description' => 'Fire Ornery 13-sided die'),
+            array('value' => 2, 'sides' => 11, 'skills' => array('Queer'), 'properties' => array(), 'recipe' => 'q(11)', 'description' => 'Queer 11-sided die'),
+            array('value' => 2, 'sides' => 7, 'skills' => array('Stinger', 'Chance'), 'properties' => array(), 'recipe' => 'gc(7)', 'description' => 'Stinger Chance 7-sided die'),
+            array('value' => 3, 'sides' => 5, 'skills' => array('Null', 'Trip'), 'properties' => array(), 'recipe' => 'nt(5)', 'description' => 'Null Trip 5-sided die'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 9, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => 13, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => 20, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+            array('value' => 15, 'sides' => 20, 'skills' => array(), 'properties' => array(), 'recipe' => '(20)', 'description' => '20-sided die'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder003 won initiative for round 1. Initial die values: responder003 rolled [pB(17):9, Fo(13):12, q(11):2, gc(7):2, nt(5):3], responder004 rolled [(20):9, (20):13, (20):20, (20):15]. responder003 has dice which are not counted for initiative due to die skills: [gc(7), nt(5)].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder003 performed Trip attack using [nt(5):3] against [(20):9] (unsuccessfully)
+        // [pB(17):9, Fo(13):12, q(11):2, gc(7):2, nt(5):3] => [(20):9, (20):13, (20):20, (20):15]
+        // Trip attacker and defender rerolls, then idle ornery Fo(13) rerolls
+        $this->verify_api_submitTurn(
+            array(4, 18, 12),
+            "responder003 performed Trip attack using [nt(5):3] against [(20):9]; Attacker nt(5) rerolled 3 => 4; Defender (20) rerolled 9 => 18, was not captured. responder003's idle ornery dice rerolled at end of turn: Fo(13) rerolled 12 => 12. ",
+            $retval, array(array(0, 4), array(1, 0)),
+            $gameId, 1, 'Default', 0, 1, '');
+
+        $expData['activePlayerIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Power');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
+        $expData['playerDataArray'][0]['activeDieArray'][1]['properties'] = array('HasJustRerolledOrnery');
+        $expData['playerDataArray'][0]['activeDieArray'][4]['value'] = 4;
+        $expData['playerDataArray'][0]['activeDieArray'][4]['properties'] = array('JustPerformedTripAttack', 'JustPerformedUnsuccessfulAttack');
+        $expData['playerDataArray'][1]['activeDieArray'][0]['value'] = 18;
+        // check that the defender's dice and scores stay unchanged
+        $expData['playerDataArray'][1]['roundScore'] = 40;
+        $expData['playerDataArray'][0]['sideScore'] = -27.7;
+        $expData['playerDataArray'][1]['sideScore'] = 27.7;
+        $expData['playerDataArray'][1]['activeDieArray'][0]['skills'] = array();
+        $expData['playerDataArray'][1]['activeDieArray'][0]['recipe'] = '(20)';
+        $expData['playerDataArray'][1]['activeDieArray'][0]['description'] = '20-sided die';
+        // check that the defender's recipe does not change
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => 'responder003 performed Trip attack using [nt(5):3] against [(20):9]; Attacker nt(5) rerolled 3 => 4; Defender (20) rerolled 9 => 18, was not captured'));
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => 'responder003', 'message' => "responder003's idle ornery dice rerolled at end of turn: Fo(13) rerolled 12 => 12"));
 
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
