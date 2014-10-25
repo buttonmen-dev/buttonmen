@@ -1,0 +1,106 @@
+{
+  "gameId": 25,
+  "gameState": "START_TURN",
+  "currentPlayerIdx": 0,
+  "activePlayerIdx": 0,
+  "playerWithInitiativeIdx": 1,
+  "roundNumber": 1,
+  "maxWins": 3,
+  "description": "",
+  "previousGameId": null,
+  "validAttackTypeArray": ["Power"],
+  "gameSkillsInfo": {
+    "Value": {
+      "code": "v",
+      "description": "These dice are not scored like normal dice. Instead, a Value Die is scored as if the number of sides it has is equal to the value that it is currently showing. If a Value Die is ever part of an attack, all dice that are captured become Value Dice (i.e. They are scored by the current value they are showing when they are captured, not by their size).",
+      "interacts": []
+    }
+  },
+  "playerDataArray": [
+    {
+      "playerId": 1,
+      "button": {
+        "name": "Miser",
+        "recipe": "v(20) v(20) v(20) v(20) v(20)",
+        "artFilename": "miser.png"
+      },
+      "activeDieArray": [
+        { "value": 19, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" },
+        { "value": 3, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" },
+        { "value": 17, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" }
+      ],
+      "capturedDieArray": [
+        { "value": 6, "sides": 20, "recipe": "v(20)", "properties": ["ValueRelevantToScore"] }
+      ],
+      "swingRequestArray": [],
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": true,
+      "roundScore": 33.5,
+      "sideScore": -1,
+      "gameScoreArray": {"W": 0,"L": 0,"D": 0},
+      "lastActionTime": 1412340689,
+      "hasDismissedGame": false,
+      "canStillWin": null,
+      "playerName": "tester1",
+      "playerColor": "#dd99dd"
+    },
+    {
+      "playerId": 2,
+      "button": {
+        "name": "Miser",
+        "recipe": "v(20) v(20) v(20) v(20) v(20)",
+        "artFilename": "miser.png"
+      },
+      "activeDieArray": [
+        { "value": 16, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" },
+        { "value": 8, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" },
+        { "value": 6, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" },
+        { "value": 6, "sides": 20, "skills": ["Value"], "properties": ["ValueRelevantToScore"], "recipe": "v(20)", "description": "Value 20-sided die" }
+      ],
+      "capturedDieArray": [
+        { "value": 11, "sides": 20, "recipe": "v(20)", "properties": ["ValueRelevantToScore"] },
+        { "value": 6, "sides": 20, "recipe": "v(20)", "properties": ["ValueRelevantToScore","WasJustCaptured"] }
+      ],
+      "swingRequestArray": [],
+      "optRequestArray": [],
+      "prevSwingValueArray": [],
+      "prevOptValueArray": [],
+      "waitingOnAction": false,
+      "roundScore": 35,
+      "sideScore": 1,
+      "gameScoreArray": {"W": 0,"L": 0,"D": 0},
+      "lastActionTime": 1412340701,
+      "hasDismissedGame": false,
+      "canStillWin": null,
+      "playerName": "tester2",
+      "playerColor": "#ddffdd"
+    }
+  ],
+  "gameActionLog": [
+    {
+      "timestamp": 1412340701,
+      "player": "tester2",
+      "message": "tester2 performed Power attack using [v(20): 6] against [v(20): 6]; Defender v(20) was captured; Attacker v(20) rerolled 6 => 6"
+    },
+    {
+      "timestamp": 1412340689,
+      "player": "tester1",
+      "message": "tester1 performed Power attack using [v(20): 19] against [v(20): 14]; Defender v(20) was captured; Attacker v(20) rerolled 19 => 3"
+    },
+    {
+      "timestamp": 1412340626,
+      "player": "tester2",
+      "message": "tester2 performed Power attack using [v(20): 16] against [v(20): 11]; Defender v(20) was captured; Attacker v(20) rerolled 16 => 6"
+    },
+    {
+      "timestamp": 1412340600,
+      "player": "",
+      "message": "tester2 won initiative for round 1. Initial die values:  tester1 rolled [v(20): 19, v(20): 11, v(20): 19, v(20): 6, v(20): 17], tester2 rolled [v(20): 16, v(20): 8, v(20): 6, v(20): 14, v(20): 16]."
+    }
+  ],
+  "gameChatLog": [],
+  "timestamp": 1412340701,
+  "gameChatEditable": false
+}

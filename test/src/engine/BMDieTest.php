@@ -65,6 +65,7 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $die = BMDie::create(6, array());
 
         $this->assertInstanceOf('BMDie', $die);
+        $this->assertEquals(1, $die->min);
         $this->assertEquals(6, $die->max);
 
         try {
@@ -84,12 +85,10 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         }
 
-        try {
-            $die = BMDie::create(0, array());
-            $this->fail('Creating out-of-range die did not throw an exception.');
-        } catch (UnexpectedValueException $e) {
-
-        }
+        $die = BMDie::create(0, array());
+        $this->assertInstanceOf('BMDie', $die);
+        $this->assertEquals(0, $die->min);
+        $this->assertEquals(0, $die->max);
 
         try {
             $die = BMDie::create(100, array());
@@ -620,6 +619,64 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
         $this->assertGreaterThan($dice[1]->max, $dice[0]->max);
         $this->assertEquals(4, $dice[0]->max);
         $this->assertEquals(3, $dice[1]->max);
+    }
+
+    /*
+     * @covers BMDie::shrink
+     */
+    public function testShrink() {
+        $die = $this->object;
+        $die->init(99);
+        $die->shrink();
+        $this->assertEquals(30, $die->max);
+        $die->shrink();
+        $this->assertEquals(20, $die->max);
+        $die->shrink();
+        $this->assertEquals(16, $die->max);
+        $die->shrink();
+        $this->assertEquals(12, $die->max);
+        $die->shrink();
+        $this->assertEquals(10, $die->max);
+        $die->shrink();
+        $this->assertEquals(8, $die->max);
+        $die->shrink();
+        $this->assertEquals(6, $die->max);
+        $die->shrink();
+        $this->assertEquals(4, $die->max);
+        $die->shrink();
+        $this->assertEquals(2, $die->max);
+        $die->shrink();
+        $this->assertEquals(1, $die->max);
+        $die->shrink();
+        $this->assertEquals(1, $die->max);
+    }
+
+    /*
+     * @covers BMDie::grow
+     */
+    public function testGrow() {
+        $die = $this->object;
+        $die->init(1);
+        $die->grow();
+        $this->assertEquals(2, $die->max);
+        $die->grow();
+        $this->assertEquals(4, $die->max);
+        $die->grow();
+        $this->assertEquals(6, $die->max);
+        $die->grow();
+        $this->assertEquals(8, $die->max);
+        $die->grow();
+        $this->assertEquals(10, $die->max);
+        $die->grow();
+        $this->assertEquals(12, $die->max);
+        $die->grow();
+        $this->assertEquals(16, $die->max);
+        $die->grow();
+        $this->assertEquals(20, $die->max);
+        $die->grow();
+        $this->assertEquals(30, $die->max);
+        $die->grow();
+        $this->assertEquals(30, $die->max);
     }
 
     /*

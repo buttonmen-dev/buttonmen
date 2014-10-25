@@ -1304,6 +1304,22 @@ test("test_Game.gamePlayerStatus", function(assert) {
   });
 });
 
+test("test_Game.gamePlayerStatusWithValue", function(assert) {
+  stop();
+  BMTestUtils.GameType = 'value';
+  Game.getCurrentGame(function() {
+    Game.page = $('<div>');
+    Game.page.append(Game.gamePlayerStatus('player', false, true));
+    var htmlout = Game.page.html();
+    assert.ok(htmlout.match('W/L/T'), "game player status should insert W/L/T text");
+    assert.ok(htmlout.match('Dice captured'),
+      "game player status should report captured dice");
+    assert.ok(htmlout.match(/v\(20\):6/),
+      "status should report that player captured an v(20) showing a value of 6");
+    start();
+  });
+});
+
 test("test_Game.gamePlayerDice", function(assert) {
   stop();
   BMTestUtils.GameType = 'turn_active';
@@ -1414,21 +1430,21 @@ test("test_Game.playerOpponentHeaderRow", function(assert) {
 });
 
 test("test_Game.dieRecipeText", function(assert) {
-  var text = Game.dieRecipeText("p(4)", "4");
+  var text = Game.dieRecipeText({'recipe': 'p(4)', 'skills': ['Poison', ], 'sides': 4,});
   assert.equal(text, "p(4)", "text for non-swing die with skills should be correct");
 
-  text = Game.dieRecipeText("zs(X)", "7");
+  text = Game.dieRecipeText({'recipe': 'zs(X)', 'skills': ['Speed', 'Shadow',], 'sides': 7,});
   assert.equal(text, "zs(X=7)",
     "text for swing die with skills should be correct");
 
-  text = Game.dieRecipeText("(W)", null);
+  text = Game.dieRecipeText({'recipe': '(W)', 'skills': [],});
   assert.equal(text, "(W)",
     "text for swing die with unknown value should be correct");
 
-  text = Game.dieRecipeText("(6,6)", "12");
+  text = Game.dieRecipeText({'recipe': '(6,6)', 'skills': [], 'sides': 12,});
   assert.equal(text, "(6,6)", "text for non-swing option die should be correct");
 
-  text = Game.dieRecipeText("(W,W)", "14");
+  text = Game.dieRecipeText({'recipe': '(W,W)', 'skills': [], 'sides': 14,});
   assert.equal(text, "(W,W=7)", "text for swing option die should be correct");
 });
 

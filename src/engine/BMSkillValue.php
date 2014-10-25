@@ -9,7 +9,25 @@
  * This class contains code specific to the value die skill
  */
 class BMSkillValue extends BMSkill {
-    public static $hooked_methods = array("score_value", "capture");
+    public static $hooked_methods =
+        array('add_skill', 'remove_skill', 'score_value', 'capture');
+
+    public static function add_skill($args) {
+        assert(array_key_exists('die', $args));
+
+        $die = $args['die'];
+        $die->add_flag('ValueRelevantToScore');
+    }
+
+    public static function remove_skill($args) {
+        assert(array_key_exists('die', $args));
+
+        // currently, the only skill that forces the display of the value is the
+        // Value die skill, thus when value is removed, the flag should also be
+        // removed
+        $die = $args['die'];
+        $die->remove_flag('ValueRelevantToScore');
+    }
 
     public static function score_value($args) {
         assert(array_key_exists('scoreValue', $args));

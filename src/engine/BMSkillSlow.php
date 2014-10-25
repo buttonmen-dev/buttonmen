@@ -17,7 +17,7 @@ class BMSkillSlow extends BMSkill {
         }
 
         // slow dice don't contribute to initiative
-        $args['initiativeValue'] = 0;
+        $args['initiativeValue'] = -1;
     }
 
     protected static function get_description() {

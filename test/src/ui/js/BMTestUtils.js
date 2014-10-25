@@ -108,6 +108,7 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'fire_active') { return '22'; }
   if (gameDesc == 'fire_inactive') { return '23'; }
   if (gameDesc == 'fire_nonplayer') { return '24'; }
+  if (gameDesc == 'value') { return '25'; }
 
   if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
   if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
