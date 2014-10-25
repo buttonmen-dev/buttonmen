@@ -60,7 +60,7 @@ test("test_Api.parseApiPost_automatedApiCall", function(assert) {
   Api.automatedApiCall = true;
 
   // Api.getGameData calls Api.parseApiPost
-  var gameId = BMTestUtils.testGameId('frasquito_wiseman_newgame');
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
   Api.getGameData(gameId, 10, function() {
     assert.equal(Api.game.load_status, 'ok',
       'getGameData should be a valid automated API call');
@@ -349,7 +349,7 @@ test("test_Api.parseUserPrefsData", function(assert) {
 
 test("test_Api.getGameData", function(assert) {
   stop();
-  var gameId = BMTestUtils.testGameId('frasquito_wiseman_newgame');
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
   Game.game = gameId;
   Api.getGameData(Game.game, 10, function() {
     assert.equal(Api.game.gameId, gameId, "parseGameData() parsed gameId from API data");
@@ -365,7 +365,7 @@ test("test_Api.getGameData", function(assert) {
 
 test("test_Api.getGameData_nonplayer", function(assert) {
   stop();
-  var gameId = BMTestUtils.testGameId('frasquito_wiseman_newgame_observer');
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice_nonplayer');
   Game.game = gameId;
   Api.getGameData(Game.game, 10, function() {
     assert.equal(Api.game.gameId, gameId,
@@ -401,11 +401,12 @@ test("test_Api.getGameData_alllogs", function(assert) {
 // test any details of parsePlayerData()'s processing here
 test("test_Api.parseGamePlayerData", function(assert) {
   stop();
-  Game.game = '1';
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
+  Game.game = gameId;
   Api.getGameData(Game.game, 10, function() {
-    assert.deepEqual(Api.game.player.playerId, 1,
-              "player ID should be parsed from API response");
-    assert.deepEqual(Api.game.player.playerName, 'tester1',
+    assert.ok(Api.game.player.playerId,
+              "player ID should be set in API response");
+    assert.deepEqual(Api.game.player.playerName, 'responder001',
               "player name should be parsed from API response");
     assert.deepEqual(Api.game.player.waitingOnAction, true,
               "'waiting on action' status should be parsed from API response");
@@ -415,27 +416,27 @@ test("test_Api.parseGamePlayerData", function(assert) {
               "side score should be parsed from API response");
     assert.deepEqual(Api.game.player.gameScoreArray, {'W': 0, 'L': 0, 'D': 0, },
               "game score array should be parsed from API response");
-    assert.deepEqual(Api.game.player.lastActionTime, 0,
-              "last action time should be parsed from API response");
+    assert.ok(Api.game.player.lastActionTime,
+              "last action time is set in API response");
     assert.deepEqual(Api.game.player.hasDismissedGame, false,
               "'has dismissed game' should be parsed from API response");
     assert.deepEqual(Api.game.player.canStillWin, null,
               "'can still win' should be parsed from API response");
     assert.deepEqual(Api.game.player.button, {
-                'name': 'Avis',
-                'recipe': '(4) (4) (10) (12) (X)',
-                'artFilename': 'avis.png',
+                'name': 'Frasquito',
+                'recipe': '(4) (6) (8) (12) (2/20)',
+                'artFilename': 'BMdefaultRound.png',
               }, "recipe data should be parsed from API response");
     assert.deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
               "die descriptions should be parsed");
-    assert.deepEqual(Api.game.player.activeDieArray[4].recipe, '(X)',
+    assert.deepEqual(Api.game.player.activeDieArray[4].recipe, '(2/20)',
               "player die recipe should be parsed correctly");
     assert.deepEqual(Api.game.player.capturedDieArray, [],
               "array of captured dice should be parsed");
     assert.deepEqual(
-      Api.game.player.swingRequestArray['X'],
-      {'min': 4, 'max': 20},
-      "swing request array should contain X entry with correct min/max");
+      Api.game.player.optRequestArray[4],
+      ['2', '20'],
+      "option request array should contain entry for (2/20)");
     delete Game.game;
     start();
   });

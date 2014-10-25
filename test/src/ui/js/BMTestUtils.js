@@ -86,8 +86,8 @@ BMTestUtils.cleanupFakeLogin = function() {
 // need to be kept in sync with responderTest in order for anything
 // good to happen.
 BMTestUtils.testGameId = function(gameDesc) {
-  if (gameDesc == 'newgame') { return '1'; }
-  if (gameDesc == 'swingset') { return '2'; }
+//  if (gameDesc == 'newgame') { return '1'; }
+//  if (gameDesc == 'swingset') { return '2'; }
   if (gameDesc == 'turn_active') { return '3'; }
   if (gameDesc == 'turn_inactive') { return '4'; }
   if (gameDesc == 'finished') { return '5'; }
@@ -109,8 +109,10 @@ BMTestUtils.testGameId = function(gameDesc) {
   if (gameDesc == 'fire_inactive') { return '23'; }
   if (gameDesc == 'fire_nonplayer') { return '24'; }
 
-  if (gameDesc == 'frasquito_wiseman_newgame') { return '101'; }
-  if (gameDesc == 'frasquito_wiseman_newgame_observer') { return '102'; }
+  if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
+  if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
+  if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
+  if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
 }
 
 // We don't currently usually test reading the URL bar contents, because

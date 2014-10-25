@@ -217,7 +217,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function cache_json_api_output($apiFunction, $objname, $objdata) {
         $jsonApiFile = $this->jsonApiRoot . $apiFunction . "/" . $objname . ".json";
         $fh = fopen($jsonApiFile, "w");
-        fwrite($fh, json_encode($objdata));
+        fwrite($fh, json_encode($objdata) . '\n');
         fclose($fh);
     }
 
