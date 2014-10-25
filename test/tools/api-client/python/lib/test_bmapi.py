@@ -129,6 +129,7 @@ class TestBMClient(unittest.TestCase):
       'gameState', 'maxWins', 'playerDataArray', 'playerWithInitiativeIdx',
       'previousGameId', 'roundNumber', 'timestamp', 'validAttackTypeArray'
     ]
+    self.obj.username = 'responder001'
     r = self.obj.load_game_data(101)
     self.assertEqual(r.status, 'ok')
     self.assertEqual(sorted(r.data.keys()), known_keys)

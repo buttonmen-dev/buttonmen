@@ -261,7 +261,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function cache_json_api_output($apiFunction, $objname, $objdata) {
         $jsonApiFile = $this->jsonApiRoot . $apiFunction . "/" . $objname . ".json";
         $fh = fopen($jsonApiFile, "w");
-        fwrite($fh, json_encode($objdata) . '\n');
+        fwrite($fh, json_encode($objdata) . "\n");
         fclose($fh);
     }
 
@@ -4247,6 +4247,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 9;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -4820,6 +4821,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 10;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -5837,6 +5839,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 11;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
@@ -6136,6 +6139,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 12;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -6278,6 +6282,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 13;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
