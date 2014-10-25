@@ -158,3 +158,29 @@ BMTestUtils.CopyAllMethods = function(objA, objB) {
     }
   });
 };
+
+// Printable array containing various properties of a DOM node
+BMTestUtils.DOMNodePropArray = function(node) {
+  if (node) {
+    if (node.nodeName == '#text') {
+      return node.nodeValue;
+    }
+    if (node.hasAttributes() || node.childNodes.length > 0) {
+      var attrs = {};
+      if (node.hasAttributes()) {
+        for (var i = 0; i < node.attributes.length; i++) {
+          var attr = node.attributes.item(i);
+          attrs[attr.name] = attr.value;
+        }
+      }
+
+      var children = [];
+      for (i = 0; i < node.childNodes.length; i++) {
+        children.push(BMTestUtils.DOMNodePropArray(node.childNodes[i]));
+      }
+      return [ node.nodeName, attrs, children, ]
+    }
+    return [ node.nodeName, ];
+  }
+  return undefined;
+};
