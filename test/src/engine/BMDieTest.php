@@ -463,23 +463,23 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
 
-            $this->assertFalse($this->object->is_valid_attacker($att, array($attDie)));
-            $this->assertTrue($this->object->is_valid_attacker($att, array($this->object)));
-            $this->assertTrue($this->object->is_valid_attacker($att, array($this->object, $attDie)));
+            $this->assertFalse($this->object->is_valid_attacker(array($attDie)));
+            $this->assertTrue($this->object->is_valid_attacker(array($this->object)));
+            $this->assertTrue($this->object->is_valid_attacker(array($this->object, $attDie)));
         }
 
         // Inactive is a string also used to descrbe why the die cannot attack
         $this->object->inactive = "Yes";
-        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
 
         $this->object->inactive = "";
         $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
 
 
         $this->object->inactive = "Yes";
         $this->object->hasAttacked = TRUE;
-        $this->assertFalse($this->object->is_valid_attacker($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_attacker(array($this->object)));
     }
 
     /**
@@ -492,13 +492,13 @@ class BMDieTest extends PHPUnit_Framework_TestCase {
 
         foreach ($this->object->attack_list() as $att) {
 
-            $this->assertFalse($this->object->is_valid_target($att, array($defDie)));
-            $this->assertTrue($this->object->is_valid_target($att, array($this->object)));
-            $this->assertTrue($this->object->is_valid_target($att, array($this->object, $defDie)));
+            $this->assertFalse($this->object->is_valid_target(array($defDie)));
+            $this->assertTrue($this->object->is_valid_target(array($this->object)));
+            $this->assertTrue($this->object->is_valid_target(array($this->object, $defDie)));
         }
 
         $this->object->unavailable = TRUE;
-        $this->assertFalse($this->object->is_valid_target($att, array($this->object)));
+        $this->assertFalse($this->object->is_valid_target(array($this->object)));
     }
 
     /**

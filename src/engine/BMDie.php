@@ -334,11 +334,8 @@ class BMDie extends BMCanHaveSkill {
     }
 
 // check for special-case situations where an otherwise-valid attack
-// is not legal. Single-die skill attacks with stealth dice are the only
-// situation I can come up with off the top of my head
-//
-// These methods cannot act, they may only check: they're called a lot
-    public function is_valid_attacker($type, array $attackers) {
+// is not legal
+    public function is_valid_attacker(array $attackers) {
         $valid = TRUE;
 
         if ($this->inactive || $this->hasAttacked) {
@@ -362,7 +359,7 @@ class BMDie extends BMCanHaveSkill {
     }
 
 
-    public function is_valid_target($type, array $defenders) {
+    public function is_valid_target(array $defenders) {
         $valid = TRUE;
 
         if ($this->unavailable) {

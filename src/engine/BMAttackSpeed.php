@@ -47,7 +47,7 @@ class BMAttackSpeed extends BMAttack {
         }
 
         $canAttDoThisAttack =
-            $attacker->is_valid_attacker($this->type, $attackers);
+            $attacker->is_valid_attacker($attackers);
         if (!$canAttDoThisAttack) {
             $this->validationMessage = 'Invalid attacking die';
             return FALSE;
@@ -55,7 +55,7 @@ class BMAttackSpeed extends BMAttack {
 
         $areDefValidTargets = TRUE;
         foreach ($defenders as $defender) {
-            if (!($defender->is_valid_target($this->type, $defenders))) {
+            if (!($defender->is_valid_target($defenders))) {
                 $areDefValidTargets = FALSE;
                 break;
             }
