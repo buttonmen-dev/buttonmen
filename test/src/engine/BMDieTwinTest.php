@@ -398,7 +398,7 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
      * @depends testRoll
      */
     public function testSplit() {
-        // 1-siders split into two 1-siders
+        // (1,1) splits into (1,0) and (0,1)
         $this->object->init(array(1, 1), array());
         $this->object->roll(FALSE);
 
@@ -406,13 +406,13 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($splitDice[0] === $splitDice[1]);
         $this->assertEquals(1, $splitDice[0]->dice[0]->max);
-        $this->assertEquals(1, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(0, $splitDice[0]->dice[1]->max);
         $this->assertEquals(0, $splitDice[1]->dice[0]->max);
-        $this->assertEquals(0, $splitDice[1]->dice[1]->max);
-        $this->assertEquals(2, $splitDice[0]->min);
-        $this->assertEquals(2, $splitDice[0]->max);
-        $this->assertEquals(0, $splitDice[1]->min);
-        $this->assertEquals(0, $splitDice[1]->max);
+        $this->assertEquals(1, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(1, $splitDice[0]->min);
+        $this->assertEquals(1, $splitDice[0]->max);
+        $this->assertEquals(1, $splitDice[1]->min);
+        $this->assertEquals(1, $splitDice[1]->max);
 
         // even-sided split
         $this->object->init(array(12, 16), array());
@@ -440,13 +440,13 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($splitDice[0] === $splitDice[1]);
         $this->assertTrue($this->object === $splitDice[0]);
         $this->assertEquals(3, $splitDice[0]->dice[0]->max);
-        $this->assertEquals(5, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(4, $splitDice[0]->dice[1]->max);
         $this->assertEquals(2, $splitDice[1]->dice[0]->max);
-        $this->assertEquals(4, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(5, $splitDice[1]->dice[1]->max);
         $this->assertEquals(2, $splitDice[0]->min);
-        $this->assertEquals(8, $splitDice[0]->max);
+        $this->assertEquals(7, $splitDice[0]->max);
         $this->assertEquals(2, $splitDice[1]->min);
-        $this->assertEquals(6, $splitDice[1]->max);
+        $this->assertEquals(7, $splitDice[1]->max);
 
         // swing split
         $this->object->init(array('X', 'X'));
@@ -465,16 +465,16 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('X', $splitDice[1]->dice[1]->swingType);
         $this->assertEquals(3, $splitDice[0]->dice[0]->max);
         $this->assertEquals(5, $splitDice[0]->dice[0]->swingValue);
-        $this->assertEquals(3, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(2, $splitDice[0]->dice[1]->max);
         $this->assertEquals(5, $splitDice[0]->dice[1]->swingValue);
         $this->assertEquals(2, $splitDice[1]->dice[0]->max);
         $this->assertEquals(5, $splitDice[1]->dice[0]->swingValue);
-        $this->assertEquals(2, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(3, $splitDice[1]->dice[1]->max);
         $this->assertEquals(5, $splitDice[1]->dice[1]->swingValue);
         $this->assertEquals(2, $splitDice[0]->min);
-        $this->assertEquals(6, $splitDice[0]->max);
+        $this->assertEquals(5, $splitDice[0]->max);
         $this->assertEquals(2, $splitDice[1]->min);
-        $this->assertEquals(4, $splitDice[1]->max);
+        $this->assertEquals(5, $splitDice[1]->max);
     }
 
     /*
