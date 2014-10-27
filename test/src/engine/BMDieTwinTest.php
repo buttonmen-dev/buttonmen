@@ -643,4 +643,26 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->object->max, 21);
     }
 
+    /**
+     * @covers BMDieTwin::__clone
+     *
+     * @depends testInit
+     */
+    public function testClone_twin() {
+        $originalDie = new BMDieTwin;
+        $originalDie->init(array(5, 12), array());
+        $originalSubdie0 = $originalDie->dice[0];
+        $originalSubdie1 = $originalDie->dice[1];
+        $this->assertEquals(5, $originalSubdie0->max);
+        $this->assertEquals(12, $originalSubdie1->max);
+
+        $cloneDie = clone $originalDie;
+        $cloneSubdie0 = $cloneDie->dice[0];
+        $cloneSubdie1 = $cloneDie->dice[1];
+        $this->assertEquals(5, $cloneSubdie0->max);
+        $this->assertEquals(12, $cloneSubdie1->max);
+
+        $this->assertFalse($originalSubdie0 === $cloneSubdie0);
+        $this->assertFalse($originalSubdie1 === $cloneSubdie1);
+    }
 }
