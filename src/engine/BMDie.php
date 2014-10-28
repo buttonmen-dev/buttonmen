@@ -935,8 +935,6 @@ class BMDie extends BMCanHaveSkill {
      *
      * Doesn't do anything for the base class, but subclasses will need to
      * clone their subdice.
-     *
-     * @return BMDie
      */
     public function __clone() {
     }

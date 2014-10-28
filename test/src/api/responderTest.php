@@ -6478,4 +6478,45 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $gameId, 1, 'Power', 0, 1, '');
 
     }
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     */
+    public function test_interface_game_015() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        ////////////////////
+        // initial game setup
+        // Skomp: wm(1) wm(2) wm(4) m(8) m(10)
+        // Loki:  Ho(2,2) Ho(2,2) Ho(2,2) Ho(2,2) (T)
+        // 5 of Skomp's dice, and 4 of Loki's (8 rolls) reroll
+        $gameId = $this->verify_api_createGame(
+            array(1, 1, 2, 1, 5, 1, 2, 2, 1, 1, 1, 2, 2),
+            'responder003', 'responder004', 'Skomp', 'Loki', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'SPECIFY_DICE');
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10, FALSE);
+
+        // this should cause the one swing die to be rerolled
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitDieValues(
+            array(2),
+            $gameId, 1, array('T' => '2'), NULL);
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10, FALSE);
+
+        // [wm(1):1, wm(2):1, wm(4):2, m(8):1, m(10):5] => [Ho(2,2):3, Ho(2,2):3, Ho(2,2):2, Ho(2,2):4, T=2:2]
+        $this->verify_api_submitTurn(
+            array(2, 2, 1, 1, 1, 2),
+            'responder003 performed Skill attack using [wm(1):1,wm(2):1,m(8):1] against [Ho(2,2):3]; Defender Ho(2,2) was captured; Attacker wm(1) changed size from 1 to 4 sides, recipe changed from wm(1) to wm(2,2), rerolled 1 => 4; Attacker wm(2) changed size from 2 to 4 sides, recipe changed from wm(2) to wm(2,2), rerolled 1 => 2; Attacker m(8) changed size from 8 to 4 sides, recipe changed from m(8) to m(2,2), rerolled 1 => 3. ',
+            $retval, array(array(0, 0), array(0, 1), array(0, 3), array(1, 0)),
+            $gameId, 1, 'Skill', 0, 1, '');
+
+    }
 }
