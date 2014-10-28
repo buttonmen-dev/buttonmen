@@ -96,7 +96,10 @@ class BMSkillMorphing extends BMSkill {
     }
 
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Radioactive' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
+                             'size of the captured die, and then decay',
+        );
     }
 
     public static function prevents_win_determination() {

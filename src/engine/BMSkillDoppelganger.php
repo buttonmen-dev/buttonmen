@@ -44,7 +44,11 @@ class BMSkillDoppelganger extends BMSkillMorphing {
     }
 
     protected static function get_interaction_descriptions() {
-        return array();
+        return array(
+            'Radioactive' => 'Dice with both Radioactive and Doppelganger first decay, then ' .
+                             'each of the "decay products" are replaced by exact copies of the ' .
+                             'die they captured',
+        );
     }
 
     public static function prevents_win_determination() {

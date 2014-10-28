@@ -81,6 +81,9 @@ class BMSkillBerserk extends BMSkill {
         return array(
             'Mighty' => 'Dice with both Berserk and Mighty skills will first ' .
                          'halve in size, and then grow',
+            'Radioactive' => 'Dice with both Radioactive and Berserk skills making a berserk attack ' .
+                             'on a SINGLE die are first replaced with non-berserk dice with half ' .
+                             'their previous number of sides, rounding up, and then decay',
             'Speed' => 'Dice with both Berserk and Speed skills may ' .
                        'choose to make either kind of attack',
             'Weak' => 'Dice with both Berserk and Weak skills will first ' .
