@@ -102,7 +102,7 @@ test("test_Game.showLoggedInPage", function(assert) {
 // finish before its results can be tested
 test("test_Game.redrawGamePageSuccess", function(assert) {
   $.ajaxSetup({ async: false });
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.activity.chat = "Some chat text";
   Game.redrawGamePageSuccess();
   var item = document.getElementById('game_page');
@@ -117,7 +117,7 @@ test("test_Game.redrawGamePageSuccess", function(assert) {
 // finish before its results can be tested
 test("test_Game.redrawGamePageFailure", function(assert) {
   $.ajaxSetup({ async: false });
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.activity.chat = "Some chat text";
   Game.redrawGamePageFailure();
   var item = document.getElementById('game_page');
@@ -147,9 +147,10 @@ test("test_Game.redrawGamePageFailure", function(assert) {
 
 test("test_Game.getCurrentGame", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
+  var gameId = BMTestUtils.testGameId(BMTestUtils.GameType);
   Game.getCurrentGame(function() {
-    assert.equal(Game.game, '1', "Set expected game number");
+    assert.equal(Game.game, gameId, "Set expected game number");
     assert.equal(Api.game.load_status, 'ok', 'Successfully loaded game data');
     assert.equal(Api.game.gameId, Game.game, 'Parsed correct game number from API');
     start();
@@ -158,7 +159,7 @@ test("test_Game.getCurrentGame", function(assert) {
 
 test("test_Game.showStatePage", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -226,7 +227,7 @@ test("test_Game.showStatePage_reserve_nonplayer", function(assert) {
 
 test("test_Game.showStatePage_swingset", function(assert) {
   stop();
-  BMTestUtils.GameType = 'swingset';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
   Game.getCurrentGame(function() {
     Game.showStatePage();
     var htmlout = Game.page.html();
@@ -305,7 +306,7 @@ test("test_Game.showStatePage_turn_nonplayer", function(assert) {
 
 test("test_Game.parseValidInitiativeActions", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.parseValidInitiativeActions();
     assert.deepEqual(Api.game.player.initiativeActions, {},
@@ -316,7 +317,7 @@ test("test_Game.parseValidInitiativeActions", function(assert) {
 
 test("test_Game.parseValidReserveOptions", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.parseValidReserveOptions();
     assert.deepEqual(Api.game.player.reserveOptions, {},
@@ -339,7 +340,7 @@ test("test_Game.parseValidReserveOptions_reserve_active", function(assert) {
 
 test("test_Game.parseValidFireOptions", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.parseValidFireOptions();
     assert.deepEqual(Api.game.player.fireOptions, {},
@@ -405,7 +406,7 @@ test("test_Game.parseAuxiliaryDieOptions", function(assert) {
 
 test("test_Game.actionSpecifyDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -443,7 +444,7 @@ test("test_Game.actionSpecifyDiceActive_option", function(assert) {
 
 test("test_Game.actionSpecifyDiceInactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'swingset';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceInactive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
@@ -771,11 +772,12 @@ test("test_Game.actionShowFinishedGame", function(assert) {
 // from the POST.
 test("test_Game.formSpecifyDiceActive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice';
   Game.getCurrentGame(function() {
     Game.actionSpecifyDiceActive();
     Login.arrangePage(Game.page, Game.form, '#game_action_button');
     $('#swing_X').val('7');
+    $('#swing_V').val('12');
     $.ajaxSetup({ async: false });
     $('#game_action_button').trigger('click');
     assert.deepEqual(
@@ -1008,7 +1010,7 @@ test("test_Game.showFullLogHistory", function(assert) {
 
 test("test_Game.pageAddGameHeader", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddGameHeader('Howdy, world');
@@ -1026,7 +1028,7 @@ test("test_Game.pageAddGameHeader", function(assert) {
 
 test("test_Game.pageAddFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddFooter();
@@ -1121,7 +1123,7 @@ test("test_Game.pageAddSkillListFooter", function(assert) {
 
 test("test_Game.pageAddLogFooter", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     Game.pageAddLogFooter();
@@ -1161,7 +1163,7 @@ test("test_Game.pageAddLogFooter_chatlog", function(assert) {
 
 test("test_Game.dieRecipeTable", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     var dietable = Game.dieRecipeTable(false);
@@ -1172,7 +1174,7 @@ test("test_Game.dieRecipeTable", function(assert) {
     assert.ok(item, "Document should contain die recipe table");
     assert.equal(item.nodeName, "TABLE",
       "Die recipe table should be a table element");
-    assert.ok(item.innerHTML.match('Avis'),
+    assert.ok(item.innerHTML.match('Wiseman'),
       "Die recipe table should contain button names");
     assert.ok(item.innerHTML.match('0/0/0'),
       "Die recipe table should contain game state");
@@ -1234,12 +1236,12 @@ test("test_Game.dieRecipeTable_chance", function(assert) {
 
 test("test_Game.dieTableEntry", function(assert) {
   stop();
-  BMTestUtils.GameType = 'swingset';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
   Game.getCurrentGame(function() {
-    var htmlobj = Game.dieTableEntry(4, Api.game.player.activeDieArray);
+    var htmlobj = Game.dieTableEntry(3, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
-    assert.deepEqual(html, '<td title="X Swing Die (with 4 sides)">(X=4)</td>',
+    assert.deepEqual(html, '<td title="X Swing Die (with 10 sides)">(X=10)</td>',
       "Die table entry has expected contents");
     start();
   });
@@ -1247,9 +1249,9 @@ test("test_Game.dieTableEntry", function(assert) {
 
 test("test_Game.dieTableEntry_empty", function(assert) {
   stop();
-  BMTestUtils.GameType = 'swingset';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
   Game.getCurrentGame(function() {
-    var htmlobj = Game.dieTableEntry(6, Api.game.player.activeDieArray);
+    var htmlobj = Game.dieTableEntry(4, Api.game.player.activeDieArray);
     // jQuery trick to get the full HTML including the object itself
     var html = $('<div>').append(htmlobj.clone()).remove().html();
     assert.deepEqual(html, "<td></td>",
@@ -1398,7 +1400,7 @@ test("test_Game.gameWinner", function(assert) {
 
 test("test_Game.dieIndexId", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     var idxval = Game.dieIndexId('opponent', 3);
     assert.equal(idxval, 'playerIdx_1_dieIdx_3',
@@ -1409,7 +1411,7 @@ test("test_Game.dieIndexId", function(assert) {
 
 test("test_Game.playerOpponentHeaderRow", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'frasquito_wiseman_specifydice';
   Game.getCurrentGame(function() {
     Game.page = $('<div>');
     var row = Game.playerOpponentHeaderRow('Button', 'buttonName');
@@ -1421,7 +1423,7 @@ test("test_Game.playerOpponentHeaderRow", function(assert) {
     var item = document.getElementById('game_page');
     assert.ok(item.innerHTML.match('<th>'),
       "header row should contain <th> entries");
-    assert.ok(item.innerHTML.match('Avis'),
+    assert.ok(item.innerHTML.match('Wiseman'),
       "header row should contain button names");
     start();
   });
@@ -1556,10 +1558,10 @@ test("test_Game.dieBorderToggleOpponentHandler", function(assert) {
 
 test("test_Game.waitingOnPlayerNames", function(assert) {
   stop();
-  BMTestUtils.GameType = 'newgame';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice';
   Game.getCurrentGame(function() {
     var namesString = Game.waitingOnPlayerNames();
-    assert.equal(namesString, "tester1 and tester2",
+    assert.equal(namesString, "responder003 and responder004",
       "String with name(s) of active player(s) has expected contents");
     start();
   });
@@ -1567,10 +1569,10 @@ test("test_Game.waitingOnPlayerNames", function(assert) {
 
 test("test_Game.waitingOnPlayerNames_inactive", function(assert) {
   stop();
-  BMTestUtils.GameType = 'swingset';
+  BMTestUtils.GameType = 'jellybean_dirgo_specifydice_inactive';
   Game.getCurrentGame(function() {
     var namesString = Game.waitingOnPlayerNames();
-    assert.equal(namesString, "tester2",
+    assert.equal(namesString, "responder004",
       "String with name(s) of active player(s) has expected contents");
     start();
   });

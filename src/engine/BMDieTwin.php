@@ -254,4 +254,19 @@ class BMDieTwin extends BMDie {
         }
         return $typesList;
     }
+
+    /**
+     * To be run after a BMDieTwin object is cloned.
+     *
+     * This causes the subdice to also be cloned.
+     */
+    public function __clone() {
+        $newDieArray = array();
+
+        foreach ($this->dice as $die) {
+            $newDieArray[] = clone $die;
+        }
+
+        $this->dice = $newDieArray;
+    }
 }
