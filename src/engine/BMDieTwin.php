@@ -80,13 +80,16 @@ class BMDieTwin extends BMDie {
         $this->run_hooks('pre_roll', array('die' => $this,
                                            'isTriggeredByAttack' => $isTriggeredByAttack));
 
-        $this->value = 0;
+        // james: note that $this->value cannot be set to zero directly, since this triggers a bug
+        $value = 0;
         foreach ($this->dice as &$die) {
             // note that we do not want to trigger the hooks again, so we set the
             // input parameter of roll() to FALSE
             $die->roll(FALSE);
-            $this->value += $die->value;
+            $value += $die->value;
         }
+
+        $this->value = $value;
 
         //$this->run_hooks('post_roll', array('isTriggeredByAttack' => $isTriggeredByAttack));
     }
@@ -248,5 +251,20 @@ class BMDieTwin extends BMDie {
             $typesList += $subDie->getDieTypes();
         }
         return $typesList;
+    }
+
+    /**
+     * To be run after a BMDieTwin object is cloned.
+     *
+     * This causes the subdice to also be cloned.
+     */
+    public function __clone() {
+        $newDieArray = array();
+
+        foreach ($this->dice as $die) {
+            $newDieArray[] = clone $die;
+        }
+
+        $this->dice = $newDieArray;
     }
 }
