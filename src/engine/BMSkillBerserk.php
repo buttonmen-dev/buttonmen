@@ -68,7 +68,6 @@ class BMSkillBerserk extends BMSkill {
         // force removal of swing, twin die, and option status
         $splitDieArray = $attacker->split();
         $newAttackDie = $splitDieArray[0];
-        $newAttackDie->roll(TRUE);
         $activeDieArrayArray[$attackerPlayerIdx][$dieIdx] = $newAttackDie;
         $args['attackers'][0] = $newAttackDie;
         $game->activeDieArrayArray = $activeDieArrayArray;
@@ -87,8 +86,12 @@ class BMSkillBerserk extends BMSkill {
 
     protected static function get_interaction_descriptions() {
         return array(
+            'Mighty' => 'Dice with both Berserk and Mighty skills will first ' .
+                         'halve in size, and then grow',
             'Speed' => 'Dice with both Berserk and Speed skills may ' .
                        'choose to make either kind of attack',
+            'Weak' => 'Dice with both Berserk and Weak skills will first ' .
+                         'halve in size, and then shrink',
         );
     }
 

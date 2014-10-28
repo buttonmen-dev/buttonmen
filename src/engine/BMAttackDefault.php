@@ -53,7 +53,6 @@ class BMAttackDefault extends BMAttack {
                     return TRUE;
                 }
 
-                $this->validationMessage = 'Default attack is ambiguous.';
                 return FALSE;
         }
     }
@@ -64,11 +63,17 @@ class BMAttackDefault extends BMAttack {
         array $defenders,
         array $validAttackTypes
     ) {
+        $messageRoot = 'Default attack is ambiguous. ';
+        $messageAttackTypes = 'Possible attack types: ' .
+            implode(', ', $validAttackTypes) . '.';
+
         if (1 != count($attackers)) {
+            $this->validationMessage = $messageRoot . $messageAttackTypes;
             return FALSE;
         }
 
         if (1 != count($defenders)) {
+            $this->validationMessage = $messageRoot . $messageAttackTypes;
             return FALSE;
         }
 
@@ -77,19 +82,36 @@ class BMAttackDefault extends BMAttack {
 
         // deal with skills with side effects
         if ($attacker->has_skill('Doppelganger') && in_array('Power', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'A power attack will trigger the Doppelganger skill, while other attack types will not.';
             return FALSE;
         }
 
         // deal with attacks with side effects
         if (in_array('Berserk', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'A berserk attack will trigger the berserk skill, while other attack types will not.';
             return FALSE;
         }
 
         if (in_array('Trip', $validAttackTypes)) {
+            $this->validationMessage = $messageRoot .
+                'It is not clear whether or not you want to perform a trip attack.';
             return FALSE;
         }
 
         if ($this->is_fire_assistance_possible($game, $attacker, $defender, $validAttackTypes)) {
+            // deal with the case where the only possibilities are power and skill, and
+            // then choose power, since this allows both exact firing and overfiring
+            if ((2 == count($validAttackTypes)) &&
+                in_array('Power', $validAttackTypes) &&
+                in_array('Skill', $validAttackTypes)) {
+                assert('Power' == $validAttackTypes[0]);
+                return TRUE;
+            }
+
+            $this->validationMessage = $messageRoot .
+                'It is not clear whether or not you want to fire your attacking die.';
             return FALSE;
         }
 

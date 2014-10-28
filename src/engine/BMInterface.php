@@ -710,10 +710,6 @@ class BMInterface {
 
             $this->recreate_optRequestArrayArray($game);
 
-            if (!isset($game->swingRequestArrayArray)) {
-                $game->swingValueArrayArray = NULL;
-            }
-
             $this->message = $this->message."Loaded data for game $gameId.";
 
             return $game;
@@ -1554,7 +1550,8 @@ class BMInterface {
         $actualMax = NULL;
 
         if ($activeDie->forceReportDieSize() ||
-            ($activeDie instanceof BMDieOption)) {
+            ($activeDie instanceof BMDieOption) ||
+            ($activeDie instanceof BMDieSwing)) {
             $actualMax = $activeDie->max;
         }
 
@@ -2748,10 +2745,16 @@ class BMInterface {
             ($roundNumber == $game->roundNumber);
         $doesGameStateAgree = $expectedGameState == $game->gameState;
 
-        $this->message = 'Game state is not current';
-        return ($doesTimeStampAgree &&
-                $doesRoundNumberAgree &&
-                $doesGameStateAgree);
+        $isGameStateCurrent =
+            $doesTimeStampAgree &&
+            $doesRoundNumberAgree &&
+            $doesGameStateAgree;
+
+        if (!$isGameStateCurrent) {
+            $this->message = 'Game state is not current';
+        }
+
+        return $isGameStateCurrent;
     }
 
     // Enter recent game actions into the action log
@@ -2835,7 +2838,11 @@ class BMInterface {
             );
 
             if (!empty($messagePart)) {
-                $message .= $messagePart . '. ';
+                if ('.' == substr($messagePart, -1)) {
+                    $message .= $messagePart . ' ';
+                } else {
+                    $message .= $messagePart . '. ';
+                }
             }
         }
 
@@ -3330,147 +3337,6 @@ class BMInterface {
             foreach ($optionValueArray as $dieIdx => $optionValue) {
                 $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
             }
-        }
-    }
-
-    protected function submit_swing_values(
-        $playerId,
-        $gameId,
-        $roundNumber,
-        $swingValueArray
-    ) {
-        try {
-            $game = $this->load_game($gameId);
-            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
-
-            // check that the timestamp and the game state are correct, and that
-            // the swing values still need to be set
-            if (!$this->is_action_current(
-                $game,
-                BMGameState::SPECIFY_DICE,
-                'ignore',
-                $roundNumber,
-                $playerId
-            )) {
-                $this->message = 'Swing dice no longer need to be set';
-                return NULL;
-            }
-
-            // try to set swing values
-            $swingRequestArray = $game->swingRequestArrayArray[$currentPlayerIdx];
-            if (is_array($swingRequestArray)) {
-                $swingRequested = array_keys($game->swingRequestArrayArray[$currentPlayerIdx]);
-                sort($swingRequested);
-            } else {
-                $swingRequested = array();
-            }
-
-            if (is_array($swingValueArray)) {
-                $swingSubmitted = array_keys($swingValueArray);
-                sort($swingSubmitted);
-            } else {
-                $swingSubmitted = array();
-            }
-
-            if ($swingRequested != $swingSubmitted) {
-                $this->message = 'Wrong swing values submitted: expected ' . implode(',', $swingRequested);
-                return NULL;
-            }
-
-            $game->swingValueArrayArray[$currentPlayerIdx] = $swingValueArray;
-
-            $game->proceed_to_next_user_action();
-
-            // check for successful swing value set
-            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
-                ($game->gameState > BMGameState::SPECIFY_DICE) ||
-                ($game->roundNumber > $roundNumber)) {
-                $game->log_action(
-                    'choose_swing',
-                    $game->playerIdArray[$currentPlayerIdx],
-                    array(
-                        'roundNumber' => $game->roundNumber,
-                        'swingValues' => $swingValueArray,
-                    )
-                );
-                $this->save_game($game);
-                $this->message = 'Successfully set swing values';
-                return TRUE;
-            } else {
-                if ($game->message) {
-                    $this->message = $game->message;
-                } else {
-                    $this->message = 'Failed to set swing values';
-                }
-                return NULL;
-            }
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::submit_swing_values: ' .
-                $e->getMessage()
-            );
-            $this->message = 'Internal error while setting swing values';
-        }
-    }
-
-    protected function submit_option_values(
-        $playerId,
-        $gameId,
-        $roundNumber,
-        $optionValueArray
-    ) {
-        try {
-            $game = $this->load_game($gameId);
-            $currentPlayerIdx = array_search($playerId, $game->playerIdArray);
-
-            // check that the timestamp and the game state are correct, and that
-            // the option values still need to be set
-            if (!$this->is_action_current(
-                $game,
-                BMGameState::SPECIFY_DICE,
-                'ignore',
-                $roundNumber,
-                $playerId
-            )) {
-                $this->message = 'Option dice no longer need to be set';
-                return NULL;
-            }
-
-            // try to set option values
-            foreach ($optionValueArray as $dieIdx => $optionValue) {
-                $game->optValueArrayArray[$currentPlayerIdx][$dieIdx] = $optionValue;
-            }
-            $game->proceed_to_next_user_action();
-
-            // check for successful option value set
-            if ((FALSE == $game->waitingOnActionArray[$currentPlayerIdx]) ||
-                ($game->gameState > BMGameState::SPECIFY_DICE) ||
-                ($game->roundNumber > $roundNumber)) {
-                $game->log_action(
-                    'choose_option',
-                    $game->playerIdArray[$currentPlayerIdx],
-                    array(
-                        'roundNumber' => $game->roundNumber,
-                        'optionValues' => $optionValueArray,
-                    )
-                );
-                $this->save_game($game);
-                $this->message = 'Successfully set option values';
-                return TRUE;
-            } else {
-                if ($game->message) {
-                    $this->message = $game->message;
-                } else {
-                    $this->message = 'Failed to set option values';
-                }
-                return NULL;
-            }
-        } catch (Exception $e) {
-            error_log(
-                'Caught exception in BMInterface::submit_option_values: ' .
-                $e->getMessage()
-            );
-            $this->message = 'Internal error while setting option values';
         }
     }
 

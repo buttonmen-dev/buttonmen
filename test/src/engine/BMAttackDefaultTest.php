@@ -249,7 +249,7 @@ class BMAttackDefaultTest extends PHPUnit_Framework_TestCase {
         $this->object->add_die($die1);
         $game->activeDieArrayArray = array(array($die1, $die2), array($die3));
         $game->attack = array(0, 1, array(0), array(0), 'Default');
-        $this->assertFalse($this->object->validate_attack($game, array($die1), array($die3)));
+        $this->assertTrue($this->object->validate_attack($game, array($die1), array($die3)));
     }
 
     /**

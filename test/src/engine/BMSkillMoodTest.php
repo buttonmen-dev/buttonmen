@@ -148,10 +148,10 @@ class BMSkillMoodTest extends PHPUnit_Framework_TestCase {
      * @covers BMSkillMood::valid_die_sizes
      */
     public function testValid_die_sizes() {
-        $this->assertEquals(array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30),
+        $this->assertEquals(array(1, 2, 4, 6, 8, 10, 12, 20, 30),
                             BMSkillMood::valid_die_sizes(array(1, 30)));
 
-        $this->assertEquals(array(4, 6, 8, 10, 12, 16, 20),
+        $this->assertEquals(array(4, 6, 8, 10, 12, 20),
                             BMSkillMood::valid_die_sizes(array(4, 20)));
     }
 }

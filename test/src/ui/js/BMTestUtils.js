@@ -81,42 +81,50 @@ BMTestUtils.cleanupFakeLogin = function() {
   Login.logged_in = BMTestUtils.OverviewOldLoginLoggedin;
 }
 
+// For each game/move reported by responderTest which we use in UI
+// tests, set a friendly name for tracking purposes.  These values
+// need to be kept in sync with responderTest in order for anything
+// good to happen.
+BMTestUtils.testGameId = function(gameDesc) {
+//  if (gameDesc == 'newgame') { return '1'; }
+//  if (gameDesc == 'swingset') { return '2'; }
+  if (gameDesc == 'turn_active') { return '3'; }
+  if (gameDesc == 'turn_inactive') { return '4'; }
+  if (gameDesc == 'finished') { return '5'; }
+  if (gameDesc == 'newgame_twin') { return '6'; }
+  if (gameDesc == 'focus') { return '7'; }
+  if (gameDesc == 'chance_active') { return '8'; }
+  if (gameDesc == 'chance_inactive') { return '9'; }
+  if (gameDesc == 'newgame_nonplayer') { return '10'; }
+  if (gameDesc == 'turn_nonplayer') { return '11'; }
+  if (gameDesc == 'chance_nonplayer') { return '12'; }
+  if (gameDesc == 'chooseaux_active') { return '13'; }
+  if (gameDesc == 'chooseaux_inactive') { return '14'; }
+  if (gameDesc == 'chooseaux_nonplayer') { return '15'; }
+  if (gameDesc == 'reserve_active') { return '16'; }
+  if (gameDesc == 'reserve_inactive') { return '17'; }
+  if (gameDesc == 'reserve_nonplayer') { return '18'; }
+  if (gameDesc == 'option_active') { return '19'; }
+  if (gameDesc == 'fire_active') { return '22'; }
+  if (gameDesc == 'fire_inactive') { return '23'; }
+  if (gameDesc == 'fire_nonplayer') { return '24'; }
+  if (gameDesc == 'value') { return '25'; }
+
+  if (gameDesc == 'frasquito_wiseman_specifydice') { return '101'; }
+  if (gameDesc == 'frasquito_wiseman_specifydice_nonplayer') { return '102'; }
+  if (gameDesc == 'jellybean_dirgo_specifydice') { return '201'; }
+  if (gameDesc == 'jellybean_dirgo_specifydice_inactive') { return '202'; }
+}
+
 // We don't currently usually test reading the URL bar contents, because
 // that's hard to do within QUnit, but rather override those contents
 // with hardcoded values that we want to test.
-//
-// Note that, in general, these values need to be synchronized with
-// the fake test data returned by DummyResponder in order for good
-// things to happen.
 BMTestUtils.overrideGetParameterByName = function() {
   BMTestUtils.realGetParameterByName = Env.getParameterByName;
 
   Env.getParameterByName = function(name) {
     if (name == 'game') {
-      if (BMTestUtils.GameType == 'newgame') { return '1'; }
-      if (BMTestUtils.GameType == 'swingset') { return '2'; }
-      if (BMTestUtils.GameType == 'turn_active') { return '3'; }
-      if (BMTestUtils.GameType == 'turn_inactive') { return '4'; }
-      if (BMTestUtils.GameType == 'finished') { return '5'; }
-      if (BMTestUtils.GameType == 'newgame_twin') { return '6'; }
-      if (BMTestUtils.GameType == 'focus') { return '7'; }
-      if (BMTestUtils.GameType == 'chance_active') { return '8'; }
-      if (BMTestUtils.GameType == 'chance_inactive') { return '9'; }
-      if (BMTestUtils.GameType == 'newgame_nonplayer') { return '10'; }
-      if (BMTestUtils.GameType == 'turn_nonplayer') { return '11'; }
-      if (BMTestUtils.GameType == 'chance_nonplayer') { return '12'; }
-      if (BMTestUtils.GameType == 'chooseaux_active') { return '13'; }
-      if (BMTestUtils.GameType == 'chooseaux_inactive') { return '14'; }
-      if (BMTestUtils.GameType == 'chooseaux_nonplayer') { return '15'; }
-      if (BMTestUtils.GameType == 'reserve_active') { return '16'; }
-      if (BMTestUtils.GameType == 'reserve_inactive') { return '17'; }
-      if (BMTestUtils.GameType == 'reserve_nonplayer') { return '18'; }
-      if (BMTestUtils.GameType == 'option_active') { return '19'; }
-      // fake game 20 is an open game
-      // fake game 21 is an open game
-      if (BMTestUtils.GameType == 'fire_active') { return '22'; }
-      if (BMTestUtils.GameType == 'fire_inactive') { return '23'; }
-      if (BMTestUtils.GameType == 'fire_nonplayer') { return '24'; }
+      return BMTestUtils.testGameId(BMTestUtils.GameType);
     }
 
     // always return the userid associated with tester1 in the fake data
@@ -149,4 +157,30 @@ BMTestUtils.CopyAllMethods = function(objA, objB) {
       objB[key] = value;
     }
   });
+};
+
+// Printable array containing various properties of a DOM node
+BMTestUtils.DOMNodePropArray = function(node) {
+  if (node) {
+    if (node.nodeName == '#text') {
+      return node.nodeValue;
+    }
+    if (node.hasAttributes() || node.childNodes.length > 0) {
+      var attrs = {};
+      if (node.hasAttributes()) {
+        for (var i = 0; i < node.attributes.length; i++) {
+          var attr = node.attributes.item(i);
+          attrs[attr.name] = attr.value;
+        }
+      }
+
+      var children = [];
+      for (i = 0; i < node.childNodes.length; i++) {
+        children.push(BMTestUtils.DOMNodePropArray(node.childNodes[i]));
+      }
+      return [ node.nodeName, attrs, children, ]
+    }
+    return [ node.nodeName, ];
+  }
+  return undefined;
 };

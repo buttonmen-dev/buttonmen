@@ -43,6 +43,7 @@
     <arg line="--bootstrap ./deploy/jenkins/phpunit_bootstrap.php
                --log-junit build/logs/junit.xml
                --coverage-clover build/logs/clover.xml
+               --debug
                test/" />
   </exec>
  </target>
@@ -183,5 +184,5 @@
   <antcall target="jstest-jenkins-report"/>
  </target>
 
- <target name="build" depends="clean,newline-audit,php-audit,js-audit,jstest,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpunit,phpcb"/>
+ <target name="build" depends="clean,newline-audit,php-audit,js-audit,pdepend,phpmd,phpcpd,phpcs,phpdoc,phploc,phpunit,jstest,phpcb"/>
 </project>

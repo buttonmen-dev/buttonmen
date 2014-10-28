@@ -51,6 +51,7 @@
  * @property      array $optValueArrayArray      Option values for current round for all players
  * @property      array $prevOptValueArrayArray  Option values for previous round for all players
  * @property      array $lastActionTimeArray     Times of last actions for each player
+ * @property      array $hasPlayerAcceptedGameArray  Boolean array whether each player has accepted this game
  * @property      array $hasPlayerDismissedGameArray    Whether or not each player has dismissed this game
  *
  * @SuppressWarnings(PMD.TooManyFields)
@@ -109,6 +110,8 @@ class BMGame {
     public $lastActionTimeArray;
     public $isButtonChoiceRandom;   // used by the database to record whether the choice of the
                                     // button was random or not
+    public $hasPlayerAcceptedGameArray;  // used by the database to record whether each player has
+                                    // accepted this game
     public $hasPlayerDismissedGameArray;
 
     private $fireCache;             // internal cache of fire info, used for logging
@@ -210,9 +213,23 @@ class BMGame {
             if ($nWins >= $this->maxWins) {
                 $this->gameState = BMGameState::END_GAME;
             } else {
-                $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
+                $this->gameState = BMGameState::CHOOSE_JOIN_GAME;
             }
         }
+    }
+
+    protected function do_next_step_choose_join_game() {
+
+    }
+
+    protected function update_game_state_choose_join_game() {
+        if (isset($this->hasPlayerAcceptedGameArray) &&
+            is_array($this->hasPlayerAcceptedGameArray) &&
+            in_array(FALSE, $this->hasPlayerAcceptedGameArray)) {
+            return;
+        }
+
+        $this->gameState = BMGameState::LOAD_DICE_INTO_BUTTONS;
     }
 
     protected function do_next_step_load_dice_into_buttons() {
@@ -1809,7 +1826,7 @@ class BMGame {
                 $actionLogDieInfo = $tempDie->get_action_log_data();
                 // update initiative arrays if die counts for initiative
                 $tempInitiative = $tempDie->initiative_value();
-                if ($tempInitiative > 0) {
+                if ($tempInitiative >= 0) {
                     $initiativeArrayArray[$playerIdx][] = $tempInitiative;
                     $actionLogDieInfo['included'] = TRUE;
                 } else {
