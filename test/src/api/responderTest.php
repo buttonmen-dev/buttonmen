@@ -10,12 +10,16 @@ function auth_session_exists() {
 class responderTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * @var spec    ApiSpec object which will be used as a helper
-     * @var dummy   dummy_responder object used to check the live responder
+     * @var spec         ApiSpec object which will be used as a helper
+     * @var dummy        dummy_responder object used to check the live responder
+     * @var game_number  a static number for each full-game test, so test game data can be used by UI tests
+     * @var move_number  an increment counter for each move in each full-game test, so test game data can be used by UI tests
      */
     protected $spec;
     protected $dummy;
     protected $user_ids;
+    protected $game_number;
+    protected $move_number;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
@@ -52,6 +56,13 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         // Cache user IDs parsed from the DB for use within a test
         $this->user_ids = array();
+
+        // Reset game_number and move_number at the beginning of each test
+        $this->game_number = 0;
+        $this->move_number = 0;
+
+        // Directory to cache JSON output for UI tests to use
+        $this->jsonApiRoot = BW_PHP_ROOT . "/api/dummy_data/";
 
         // Tests in this file should override randomization, so
         // force overrides and reset the queue at the beginning of each test
@@ -249,6 +260,17 @@ class responderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Utility function to store generated JSON output in a place
+     * where the dummy responder can find it and use it for UI tests
+     */
+    protected function cache_json_api_output($apiFunction, $objname, $objdata) {
+        $jsonApiFile = $this->jsonApiRoot . $apiFunction . "/" . $objname . ".json";
+        $fh = fopen($jsonApiFile, "w");
+        fwrite($fh, json_encode($objdata) . "\n");
+        fclose($fh);
+    }
+
+    /**
      * Check two PHP arrays to see if their structures match to a depth of one level:
      * * Do the arrays have the same sets of keys?
      * * Does each key have the same type of value for each array?
@@ -397,10 +419,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $userarray = array('responder001', 'responder002', 'responder003', 'responder004');
 
-	// Hack: we don't know in advance whether each user creation
-	// will succeed or fail.  Therefore, repeat each one so we
-	// know it must fail the second time, and parse the user
-	// ID from the message that second time.
+        // Hack: we don't know in advance whether each user creation
+        // will succeed or fail.  Therefore, repeat each one so we
+        // know it must fail the second time, and parse the user
+        // ID from the message that second time.
         foreach ($userarray as $newuser) {
             if (!(array_key_exists($newuser, $this->user_ids))) {
                 $args['username'] = $newuser;
@@ -451,7 +473,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
     protected function verify_api_failure($args, $expMessage) {
         $responder = new ApiResponder($this->spec, True);
         $retval = $responder->process_request($args);
-	// unexpected behavior may manifest as API successes which should be failures,
+        // unexpected behavior may manifest as API successes which should be failures,
         // so help debugging by printing the full API args and response if it comes to that
         $this->assertEquals('failed', $retval['status'],
             "API call should fail:\nARGS: " . var_export($args, $return=TRUE) . "\nRETURN: " . var_export($retval, $return=TRUE));
@@ -472,7 +494,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         global $BM_RAND_VALS;
         $responder = new ApiResponder($this->spec, True);
         $retval = $responder->process_request($args);
-	// unexpected regressions may manifest as API failures, so help debugging
+        // unexpected regressions may manifest as API failures, so help debugging
         // by printing the full API args and response if it comes to that
         $this->assertEquals('ok', $retval['status'],
             "API call should succeed:\nARGS: " . var_export($args, $return=TRUE) . "\nRETURN: " . var_export($retval, $return=TRUE));
@@ -547,8 +569,42 @@ class responderTest extends PHPUnit_Framework_TestCase {
         if ($check) {
             $cleanedData = $this->squash_game_data_timestamps($retval['data']);
             $this->assertEquals($expData, $cleanedData);
+
+            // caller must set the game number so we can save data --- it's a bad test otherwise
+            assert($this->game_number > 0);
+            $this->move_number += 1;
+            assert($this->move_number <= 99);
+
+            // by convention, treat the game number plus two-digit move number as a fake game number that the
+            // UI tests can reference
+            $fakeGameNumber = sprintf("%d%02d", $this->game_number, $this->move_number);
+
+            $this->cache_json_api_output('loadGameData', $fakeGameNumber, $retval['data']);
         }
         return $retval['data'];
+    }
+
+    /*
+     * verify_api_loadGameData_as_nonparticipant()
+     * Wrapper for verify_api_loadGameData() which saves and restores
+     * things which should be different when a non-participant views a game.
+     * Don't actually bother to return the game data, since the
+     * test shouldn't need to use it for anything.
+     */
+    protected function verify_api_loadGameData_as_nonparticipant($expData, $gameId, $logEntryLimit) {
+        $oldCurrentPlayerIdx = $expData['currentPlayerIdx'];
+        $oldPlayerZeroColor = $expData['playerDataArray'][0]['playerColor'];
+        $oldPlayerOneColor = $expData['playerDataArray'][1]['playerColor'];
+
+        $expData['currentPlayerIdx'] = FALSE;
+        $expData['playerDataArray'][0]['playerColor'] = '#cccccc';
+        $expData['playerDataArray'][1]['playerColor'] = '#dddddd';
+
+        $this->verify_api_loadGameData($expData, $gameId, $logEntryLimit);
+
+        $expData['currentPlayerIdx'] = $oldCurrentPlayerIdx;
+        $expData['playerDataArray'][0]['playerColor'] = $oldPlayerZeroColor;
+        $expData['playerDataArray'][1]['playerColor'] = $oldPlayerOneColor;
     }
 
     /**
@@ -708,9 +764,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $args = array('type' => 'foobar');
         $retval = $this->verify_api_failure($args, 'Specified API function does not exist');
 
-	// This test result should hold for all functions, since
-	// the structure of the top-level response doesn't depend
-	// on the function
+        // This test result should hold for all functions, since
+        // the structure of the top-level response doesn't depend
+        // on the function
         $dummyval = $this->dummy->process_request($args);
         $this->assertEquals($retval, $dummyval);
         $this->assertTrue(
@@ -729,10 +785,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
         $maxtries = 999;
         $trynum = 1;
 
-	// Tests may be run multiple times.  Find a user of the
-	// form responderNNN which hasn't been created yet and
-	// create it in the test DB.  The dummy interface will claim
-	// success for any username of this form.
+        // Tests may be run multiple times.  Find a user of the
+        // form responderNNN which hasn't been created yet and
+        // create it in the test DB.  The dummy interface will claim
+        // success for any username of this form.
         while (!($created_real)) {
             $this->assertTrue($trynum < $maxtries,
                 "Internal test error: too many responderNNN users in the test database. " .
@@ -1142,36 +1198,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 1, 1, 1, 2, 2, 2, 2),
             'responder003', 'responder004', 'Avis', 'Avis', '3'
         );
-        $dummy_game_id = '1';
 
-        // now load real and dummy games
+        // now load the game data
         $retval = $this->verify_api_success(
             array('type' => 'loadGameData', 'game' => $real_game_id, 'logEntryLimit' => 10));
-        $dummyval = $this->dummy->process_request(
-            array('type' => 'loadGameData', 'game' => $dummy_game_id, 'logEntryLimit' => 10));
-        $this->assertEquals('ok', $dummyval['status'], "dummy responder should succeed");
-
-        $retdata = $retval['data'];
-        $dummydata = $dummyval['data'];
-        $this->assertTrue(
-            $this->object_structures_match($dummydata, $retdata, True),
-            "Real and dummy game data should have matching structures");
-        $this->assertTrue(
-            $this->object_structures_match($dummydata['playerDataArray'][0], $retdata['playerDataArray'][0], True),
-            "Real and dummy game playerData objects should have matching structures");
-
-        // Now hand-modify a few things we know will be different
-        // and check that the data structures are entirely identical otherwise
-        $dummydata['gameId'] = $retdata['gameId'];
-        foreach(array_keys($retdata['playerDataArray']) as $playerIdx) {
-            foreach(array('playerName', 'playerId', 'lastActionTime') as $playerKey) {
-                $dummydata['playerDataArray'][$playerIdx][$playerKey] =
-                    $retdata['playerDataArray'][$playerIdx][$playerKey];
-            }
-        }
-        $dummydata['timestamp'] = $retdata['timestamp'];
-
-        $this->assertEquals($dummydata, $retdata);
 
         // Since game IDs are sequential, $real_game_id + 1 should not be an existing game
         $nonexistent_game_id = $real_game_id + 1;
@@ -1430,9 +1460,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
 
         $dummy_game_id = '7';
 
-	// create a game so we have the ID to load, making sure we
-	// get a game which is in the react to initiative game
-	// state, and the other player has initiative
+        // create a game so we have the ID to load, making sure we
+        // get a game which is in the react to initiative game
+        // state, and the other player has initiative
         $real_game_id = $this->verify_api_createGame(
             array(3, 3, 3, 3, 3, 2, 2, 2, 2, 2),
             'responder003', 'responder004', 'Crab', 'Crab', '3'
@@ -1861,6 +1891,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
      */
     public function test_api_game_001() {
 
+        $this->game_number = 1;
         $_SESSION = $this->mock_test_user_login('responder001');
 
         // Non-option dice are initially rolled, namely:
@@ -1892,6 +1923,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // now load the game and check its state
         $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
 
+
+        // now load the game as non-participating player responder003 and check its state
+        $_SESSION = $this->mock_test_user_login('responder003');
+        $this->verify_api_loadGameData_as_nonparticipant($expData, $gameId, 10);
+        $_SESSION = $this->mock_test_user_login('responder001');
 
         ////////////////////
         // Move 01 - specify option dice
@@ -2391,9 +2427,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
      */
     public function test_api_game_002() {
 
-	// responder003 is the POV player, so if you need to fake
-	// login as a different player e.g. to submit an attack, always
-	// return to responder003 as soon as you've done so
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 2;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
@@ -2682,9 +2719,10 @@ class responderTest extends PHPUnit_Framework_TestCase {
      */
     public function test_interface_game_003() {
 
-	// responder003 is the POV player, so if you need to fake
-	// login as a different player e.g. to submit an attack, always
-	// return to responder003 as soon as you've done so
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 3;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
@@ -3057,6 +3095,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 4;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
@@ -3330,6 +3369,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 5;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -3409,9 +3449,9 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 2), array(0, 4), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
 
-	// This change is not per se the bug in #1224, but it's a
-	// symptom showing that this is when the problem happens -
-	// p1's swing die request array goes away
+        // This change is not per se the bug in #1224, but it's a
+        // symptom showing that this is when the problem happens -
+        // p1's swing die request array goes away
         $expData['playerDataArray'][0]['swingRequestArray'] = array();
 
         // expected changes
@@ -3629,6 +3669,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder004 as soon as you've done so
+        $this->game_number = 6;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -3855,6 +3896,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 7;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -4018,6 +4060,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 8;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -4209,6 +4252,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 9;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -4782,6 +4826,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 10;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -5799,6 +5844,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 11;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
@@ -6098,6 +6144,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 12;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
@@ -6239,6 +6286,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 13;
         $_SESSION = $this->mock_test_user_login('responder003');
 
         ////////////////////
@@ -6325,6 +6373,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // responder003 is the POV player, so if you need to fake
         // login as a different player e.g. to submit an attack, always
         // return to responder003 as soon as you've done so
+        $this->game_number = 14;
         $_SESSION = $this->mock_test_user_login('responder003');
 
 
