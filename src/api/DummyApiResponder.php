@@ -292,7 +292,7 @@ class DummyApiResponder {
             'opponentColorArray' => array(),
         );
 
-        for ($gameIdx = 1; $gameIdx <= 24; $gameIdx++) {
+        for ($gameIdx = 1; $gameIdx <= 25; $gameIdx++) {
             $funcname = 'add_active_game_data_'.$gameIdx;
             $this->$funcname($data);
         }
@@ -606,6 +606,24 @@ class DummyApiResponder {
         // tester1 is not a participant in fake game 24
     }
 
+    protected function add_active_game_data_25(&$data) {
+        $data['gameIdArray'][] = 25;
+        $data['opponentIdArray'][] = 1;
+        $data['opponentNameArray'][] = "tester2";
+        $data['myButtonNameArray'][] = "Miser";
+        $data['opponentButtonNameArray'][] = "Miser";
+        $data['nWinsArray'][] = 0;
+        $data['nLossesArray'][] = 0;
+        $data['nDrawsArray'][] = 0;
+        $data['nTargetWinsArray'][] = 3;
+        $data['isAwaitingActionArray'][] = 1;
+        $data['gameStateArray'][] = "START_TURN";
+        $data['statusArray'][] = "ACTIVE";
+        $data['inactivityArray'][] = "5 minutes";
+        $data['playerColorArray'][] = "#dd99dd";
+        $data['opponentColorArray'][] = "#ddffdd";
+    }
+
     protected function get_interface_response_loadCompletedGames() {
         $data = array(
             'gameIdArray' => array(),
@@ -700,7 +718,7 @@ class DummyApiResponder {
     private function loadDetailedButtonDataForAvis() {
         // a button with no special skills
         return array(
-            'buttonId' => 268,
+            'buttonId' => 256,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -733,7 +751,7 @@ class DummyApiResponder {
     private function loadButtonDataStandard() {
         // a button with no special skills
         return array(
-            'buttonId' => 268,
+            'buttonId' => 256,
             'buttonName' => "Avis",
             'recipe' => "(4) (4) (10) (12) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -765,7 +783,7 @@ class DummyApiResponder {
     private function loadButtonDataFourDice() {
         // a button with four dice and some implemented skills
         return array(
-            'buttonId' => 62,
+            'buttonId' => 58,
             'buttonName' => "Jellybean",
             'recipe' => "p(20) s(20) (V) (X)",
             'hasUnimplementedSkill' => FALSE,
@@ -781,7 +799,7 @@ class DummyApiResponder {
     private function loadButtonDataTwinDice() {
         // Buck Godot
         return array(
-            'buttonId' => 286,
+            'buttonId' => 274,
             'buttonName' => "Buck Godot",
             'recipe' => "(6,6) (10) (12) (20) (W,W)",
             'hasUnimplementedSkill' => FALSE,
@@ -797,7 +815,7 @@ class DummyApiResponder {
     private function loadButtonDataTwinDiceWithDieSkill() {
         // Von Pinn
         return array(
-            'buttonId' => 290,
+            'buttonId' => 278,
             'buttonName' => "Von Pinn",
             'recipe' => "(4) p(6,6) (10) (20) (W)",
             'hasUnimplementedSkill' => FALSE,
@@ -813,7 +831,7 @@ class DummyApiResponder {
     private function loadButtonDataFocus() {
         // Crab: a button with focus dice
         return array(
-            'buttonId' => 204,
+            'buttonId' => 192,
             'buttonName' => "Crab",
             'recipe' => "(8) (10) (12) f(20) f(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -829,7 +847,7 @@ class DummyApiResponder {
     private function loadButtonDataChance() {
         // John Kovalic: a button with chance dice
         return array(
-            'buttonId' => 319,
+            'buttonId' => 307,
             'buttonName' => "John Kovalic",
             'recipe' => "(6) c(6) (10) (12) c(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -845,7 +863,7 @@ class DummyApiResponder {
     private function loadButtonDataAuxiliary() {
         // King Arthur: a button with an auxiliary die
         return array(
-            'buttonId' => 86,
+            'buttonId' => 82,
             'buttonName' => "King Arthur",
             'recipe' => "(8) (8) (10) (20) (X) +(20)",
             'hasUnimplementedSkill' => FALSE,
@@ -861,7 +879,7 @@ class DummyApiResponder {
     private function loadButtonDataReserve() {
         // Cammy Neko: a button with reserve dice
         return array(
-            'buttonId' => 144,
+            'buttonId' => 311,
             'buttonName' => "Cammy Neko",
             'recipe' => "(4) (6) (12) (10,10) r(12) r(20) r(20) r(8,8)",
             'hasUnimplementedSkill' => FALSE,
@@ -893,7 +911,7 @@ class DummyApiResponder {
     private function loadButtonDataSwingOptionSkills() {
         // CactusJack: a button with swing and option dice (and shadow and speed skills)
         return array(
-            'buttonId' => 418,
+            'buttonId' => 396,
             'buttonName' => "CactusJack",
             'recipe' => "z(8/12) (4/16) s(6/10) z(X) s(U)",
             'hasUnimplementedSkill' => FALSE,
@@ -998,10 +1016,11 @@ class DummyApiResponder {
         //  18: game in "choose reserve" state in which active player is not a participant
         //  19: game in which active player can choose option die values
         //  20: game in which active player can turn down fire dice
+        //  25: game in which value dice are present
 
         $data = NULL;
 
-        if ($args['game'] <= 24) {
+        if (is_numeric($args['game'])) {
             $data = $this->load_json_data_from_file(
                 'loadGameData',
                 $args['game'] . '.json'
@@ -1009,15 +1028,20 @@ class DummyApiResponder {
         }
 
         if ($data) {
-            if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
-                $data['gameActionLog'] =
-                    array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
-                $data['gameChatLog'] =
-                    array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
+            // Variables to set for older handcrafted tests only
+            if ($args['game'] < 100) {
+                if (isset($args['logEntryLimit']) && $args['logEntryLimit'] > 0) {
+                    $data['gameActionLog'] =
+                        array_slice($data['gameActionLog'], 0, $args['logEntryLimit']);
+                    $data['gameChatLog'] =
+                        array_slice($data['gameChatLog'], 0, $args['logEntryLimit']);
+                }
+                $timestamp = strtotime('now');
+                $data['timestamp'] = $timestamp;
             }
 
-            $timestamp = strtotime('now');
-            $data['timestamp'] = $timestamp;
+            // Return data for all tests
+            $data['gameId'] = (int) $args['game'];
             return array($data, "Loaded data for game " . $args['game']);
         }
         return array(NULL, "Game does not exist.");

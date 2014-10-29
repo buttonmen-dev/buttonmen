@@ -455,18 +455,84 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse($splitDice[0] === $splitDice[1]);
         $this->assertTrue($this->object === $splitDice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[0]->dice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[0]->dice[1]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[1]->dice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $splitDice[1]->dice[1]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[0]->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[0]->dice[1]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[1]->dice[0]);
+        $this->assertInstanceOf('BMDieSwing', $splitDice[1]->dice[1]);
+        $this->assertEquals('X', $splitDice[0]->dice[0]->swingType);
+        $this->assertEquals('X', $splitDice[0]->dice[1]->swingType);
+        $this->assertEquals('X', $splitDice[1]->dice[0]->swingType);
+        $this->assertEquals('X', $splitDice[1]->dice[1]->swingType);
         $this->assertEquals(3, $splitDice[0]->dice[0]->max);
+        $this->assertEquals(5, $splitDice[0]->dice[0]->swingValue);
         $this->assertEquals(3, $splitDice[0]->dice[1]->max);
+        $this->assertEquals(5, $splitDice[0]->dice[1]->swingValue);
         $this->assertEquals(2, $splitDice[1]->dice[0]->max);
+        $this->assertEquals(5, $splitDice[1]->dice[0]->swingValue);
         $this->assertEquals(2, $splitDice[1]->dice[1]->max);
+        $this->assertEquals(5, $splitDice[1]->dice[1]->swingValue);
         $this->assertEquals(2, $splitDice[0]->min);
         $this->assertEquals(6, $splitDice[0]->max);
         $this->assertEquals(2, $splitDice[1]->min);
         $this->assertEquals(4, $splitDice[1]->max);
+    }
+
+    /*
+     * @covers BMDieTwin::shrink
+     */
+    public function testShrink() {
+        $die = $this->object;
+        $die->init(array(99, 99));
+        $die->shrink();
+        $this->assertEquals(2*30, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*20, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*16, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*12, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*10, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*8, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*6, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*4, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*2, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*1, $die->max);
+        $die->shrink();
+        $this->assertEquals(2*1, $die->max);
+    }
+
+    /*
+     * @covers BMDieTwin::grow
+     */
+    public function testGrow() {
+        $die = $this->object;
+        $die->init(array(1, 1));
+        $die->grow();
+        $this->assertEquals(2*2, $die->max);
+        $die->grow();
+        $this->assertEquals(2*4, $die->max);
+        $die->grow();
+        $this->assertEquals(2*6, $die->max);
+        $die->grow();
+        $this->assertEquals(2*8, $die->max);
+        $die->grow();
+        $this->assertEquals(2*10, $die->max);
+        $die->grow();
+        $this->assertEquals(2*12, $die->max);
+        $die->grow();
+        $this->assertEquals(2*16, $die->max);
+        $die->grow();
+        $this->assertEquals(2*20, $die->max);
+        $die->grow();
+        $this->assertEquals(2*30, $die->max);
+        $die->grow();
+        $this->assertEquals(2*30, $die->max);
     }
 
     /*
@@ -577,4 +643,26 @@ class BMDieTwinTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($this->object->max, 21);
     }
 
+    /**
+     * @covers BMDieTwin::__clone
+     *
+     * @depends testInit
+     */
+    public function testClone_twin() {
+        $originalDie = new BMDieTwin;
+        $originalDie->init(array(5, 12), array());
+        $originalSubdie0 = $originalDie->dice[0];
+        $originalSubdie1 = $originalDie->dice[1];
+        $this->assertEquals(5, $originalSubdie0->max);
+        $this->assertEquals(12, $originalSubdie1->max);
+
+        $cloneDie = clone $originalDie;
+        $cloneSubdie0 = $cloneDie->dice[0];
+        $cloneSubdie1 = $cloneDie->dice[1];
+        $this->assertEquals(5, $cloneSubdie0->max);
+        $this->assertEquals(12, $cloneSubdie1->max);
+
+        $this->assertFalse($originalSubdie0 === $cloneSubdie0);
+        $this->assertFalse($originalSubdie1 === $cloneSubdie1);
+    }
 }

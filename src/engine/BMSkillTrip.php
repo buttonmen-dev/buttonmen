@@ -28,7 +28,7 @@ class BMSkillTrip extends BMSkill {
         }
 
         // trip dice don't contribute to initiative
-        $args['initiativeValue'] = 0;
+        $args['initiativeValue'] = -1;
     }
 
     public static function capture(&$args) {
@@ -47,6 +47,10 @@ class BMSkillTrip extends BMSkill {
         $defender->roll(TRUE);
 
         $defender->captured = ($defender->value <= $attacker->value);
+        if (!$defender->captured) {
+            $defender->remove_flag('WasJustCaptured');
+            $attacker->add_flag('JustPerformedUnsuccessfulAttack');
+        }
     }
 
     protected static function get_description() {

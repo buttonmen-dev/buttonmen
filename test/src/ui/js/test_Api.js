@@ -60,7 +60,8 @@ test("test_Api.parseApiPost_automatedApiCall", function(assert) {
   Api.automatedApiCall = true;
 
   // Api.getGameData calls Api.parseApiPost
-  Api.getGameData(1, 10, function() {
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
+  Api.getGameData(gameId, 10, function() {
     assert.equal(Api.game.load_status, 'ok',
       'getGameData should be a valid automated API call');
     start();
@@ -116,7 +117,7 @@ test("test_Api.getButtonData", function(assert) {
     assert.deepEqual(
       Api.button.list["Avis"],
       {
-        'buttonId': 268,
+        'buttonId': 256,
         'buttonName': 'Avis',
         'hasUnimplementedSkill': false,
         'recipe': '(4) (4) (10) (12) (X)',
@@ -297,7 +298,7 @@ test("test_Api.getActiveGamesData", function(assert) {
   Api.getActiveGamesData(function() {
     assert.equal(Api.active_games.load_status, 'ok',
          'Successfully loaded active games data');
-    assert.equal(Api.active_games.nGames, 15, 'Got expected number of active games');
+    assert.equal(Api.active_games.nGames, 16, 'Got expected number of active games');
     start();
   });
 });
@@ -305,7 +306,7 @@ test("test_Api.getActiveGamesData", function(assert) {
 test("test_Api.parseActiveGamesData", function(assert) {
   stop();
   Api.getActiveGamesData(function() {
-    assert.equal(Api.active_games.games.awaitingPlayer.length, 9,
+    assert.equal(Api.active_games.games.awaitingPlayer.length, 10,
           "expected number of games parsed as waiting for the active player");
     start();
   });
@@ -348,9 +349,10 @@ test("test_Api.parseUserPrefsData", function(assert) {
 
 test("test_Api.getGameData", function(assert) {
   stop();
-  Game.game = '1';
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
+  Game.game = gameId;
   Api.getGameData(Game.game, 10, function() {
-    assert.equal(Api.game.gameId, '1', "parseGameData() parsed gameId from API data");
+    assert.equal(Api.game.gameId, gameId, "parseGameData() parsed gameId from API data");
     assert.equal(Api.game.isParticipant, true, "parseGameData() set isParticipant based on API data");
     assert.equal(Api.game.playerIdx, 0, "parseGameData() set playerIdx based on API data");
     assert.equal(Api.game.opponentIdx, 1, "parseGameData() set opponentIdx based on API data");
@@ -363,9 +365,10 @@ test("test_Api.getGameData", function(assert) {
 
 test("test_Api.getGameData_nonplayer", function(assert) {
   stop();
-  Game.game = '10';
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice_nonplayer');
+  Game.game = gameId;
   Api.getGameData(Game.game, 10, function() {
-    assert.equal(Api.game.gameId, '10',
+    assert.equal(Api.game.gameId, gameId,
           "parseGameData() set gameId for nonparticipant");
     delete Game.game;
     start();
@@ -398,11 +401,12 @@ test("test_Api.getGameData_alllogs", function(assert) {
 // test any details of parsePlayerData()'s processing here
 test("test_Api.parseGamePlayerData", function(assert) {
   stop();
-  Game.game = '1';
+  var gameId = BMTestUtils.testGameId('frasquito_wiseman_specifydice');
+  Game.game = gameId;
   Api.getGameData(Game.game, 10, function() {
-    assert.deepEqual(Api.game.player.playerId, 1,
-              "player ID should be parsed from API response");
-    assert.deepEqual(Api.game.player.playerName, 'tester1',
+    assert.ok(Api.game.player.playerId,
+              "player ID should be set in API response");
+    assert.deepEqual(Api.game.player.playerName, 'responder001',
               "player name should be parsed from API response");
     assert.deepEqual(Api.game.player.waitingOnAction, true,
               "'waiting on action' status should be parsed from API response");
@@ -412,27 +416,27 @@ test("test_Api.parseGamePlayerData", function(assert) {
               "side score should be parsed from API response");
     assert.deepEqual(Api.game.player.gameScoreArray, {'W': 0, 'L': 0, 'D': 0, },
               "game score array should be parsed from API response");
-    assert.deepEqual(Api.game.player.lastActionTime, 0,
-              "last action time should be parsed from API response");
+    assert.ok(Api.game.player.lastActionTime,
+              "last action time is set in API response");
     assert.deepEqual(Api.game.player.hasDismissedGame, false,
               "'has dismissed game' should be parsed from API response");
     assert.deepEqual(Api.game.player.canStillWin, null,
               "'can still win' should be parsed from API response");
     assert.deepEqual(Api.game.player.button, {
-                'name': 'Avis',
-                'recipe': '(4) (4) (10) (12) (X)',
-                'artFilename': 'avis.png',
+                'name': 'Frasquito',
+                'recipe': '(4) (6) (8) (12) (2/20)',
+                'artFilename': 'BMdefaultRound.png',
               }, "recipe data should be parsed from API response");
     assert.deepEqual(Api.game.player.activeDieArray[0].description, '4-sided die',
               "die descriptions should be parsed");
-    assert.deepEqual(Api.game.player.activeDieArray[4].recipe, '(X)',
+    assert.deepEqual(Api.game.player.activeDieArray[4].recipe, '(2/20)',
               "player die recipe should be parsed correctly");
     assert.deepEqual(Api.game.player.capturedDieArray, [],
               "array of captured dice should be parsed");
     assert.deepEqual(
-      Api.game.player.swingRequestArray['X'],
-      {'min': 4, 'max': 20},
-      "swing request array should contain X entry with correct min/max");
+      Api.game.player.optRequestArray[4],
+      ['2', '20'],
+      "option request array should contain entry for (2/20)");
     delete Game.game;
     start();
   });

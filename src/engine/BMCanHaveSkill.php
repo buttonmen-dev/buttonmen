@@ -137,6 +137,8 @@ class BMCanHaveSkill {
             unset($this->hookList[$func][$key]);
         }
 
+        $this->run_hooks(__FUNCTION__, array('die' => &$this));
+
         return TRUE;
     }
 

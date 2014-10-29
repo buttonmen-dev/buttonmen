@@ -61,9 +61,6 @@ class BMDie extends BMCanHaveSkill {
     // $flagList is designed to contain various BMFlags
     protected $flagList = array();
 
-// This needs to be fixed to work properly within PHP's magic method semantics
-//
-// will need an init_from_db method, too (eventually)
     // Hackish: the caller can specify each skill as either a plain
     // value, "skill", or a key/value pair "ClassName" => "skill",
     // where the key is the class name which implements that skill.
@@ -71,8 +68,13 @@ class BMDie extends BMCanHaveSkill {
     // testing), and should never be used for the default BMSkill<skill>
     // set of skills.
     public function init($sides, array $skills = NULL) {
-        $this->min = 1;
-        $this->max = $sides;
+        if (0 == $sides) {
+            $this->min = 0;
+            $this->max = 0;
+        } else {
+            $this->min = 1;
+            $this->max = $sides;
+        }
 
         $this->add_multiple_skills($skills);
     }
@@ -141,7 +143,7 @@ class BMDie extends BMCanHaveSkill {
 
     public static function create($size, array $skills = NULL) {
         if (!is_numeric($size) || ($size != (int)$size) ||
-            $size < 1 || $size > 99) {
+            $size < 0 || $size > 99) {
             throw new UnexpectedValueException("Illegal die size: $size");
         }
 
@@ -180,7 +182,8 @@ class BMDie extends BMCanHaveSkill {
         $this->run_hooks('pre_roll', array('die' => $this,
                                            'isTriggeredByAttack' => $isTriggeredByAttack));
 
-        if ($this->doesReroll || !isset($this->value)) {
+        if (!isset($this->value) ||
+            ($this->doesReroll && !$this->has_flag('JustPerformedTripAttack'))) {
             $this->value = bm_rand($this->min, $this->max);
         }
 
@@ -259,7 +262,7 @@ class BMDie extends BMCanHaveSkill {
     }
 
     // Return die's initiative value.
-    // 0 means it doesn't count for initiative.
+    // Negative means it doesn't count for initiative.
     // "?" means it's a chance die.
 
     public function initiative_value() {
@@ -454,9 +457,11 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
 //
-// constant needs to hook this method to fix the die's value. Very
+// konstant needs to hook this method to fix the die's value. Very
 // little else will.
     public function split() {
+        // james: the die value must remain so that mighty/weak trigger correctly afterwards
+
         $newdie = clone $this;
 
         if ($newdie->max > 1) {
@@ -471,6 +476,32 @@ class BMDie extends BMCanHaveSkill {
         $this->run_hooks(__FUNCTION__, array('dice' => &$dice));
 
         return $dice;
+    }
+
+    // shrink() is intended to be used for weak dice
+    public function shrink() {
+        $dieSizes = self::grow_shrink_die_sizes();
+        rsort($dieSizes);
+
+        foreach ($dieSizes as $size) {
+            if ($size < $this->max) {
+                $this->max = $size;
+                return;
+            }
+        }
+    }
+
+    // grow() is intended to be used for mighty dice
+    public function grow() {
+        $dieSizes = self::grow_shrink_die_sizes();
+        sort($dieSizes);
+
+        foreach ($dieSizes as $size) {
+            if ($size > $this->max) {
+                $this->max = $size;
+                return;
+            }
+        }
     }
 
     public function get_recipe($addMaxvals = FALSE) {
@@ -655,7 +686,13 @@ class BMDie extends BMCanHaveSkill {
         return $typesList;
     }
 
+    // these are used for mood swing
     public static function standard_die_sizes() {
+        return array(1, 2, 4, 6, 8, 10, 12, 20, 30);
+    }
+
+    // these are used for Mighty and Weak
+    public static function grow_shrink_die_sizes() {
         return array(1, 2, 4, 6, 8, 10, 12, 16, 20, 30);
     }
 
@@ -898,8 +935,6 @@ class BMDie extends BMCanHaveSkill {
      *
      * Doesn't do anything for the base class, but subclasses will need to
      * clone their subdice.
-     *
-     * @return BMDie
      */
     public function __clone() {
     }
