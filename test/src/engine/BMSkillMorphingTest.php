@@ -96,7 +96,6 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
     /**
      * @covers BMSkillMorphing::capture
      * @covers BMSkillMorphing::create_morphing_clone_target
-     * @covers BMDie::cast_as_BMDie
      */
     public function testCapture_swing() {
         // normal morphing die capturing swing die
