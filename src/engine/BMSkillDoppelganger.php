@@ -20,7 +20,7 @@ class BMSkillDoppelganger extends BMSkillMorphing {
             return;
         }
 
-        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0], FALSE);
+        $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
 
         return $att;
     }

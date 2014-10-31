@@ -114,7 +114,8 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
         $newDie1 = BMSkillMorphing::capture($parArray);
 
         $this->assertEquals(5, $newDie1->max);
-        $this->assertNotInstanceOf('BMDieSwing', $newDie1);
+        $this->assertInstanceOf('BMDieSwing', $newDie1);
+        $this->assertEquals('X', $newDie1->swingType);
         $this->assertTrue($newDie1->has_skill('Morphing'));
         $this->assertTrue($newDie1->has_skill('Trip'));
         $this->assertFalse($newDie1->has_skill('Konstant'));
@@ -155,8 +156,10 @@ class BMSkillMorphingTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals(10, $newDie3->max);
         $this->assertInstanceOf('BMDieTwin', $newDie3);
-        $this->assertNotInstanceOf('BMDieSwing', $newDie3->dice[0]);
-        $this->assertNotInstanceOf('BMDieSwing', $newDie3->dice[1]);
+        $this->assertInstanceOf('BMDieSwing', $newDie3->dice[0]);
+        $this->assertEquals('X', $newDie3->dice[0]->swingType);
+        $this->assertInstanceOf('BMDieSwing', $newDie3->dice[1]);
+        $this->assertEquals('X', $newDie3->dice[1]->swingType);
         $this->assertTrue($newDie3->has_skill('Morphing'));
         $this->assertTrue($newDie3->has_skill('Trip'));
         $this->assertFalse($newDie3->has_skill('Konstant'));
