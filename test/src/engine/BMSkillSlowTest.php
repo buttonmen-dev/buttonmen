@@ -31,6 +31,6 @@ class BMSkillSlowTest extends PHPUnit_Framework_TestCase {
         $a = 15;
         $b = array('initiativeValue' => &$a);
         $this->object->initiative_value($b);
-        $this->assertEquals(0, $a);
+        $this->assertEquals(-1, $a);
     }
 }
