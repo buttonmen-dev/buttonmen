@@ -23,7 +23,6 @@ class BMSkillMorphing extends BMSkill {
 
         $att = self::create_morphing_clone_target($args['caller'], $args['defenders'][0]);
         $att->copy_skills_from_die($args['caller']);
-        $att->add_flag('forceReportDieSize');
 
         return $att;
     }

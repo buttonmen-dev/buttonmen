@@ -610,7 +610,8 @@ class BMDie extends BMCanHaveSkill {
     }
 
     public function forceReportDieSize() {
-        return ($this->has_skill('Mood') || $this->has_skill('Mad'));
+        return ($this->has_skill('Mood') || $this->has_skill('Mad') ||
+                $this->has_flag('HasJustMorphed'));
     }
 
     public function cast_as_BMDie() {
