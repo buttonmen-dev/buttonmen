@@ -42,7 +42,7 @@ be_captured
   Radioactive
 split
   Berserk
-doesSkipSwingRequest
+does_skip_swing_request
   Auxiliary
   Reserve
 react_to_initiative

@@ -9,10 +9,10 @@
  * This class contains code specific to the auxiliary die skill
  */
 class BMSkillAuxiliary extends BMSkill {
-    public static $hooked_methods = array('doesSkipSwingRequest');
+    public static $hooked_methods = array('does_skip_swing_request');
 
-    public static function doesSkipSwingRequest() {
-        return 'doesSkipSwingRequest';
+    public static function does_skip_swing_request() {
+        return 'does_skip_swing_request';
     }
 
     protected static function get_description() {

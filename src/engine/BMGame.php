@@ -1793,7 +1793,7 @@ class BMGame {
                 array_fill(0, $this->nPlayers, array());
         }
 
-        if (!$die->doesSkipSwingRequest()) {
+        if (!$die->does_skip_swing_request()) {
             $this->swingRequestArrayArray[$playerIdx][$swingtype][] = $die;
         }
     }
