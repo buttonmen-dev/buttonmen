@@ -74,8 +74,7 @@ class BMSkillRadioactive extends BMSkill {
         return 'These dice split, or "decay", when attacking another single die. ' .
                'A radioactive die will then decay into two as-close-to-equal-sized-as-possible ' .
                'dice that add up to its original size. If a radioactive die is attacked by a ' .
-               'single die, then the die that attacked it decays in the same way. Note, this ' .
-               'is a change from previous behavior of splitting on any attack. All dice that ' .
+               'single die, then the die that attacked it decays in the same way. All dice that ' .
                'decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), ' .
                '[and, not yet implemented: Jolt(J), and Time and Space(^)]. For example, a sX! ' .
                '(Shadow Turbo X Swing) with 15 sides that shadow attacked a radioactive die would ' .
@@ -86,7 +85,7 @@ class BMSkillRadioactive extends BMSkill {
     protected static function get_interaction_descriptions() {
         return array(
             'Berserk' => 'Dice with both Radioactive and Berserk skills making a berserk attack ' .
-                         'on a SINGLE die are first replaced with non-berserk dice with half ' .
+                         'targeting a SINGLE die are first replaced with non-berserk dice with half ' .
                          'their previous number of sides, rounding up, and then decay',
             'Morphing' => 'Dice with both Radioactive and Morphing skills first morph into the ' .
                           'size of the captured die, and then decay',

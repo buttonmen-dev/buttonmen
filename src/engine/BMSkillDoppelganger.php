@@ -20,6 +20,7 @@ class BMSkillDoppelganger extends BMSkillMorphing {
             return;
         }
 
+        // replace the attacking die here in place to allow radioactive to trigger correctly
         $attacker = $args['caller'];
         $game = $attacker->ownerObject;
         $activeDieArrayArray = $game->activeDieArrayArray;

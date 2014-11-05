@@ -172,8 +172,8 @@ class BMDieTwin extends BMDie {
 
         foreach ($this->dice as $dieIdx => &$die) {
             $splitDieArray = $die->split();
-            $this->dice[$dieIdx] = $splitDieArray[$dieIdx%2];
-            $newdie->dice[$dieIdx] = $splitDieArray[($dieIdx + 1)%2];
+            $this->dice[$dieIdx] = $splitDieArray[$dieIdx % 2];
+            $newdie->dice[$dieIdx] = $splitDieArray[($dieIdx + 1) % 2];
         }
 
         $this->recalc_max_min();

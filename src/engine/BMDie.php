@@ -564,7 +564,7 @@ class BMDie extends BMCanHaveSkill {
         return ($this->max - $this->value);
     }
 
-    /** function that returns the die index in activeDieArray of the owning player
+    /** function that looks for the current object (BMDie) within the owning player's activeDieArray
      *
      * @return mixed Index of die in activeDieArray of the owning player
      */
@@ -577,6 +577,7 @@ class BMDie extends BMCanHaveSkill {
 
         $activeDieArrayArray = $owner->activeDieArrayArray;
 
+        // search for the exact instance of the current BMDie requires TRUE as third argument
         $dieIdx = array_search(
             $this,
             $activeDieArrayArray[$this->playerIdx],
