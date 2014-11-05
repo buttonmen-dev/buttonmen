@@ -409,6 +409,35 @@ class BMGameActionTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * @covers BMGameAction::friendly_message_attack()
+     */
+    public function test_friendly_message_attack_unsuccessful_trip_with_mood_target() {
+        $this->object = new BMGameAction(BMGameState::START_TURN, 'attack', 1, array(
+            'attackType' => 'Trip',
+            'preAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):1'),
+                ),
+                'defender' => array(
+                    array('recipe' => '(X=4)?', 'min' => 1, 'max' => 4, 'value' => 3, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(X=4)?:3'),
+                ),
+            ),
+            'postAttackDice' => array(
+                'attacker' => array(
+                    array('recipe' => 't(2)', 'min' => 1, 'max' => 2, 'value' => 1, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => 't(2):1', 'valueAfterTripAttack' => 1),
+                ),
+                'defender' => array(
+                    array('recipe' => '(X=20)?', 'min' => 1, 'max' => 20, 'value' => 5, 'doesReroll' => TRUE, 'captured' => FALSE, 'recipeStatus' => '(X=20)?:5'),
+                ),
+            )
+        ));
+        $this->assertEquals(
+            "gameaction01 performed Trip attack using [t(2):1] against [(X=4)?:3]; Attacker t(2) rerolled 1 => 1; Defender (X=4)? recipe changed to (X=20)?, rerolled 3 => 5, was not captured",
+            $this->object->friendly_message($this->playerIdNames, 0, 0)
+        );
+    }
+
+    /**
      * @covers BMGameAction::friendly_message_choose_die_values()
      */
     public function test_friendly_message_choose_die_values() {
