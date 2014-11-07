@@ -168,6 +168,7 @@ class BMDieTwin extends BMDie {
     }
 
     public function split() {
+        unset($this->value);
         $newdie = clone $this;
 
         foreach ($this->dice as $dieIdx => &$die) {

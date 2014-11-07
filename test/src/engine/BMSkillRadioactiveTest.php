@@ -313,8 +313,8 @@ class BMSkillRadioactiveTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(8, $game->activeDieArrayArray[0][2]->max);
         $this->assertEquals(30, $game->activeDieArrayArray[0][3]->max);
 
-        $this->assertEquals(9, $game->activeDieArrayArray[0][1]->value);
-        $this->assertEquals(9, $game->activeDieArrayArray[0][2]->value);
+        $this->assertFalse(isset($game->activeDieArrayArray[0][1]->value));
+        $this->assertFalse(isset($game->activeDieArrayArray[0][2]->value));
 
         $this->assertFalse($game->activeDieArrayArray[0][1]->has_skill('Radioactive'));
         $this->assertFalse($game->activeDieArrayArray[0][2]->has_skill('Radioactive'));

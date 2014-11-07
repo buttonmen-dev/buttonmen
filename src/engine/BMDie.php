@@ -431,7 +431,7 @@ class BMDie extends BMCanHaveSkill {
 // some undesireable behavior there, but I cannot think
 // what. Radioactive removes T&S.)
     public function split() {
-        // james: the die value must remain so that mighty/weak trigger correctly afterwards
+        unset($this->value);
         $newdie = clone $this;
 
         // james: reinstate the commented condition if we want a 1-sider to split into
