@@ -775,7 +775,8 @@ class BMDie extends BMCanHaveSkill {
             )
            ) {
             throw new InvalidArgumentException(
-                'Invalid die value.'
+                'Invalid die value: ' . $value . ' is not between ' .
+                $this->min . ' and ' . $this->max . ' for die ' . $this
             );
         }
         $this->value = $value;
