@@ -2242,7 +2242,7 @@ Game.gamePlayerStatus = function(player, reversed, game_active) {
       var capturedDieDescs = [];
 
       $.each(Api.game[player].capturedDieArray, function(i, die) {
-        capturedDieDescs.push(Game.dieRecipeText(die));
+        capturedDieDescs.push(Game.dieRecipeText(die, true));
       });
       capturedDieText = capturedDieDescs.join(', ');
     } else {
@@ -2488,7 +2488,7 @@ Game.playerOpponentHeaderRow = function(label, field) {
 // If the recipe doesn't contain (sides), assume there are swing
 // or option dice in the recipe, so we need to specify the current
 // number of sides
-Game.dieRecipeText = function(die) {
+Game.dieRecipeText = function(die, allowShowValues) {
   var dieRecipeText = die.recipe;
   if (die.sides) {
     var lparen = die.recipe.indexOf('(');
@@ -2517,7 +2517,9 @@ Game.dieRecipeText = function(die) {
     }
   }
 
-  if (('properties' in die) &&
+  if ((typeof allowShowValues !== 'undefined') &&
+      (allowShowValues === true) &&
+      ('properties' in die) &&
       ('indexOf' in die.properties) &&
       (die.properties.indexOf('ValueRelevantToScore') >= 0)) {
     dieRecipeText += ':' + die.value;

@@ -164,6 +164,11 @@ class responderTest extends PHPUnit_Framework_TestCase {
                     'Trip' => 'Dice with both Queer and Trip skills always determine their success or failure at Trip Attacking via a Power Attack',
                 ),
             ),
+            'Radioactive' => array(
+                'code' => '%',
+                'description' => 'These dice split, or "decay", when attacking another single die. A radioactive die will then decay into two as-close-to-equal-sized-as-possible dice that add up to its original size. If a radioactive die is attacked by a single die, then the die that attacked it decays in the same way. All dice that decay lose the following skills: Radioactive (%), Turbo Swing(!), Mood Swing(?), [and, not yet implemented: Jolt(J), and Time and Space(^)]. For example, a sX! (Shadow Turbo X Swing) with 15 sides that shadow attacked a radioactive die would decay into a s7 and a s8 sided die losing the turbo skill. A %p(7,13) on a power attack would decay into a p(3,7) and a p(4,6) losing the radioactive skill.',
+                'interacts' => array(),
+            ),
             'Reserve' => array(
                 'code' => 'r',
                 'description' => 'These are extra dice which may be brought into play part way through a game. Each time you lose a round you may choose another of your Reserve Dice; it will then be in play for all future rounds.',
@@ -4404,6 +4409,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 05 - responder004 performed Skill attack using [f(8):3,(10):1] against [(4):4]
         // [(2):1, (4):4, s(10):2, s(20):20, (X=4):4, s(X=4):3] <= [(4):3, f(6):3, f(8):3, (10):1, (12):9, s(X=16):1]
+        // verify simple Default Skill attack
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(4, 5),
@@ -4433,6 +4439,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 06 - responder003 performed Power attack using [(2):1] against [s(X=16):1]
         // [(2):1, s(10):2, s(20):20, (X=4):4, s(X=4):3] => [(4):3, f(6):3, f(8):4, (10):5, (12):9, s(X=16):1]
+        // verify Default Power attack in one-on-one Power/Skill case
         $this->verify_api_submitTurn(
             array(2),
             'responder003 performed Power attack using [(2):1] against [s(X=16):1]; Defender s(X=16) was captured; Attacker (2) rerolled 1 => 2. ',
@@ -4461,6 +4468,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 07 - responder004 performed Power attack using [(10):5] against [(X=4):4]
         // [(2):1, s(10):2, s(20):20, (X=4):4, s(X=4):3] <= [(4):3, f(6):3, f(8):4, (10):5, (12):9]
+        // verify simple Default Power attack
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(1),
@@ -4491,6 +4499,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 08 - responder003 performed Shadow attack using [s(10):2] against [(12):9]
         // [(2):1, s(10):2, s(20):20, s(X=4):3] => [(4):3, f(6):3, f(8):4, (10):1, (12):9]
+        // verify simple Default Shadow attack
         $this->verify_api_submitTurn(
             array(4),
             'responder003 performed Shadow attack using [s(10):2] against [(12):9]; Defender (12) was captured; Attacker s(10) rerolled 2 => 4. ',
@@ -4524,7 +4533,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(3, 2),
             'responder004 performed Skill attack using [f(6):3,(10):1] against [s(10):4]; Defender s(10) was captured; Attacker f(6) rerolled 3 => 3; Attacker (10) rerolled 1 => 2. ',
             $retval, array(array(0, 1), array(1, 1), array(1, 3)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         // expected changes
@@ -4554,7 +4563,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1),
             'responder003 performed Power attack using [(2):2] against [(10):2]; Defender (10) was captured; Attacker (2) rerolled 2 => 1. ',
             $retval, array(array(0, 0), array(1, 3)),
-            $gameId, 1, 'Default', 0, 1, '');
+            $gameId, 1, 'Power', 0, 1, '');
 
         // expected changes
         $expData['activePlayerIdx'] = 1;
@@ -4584,7 +4593,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(7),
             'responder004 performed Power attack using [f(8):4] against [s(X=4):3]; Defender s(X=4) was captured; Attacker f(8) rerolled 4 => 7. responder003 passed. ',
             $retval, array(array(0, 2), array(1, 2)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         // expected changes
@@ -4618,7 +4627,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(8, 2, 2, 1, 9, 4, 1, 4, 4, 8, 1, 8),
             'responder004 performed Power attack using [f(8):7] against [(2):1]; Defender (2) was captured; Attacker f(8) rerolled 7 => 8. responder003 passed. responder004 passed. End of round: responder003 won round 1 (48 vs. 33). ',
             $retval, array(array(0, 0), array(1, 2)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         // expected changes
@@ -4748,7 +4757,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(2, 7),
             'responder004 performed Skill attack using [(10):1,(12):8] against [s(20):9]; Defender s(20) was captured; Attacker (10) rerolled 1 => 2; Attacker (12) rerolled 8 => 7. ',
             $retval, array(array(0, 3), array(1, 3), array(1, 4)),
-            $gameId, 2, 'Default', 1, 0, '');
+            $gameId, 2, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         // expected changes
@@ -4925,6 +4934,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 03 - responder004 performed Shadow attack using [q(X=20):1] against [(12):5]
         // [(4):3, (6):1, (12):5, (X=5):3] <= [q(T=2):1, q(W=8):8, q(X=20):1, q(Z=28):22]
+        // verify simple Default Shadow attack with a die which has the Queer skill
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(17),
@@ -4957,7 +4967,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(5),
             'responder003 performed Power attack using [(6):1] against [q(T=2):1]; Defender q(T=2) was captured; Attacker (6) rerolled 1 => 5. ',
             $retval, array(array(0, 1), array(1, 0)),
-            $gameId, 1, 'Default', 0, 1, '');
+            $gameId, 1, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -4980,6 +4990,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 05 - responder004 performed Power attack using [q(W=8):8] against [(6):5] (responder003 passed)
         // [(4):3, (6):5, (X=5):3] <= [q(W=8):8, q(X=20):17, q(Z=28):22]
+        // verify simple Default Power attack using a die which has the Queer skill
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(7),
@@ -5013,7 +5024,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(17),
             'responder004 performed Power attack using [q(Z=28):22] against [(X=5):3]; Defender (X=5) was captured; Attacker q(Z=28) rerolled 22 => 17. responder003 passed. responder004 passed. End of round: responder004 won round 1 (51 vs. 4). ',
             $retval, array(array(0, 1), array(1, 2)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameState'] = 'CHOOSE_RESERVE_DICE';
@@ -5131,7 +5142,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(6, 5),
             'responder003 performed Skill attack using [(12):4,(20):8] against [q(Z=28):12]; Defender q(Z=28) was captured; Attacker (12) rerolled 4 => 6; Attacker (20) rerolled 8 => 5. ',
             $retval, array(array(0, 2), array(0, 4), array(1, 3)),
-            $gameId, 2, 'Default', 0, 1, '');
+            $gameId, 2, 'Skill', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -5155,6 +5166,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 10 - responder004 performed Power attack using [q(T=2):2] against [(6):2]
         // [(4):4, (6):2, (12):6, (X=20):7, (20):5] <= [q(T=2):2, q(W=8):5, q(X=20):20]
+        // verify Default Power attack in a one-on-one Power/Skill scenario with a die which has the Queer skill
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(2),
@@ -5189,7 +5201,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(18),
             'responder003 performed Power attack using [(20):5] against [q(W=8):5]; Defender q(W=8) was captured; Attacker (20) rerolled 5 => 18. ',
             $retval, array(array(0, 3), array(1, 1)),
-            $gameId, 2, 'Default', 0, 1, '');
+            $gameId, 2, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -5218,7 +5230,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(16),
             'responder004 performed Power attack using [q(X=20):20] against [(12):6]; Defender (12) was captured; Attacker q(X=20) rerolled 20 => 16. ',
             $retval, array(array(0, 1), array(1, 1)),
-            $gameId, 2, 'Default', 1, 0, '');
+            $gameId, 2, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
@@ -5246,7 +5258,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(8),
             'responder003 performed Power attack using [(20):18] against [q(X=20):16]; Defender q(X=20) was captured; Attacker (20) rerolled 18 => 8. responder004 passed. ',
             $retval, array(array(0, 2), array(1, 1)),
-            $gameId, 2, 'Default', 0, 1, '');
+            $gameId, 2, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['roundScore'] = 78;
         $expData['playerDataArray'][1]['roundScore'] = 19;
@@ -5273,7 +5285,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(20),
             'responder003 performed Power attack using [(X=20):7] against [q(T=2):2]; Defender q(T=2) was captured; Attacker (X=20) rerolled 7 => 20. End of round: responder003 won round 2 (80 vs. 18). ',
             $retval, array(array(0, 1), array(1, 0)),
-            $gameId, 2, 'Default', 0, 1, '');
+            $gameId, 2, 'Power', 0, 1, '');
 
         $expData['gameState'] = 'CHOOSE_RESERVE_DICE';
         $expData['roundNumber'] = 3;
@@ -5403,7 +5415,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 4, 3, 1, 10),
             'responder004 performed Skill attack using [q(T=2):2,q(W=4):4,q(X=4):1,q(Z=4):1,z(S=20):4] against [(X=20):12]; Defender (X=20) was captured; Attacker q(T=2) rerolled 2 => 1; Attacker q(W=4) rerolled 4 => 4; Attacker q(X=4) rerolled 1 => 3; Attacker q(Z=4) rerolled 1 => 1; Attacker z(S=20) rerolled 4 => 10. ',
             $retval, array(array(0, 3), array(1, 0), array(1, 1), array(1, 2), array(1, 3), array(1, 4)),
-            $gameId, 3, 'Default', 1, 0, '');
+            $gameId, 3, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
@@ -5435,7 +5447,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(12),
             'responder003 performed Power attack using [(12):1] against [q(Z=4):1]; Defender q(Z=4) was captured; Attacker (12) rerolled 1 => 12. ',
             $retval, array(array(0, 2), array(1, 3)),
-            $gameId, 3, 'Default', 0, 1, '');
+            $gameId, 3, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -5612,7 +5624,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1),
             'responder003 performed Power attack using [(10):5] against [q(Z=4):4]; Defender q(Z=4) was captured; Attacker (10) rerolled 5 => 1. ',
             $retval, array(array(0, 4), array(1, 3)),
-            $gameId, 4, 'Default', 0, 1, '');
+            $gameId, 4, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -5635,6 +5647,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 24 - responder004 performed Speed attack using [z(S=20):12] against [(4):1,(X=20):10,(10):1]
         // [(4):1, (6):4, (12):4, (X=20):10, (10):1, (20):17] <= [q(T=2):2, q(W=4):2, q(X=4):2, z(S=20):12]
+        // verify simple Default Speed attack
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(1),
@@ -5673,7 +5686,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(14),
             'responder003 performed Power attack using [(20):17] against [q(T=2):2]; Defender q(T=2) was captured; Attacker (20) rerolled 17 => 14. ',
             $retval, array(array(0, 2), array(1, 0)),
-            $gameId, 4, 'Default', 0, 1, '');
+            $gameId, 4, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -5704,7 +5717,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1, 4),
             'responder004 performed Skill attack using [q(W=4):2,q(X=4):2] against [(12):4]; Defender (12) was captured; Attacker q(W=4) rerolled 2 => 1; Attacker q(X=4) rerolled 2 => 4. ',
             $retval, array(array(0, 1), array(1, 0), array(1, 1)),
-            $gameId, 4, 'Default', 1, 0, '');
+            $gameId, 4, 'Skill', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
@@ -5734,7 +5747,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(2),
             'responder003 performed Power attack using [(6):4] against [q(W=4):1]; Defender q(W=4) was captured; Attacker (6) rerolled 4 => 2. ',
             $retval, array(array(0, 0), array(1, 0)),
-            $gameId, 4, 'Default', 0, 1, '');
+            $gameId, 4, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -5763,7 +5776,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(1),
             'responder004 performed Power attack using [q(X=4):4] against [(6):2]; Defender (6) was captured; Attacker q(X=4) rerolled 4 => 1. ',
             $retval, array(array(0, 0), array(1, 0)),
-            $gameId, 4, 'Default', 1, 0, '');
+            $gameId, 4, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = TRUE;
@@ -5977,6 +5990,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 06 - responder004 performed Berserk attack using [B(U=30):29] against [(10):4,(12):3,(20):18,(W=7,W=7):4]; Defender (10) was captured; Defender (12) was captured; Defender (20) was captured; Defender (W=7,W=7) was captured; Attacker B(U=30) changed size from 30 to 15 sides, recipe changed from B(U=30) to (15), rerolled 29 => 5
         // [(6,6):7, (10):4, (12):3, (20):18, (W=7,W=7):4] <= [(4):1, (8):7, (12):7, (16):15, B(U=30):29]
+        // verify simple Default Berserk attack
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(5),
@@ -6017,7 +6031,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(3, 6),
             'responder003 performed Power attack using [(6,6):7] against [(U=15):5]; Defender (U=15) was captured; Attacker (6,6) rerolled 7 => 9. ',
             $retval, array(array(0, 0), array(1, 4)),
-            $gameId, 1, 'Default', 0, 1, '');
+            $gameId, 1, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -6048,7 +6062,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(7, 5, 3, 10, 8, 1, 3, 5, 5, 1, 3),
             'responder004 performed Power attack using [(16):15] against [(6,6):9]; Defender (6,6) was captured; Attacker (16) rerolled 15 => 7. End of round: responder004 won round 1 (88 vs. 15). ',
             $retval, array(array(0, 0), array(1, 3)),
-            $gameId, 1, 'Default', 1, 0, '');
+            $gameId, 1, 'Power', 1, 0, '');
         $_SESSION = $this->mock_test_user_login('responder003');
 
         $expData['gameState'] = 'SPECIFY_DICE';
@@ -6218,6 +6232,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         ////////////////////
         // Move 02 - responder004 performed Power attack using [h(X=7):5] against [H(12):5]
         // [H(1,10):9, H(12):5, H(20):18, H(20):13] <= [(6):5, (8):5, (10):4, (12,12):13, h(X=7):5]
+        // verify Default Power attack in a one-on-one Power/Skill scenario with size-changing skills in play
         $_SESSION = $this->mock_test_user_login('responder004');
         $this->verify_api_submitTurn(
             array(1),
@@ -6250,7 +6265,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
             array(2, 12),
             'responder003 performed Power attack using [H(1,10):9] against [(10):4]; Defender (10) was captured; Attacker H(1,10) changed size from 11 to 14 sides, recipe changed from H(1,10) to H(2,12), rerolled 9 => 14. ',
             $retval, array(array(0, 0), array(1, 2)),
-            $gameId, 1, 'Default', 0, 1, '');
+            $gameId, 1, 'Power', 0, 1, '');
 
         $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
         $expData['playerDataArray'][1]['waitingOnAction'] = TRUE;
@@ -6330,6 +6345,7 @@ class responderTest extends PHPUnit_Framework_TestCase {
         // Move 01 - responder003 performed Trip attack using [nt(5):3] against [(20):9] (unsuccessfully)
         // [pB(17):9, Fo(13):12, q(11):2, gc(7):2, nt(5):3] => [(20):9, (20):13, (20):20, (20):15]
         // Trip attacker and defender rerolls, then idle ornery Fo(13) rerolls
+        // verify simple Default Trip attack
         $this->verify_api_submitTurn(
             array(4, 18, 12),
             "responder003 performed Trip attack using [nt(5):3] against [(20):9]; Attacker nt(5) rerolled 3 => 4; Defender (20) rerolled 9 => 18, was not captured. responder003's idle ornery dice rerolled at end of turn: Fo(13) rerolled 12 => 12. ",
@@ -6518,5 +6534,75 @@ class responderTest extends PHPUnit_Framework_TestCase {
             $retval, array(array(0, 0), array(0, 1), array(0, 3), array(1, 0)),
             $gameId, 1, 'Skill', 0, 1, '');
 
+    }
+
+
+    /**
+     * @depends test_request_savePlayerInfo
+     *
+     * This test reproduced an internal error bug affecting Anti-Llama
+     * 0. Start a game with responder003 playing Anti-Llama and responder004 playing Anti-Llama
+     *    c2 won initiative for round 1. Initial die values: c1 rolled [%Ho(1,2):2, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):7], c2 rolled [%Ho(1,2):3, %Ho(1,4):2, %Ho(1,6):3, %Ho(1,8):2].
+     * 1. responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2].
+     */
+    public function test_interface_game_016() {
+
+        // responder003 is the POV player, so if you need to fake
+        // login as a different player e.g. to submit an attack, always
+        // return to responder003 as soon as you've done so
+        $this->game_number = 16;
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+
+        ////////////////////
+        // initial game setup
+        // Each button rolls 4 twin dice (8 rolls/button = 16 rolls total)
+        $gameId = $this->verify_api_createGame(
+            array(1, 1, 1, 3, 1, 4, 1, 6, 1, 2, 1, 1, 1, 2, 1, 1),
+            'responder003', 'responder004', 'Anti-Llama', 'Anti-Llama', 3);
+
+        $expData = $this->generate_init_expected_data_array($gameId, 'responder003', 'responder004', 3, 'START_TURN');
+        $expData['gameSkillsInfo'] = $this->get_skill_info(array('Mighty', 'Ornery', 'Radioactive'));
+        $expData['playerDataArray'][0]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['playerDataArray'][1]['button'] = array('name' => 'Anti-Llama', 'recipe' => '%Ho(1,2) %Ho(1,4) %Ho(1,6) %Ho(1,8)', 'artFilename' => 'BMdefaultRound.png');
+        $expData['activePlayerIdx'] = 1;
+        $expData['playerWithInitiativeIdx'] = 1;
+        $expData['validAttackTypeArray'] = array('Power', 'Skill');
+        $expData['playerDataArray'][0]['waitingOnAction'] = FALSE;
+        $expData['playerDataArray'][0]['roundScore'] = 12.0;
+        $expData['playerDataArray'][1]['roundScore'] = 12.0;
+        $expData['playerDataArray'][0]['sideScore'] = 0.0;
+        $expData['playerDataArray'][1]['sideScore'] = 0.0;
+        $expData['playerDataArray'][0]['activeDieArray'] = array(
+            array('value' => 2, 'sides' => 3, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,2)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 2 sides)'),
+            array('value' => 4, 'sides' => 5, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,4)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 4 sides)'),
+            array('value' => 5, 'sides' => 7, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 6 sides)'),
+            array('value' => 7, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)'),
+        );
+        $expData['playerDataArray'][1]['activeDieArray'] = array(
+            array('value' => 3, 'sides' => 3, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,2)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 2 sides)'),
+            array('value' => 2, 'sides' => 5, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,4)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 4 sides)'),
+            array('value' => 3, 'sides' => 7, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,6)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 6 sides)'),
+            array('value' => 2, 'sides' => 9, 'skills' => array('Radioactive', 'Mighty', 'Ornery'), 'properties' => array(), 'recipe' => '%Ho(1,8)', 'description' => 'Radioactive Mighty Ornery Twin Die (with 1 and 8 sides)'),
+        );
+        array_unshift($expData['gameActionLog'], array('timestamp' => 'TIMESTAMP', 'player' => '', 'message' => 'responder004 won initiative for round 1. Initial die values: responder003 rolled [%Ho(1,2):2, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):7], responder004 rolled [%Ho(1,2):3, %Ho(1,4):2, %Ho(1,6):3, %Ho(1,8):2].'));
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
+
+
+        ////////////////////
+        // Move 01 - responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2]
+        // [%Ho(1,2):2, %Ho(1,4):4, %Ho(1,6):5, %Ho(1,8):7] <= [%Ho(1,2):3, %Ho(1,4):2, %Ho(1,6):3, %Ho(1,8):2]
+
+        // this should require 10 dice to be rolled
+        $_SESSION = $this->mock_test_user_login('responder004');
+        $this->verify_api_submitTurn(
+            array(1, 1, 0, 1, 1, 1, 1, 1, 1, 1),
+            'responder004 performed Power attack using [%Ho(1,2):3] against [%Ho(1,2):2]; Defender %Ho(1,2) was captured; Attacker %Ho(1,2) showing 3 split into Ho(2,2) showing 2 and Ho(1,2) showing 1. responder004\'s idle ornery dice rerolled at end of turn: %Ho(1,4) changed size from 5 to 8 sides, recipe changed from %Ho(1,4) to %Ho(2,6), rerolled 2 => 2; %Ho(1,6) changed size from 7 to 10 sides, recipe changed from %Ho(1,6) to %Ho(2,8), rerolled 3 => 2; %Ho(1,8) changed size from 9 to 12 sides, recipe changed from %Ho(1,8) to %Ho(2,10), rerolled 2 => 2. ',
+            $retval, array(array(0, 0), array(1, 0)),
+            $gameId, 1, 'Power', 1, 0, '');
+        $_SESSION = $this->mock_test_user_login('responder003');
+
+        $retval = $this->verify_api_loadGameData($expData, $gameId, 10);
     }
 }
