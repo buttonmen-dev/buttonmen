@@ -16,14 +16,12 @@ class BMSkillWeak extends BMSkill {
 
         // don't trigger skill when initially rolling the die into the button
         if (!($die->ownerObject instanceof BMGame)) {
-            var_dump('drop 1');
             return;
         }
 
         // don't trigger skill when rolling the die into the beginning of the round
         if (!isset($die->value) &&
             ($die->ownerObject->turnNumberInRound <= 1)) {
-            var_dump('drop 2');
             return;
         }
 

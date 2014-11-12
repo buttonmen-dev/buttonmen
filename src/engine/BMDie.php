@@ -479,6 +479,7 @@ class BMDie extends BMCanHaveSkill {
         foreach ($dieSizes as $size) {
             if ($size > $this->max) {
                 $this->max = $size;
+                $this->min = 1;  // deal explicitly with the possibility of 0-siders
                 return;
             }
         }
